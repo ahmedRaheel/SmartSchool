@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction;
 
@@ -25,10 +26,10 @@ public sealed class PredictionClient(
         CancellationToken cancellationToken)
     {
         var client =
-            httpClientFactory.CreateClient("ml");
+            httpClientFactory.CreateClient(ApplicationConstants.MachineLearningHttpClient);
 
         using var response = await client.PostAsJsonAsync(
-            "/v1/predictions/grade",
+            ExternalServiceRoutes.GradePrediction,
             request,
             cancellationToken);
 

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Workflow;
 using FluentValidation;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
 
@@ -64,7 +66,7 @@ public static class UpdateWorkflowDefinition
             if (entity is null)
             {
                 return Result<WorkflowDefinition>.Failure(
-                    Error.NotFound("WorkflowDefinition was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowDefinition))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateWorkflowDefinition
             if (duplicateCode)
             {
                 return Result<WorkflowDefinition>.Failure(
-                    Error.Conflict(
-                        $"A WorkflowDefinition with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(WorkflowDefinition), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateWorkflowDefinition
                     return result.ToHttpResult();
                 })
             .WithName("UpdateWorkflowDefinition")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

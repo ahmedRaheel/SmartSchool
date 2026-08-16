@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Tenancy;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 
@@ -26,7 +28,7 @@ public static class DeleteTenant
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Tenant was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Tenant))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteTenant
                     return result.ToHttpResult();
                 })
             .WithName("DeleteTenant")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.TimetableEntry;
 
@@ -26,7 +28,7 @@ public static class DeleteTimetableEntry
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("TimetableEntry was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TimetableEntry))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteTimetableEntry
                     return result.ToHttpResult();
                 })
             .WithName("DeleteTimetableEntry")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

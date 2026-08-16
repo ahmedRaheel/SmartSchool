@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 
@@ -25,7 +27,7 @@ public static class GetPredictionModelById
             if (entity is null)
             {
                 return Result<PredictionModel>.Failure(
-                    Error.NotFound("PredictionModel was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PredictionModel))));
             }
 
             return Result<PredictionModel>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetPredictionModelById
                     return result.ToHttpResult();
                 })
             .WithName("GetPredictionModelById")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

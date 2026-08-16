@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
 
@@ -60,8 +62,7 @@ public static class CreateStudentIntervention
             if (codeExists)
             {
                 return Result<StudentIntervention>.Failure(
-                    Error.Conflict(
-                        $"A StudentIntervention with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StudentIntervention), request.Code)));
             }
 
             var entity = new StudentIntervention
@@ -84,7 +85,7 @@ public static class CreateStudentIntervention
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiprediction/student-intervention",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-intervention"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStudentIntervention
                     return result.ToHttpResult();
                 })
             .WithName("CreateStudentIntervention")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

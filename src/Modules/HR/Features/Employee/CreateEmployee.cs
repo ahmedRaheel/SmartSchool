@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Employee;
 
@@ -60,8 +62,7 @@ public static class CreateEmployee
             if (codeExists)
             {
                 return Result<Employee>.Failure(
-                    Error.Conflict(
-                        $"A Employee with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Employee), request.Code)));
             }
 
             var entity = new Employee
@@ -84,7 +85,7 @@ public static class CreateEmployee
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/hr/employee",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "employee"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateEmployee
                     return result.ToHttpResult();
                 })
             .WithName("CreateEmployee")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

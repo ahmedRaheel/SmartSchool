@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Tenancy;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Subscription;
 
@@ -25,7 +27,7 @@ public static class GetSubscriptionById
             if (entity is null)
             {
                 return Result<Subscription>.Failure(
-                    Error.NotFound("Subscription was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Subscription))));
             }
 
             return Result<Subscription>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetSubscriptionById
                     return result.ToHttpResult();
                 })
             .WithName("GetSubscriptionById")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

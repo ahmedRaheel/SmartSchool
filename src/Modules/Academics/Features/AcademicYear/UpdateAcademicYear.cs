@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.AcademicYear;
 
@@ -64,7 +66,7 @@ public static class UpdateAcademicYear
             if (entity is null)
             {
                 return Result<AcademicYear>.Failure(
-                    Error.NotFound("AcademicYear was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AcademicYear))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateAcademicYear
             if (duplicateCode)
             {
                 return Result<AcademicYear>.Failure(
-                    Error.Conflict(
-                        $"A AcademicYear with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AcademicYear), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateAcademicYear
                     return result.ToHttpResult();
                 })
             .WithName("UpdateAcademicYear")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.TimetableEntry;
 
@@ -37,7 +39,7 @@ public static class GetTimetableEntryPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/academics/timetable-entry",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "timetable-entry"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetTimetableEntryPage
                     return result.ToHttpResult();
                 })
             .WithName("GetTimetableEntryPage")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

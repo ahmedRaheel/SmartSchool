@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Examinations;
 using FluentValidation;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.StudentExamResult;
 
@@ -60,8 +62,7 @@ public static class CreateStudentExamResult
             if (codeExists)
             {
                 return Result<StudentExamResult>.Failure(
-                    Error.Conflict(
-                        $"A StudentExamResult with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StudentExamResult), request.Code)));
             }
 
             var entity = new StudentExamResult
@@ -84,7 +85,7 @@ public static class CreateStudentExamResult
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/examinations/student-exam-result",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-exam-result"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStudentExamResult
                     return result.ToHttpResult();
                 })
             .WithName("CreateStudentExamResult")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

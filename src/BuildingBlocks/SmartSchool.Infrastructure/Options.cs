@@ -1,8 +1,10 @@
+using SmartSchool.SharedKernel.Constants;
+
 namespace SmartSchool.Infrastructure.Options;
 
 public sealed class DatabaseOptions
 {
-    public const string SectionName = "Database";
+    public const string SectionName = ConfigurationSections.Database;
 
     public string ConnectionString { get; init; } = string.Empty;
 
@@ -11,18 +13,18 @@ public sealed class DatabaseOptions
 
 public sealed class IdentityOptions
 {
-    public const string SectionName = "Identity";
+    public const string SectionName = ConfigurationSections.Identity;
 
     public string Authority { get; init; } = string.Empty;
 
-    public string Audience { get; init; } = "smartschool-api";
+    public string Audience { get; init; } = AuthenticationConstants.DefaultAudience;
 
     public bool RequireHttpsMetadata { get; init; } = true;
 }
 
 public sealed class KafkaOptions
 {
-    public const string SectionName = "Kafka";
+    public const string SectionName = ConfigurationSections.Kafka;
 
     public bool Enabled { get; init; } = true;
 
@@ -35,16 +37,16 @@ public sealed class KafkaOptions
 
 public sealed class HangfireOptions
 {
-    public const string SectionName = "Hangfire";
+    public const string SectionName = ConfigurationSections.Hangfire;
 
     public bool Enabled { get; init; } = true;
 
-    public string DashboardPath { get; init; } = "/ops/jobs";
+    public string DashboardPath { get; init; } = ApiRoutes.OperationsJobs;
 }
 
 public sealed class AiOptions
 {
-    public const string SectionName = "AI";
+    public const string SectionName = ConfigurationSections.ArtificialIntelligence;
 
     public string Provider { get; init; } = "OpenAI";
 
@@ -59,7 +61,7 @@ public sealed class AiOptions
 
 public sealed class MachineLearningOptions
 {
-    public const string SectionName = "ML";
+    public const string SectionName = ConfigurationSections.MachineLearning;
 
     public string BaseUrl { get; init; } = "http://localhost:8000";
 

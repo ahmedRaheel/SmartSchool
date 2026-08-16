@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Tenancy;
 using FluentValidation;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Subscription;
 
@@ -64,7 +66,7 @@ public static class UpdateSubscription
             if (entity is null)
             {
                 return Result<Subscription>.Failure(
-                    Error.NotFound("Subscription was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Subscription))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateSubscription
             if (duplicateCode)
             {
                 return Result<Subscription>.Failure(
-                    Error.Conflict(
-                        $"A Subscription with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Subscription), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateSubscription
                     return result.ToHttpResult();
                 })
             .WithName("UpdateSubscription")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.StudentGuardian;
 
@@ -25,7 +27,7 @@ public static class GetStudentGuardianById
             if (entity is null)
             {
                 return Result<StudentGuardian>.Failure(
-                    Error.NotFound("StudentGuardian was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentGuardian))));
             }
 
             return Result<StudentGuardian>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStudentGuardianById
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentGuardianById")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

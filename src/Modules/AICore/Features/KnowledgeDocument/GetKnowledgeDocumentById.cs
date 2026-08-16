@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 
@@ -25,7 +27,7 @@ public static class GetKnowledgeDocumentById
             if (entity is null)
             {
                 return Result<KnowledgeDocument>.Failure(
-                    Error.NotFound("KnowledgeDocument was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeDocument))));
             }
 
             return Result<KnowledgeDocument>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetKnowledgeDocumentById
                     return result.ToHttpResult();
                 })
             .WithName("GetKnowledgeDocumentById")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

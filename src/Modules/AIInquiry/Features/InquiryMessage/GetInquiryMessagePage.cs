@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.InquiryMessage;
 
@@ -37,7 +39,7 @@ public static class GetInquiryMessagePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiinquiry/inquiry-message",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "inquiry-message"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetInquiryMessagePage
                     return result.ToHttpResult();
                 })
             .WithName("GetInquiryMessagePage")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

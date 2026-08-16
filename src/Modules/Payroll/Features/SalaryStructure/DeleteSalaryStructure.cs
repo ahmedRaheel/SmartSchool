@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 
@@ -26,7 +28,7 @@ public static class DeleteSalaryStructure
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("SalaryStructure was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SalaryStructure))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteSalaryStructure
                     return result.ToHttpResult();
                 })
             .WithName("DeleteSalaryStructure")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

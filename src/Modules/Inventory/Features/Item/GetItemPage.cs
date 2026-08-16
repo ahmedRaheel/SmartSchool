@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.Item;
 
@@ -37,7 +39,7 @@ public static class GetItemPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/inventory/item",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "item"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetItemPage
                     return result.ToHttpResult();
                 })
             .WithName("GetItemPage")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

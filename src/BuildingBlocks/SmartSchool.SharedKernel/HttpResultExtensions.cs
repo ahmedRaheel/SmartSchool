@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.SharedKernel;
 
@@ -13,12 +14,12 @@ public static class HttpResultExtensions
 
         return result.Error.Code switch
         {
-            "validation" => Results.BadRequest(result.Error),
-            "not_found" => Results.NotFound(result.Error),
-            "conflict" => Results.Conflict(result.Error),
-            "unauthorized" => Results.Unauthorized(),
+            ErrorCodes.Validation => Results.BadRequest(result.Error),
+            ErrorCodes.NotFound => Results.NotFound(result.Error),
+            ErrorCodes.Conflict => Results.Conflict(result.Error),
+            ErrorCodes.Unauthorized => Results.Unauthorized(),
             _ => Results.Problem(
-                title: "Request failed",
+                title: ErrorMessages.RequestFailed,
                 detail: result.Error.Message)
         };
     }

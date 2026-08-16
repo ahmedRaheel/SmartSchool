@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Term;
 
@@ -37,7 +39,7 @@ public static class GetTermPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/academics/term",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "term"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetTermPage
                     return result.ToHttpResult();
                 })
             .WithName("GetTermPage")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

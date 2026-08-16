@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIParent;
 using FluentValidation;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentConversation;
 
@@ -60,8 +62,7 @@ public static class CreateParentConversation
             if (codeExists)
             {
                 return Result<ParentConversation>.Failure(
-                    Error.Conflict(
-                        $"A ParentConversation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ParentConversation), request.Code)));
             }
 
             var entity = new ParentConversation
@@ -84,7 +85,7 @@ public static class CreateParentConversation
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiparent/parent-conversation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "parent-conversation"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateParentConversation
                     return result.ToHttpResult();
                 })
             .WithName("CreateParentConversation")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

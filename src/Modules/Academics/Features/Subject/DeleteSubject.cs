@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Subject;
 
@@ -26,7 +28,7 @@ public static class DeleteSubject
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Subject was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Subject))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteSubject
                     return result.ToHttpResult();
                 })
             .WithName("DeleteSubject")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

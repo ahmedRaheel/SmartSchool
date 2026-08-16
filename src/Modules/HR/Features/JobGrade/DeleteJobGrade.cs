@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.JobGrade;
 
@@ -26,7 +28,7 @@ public static class DeleteJobGrade
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("JobGrade was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(JobGrade))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteJobGrade
                     return result.ToHttpResult();
                 })
             .WithName("DeleteJobGrade")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

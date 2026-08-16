@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using FluentValidation;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 
@@ -60,8 +62,7 @@ public static class CreateGeneratedQuiz
             if (codeExists)
             {
                 return Result<GeneratedQuiz>.Failure(
-                    Error.Conflict(
-                        $"A GeneratedQuiz with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(GeneratedQuiz), request.Code)));
             }
 
             var entity = new GeneratedQuiz
@@ -84,7 +85,7 @@ public static class CreateGeneratedQuiz
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aitutor/generated-quiz",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "generated-quiz"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateGeneratedQuiz
                     return result.ToHttpResult();
                 })
             .WithName("CreateGeneratedQuiz")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

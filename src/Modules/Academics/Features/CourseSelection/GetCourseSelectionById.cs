@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.CourseSelection;
 
@@ -25,7 +27,7 @@ public static class GetCourseSelectionById
             if (entity is null)
             {
                 return Result<CourseSelection>.Failure(
-                    Error.NotFound("CourseSelection was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CourseSelection))));
             }
 
             return Result<CourseSelection>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetCourseSelectionById
                     return result.ToHttpResult();
                 })
             .WithName("GetCourseSelectionById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

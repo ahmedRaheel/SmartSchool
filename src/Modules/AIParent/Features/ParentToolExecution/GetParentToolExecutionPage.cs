@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIParent;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 
@@ -37,7 +39,7 @@ public static class GetParentToolExecutionPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiparent/parent-tool-execution",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "parent-tool-execution"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetParentToolExecutionPage
                     return result.ToHttpResult();
                 })
             .WithName("GetParentToolExecutionPage")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

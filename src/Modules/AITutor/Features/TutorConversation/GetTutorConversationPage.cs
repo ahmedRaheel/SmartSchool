@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.TutorConversation;
 
@@ -37,7 +39,7 @@ public static class GetTutorConversationPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aitutor/tutor-conversation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "tutor-conversation"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetTutorConversationPage
                     return result.ToHttpResult();
                 })
             .WithName("GetTutorConversationPage")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

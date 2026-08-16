@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.AssignmentSubmission;
 
@@ -25,7 +27,7 @@ public static class GetAssignmentSubmissionById
             if (entity is null)
             {
                 return Result<AssignmentSubmission>.Failure(
-                    Error.NotFound("AssignmentSubmission was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AssignmentSubmission))));
             }
 
             return Result<AssignmentSubmission>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetAssignmentSubmissionById
                     return result.ToHttpResult();
                 })
             .WithName("GetAssignmentSubmissionById")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

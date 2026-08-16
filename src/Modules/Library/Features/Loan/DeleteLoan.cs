@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Loan;
 
@@ -26,7 +28,7 @@ public static class DeleteLoan
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Loan was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Loan))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteLoan
                     return result.ToHttpResult();
                 })
             .WithName("DeleteLoan")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

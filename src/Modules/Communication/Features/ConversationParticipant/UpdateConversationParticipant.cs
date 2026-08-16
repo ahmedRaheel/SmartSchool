@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using FluentValidation;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.ConversationParticipant;
 
@@ -64,7 +66,7 @@ public static class UpdateConversationParticipant
             if (entity is null)
             {
                 return Result<ConversationParticipant>.Failure(
-                    Error.NotFound("ConversationParticipant was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ConversationParticipant))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateConversationParticipant
             if (duplicateCode)
             {
                 return Result<ConversationParticipant>.Failure(
-                    Error.Conflict(
-                        $"A ConversationParticipant with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ConversationParticipant), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateConversationParticipant
                     return result.ToHttpResult();
                 })
             .WithName("UpdateConversationParticipant")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

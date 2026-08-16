@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.StudentExamResult;
 
@@ -25,7 +27,7 @@ public static class GetStudentExamResultById
             if (entity is null)
             {
                 return Result<StudentExamResult>.Failure(
-                    Error.NotFound("StudentExamResult was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentExamResult))));
             }
 
             return Result<StudentExamResult>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStudentExamResultById
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentExamResultById")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

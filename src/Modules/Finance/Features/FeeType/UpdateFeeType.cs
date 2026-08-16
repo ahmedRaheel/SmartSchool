@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.FeeType;
 
@@ -64,7 +66,7 @@ public static class UpdateFeeType
             if (entity is null)
             {
                 return Result<FeeType>.Failure(
-                    Error.NotFound("FeeType was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeType))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateFeeType
             if (duplicateCode)
             {
                 return Result<FeeType>.Failure(
-                    Error.Conflict(
-                        $"A FeeType with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(FeeType), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateFeeType
                     return result.ToHttpResult();
                 })
             .WithName("UpdateFeeType")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

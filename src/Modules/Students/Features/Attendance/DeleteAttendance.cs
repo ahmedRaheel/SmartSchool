@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.Attendance;
 
@@ -26,7 +28,7 @@ public static class DeleteAttendance
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Attendance was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Attendance))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteAttendance
                     return result.ToHttpResult();
                 })
             .WithName("DeleteAttendance")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

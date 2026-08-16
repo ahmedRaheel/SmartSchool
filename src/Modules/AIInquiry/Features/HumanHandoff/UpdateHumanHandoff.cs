@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using FluentValidation;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 
@@ -64,7 +66,7 @@ public static class UpdateHumanHandoff
             if (entity is null)
             {
                 return Result<HumanHandoff>.Failure(
-                    Error.NotFound("HumanHandoff was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(HumanHandoff))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateHumanHandoff
             if (duplicateCode)
             {
                 return Result<HumanHandoff>.Failure(
-                    Error.Conflict(
-                        $"A HumanHandoff with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(HumanHandoff), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateHumanHandoff
                     return result.ToHttpResult();
                 })
             .WithName("UpdateHumanHandoff")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

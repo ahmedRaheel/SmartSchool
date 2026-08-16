@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 
@@ -60,8 +62,7 @@ public static class CreateToolDefinition
             if (codeExists)
             {
                 return Result<ToolDefinition>.Failure(
-                    Error.Conflict(
-                        $"A ToolDefinition with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ToolDefinition), request.Code)));
             }
 
             var entity = new ToolDefinition
@@ -84,7 +85,7 @@ public static class CreateToolDefinition
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aicore/tool-definition",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "tool-definition"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateToolDefinition
                     return result.ToHttpResult();
                 })
             .WithName("CreateToolDefinition")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

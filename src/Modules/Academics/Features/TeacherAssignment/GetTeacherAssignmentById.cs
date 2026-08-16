@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.TeacherAssignment;
 
@@ -25,7 +27,7 @@ public static class GetTeacherAssignmentById
             if (entity is null)
             {
                 return Result<TeacherAssignment>.Failure(
-                    Error.NotFound("TeacherAssignment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeacherAssignment))));
             }
 
             return Result<TeacherAssignment>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetTeacherAssignmentById
                     return result.ToHttpResult();
                 })
             .WithName("GetTeacherAssignmentById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

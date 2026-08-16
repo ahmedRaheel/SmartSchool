@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.TimetableEntry;
 
@@ -25,7 +27,7 @@ public static class GetTimetableEntryById
             if (entity is null)
             {
                 return Result<TimetableEntry>.Failure(
-                    Error.NotFound("TimetableEntry was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TimetableEntry))));
             }
 
             return Result<TimetableEntry>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetTimetableEntryById
                     return result.ToHttpResult();
                 })
             .WithName("GetTimetableEntryById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.Inquiry;
 
@@ -37,7 +39,7 @@ public static class GetInquiryPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/admissions/inquiry",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "inquiry"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetInquiryPage
                     return result.ToHttpResult();
                 })
             .WithName("GetInquiryPage")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

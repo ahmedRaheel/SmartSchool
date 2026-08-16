@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Job;
 
@@ -25,7 +27,7 @@ public static class GetJobById
             if (entity is null)
             {
                 return Result<Job>.Failure(
-                    Error.NotFound("Job was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Job))));
             }
 
             return Result<Job>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetJobById
                     return result.ToHttpResult();
                 })
             .WithName("GetJobById")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

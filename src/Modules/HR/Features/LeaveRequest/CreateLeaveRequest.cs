@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 
@@ -60,8 +62,7 @@ public static class CreateLeaveRequest
             if (codeExists)
             {
                 return Result<LeaveRequest>.Failure(
-                    Error.Conflict(
-                        $"A LeaveRequest with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(LeaveRequest), request.Code)));
             }
 
             var entity = new LeaveRequest
@@ -84,7 +85,7 @@ public static class CreateLeaveRequest
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/hr/leave-request",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "leave-request"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateLeaveRequest
                     return result.ToHttpResult();
                 })
             .WithName("CreateLeaveRequest")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

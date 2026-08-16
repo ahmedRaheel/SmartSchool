@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeCollection;
 
@@ -26,7 +28,7 @@ public static class DeleteKnowledgeCollection
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("KnowledgeCollection was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeCollection))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteKnowledgeCollection
                     return result.ToHttpResult();
                 })
             .WithName("DeleteKnowledgeCollection")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

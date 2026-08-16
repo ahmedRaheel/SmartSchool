@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.School;
 
@@ -25,7 +27,7 @@ public static class GetSchoolById
             if (entity is null)
             {
                 return Result<School>.Failure(
-                    Error.NotFound("School was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(School))));
             }
 
             return Result<School>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetSchoolById
                     return result.ToHttpResult();
                 })
             .WithName("GetSchoolById")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

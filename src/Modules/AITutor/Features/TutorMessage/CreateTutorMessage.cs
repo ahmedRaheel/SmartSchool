@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using FluentValidation;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.TutorMessage;
 
@@ -60,8 +62,7 @@ public static class CreateTutorMessage
             if (codeExists)
             {
                 return Result<TutorMessage>.Failure(
-                    Error.Conflict(
-                        $"A TutorMessage with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(TutorMessage), request.Code)));
             }
 
             var entity = new TutorMessage
@@ -84,7 +85,7 @@ public static class CreateTutorMessage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aitutor/tutor-message",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "tutor-message"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateTutorMessage
                     return result.ToHttpResult();
                 })
             .WithName("CreateTutorMessage")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

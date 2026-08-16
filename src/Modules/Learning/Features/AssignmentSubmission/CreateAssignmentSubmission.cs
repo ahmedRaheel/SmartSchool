@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Learning;
 using FluentValidation;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.AssignmentSubmission;
 
@@ -60,8 +62,7 @@ public static class CreateAssignmentSubmission
             if (codeExists)
             {
                 return Result<AssignmentSubmission>.Failure(
-                    Error.Conflict(
-                        $"A AssignmentSubmission with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AssignmentSubmission), request.Code)));
             }
 
             var entity = new AssignmentSubmission
@@ -84,7 +85,7 @@ public static class CreateAssignmentSubmission
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/learning/assignment-submission",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "assignment-submission"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateAssignmentSubmission
                     return result.ToHttpResult();
                 })
             .WithName("CreateAssignmentSubmission")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

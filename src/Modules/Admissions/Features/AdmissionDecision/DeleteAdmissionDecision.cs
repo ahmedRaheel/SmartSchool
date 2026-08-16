@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 
@@ -26,7 +28,7 @@ public static class DeleteAdmissionDecision
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("AdmissionDecision was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AdmissionDecision))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteAdmissionDecision
                     return result.ToHttpResult();
                 })
             .WithName("DeleteAdmissionDecision")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

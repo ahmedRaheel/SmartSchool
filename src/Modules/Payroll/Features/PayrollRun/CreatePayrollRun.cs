@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.PayrollRun;
 
@@ -60,8 +62,7 @@ public static class CreatePayrollRun
             if (codeExists)
             {
                 return Result<PayrollRun>.Failure(
-                    Error.Conflict(
-                        $"A PayrollRun with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(PayrollRun), request.Code)));
             }
 
             var entity = new PayrollRun
@@ -84,7 +85,7 @@ public static class CreatePayrollRun
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/payroll/payroll-run",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "payroll-run"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreatePayrollRun
                     return result.ToHttpResult();
                 })
             .WithName("CreatePayrollRun")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

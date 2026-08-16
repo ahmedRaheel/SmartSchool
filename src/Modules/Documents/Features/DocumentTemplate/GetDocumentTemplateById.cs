@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.DocumentTemplate;
 
@@ -25,7 +27,7 @@ public static class GetDocumentTemplateById
             if (entity is null)
             {
                 return Result<DocumentTemplate>.Failure(
-                    Error.NotFound("DocumentTemplate was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(DocumentTemplate))));
             }
 
             return Result<DocumentTemplate>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetDocumentTemplateById
                     return result.ToHttpResult();
                 })
             .WithName("GetDocumentTemplateById")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

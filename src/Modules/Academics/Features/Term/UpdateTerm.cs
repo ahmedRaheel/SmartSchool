@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Term;
 
@@ -64,7 +66,7 @@ public static class UpdateTerm
             if (entity is null)
             {
                 return Result<Term>.Failure(
-                    Error.NotFound("Term was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Term))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateTerm
             if (duplicateCode)
             {
                 return Result<Term>.Failure(
-                    Error.Conflict(
-                        $"A Term with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Term), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateTerm
                     return result.ToHttpResult();
                 })
             .WithName("UpdateTerm")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

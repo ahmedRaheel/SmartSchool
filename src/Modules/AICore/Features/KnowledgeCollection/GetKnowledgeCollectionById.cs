@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeCollection;
 
@@ -25,7 +27,7 @@ public static class GetKnowledgeCollectionById
             if (entity is null)
             {
                 return Result<KnowledgeCollection>.Failure(
-                    Error.NotFound("KnowledgeCollection was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeCollection))));
             }
 
             return Result<KnowledgeCollection>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetKnowledgeCollectionById
                     return result.ToHttpResult();
                 })
             .WithName("GetKnowledgeCollectionById")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

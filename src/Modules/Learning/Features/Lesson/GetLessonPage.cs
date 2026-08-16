@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.Lesson;
 
@@ -37,7 +39,7 @@ public static class GetLessonPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/learning/lesson",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "lesson"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetLessonPage
                     return result.ToHttpResult();
                 })
             .WithName("GetLessonPage")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

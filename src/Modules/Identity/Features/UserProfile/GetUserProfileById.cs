@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Identity;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.UserProfile;
 
@@ -25,7 +27,7 @@ public static class GetUserProfileById
             if (entity is null)
             {
                 return Result<UserProfile>.Failure(
-                    Error.NotFound("UserProfile was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(UserProfile))));
             }
 
             return Result<UserProfile>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetUserProfileById
                     return result.ToHttpResult();
                 })
             .WithName("GetUserProfileById")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

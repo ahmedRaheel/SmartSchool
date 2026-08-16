@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Position;
 
@@ -64,7 +66,7 @@ public static class UpdatePosition
             if (entity is null)
             {
                 return Result<Position>.Failure(
-                    Error.NotFound("Position was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Position))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdatePosition
             if (duplicateCode)
             {
                 return Result<Position>.Failure(
-                    Error.Conflict(
-                        $"A Position with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Position), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdatePosition
                     return result.ToHttpResult();
                 })
             .WithName("UpdatePosition")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Transport;
 using FluentValidation;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Route;
 
@@ -64,7 +66,7 @@ public static class UpdateRoute
             if (entity is null)
             {
                 return Result<Route>.Failure(
-                    Error.NotFound("Route was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Route))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateRoute
             if (duplicateCode)
             {
                 return Result<Route>.Failure(
-                    Error.Conflict(
-                        $"A Route with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Route), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateRoute
                     return result.ToHttpResult();
                 })
             .WithName("UpdateRoute")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

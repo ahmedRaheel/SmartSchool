@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Scholarship;
 
@@ -60,8 +62,7 @@ public static class CreateScholarship
             if (codeExists)
             {
                 return Result<Scholarship>.Failure(
-                    Error.Conflict(
-                        $"A Scholarship with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Scholarship), request.Code)));
             }
 
             var entity = new Scholarship
@@ -84,7 +85,7 @@ public static class CreateScholarship
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/finance/scholarship",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "scholarship"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateScholarship
                     return result.ToHttpResult();
                 })
             .WithName("CreateScholarship")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

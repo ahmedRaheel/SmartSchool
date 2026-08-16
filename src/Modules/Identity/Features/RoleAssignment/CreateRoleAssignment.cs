@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Identity;
 using FluentValidation;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 
@@ -60,8 +62,7 @@ public static class CreateRoleAssignment
             if (codeExists)
             {
                 return Result<RoleAssignment>.Failure(
-                    Error.Conflict(
-                        $"A RoleAssignment with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(RoleAssignment), request.Code)));
             }
 
             var entity = new RoleAssignment
@@ -84,7 +85,7 @@ public static class CreateRoleAssignment
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/identity/role-assignment",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "role-assignment"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateRoleAssignment
                     return result.ToHttpResult();
                 })
             .WithName("CreateRoleAssignment")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

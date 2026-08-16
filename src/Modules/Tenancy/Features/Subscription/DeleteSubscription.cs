@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Tenancy;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Subscription;
 
@@ -26,7 +28,7 @@ public static class DeleteSubscription
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Subscription was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Subscription))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteSubscription
                     return result.ToHttpResult();
                 })
             .WithName("DeleteSubscription")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

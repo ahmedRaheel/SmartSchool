@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Interview;
 
@@ -60,8 +62,7 @@ public static class CreateInterview
             if (codeExists)
             {
                 return Result<Interview>.Failure(
-                    Error.Conflict(
-                        $"A Interview with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Interview), request.Code)));
             }
 
             var entity = new Interview
@@ -84,7 +85,7 @@ public static class CreateInterview
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/hr/interview",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "interview"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateInterview
                     return result.ToHttpResult();
                 })
             .WithName("CreateInterview")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

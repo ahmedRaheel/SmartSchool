@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 
@@ -26,7 +28,7 @@ public static class DeleteInquiryConversation
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("InquiryConversation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryConversation))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteInquiryConversation
                     return result.ToHttpResult();
                 })
             .WithName("DeleteInquiryConversation")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

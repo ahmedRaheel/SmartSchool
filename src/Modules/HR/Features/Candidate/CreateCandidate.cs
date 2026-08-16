@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Candidate;
 
@@ -60,8 +62,7 @@ public static class CreateCandidate
             if (codeExists)
             {
                 return Result<Candidate>.Failure(
-                    Error.Conflict(
-                        $"A Candidate with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Candidate), request.Code)));
             }
 
             var entity = new Candidate
@@ -84,7 +85,7 @@ public static class CreateCandidate
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/hr/candidate",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "candidate"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateCandidate
                     return result.ToHttpResult();
                 })
             .WithName("CreateCandidate")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

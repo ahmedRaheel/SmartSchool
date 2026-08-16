@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Workflow;
 using FluentValidation;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.Approval;
 
@@ -60,8 +62,7 @@ public static class CreateApproval
             if (codeExists)
             {
                 return Result<Approval>.Failure(
-                    Error.Conflict(
-                        $"A Approval with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Approval), request.Code)));
             }
 
             var entity = new Approval
@@ -84,7 +85,7 @@ public static class CreateApproval
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/workflow/approval",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "approval"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateApproval
                     return result.ToHttpResult();
                 })
             .WithName("CreateApproval")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

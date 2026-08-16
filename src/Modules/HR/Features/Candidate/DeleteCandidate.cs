@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Candidate;
 
@@ -26,7 +28,7 @@ public static class DeleteCandidate
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Candidate was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Candidate))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteCandidate
                     return result.ToHttpResult();
                 })
             .WithName("DeleteCandidate")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

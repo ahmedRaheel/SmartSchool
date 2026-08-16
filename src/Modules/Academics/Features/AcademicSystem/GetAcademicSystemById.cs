@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.AcademicSystem;
 
@@ -25,7 +27,7 @@ public static class GetAcademicSystemById
             if (entity is null)
             {
                 return Result<AcademicSystem>.Failure(
-                    Error.NotFound("AcademicSystem was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AcademicSystem))));
             }
 
             return Result<AcademicSystem>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetAcademicSystemById
                     return result.ToHttpResult();
                 })
             .WithName("GetAcademicSystemById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

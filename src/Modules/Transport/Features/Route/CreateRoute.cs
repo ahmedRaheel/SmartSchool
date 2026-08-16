@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Transport;
 using FluentValidation;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Route;
 
@@ -60,8 +62,7 @@ public static class CreateRoute
             if (codeExists)
             {
                 return Result<Route>.Failure(
-                    Error.Conflict(
-                        $"A Route with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Route), request.Code)));
             }
 
             var entity = new Route
@@ -84,7 +85,7 @@ public static class CreateRoute
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/transport/route",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "route"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateRoute
                     return result.ToHttpResult();
                 })
             .WithName("CreateRoute")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

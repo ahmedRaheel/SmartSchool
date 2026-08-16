@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.TimetableEntry;
 
@@ -64,7 +66,7 @@ public static class UpdateTimetableEntry
             if (entity is null)
             {
                 return Result<TimetableEntry>.Failure(
-                    Error.NotFound("TimetableEntry was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TimetableEntry))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateTimetableEntry
             if (duplicateCode)
             {
                 return Result<TimetableEntry>.Failure(
-                    Error.Conflict(
-                        $"A TimetableEntry with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(TimetableEntry), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateTimetableEntry
                     return result.ToHttpResult();
                 })
             .WithName("UpdateTimetableEntry")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

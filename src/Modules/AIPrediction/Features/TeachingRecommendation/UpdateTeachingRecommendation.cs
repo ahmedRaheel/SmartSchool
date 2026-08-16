@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 
@@ -64,7 +66,7 @@ public static class UpdateTeachingRecommendation
             if (entity is null)
             {
                 return Result<TeachingRecommendation>.Failure(
-                    Error.NotFound("TeachingRecommendation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeachingRecommendation))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateTeachingRecommendation
             if (duplicateCode)
             {
                 return Result<TeachingRecommendation>.Failure(
-                    Error.Conflict(
-                        $"A TeachingRecommendation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(TeachingRecommendation), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateTeachingRecommendation
                     return result.ToHttpResult();
                 })
             .WithName("UpdateTeachingRecommendation")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

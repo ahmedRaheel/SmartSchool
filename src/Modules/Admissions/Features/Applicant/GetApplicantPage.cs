@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.Applicant;
 
@@ -37,7 +39,7 @@ public static class GetApplicantPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/admissions/applicant",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "applicant"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetApplicantPage
                     return result.ToHttpResult();
                 })
             .WithName("GetApplicantPage")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

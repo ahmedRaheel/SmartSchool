@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Term;
 
@@ -60,8 +62,7 @@ public static class CreateTerm
             if (codeExists)
             {
                 return Result<Term>.Failure(
-                    Error.Conflict(
-                        $"A Term with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Term), request.Code)));
             }
 
             var entity = new Term
@@ -84,7 +85,7 @@ public static class CreateTerm
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/term",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "term"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateTerm
                     return result.ToHttpResult();
                 })
             .WithName("CreateTerm")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

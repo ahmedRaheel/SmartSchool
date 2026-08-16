@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.ExamSubject;
 
@@ -37,7 +39,7 @@ public static class GetExamSubjectPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/examinations/exam-subject",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "exam-subject"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetExamSubjectPage
                     return result.ToHttpResult();
                 })
             .WithName("GetExamSubjectPage")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

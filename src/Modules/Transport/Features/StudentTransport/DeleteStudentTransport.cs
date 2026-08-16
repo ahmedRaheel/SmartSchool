@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 
@@ -26,7 +28,7 @@ public static class DeleteStudentTransport
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("StudentTransport was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentTransport))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteStudentTransport
                     return result.ToHttpResult();
                 })
             .WithName("DeleteStudentTransport")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

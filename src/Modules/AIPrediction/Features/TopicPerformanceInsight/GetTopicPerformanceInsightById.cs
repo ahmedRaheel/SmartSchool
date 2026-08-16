@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
 
@@ -25,7 +27,7 @@ public static class GetTopicPerformanceInsightById
             if (entity is null)
             {
                 return Result<TopicPerformanceInsight>.Failure(
-                    Error.NotFound("TopicPerformanceInsight was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TopicPerformanceInsight))));
             }
 
             return Result<TopicPerformanceInsight>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetTopicPerformanceInsightById
                     return result.ToHttpResult();
                 })
             .WithName("GetTopicPerformanceInsightById")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

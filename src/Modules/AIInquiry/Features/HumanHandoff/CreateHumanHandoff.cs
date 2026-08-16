@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using FluentValidation;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 
@@ -60,8 +62,7 @@ public static class CreateHumanHandoff
             if (codeExists)
             {
                 return Result<HumanHandoff>.Failure(
-                    Error.Conflict(
-                        $"A HumanHandoff with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(HumanHandoff), request.Code)));
             }
 
             var entity = new HumanHandoff
@@ -84,7 +85,7 @@ public static class CreateHumanHandoff
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiinquiry/human-handoff",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "human-handoff"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateHumanHandoff
                     return result.ToHttpResult();
                 })
             .WithName("CreateHumanHandoff")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

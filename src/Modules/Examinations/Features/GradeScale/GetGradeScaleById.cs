@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
@@ -25,7 +27,7 @@ public static class GetGradeScaleById
             if (entity is null)
             {
                 return Result<GradeScale>.Failure(
-                    Error.NotFound("GradeScale was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeScale))));
             }
 
             return Result<GradeScale>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetGradeScaleById
                     return result.ToHttpResult();
                 })
             .WithName("GetGradeScaleById")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

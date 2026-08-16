@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using FluentValidation;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.Message;
 
@@ -64,7 +66,7 @@ public static class UpdateMessage
             if (entity is null)
             {
                 return Result<Message>.Failure(
-                    Error.NotFound("Message was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Message))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateMessage
             if (duplicateCode)
             {
                 return Result<Message>.Failure(
-                    Error.Conflict(
-                        $"A Message with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Message), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateMessage
                     return result.ToHttpResult();
                 })
             .WithName("UpdateMessage")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Term;
 
@@ -26,7 +28,7 @@ public static class DeleteTerm
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Term was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Term))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteTerm
                     return result.ToHttpResult();
                 })
             .WithName("DeleteTerm")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

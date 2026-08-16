@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeCollection;
 
@@ -64,7 +66,7 @@ public static class UpdateKnowledgeCollection
             if (entity is null)
             {
                 return Result<KnowledgeCollection>.Failure(
-                    Error.NotFound("KnowledgeCollection was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeCollection))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateKnowledgeCollection
             if (duplicateCode)
             {
                 return Result<KnowledgeCollection>.Failure(
-                    Error.Conflict(
-                        $"A KnowledgeCollection with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(KnowledgeCollection), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateKnowledgeCollection
                     return result.ToHttpResult();
                 })
             .WithName("UpdateKnowledgeCollection")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

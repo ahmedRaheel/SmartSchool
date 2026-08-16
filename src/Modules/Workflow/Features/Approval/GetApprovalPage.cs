@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Workflow;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.Approval;
 
@@ -37,7 +39,7 @@ public static class GetApprovalPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/workflow/approval",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "approval"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetApprovalPage
                     return result.ToHttpResult();
                 })
             .WithName("GetApprovalPage")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

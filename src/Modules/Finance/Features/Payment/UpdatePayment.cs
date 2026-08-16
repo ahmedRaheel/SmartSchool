@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Payment;
 
@@ -64,7 +66,7 @@ public static class UpdatePayment
             if (entity is null)
             {
                 return Result<Payment>.Failure(
-                    Error.NotFound("Payment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Payment))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdatePayment
             if (duplicateCode)
             {
                 return Result<Payment>.Failure(
-                    Error.Conflict(
-                        $"A Payment with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Payment), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdatePayment
                     return result.ToHttpResult();
                 })
             .WithName("UpdatePayment")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

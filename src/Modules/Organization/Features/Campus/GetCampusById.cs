@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.Campus;
 
@@ -25,7 +27,7 @@ public static class GetCampusById
             if (entity is null)
             {
                 return Result<Campus>.Failure(
-                    Error.NotFound("Campus was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Campus))));
             }
 
             return Result<Campus>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetCampusById
                     return result.ToHttpResult();
                 })
             .WithName("GetCampusById")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

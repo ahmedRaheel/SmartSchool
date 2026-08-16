@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using FluentValidation;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.PurchaseOrder;
 
@@ -60,8 +62,7 @@ public static class CreatePurchaseOrder
             if (codeExists)
             {
                 return Result<PurchaseOrder>.Failure(
-                    Error.Conflict(
-                        $"A PurchaseOrder with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(PurchaseOrder), request.Code)));
             }
 
             var entity = new PurchaseOrder
@@ -84,7 +85,7 @@ public static class CreatePurchaseOrder
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/inventory/purchase-order",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "purchase-order"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreatePurchaseOrder
                     return result.ToHttpResult();
                 })
             .WithName("CreatePurchaseOrder")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

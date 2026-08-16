@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.JobGrade;
 
@@ -64,7 +66,7 @@ public static class UpdateJobGrade
             if (entity is null)
             {
                 return Result<JobGrade>.Failure(
-                    Error.NotFound("JobGrade was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(JobGrade))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateJobGrade
             if (duplicateCode)
             {
                 return Result<JobGrade>.Failure(
-                    Error.Conflict(
-                        $"A JobGrade with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(JobGrade), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateJobGrade
                     return result.ToHttpResult();
                 })
             .WithName("UpdateJobGrade")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

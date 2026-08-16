@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Payslip;
 
@@ -25,7 +27,7 @@ public static class GetPayslipById
             if (entity is null)
             {
                 return Result<Payslip>.Failure(
-                    Error.NotFound("Payslip was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Payslip))));
             }
 
             return Result<Payslip>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetPayslipById
                     return result.ToHttpResult();
                 })
             .WithName("GetPayslipById")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

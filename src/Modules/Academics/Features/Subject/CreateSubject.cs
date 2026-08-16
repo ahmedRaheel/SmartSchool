@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Subject;
 
@@ -60,8 +62,7 @@ public static class CreateSubject
             if (codeExists)
             {
                 return Result<Subject>.Failure(
-                    Error.Conflict(
-                        $"A Subject with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Subject), request.Code)));
             }
 
             var entity = new Subject
@@ -84,7 +85,7 @@ public static class CreateSubject
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/subject",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "subject"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateSubject
                     return result.ToHttpResult();
                 })
             .WithName("CreateSubject")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

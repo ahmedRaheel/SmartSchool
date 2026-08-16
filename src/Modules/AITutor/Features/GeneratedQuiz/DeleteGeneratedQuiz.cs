@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 
@@ -26,7 +28,7 @@ public static class DeleteGeneratedQuiz
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("GeneratedQuiz was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GeneratedQuiz))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteGeneratedQuiz
                     return result.ToHttpResult();
                 })
             .WithName("DeleteGeneratedQuiz")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

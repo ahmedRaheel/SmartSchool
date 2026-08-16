@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Candidate;
 
@@ -25,7 +27,7 @@ public static class GetCandidateById
             if (entity is null)
             {
                 return Result<Candidate>.Failure(
-                    Error.NotFound("Candidate was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Candidate))));
             }
 
             return Result<Candidate>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetCandidateById
                     return result.ToHttpResult();
                 })
             .WithName("GetCandidateById")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Tenancy;
 using FluentValidation;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.CampusBranding;
 
@@ -64,7 +66,7 @@ public static class UpdateCampusBranding
             if (entity is null)
             {
                 return Result<CampusBranding>.Failure(
-                    Error.NotFound("CampusBranding was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusBranding))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateCampusBranding
             if (duplicateCode)
             {
                 return Result<CampusBranding>.Failure(
-                    Error.Conflict(
-                        $"A CampusBranding with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(CampusBranding), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateCampusBranding
                     return result.ToHttpResult();
                 })
             .WithName("UpdateCampusBranding")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

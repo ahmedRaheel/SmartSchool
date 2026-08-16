@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Examinations;
 using FluentValidation;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
@@ -60,8 +62,7 @@ public static class CreateGradeScale
             if (codeExists)
             {
                 return Result<GradeScale>.Failure(
-                    Error.Conflict(
-                        $"A GradeScale with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(GradeScale), request.Code)));
             }
 
             var entity = new GradeScale
@@ -84,7 +85,7 @@ public static class CreateGradeScale
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/examinations/grade-scale",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "grade-scale"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateGradeScale
                     return result.ToHttpResult();
                 })
             .WithName("CreateGradeScale")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

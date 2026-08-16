@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using FluentValidation;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.Certificate;
 
@@ -60,8 +62,7 @@ public static class CreateCertificate
             if (codeExists)
             {
                 return Result<Certificate>.Failure(
-                    Error.Conflict(
-                        $"A Certificate with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Certificate), request.Code)));
             }
 
             var entity = new Certificate
@@ -84,7 +85,7 @@ public static class CreateCertificate
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/documents/certificate",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "certificate"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateCertificate
                     return result.ToHttpResult();
                 })
             .WithName("CreateCertificate")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

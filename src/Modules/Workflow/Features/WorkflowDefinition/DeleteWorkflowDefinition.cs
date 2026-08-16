@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Workflow;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
 
@@ -26,7 +28,7 @@ public static class DeleteWorkflowDefinition
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("WorkflowDefinition was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowDefinition))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteWorkflowDefinition
                     return result.ToHttpResult();
                 })
             .WithName("DeleteWorkflowDefinition")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

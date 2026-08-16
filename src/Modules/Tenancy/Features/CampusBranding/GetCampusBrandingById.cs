@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Tenancy;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.CampusBranding;
 
@@ -25,7 +27,7 @@ public static class GetCampusBrandingById
             if (entity is null)
             {
                 return Result<CampusBranding>.Failure(
-                    Error.NotFound("CampusBranding was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusBranding))));
             }
 
             return Result<CampusBranding>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetCampusBrandingById
                     return result.ToHttpResult();
                 })
             .WithName("GetCampusBrandingById")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

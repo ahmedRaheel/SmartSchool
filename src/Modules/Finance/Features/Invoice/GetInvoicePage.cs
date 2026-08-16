@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Invoice;
 
@@ -37,7 +39,7 @@ public static class GetInvoicePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/finance/invoice",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "invoice"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetInvoicePage
                     return result.ToHttpResult();
                 })
             .WithName("GetInvoicePage")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

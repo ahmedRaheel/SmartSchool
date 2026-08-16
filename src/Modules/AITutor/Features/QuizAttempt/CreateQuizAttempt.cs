@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using FluentValidation;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.QuizAttempt;
 
@@ -60,8 +62,7 @@ public static class CreateQuizAttempt
             if (codeExists)
             {
                 return Result<QuizAttempt>.Failure(
-                    Error.Conflict(
-                        $"A QuizAttempt with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(QuizAttempt), request.Code)));
             }
 
             var entity = new QuizAttempt
@@ -84,7 +85,7 @@ public static class CreateQuizAttempt
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aitutor/quiz-attempt",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "quiz-attempt"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateQuizAttempt
                     return result.ToHttpResult();
                 })
             .WithName("CreateQuizAttempt")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

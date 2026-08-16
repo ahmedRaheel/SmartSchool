@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.Campus;
 
@@ -26,7 +28,7 @@ public static class DeleteCampus
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Campus was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Campus))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteCampus
                     return result.ToHttpResult();
                 })
             .WithName("DeleteCampus")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

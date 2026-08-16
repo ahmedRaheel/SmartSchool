@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 
@@ -25,7 +27,7 @@ public static class GetSchoolLogoById
             if (entity is null)
             {
                 return Result<SchoolLogo>.Failure(
-                    Error.NotFound("SchoolLogo was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogo))));
             }
 
             return Result<SchoolLogo>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetSchoolLogoById
                     return result.ToHttpResult();
                 })
             .WithName("GetSchoolLogoById")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

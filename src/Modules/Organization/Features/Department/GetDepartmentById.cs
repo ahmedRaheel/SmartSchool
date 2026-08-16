@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.Department;
 
@@ -25,7 +27,7 @@ public static class GetDepartmentById
             if (entity is null)
             {
                 return Result<Department>.Failure(
-                    Error.NotFound("Department was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Department))));
             }
 
             return Result<Department>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetDepartmentById
                     return result.ToHttpResult();
                 })
             .WithName("GetDepartmentById")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

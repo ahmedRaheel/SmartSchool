@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeCollection;
 
@@ -60,8 +62,7 @@ public static class CreateKnowledgeCollection
             if (codeExists)
             {
                 return Result<KnowledgeCollection>.Failure(
-                    Error.Conflict(
-                        $"A KnowledgeCollection with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(KnowledgeCollection), request.Code)));
             }
 
             var entity = new KnowledgeCollection
@@ -84,7 +85,7 @@ public static class CreateKnowledgeCollection
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aicore/knowledge-collection",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "knowledge-collection"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateKnowledgeCollection
                     return result.ToHttpResult();
                 })
             .WithName("CreateKnowledgeCollection")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

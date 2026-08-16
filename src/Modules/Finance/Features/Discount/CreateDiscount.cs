@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Discount;
 
@@ -60,8 +62,7 @@ public static class CreateDiscount
             if (codeExists)
             {
                 return Result<Discount>.Failure(
-                    Error.Conflict(
-                        $"A Discount with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Discount), request.Code)));
             }
 
             var entity = new Discount
@@ -84,7 +85,7 @@ public static class CreateDiscount
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/finance/discount",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "discount"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateDiscount
                     return result.ToHttpResult();
                 })
             .WithName("CreateDiscount")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

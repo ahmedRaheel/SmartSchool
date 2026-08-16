@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Students;
 using FluentValidation;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.StudentGuardian;
 
@@ -60,8 +62,7 @@ public static class CreateStudentGuardian
             if (codeExists)
             {
                 return Result<StudentGuardian>.Failure(
-                    Error.Conflict(
-                        $"A StudentGuardian with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StudentGuardian), request.Code)));
             }
 
             var entity = new StudentGuardian
@@ -84,7 +85,7 @@ public static class CreateStudentGuardian
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/students/student-guardian",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-guardian"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStudentGuardian
                     return result.ToHttpResult();
                 })
             .WithName("CreateStudentGuardian")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

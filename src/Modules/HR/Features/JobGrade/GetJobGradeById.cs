@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.JobGrade;
 
@@ -25,7 +27,7 @@ public static class GetJobGradeById
             if (entity is null)
             {
                 return Result<JobGrade>.Failure(
-                    Error.NotFound("JobGrade was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(JobGrade))));
             }
 
             return Result<JobGrade>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetJobGradeById
                     return result.ToHttpResult();
                 })
             .WithName("GetJobGradeById")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

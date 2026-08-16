@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.BookCopy;
 
@@ -37,7 +39,7 @@ public static class GetBookCopyPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/library/book-copy",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "book-copy"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetBookCopyPage
                     return result.ToHttpResult();
                 })
             .WithName("GetBookCopyPage")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

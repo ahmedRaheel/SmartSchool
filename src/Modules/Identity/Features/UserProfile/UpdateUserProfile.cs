@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Identity;
 using FluentValidation;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.UserProfile;
 
@@ -64,7 +66,7 @@ public static class UpdateUserProfile
             if (entity is null)
             {
                 return Result<UserProfile>.Failure(
-                    Error.NotFound("UserProfile was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(UserProfile))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateUserProfile
             if (duplicateCode)
             {
                 return Result<UserProfile>.Failure(
-                    Error.Conflict(
-                        $"A UserProfile with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(UserProfile), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateUserProfile
                     return result.ToHttpResult();
                 })
             .WithName("UpdateUserProfile")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

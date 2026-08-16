@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIParent;
 using FluentValidation;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 
@@ -64,7 +66,7 @@ public static class UpdateParentToolExecution
             if (entity is null)
             {
                 return Result<ParentToolExecution>.Failure(
-                    Error.NotFound("ParentToolExecution was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentToolExecution))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateParentToolExecution
             if (duplicateCode)
             {
                 return Result<ParentToolExecution>.Failure(
-                    Error.Conflict(
-                        $"A ParentToolExecution with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ParentToolExecution), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateParentToolExecution
                     return result.ToHttpResult();
                 })
             .WithName("UpdateParentToolExecution")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

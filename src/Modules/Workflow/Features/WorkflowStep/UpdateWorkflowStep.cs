@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Workflow;
 using FluentValidation;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 
@@ -64,7 +66,7 @@ public static class UpdateWorkflowStep
             if (entity is null)
             {
                 return Result<WorkflowStep>.Failure(
-                    Error.NotFound("WorkflowStep was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowStep))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateWorkflowStep
             if (duplicateCode)
             {
                 return Result<WorkflowStep>.Failure(
-                    Error.Conflict(
-                        $"A WorkflowStep with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(WorkflowStep), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateWorkflowStep
                     return result.ToHttpResult();
                 })
             .WithName("UpdateWorkflowStep")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

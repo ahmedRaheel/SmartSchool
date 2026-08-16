@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.FeeType;
 
@@ -25,7 +27,7 @@ public static class GetFeeTypeById
             if (entity is null)
             {
                 return Result<FeeType>.Failure(
-                    Error.NotFound("FeeType was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeType))));
             }
 
             return Result<FeeType>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetFeeTypeById
                     return result.ToHttpResult();
                 })
             .WithName("GetFeeTypeById")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.EmployeeCompensation;
 
@@ -64,7 +66,7 @@ public static class UpdateEmployeeCompensation
             if (entity is null)
             {
                 return Result<EmployeeCompensation>.Failure(
-                    Error.NotFound("EmployeeCompensation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmployeeCompensation))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateEmployeeCompensation
             if (duplicateCode)
             {
                 return Result<EmployeeCompensation>.Failure(
-                    Error.Conflict(
-                        $"A EmployeeCompensation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(EmployeeCompensation), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateEmployeeCompensation
                     return result.ToHttpResult();
                 })
             .WithName("UpdateEmployeeCompensation")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

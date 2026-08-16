@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.ClassSection;
 
@@ -25,7 +27,7 @@ public static class GetClassSectionById
             if (entity is null)
             {
                 return Result<ClassSection>.Failure(
-                    Error.NotFound("ClassSection was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ClassSection))));
             }
 
             return Result<ClassSection>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetClassSectionById
                     return result.ToHttpResult();
                 })
             .WithName("GetClassSectionById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

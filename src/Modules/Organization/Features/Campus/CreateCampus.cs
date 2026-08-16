@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Organization;
 using FluentValidation;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.Campus;
 
@@ -60,8 +62,7 @@ public static class CreateCampus
             if (codeExists)
             {
                 return Result<Campus>.Failure(
-                    Error.Conflict(
-                        $"A Campus with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Campus), request.Code)));
             }
 
             var entity = new Campus
@@ -84,7 +85,7 @@ public static class CreateCampus
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/organization/campus",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "campus"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateCampus
                     return result.ToHttpResult();
                 })
             .WithName("CreateCampus")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

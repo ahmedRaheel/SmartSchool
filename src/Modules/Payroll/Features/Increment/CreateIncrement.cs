@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Increment;
 
@@ -60,8 +62,7 @@ public static class CreateIncrement
             if (codeExists)
             {
                 return Result<Increment>.Failure(
-                    Error.Conflict(
-                        $"A Increment with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Increment), request.Code)));
             }
 
             var entity = new Increment
@@ -84,7 +85,7 @@ public static class CreateIncrement
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/payroll/increment",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "increment"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateIncrement
                     return result.ToHttpResult();
                 })
             .WithName("CreateIncrement")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

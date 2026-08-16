@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Library;
 using FluentValidation;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.BookCopy;
 
@@ -64,7 +66,7 @@ public static class UpdateBookCopy
             if (entity is null)
             {
                 return Result<BookCopy>.Failure(
-                    Error.NotFound("BookCopy was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(BookCopy))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateBookCopy
             if (duplicateCode)
             {
                 return Result<BookCopy>.Failure(
-                    Error.Conflict(
-                        $"A BookCopy with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(BookCopy), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateBookCopy
                     return result.ToHttpResult();
                 })
             .WithName("UpdateBookCopy")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.TeacherAssignment;
 
@@ -26,7 +28,7 @@ public static class DeleteTeacherAssignment
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("TeacherAssignment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeacherAssignment))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteTeacherAssignment
                     return result.ToHttpResult();
                 })
             .WithName("DeleteTeacherAssignment")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

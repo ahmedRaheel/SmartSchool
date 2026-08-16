@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Identity;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 
@@ -37,7 +39,7 @@ public static class GetRoleAssignmentPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/identity/role-assignment",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "role-assignment"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetRoleAssignmentPage
                     return result.ToHttpResult();
                 })
             .WithName("GetRoleAssignmentPage")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

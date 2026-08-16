@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Learning;
 using FluentValidation;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.Lesson;
 
@@ -64,7 +66,7 @@ public static class UpdateLesson
             if (entity is null)
             {
                 return Result<Lesson>.Failure(
-                    Error.NotFound("Lesson was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Lesson))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateLesson
             if (duplicateCode)
             {
                 return Result<Lesson>.Failure(
-                    Error.Conflict(
-                        $"A Lesson with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Lesson), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateLesson
                     return result.ToHttpResult();
                 })
             .WithName("UpdateLesson")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

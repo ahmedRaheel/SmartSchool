@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Admissions;
 using FluentValidation;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 
@@ -64,7 +66,7 @@ public static class UpdateAdmissionDecision
             if (entity is null)
             {
                 return Result<AdmissionDecision>.Failure(
-                    Error.NotFound("AdmissionDecision was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AdmissionDecision))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateAdmissionDecision
             if (duplicateCode)
             {
                 return Result<AdmissionDecision>.Failure(
-                    Error.Conflict(
-                        $"A AdmissionDecision with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AdmissionDecision), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateAdmissionDecision
                     return result.ToHttpResult();
                 })
             .WithName("UpdateAdmissionDecision")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

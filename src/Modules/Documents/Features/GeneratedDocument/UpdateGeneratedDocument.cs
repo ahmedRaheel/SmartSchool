@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using FluentValidation;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.GeneratedDocument;
 
@@ -64,7 +66,7 @@ public static class UpdateGeneratedDocument
             if (entity is null)
             {
                 return Result<GeneratedDocument>.Failure(
-                    Error.NotFound("GeneratedDocument was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GeneratedDocument))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateGeneratedDocument
             if (duplicateCode)
             {
                 return Result<GeneratedDocument>.Failure(
-                    Error.Conflict(
-                        $"A GeneratedDocument with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(GeneratedDocument), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateGeneratedDocument
                     return result.ToHttpResult();
                 })
             .WithName("UpdateGeneratedDocument")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Identity;
 using FluentValidation;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.UserProfile;
 
@@ -60,8 +62,7 @@ public static class CreateUserProfile
             if (codeExists)
             {
                 return Result<UserProfile>.Failure(
-                    Error.Conflict(
-                        $"A UserProfile with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(UserProfile), request.Code)));
             }
 
             var entity = new UserProfile
@@ -84,7 +85,7 @@ public static class CreateUserProfile
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/identity/user-profile",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "user-profile"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateUserProfile
                     return result.ToHttpResult();
                 })
             .WithName("CreateUserProfile")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 
@@ -64,7 +66,7 @@ public static class UpdateToolDefinition
             if (entity is null)
             {
                 return Result<ToolDefinition>.Failure(
-                    Error.NotFound("ToolDefinition was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ToolDefinition))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateToolDefinition
             if (duplicateCode)
             {
                 return Result<ToolDefinition>.Failure(
-                    Error.Conflict(
-                        $"A ToolDefinition with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ToolDefinition), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateToolDefinition
                     return result.ToHttpResult();
                 })
             .WithName("UpdateToolDefinition")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

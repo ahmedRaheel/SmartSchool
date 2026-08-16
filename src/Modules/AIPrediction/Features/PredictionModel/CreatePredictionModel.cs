@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 
@@ -60,8 +62,7 @@ public static class CreatePredictionModel
             if (codeExists)
             {
                 return Result<PredictionModel>.Failure(
-                    Error.Conflict(
-                        $"A PredictionModel with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(PredictionModel), request.Code)));
             }
 
             var entity = new PredictionModel
@@ -84,7 +85,7 @@ public static class CreatePredictionModel
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiprediction/prediction-model",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "prediction-model"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreatePredictionModel
                     return result.ToHttpResult();
                 })
             .WithName("CreatePredictionModel")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

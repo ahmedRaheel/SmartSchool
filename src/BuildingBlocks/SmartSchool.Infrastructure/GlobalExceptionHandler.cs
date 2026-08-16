@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Infrastructure.Errors;
 
@@ -25,9 +26,9 @@ public sealed class GlobalExceptionHandler(
         var problem = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
-            Title = "An unexpected error occurred.",
-            Detail = "The request could not be completed.",
-            Type = "https://smartschool/errors/internal-server-error"
+            Title = ErrorMessages.UnexpectedError,
+            Detail = ErrorMessages.RequestFailed,
+            Type = ProblemTypeUris.InternalServerError
         };
 
         problem.Extensions["traceId"] = httpContext.TraceIdentifier;

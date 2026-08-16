@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 
@@ -37,7 +39,7 @@ public static class GetTeachingRecommendationPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/teaching-recommendation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "teaching-recommendation"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetTeachingRecommendationPage
                     return result.ToHttpResult();
                 })
             .WithName("GetTeachingRecommendationPage")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

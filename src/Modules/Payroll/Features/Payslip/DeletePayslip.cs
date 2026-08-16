@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Payslip;
 
@@ -26,7 +28,7 @@ public static class DeletePayslip
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Payslip was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Payslip))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeletePayslip
                     return result.ToHttpResult();
                 })
             .WithName("DeletePayslip")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

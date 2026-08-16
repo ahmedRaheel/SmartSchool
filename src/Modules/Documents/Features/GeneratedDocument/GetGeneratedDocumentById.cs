@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.GeneratedDocument;
 
@@ -25,7 +27,7 @@ public static class GetGeneratedDocumentById
             if (entity is null)
             {
                 return Result<GeneratedDocument>.Failure(
-                    Error.NotFound("GeneratedDocument was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GeneratedDocument))));
             }
 
             return Result<GeneratedDocument>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetGeneratedDocumentById
                     return result.ToHttpResult();
                 })
             .WithName("GetGeneratedDocumentById")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Audit;
 using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Modules.Audit.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Audit.Features.AuditLog;
 
@@ -25,7 +27,7 @@ public static class GetAuditLogById
             if (entity is null)
             {
                 return Result<AuditLog>.Failure(
-                    Error.NotFound("AuditLog was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AuditLog))));
             }
 
             return Result<AuditLog>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetAuditLogById
                     return result.ToHttpResult();
                 })
             .WithName("GetAuditLogById")
-            .WithTags("Audit")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using FluentValidation;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.StudentTopicMastery;
 
@@ -60,8 +62,7 @@ public static class CreateStudentTopicMastery
             if (codeExists)
             {
                 return Result<StudentTopicMastery>.Failure(
-                    Error.Conflict(
-                        $"A StudentTopicMastery with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StudentTopicMastery), request.Code)));
             }
 
             var entity = new StudentTopicMastery
@@ -84,7 +85,7 @@ public static class CreateStudentTopicMastery
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aitutor/student-topic-mastery",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-topic-mastery"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStudentTopicMastery
                     return result.ToHttpResult();
                 })
             .WithName("CreateStudentTopicMastery")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

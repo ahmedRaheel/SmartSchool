@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.ConversationParticipant;
 
@@ -26,7 +28,7 @@ public static class DeleteConversationParticipant
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("ConversationParticipant was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ConversationParticipant))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteConversationParticipant
                     return result.ToHttpResult();
                 })
             .WithName("DeleteConversationParticipant")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

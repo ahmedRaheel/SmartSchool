@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Subject;
 
@@ -25,7 +27,7 @@ public static class GetSubjectById
             if (entity is null)
             {
                 return Result<Subject>.Failure(
-                    Error.NotFound("Subject was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Subject))));
             }
 
             return Result<Subject>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetSubjectById
                     return result.ToHttpResult();
                 })
             .WithName("GetSubjectById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Scholarship;
 
@@ -37,7 +39,7 @@ public static class GetScholarshipPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/finance/scholarship",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "scholarship"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetScholarshipPage
                     return result.ToHttpResult();
                 })
             .WithName("GetScholarshipPage")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

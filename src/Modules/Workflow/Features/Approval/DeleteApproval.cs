@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Workflow;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.Approval;
 
@@ -26,7 +28,7 @@ public static class DeleteApproval
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Approval was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Approval))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteApproval
                     return result.ToHttpResult();
                 })
             .WithName("DeleteApproval")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

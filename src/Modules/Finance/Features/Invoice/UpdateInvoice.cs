@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Invoice;
 
@@ -64,7 +66,7 @@ public static class UpdateInvoice
             if (entity is null)
             {
                 return Result<Invoice>.Failure(
-                    Error.NotFound("Invoice was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Invoice))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateInvoice
             if (duplicateCode)
             {
                 return Result<Invoice>.Failure(
-                    Error.Conflict(
-                        $"A Invoice with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Invoice), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateInvoice
                     return result.ToHttpResult();
                 })
             .WithName("UpdateInvoice")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

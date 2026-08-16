@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Students;
 using FluentValidation;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.Enrollment;
 
@@ -60,8 +62,7 @@ public static class CreateEnrollment
             if (codeExists)
             {
                 return Result<Enrollment>.Failure(
-                    Error.Conflict(
-                        $"A Enrollment with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Enrollment), request.Code)));
             }
 
             var entity = new Enrollment
@@ -84,7 +85,7 @@ public static class CreateEnrollment
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/students/enrollment",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "enrollment"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateEnrollment
                     return result.ToHttpResult();
                 })
             .WithName("CreateEnrollment")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.LearningResource;
 
@@ -25,7 +27,7 @@ public static class GetLearningResourceById
             if (entity is null)
             {
                 return Result<LearningResource>.Failure(
-                    Error.NotFound("LearningResource was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LearningResource))));
             }
 
             return Result<LearningResource>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetLearningResourceById
                     return result.ToHttpResult();
                 })
             .WithName("GetLearningResourceById")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

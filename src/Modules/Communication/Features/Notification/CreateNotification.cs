@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using FluentValidation;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.Notification;
 
@@ -60,8 +62,7 @@ public static class CreateNotification
             if (codeExists)
             {
                 return Result<Notification>.Failure(
-                    Error.Conflict(
-                        $"A Notification with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Notification), request.Code)));
             }
 
             var entity = new Notification
@@ -84,7 +85,7 @@ public static class CreateNotification
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/communication/notification",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "notification"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateNotification
                     return result.ToHttpResult();
                 })
             .WithName("CreateNotification")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

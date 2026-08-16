@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.InquiryMessage;
 
@@ -25,7 +27,7 @@ public static class GetInquiryMessageById
             if (entity is null)
             {
                 return Result<InquiryMessage>.Failure(
-                    Error.NotFound("InquiryMessage was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryMessage))));
             }
 
             return Result<InquiryMessage>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetInquiryMessageById
                     return result.ToHttpResult();
                 })
             .WithName("GetInquiryMessageById")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

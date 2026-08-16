@@ -1,3 +1,5 @@
+using SmartSchool.SharedKernel.Constants;
+
 namespace SmartSchool.SharedKernel;
 
 public sealed record Error(string Code, string Message)
@@ -5,16 +7,16 @@ public sealed record Error(string Code, string Message)
     public static readonly Error None = new(string.Empty, string.Empty);
 
     public static Error Validation(string message) =>
-        new("validation", message);
+        new(ErrorCodes.Validation, message);
 
     public static Error NotFound(string message) =>
-        new("not_found", message);
+        new(ErrorCodes.NotFound, message);
 
     public static Error Conflict(string message) =>
-        new("conflict", message);
+        new(ErrorCodes.Conflict, message);
 
     public static Error Unauthorized(string message) =>
-        new("unauthorized", message);
+        new(ErrorCodes.Unauthorized, message);
 }
 
 public class Result

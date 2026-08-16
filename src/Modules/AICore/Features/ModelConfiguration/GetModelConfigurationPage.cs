@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
@@ -37,7 +39,7 @@ public static class GetModelConfigurationPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aicore/model-configuration",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "model-configuration"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetModelConfigurationPage
                     return result.ToHttpResult();
                 })
             .WithName("GetModelConfigurationPage")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

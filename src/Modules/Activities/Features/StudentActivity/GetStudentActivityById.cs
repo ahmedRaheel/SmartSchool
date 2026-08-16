@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.StudentActivity;
 
@@ -25,7 +27,7 @@ public static class GetStudentActivityById
             if (entity is null)
             {
                 return Result<StudentActivity>.Failure(
-                    Error.NotFound("StudentActivity was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentActivity))));
             }
 
             return Result<StudentActivity>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStudentActivityById
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentActivityById")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

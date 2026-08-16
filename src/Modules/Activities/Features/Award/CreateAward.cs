@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Activities;
 using FluentValidation;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.Award;
 
@@ -60,8 +62,7 @@ public static class CreateAward
             if (codeExists)
             {
                 return Result<Award>.Failure(
-                    Error.Conflict(
-                        $"A Award with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Award), request.Code)));
             }
 
             var entity = new Award
@@ -84,7 +85,7 @@ public static class CreateAward
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/activities/award",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "award"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateAward
                     return result.ToHttpResult();
                 })
             .WithName("CreateAward")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using FluentValidation;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.QuizAttempt;
 
@@ -64,7 +66,7 @@ public static class UpdateQuizAttempt
             if (entity is null)
             {
                 return Result<QuizAttempt>.Failure(
-                    Error.NotFound("QuizAttempt was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(QuizAttempt))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateQuizAttempt
             if (duplicateCode)
             {
                 return Result<QuizAttempt>.Failure(
-                    Error.Conflict(
-                        $"A QuizAttempt with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(QuizAttempt), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateQuizAttempt
                     return result.ToHttpResult();
                 })
             .WithName("UpdateQuizAttempt")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

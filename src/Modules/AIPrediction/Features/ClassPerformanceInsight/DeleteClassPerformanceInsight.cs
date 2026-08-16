@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.ClassPerformanceInsight;
 
@@ -26,7 +28,7 @@ public static class DeleteClassPerformanceInsight
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("ClassPerformanceInsight was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ClassPerformanceInsight))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteClassPerformanceInsight
                     return result.ToHttpResult();
                 })
             .WithName("DeleteClassPerformanceInsight")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

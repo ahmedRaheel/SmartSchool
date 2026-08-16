@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Book;
 
@@ -26,7 +28,7 @@ public static class DeleteBook
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Book was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Book))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteBook
                     return result.ToHttpResult();
                 })
             .WithName("DeleteBook")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using FluentValidation;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.PurchaseOrder;
 
@@ -64,7 +66,7 @@ public static class UpdatePurchaseOrder
             if (entity is null)
             {
                 return Result<PurchaseOrder>.Failure(
-                    Error.NotFound("PurchaseOrder was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PurchaseOrder))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdatePurchaseOrder
             if (duplicateCode)
             {
                 return Result<PurchaseOrder>.Failure(
-                    Error.Conflict(
-                        $"A PurchaseOrder with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(PurchaseOrder), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdatePurchaseOrder
                     return result.ToHttpResult();
                 })
             .WithName("UpdatePurchaseOrder")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

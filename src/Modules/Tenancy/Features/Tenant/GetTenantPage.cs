@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Tenancy;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 
@@ -37,7 +39,7 @@ public static class GetTenantPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/tenancy/tenant",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "tenant"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetTenantPage
                     return result.ToHttpResult();
                 })
             .WithName("GetTenantPage")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

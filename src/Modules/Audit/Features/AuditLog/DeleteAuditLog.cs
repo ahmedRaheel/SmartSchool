@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Audit;
 using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Modules.Audit.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Audit.Features.AuditLog;
 
@@ -26,7 +28,7 @@ public static class DeleteAuditLog
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("AuditLog was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AuditLog))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteAuditLog
                     return result.ToHttpResult();
                 })
             .WithName("DeleteAuditLog")
-            .WithTags("Audit")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

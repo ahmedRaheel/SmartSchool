@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using FluentValidation;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.Conversation;
 
@@ -60,8 +62,7 @@ public static class CreateConversation
             if (codeExists)
             {
                 return Result<Conversation>.Failure(
-                    Error.Conflict(
-                        $"A Conversation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Conversation), request.Code)));
             }
 
             var entity = new Conversation
@@ -84,7 +85,7 @@ public static class CreateConversation
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/communication/conversation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "conversation"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateConversation
                     return result.ToHttpResult();
                 })
             .WithName("CreateConversation")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

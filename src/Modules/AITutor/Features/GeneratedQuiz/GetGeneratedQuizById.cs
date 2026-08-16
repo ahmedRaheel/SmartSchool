@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 
@@ -25,7 +27,7 @@ public static class GetGeneratedQuizById
             if (entity is null)
             {
                 return Result<GeneratedQuiz>.Failure(
-                    Error.NotFound("GeneratedQuiz was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GeneratedQuiz))));
             }
 
             return Result<GeneratedQuiz>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetGeneratedQuizById
                     return result.ToHttpResult();
                 })
             .WithName("GetGeneratedQuizById")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

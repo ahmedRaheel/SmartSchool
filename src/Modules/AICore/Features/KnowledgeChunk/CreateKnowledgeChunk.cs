@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 
@@ -60,8 +62,7 @@ public static class CreateKnowledgeChunk
             if (codeExists)
             {
                 return Result<KnowledgeChunk>.Failure(
-                    Error.Conflict(
-                        $"A KnowledgeChunk with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(KnowledgeChunk), request.Code)));
             }
 
             var entity = new KnowledgeChunk
@@ -84,7 +85,7 @@ public static class CreateKnowledgeChunk
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aicore/knowledge-chunk",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "knowledge-chunk"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateKnowledgeChunk
                     return result.ToHttpResult();
                 })
             .WithName("CreateKnowledgeChunk")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

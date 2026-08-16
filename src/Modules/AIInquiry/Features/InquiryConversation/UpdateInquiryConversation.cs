@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using FluentValidation;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 
@@ -64,7 +66,7 @@ public static class UpdateInquiryConversation
             if (entity is null)
             {
                 return Result<InquiryConversation>.Failure(
-                    Error.NotFound("InquiryConversation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryConversation))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateInquiryConversation
             if (duplicateCode)
             {
                 return Result<InquiryConversation>.Failure(
-                    Error.Conflict(
-                        $"A InquiryConversation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(InquiryConversation), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateInquiryConversation
                     return result.ToHttpResult();
                 })
             .WithName("UpdateInquiryConversation")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

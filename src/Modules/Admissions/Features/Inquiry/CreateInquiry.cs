@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Admissions;
 using FluentValidation;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.Inquiry;
 
@@ -60,8 +62,7 @@ public static class CreateInquiry
             if (codeExists)
             {
                 return Result<Inquiry>.Failure(
-                    Error.Conflict(
-                        $"A Inquiry with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Inquiry), request.Code)));
             }
 
             var entity = new Inquiry
@@ -84,7 +85,7 @@ public static class CreateInquiry
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/admissions/inquiry",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "inquiry"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateInquiry
                     return result.ToHttpResult();
                 })
             .WithName("CreateInquiry")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

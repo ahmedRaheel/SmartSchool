@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 
@@ -60,8 +62,7 @@ public static class CreateTeachingRecommendation
             if (codeExists)
             {
                 return Result<TeachingRecommendation>.Failure(
-                    Error.Conflict(
-                        $"A TeachingRecommendation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(TeachingRecommendation), request.Code)));
             }
 
             var entity = new TeachingRecommendation
@@ -84,7 +85,7 @@ public static class CreateTeachingRecommendation
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiprediction/teaching-recommendation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "teaching-recommendation"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateTeachingRecommendation
                     return result.ToHttpResult();
                 })
             .WithName("CreateTeachingRecommendation")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

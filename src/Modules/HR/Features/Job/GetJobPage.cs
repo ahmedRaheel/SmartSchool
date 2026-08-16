@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Job;
 
@@ -37,7 +39,7 @@ public static class GetJobPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/hr/job",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "job"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetJobPage
                     return result.ToHttpResult();
                 })
             .WithName("GetJobPage")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

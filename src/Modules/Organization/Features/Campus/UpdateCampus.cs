@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Organization;
 using FluentValidation;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.Campus;
 
@@ -64,7 +66,7 @@ public static class UpdateCampus
             if (entity is null)
             {
                 return Result<Campus>.Failure(
-                    Error.NotFound("Campus was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Campus))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateCampus
             if (duplicateCode)
             {
                 return Result<Campus>.Failure(
-                    Error.Conflict(
-                        $"A Campus with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Campus), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateCampus
                     return result.ToHttpResult();
                 })
             .WithName("UpdateCampus")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

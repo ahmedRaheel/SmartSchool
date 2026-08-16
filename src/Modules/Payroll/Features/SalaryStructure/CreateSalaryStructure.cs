@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 
@@ -60,8 +62,7 @@ public static class CreateSalaryStructure
             if (codeExists)
             {
                 return Result<SalaryStructure>.Failure(
-                    Error.Conflict(
-                        $"A SalaryStructure with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(SalaryStructure), request.Code)));
             }
 
             var entity = new SalaryStructure
@@ -84,7 +85,7 @@ public static class CreateSalaryStructure
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/payroll/salary-structure",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "salary-structure"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateSalaryStructure
                     return result.ToHttpResult();
                 })
             .WithName("CreateSalaryStructure")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

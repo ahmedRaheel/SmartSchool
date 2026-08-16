@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.PurchaseOrder;
 
@@ -26,7 +28,7 @@ public static class DeletePurchaseOrder
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("PurchaseOrder was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PurchaseOrder))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeletePurchaseOrder
                     return result.ToHttpResult();
                 })
             .WithName("DeletePurchaseOrder")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

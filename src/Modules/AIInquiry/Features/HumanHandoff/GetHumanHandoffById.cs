@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 
@@ -25,7 +27,7 @@ public static class GetHumanHandoffById
             if (entity is null)
             {
                 return Result<HumanHandoff>.Failure(
-                    Error.NotFound("HumanHandoff was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(HumanHandoff))));
             }
 
             return Result<HumanHandoff>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetHumanHandoffById
                     return result.ToHttpResult();
                 })
             .WithName("GetHumanHandoffById")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

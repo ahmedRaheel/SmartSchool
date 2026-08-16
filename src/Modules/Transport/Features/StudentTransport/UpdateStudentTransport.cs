@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Transport;
 using FluentValidation;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 
@@ -64,7 +66,7 @@ public static class UpdateStudentTransport
             if (entity is null)
             {
                 return Result<StudentTransport>.Failure(
-                    Error.NotFound("StudentTransport was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentTransport))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateStudentTransport
             if (duplicateCode)
             {
                 return Result<StudentTransport>.Failure(
-                    Error.Conflict(
-                        $"A StudentTransport with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StudentTransport), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateStudentTransport
                     return result.ToHttpResult();
                 })
             .WithName("UpdateStudentTransport")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

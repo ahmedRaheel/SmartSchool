@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.PromptTemplate;
 
@@ -37,7 +39,7 @@ public static class GetPromptTemplatePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aicore/prompt-template",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "prompt-template"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetPromptTemplatePage
                     return result.ToHttpResult();
                 })
             .WithName("GetPromptTemplatePage")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

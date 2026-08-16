@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 
@@ -37,7 +39,7 @@ public static class GetGeneratedQuizPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aitutor/generated-quiz",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "generated-quiz"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetGeneratedQuizPage
                     return result.ToHttpResult();
                 })
             .WithName("GetGeneratedQuizPage")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

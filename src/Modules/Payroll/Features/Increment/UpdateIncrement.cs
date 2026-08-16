@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Increment;
 
@@ -64,7 +66,7 @@ public static class UpdateIncrement
             if (entity is null)
             {
                 return Result<Increment>.Failure(
-                    Error.NotFound("Increment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Increment))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateIncrement
             if (duplicateCode)
             {
                 return Result<Increment>.Failure(
-                    Error.Conflict(
-                        $"A Increment with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Increment), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateIncrement
                     return result.ToHttpResult();
                 })
             .WithName("UpdateIncrement")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

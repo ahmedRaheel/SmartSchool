@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Reservation;
 
@@ -37,7 +39,7 @@ public static class GetReservationPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/library/reservation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "reservation"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetReservationPage
                     return result.ToHttpResult();
                 })
             .WithName("GetReservationPage")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

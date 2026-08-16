@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.BookCopy;
 
@@ -25,7 +27,7 @@ public static class GetBookCopyById
             if (entity is null)
             {
                 return Result<BookCopy>.Failure(
-                    Error.NotFound("BookCopy was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(BookCopy))));
             }
 
             return Result<BookCopy>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetBookCopyById
                     return result.ToHttpResult();
                 })
             .WithName("GetBookCopyById")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

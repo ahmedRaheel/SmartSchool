@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.StockTransaction;
 
@@ -37,7 +39,7 @@ public static class GetStockTransactionPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/inventory/stock-transaction",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "stock-transaction"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetStockTransactionPage
                     return result.ToHttpResult();
                 })
             .WithName("GetStockTransactionPage")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

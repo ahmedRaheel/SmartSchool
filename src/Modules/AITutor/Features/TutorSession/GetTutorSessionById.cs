@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.TutorSession;
 
@@ -25,7 +27,7 @@ public static class GetTutorSessionById
             if (entity is null)
             {
                 return Result<TutorSession>.Failure(
-                    Error.NotFound("TutorSession was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TutorSession))));
             }
 
             return Result<TutorSession>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetTutorSessionById
                     return result.ToHttpResult();
                 })
             .WithName("GetTutorSessionById")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

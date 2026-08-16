@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 
@@ -37,7 +39,7 @@ public static class GetHumanHandoffPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiinquiry/human-handoff",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "human-handoff"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetHumanHandoffPage
                     return result.ToHttpResult();
                 })
             .WithName("GetHumanHandoffPage")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

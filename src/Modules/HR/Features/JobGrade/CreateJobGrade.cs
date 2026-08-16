@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.JobGrade;
 
@@ -60,8 +62,7 @@ public static class CreateJobGrade
             if (codeExists)
             {
                 return Result<JobGrade>.Failure(
-                    Error.Conflict(
-                        $"A JobGrade with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(JobGrade), request.Code)));
             }
 
             var entity = new JobGrade
@@ -84,7 +85,7 @@ public static class CreateJobGrade
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/hr/job-grade",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "job-grade"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateJobGrade
                     return result.ToHttpResult();
                 })
             .WithName("CreateJobGrade")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

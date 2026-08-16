@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeCollection;
 
@@ -37,7 +39,7 @@ public static class GetKnowledgeCollectionPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aicore/knowledge-collection",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "knowledge-collection"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetKnowledgeCollectionPage
                     return result.ToHttpResult();
                 })
             .WithName("GetKnowledgeCollectionPage")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

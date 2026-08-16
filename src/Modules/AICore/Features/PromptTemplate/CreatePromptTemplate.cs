@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.PromptTemplate;
 
@@ -60,8 +62,7 @@ public static class CreatePromptTemplate
             if (codeExists)
             {
                 return Result<PromptTemplate>.Failure(
-                    Error.Conflict(
-                        $"A PromptTemplate with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(PromptTemplate), request.Code)));
             }
 
             var entity = new PromptTemplate
@@ -84,7 +85,7 @@ public static class CreatePromptTemplate
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aicore/prompt-template",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "prompt-template"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreatePromptTemplate
                     return result.ToHttpResult();
                 })
             .WithName("CreatePromptTemplate")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

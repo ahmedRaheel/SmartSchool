@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Identity;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.UserProfile;
 
@@ -37,7 +39,7 @@ public static class GetUserProfilePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/identity/user-profile",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "user-profile"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetUserProfilePage
                     return result.ToHttpResult();
                 })
             .WithName("GetUserProfilePage")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

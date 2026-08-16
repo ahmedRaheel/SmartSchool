@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using SmartSchool.Infrastructure;
 using SmartSchool.Infrastructure.Options;
+using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIParent;
@@ -34,7 +35,7 @@ var builder =
 builder.AddSmartSchoolPlatform();
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddAuthentication(AuthenticationConstants.BearerScheme)
     .AddJwtBearer(
         options =>
         {
@@ -58,7 +59,7 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddHttpClient(
-        "ml",
+        ApplicationConstants.MachineLearningHttpClient,
         (serviceProvider, client) =>
         {
             var options = serviceProvider
@@ -108,12 +109,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet(
-    "/health",
+    ApiRoutes.Health,
     () => Results.Ok(
         new
         {
-            Status = "ok",
-            Product = "SmartSchool"
+            Status = ApplicationConstants.HealthStatusOk,
+            Product = ApplicationConstants.ProductName
         }));
 
 app.MapAICoreEndpoints();

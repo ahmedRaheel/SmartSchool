@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.StudentFee;
 
@@ -25,7 +27,7 @@ public static class GetStudentFeeById
             if (entity is null)
             {
                 return Result<StudentFee>.Failure(
-                    Error.NotFound("StudentFee was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentFee))));
             }
 
             return Result<StudentFee>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStudentFeeById
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentFeeById")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

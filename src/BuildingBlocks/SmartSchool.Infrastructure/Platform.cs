@@ -6,6 +6,7 @@ using Serilog;
 using Serilog.Context;
 using SmartSchool.Infrastructure.Errors;
 using SmartSchool.Infrastructure.Options;
+using SmartSchool.SharedKernel.Constants;
 using System.Text.Json;
 
 namespace SmartSchool.Infrastructure;
@@ -72,10 +73,10 @@ public static class PlatformRegistration
             async (context, next) =>
             {
                 var correlationId =
-                    context.Request.Headers["X-Correlation-ID"].FirstOrDefault()
+                    context.Request.Headers[ApiRoutes.CorrelationHeader].FirstOrDefault()
                     ?? Guid.NewGuid().ToString("N");
 
-                context.Response.Headers["X-Correlation-ID"] =
+                context.Response.Headers[ApiRoutes.CorrelationHeader] =
                     correlationId;
 
                 using (LogContext.PushProperty(
@@ -106,7 +107,7 @@ public static class PlatformRegistration
                     .Enrich.WithSpan()
                     .Enrich.WithProperty(
                         "Application",
-                        "SmartSchool.Api");
+                        ApplicationConstants.ApplicationName);
             });
     }
 

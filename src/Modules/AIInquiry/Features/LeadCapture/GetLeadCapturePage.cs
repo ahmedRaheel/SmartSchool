@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.LeadCapture;
 
@@ -37,7 +39,7 @@ public static class GetLeadCapturePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiinquiry/lead-capture",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "lead-capture"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetLeadCapturePage
                     return result.ToHttpResult();
                 })
             .WithName("GetLeadCapturePage")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Workflow;
 using FluentValidation;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 
@@ -60,8 +62,7 @@ public static class CreateWorkflowStep
             if (codeExists)
             {
                 return Result<WorkflowStep>.Failure(
-                    Error.Conflict(
-                        $"A WorkflowStep with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(WorkflowStep), request.Code)));
             }
 
             var entity = new WorkflowStep
@@ -84,7 +85,7 @@ public static class CreateWorkflowStep
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/workflow/workflow-step",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "workflow-step"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateWorkflowStep
                     return result.ToHttpResult();
                 })
             .WithName("CreateWorkflowStep")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.Department;
 
@@ -37,7 +39,7 @@ public static class GetDepartmentPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/organization/department",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "department"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetDepartmentPage
                     return result.ToHttpResult();
                 })
             .WithName("GetDepartmentPage")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

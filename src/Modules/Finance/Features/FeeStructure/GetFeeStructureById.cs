@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.FeeStructure;
 
@@ -25,7 +27,7 @@ public static class GetFeeStructureById
             if (entity is null)
             {
                 return Result<FeeStructure>.Failure(
-                    Error.NotFound("FeeStructure was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeStructure))));
             }
 
             return Result<FeeStructure>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetFeeStructureById
                     return result.ToHttpResult();
                 })
             .WithName("GetFeeStructureById")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

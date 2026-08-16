@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.Inquiry;
 
@@ -26,7 +28,7 @@ public static class DeleteInquiry
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Inquiry was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Inquiry))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteInquiry
                     return result.ToHttpResult();
                 })
             .WithName("DeleteInquiry")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

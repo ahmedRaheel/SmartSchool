@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
@@ -26,7 +28,7 @@ public static class DeleteGradeScale
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("GradeScale was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeScale))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteGradeScale
                     return result.ToHttpResult();
                 })
             .WithName("DeleteGradeScale")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

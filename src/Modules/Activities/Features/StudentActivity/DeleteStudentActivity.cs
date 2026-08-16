@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.StudentActivity;
 
@@ -26,7 +28,7 @@ public static class DeleteStudentActivity
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("StudentActivity was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentActivity))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteStudentActivity
                     return result.ToHttpResult();
                 })
             .WithName("DeleteStudentActivity")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

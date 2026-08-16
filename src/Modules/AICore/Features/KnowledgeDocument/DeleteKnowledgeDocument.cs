@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 
@@ -26,7 +28,7 @@ public static class DeleteKnowledgeDocument
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("KnowledgeDocument was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeDocument))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteKnowledgeDocument
                     return result.ToHttpResult();
                 })
             .WithName("DeleteKnowledgeDocument")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

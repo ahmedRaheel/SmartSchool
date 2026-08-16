@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
 
@@ -37,7 +39,7 @@ public static class GetTopicPerformanceInsightPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/topic-performance-insight",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "topic-performance-insight"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetTopicPerformanceInsightPage
                     return result.ToHttpResult();
                 })
             .WithName("GetTopicPerformanceInsightPage")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

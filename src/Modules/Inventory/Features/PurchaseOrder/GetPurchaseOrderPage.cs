@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.PurchaseOrder;
 
@@ -37,7 +39,7 @@ public static class GetPurchaseOrderPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/inventory/purchase-order",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "purchase-order"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetPurchaseOrderPage
                     return result.ToHttpResult();
                 })
             .WithName("GetPurchaseOrderPage")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

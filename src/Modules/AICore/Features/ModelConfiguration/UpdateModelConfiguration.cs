@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
@@ -64,7 +66,7 @@ public static class UpdateModelConfiguration
             if (entity is null)
             {
                 return Result<ModelConfiguration>.Failure(
-                    Error.NotFound("ModelConfiguration was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ModelConfiguration))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateModelConfiguration
             if (duplicateCode)
             {
                 return Result<ModelConfiguration>.Failure(
-                    Error.Conflict(
-                        $"A ModelConfiguration with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ModelConfiguration), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateModelConfiguration
                     return result.ToHttpResult();
                 })
             .WithName("UpdateModelConfiguration")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

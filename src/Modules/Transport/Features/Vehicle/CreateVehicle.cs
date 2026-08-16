@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Transport;
 using FluentValidation;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Vehicle;
 
@@ -60,8 +62,7 @@ public static class CreateVehicle
             if (codeExists)
             {
                 return Result<Vehicle>.Failure(
-                    Error.Conflict(
-                        $"A Vehicle with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Vehicle), request.Code)));
             }
 
             var entity = new Vehicle
@@ -84,7 +85,7 @@ public static class CreateVehicle
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/transport/vehicle",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "vehicle"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateVehicle
                     return result.ToHttpResult();
                 })
             .WithName("CreateVehicle")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

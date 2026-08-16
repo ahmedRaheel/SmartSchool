@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.Item;
 
@@ -25,7 +27,7 @@ public static class GetItemById
             if (entity is null)
             {
                 return Result<Item>.Failure(
-                    Error.NotFound("Item was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Item))));
             }
 
             return Result<Item>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetItemById
                     return result.ToHttpResult();
                 })
             .WithName("GetItemById")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

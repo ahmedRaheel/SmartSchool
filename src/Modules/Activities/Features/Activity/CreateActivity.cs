@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Activities;
 using FluentValidation;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.Activity;
 
@@ -60,8 +62,7 @@ public static class CreateActivity
             if (codeExists)
             {
                 return Result<Activity>.Failure(
-                    Error.Conflict(
-                        $"A Activity with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Activity), request.Code)));
             }
 
             var entity = new Activity
@@ -84,7 +85,7 @@ public static class CreateActivity
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/activities/activity",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "activity"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateActivity
                     return result.ToHttpResult();
                 })
             .WithName("CreateActivity")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

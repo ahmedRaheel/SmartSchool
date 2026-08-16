@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 
@@ -25,7 +27,7 @@ public static class GetKnowledgeChunkById
             if (entity is null)
             {
                 return Result<KnowledgeChunk>.Failure(
-                    Error.NotFound("KnowledgeChunk was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeChunk))));
             }
 
             return Result<KnowledgeChunk>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetKnowledgeChunkById
                     return result.ToHttpResult();
                 })
             .WithName("GetKnowledgeChunkById")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Book;
 
@@ -25,7 +27,7 @@ public static class GetBookById
             if (entity is null)
             {
                 return Result<Book>.Failure(
-                    Error.NotFound("Book was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Book))));
             }
 
             return Result<Book>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetBookById
                     return result.ToHttpResult();
                 })
             .WithName("GetBookById")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

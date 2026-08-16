@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using FluentValidation;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 
@@ -64,7 +66,7 @@ public static class UpdateSchoolLogo
             if (entity is null)
             {
                 return Result<SchoolLogo>.Failure(
-                    Error.NotFound("SchoolLogo was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogo))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateSchoolLogo
             if (duplicateCode)
             {
                 return Result<SchoolLogo>.Failure(
-                    Error.Conflict(
-                        $"A SchoolLogo with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(SchoolLogo), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateSchoolLogo
                     return result.ToHttpResult();
                 })
             .WithName("UpdateSchoolLogo")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

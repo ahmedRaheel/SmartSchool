@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.Message;
 
@@ -25,7 +27,7 @@ public static class GetMessageById
             if (entity is null)
             {
                 return Result<Message>.Failure(
-                    Error.NotFound("Message was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Message))));
             }
 
             return Result<Message>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetMessageById
                     return result.ToHttpResult();
                 })
             .WithName("GetMessageById")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

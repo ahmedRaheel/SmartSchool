@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.PurchaseOrder;
 
@@ -25,7 +27,7 @@ public static class GetPurchaseOrderById
             if (entity is null)
             {
                 return Result<PurchaseOrder>.Failure(
-                    Error.NotFound("PurchaseOrder was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PurchaseOrder))));
             }
 
             return Result<PurchaseOrder>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetPurchaseOrderById
                     return result.ToHttpResult();
                 })
             .WithName("GetPurchaseOrderById")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

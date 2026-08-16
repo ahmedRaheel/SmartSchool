@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Admissions;
 using FluentValidation;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 
@@ -60,8 +62,7 @@ public static class CreateAdmissionDecision
             if (codeExists)
             {
                 return Result<AdmissionDecision>.Failure(
-                    Error.Conflict(
-                        $"A AdmissionDecision with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AdmissionDecision), request.Code)));
             }
 
             var entity = new AdmissionDecision
@@ -84,7 +85,7 @@ public static class CreateAdmissionDecision
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/admissions/admission-decision",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "admission-decision"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateAdmissionDecision
                     return result.ToHttpResult();
                 })
             .WithName("CreateAdmissionDecision")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

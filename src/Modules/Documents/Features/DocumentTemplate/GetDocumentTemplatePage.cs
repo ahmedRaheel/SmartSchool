@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.DocumentTemplate;
 
@@ -37,7 +39,7 @@ public static class GetDocumentTemplatePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/documents/document-template",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "document-template"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetDocumentTemplatePage
                     return result.ToHttpResult();
                 })
             .WithName("GetDocumentTemplatePage")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.PredictionEvidence;
 
@@ -37,7 +39,7 @@ public static class GetPredictionEvidencePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/prediction-evidence",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "prediction-evidence"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetPredictionEvidencePage
                     return result.ToHttpResult();
                 })
             .WithName("GetPredictionEvidencePage")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

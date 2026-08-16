@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.GradeLevel;
 
@@ -25,7 +27,7 @@ public static class GetGradeLevelById
             if (entity is null)
             {
                 return Result<GradeLevel>.Failure(
-                    Error.NotFound("GradeLevel was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeLevel))));
             }
 
             return Result<GradeLevel>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetGradeLevelById
                     return result.ToHttpResult();
                 })
             .WithName("GetGradeLevelById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

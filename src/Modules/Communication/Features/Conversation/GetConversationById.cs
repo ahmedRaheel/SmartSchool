@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.Conversation;
 
@@ -25,7 +27,7 @@ public static class GetConversationById
             if (entity is null)
             {
                 return Result<Conversation>.Failure(
-                    Error.NotFound("Conversation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Conversation))));
             }
 
             return Result<Conversation>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetConversationById
                     return result.ToHttpResult();
                 })
             .WithName("GetConversationById")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

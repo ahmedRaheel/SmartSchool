@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.PayrollRun;
 
@@ -25,7 +27,7 @@ public static class GetPayrollRunById
             if (entity is null)
             {
                 return Result<PayrollRun>.Failure(
-                    Error.NotFound("PayrollRun was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PayrollRun))));
             }
 
             return Result<PayrollRun>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetPayrollRunById
                     return result.ToHttpResult();
                 })
             .WithName("GetPayrollRunById")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

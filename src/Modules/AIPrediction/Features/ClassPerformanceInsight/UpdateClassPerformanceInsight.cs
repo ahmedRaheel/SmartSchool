@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.ClassPerformanceInsight;
 
@@ -64,7 +66,7 @@ public static class UpdateClassPerformanceInsight
             if (entity is null)
             {
                 return Result<ClassPerformanceInsight>.Failure(
-                    Error.NotFound("ClassPerformanceInsight was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ClassPerformanceInsight))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateClassPerformanceInsight
             if (duplicateCode)
             {
                 return Result<ClassPerformanceInsight>.Failure(
-                    Error.Conflict(
-                        $"A ClassPerformanceInsight with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ClassPerformanceInsight), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateClassPerformanceInsight
                     return result.ToHttpResult();
                 })
             .WithName("UpdateClassPerformanceInsight")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

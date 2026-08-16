@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.Application;
 
@@ -25,7 +27,7 @@ public static class GetApplicationById
             if (entity is null)
             {
                 return Result<Application>.Failure(
-                    Error.NotFound("Application was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Application))));
             }
 
             return Result<Application>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetApplicationById
                     return result.ToHttpResult();
                 })
             .WithName("GetApplicationById")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

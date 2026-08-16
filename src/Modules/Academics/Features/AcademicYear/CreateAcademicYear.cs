@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.AcademicYear;
 
@@ -60,8 +62,7 @@ public static class CreateAcademicYear
             if (codeExists)
             {
                 return Result<AcademicYear>.Failure(
-                    Error.Conflict(
-                        $"A AcademicYear with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AcademicYear), request.Code)));
             }
 
             var entity = new AcademicYear
@@ -84,7 +85,7 @@ public static class CreateAcademicYear
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/academic-year",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "academic-year"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateAcademicYear
                     return result.ToHttpResult();
                 })
             .WithName("CreateAcademicYear")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

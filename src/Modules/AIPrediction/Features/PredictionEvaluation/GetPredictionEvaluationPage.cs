@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.PredictionEvaluation;
 
@@ -37,7 +39,7 @@ public static class GetPredictionEvaluationPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/prediction-evaluation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "prediction-evaluation"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetPredictionEvaluationPage
                     return result.ToHttpResult();
                 })
             .WithName("GetPredictionEvaluationPage")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

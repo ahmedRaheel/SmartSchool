@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.GradeLevel;
 
@@ -64,7 +66,7 @@ public static class UpdateGradeLevel
             if (entity is null)
             {
                 return Result<GradeLevel>.Failure(
-                    Error.NotFound("GradeLevel was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeLevel))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateGradeLevel
             if (duplicateCode)
             {
                 return Result<GradeLevel>.Failure(
-                    Error.Conflict(
-                        $"A GradeLevel with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(GradeLevel), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateGradeLevel
                     return result.ToHttpResult();
                 })
             .WithName("UpdateGradeLevel")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Program;
 
@@ -60,8 +62,7 @@ public static class CreateProgram
             if (codeExists)
             {
                 return Result<Program>.Failure(
-                    Error.Conflict(
-                        $"A Program with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Program), request.Code)));
             }
 
             var entity = new Program
@@ -84,7 +85,7 @@ public static class CreateProgram
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/program",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "program"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateProgram
                     return result.ToHttpResult();
                 })
             .WithName("CreateProgram")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

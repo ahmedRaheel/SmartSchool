@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction;
 
@@ -37,7 +39,7 @@ public static class GetStudentPerformancePredictionPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/student-performance-prediction",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-performance-prediction"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetStudentPerformancePredictionPage
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentPerformancePredictionPage")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

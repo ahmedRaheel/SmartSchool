@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Invoice;
 
@@ -26,7 +28,7 @@ public static class DeleteInvoice
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Invoice was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Invoice))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteInvoice
                     return result.ToHttpResult();
                 })
             .WithName("DeleteInvoice")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

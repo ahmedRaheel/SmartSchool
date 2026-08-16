@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.ClassSection;
 
@@ -37,7 +39,7 @@ public static class GetClassSectionPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/academics/class-section",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "class-section"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetClassSectionPage
                     return result.ToHttpResult();
                 })
             .WithName("GetClassSectionPage")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

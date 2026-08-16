@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 
@@ -25,7 +27,7 @@ public static class GetLearningRecommendationById
             if (entity is null)
             {
                 return Result<LearningRecommendation>.Failure(
-                    Error.NotFound("LearningRecommendation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LearningRecommendation))));
             }
 
             return Result<LearningRecommendation>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetLearningRecommendationById
                     return result.ToHttpResult();
                 })
             .WithName("GetLearningRecommendationById")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

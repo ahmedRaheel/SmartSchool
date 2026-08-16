@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using FluentValidation;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.MessageReceipt;
 
@@ -60,8 +62,7 @@ public static class CreateMessageReceipt
             if (codeExists)
             {
                 return Result<MessageReceipt>.Failure(
-                    Error.Conflict(
-                        $"A MessageReceipt with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(MessageReceipt), request.Code)));
             }
 
             var entity = new MessageReceipt
@@ -84,7 +85,7 @@ public static class CreateMessageReceipt
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/communication/message-receipt",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "message-receipt"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateMessageReceipt
                     return result.ToHttpResult();
                 })
             .WithName("CreateMessageReceipt")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

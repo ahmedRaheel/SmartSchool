@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.Exam;
 
@@ -26,7 +28,7 @@ public static class DeleteExam
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Exam was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Exam))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteExam
                     return result.ToHttpResult();
                 })
             .WithName("DeleteExam")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

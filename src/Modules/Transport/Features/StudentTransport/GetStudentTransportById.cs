@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 
@@ -25,7 +27,7 @@ public static class GetStudentTransportById
             if (entity is null)
             {
                 return Result<StudentTransport>.Failure(
-                    Error.NotFound("StudentTransport was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentTransport))));
             }
 
             return Result<StudentTransport>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStudentTransportById
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentTransportById")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Interview;
 
@@ -25,7 +27,7 @@ public static class GetInterviewById
             if (entity is null)
             {
                 return Result<Interview>.Failure(
-                    Error.NotFound("Interview was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Interview))));
             }
 
             return Result<Interview>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetInterviewById
                     return result.ToHttpResult();
                 })
             .WithName("GetInterviewById")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

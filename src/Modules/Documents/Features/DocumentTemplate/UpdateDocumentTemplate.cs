@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using FluentValidation;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.DocumentTemplate;
 
@@ -64,7 +66,7 @@ public static class UpdateDocumentTemplate
             if (entity is null)
             {
                 return Result<DocumentTemplate>.Failure(
-                    Error.NotFound("DocumentTemplate was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(DocumentTemplate))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateDocumentTemplate
             if (duplicateCode)
             {
                 return Result<DocumentTemplate>.Failure(
-                    Error.Conflict(
-                        $"A DocumentTemplate with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(DocumentTemplate), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateDocumentTemplate
                     return result.ToHttpResult();
                 })
             .WithName("UpdateDocumentTemplate")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

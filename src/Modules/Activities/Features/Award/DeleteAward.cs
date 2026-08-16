@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.Award;
 
@@ -26,7 +28,7 @@ public static class DeleteAward
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Award was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Award))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteAward
                     return result.ToHttpResult();
                 })
             .WithName("DeleteAward")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

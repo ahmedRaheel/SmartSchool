@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.LeadCapture;
 
@@ -25,7 +27,7 @@ public static class GetLeadCaptureById
             if (entity is null)
             {
                 return Result<LeadCapture>.Failure(
-                    Error.NotFound("LeadCapture was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LeadCapture))));
             }
 
             return Result<LeadCapture>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetLeadCaptureById
                     return result.ToHttpResult();
                 })
             .WithName("GetLeadCaptureById")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

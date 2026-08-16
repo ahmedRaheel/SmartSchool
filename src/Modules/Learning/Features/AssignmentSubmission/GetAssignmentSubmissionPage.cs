@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.AssignmentSubmission;
 
@@ -37,7 +39,7 @@ public static class GetAssignmentSubmissionPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/learning/assignment-submission",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "assignment-submission"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetAssignmentSubmissionPage
                     return result.ToHttpResult();
                 })
             .WithName("GetAssignmentSubmissionPage")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

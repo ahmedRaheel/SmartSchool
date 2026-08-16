@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Learning;
 using FluentValidation;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.LearningResource;
 
@@ -60,8 +62,7 @@ public static class CreateLearningResource
             if (codeExists)
             {
                 return Result<LearningResource>.Failure(
-                    Error.Conflict(
-                        $"A LearningResource with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(LearningResource), request.Code)));
             }
 
             var entity = new LearningResource
@@ -84,7 +85,7 @@ public static class CreateLearningResource
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/learning/learning-resource",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "learning-resource"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateLearningResource
                     return result.ToHttpResult();
                 })
             .WithName("CreateLearningResource")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

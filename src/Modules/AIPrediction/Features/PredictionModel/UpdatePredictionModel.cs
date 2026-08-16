@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 
@@ -64,7 +66,7 @@ public static class UpdatePredictionModel
             if (entity is null)
             {
                 return Result<PredictionModel>.Failure(
-                    Error.NotFound("PredictionModel was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PredictionModel))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdatePredictionModel
             if (duplicateCode)
             {
                 return Result<PredictionModel>.Failure(
-                    Error.Conflict(
-                        $"A PredictionModel with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(PredictionModel), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdatePredictionModel
                     return result.ToHttpResult();
                 })
             .WithName("UpdatePredictionModel")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

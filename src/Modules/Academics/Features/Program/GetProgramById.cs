@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Program;
 
@@ -25,7 +27,7 @@ public static class GetProgramById
             if (entity is null)
             {
                 return Result<Program>.Failure(
-                    Error.NotFound("Program was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Program))));
             }
 
             return Result<Program>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetProgramById
                     return result.ToHttpResult();
                 })
             .WithName("GetProgramById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

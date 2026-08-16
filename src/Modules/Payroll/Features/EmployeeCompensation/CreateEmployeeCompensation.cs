@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.EmployeeCompensation;
 
@@ -60,8 +62,7 @@ public static class CreateEmployeeCompensation
             if (codeExists)
             {
                 return Result<EmployeeCompensation>.Failure(
-                    Error.Conflict(
-                        $"A EmployeeCompensation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(EmployeeCompensation), request.Code)));
             }
 
             var entity = new EmployeeCompensation
@@ -84,7 +85,7 @@ public static class CreateEmployeeCompensation
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/payroll/employee-compensation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "employee-compensation"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateEmployeeCompensation
                     return result.ToHttpResult();
                 })
             .WithName("CreateEmployeeCompensation")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

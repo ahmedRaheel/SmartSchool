@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.AcademicSystem;
 
@@ -37,7 +39,7 @@ public static class GetAcademicSystemPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/academics/academic-system",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "academic-system"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetAcademicSystemPage
                     return result.ToHttpResult();
                 })
             .WithName("GetAcademicSystemPage")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

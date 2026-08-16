@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.AcademicYear;
 
@@ -25,7 +27,7 @@ public static class GetAcademicYearById
             if (entity is null)
             {
                 return Result<AcademicYear>.Failure(
-                    Error.NotFound("AcademicYear was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AcademicYear))));
             }
 
             return Result<AcademicYear>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetAcademicYearById
                     return result.ToHttpResult();
                 })
             .WithName("GetAcademicYearById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

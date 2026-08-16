@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Audit;
 using FluentValidation;
 using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Modules.Audit.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Audit.Features.AuditLog;
 
@@ -60,8 +62,7 @@ public static class CreateAuditLog
             if (codeExists)
             {
                 return Result<AuditLog>.Failure(
-                    Error.Conflict(
-                        $"A AuditLog with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AuditLog), request.Code)));
             }
 
             var entity = new AuditLog
@@ -84,7 +85,7 @@ public static class CreateAuditLog
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/audit/audit-log",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "audit-log"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateAuditLog
                     return result.ToHttpResult();
                 })
             .WithName("CreateAuditLog")
-            .WithTags("Audit")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

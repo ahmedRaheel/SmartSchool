@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Library;
 using FluentValidation;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Loan;
 
@@ -60,8 +62,7 @@ public static class CreateLoan
             if (codeExists)
             {
                 return Result<Loan>.Failure(
-                    Error.Conflict(
-                        $"A Loan with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Loan), request.Code)));
             }
 
             var entity = new Loan
@@ -84,7 +85,7 @@ public static class CreateLoan
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/library/loan",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "loan"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateLoan
                     return result.ToHttpResult();
                 })
             .WithName("CreateLoan")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

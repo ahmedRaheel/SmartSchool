@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.GeneratedDocument;
 
@@ -37,7 +39,7 @@ public static class GetGeneratedDocumentPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/documents/generated-document",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "generated-document"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetGeneratedDocumentPage
                     return result.ToHttpResult();
                 })
             .WithName("GetGeneratedDocumentPage")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Students;
 using FluentValidation;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.Student;
 
@@ -60,8 +62,7 @@ public static class CreateStudent
             if (codeExists)
             {
                 return Result<Student>.Failure(
-                    Error.Conflict(
-                        $"A Student with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Student), request.Code)));
             }
 
             var entity = new Student
@@ -84,7 +85,7 @@ public static class CreateStudent
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/students/student",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStudent
                     return result.ToHttpResult();
                 })
             .WithName("CreateStudent")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

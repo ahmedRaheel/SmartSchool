@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.FeeStructure;
 
@@ -60,8 +62,7 @@ public static class CreateFeeStructure
             if (codeExists)
             {
                 return Result<FeeStructure>.Failure(
-                    Error.Conflict(
-                        $"A FeeStructure with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(FeeStructure), request.Code)));
             }
 
             var entity = new FeeStructure
@@ -84,7 +85,7 @@ public static class CreateFeeStructure
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/finance/fee-structure",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "fee-structure"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateFeeStructure
                     return result.ToHttpResult();
                 })
             .WithName("CreateFeeStructure")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

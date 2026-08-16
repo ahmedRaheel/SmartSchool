@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.EmployeeCompensation;
 
@@ -37,7 +39,7 @@ public static class GetEmployeeCompensationPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/payroll/employee-compensation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "employee-compensation"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetEmployeeCompensationPage
                     return result.ToHttpResult();
                 })
             .WithName("GetEmployeeCompensationPage")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.Enrollment;
 
@@ -25,7 +27,7 @@ public static class GetEnrollmentById
             if (entity is null)
             {
                 return Result<Enrollment>.Failure(
-                    Error.NotFound("Enrollment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Enrollment))));
             }
 
             return Result<Enrollment>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetEnrollmentById
                     return result.ToHttpResult();
                 })
             .WithName("GetEnrollmentById")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

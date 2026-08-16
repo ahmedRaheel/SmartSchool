@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Transport;
 using FluentValidation;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Stop;
 
@@ -64,7 +66,7 @@ public static class UpdateStop
             if (entity is null)
             {
                 return Result<Stop>.Failure(
-                    Error.NotFound("Stop was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Stop))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateStop
             if (duplicateCode)
             {
                 return Result<Stop>.Failure(
-                    Error.Conflict(
-                        $"A Stop with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Stop), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateStop
                     return result.ToHttpResult();
                 })
             .WithName("UpdateStop")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

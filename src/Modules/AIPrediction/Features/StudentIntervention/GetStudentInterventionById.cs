@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
 
@@ -25,7 +27,7 @@ public static class GetStudentInterventionById
             if (entity is null)
             {
                 return Result<StudentIntervention>.Failure(
-                    Error.NotFound("StudentIntervention was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentIntervention))));
             }
 
             return Result<StudentIntervention>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStudentInterventionById
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentInterventionById")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Workflow;
 using FluentValidation;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.Approval;
 
@@ -64,7 +66,7 @@ public static class UpdateApproval
             if (entity is null)
             {
                 return Result<Approval>.Failure(
-                    Error.NotFound("Approval was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Approval))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateApproval
             if (duplicateCode)
             {
                 return Result<Approval>.Failure(
-                    Error.Conflict(
-                        $"A Approval with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Approval), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateApproval
                     return result.ToHttpResult();
                 })
             .WithName("UpdateApproval")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

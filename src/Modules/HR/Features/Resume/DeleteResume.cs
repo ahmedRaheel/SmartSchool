@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Resume;
 
@@ -26,7 +28,7 @@ public static class DeleteResume
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Resume was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Resume))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteResume
                     return result.ToHttpResult();
                 })
             .WithName("DeleteResume")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

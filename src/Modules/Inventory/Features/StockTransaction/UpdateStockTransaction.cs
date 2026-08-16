@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using FluentValidation;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.StockTransaction;
 
@@ -64,7 +66,7 @@ public static class UpdateStockTransaction
             if (entity is null)
             {
                 return Result<StockTransaction>.Failure(
-                    Error.NotFound("StockTransaction was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StockTransaction))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateStockTransaction
             if (duplicateCode)
             {
                 return Result<StockTransaction>.Failure(
-                    Error.Conflict(
-                        $"A StockTransaction with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StockTransaction), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateStockTransaction
                     return result.ToHttpResult();
                 })
             .WithName("UpdateStockTransaction")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.Application;
 
@@ -26,7 +28,7 @@ public static class DeleteApplication
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Application was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Application))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteApplication
                     return result.ToHttpResult();
                 })
             .WithName("DeleteApplication")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

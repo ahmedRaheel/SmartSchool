@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 
@@ -60,8 +62,7 @@ public static class CreateKnowledgeDocument
             if (codeExists)
             {
                 return Result<KnowledgeDocument>.Failure(
-                    Error.Conflict(
-                        $"A KnowledgeDocument with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(KnowledgeDocument), request.Code)));
             }
 
             var entity = new KnowledgeDocument
@@ -84,7 +85,7 @@ public static class CreateKnowledgeDocument
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aicore/knowledge-document",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "knowledge-document"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateKnowledgeDocument
                     return result.ToHttpResult();
                 })
             .WithName("CreateKnowledgeDocument")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

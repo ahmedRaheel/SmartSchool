@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.FeeType;
 
@@ -26,7 +28,7 @@ public static class DeleteFeeType
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("FeeType was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeType))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteFeeType
                     return result.ToHttpResult();
                 })
             .WithName("DeleteFeeType")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

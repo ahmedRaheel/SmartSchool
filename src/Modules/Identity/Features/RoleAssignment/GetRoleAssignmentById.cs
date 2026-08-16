@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Identity;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 
@@ -25,7 +27,7 @@ public static class GetRoleAssignmentById
             if (entity is null)
             {
                 return Result<RoleAssignment>.Failure(
-                    Error.NotFound("RoleAssignment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(RoleAssignment))));
             }
 
             return Result<RoleAssignment>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetRoleAssignmentById
                     return result.ToHttpResult();
                 })
             .WithName("GetRoleAssignmentById")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

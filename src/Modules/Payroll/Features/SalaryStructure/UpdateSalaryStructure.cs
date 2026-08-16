@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 
@@ -64,7 +66,7 @@ public static class UpdateSalaryStructure
             if (entity is null)
             {
                 return Result<SalaryStructure>.Failure(
-                    Error.NotFound("SalaryStructure was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SalaryStructure))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateSalaryStructure
             if (duplicateCode)
             {
                 return Result<SalaryStructure>.Failure(
-                    Error.Conflict(
-                        $"A SalaryStructure with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(SalaryStructure), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateSalaryStructure
                     return result.ToHttpResult();
                 })
             .WithName("UpdateSalaryStructure")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

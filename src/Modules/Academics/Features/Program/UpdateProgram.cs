@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Program;
 
@@ -64,7 +66,7 @@ public static class UpdateProgram
             if (entity is null)
             {
                 return Result<Program>.Failure(
-                    Error.NotFound("Program was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Program))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateProgram
             if (duplicateCode)
             {
                 return Result<Program>.Failure(
-                    Error.Conflict(
-                        $"A Program with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Program), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateProgram
                     return result.ToHttpResult();
                 })
             .WithName("UpdateProgram")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

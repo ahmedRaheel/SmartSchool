@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Position;
 
@@ -60,8 +62,7 @@ public static class CreatePosition
             if (codeExists)
             {
                 return Result<Position>.Failure(
-                    Error.Conflict(
-                        $"A Position with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Position), request.Code)));
             }
 
             var entity = new Position
@@ -84,7 +85,7 @@ public static class CreatePosition
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/hr/position",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "position"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreatePosition
                     return result.ToHttpResult();
                 })
             .WithName("CreatePosition")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.StudentTopicMastery;
 
@@ -37,7 +39,7 @@ public static class GetStudentTopicMasteryPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aitutor/student-topic-mastery",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-topic-mastery"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetStudentTopicMasteryPage
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentTopicMasteryPage")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

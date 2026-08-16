@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.EmployeeCompensation;
 
@@ -25,7 +27,7 @@ public static class GetEmployeeCompensationById
             if (entity is null)
             {
                 return Result<EmployeeCompensation>.Failure(
-                    Error.NotFound("EmployeeCompensation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmployeeCompensation))));
             }
 
             return Result<EmployeeCompensation>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetEmployeeCompensationById
                     return result.ToHttpResult();
                 })
             .WithName("GetEmployeeCompensationById")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Identity;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.UserProfile;
 
@@ -26,7 +28,7 @@ public static class DeleteUserProfile
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("UserProfile was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(UserProfile))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteUserProfile
                     return result.ToHttpResult();
                 })
             .WithName("DeleteUserProfile")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

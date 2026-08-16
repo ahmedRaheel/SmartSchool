@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
@@ -60,8 +62,7 @@ public static class CreateModelConfiguration
             if (codeExists)
             {
                 return Result<ModelConfiguration>.Failure(
-                    Error.Conflict(
-                        $"A ModelConfiguration with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ModelConfiguration), request.Code)));
             }
 
             var entity = new ModelConfiguration
@@ -84,7 +85,7 @@ public static class CreateModelConfiguration
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aicore/model-configuration",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "model-configuration"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateModelConfiguration
                     return result.ToHttpResult();
                 })
             .WithName("CreateModelConfiguration")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 
@@ -26,7 +28,7 @@ public static class DeleteKnowledgeChunk
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("KnowledgeChunk was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeChunk))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteKnowledgeChunk
                     return result.ToHttpResult();
                 })
             .WithName("DeleteKnowledgeChunk")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

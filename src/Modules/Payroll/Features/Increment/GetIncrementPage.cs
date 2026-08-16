@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Increment;
 
@@ -37,7 +39,7 @@ public static class GetIncrementPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/payroll/increment",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "increment"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetIncrementPage
                     return result.ToHttpResult();
                 })
             .WithName("GetIncrementPage")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Tenancy;
 using FluentValidation;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 
@@ -60,8 +62,7 @@ public static class CreateTenant
             if (codeExists)
             {
                 return Result<Tenant>.Failure(
-                    Error.Conflict(
-                        $"A Tenant with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Tenant), request.Code)));
             }
 
             var entity = new Tenant
@@ -84,7 +85,7 @@ public static class CreateTenant
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/tenancy/tenant",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "tenant"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateTenant
                     return result.ToHttpResult();
                 })
             .WithName("CreateTenant")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

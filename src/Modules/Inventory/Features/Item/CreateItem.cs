@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using FluentValidation;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.Item;
 
@@ -60,8 +62,7 @@ public static class CreateItem
             if (codeExists)
             {
                 return Result<Item>.Failure(
-                    Error.Conflict(
-                        $"A Item with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Item), request.Code)));
             }
 
             var entity = new Item
@@ -84,7 +85,7 @@ public static class CreateItem
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/inventory/item",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "item"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateItem
                     return result.ToHttpResult();
                 })
             .WithName("CreateItem")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

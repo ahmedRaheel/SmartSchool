@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using FluentValidation;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.LeadCapture;
 
@@ -60,8 +62,7 @@ public static class CreateLeadCapture
             if (codeExists)
             {
                 return Result<LeadCapture>.Failure(
-                    Error.Conflict(
-                        $"A LeadCapture with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(LeadCapture), request.Code)));
             }
 
             var entity = new LeadCapture
@@ -84,7 +85,7 @@ public static class CreateLeadCapture
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiinquiry/lead-capture",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "lead-capture"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateLeadCapture
                     return result.ToHttpResult();
                 })
             .WithName("CreateLeadCapture")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

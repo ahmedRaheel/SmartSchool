@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
@@ -37,7 +39,7 @@ public static class GetGradeScalePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/examinations/grade-scale",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "grade-scale"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetGradeScalePage
                     return result.ToHttpResult();
                 })
             .WithName("GetGradeScalePage")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

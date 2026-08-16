@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.FeeType;
 
@@ -60,8 +62,7 @@ public static class CreateFeeType
             if (codeExists)
             {
                 return Result<FeeType>.Failure(
-                    Error.Conflict(
-                        $"A FeeType with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(FeeType), request.Code)));
             }
 
             var entity = new FeeType
@@ -84,7 +85,7 @@ public static class CreateFeeType
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/finance/fee-type",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "fee-type"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateFeeType
                     return result.ToHttpResult();
                 })
             .WithName("CreateFeeType")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

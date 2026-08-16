@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Invoice;
 
@@ -25,7 +27,7 @@ public static class GetInvoiceById
             if (entity is null)
             {
                 return Result<Invoice>.Failure(
-                    Error.NotFound("Invoice was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Invoice))));
             }
 
             return Result<Invoice>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetInvoiceById
                     return result.ToHttpResult();
                 })
             .WithName("GetInvoiceById")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

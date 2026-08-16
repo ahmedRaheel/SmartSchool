@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Discount;
 
@@ -64,7 +66,7 @@ public static class UpdateDiscount
             if (entity is null)
             {
                 return Result<Discount>.Failure(
-                    Error.NotFound("Discount was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Discount))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateDiscount
             if (duplicateCode)
             {
                 return Result<Discount>.Failure(
-                    Error.Conflict(
-                        $"A Discount with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Discount), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateDiscount
                     return result.ToHttpResult();
                 })
             .WithName("UpdateDiscount")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

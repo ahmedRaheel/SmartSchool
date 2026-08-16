@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.Notification;
 
@@ -25,7 +27,7 @@ public static class GetNotificationById
             if (entity is null)
             {
                 return Result<Notification>.Failure(
-                    Error.NotFound("Notification was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Notification))));
             }
 
             return Result<Notification>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetNotificationById
                     return result.ToHttpResult();
                 })
             .WithName("GetNotificationById")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

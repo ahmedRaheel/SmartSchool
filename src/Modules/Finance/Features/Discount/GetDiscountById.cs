@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Discount;
 
@@ -25,7 +27,7 @@ public static class GetDiscountById
             if (entity is null)
             {
                 return Result<Discount>.Failure(
-                    Error.NotFound("Discount was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Discount))));
             }
 
             return Result<Discount>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetDiscountById
                     return result.ToHttpResult();
                 })
             .WithName("GetDiscountById")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

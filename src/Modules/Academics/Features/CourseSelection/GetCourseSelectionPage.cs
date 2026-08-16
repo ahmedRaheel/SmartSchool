@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.CourseSelection;
 
@@ -37,7 +39,7 @@ public static class GetCourseSelectionPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/academics/course-selection",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "course-selection"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetCourseSelectionPage
                     return result.ToHttpResult();
                 })
             .WithName("GetCourseSelectionPage")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

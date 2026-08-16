@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIParent;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 
@@ -25,7 +27,7 @@ public static class GetParentToolExecutionById
             if (entity is null)
             {
                 return Result<ParentToolExecution>.Failure(
-                    Error.NotFound("ParentToolExecution was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentToolExecution))));
             }
 
             return Result<ParentToolExecution>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetParentToolExecutionById
                     return result.ToHttpResult();
                 })
             .WithName("GetParentToolExecutionById")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

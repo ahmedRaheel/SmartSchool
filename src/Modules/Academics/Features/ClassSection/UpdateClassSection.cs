@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.ClassSection;
 
@@ -64,7 +66,7 @@ public static class UpdateClassSection
             if (entity is null)
             {
                 return Result<ClassSection>.Failure(
-                    Error.NotFound("ClassSection was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ClassSection))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateClassSection
             if (duplicateCode)
             {
                 return Result<ClassSection>.Failure(
-                    Error.Conflict(
-                        $"A ClassSection with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ClassSection), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateClassSection
                     return result.ToHttpResult();
                 })
             .WithName("UpdateClassSection")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

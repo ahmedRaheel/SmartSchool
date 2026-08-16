@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.StudentOfMonth;
 
@@ -25,7 +27,7 @@ public static class GetStudentOfMonthById
             if (entity is null)
             {
                 return Result<StudentOfMonth>.Failure(
-                    Error.NotFound("StudentOfMonth was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentOfMonth))));
             }
 
             return Result<StudentOfMonth>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStudentOfMonthById
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentOfMonthById")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Activities;
 using FluentValidation;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.Award;
 
@@ -64,7 +66,7 @@ public static class UpdateAward
             if (entity is null)
             {
                 return Result<Award>.Failure(
-                    Error.NotFound("Award was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Award))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateAward
             if (duplicateCode)
             {
                 return Result<Award>.Failure(
-                    Error.Conflict(
-                        $"A Award with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Award), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateAward
                     return result.ToHttpResult();
                 })
             .WithName("UpdateAward")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

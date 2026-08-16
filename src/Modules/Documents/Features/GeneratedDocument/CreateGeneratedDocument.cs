@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using FluentValidation;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.GeneratedDocument;
 
@@ -60,8 +62,7 @@ public static class CreateGeneratedDocument
             if (codeExists)
             {
                 return Result<GeneratedDocument>.Failure(
-                    Error.Conflict(
-                        $"A GeneratedDocument with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(GeneratedDocument), request.Code)));
             }
 
             var entity = new GeneratedDocument
@@ -84,7 +85,7 @@ public static class CreateGeneratedDocument
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/documents/generated-document",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "generated-document"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateGeneratedDocument
                     return result.ToHttpResult();
                 })
             .WithName("CreateGeneratedDocument")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

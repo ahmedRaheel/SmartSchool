@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 
@@ -26,7 +28,7 @@ public static class DeleteSchoolLogo
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("SchoolLogo was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogo))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteSchoolLogo
                     return result.ToHttpResult();
                 })
             .WithName("DeleteSchoolLogo")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

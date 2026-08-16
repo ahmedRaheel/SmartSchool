@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Scholarship;
 
@@ -25,7 +27,7 @@ public static class GetScholarshipById
             if (entity is null)
             {
                 return Result<Scholarship>.Failure(
-                    Error.NotFound("Scholarship was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Scholarship))));
             }
 
             return Result<Scholarship>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetScholarshipById
                     return result.ToHttpResult();
                 })
             .WithName("GetScholarshipById")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

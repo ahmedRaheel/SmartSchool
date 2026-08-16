@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Workflow;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 
@@ -37,7 +39,7 @@ public static class GetWorkflowStepPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/workflow/workflow-step",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "workflow-step"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetWorkflowStepPage
                     return result.ToHttpResult();
                 })
             .WithName("GetWorkflowStepPage")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

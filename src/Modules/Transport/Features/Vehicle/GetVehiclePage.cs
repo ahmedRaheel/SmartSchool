@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Vehicle;
 
@@ -37,7 +39,7 @@ public static class GetVehiclePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/transport/vehicle",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "vehicle"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetVehiclePage
                     return result.ToHttpResult();
                 })
             .WithName("GetVehiclePage")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

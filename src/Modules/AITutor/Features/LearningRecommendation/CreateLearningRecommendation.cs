@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using FluentValidation;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 
@@ -60,8 +62,7 @@ public static class CreateLearningRecommendation
             if (codeExists)
             {
                 return Result<LearningRecommendation>.Failure(
-                    Error.Conflict(
-                        $"A LearningRecommendation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(LearningRecommendation), request.Code)));
             }
 
             var entity = new LearningRecommendation
@@ -84,7 +85,7 @@ public static class CreateLearningRecommendation
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aitutor/learning-recommendation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "learning-recommendation"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateLearningRecommendation
                     return result.ToHttpResult();
                 })
             .WithName("CreateLearningRecommendation")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

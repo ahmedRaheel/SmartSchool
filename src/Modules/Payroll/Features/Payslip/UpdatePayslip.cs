@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Payslip;
 
@@ -64,7 +66,7 @@ public static class UpdatePayslip
             if (entity is null)
             {
                 return Result<Payslip>.Failure(
-                    Error.NotFound("Payslip was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Payslip))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdatePayslip
             if (duplicateCode)
             {
                 return Result<Payslip>.Failure(
-                    Error.Conflict(
-                        $"A Payslip with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Payslip), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdatePayslip
                     return result.ToHttpResult();
                 })
             .WithName("UpdatePayslip")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

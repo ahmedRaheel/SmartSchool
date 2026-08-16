@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.ClassSection;
 
@@ -60,8 +62,7 @@ public static class CreateClassSection
             if (codeExists)
             {
                 return Result<ClassSection>.Failure(
-                    Error.Conflict(
-                        $"A ClassSection with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ClassSection), request.Code)));
             }
 
             var entity = new ClassSection
@@ -84,7 +85,7 @@ public static class CreateClassSection
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/class-section",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "class-section"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateClassSection
                     return result.ToHttpResult();
                 })
             .WithName("CreateClassSection")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

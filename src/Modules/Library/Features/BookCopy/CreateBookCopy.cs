@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Library;
 using FluentValidation;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.BookCopy;
 
@@ -60,8 +62,7 @@ public static class CreateBookCopy
             if (codeExists)
             {
                 return Result<BookCopy>.Failure(
-                    Error.Conflict(
-                        $"A BookCopy with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(BookCopy), request.Code)));
             }
 
             var entity = new BookCopy
@@ -84,7 +85,7 @@ public static class CreateBookCopy
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/library/book-copy",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "book-copy"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateBookCopy
                     return result.ToHttpResult();
                 })
             .WithName("CreateBookCopy")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

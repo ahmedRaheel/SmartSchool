@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.StockTransaction;
 
@@ -25,7 +27,7 @@ public static class GetStockTransactionById
             if (entity is null)
             {
                 return Result<StockTransaction>.Failure(
-                    Error.NotFound("StockTransaction was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StockTransaction))));
             }
 
             return Result<StockTransaction>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStockTransactionById
                     return result.ToHttpResult();
                 })
             .WithName("GetStockTransactionById")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

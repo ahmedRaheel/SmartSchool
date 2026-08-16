@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using FluentValidation;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.Notification;
 
@@ -64,7 +66,7 @@ public static class UpdateNotification
             if (entity is null)
             {
                 return Result<Notification>.Failure(
-                    Error.NotFound("Notification was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Notification))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateNotification
             if (duplicateCode)
             {
                 return Result<Notification>.Failure(
-                    Error.Conflict(
-                        $"A Notification with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Notification), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateNotification
                     return result.ToHttpResult();
                 })
             .WithName("UpdateNotification")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

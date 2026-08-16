@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIParent;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 
@@ -26,7 +28,7 @@ public static class DeleteParentToolExecution
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("ParentToolExecution was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentToolExecution))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteParentToolExecution
                     return result.ToHttpResult();
                 })
             .WithName("DeleteParentToolExecution")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

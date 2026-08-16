@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Transport;
 using FluentValidation;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Stop;
 
@@ -60,8 +62,7 @@ public static class CreateStop
             if (codeExists)
             {
                 return Result<Stop>.Failure(
-                    Error.Conflict(
-                        $"A Stop with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Stop), request.Code)));
             }
 
             var entity = new Stop
@@ -84,7 +85,7 @@ public static class CreateStop
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/transport/stop",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "stop"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStop
                     return result.ToHttpResult();
                 })
             .WithName("CreateStop")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

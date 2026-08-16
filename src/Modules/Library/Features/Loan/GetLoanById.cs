@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Loan;
 
@@ -25,7 +27,7 @@ public static class GetLoanById
             if (entity is null)
             {
                 return Result<Loan>.Failure(
-                    Error.NotFound("Loan was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Loan))));
             }
 
             return Result<Loan>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetLoanById
                     return result.ToHttpResult();
                 })
             .WithName("GetLoanById")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

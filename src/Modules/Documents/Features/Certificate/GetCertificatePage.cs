@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.Certificate;
 
@@ -37,7 +39,7 @@ public static class GetCertificatePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/documents/certificate",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "certificate"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetCertificatePage
                     return result.ToHttpResult();
                 })
             .WithName("GetCertificatePage")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

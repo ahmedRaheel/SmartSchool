@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction;
 
@@ -60,8 +62,7 @@ public static class CreateStudentPerformancePrediction
             if (codeExists)
             {
                 return Result<StudentPerformancePrediction>.Failure(
-                    Error.Conflict(
-                        $"A StudentPerformancePrediction with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StudentPerformancePrediction), request.Code)));
             }
 
             var entity = new StudentPerformancePrediction
@@ -84,7 +85,7 @@ public static class CreateStudentPerformancePrediction
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiprediction/student-performance-prediction",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-performance-prediction"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStudentPerformancePrediction
                     return result.ToHttpResult();
                 })
             .WithName("CreateStudentPerformancePrediction")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

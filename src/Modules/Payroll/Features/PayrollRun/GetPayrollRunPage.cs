@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.PayrollRun;
 
@@ -37,7 +39,7 @@ public static class GetPayrollRunPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/payroll/payroll-run",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "payroll-run"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetPayrollRunPage
                     return result.ToHttpResult();
                 })
             .WithName("GetPayrollRunPage")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

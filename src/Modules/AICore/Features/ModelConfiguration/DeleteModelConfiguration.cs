@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
@@ -26,7 +28,7 @@ public static class DeleteModelConfiguration
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("ModelConfiguration was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ModelConfiguration))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteModelConfiguration
                     return result.ToHttpResult();
                 })
             .WithName("DeleteModelConfiguration")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

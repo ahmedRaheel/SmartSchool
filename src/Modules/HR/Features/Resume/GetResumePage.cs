@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Resume;
 
@@ -37,7 +39,7 @@ public static class GetResumePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/hr/resume",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "resume"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetResumePage
                     return result.ToHttpResult();
                 })
             .WithName("GetResumePage")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

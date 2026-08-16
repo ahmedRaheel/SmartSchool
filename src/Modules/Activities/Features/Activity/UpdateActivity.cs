@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Activities;
 using FluentValidation;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.Activity;
 
@@ -64,7 +66,7 @@ public static class UpdateActivity
             if (entity is null)
             {
                 return Result<Activity>.Failure(
-                    Error.NotFound("Activity was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Activity))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateActivity
             if (duplicateCode)
             {
                 return Result<Activity>.Failure(
-                    Error.Conflict(
-                        $"A Activity with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Activity), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateActivity
                     return result.ToHttpResult();
                 })
             .WithName("UpdateActivity")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

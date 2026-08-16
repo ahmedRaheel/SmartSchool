@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Increment;
 
@@ -26,7 +28,7 @@ public static class DeleteIncrement
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Increment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Increment))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteIncrement
                     return result.ToHttpResult();
                 })
             .WithName("DeleteIncrement")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

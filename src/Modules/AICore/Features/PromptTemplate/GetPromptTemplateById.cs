@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.PromptTemplate;
 
@@ -25,7 +27,7 @@ public static class GetPromptTemplateById
             if (entity is null)
             {
                 return Result<PromptTemplate>.Failure(
-                    Error.NotFound("PromptTemplate was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PromptTemplate))));
             }
 
             return Result<PromptTemplate>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetPromptTemplateById
                     return result.ToHttpResult();
                 })
             .WithName("GetPromptTemplateById")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

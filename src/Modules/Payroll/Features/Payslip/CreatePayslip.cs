@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Payslip;
 
@@ -60,8 +62,7 @@ public static class CreatePayslip
             if (codeExists)
             {
                 return Result<Payslip>.Failure(
-                    Error.Conflict(
-                        $"A Payslip with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Payslip), request.Code)));
             }
 
             var entity = new Payslip
@@ -84,7 +85,7 @@ public static class CreatePayslip
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/payroll/payslip",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "payslip"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreatePayslip
                     return result.ToHttpResult();
                 })
             .WithName("CreatePayslip")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

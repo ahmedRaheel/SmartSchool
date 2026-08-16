@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIPrediction;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
 
@@ -60,8 +62,7 @@ public static class CreateTopicPerformanceInsight
             if (codeExists)
             {
                 return Result<TopicPerformanceInsight>.Failure(
-                    Error.Conflict(
-                        $"A TopicPerformanceInsight with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(TopicPerformanceInsight), request.Code)));
             }
 
             var entity = new TopicPerformanceInsight
@@ -84,7 +85,7 @@ public static class CreateTopicPerformanceInsight
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiprediction/topic-performance-insight",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "topic-performance-insight"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateTopicPerformanceInsight
                     return result.ToHttpResult();
                 })
             .WithName("CreateTopicPerformanceInsight")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

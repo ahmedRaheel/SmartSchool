@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 
@@ -25,7 +27,7 @@ public static class GetEmploymentHistoryById
             if (entity is null)
             {
                 return Result<EmploymentHistory>.Failure(
-                    Error.NotFound("EmploymentHistory was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmploymentHistory))));
             }
 
             return Result<EmploymentHistory>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetEmploymentHistoryById
                     return result.ToHttpResult();
                 })
             .WithName("GetEmploymentHistoryById")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

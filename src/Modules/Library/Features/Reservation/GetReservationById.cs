@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Reservation;
 
@@ -25,7 +27,7 @@ public static class GetReservationById
             if (entity is null)
             {
                 return Result<Reservation>.Failure(
-                    Error.NotFound("Reservation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Reservation))));
             }
 
             return Result<Reservation>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetReservationById
                     return result.ToHttpResult();
                 })
             .WithName("GetReservationById")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

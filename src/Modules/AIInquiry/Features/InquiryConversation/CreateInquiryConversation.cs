@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using FluentValidation;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 
@@ -60,8 +62,7 @@ public static class CreateInquiryConversation
             if (codeExists)
             {
                 return Result<InquiryConversation>.Failure(
-                    Error.Conflict(
-                        $"A InquiryConversation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(InquiryConversation), request.Code)));
             }
 
             var entity = new InquiryConversation
@@ -84,7 +85,7 @@ public static class CreateInquiryConversation
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiinquiry/inquiry-conversation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "inquiry-conversation"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateInquiryConversation
                     return result.ToHttpResult();
                 })
             .WithName("CreateInquiryConversation")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

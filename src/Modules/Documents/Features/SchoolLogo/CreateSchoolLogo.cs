@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using FluentValidation;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 
@@ -60,8 +62,7 @@ public static class CreateSchoolLogo
             if (codeExists)
             {
                 return Result<SchoolLogo>.Failure(
-                    Error.Conflict(
-                        $"A SchoolLogo with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(SchoolLogo), request.Code)));
             }
 
             var entity = new SchoolLogo
@@ -84,7 +85,7 @@ public static class CreateSchoolLogo
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/documents/school-logo",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school-logo"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateSchoolLogo
                     return result.ToHttpResult();
                 })
             .WithName("CreateSchoolLogo")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 
@@ -25,7 +27,7 @@ public static class GetToolDefinitionById
             if (entity is null)
             {
                 return Result<ToolDefinition>.Failure(
-                    Error.NotFound("ToolDefinition was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ToolDefinition))));
             }
 
             return Result<ToolDefinition>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetToolDefinitionById
                     return result.ToHttpResult();
                 })
             .WithName("GetToolDefinitionById")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

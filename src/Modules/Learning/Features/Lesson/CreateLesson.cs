@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Learning;
 using FluentValidation;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.Lesson;
 
@@ -60,8 +62,7 @@ public static class CreateLesson
             if (codeExists)
             {
                 return Result<Lesson>.Failure(
-                    Error.Conflict(
-                        $"A Lesson with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Lesson), request.Code)));
             }
 
             var entity = new Lesson
@@ -84,7 +85,7 @@ public static class CreateLesson
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/learning/lesson",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "lesson"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateLesson
                     return result.ToHttpResult();
                 })
             .WithName("CreateLesson")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

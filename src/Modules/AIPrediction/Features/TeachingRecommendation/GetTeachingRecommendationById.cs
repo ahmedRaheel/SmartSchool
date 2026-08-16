@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 
@@ -25,7 +27,7 @@ public static class GetTeachingRecommendationById
             if (entity is null)
             {
                 return Result<TeachingRecommendation>.Failure(
-                    Error.NotFound("TeachingRecommendation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeachingRecommendation))));
             }
 
             return Result<TeachingRecommendation>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetTeachingRecommendationById
                     return result.ToHttpResult();
                 })
             .WithName("GetTeachingRecommendationById")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

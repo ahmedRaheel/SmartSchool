@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 
@@ -64,7 +66,7 @@ public static class UpdateEmploymentHistory
             if (entity is null)
             {
                 return Result<EmploymentHistory>.Failure(
-                    Error.NotFound("EmploymentHistory was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmploymentHistory))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateEmploymentHistory
             if (duplicateCode)
             {
                 return Result<EmploymentHistory>.Failure(
-                    Error.Conflict(
-                        $"A EmploymentHistory with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(EmploymentHistory), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateEmploymentHistory
                     return result.ToHttpResult();
                 })
             .WithName("UpdateEmploymentHistory")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
@@ -25,7 +27,7 @@ public static class GetModelConfigurationById
             if (entity is null)
             {
                 return Result<ModelConfiguration>.Failure(
-                    Error.NotFound("ModelConfiguration was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ModelConfiguration))));
             }
 
             return Result<ModelConfiguration>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetModelConfigurationById
                     return result.ToHttpResult();
                 })
             .WithName("GetModelConfigurationById")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

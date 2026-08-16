@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Resume;
 
@@ -64,7 +66,7 @@ public static class UpdateResume
             if (entity is null)
             {
                 return Result<Resume>.Failure(
-                    Error.NotFound("Resume was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Resume))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateResume
             if (duplicateCode)
             {
                 return Result<Resume>.Failure(
-                    Error.Conflict(
-                        $"A Resume with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Resume), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateResume
                     return result.ToHttpResult();
                 })
             .WithName("UpdateResume")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

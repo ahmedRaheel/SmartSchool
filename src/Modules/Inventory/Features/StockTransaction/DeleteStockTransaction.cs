@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.StockTransaction;
 
@@ -26,7 +28,7 @@ public static class DeleteStockTransaction
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("StockTransaction was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StockTransaction))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteStockTransaction
                     return result.ToHttpResult();
                 })
             .WithName("DeleteStockTransaction")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

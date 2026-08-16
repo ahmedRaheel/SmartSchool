@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.Notification;
 
@@ -26,7 +28,7 @@ public static class DeleteNotification
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Notification was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Notification))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteNotification
                     return result.ToHttpResult();
                 })
             .WithName("DeleteNotification")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIParent;
 using FluentValidation;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 
@@ -60,8 +62,7 @@ public static class CreateParentToolExecution
             if (codeExists)
             {
                 return Result<ParentToolExecution>.Failure(
-                    Error.Conflict(
-                        $"A ParentToolExecution with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ParentToolExecution), request.Code)));
             }
 
             var entity = new ParentToolExecution
@@ -84,7 +85,7 @@ public static class CreateParentToolExecution
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aiparent/parent-tool-execution",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "parent-tool-execution"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateParentToolExecution
                     return result.ToHttpResult();
                 })
             .WithName("CreateParentToolExecution")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

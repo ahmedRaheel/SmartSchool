@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Stop;
 
@@ -37,7 +39,7 @@ public static class GetStopPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/transport/stop",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "stop"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetStopPage
                     return result.ToHttpResult();
                 })
             .WithName("GetStopPage")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

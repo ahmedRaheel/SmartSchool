@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.TeacherAssignment;
 
@@ -64,7 +66,7 @@ public static class UpdateTeacherAssignment
             if (entity is null)
             {
                 return Result<TeacherAssignment>.Failure(
-                    Error.NotFound("TeacherAssignment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeacherAssignment))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateTeacherAssignment
             if (duplicateCode)
             {
                 return Result<TeacherAssignment>.Failure(
-                    Error.Conflict(
-                        $"A TeacherAssignment with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(TeacherAssignment), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateTeacherAssignment
                     return result.ToHttpResult();
                 })
             .WithName("UpdateTeacherAssignment")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

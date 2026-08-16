@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 
@@ -37,7 +39,7 @@ public static class GetSchoolLogoPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/documents/school-logo",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school-logo"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetSchoolLogoPage
                     return result.ToHttpResult();
                 })
             .WithName("GetSchoolLogoPage")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

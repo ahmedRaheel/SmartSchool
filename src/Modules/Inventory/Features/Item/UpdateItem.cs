@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using FluentValidation;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.Item;
 
@@ -64,7 +66,7 @@ public static class UpdateItem
             if (entity is null)
             {
                 return Result<Item>.Failure(
-                    Error.NotFound("Item was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Item))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateItem
             if (duplicateCode)
             {
                 return Result<Item>.Failure(
-                    Error.Conflict(
-                        $"A Item with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Item), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateItem
                     return result.ToHttpResult();
                 })
             .WithName("UpdateItem")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

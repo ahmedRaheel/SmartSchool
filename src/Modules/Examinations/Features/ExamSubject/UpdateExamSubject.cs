@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Examinations;
 using FluentValidation;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.ExamSubject;
 
@@ -64,7 +66,7 @@ public static class UpdateExamSubject
             if (entity is null)
             {
                 return Result<ExamSubject>.Failure(
-                    Error.NotFound("ExamSubject was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ExamSubject))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateExamSubject
             if (duplicateCode)
             {
                 return Result<ExamSubject>.Failure(
-                    Error.Conflict(
-                        $"A ExamSubject with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ExamSubject), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateExamSubject
                     return result.ToHttpResult();
                 })
             .WithName("UpdateExamSubject")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

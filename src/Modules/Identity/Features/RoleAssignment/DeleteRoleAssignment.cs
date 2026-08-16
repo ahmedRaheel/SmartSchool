@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Identity;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 
@@ -26,7 +28,7 @@ public static class DeleteRoleAssignment
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("RoleAssignment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(RoleAssignment))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteRoleAssignment
                     return result.ToHttpResult();
                 })
             .WithName("DeleteRoleAssignment")
-            .WithTags("Identity")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

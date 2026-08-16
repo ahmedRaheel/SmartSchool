@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Timetable;
 
@@ -60,8 +62,7 @@ public static class CreateTimetable
             if (codeExists)
             {
                 return Result<Timetable>.Failure(
-                    Error.Conflict(
-                        $"A Timetable with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Timetable), request.Code)));
             }
 
             var entity = new Timetable
@@ -84,7 +85,7 @@ public static class CreateTimetable
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/timetable",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "timetable"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateTimetable
                     return result.ToHttpResult();
                 })
             .WithName("CreateTimetable")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

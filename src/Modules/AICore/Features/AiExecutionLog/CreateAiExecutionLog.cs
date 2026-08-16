@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.AiExecutionLog;
 
@@ -60,8 +62,7 @@ public static class CreateAiExecutionLog
             if (codeExists)
             {
                 return Result<AiExecutionLog>.Failure(
-                    Error.Conflict(
-                        $"A AiExecutionLog with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AiExecutionLog), request.Code)));
             }
 
             var entity = new AiExecutionLog
@@ -84,7 +85,7 @@ public static class CreateAiExecutionLog
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/aicore/ai-execution-log",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "ai-execution-log"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateAiExecutionLog
                     return result.ToHttpResult();
                 })
             .WithName("CreateAiExecutionLog")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

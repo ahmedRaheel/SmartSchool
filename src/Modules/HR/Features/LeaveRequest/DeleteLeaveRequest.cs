@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 
@@ -26,7 +28,7 @@ public static class DeleteLeaveRequest
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("LeaveRequest was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LeaveRequest))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteLeaveRequest
                     return result.ToHttpResult();
                 })
             .WithName("DeleteLeaveRequest")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

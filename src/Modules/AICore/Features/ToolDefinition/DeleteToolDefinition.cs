@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 
@@ -26,7 +28,7 @@ public static class DeleteToolDefinition
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("ToolDefinition was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ToolDefinition))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteToolDefinition
                     return result.ToHttpResult();
                 })
             .WithName("DeleteToolDefinition")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

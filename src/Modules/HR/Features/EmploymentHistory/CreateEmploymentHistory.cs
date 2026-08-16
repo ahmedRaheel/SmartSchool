@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 
@@ -60,8 +62,7 @@ public static class CreateEmploymentHistory
             if (codeExists)
             {
                 return Result<EmploymentHistory>.Failure(
-                    Error.Conflict(
-                        $"A EmploymentHistory with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(EmploymentHistory), request.Code)));
             }
 
             var entity = new EmploymentHistory
@@ -84,7 +85,7 @@ public static class CreateEmploymentHistory
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/hr/employment-history",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "employment-history"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateEmploymentHistory
                     return result.ToHttpResult();
                 })
             .WithName("CreateEmploymentHistory")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

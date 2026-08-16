@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Tenancy;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 
@@ -25,7 +27,7 @@ public static class GetTenantById
             if (entity is null)
             {
                 return Result<Tenant>.Failure(
-                    Error.NotFound("Tenant was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Tenant))));
             }
 
             return Result<Tenant>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetTenantById
                     return result.ToHttpResult();
                 })
             .WithName("GetTenantById")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

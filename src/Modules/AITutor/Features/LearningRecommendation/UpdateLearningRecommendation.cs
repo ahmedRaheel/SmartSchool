@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AITutor;
 using FluentValidation;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 
@@ -64,7 +66,7 @@ public static class UpdateLearningRecommendation
             if (entity is null)
             {
                 return Result<LearningRecommendation>.Failure(
-                    Error.NotFound("LearningRecommendation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LearningRecommendation))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateLearningRecommendation
             if (duplicateCode)
             {
                 return Result<LearningRecommendation>.Failure(
-                    Error.Conflict(
-                        $"A LearningRecommendation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(LearningRecommendation), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateLearningRecommendation
                     return result.ToHttpResult();
                 })
             .WithName("UpdateLearningRecommendation")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

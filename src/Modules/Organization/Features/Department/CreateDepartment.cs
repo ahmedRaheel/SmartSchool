@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Organization;
 using FluentValidation;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.Department;
 
@@ -60,8 +62,7 @@ public static class CreateDepartment
             if (codeExists)
             {
                 return Result<Department>.Failure(
-                    Error.Conflict(
-                        $"A Department with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Department), request.Code)));
             }
 
             var entity = new Department
@@ -84,7 +85,7 @@ public static class CreateDepartment
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/organization/department",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "department"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateDepartment
                     return result.ToHttpResult();
                 })
             .WithName("CreateDepartment")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

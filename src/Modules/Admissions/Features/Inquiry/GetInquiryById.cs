@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.Inquiry;
 
@@ -25,7 +27,7 @@ public static class GetInquiryById
             if (entity is null)
             {
                 return Result<Inquiry>.Failure(
-                    Error.NotFound("Inquiry was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Inquiry))));
             }
 
             return Result<Inquiry>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetInquiryById
                     return result.ToHttpResult();
                 })
             .WithName("GetInquiryById")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

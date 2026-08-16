@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Inventory;
 using FluentValidation;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Inventory.Features.StockTransaction;
 
@@ -60,8 +62,7 @@ public static class CreateStockTransaction
             if (codeExists)
             {
                 return Result<StockTransaction>.Failure(
-                    Error.Conflict(
-                        $"A StockTransaction with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StockTransaction), request.Code)));
             }
 
             var entity = new StockTransaction
@@ -84,7 +85,7 @@ public static class CreateStockTransaction
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/inventory/stock-transaction",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "stock-transaction"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStockTransaction
                     return result.ToHttpResult();
                 })
             .WithName("CreateStockTransaction")
-            .WithTags("Inventory")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

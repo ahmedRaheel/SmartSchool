@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Workflow;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 
@@ -25,7 +27,7 @@ public static class GetWorkflowStepById
             if (entity is null)
             {
                 return Result<WorkflowStep>.Failure(
-                    Error.NotFound("WorkflowStep was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowStep))));
             }
 
             return Result<WorkflowStep>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetWorkflowStepById
                     return result.ToHttpResult();
                 })
             .WithName("GetWorkflowStepById")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

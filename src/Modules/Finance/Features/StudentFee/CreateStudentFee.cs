@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.StudentFee;
 
@@ -60,8 +62,7 @@ public static class CreateStudentFee
             if (codeExists)
             {
                 return Result<StudentFee>.Failure(
-                    Error.Conflict(
-                        $"A StudentFee with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(StudentFee), request.Code)));
             }
 
             var entity = new StudentFee
@@ -84,7 +85,7 @@ public static class CreateStudentFee
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/finance/student-fee",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-fee"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateStudentFee
                     return result.ToHttpResult();
                 })
             .WithName("CreateStudentFee")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

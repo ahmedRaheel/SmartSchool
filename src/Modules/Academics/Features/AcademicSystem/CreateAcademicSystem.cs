@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.AcademicSystem;
 
@@ -60,8 +62,7 @@ public static class CreateAcademicSystem
             if (codeExists)
             {
                 return Result<AcademicSystem>.Failure(
-                    Error.Conflict(
-                        $"A AcademicSystem with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AcademicSystem), request.Code)));
             }
 
             var entity = new AcademicSystem
@@ -84,7 +85,7 @@ public static class CreateAcademicSystem
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/academic-system",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "academic-system"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateAcademicSystem
                     return result.ToHttpResult();
                 })
             .WithName("CreateAcademicSystem")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

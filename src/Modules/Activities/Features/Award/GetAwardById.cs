@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.Award;
 
@@ -25,7 +27,7 @@ public static class GetAwardById
             if (entity is null)
             {
                 return Result<Award>.Failure(
-                    Error.NotFound("Award was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Award))));
             }
 
             return Result<Award>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetAwardById
                     return result.ToHttpResult();
                 })
             .WithName("GetAwardById")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

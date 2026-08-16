@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 
@@ -25,7 +27,7 @@ public static class GetLeaveRequestById
             if (entity is null)
             {
                 return Result<LeaveRequest>.Failure(
-                    Error.NotFound("LeaveRequest was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LeaveRequest))));
             }
 
             return Result<LeaveRequest>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetLeaveRequestById
                     return result.ToHttpResult();
                 })
             .WithName("GetLeaveRequestById")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

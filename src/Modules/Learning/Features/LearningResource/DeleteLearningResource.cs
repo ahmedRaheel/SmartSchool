@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Learning.Features.LearningResource;
 
@@ -26,7 +28,7 @@ public static class DeleteLearningResource
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("LearningResource was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LearningResource))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteLearningResource
                     return result.ToHttpResult();
                 })
             .WithName("DeleteLearningResource")
-            .WithTags("Learning")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

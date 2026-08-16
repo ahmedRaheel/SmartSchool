@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIParent;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentMessage;
 
@@ -37,7 +39,7 @@ public static class GetParentMessagePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiparent/parent-message",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "parent-message"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetParentMessagePage
                     return result.ToHttpResult();
                 })
             .WithName("GetParentMessagePage")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

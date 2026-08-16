@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.BookCopy;
 
@@ -26,7 +28,7 @@ public static class DeleteBookCopy
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("BookCopy was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(BookCopy))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteBookCopy
                     return result.ToHttpResult();
                 })
             .WithName("DeleteBookCopy")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

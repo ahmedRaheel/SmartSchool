@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.Enrollment;
 
@@ -26,7 +28,7 @@ public static class DeleteEnrollment
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Enrollment was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Enrollment))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteEnrollment
                     return result.ToHttpResult();
                 })
             .WithName("DeleteEnrollment")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

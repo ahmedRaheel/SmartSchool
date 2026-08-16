@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIInquiry;
 using FluentValidation;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIInquiry.Features.LeadCapture;
 
@@ -64,7 +66,7 @@ public static class UpdateLeadCapture
             if (entity is null)
             {
                 return Result<LeadCapture>.Failure(
-                    Error.NotFound("LeadCapture was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LeadCapture))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateLeadCapture
             if (duplicateCode)
             {
                 return Result<LeadCapture>.Failure(
-                    Error.Conflict(
-                        $"A LeadCapture with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(LeadCapture), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateLeadCapture
                     return result.ToHttpResult();
                 })
             .WithName("UpdateLeadCapture")
-            .WithTags("AIInquiry")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

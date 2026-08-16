@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Reservation;
 
@@ -26,7 +28,7 @@ public static class DeleteReservation
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Reservation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Reservation))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteReservation
                     return result.ToHttpResult();
                 })
             .WithName("DeleteReservation")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

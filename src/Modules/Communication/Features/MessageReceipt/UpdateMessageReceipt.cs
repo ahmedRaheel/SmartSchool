@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using FluentValidation;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.MessageReceipt;
 
@@ -64,7 +66,7 @@ public static class UpdateMessageReceipt
             if (entity is null)
             {
                 return Result<MessageReceipt>.Failure(
-                    Error.NotFound("MessageReceipt was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(MessageReceipt))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateMessageReceipt
             if (duplicateCode)
             {
                 return Result<MessageReceipt>.Failure(
-                    Error.Conflict(
-                        $"A MessageReceipt with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(MessageReceipt), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateMessageReceipt
                     return result.ToHttpResult();
                 })
             .WithName("UpdateMessageReceipt")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

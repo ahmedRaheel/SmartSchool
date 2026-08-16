@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.AiExecutionLog;
 
@@ -25,7 +27,7 @@ public static class GetAiExecutionLogById
             if (entity is null)
             {
                 return Result<AiExecutionLog>.Failure(
-                    Error.NotFound("AiExecutionLog was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AiExecutionLog))));
             }
 
             return Result<AiExecutionLog>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetAiExecutionLogById
                     return result.ToHttpResult();
                 })
             .WithName("GetAiExecutionLogById")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

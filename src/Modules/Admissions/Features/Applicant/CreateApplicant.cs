@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Admissions;
 using FluentValidation;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.Applicant;
 
@@ -60,8 +62,7 @@ public static class CreateApplicant
             if (codeExists)
             {
                 return Result<Applicant>.Failure(
-                    Error.Conflict(
-                        $"A Applicant with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Applicant), request.Code)));
             }
 
             var entity = new Applicant
@@ -84,7 +85,7 @@ public static class CreateApplicant
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/admissions/applicant",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "applicant"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateApplicant
                     return result.ToHttpResult();
                 })
             .WithName("CreateApplicant")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

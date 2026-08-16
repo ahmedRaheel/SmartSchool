@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 
@@ -37,7 +39,7 @@ public static class GetSalaryStructurePage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/payroll/salary-structure",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "salary-structure"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetSalaryStructurePage
                     return result.ToHttpResult();
                 })
             .WithName("GetSalaryStructurePage")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

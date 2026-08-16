@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.AiExecutionLog;
 
@@ -64,7 +66,7 @@ public static class UpdateAiExecutionLog
             if (entity is null)
             {
                 return Result<AiExecutionLog>.Failure(
-                    Error.NotFound("AiExecutionLog was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AiExecutionLog))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateAiExecutionLog
             if (duplicateCode)
             {
                 return Result<AiExecutionLog>.Failure(
-                    Error.Conflict(
-                        $"A AiExecutionLog with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AiExecutionLog), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateAiExecutionLog
                     return result.ToHttpResult();
                 })
             .WithName("UpdateAiExecutionLog")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

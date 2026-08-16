@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Tenancy;
 using FluentValidation;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.CampusBranding;
 
@@ -60,8 +62,7 @@ public static class CreateCampusBranding
             if (codeExists)
             {
                 return Result<CampusBranding>.Failure(
-                    Error.Conflict(
-                        $"A CampusBranding with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(CampusBranding), request.Code)));
             }
 
             var entity = new CampusBranding
@@ -84,7 +85,7 @@ public static class CreateCampusBranding
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/tenancy/campus-branding",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "campus-branding"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateCampusBranding
                     return result.ToHttpResult();
                 })
             .WithName("CreateCampusBranding")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

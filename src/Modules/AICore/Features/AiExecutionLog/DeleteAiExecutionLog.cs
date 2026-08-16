@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.AiExecutionLog;
 
@@ -26,7 +28,7 @@ public static class DeleteAiExecutionLog
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("AiExecutionLog was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AiExecutionLog))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteAiExecutionLog
                     return result.ToHttpResult();
                 })
             .WithName("DeleteAiExecutionLog")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

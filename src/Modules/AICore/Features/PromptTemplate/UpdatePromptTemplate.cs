@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.PromptTemplate;
 
@@ -64,7 +66,7 @@ public static class UpdatePromptTemplate
             if (entity is null)
             {
                 return Result<PromptTemplate>.Failure(
-                    Error.NotFound("PromptTemplate was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PromptTemplate))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdatePromptTemplate
             if (duplicateCode)
             {
                 return Result<PromptTemplate>.Failure(
-                    Error.Conflict(
-                        $"A PromptTemplate with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(PromptTemplate), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdatePromptTemplate
                     return result.ToHttpResult();
                 })
             .WithName("UpdatePromptTemplate")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 
@@ -37,7 +39,7 @@ public static class GetKnowledgeChunkPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aicore/knowledge-chunk",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "knowledge-chunk"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetKnowledgeChunkPage
                     return result.ToHttpResult();
                 })
             .WithName("GetKnowledgeChunkPage")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

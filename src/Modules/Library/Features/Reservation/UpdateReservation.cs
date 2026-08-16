@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Library;
 using FluentValidation;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Reservation;
 
@@ -64,7 +66,7 @@ public static class UpdateReservation
             if (entity is null)
             {
                 return Result<Reservation>.Failure(
-                    Error.NotFound("Reservation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Reservation))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateReservation
             if (duplicateCode)
             {
                 return Result<Reservation>.Failure(
-                    Error.Conflict(
-                        $"A Reservation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Reservation), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateReservation
                     return result.ToHttpResult();
                 })
             .WithName("UpdateReservation")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

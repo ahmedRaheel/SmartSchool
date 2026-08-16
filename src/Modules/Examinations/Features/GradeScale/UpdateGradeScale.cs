@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Examinations;
 using FluentValidation;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
@@ -64,7 +66,7 @@ public static class UpdateGradeScale
             if (entity is null)
             {
                 return Result<GradeScale>.Failure(
-                    Error.NotFound("GradeScale was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeScale))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateGradeScale
             if (duplicateCode)
             {
                 return Result<GradeScale>.Failure(
-                    Error.Conflict(
-                        $"A GradeScale with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(GradeScale), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateGradeScale
                     return result.ToHttpResult();
                 })
             .WithName("UpdateGradeScale")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

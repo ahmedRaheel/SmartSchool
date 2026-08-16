@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.TutorSession;
 
@@ -26,7 +28,7 @@ public static class DeleteTutorSession
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("TutorSession was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TutorSession))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteTutorSession
                     return result.ToHttpResult();
                 })
             .WithName("DeleteTutorSession")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.MessageReceipt;
 
@@ -37,7 +39,7 @@ public static class GetMessageReceiptPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/communication/message-receipt",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "message-receipt"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetMessageReceiptPage
                     return result.ToHttpResult();
                 })
             .WithName("GetMessageReceiptPage")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

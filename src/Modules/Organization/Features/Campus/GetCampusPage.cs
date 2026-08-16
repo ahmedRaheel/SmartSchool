@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Organization.Features.Campus;
 
@@ -37,7 +39,7 @@ public static class GetCampusPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/organization/campus",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "campus"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetCampusPage
                     return result.ToHttpResult();
                 })
             .WithName("GetCampusPage")
-            .WithTags("Organization")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

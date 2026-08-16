@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Tenancy;
 using FluentValidation;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 
@@ -64,7 +66,7 @@ public static class UpdateTenant
             if (entity is null)
             {
                 return Result<Tenant>.Failure(
-                    Error.NotFound("Tenant was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Tenant))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateTenant
             if (duplicateCode)
             {
                 return Result<Tenant>.Failure(
-                    Error.Conflict(
-                        $"A Tenant with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Tenant), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateTenant
                     return result.ToHttpResult();
                 })
             .WithName("UpdateTenant")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

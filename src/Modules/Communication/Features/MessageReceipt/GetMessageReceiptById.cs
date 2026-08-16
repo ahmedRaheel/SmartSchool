@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.MessageReceipt;
 
@@ -25,7 +27,7 @@ public static class GetMessageReceiptById
             if (entity is null)
             {
                 return Result<MessageReceipt>.Failure(
-                    Error.NotFound("MessageReceipt was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(MessageReceipt))));
             }
 
             return Result<MessageReceipt>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetMessageReceiptById
                     return result.ToHttpResult();
                 })
             .WithName("GetMessageReceiptById")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

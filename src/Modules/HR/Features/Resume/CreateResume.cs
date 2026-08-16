@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Resume;
 
@@ -60,8 +62,7 @@ public static class CreateResume
             if (codeExists)
             {
                 return Result<Resume>.Failure(
-                    Error.Conflict(
-                        $"A Resume with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Resume), request.Code)));
             }
 
             var entity = new Resume
@@ -84,7 +85,7 @@ public static class CreateResume
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/hr/resume",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "resume"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateResume
                     return result.ToHttpResult();
                 })
             .WithName("CreateResume")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Examinations;
 using FluentValidation;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Examinations.Features.ExamSubject;
 
@@ -60,8 +62,7 @@ public static class CreateExamSubject
             if (codeExists)
             {
                 return Result<ExamSubject>.Failure(
-                    Error.Conflict(
-                        $"A ExamSubject with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ExamSubject), request.Code)));
             }
 
             var entity = new ExamSubject
@@ -84,7 +85,7 @@ public static class CreateExamSubject
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/examinations/exam-subject",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "exam-subject"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateExamSubject
                     return result.ToHttpResult();
                 })
             .WithName("CreateExamSubject")
-            .WithTags("Examinations")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

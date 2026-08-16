@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Library;
 using FluentValidation;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Reservation;
 
@@ -60,8 +62,7 @@ public static class CreateReservation
             if (codeExists)
             {
                 return Result<Reservation>.Failure(
-                    Error.Conflict(
-                        $"A Reservation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Reservation), request.Code)));
             }
 
             var entity = new Reservation
@@ -84,7 +85,7 @@ public static class CreateReservation
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/library/reservation",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "reservation"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateReservation
                     return result.ToHttpResult();
                 })
             .WithName("CreateReservation")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

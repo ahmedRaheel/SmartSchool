@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Workflow;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.Approval;
 
@@ -25,7 +27,7 @@ public static class GetApprovalById
             if (entity is null)
             {
                 return Result<Approval>.Failure(
-                    Error.NotFound("Approval was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Approval))));
             }
 
             return Result<Approval>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetApprovalById
                     return result.ToHttpResult();
                 })
             .WithName("GetApprovalById")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

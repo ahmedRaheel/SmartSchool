@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.CourseOffering;
 
@@ -60,8 +62,7 @@ public static class CreateCourseOffering
             if (codeExists)
             {
                 return Result<CourseOffering>.Failure(
-                    Error.Conflict(
-                        $"A CourseOffering with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(CourseOffering), request.Code)));
             }
 
             var entity = new CourseOffering
@@ -84,7 +85,7 @@ public static class CreateCourseOffering
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/course-offering",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "course-offering"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateCourseOffering
                     return result.ToHttpResult();
                 })
             .WithName("CreateCourseOffering")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

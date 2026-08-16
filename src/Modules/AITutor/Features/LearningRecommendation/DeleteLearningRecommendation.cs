@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 
@@ -26,7 +28,7 @@ public static class DeleteLearningRecommendation
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("LearningRecommendation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LearningRecommendation))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteLearningRecommendation
                     return result.ToHttpResult();
                 })
             .WithName("DeleteLearningRecommendation")
-            .WithTags("AITutor")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Stop;
 
@@ -26,7 +28,7 @@ public static class DeleteStop
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("Stop was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Stop))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteStop
                     return result.ToHttpResult();
                 })
             .WithName("DeleteStop")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

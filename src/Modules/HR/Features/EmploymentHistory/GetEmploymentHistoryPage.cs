@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 
@@ -37,7 +39,7 @@ public static class GetEmploymentHistoryPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/hr/employment-history",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "employment-history"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetEmploymentHistoryPage
                     return result.ToHttpResult();
                 })
             .WithName("GetEmploymentHistoryPage")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

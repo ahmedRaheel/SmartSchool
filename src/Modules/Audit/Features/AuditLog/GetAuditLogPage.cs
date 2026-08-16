@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Audit;
 using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Audit.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Audit.Features.AuditLog;
 
@@ -37,7 +39,7 @@ public static class GetAuditLogPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/audit/audit-log",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "audit-log"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetAuditLogPage
                     return result.ToHttpResult();
                 })
             .WithName("GetAuditLogPage")
-            .WithTags("Audit")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

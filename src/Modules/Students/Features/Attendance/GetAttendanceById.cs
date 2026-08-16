@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.Attendance;
 
@@ -25,7 +27,7 @@ public static class GetAttendanceById
             if (entity is null)
             {
                 return Result<Attendance>.Failure(
-                    Error.NotFound("Attendance was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Attendance))));
             }
 
             return Result<Attendance>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetAttendanceById
                     return result.ToHttpResult();
                 })
             .WithName("GetAttendanceById")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

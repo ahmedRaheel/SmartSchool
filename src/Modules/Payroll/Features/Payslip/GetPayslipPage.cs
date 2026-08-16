@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Payroll.Features.Payslip;
 
@@ -37,7 +39,7 @@ public static class GetPayslipPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/payroll/payslip",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "payslip"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetPayslipPage
                     return result.ToHttpResult();
                 })
             .WithName("GetPayslipPage")
-            .WithTags("Payroll")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.GradeLevel;
 
@@ -26,7 +28,7 @@ public static class DeleteGradeLevel
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("GradeLevel was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeLevel))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteGradeLevel
                     return result.ToHttpResult();
                 })
             .WithName("DeleteGradeLevel")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

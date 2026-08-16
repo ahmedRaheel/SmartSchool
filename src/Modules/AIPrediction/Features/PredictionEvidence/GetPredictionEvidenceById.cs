@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.PredictionEvidence;
 
@@ -25,7 +27,7 @@ public static class GetPredictionEvidenceById
             if (entity is null)
             {
                 return Result<PredictionEvidence>.Failure(
-                    Error.NotFound("PredictionEvidence was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PredictionEvidence))));
             }
 
             return Result<PredictionEvidence>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetPredictionEvidenceById
                     return result.ToHttpResult();
                 })
             .WithName("GetPredictionEvidenceById")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

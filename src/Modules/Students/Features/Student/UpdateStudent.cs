@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Students;
 using FluentValidation;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.Student;
 
@@ -64,7 +66,7 @@ public static class UpdateStudent
             if (entity is null)
             {
                 return Result<Student>.Failure(
-                    Error.NotFound("Student was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Student))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateStudent
             if (duplicateCode)
             {
                 return Result<Student>.Failure(
-                    Error.Conflict(
-                        $"A Student with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Student), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateStudent
                     return result.ToHttpResult();
                 })
             .WithName("UpdateStudent")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 
@@ -26,7 +28,7 @@ public static class DeletePredictionModel
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("PredictionModel was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PredictionModel))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeletePredictionModel
                     return result.ToHttpResult();
                 })
             .WithName("DeletePredictionModel")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 
@@ -37,7 +39,7 @@ public static class GetAdmissionDecisionPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/admissions/admission-decision",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "admission-decision"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetAdmissionDecisionPage
                     return result.ToHttpResult();
                 })
             .WithName("GetAdmissionDecisionPage")
-            .WithTags("Admissions")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

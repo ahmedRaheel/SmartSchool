@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIParent;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentConversation;
 
@@ -25,7 +27,7 @@ public static class GetParentConversationById
             if (entity is null)
             {
                 return Result<ParentConversation>.Failure(
-                    Error.NotFound("ParentConversation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentConversation))));
             }
 
             return Result<ParentConversation>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetParentConversationById
                     return result.ToHttpResult();
                 })
             .WithName("GetParentConversationById")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

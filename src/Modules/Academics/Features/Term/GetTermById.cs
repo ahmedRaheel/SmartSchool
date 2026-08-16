@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.Term;
 
@@ -25,7 +27,7 @@ public static class GetTermById
             if (entity is null)
             {
                 return Result<Term>.Failure(
-                    Error.NotFound("Term was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Term))));
             }
 
             return Result<Term>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetTermById
                     return result.ToHttpResult();
                 })
             .WithName("GetTermById")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Documents;
 using FluentValidation;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Documents.Features.DocumentTemplate;
 
@@ -60,8 +62,7 @@ public static class CreateDocumentTemplate
             if (codeExists)
             {
                 return Result<DocumentTemplate>.Failure(
-                    Error.Conflict(
-                        $"A DocumentTemplate with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(DocumentTemplate), request.Code)));
             }
 
             var entity = new DocumentTemplate
@@ -84,7 +85,7 @@ public static class CreateDocumentTemplate
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/documents/document-template",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "document-template"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateDocumentTemplate
                     return result.ToHttpResult();
                 })
             .WithName("CreateDocumentTemplate")
-            .WithTags("Documents")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

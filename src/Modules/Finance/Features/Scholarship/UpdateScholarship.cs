@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Finance;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Finance.Features.Scholarship;
 
@@ -64,7 +66,7 @@ public static class UpdateScholarship
             if (entity is null)
             {
                 return Result<Scholarship>.Failure(
-                    Error.NotFound("Scholarship was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Scholarship))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateScholarship
             if (duplicateCode)
             {
                 return Result<Scholarship>.Failure(
-                    Error.Conflict(
-                        $"A Scholarship with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Scholarship), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateScholarship
                     return result.ToHttpResult();
                 })
             .WithName("UpdateScholarship")
-            .WithTags("Finance")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Audit;
 using FluentValidation;
 using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Modules.Audit.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Audit.Features.AuditLog;
 
@@ -64,7 +66,7 @@ public static class UpdateAuditLog
             if (entity is null)
             {
                 return Result<AuditLog>.Failure(
-                    Error.NotFound("AuditLog was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AuditLog))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateAuditLog
             if (duplicateCode)
             {
                 return Result<AuditLog>.Failure(
-                    Error.Conflict(
-                        $"A AuditLog with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AuditLog), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateAuditLog
                     return result.ToHttpResult();
                 })
             .WithName("UpdateAuditLog")
-            .WithTags("Audit")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

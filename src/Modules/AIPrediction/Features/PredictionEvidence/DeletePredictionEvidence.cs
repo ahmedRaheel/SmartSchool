@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.PredictionEvidence;
 
@@ -26,7 +28,7 @@ public static class DeletePredictionEvidence
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("PredictionEvidence was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PredictionEvidence))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeletePredictionEvidence
                     return result.ToHttpResult();
                 })
             .WithName("DeletePredictionEvidence")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

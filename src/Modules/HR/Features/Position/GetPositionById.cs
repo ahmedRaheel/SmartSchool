@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Position;
 
@@ -25,7 +27,7 @@ public static class GetPositionById
             if (entity is null)
             {
                 return Result<Position>.Failure(
-                    Error.NotFound("Position was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Position))));
             }
 
             return Result<Position>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetPositionById
                     return result.ToHttpResult();
                 })
             .WithName("GetPositionById")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

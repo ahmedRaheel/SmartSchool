@@ -1,7 +1,9 @@
+using SmartSchool.Modules.HR;
 using FluentValidation;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 
@@ -64,7 +66,7 @@ public static class UpdateLeaveRequest
             if (entity is null)
             {
                 return Result<LeaveRequest>.Failure(
-                    Error.NotFound("LeaveRequest was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LeaveRequest))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateLeaveRequest
             if (duplicateCode)
             {
                 return Result<LeaveRequest>.Failure(
-                    Error.Conflict(
-                        $"A LeaveRequest with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(LeaveRequest), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateLeaveRequest
                     return result.ToHttpResult();
                 })
             .WithName("UpdateLeaveRequest")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

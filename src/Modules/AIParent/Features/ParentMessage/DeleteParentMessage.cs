@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIParent;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentMessage;
 
@@ -26,7 +28,7 @@ public static class DeleteParentMessage
             if (entity is null)
             {
                 return Result<bool>.Failure(
-                    Error.NotFound("ParentMessage was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentMessage))));
             }
 
             await command.DeleteAsync(
@@ -59,7 +61,7 @@ public static class DeleteParentMessage
                     return result.ToHttpResult();
                 })
             .WithName("DeleteParentMessage")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

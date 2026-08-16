@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Communication.Features.ConversationParticipant;
 
@@ -37,7 +39,7 @@ public static class GetConversationParticipantPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/communication/conversation-participant",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "conversation-participant"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetConversationParticipantPage
                     return result.ToHttpResult();
                 })
             .WithName("GetConversationParticipantPage")
-            .WithTags("Communication")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

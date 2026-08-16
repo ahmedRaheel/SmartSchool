@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Features.Enrollment;
 
@@ -37,7 +39,7 @@ public static class GetEnrollmentPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/students/enrollment",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "enrollment"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetEnrollmentPage
                     return result.ToHttpResult();
                 })
             .WithName("GetEnrollmentPage")
-            .WithTags("Students")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

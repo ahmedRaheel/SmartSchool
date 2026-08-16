@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AICore;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 
@@ -64,7 +66,7 @@ public static class UpdateKnowledgeChunk
             if (entity is null)
             {
                 return Result<KnowledgeChunk>.Failure(
-                    Error.NotFound("KnowledgeChunk was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeChunk))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateKnowledgeChunk
             if (duplicateCode)
             {
                 return Result<KnowledgeChunk>.Failure(
-                    Error.Conflict(
-                        $"A KnowledgeChunk with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(KnowledgeChunk), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateKnowledgeChunk
                     return result.ToHttpResult();
                 })
             .WithName("UpdateKnowledgeChunk")
-            .WithTags("AICore")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

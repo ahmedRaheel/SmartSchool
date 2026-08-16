@@ -1,6 +1,8 @@
+using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Transport.Features.Route;
 
@@ -25,7 +27,7 @@ public static class GetRouteById
             if (entity is null)
             {
                 return Result<Route>.Failure(
-                    Error.NotFound("Route was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Route))));
             }
 
             return Result<Route>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetRouteById
                     return result.ToHttpResult();
                 })
             .WithName("GetRouteById")
-            .WithTags("Transport")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

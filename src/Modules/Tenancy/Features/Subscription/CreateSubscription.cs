@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Tenancy;
 using FluentValidation;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Tenancy.Features.Subscription;
 
@@ -60,8 +62,7 @@ public static class CreateSubscription
             if (codeExists)
             {
                 return Result<Subscription>.Failure(
-                    Error.Conflict(
-                        $"A Subscription with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Subscription), request.Code)));
             }
 
             var entity = new Subscription
@@ -84,7 +85,7 @@ public static class CreateSubscription
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/tenancy/subscription",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "subscription"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateSubscription
                     return result.ToHttpResult();
                 })
             .WithName("CreateSubscription")
-            .WithTags("Tenancy")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

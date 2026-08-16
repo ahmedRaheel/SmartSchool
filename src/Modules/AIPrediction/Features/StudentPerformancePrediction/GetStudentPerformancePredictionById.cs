@@ -1,6 +1,8 @@
+using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction;
 
@@ -25,7 +27,7 @@ public static class GetStudentPerformancePredictionById
             if (entity is null)
             {
                 return Result<StudentPerformancePrediction>.Failure(
-                    Error.NotFound("StudentPerformancePrediction was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentPerformancePrediction))));
             }
 
             return Result<StudentPerformancePrediction>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetStudentPerformancePredictionById
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentPerformancePredictionById")
-            .WithTags("AIPrediction")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

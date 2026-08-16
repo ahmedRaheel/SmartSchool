@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Workflow;
 using FluentValidation;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
 
@@ -60,8 +62,7 @@ public static class CreateWorkflowDefinition
             if (codeExists)
             {
                 return Result<WorkflowDefinition>.Failure(
-                    Error.Conflict(
-                        $"A WorkflowDefinition with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(WorkflowDefinition), request.Code)));
             }
 
             var entity = new WorkflowDefinition
@@ -84,7 +85,7 @@ public static class CreateWorkflowDefinition
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/workflow/workflow-definition",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "workflow-definition"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateWorkflowDefinition
                     return result.ToHttpResult();
                 })
             .WithName("CreateWorkflowDefinition")
-            .WithTags("Workflow")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

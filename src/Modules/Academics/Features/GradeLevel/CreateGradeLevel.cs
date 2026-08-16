@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Academics;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Academics.Features.GradeLevel;
 
@@ -60,8 +62,7 @@ public static class CreateGradeLevel
             if (codeExists)
             {
                 return Result<GradeLevel>.Failure(
-                    Error.Conflict(
-                        $"A GradeLevel with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(GradeLevel), request.Code)));
             }
 
             var entity = new GradeLevel
@@ -84,7 +85,7 @@ public static class CreateGradeLevel
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
-                "/api/academics/grade-level",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "grade-level"),
                 async (
                     Request request,
                     Handler handler,
@@ -97,7 +98,7 @@ public static class CreateGradeLevel
                     return result.ToHttpResult();
                 })
             .WithName("CreateGradeLevel")
-            .WithTags("Academics")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

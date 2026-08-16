@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Library.Features.Loan;
 
@@ -37,7 +39,7 @@ public static class GetLoanPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/library/loan",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "loan"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetLoanPage
                     return result.ToHttpResult();
                 })
             .WithName("GetLoanPage")
-            .WithTags("Library")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

@@ -1,7 +1,9 @@
+using SmartSchool.Modules.AIParent;
 using FluentValidation;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentConversation;
 
@@ -64,7 +66,7 @@ public static class UpdateParentConversation
             if (entity is null)
             {
                 return Result<ParentConversation>.Failure(
-                    Error.NotFound("ParentConversation was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentConversation))));
             }
 
             var duplicateCode = await query.ExistsByCodeAsync(
@@ -76,8 +78,7 @@ public static class UpdateParentConversation
             if (duplicateCode)
             {
                 return Result<ParentConversation>.Failure(
-                    Error.Conflict(
-                        $"A ParentConversation with code '{request.Code}' already exists."));
+                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ParentConversation), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
@@ -113,7 +114,7 @@ public static class UpdateParentConversation
                     return result.ToHttpResult();
                 })
             .WithName("UpdateParentConversation")
-            .WithTags("AIParent")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

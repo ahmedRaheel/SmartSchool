@@ -1,6 +1,8 @@
+using SmartSchool.Modules.HR;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Resume;
 
@@ -25,7 +27,7 @@ public static class GetResumeById
             if (entity is null)
             {
                 return Result<Resume>.Failure(
-                    Error.NotFound("Resume was not found."));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Resume))));
             }
 
             return Result<Resume>.Success(entity);
@@ -52,7 +54,7 @@ public static class GetResumeById
                     return result.ToHttpResult();
                 })
             .WithName("GetResumeById")
-            .WithTags("HR")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;

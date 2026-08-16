@@ -1,7 +1,9 @@
+using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Activities.Features.StudentActivity;
 
@@ -37,7 +39,7 @@ public static class GetStudentActivityPage
         IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/activities/student-activity",
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-activity"),
                 async (
                     Guid tenantId,
                     int page,
@@ -57,7 +59,7 @@ public static class GetStudentActivityPage
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentActivityPage")
-            .WithTags("Activities")
+            .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
 
         return endpoints;
