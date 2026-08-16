@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.AIParent.Features.ParentConversation;
 using SmartSchool.Modules.AIParent.Features.ParentMessage;
@@ -10,6 +11,13 @@ public static class Module
     public static IServiceCollection AddAIParentModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IParentConversationQuery, ParentConversationQuery>();
+        services.AddScoped<IParentConversationCommand, ParentConversationCommand>();
+        services.AddScoped<IParentMessageQuery, ParentMessageQuery>();
+        services.AddScoped<IParentMessageCommand, ParentMessageCommand>();
+        services.AddScoped<IParentToolExecutionQuery, ParentToolExecutionQuery>();
+        services.AddScoped<IParentToolExecutionCommand, ParentToolExecutionCommand>();
+
         services.AddScoped<CreateParentConversation.Handler>();
         services.AddScoped<GetParentConversationById.Handler>();
         services.AddScoped<GetParentConversationPage.Handler>();

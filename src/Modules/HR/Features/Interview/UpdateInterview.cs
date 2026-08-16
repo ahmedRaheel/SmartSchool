@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
 
@@ -35,7 +35,8 @@ public static class UpdateInterview
     }
 
     public sealed class Handler(
-        IRepository<Interview> repository,
+        IInterviewQuery query,
+        IInterviewCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<Interview>> HandleAsync(
@@ -55,7 +56,7 @@ public static class UpdateInterview
                     Error.Validation(message));
             }
 
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId,
                 request.Id,
                 cancellationToken);
@@ -66,7 +67,7 @@ public static class UpdateInterview
                     Error.NotFound("Interview was not found."));
             }
 
-            var duplicateCode = await repository.ExistsByCodeAsync(
+            var duplicateCode = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 request.Id,
@@ -84,7 +85,8 @@ public static class UpdateInterview
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await repository.SaveChangesAsync(
+            await command.UpdateAsync(
+                entity,
                 cancellationToken);
 
             return Result<Interview>.Success(entity);

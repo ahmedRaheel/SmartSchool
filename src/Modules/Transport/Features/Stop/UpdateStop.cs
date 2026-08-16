@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
 
@@ -35,7 +35,8 @@ public static class UpdateStop
     }
 
     public sealed class Handler(
-        IRepository<Stop> repository,
+        IStopQuery query,
+        IStopCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<Stop>> HandleAsync(
@@ -55,7 +56,7 @@ public static class UpdateStop
                     Error.Validation(message));
             }
 
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId,
                 request.Id,
                 cancellationToken);
@@ -66,7 +67,7 @@ public static class UpdateStop
                     Error.NotFound("Stop was not found."));
             }
 
-            var duplicateCode = await repository.ExistsByCodeAsync(
+            var duplicateCode = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 request.Id,
@@ -84,7 +85,8 @@ public static class UpdateStop
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await repository.SaveChangesAsync(
+            await command.UpdateAsync(
+                entity,
                 cancellationToken);
 
             return Result<Stop>.Success(entity);

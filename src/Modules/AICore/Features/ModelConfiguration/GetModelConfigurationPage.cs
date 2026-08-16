@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetModelConfigurationPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<ModelConfiguration> repository)
+        IModelConfigurationQuery query)
     {
         public async Task<Result<PagedResult<ModelConfiguration>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetModelConfigurationPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

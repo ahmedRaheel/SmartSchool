@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
 
@@ -11,13 +11,13 @@ public static class GetDocumentTemplateById
         Guid Id);
 
     public sealed class Handler(
-        IRepository<DocumentTemplate> repository)
+        IDocumentTemplateQuery query)
     {
         public async Task<Result<DocumentTemplate>> HandleAsync(
             Query query,
             CancellationToken cancellationToken)
         {
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 query.TenantId,
                 query.Id,
                 cancellationToken);

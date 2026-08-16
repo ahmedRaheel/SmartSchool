@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
 
@@ -11,13 +11,14 @@ public static class DeleteKnowledgeCollection
         Guid Id);
 
     public sealed class Handler(
-        IRepository<KnowledgeCollection> repository)
+        IKnowledgeCollectionQuery query,
+        IKnowledgeCollectionCommand command)
     {
         public async Task<Result<bool>> HandleAsync(
             Command command,
             CancellationToken cancellationToken)
         {
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 command.TenantId,
                 command.Id,
                 cancellationToken);
@@ -28,9 +29,8 @@ public static class DeleteKnowledgeCollection
                     Error.NotFound("KnowledgeCollection was not found."));
             }
 
-            repository.Remove(entity);
-
-            await repository.SaveChangesAsync(
+            await command.DeleteAsync(
+                entity,
                 cancellationToken);
 
             return Result<bool>.Success(true);

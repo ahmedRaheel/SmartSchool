@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.SharedKernel;
 
@@ -11,13 +11,14 @@ public static class DeleteTenant
         Guid Id);
 
     public sealed class Handler(
-        IRepository<Tenant> repository)
+        ITenantQuery query,
+        ITenantCommand command)
     {
         public async Task<Result<bool>> HandleAsync(
             Command command,
             CancellationToken cancellationToken)
         {
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 command.TenantId,
                 command.Id,
                 cancellationToken);
@@ -28,9 +29,8 @@ public static class DeleteTenant
                     Error.NotFound("Tenant was not found."));
             }
 
-            repository.Remove(entity);
-
-            await repository.SaveChangesAsync(
+            await command.DeleteAsync(
+                entity,
                 cancellationToken);
 
             return Result<bool>.Success(true);

@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateStockTransaction
     }
 
     public sealed class Handler(
-        IRepository<StockTransaction> repository,
+        IStockTransactionQuery query,
+        IStockTransactionCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<StockTransaction>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateStockTransaction
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateStockTransaction
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<StockTransaction>.Success(entity);

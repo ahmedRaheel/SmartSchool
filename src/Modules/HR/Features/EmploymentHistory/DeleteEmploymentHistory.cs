@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
 
@@ -11,13 +11,14 @@ public static class DeleteEmploymentHistory
         Guid Id);
 
     public sealed class Handler(
-        IRepository<EmploymentHistory> repository)
+        IEmploymentHistoryQuery query,
+        IEmploymentHistoryCommand command)
     {
         public async Task<Result<bool>> HandleAsync(
             Command command,
             CancellationToken cancellationToken)
         {
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 command.TenantId,
                 command.Id,
                 cancellationToken);
@@ -28,9 +29,8 @@ public static class DeleteEmploymentHistory
                     Error.NotFound("EmploymentHistory was not found."));
             }
 
-            repository.Remove(entity);
-
-            await repository.SaveChangesAsync(
+            await command.DeleteAsync(
+                entity,
                 cancellationToken);
 
             return Result<bool>.Success(true);

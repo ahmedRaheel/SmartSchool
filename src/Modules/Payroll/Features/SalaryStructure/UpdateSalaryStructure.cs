@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
 
@@ -35,7 +35,8 @@ public static class UpdateSalaryStructure
     }
 
     public sealed class Handler(
-        IRepository<SalaryStructure> repository,
+        ISalaryStructureQuery query,
+        ISalaryStructureCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<SalaryStructure>> HandleAsync(
@@ -55,7 +56,7 @@ public static class UpdateSalaryStructure
                     Error.Validation(message));
             }
 
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId,
                 request.Id,
                 cancellationToken);
@@ -66,7 +67,7 @@ public static class UpdateSalaryStructure
                     Error.NotFound("SalaryStructure was not found."));
             }
 
-            var duplicateCode = await repository.ExistsByCodeAsync(
+            var duplicateCode = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 request.Id,
@@ -84,7 +85,8 @@ public static class UpdateSalaryStructure
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await repository.SaveChangesAsync(
+            await command.UpdateAsync(
+                entity,
                 cancellationToken);
 
             return Result<SalaryStructure>.Success(entity);

@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
 
@@ -11,13 +11,14 @@ public static class DeleteTutorSession
         Guid Id);
 
     public sealed class Handler(
-        IRepository<TutorSession> repository)
+        ITutorSessionQuery query,
+        ITutorSessionCommand command)
     {
         public async Task<Result<bool>> HandleAsync(
             Command command,
             CancellationToken cancellationToken)
         {
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 command.TenantId,
                 command.Id,
                 cancellationToken);
@@ -28,9 +29,8 @@ public static class DeleteTutorSession
                     Error.NotFound("TutorSession was not found."));
             }
 
-            repository.Remove(entity);
-
-            await repository.SaveChangesAsync(
+            await command.DeleteAsync(
+                entity,
                 cancellationToken);
 
             return Result<bool>.Success(true);

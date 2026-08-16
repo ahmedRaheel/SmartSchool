@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
 
@@ -11,13 +11,13 @@ public static class GetLearningRecommendationById
         Guid Id);
 
     public sealed class Handler(
-        IRepository<LearningRecommendation> repository)
+        ILearningRecommendationQuery query)
     {
         public async Task<Result<LearningRecommendation>> HandleAsync(
             Query query,
             CancellationToken cancellationToken)
         {
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 query.TenantId,
                 query.Id,
                 cancellationToken);

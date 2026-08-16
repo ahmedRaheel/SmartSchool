@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetWorkflowInstancePage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<WorkflowInstance> repository)
+        IWorkflowInstanceQuery query)
     {
         public async Task<Result<PagedResult<WorkflowInstance>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetWorkflowInstancePage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateKnowledgeChunk
     }
 
     public sealed class Handler(
-        IRepository<KnowledgeChunk> repository,
+        IKnowledgeChunkQuery query,
+        IKnowledgeChunkCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<KnowledgeChunk>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateKnowledgeChunk
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateKnowledgeChunk
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<KnowledgeChunk>.Success(entity);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 using SmartSchool.Modules.AITutor.Features.LearningRecommendation;
@@ -14,6 +15,21 @@ public static class Module
     public static IServiceCollection AddAITutorModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IGeneratedQuizQuery, GeneratedQuizQuery>();
+        services.AddScoped<IGeneratedQuizCommand, GeneratedQuizCommand>();
+        services.AddScoped<ILearningRecommendationQuery, LearningRecommendationQuery>();
+        services.AddScoped<ILearningRecommendationCommand, LearningRecommendationCommand>();
+        services.AddScoped<IQuizAttemptQuery, QuizAttemptQuery>();
+        services.AddScoped<IQuizAttemptCommand, QuizAttemptCommand>();
+        services.AddScoped<IStudentTopicMasteryQuery, StudentTopicMasteryQuery>();
+        services.AddScoped<IStudentTopicMasteryCommand, StudentTopicMasteryCommand>();
+        services.AddScoped<ITutorConversationQuery, TutorConversationQuery>();
+        services.AddScoped<ITutorConversationCommand, TutorConversationCommand>();
+        services.AddScoped<ITutorMessageQuery, TutorMessageQuery>();
+        services.AddScoped<ITutorMessageCommand, TutorMessageCommand>();
+        services.AddScoped<ITutorSessionQuery, TutorSessionQuery>();
+        services.AddScoped<ITutorSessionCommand, TutorSessionCommand>();
+
         services.AddScoped<CreateGeneratedQuiz.Handler>();
         services.AddScoped<GetGeneratedQuizById.Handler>();
         services.AddScoped<GetGeneratedQuizPage.Handler>();

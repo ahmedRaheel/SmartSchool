@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreatePayrollRun
     }
 
     public sealed class Handler(
-        IRepository<PayrollRun> repository,
+        IPayrollRunQuery query,
+        IPayrollRunCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<PayrollRun>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreatePayrollRun
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreatePayrollRun
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<PayrollRun>.Success(entity);

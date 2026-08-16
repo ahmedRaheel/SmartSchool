@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateApproval
     }
 
     public sealed class Handler(
-        IRepository<Approval> repository,
+        IApprovalQuery query,
+        IApprovalCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<Approval>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateApproval
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateApproval
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<Approval>.Success(entity);

@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateStudentGuardian
     }
 
     public sealed class Handler(
-        IRepository<StudentGuardian> repository,
+        IStudentGuardianQuery query,
+        IStudentGuardianCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<StudentGuardian>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateStudentGuardian
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateStudentGuardian
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<StudentGuardian>.Success(entity);

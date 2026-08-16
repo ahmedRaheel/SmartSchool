@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
 
@@ -35,7 +35,8 @@ public static class UpdateMessageReceipt
     }
 
     public sealed class Handler(
-        IRepository<MessageReceipt> repository,
+        IMessageReceiptQuery query,
+        IMessageReceiptCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<MessageReceipt>> HandleAsync(
@@ -55,7 +56,7 @@ public static class UpdateMessageReceipt
                     Error.Validation(message));
             }
 
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId,
                 request.Id,
                 cancellationToken);
@@ -66,7 +67,7 @@ public static class UpdateMessageReceipt
                     Error.NotFound("MessageReceipt was not found."));
             }
 
-            var duplicateCode = await repository.ExistsByCodeAsync(
+            var duplicateCode = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 request.Id,
@@ -84,7 +85,8 @@ public static class UpdateMessageReceipt
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await repository.SaveChangesAsync(
+            await command.UpdateAsync(
+                entity,
                 cancellationToken);
 
             return Result<MessageReceipt>.Success(entity);

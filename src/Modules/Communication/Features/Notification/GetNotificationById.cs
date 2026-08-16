@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
 
@@ -11,13 +11,13 @@ public static class GetNotificationById
         Guid Id);
 
     public sealed class Handler(
-        IRepository<Notification> repository)
+        INotificationQuery query)
     {
         public async Task<Result<Notification>> HandleAsync(
             Query query,
             CancellationToken cancellationToken)
         {
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 query.TenantId,
                 query.Id,
                 cancellationToken);

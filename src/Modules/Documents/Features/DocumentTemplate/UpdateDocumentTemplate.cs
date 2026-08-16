@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
 
@@ -35,7 +35,8 @@ public static class UpdateDocumentTemplate
     }
 
     public sealed class Handler(
-        IRepository<DocumentTemplate> repository,
+        IDocumentTemplateQuery query,
+        IDocumentTemplateCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<DocumentTemplate>> HandleAsync(
@@ -55,7 +56,7 @@ public static class UpdateDocumentTemplate
                     Error.Validation(message));
             }
 
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId,
                 request.Id,
                 cancellationToken);
@@ -66,7 +67,7 @@ public static class UpdateDocumentTemplate
                     Error.NotFound("DocumentTemplate was not found."));
             }
 
-            var duplicateCode = await repository.ExistsByCodeAsync(
+            var duplicateCode = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 request.Id,
@@ -84,7 +85,8 @@ public static class UpdateDocumentTemplate
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await repository.SaveChangesAsync(
+            await command.UpdateAsync(
+                entity,
                 cancellationToken);
 
             return Result<DocumentTemplate>.Success(entity);

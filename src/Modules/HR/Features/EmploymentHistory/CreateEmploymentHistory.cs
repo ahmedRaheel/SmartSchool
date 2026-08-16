@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateEmploymentHistory
     }
 
     public sealed class Handler(
-        IRepository<EmploymentHistory> repository,
+        IEmploymentHistoryQuery query,
+        IEmploymentHistoryCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<EmploymentHistory>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateEmploymentHistory
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateEmploymentHistory
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<EmploymentHistory>.Success(entity);

@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
 
@@ -11,13 +11,13 @@ public static class GetRoleAssignmentById
         Guid Id);
 
     public sealed class Handler(
-        IRepository<RoleAssignment> repository)
+        IRoleAssignmentQuery query)
     {
         public async Task<Result<RoleAssignment>> HandleAsync(
             Query query,
             CancellationToken cancellationToken)
         {
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 query.TenantId,
                 query.Id,
                 cancellationToken);

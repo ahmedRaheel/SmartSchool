@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreatePredictionModel
     }
 
     public sealed class Handler(
-        IRepository<PredictionModel> repository,
+        IPredictionModelQuery query,
+        IPredictionModelCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<PredictionModel>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreatePredictionModel
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreatePredictionModel
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<PredictionModel>.Success(entity);

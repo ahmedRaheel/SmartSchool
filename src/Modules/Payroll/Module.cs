@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Payroll.Features.EmployeeCompensation;
 using SmartSchool.Modules.Payroll.Features.Increment;
@@ -12,6 +13,17 @@ public static class Module
     public static IServiceCollection AddPayrollModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IEmployeeCompensationQuery, EmployeeCompensationQuery>();
+        services.AddScoped<IEmployeeCompensationCommand, EmployeeCompensationCommand>();
+        services.AddScoped<IIncrementQuery, IncrementQuery>();
+        services.AddScoped<IIncrementCommand, IncrementCommand>();
+        services.AddScoped<IPayrollRunQuery, PayrollRunQuery>();
+        services.AddScoped<IPayrollRunCommand, PayrollRunCommand>();
+        services.AddScoped<IPayslipQuery, PayslipQuery>();
+        services.AddScoped<IPayslipCommand, PayslipCommand>();
+        services.AddScoped<ISalaryStructureQuery, SalaryStructureQuery>();
+        services.AddScoped<ISalaryStructureCommand, SalaryStructureCommand>();
+
         services.AddScoped<CreateEmployeeCompensation.Handler>();
         services.AddScoped<GetEmployeeCompensationById.Handler>();
         services.AddScoped<GetEmployeeCompensationPage.Handler>();

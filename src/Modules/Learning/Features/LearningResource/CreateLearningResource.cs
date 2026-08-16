@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateLearningResource
     }
 
     public sealed class Handler(
-        IRepository<LearningResource> repository,
+        ILearningResourceQuery query,
+        ILearningResourceCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<LearningResource>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateLearningResource
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateLearningResource
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<LearningResource>.Success(entity);

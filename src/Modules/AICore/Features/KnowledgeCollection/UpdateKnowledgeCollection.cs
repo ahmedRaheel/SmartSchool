@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
 
@@ -35,7 +35,8 @@ public static class UpdateKnowledgeCollection
     }
 
     public sealed class Handler(
-        IRepository<KnowledgeCollection> repository,
+        IKnowledgeCollectionQuery query,
+        IKnowledgeCollectionCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<KnowledgeCollection>> HandleAsync(
@@ -55,7 +56,7 @@ public static class UpdateKnowledgeCollection
                     Error.Validation(message));
             }
 
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId,
                 request.Id,
                 cancellationToken);
@@ -66,7 +67,7 @@ public static class UpdateKnowledgeCollection
                     Error.NotFound("KnowledgeCollection was not found."));
             }
 
-            var duplicateCode = await repository.ExistsByCodeAsync(
+            var duplicateCode = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 request.Id,
@@ -84,7 +85,8 @@ public static class UpdateKnowledgeCollection
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await repository.SaveChangesAsync(
+            await command.UpdateAsync(
+                entity,
                 cancellationToken);
 
             return Result<KnowledgeCollection>.Success(entity);

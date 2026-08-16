@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Communication.Features.Conversation;
 using SmartSchool.Modules.Communication.Features.ConversationParticipant;
@@ -12,6 +13,17 @@ public static class Module
     public static IServiceCollection AddCommunicationModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IConversationQuery, ConversationQuery>();
+        services.AddScoped<IConversationCommand, ConversationCommand>();
+        services.AddScoped<IConversationParticipantQuery, ConversationParticipantQuery>();
+        services.AddScoped<IConversationParticipantCommand, ConversationParticipantCommand>();
+        services.AddScoped<IMessageQuery, MessageQuery>();
+        services.AddScoped<IMessageCommand, MessageCommand>();
+        services.AddScoped<IMessageReceiptQuery, MessageReceiptQuery>();
+        services.AddScoped<IMessageReceiptCommand, MessageReceiptCommand>();
+        services.AddScoped<INotificationQuery, NotificationQuery>();
+        services.AddScoped<INotificationCommand, NotificationCommand>();
+
         services.AddScoped<CreateConversation.Handler>();
         services.AddScoped<GetConversationById.Handler>();
         services.AddScoped<GetConversationPage.Handler>();

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Academics.Features.AcademicSystem;
 using SmartSchool.Modules.Academics.Features.AcademicYear;
@@ -19,6 +20,31 @@ public static class Module
     public static IServiceCollection AddAcademicsModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IAcademicSystemQuery, AcademicSystemQuery>();
+        services.AddScoped<IAcademicSystemCommand, AcademicSystemCommand>();
+        services.AddScoped<IAcademicYearQuery, AcademicYearQuery>();
+        services.AddScoped<IAcademicYearCommand, AcademicYearCommand>();
+        services.AddScoped<IClassSectionQuery, ClassSectionQuery>();
+        services.AddScoped<IClassSectionCommand, ClassSectionCommand>();
+        services.AddScoped<ICourseOfferingQuery, CourseOfferingQuery>();
+        services.AddScoped<ICourseOfferingCommand, CourseOfferingCommand>();
+        services.AddScoped<ICourseSelectionQuery, CourseSelectionQuery>();
+        services.AddScoped<ICourseSelectionCommand, CourseSelectionCommand>();
+        services.AddScoped<IGradeLevelQuery, GradeLevelQuery>();
+        services.AddScoped<IGradeLevelCommand, GradeLevelCommand>();
+        services.AddScoped<IProgramQuery, ProgramQuery>();
+        services.AddScoped<IProgramCommand, ProgramCommand>();
+        services.AddScoped<ISubjectQuery, SubjectQuery>();
+        services.AddScoped<ISubjectCommand, SubjectCommand>();
+        services.AddScoped<ITeacherAssignmentQuery, TeacherAssignmentQuery>();
+        services.AddScoped<ITeacherAssignmentCommand, TeacherAssignmentCommand>();
+        services.AddScoped<ITermQuery, TermQuery>();
+        services.AddScoped<ITermCommand, TermCommand>();
+        services.AddScoped<ITimetableQuery, TimetableQuery>();
+        services.AddScoped<ITimetableCommand, TimetableCommand>();
+        services.AddScoped<ITimetableEntryQuery, TimetableEntryQuery>();
+        services.AddScoped<ITimetableEntryCommand, TimetableEntryCommand>();
+
         services.AddScoped<CreateAcademicSystem.Handler>();
         services.AddScoped<GetAcademicSystemById.Handler>();
         services.AddScoped<GetAcademicSystemPage.Handler>();

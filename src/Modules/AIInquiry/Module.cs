@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 using SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddAIInquiryModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IHumanHandoffQuery, HumanHandoffQuery>();
+        services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();
+        services.AddScoped<IInquiryConversationQuery, InquiryConversationQuery>();
+        services.AddScoped<IInquiryConversationCommand, InquiryConversationCommand>();
+        services.AddScoped<IInquiryMessageQuery, InquiryMessageQuery>();
+        services.AddScoped<IInquiryMessageCommand, InquiryMessageCommand>();
+        services.AddScoped<ILeadCaptureQuery, LeadCaptureQuery>();
+        services.AddScoped<ILeadCaptureCommand, LeadCaptureCommand>();
+
         services.AddScoped<CreateHumanHandoff.Handler>();
         services.AddScoped<GetHumanHandoffById.Handler>();
         services.AddScoped<GetHumanHandoffPage.Handler>();

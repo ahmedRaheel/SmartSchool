@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetStockTransactionPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<StockTransaction> repository)
+        IStockTransactionQuery query)
     {
         public async Task<Result<PagedResult<StockTransaction>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetStockTransactionPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

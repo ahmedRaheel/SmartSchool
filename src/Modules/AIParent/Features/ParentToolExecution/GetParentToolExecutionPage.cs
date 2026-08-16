@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetParentToolExecutionPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<ParentToolExecution> repository)
+        IParentToolExecutionQuery query)
     {
         public async Task<Result<PagedResult<ParentToolExecution>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetParentToolExecutionPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

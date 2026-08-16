@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Finance.Features.Discount;
 using SmartSchool.Modules.Finance.Features.FeeStructure;
@@ -14,6 +15,21 @@ public static class Module
     public static IServiceCollection AddFinanceModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IDiscountQuery, DiscountQuery>();
+        services.AddScoped<IDiscountCommand, DiscountCommand>();
+        services.AddScoped<IFeeStructureQuery, FeeStructureQuery>();
+        services.AddScoped<IFeeStructureCommand, FeeStructureCommand>();
+        services.AddScoped<IFeeTypeQuery, FeeTypeQuery>();
+        services.AddScoped<IFeeTypeCommand, FeeTypeCommand>();
+        services.AddScoped<IInvoiceQuery, InvoiceQuery>();
+        services.AddScoped<IInvoiceCommand, InvoiceCommand>();
+        services.AddScoped<IPaymentQuery, PaymentQuery>();
+        services.AddScoped<IPaymentCommand, PaymentCommand>();
+        services.AddScoped<IScholarshipQuery, ScholarshipQuery>();
+        services.AddScoped<IScholarshipCommand, ScholarshipCommand>();
+        services.AddScoped<IStudentFeeQuery, StudentFeeQuery>();
+        services.AddScoped<IStudentFeeCommand, StudentFeeCommand>();
+
         services.AddScoped<CreateDiscount.Handler>();
         services.AddScoped<GetDiscountById.Handler>();
         services.AddScoped<GetDiscountPage.Handler>();

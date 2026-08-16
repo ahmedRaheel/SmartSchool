@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetRoleAssignmentPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<RoleAssignment> repository)
+        IRoleAssignmentQuery query)
     {
         public async Task<Result<PagedResult<RoleAssignment>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetRoleAssignmentPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

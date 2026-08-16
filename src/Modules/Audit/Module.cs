@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Audit.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Audit.Features.AuditLog;
 
@@ -8,6 +9,9 @@ public static class Module
     public static IServiceCollection AddAuditModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IAuditLogQuery, AuditLogQuery>();
+        services.AddScoped<IAuditLogCommand, AuditLogCommand>();
+
         services.AddScoped<CreateAuditLog.Handler>();
         services.AddScoped<GetAuditLogById.Handler>();
         services.AddScoped<GetAuditLogPage.Handler>();

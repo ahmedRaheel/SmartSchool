@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Admissions.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 using SmartSchool.Modules.Admissions.Features.Applicant;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddAdmissionsModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IAdmissionDecisionQuery, AdmissionDecisionQuery>();
+        services.AddScoped<IAdmissionDecisionCommand, AdmissionDecisionCommand>();
+        services.AddScoped<IApplicantQuery, ApplicantQuery>();
+        services.AddScoped<IApplicantCommand, ApplicantCommand>();
+        services.AddScoped<IApplicationQuery, ApplicationQuery>();
+        services.AddScoped<IApplicationCommand, ApplicationCommand>();
+        services.AddScoped<IInquiryQuery, InquiryQuery>();
+        services.AddScoped<IInquiryCommand, InquiryCommand>();
+
         services.AddScoped<CreateAdmissionDecision.Handler>();
         services.AddScoped<GetAdmissionDecisionById.Handler>();
         services.AddScoped<GetAdmissionDecisionPage.Handler>();

@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetLeaveRequestPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<LeaveRequest> repository)
+        ILeaveRequestQuery query)
     {
         public async Task<Result<PagedResult<LeaveRequest>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetLeaveRequestPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

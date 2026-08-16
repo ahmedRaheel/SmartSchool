@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetPromptTemplatePage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<PromptTemplate> repository)
+        IPromptTemplateQuery query)
     {
         public async Task<Result<PagedResult<PromptTemplate>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetPromptTemplatePage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

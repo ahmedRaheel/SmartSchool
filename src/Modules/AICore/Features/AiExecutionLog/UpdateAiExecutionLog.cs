@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
 
@@ -35,7 +35,8 @@ public static class UpdateAiExecutionLog
     }
 
     public sealed class Handler(
-        IRepository<AiExecutionLog> repository,
+        IAiExecutionLogQuery query,
+        IAiExecutionLogCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<AiExecutionLog>> HandleAsync(
@@ -55,7 +56,7 @@ public static class UpdateAiExecutionLog
                     Error.Validation(message));
             }
 
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId,
                 request.Id,
                 cancellationToken);
@@ -66,7 +67,7 @@ public static class UpdateAiExecutionLog
                     Error.NotFound("AiExecutionLog was not found."));
             }
 
-            var duplicateCode = await repository.ExistsByCodeAsync(
+            var duplicateCode = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 request.Id,
@@ -84,7 +85,8 @@ public static class UpdateAiExecutionLog
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await repository.SaveChangesAsync(
+            await command.UpdateAsync(
+                entity,
                 cancellationToken);
 
             return Result<AiExecutionLog>.Success(entity);

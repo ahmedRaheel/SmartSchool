@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.AICore.Features.AiExecutionLog;
 using SmartSchool.Modules.AICore.Features.KnowledgeChunk;
@@ -14,6 +15,21 @@ public static class Module
     public static IServiceCollection AddAICoreModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
+        services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
+        services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();
+        services.AddScoped<IKnowledgeChunkCommand, KnowledgeChunkCommand>();
+        services.AddScoped<IKnowledgeCollectionQuery, KnowledgeCollectionQuery>();
+        services.AddScoped<IKnowledgeCollectionCommand, KnowledgeCollectionCommand>();
+        services.AddScoped<IKnowledgeDocumentQuery, KnowledgeDocumentQuery>();
+        services.AddScoped<IKnowledgeDocumentCommand, KnowledgeDocumentCommand>();
+        services.AddScoped<IModelConfigurationQuery, ModelConfigurationQuery>();
+        services.AddScoped<IModelConfigurationCommand, ModelConfigurationCommand>();
+        services.AddScoped<IPromptTemplateQuery, PromptTemplateQuery>();
+        services.AddScoped<IPromptTemplateCommand, PromptTemplateCommand>();
+        services.AddScoped<IToolDefinitionQuery, ToolDefinitionQuery>();
+        services.AddScoped<IToolDefinitionCommand, ToolDefinitionCommand>();
+
         services.AddScoped<CreateAiExecutionLog.Handler>();
         services.AddScoped<GetAiExecutionLogById.Handler>();
         services.AddScoped<GetAiExecutionLogPage.Handler>();

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Examinations.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Examinations.Features.Exam;
 using SmartSchool.Modules.Examinations.Features.ExamSubject;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddExaminationsModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IExamQuery, ExamQuery>();
+        services.AddScoped<IExamCommand, ExamCommand>();
+        services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
+        services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
+        services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
+        services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
+        services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
+        services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
+
         services.AddScoped<CreateExam.Handler>();
         services.AddScoped<GetExamById.Handler>();
         services.AddScoped<GetExamPage.Handler>();

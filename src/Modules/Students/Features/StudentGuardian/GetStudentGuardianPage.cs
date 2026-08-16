@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetStudentGuardianPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<StudentGuardian> repository)
+        IStudentGuardianQuery query)
     {
         public async Task<Result<PagedResult<StudentGuardian>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetStudentGuardianPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

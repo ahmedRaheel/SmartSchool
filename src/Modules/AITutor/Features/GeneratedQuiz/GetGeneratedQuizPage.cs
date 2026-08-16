@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetGeneratedQuizPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<GeneratedQuiz> repository)
+        IGeneratedQuizQuery query)
     {
         public async Task<Result<PagedResult<GeneratedQuiz>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetGeneratedQuizPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

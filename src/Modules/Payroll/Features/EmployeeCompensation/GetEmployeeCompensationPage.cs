@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetEmployeeCompensationPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<EmployeeCompensation> repository)
+        IEmployeeCompensationQuery query)
     {
         public async Task<Result<PagedResult<EmployeeCompensation>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetEmployeeCompensationPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

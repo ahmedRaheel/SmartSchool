@@ -1,16 +1,1 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="../../BuildingBlocks/SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
-    <ProjectReference Include="../../BuildingBlocks/SmartSchool.Application/SmartSchool.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentValidation" />
-  </ItemGroup>
-
-</Project>
+<Project Sdk="Microsoft.NET.Sdk" />

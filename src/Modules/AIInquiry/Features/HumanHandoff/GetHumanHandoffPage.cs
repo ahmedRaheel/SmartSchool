@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetHumanHandoffPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<HumanHandoff> repository)
+        IHumanHandoffQuery query)
     {
         public async Task<Result<PagedResult<HumanHandoff>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetHumanHandoffPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

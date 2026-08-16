@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateDocumentTemplate
     }
 
     public sealed class Handler(
-        IRepository<DocumentTemplate> repository,
+        IDocumentTemplateQuery query,
+        IDocumentTemplateCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<DocumentTemplate>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateDocumentTemplate
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateDocumentTemplate
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<DocumentTemplate>.Success(entity);

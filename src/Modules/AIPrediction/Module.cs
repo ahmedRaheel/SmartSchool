@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.AIPrediction.Features.ClassPerformanceInsight;
 using SmartSchool.Modules.AIPrediction.Features.PredictionEvaluation;
@@ -15,6 +16,23 @@ public static class Module
     public static IServiceCollection AddAIPredictionModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IClassPerformanceInsightQuery, ClassPerformanceInsightQuery>();
+        services.AddScoped<IClassPerformanceInsightCommand, ClassPerformanceInsightCommand>();
+        services.AddScoped<IPredictionEvaluationQuery, PredictionEvaluationQuery>();
+        services.AddScoped<IPredictionEvaluationCommand, PredictionEvaluationCommand>();
+        services.AddScoped<IPredictionEvidenceQuery, PredictionEvidenceQuery>();
+        services.AddScoped<IPredictionEvidenceCommand, PredictionEvidenceCommand>();
+        services.AddScoped<IPredictionModelQuery, PredictionModelQuery>();
+        services.AddScoped<IPredictionModelCommand, PredictionModelCommand>();
+        services.AddScoped<IStudentInterventionQuery, StudentInterventionQuery>();
+        services.AddScoped<IStudentInterventionCommand, StudentInterventionCommand>();
+        services.AddScoped<IStudentPerformancePredictionQuery, StudentPerformancePredictionQuery>();
+        services.AddScoped<IStudentPerformancePredictionCommand, StudentPerformancePredictionCommand>();
+        services.AddScoped<ITeachingRecommendationQuery, TeachingRecommendationQuery>();
+        services.AddScoped<ITeachingRecommendationCommand, TeachingRecommendationCommand>();
+        services.AddScoped<ITopicPerformanceInsightQuery, TopicPerformanceInsightQuery>();
+        services.AddScoped<ITopicPerformanceInsightCommand, TopicPerformanceInsightCommand>();
+
         services.AddScoped<CreateClassPerformanceInsight.Handler>();
         services.AddScoped<GetClassPerformanceInsightById.Handler>();
         services.AddScoped<GetClassPerformanceInsightPage.Handler>();

@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Modules.Audit.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateAuditLog
     }
 
     public sealed class Handler(
-        IRepository<AuditLog> repository,
+        IAuditLogQuery query,
+        IAuditLogCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<AuditLog>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateAuditLog
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateAuditLog
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<AuditLog>.Success(entity);

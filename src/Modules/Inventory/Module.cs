@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Inventory.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Inventory.Features.Item;
 using SmartSchool.Modules.Inventory.Features.PurchaseOrder;
@@ -10,6 +11,13 @@ public static class Module
     public static IServiceCollection AddInventoryModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IItemQuery, ItemQuery>();
+        services.AddScoped<IItemCommand, ItemCommand>();
+        services.AddScoped<IPurchaseOrderQuery, PurchaseOrderQuery>();
+        services.AddScoped<IPurchaseOrderCommand, PurchaseOrderCommand>();
+        services.AddScoped<IStockTransactionQuery, StockTransactionQuery>();
+        services.AddScoped<IStockTransactionCommand, StockTransactionCommand>();
+
         services.AddScoped<CreateItem.Handler>();
         services.AddScoped<GetItemById.Handler>();
         services.AddScoped<GetItemPage.Handler>();

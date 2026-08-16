@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateScholarship
     }
 
     public sealed class Handler(
-        IRepository<Scholarship> repository,
+        IScholarshipQuery query,
+        IScholarshipCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<Scholarship>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateScholarship
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateScholarship
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<Scholarship>.Success(entity);

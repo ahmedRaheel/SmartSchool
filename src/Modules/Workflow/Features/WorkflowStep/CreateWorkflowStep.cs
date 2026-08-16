@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateWorkflowStep
     }
 
     public sealed class Handler(
-        IRepository<WorkflowStep> repository,
+        IWorkflowStepQuery query,
+        IWorkflowStepCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<WorkflowStep>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateWorkflowStep
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateWorkflowStep
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<WorkflowStep>.Success(entity);

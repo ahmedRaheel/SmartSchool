@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Students.Features.Attendance;
 using SmartSchool.Modules.Students.Features.Enrollment;
@@ -12,6 +13,17 @@ public static class Module
     public static IServiceCollection AddStudentsModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IAttendanceQuery, AttendanceQuery>();
+        services.AddScoped<IAttendanceCommand, AttendanceCommand>();
+        services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();
+        services.AddScoped<IEnrollmentCommand, EnrollmentCommand>();
+        services.AddScoped<IGuardianQuery, GuardianQuery>();
+        services.AddScoped<IGuardianCommand, GuardianCommand>();
+        services.AddScoped<IStudentQuery, StudentQuery>();
+        services.AddScoped<IStudentCommand, StudentCommand>();
+        services.AddScoped<IStudentGuardianQuery, StudentGuardianQuery>();
+        services.AddScoped<IStudentGuardianCommand, StudentGuardianCommand>();
+
         services.AddScoped<CreateAttendance.Handler>();
         services.AddScoped<GetAttendanceById.Handler>();
         services.AddScoped<GetAttendancePage.Handler>();

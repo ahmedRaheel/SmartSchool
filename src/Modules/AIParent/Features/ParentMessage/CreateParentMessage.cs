@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateParentMessage
     }
 
     public sealed class Handler(
-        IRepository<ParentMessage> repository,
+        IParentMessageQuery query,
+        IParentMessageCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<ParentMessage>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateParentMessage
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateParentMessage
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<ParentMessage>.Success(entity);

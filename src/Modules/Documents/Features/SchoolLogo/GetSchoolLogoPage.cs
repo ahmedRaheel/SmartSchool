@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetSchoolLogoPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<SchoolLogo> repository)
+        ISchoolLogoQuery query)
     {
         public async Task<Result<PagedResult<SchoolLogo>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetSchoolLogoPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

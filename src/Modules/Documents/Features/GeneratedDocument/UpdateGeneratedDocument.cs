@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
 
@@ -35,7 +35,8 @@ public static class UpdateGeneratedDocument
     }
 
     public sealed class Handler(
-        IRepository<GeneratedDocument> repository,
+        IGeneratedDocumentQuery query,
+        IGeneratedDocumentCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<GeneratedDocument>> HandleAsync(
@@ -55,7 +56,7 @@ public static class UpdateGeneratedDocument
                     Error.Validation(message));
             }
 
-            var entity = await repository.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId,
                 request.Id,
                 cancellationToken);
@@ -66,7 +67,7 @@ public static class UpdateGeneratedDocument
                     Error.NotFound("GeneratedDocument was not found."));
             }
 
-            var duplicateCode = await repository.ExistsByCodeAsync(
+            var duplicateCode = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 request.Id,
@@ -84,7 +85,8 @@ public static class UpdateGeneratedDocument
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await repository.SaveChangesAsync(
+            await command.UpdateAsync(
+                entity,
                 cancellationToken);
 
             return Result<GeneratedDocument>.Success(entity);

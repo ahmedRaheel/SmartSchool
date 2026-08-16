@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Organization.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Organization.Features.Campus;
 using SmartSchool.Modules.Organization.Features.Department;
@@ -10,6 +11,13 @@ public static class Module
     public static IServiceCollection AddOrganizationModule(
         this IServiceCollection services)
     {
+        services.AddScoped<ICampusQuery, CampusQuery>();
+        services.AddScoped<ICampusCommand, CampusCommand>();
+        services.AddScoped<IDepartmentQuery, DepartmentQuery>();
+        services.AddScoped<IDepartmentCommand, DepartmentCommand>();
+        services.AddScoped<ISchoolQuery, SchoolQuery>();
+        services.AddScoped<ISchoolCommand, SchoolCommand>();
+
         services.AddScoped<CreateCampus.Handler>();
         services.AddScoped<GetCampusById.Handler>();
         services.AddScoped<GetCampusPage.Handler>();

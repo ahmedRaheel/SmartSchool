@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Learning.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Learning.Features.Assignment;
 using SmartSchool.Modules.Learning.Features.AssignmentSubmission;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddLearningModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IAssignmentQuery, AssignmentQuery>();
+        services.AddScoped<IAssignmentCommand, AssignmentCommand>();
+        services.AddScoped<IAssignmentSubmissionQuery, AssignmentSubmissionQuery>();
+        services.AddScoped<IAssignmentSubmissionCommand, AssignmentSubmissionCommand>();
+        services.AddScoped<ILearningResourceQuery, LearningResourceQuery>();
+        services.AddScoped<ILearningResourceCommand, LearningResourceCommand>();
+        services.AddScoped<ILessonQuery, LessonQuery>();
+        services.AddScoped<ILessonCommand, LessonCommand>();
+
         services.AddScoped<CreateAssignment.Handler>();
         services.AddScoped<GetAssignmentById.Handler>();
         services.AddScoped<GetAssignmentPage.Handler>();

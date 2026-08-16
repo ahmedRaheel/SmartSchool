@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Tenancy.Features.CampusBranding;
 using SmartSchool.Modules.Tenancy.Features.Subscription;
@@ -10,6 +11,13 @@ public static class Module
     public static IServiceCollection AddTenancyModule(
         this IServiceCollection services)
     {
+        services.AddScoped<ICampusBrandingQuery, CampusBrandingQuery>();
+        services.AddScoped<ICampusBrandingCommand, CampusBrandingCommand>();
+        services.AddScoped<ISubscriptionQuery, SubscriptionQuery>();
+        services.AddScoped<ISubscriptionCommand, SubscriptionCommand>();
+        services.AddScoped<ITenantQuery, TenantQuery>();
+        services.AddScoped<ITenantCommand, TenantCommand>();
+
         services.AddScoped<CreateCampusBranding.Handler>();
         services.AddScoped<GetCampusBrandingById.Handler>();
         services.AddScoped<GetCampusBrandingPage.Handler>();

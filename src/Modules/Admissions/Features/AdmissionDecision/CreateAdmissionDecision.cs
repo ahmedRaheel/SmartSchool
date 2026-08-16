@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateAdmissionDecision
     }
 
     public sealed class Handler(
-        IRepository<AdmissionDecision> repository,
+        IAdmissionDecisionQuery query,
+        IAdmissionDecisionCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<AdmissionDecision>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateAdmissionDecision
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateAdmissionDecision
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<AdmissionDecision>.Success(entity);

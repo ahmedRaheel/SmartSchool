@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateMessageReceipt
     }
 
     public sealed class Handler(
-        IRepository<MessageReceipt> repository,
+        IMessageReceiptQuery query,
+        IMessageReceiptCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<MessageReceipt>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateMessageReceipt
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateMessageReceipt
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<MessageReceipt>.Success(entity);

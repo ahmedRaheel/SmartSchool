@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetKnowledgeChunkPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<KnowledgeChunk> repository)
+        IKnowledgeChunkQuery query)
     {
         public async Task<Result<PagedResult<KnowledgeChunk>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetKnowledgeChunkPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

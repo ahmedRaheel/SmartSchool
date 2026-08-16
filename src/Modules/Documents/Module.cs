@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Documents.Features.Certificate;
 using SmartSchool.Modules.Documents.Features.DocumentTemplate;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddDocumentsModule(
         this IServiceCollection services)
     {
+        services.AddScoped<ICertificateQuery, CertificateQuery>();
+        services.AddScoped<ICertificateCommand, CertificateCommand>();
+        services.AddScoped<IDocumentTemplateQuery, DocumentTemplateQuery>();
+        services.AddScoped<IDocumentTemplateCommand, DocumentTemplateCommand>();
+        services.AddScoped<IGeneratedDocumentQuery, GeneratedDocumentQuery>();
+        services.AddScoped<IGeneratedDocumentCommand, GeneratedDocumentCommand>();
+        services.AddScoped<ISchoolLogoQuery, SchoolLogoQuery>();
+        services.AddScoped<ISchoolLogoCommand, SchoolLogoCommand>();
+
         services.AddScoped<CreateCertificate.Handler>();
         services.AddScoped<GetCertificateById.Handler>();
         services.AddScoped<GetCertificatePage.Handler>();

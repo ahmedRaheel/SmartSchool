@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetPaymentPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<Payment> repository)
+        IPaymentQuery query)
     {
         public async Task<Result<PagedResult<Payment>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetPaymentPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Identity.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Identity.Features.RoleAssignment;
 using SmartSchool.Modules.Identity.Features.UserProfile;
@@ -9,6 +10,11 @@ public static class Module
     public static IServiceCollection AddIdentityModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IRoleAssignmentQuery, RoleAssignmentQuery>();
+        services.AddScoped<IRoleAssignmentCommand, RoleAssignmentCommand>();
+        services.AddScoped<IUserProfileQuery, UserProfileQuery>();
+        services.AddScoped<IUserProfileCommand, UserProfileCommand>();
+
         services.AddScoped<CreateRoleAssignment.Handler>();
         services.AddScoped<GetRoleAssignmentById.Handler>();
         services.AddScoped<GetRoleAssignmentPage.Handler>();

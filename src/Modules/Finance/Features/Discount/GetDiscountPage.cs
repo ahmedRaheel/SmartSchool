@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetDiscountPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<Discount> repository)
+        IDiscountQuery query)
     {
         public async Task<Result<PagedResult<Discount>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetDiscountPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

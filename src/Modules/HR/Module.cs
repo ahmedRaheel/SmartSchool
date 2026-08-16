@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.HR.Features.Candidate;
 using SmartSchool.Modules.HR.Features.Employee;
@@ -16,6 +17,25 @@ public static class Module
     public static IServiceCollection AddHRModule(
         this IServiceCollection services)
     {
+        services.AddScoped<ICandidateQuery, CandidateQuery>();
+        services.AddScoped<ICandidateCommand, CandidateCommand>();
+        services.AddScoped<IEmployeeQuery, EmployeeQuery>();
+        services.AddScoped<IEmployeeCommand, EmployeeCommand>();
+        services.AddScoped<IEmploymentHistoryQuery, EmploymentHistoryQuery>();
+        services.AddScoped<IEmploymentHistoryCommand, EmploymentHistoryCommand>();
+        services.AddScoped<IInterviewQuery, InterviewQuery>();
+        services.AddScoped<IInterviewCommand, InterviewCommand>();
+        services.AddScoped<IJobQuery, JobQuery>();
+        services.AddScoped<IJobCommand, JobCommand>();
+        services.AddScoped<IJobGradeQuery, JobGradeQuery>();
+        services.AddScoped<IJobGradeCommand, JobGradeCommand>();
+        services.AddScoped<ILeaveRequestQuery, LeaveRequestQuery>();
+        services.AddScoped<ILeaveRequestCommand, LeaveRequestCommand>();
+        services.AddScoped<IPositionQuery, PositionQuery>();
+        services.AddScoped<IPositionCommand, PositionCommand>();
+        services.AddScoped<IResumeQuery, ResumeQuery>();
+        services.AddScoped<IResumeCommand, ResumeCommand>();
+
         services.AddScoped<CreateCandidate.Handler>();
         services.AddScoped<GetCandidateById.Handler>();
         services.AddScoped<GetCandidatePage.Handler>();

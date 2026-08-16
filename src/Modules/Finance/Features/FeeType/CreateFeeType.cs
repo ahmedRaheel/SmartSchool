@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateFeeType
     }
 
     public sealed class Handler(
-        IRepository<FeeType> repository,
+        IFeeTypeQuery query,
+        IFeeTypeCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<FeeType>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateFeeType
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateFeeType
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<FeeType>.Success(entity);

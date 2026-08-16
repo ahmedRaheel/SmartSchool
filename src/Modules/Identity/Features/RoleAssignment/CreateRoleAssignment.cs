@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateRoleAssignment
     }
 
     public sealed class Handler(
-        IRepository<RoleAssignment> repository,
+        IRoleAssignmentQuery query,
+        IRoleAssignmentCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<RoleAssignment>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateRoleAssignment
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateRoleAssignment
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<RoleAssignment>.Success(entity);

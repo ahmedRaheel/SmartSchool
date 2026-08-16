@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateGradeLevel
     }
 
     public sealed class Handler(
-        IRepository<GradeLevel> repository,
+        IGradeLevelQuery query,
+        IGradeLevelCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<GradeLevel>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateGradeLevel
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateGradeLevel
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<GradeLevel>.Success(entity);

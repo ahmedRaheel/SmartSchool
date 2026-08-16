@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Workflow.Features.Approval;
 using SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddWorkflowModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IApprovalQuery, ApprovalQuery>();
+        services.AddScoped<IApprovalCommand, ApprovalCommand>();
+        services.AddScoped<IWorkflowDefinitionQuery, WorkflowDefinitionQuery>();
+        services.AddScoped<IWorkflowDefinitionCommand, WorkflowDefinitionCommand>();
+        services.AddScoped<IWorkflowInstanceQuery, WorkflowInstanceQuery>();
+        services.AddScoped<IWorkflowInstanceCommand, WorkflowInstanceCommand>();
+        services.AddScoped<IWorkflowStepQuery, WorkflowStepQuery>();
+        services.AddScoped<IWorkflowStepCommand, WorkflowStepCommand>();
+
         services.AddScoped<CreateApproval.Handler>();
         services.AddScoped<GetApprovalById.Handler>();
         services.AddScoped<GetApprovalPage.Handler>();

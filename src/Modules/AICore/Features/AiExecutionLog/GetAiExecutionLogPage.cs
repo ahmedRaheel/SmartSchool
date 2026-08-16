@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetAiExecutionLogPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<AiExecutionLog> repository)
+        IAiExecutionLogQuery query)
     {
         public async Task<Result<PagedResult<AiExecutionLog>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetAiExecutionLogPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

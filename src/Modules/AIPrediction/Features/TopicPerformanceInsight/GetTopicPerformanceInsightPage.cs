@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
@@ -13,7 +13,7 @@ public static class GetTopicPerformanceInsightPage
         int PageSize = 25);
 
     public sealed class Handler(
-        IRepository<TopicPerformanceInsight> repository)
+        ITopicPerformanceInsightQuery query)
     {
         public async Task<Result<PagedResult<TopicPerformanceInsight>>> HandleAsync(
             Query query,
@@ -23,7 +23,7 @@ public static class GetTopicPerformanceInsightPage
                 query.Page,
                 query.PageSize);
 
-            var result = await repository.GetPageAsync(
+            var result = await query.GetPageAsync(
                 query.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

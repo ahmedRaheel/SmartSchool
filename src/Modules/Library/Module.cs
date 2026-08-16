@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Library.Features.Book;
 using SmartSchool.Modules.Library.Features.BookCopy;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddLibraryModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IBookQuery, BookQuery>();
+        services.AddScoped<IBookCommand, BookCommand>();
+        services.AddScoped<IBookCopyQuery, BookCopyQuery>();
+        services.AddScoped<IBookCopyCommand, BookCopyCommand>();
+        services.AddScoped<ILoanQuery, LoanQuery>();
+        services.AddScoped<ILoanCommand, LoanCommand>();
+        services.AddScoped<IReservationQuery, ReservationQuery>();
+        services.AddScoped<IReservationCommand, ReservationCommand>();
+
         services.AddScoped<CreateBook.Handler>();
         services.AddScoped<GetBookById.Handler>();
         services.AddScoped<GetBookPage.Handler>();

@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.SharedKernel;
 
@@ -30,7 +30,8 @@ public static class CreateBookCopy
     }
 
     public sealed class Handler(
-        IRepository<BookCopy> repository,
+        IBookCopyQuery query,
+        IBookCopyCommand command,
         IValidator<Request> validator)
     {
         public async Task<Result<BookCopy>> HandleAsync(
@@ -50,7 +51,7 @@ public static class CreateBookCopy
                     Error.Validation(message));
             }
 
-            var codeExists = await repository.ExistsByCodeAsync(
+            var codeExists = await query.ExistsByCodeAsync(
                 request.TenantId,
                 request.Code,
                 excludingId: null,
@@ -71,11 +72,8 @@ public static class CreateBookCopy
                 IsActive = true
             };
 
-            await repository.AddAsync(
+            await command.AddAsync(
                 entity,
-                cancellationToken);
-
-            await repository.SaveChangesAsync(
                 cancellationToken);
 
             return Result<BookCopy>.Success(entity);

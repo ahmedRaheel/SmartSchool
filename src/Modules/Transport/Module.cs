@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Transport.Features.Route;
 using SmartSchool.Modules.Transport.Features.Stop;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddTransportModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IRouteQuery, RouteQuery>();
+        services.AddScoped<IRouteCommand, RouteCommand>();
+        services.AddScoped<IStopQuery, StopQuery>();
+        services.AddScoped<IStopCommand, StopCommand>();
+        services.AddScoped<IStudentTransportQuery, StudentTransportQuery>();
+        services.AddScoped<IStudentTransportCommand, StudentTransportCommand>();
+        services.AddScoped<IVehicleQuery, VehicleQuery>();
+        services.AddScoped<IVehicleCommand, VehicleCommand>();
+
         services.AddScoped<CreateRoute.Handler>();
         services.AddScoped<GetRouteById.Handler>();
         services.AddScoped<GetRoutePage.Handler>();

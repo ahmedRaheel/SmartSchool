@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Activities.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Activities.Features.Activity;
 using SmartSchool.Modules.Activities.Features.Award;
@@ -11,6 +12,15 @@ public static class Module
     public static IServiceCollection AddActivitiesModule(
         this IServiceCollection services)
     {
+        services.AddScoped<IActivityQuery, ActivityQuery>();
+        services.AddScoped<IActivityCommand, ActivityCommand>();
+        services.AddScoped<IAwardQuery, AwardQuery>();
+        services.AddScoped<IAwardCommand, AwardCommand>();
+        services.AddScoped<IStudentActivityQuery, StudentActivityQuery>();
+        services.AddScoped<IStudentActivityCommand, StudentActivityCommand>();
+        services.AddScoped<IStudentOfMonthQuery, StudentOfMonthQuery>();
+        services.AddScoped<IStudentOfMonthCommand, StudentOfMonthCommand>();
+
         services.AddScoped<CreateActivity.Handler>();
         services.AddScoped<GetActivityById.Handler>();
         services.AddScoped<GetActivityPage.Handler>();
