@@ -1,1 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Promote transitive Newtonsoft.Json dependency to direct PackageReference -->
+    <PackageReference Include="Newtonsoft.Json" />
+  </ItemGroup>
+
+</Project>
