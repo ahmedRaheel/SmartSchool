@@ -1,0 +1,75 @@
+@host = https://localhost:7001
+@token = REPLACE_WITH_ACCESS_TOKEN
+@tenantId = 11111111-1111-1111-1111-111111111111
+@programId = 22222222-2222-2222-2222-222222222222
+@classSectionId = 33333333-3333-3333-3333-333333333333
+@academicYearId = 44444444-4444-4444-4444-444444444444
+@jobId = 55555555-5555-5555-5555-555555555555
+@jobGradeId = 66666666-6666-6666-6666-666666666666
+@studentId = 77777777-7777-7777-7777-777777777777
+
+### User
+POST {{host}}/api/samples/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "userName": "ahmed.student",
+  "email": "ahmed.student@example.edu",
+  "firstName": "Ahmed",
+  "lastName": "Khan",
+  "roles": ["Student"]
+}
+
+### Student
+POST {{host}}/api/samples/students
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "admissionNo": "STD-2026-0001",
+  "firstName": "Ahmed",
+  "lastName": "Khan",
+  "dateOfBirth": "2012-05-14",
+  "gender": "Male",
+  "programId": "{{programId}}",
+  "classSectionId": "{{classSectionId}}",
+  "academicYearId": "{{academicYearId}}",
+  "userId": null
+}
+
+### Teacher
+POST {{host}}/api/samples/teachers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "employeeNo": "TCH-2026-001",
+  "firstName": "Sara",
+  "lastName": "Ali",
+  "email": "sara.ali@example.edu",
+  "phone": "+923001234567",
+  "jobId": "{{jobId}}",
+  "jobGradeId": "{{jobGradeId}}",
+  "joiningDate": "2026-08-01",
+  "userId": null
+}
+
+### Parent / Guardian
+POST {{host}}/api/samples/parents
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tenantId": "{{tenantId}}",
+  "firstName": "Imran",
+  "lastName": "Khan",
+  "email": "imran.khan@example.com",
+  "phone": "+923009876543",
+  "relationship": "Father",
+  "studentId": "{{studentId}}",
+  "userId": null
+}

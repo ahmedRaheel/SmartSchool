@@ -1,0 +1,176 @@
+using FluentValidation;
+using SmartSchool.Modules.Academics.Features.AcademicSystem;
+using SmartSchool.Modules.Academics.Features.AcademicYear;
+using SmartSchool.Modules.Academics.Features.ClassSection;
+using SmartSchool.Modules.Academics.Features.CourseOffering;
+using SmartSchool.Modules.Academics.Features.CourseSelection;
+using SmartSchool.Modules.Academics.Features.GradeLevel;
+using SmartSchool.Modules.Academics.Features.Program;
+using SmartSchool.Modules.Academics.Features.Subject;
+using SmartSchool.Modules.Academics.Features.TeacherAssignment;
+using SmartSchool.Modules.Academics.Features.Term;
+using SmartSchool.Modules.Academics.Features.Timetable;
+using SmartSchool.Modules.Academics.Features.TimetableEntry;
+
+namespace SmartSchool.Modules.Academics;
+
+public static class Module
+{
+    public static IServiceCollection AddAcademicsModule(
+        this IServiceCollection services)
+    {
+        services.AddScoped<CreateAcademicSystem.Handler>();
+        services.AddScoped<GetAcademicSystemById.Handler>();
+        services.AddScoped<GetAcademicSystemPage.Handler>();
+        services.AddScoped<UpdateAcademicSystem.Handler>();
+        services.AddScoped<DeleteAcademicSystem.Handler>();
+        services.AddScoped<IValidator<CreateAcademicSystem.Request>, CreateAcademicSystem.Validator>();
+        services.AddScoped<IValidator<UpdateAcademicSystem.Request>, UpdateAcademicSystem.Validator>();
+        services.AddScoped<CreateAcademicYear.Handler>();
+        services.AddScoped<GetAcademicYearById.Handler>();
+        services.AddScoped<GetAcademicYearPage.Handler>();
+        services.AddScoped<UpdateAcademicYear.Handler>();
+        services.AddScoped<DeleteAcademicYear.Handler>();
+        services.AddScoped<IValidator<CreateAcademicYear.Request>, CreateAcademicYear.Validator>();
+        services.AddScoped<IValidator<UpdateAcademicYear.Request>, UpdateAcademicYear.Validator>();
+        services.AddScoped<CreateClassSection.Handler>();
+        services.AddScoped<GetClassSectionById.Handler>();
+        services.AddScoped<GetClassSectionPage.Handler>();
+        services.AddScoped<UpdateClassSection.Handler>();
+        services.AddScoped<DeleteClassSection.Handler>();
+        services.AddScoped<IValidator<CreateClassSection.Request>, CreateClassSection.Validator>();
+        services.AddScoped<IValidator<UpdateClassSection.Request>, UpdateClassSection.Validator>();
+        services.AddScoped<CreateCourseOffering.Handler>();
+        services.AddScoped<GetCourseOfferingById.Handler>();
+        services.AddScoped<GetCourseOfferingPage.Handler>();
+        services.AddScoped<UpdateCourseOffering.Handler>();
+        services.AddScoped<DeleteCourseOffering.Handler>();
+        services.AddScoped<IValidator<CreateCourseOffering.Request>, CreateCourseOffering.Validator>();
+        services.AddScoped<IValidator<UpdateCourseOffering.Request>, UpdateCourseOffering.Validator>();
+        services.AddScoped<CreateCourseSelection.Handler>();
+        services.AddScoped<GetCourseSelectionById.Handler>();
+        services.AddScoped<GetCourseSelectionPage.Handler>();
+        services.AddScoped<UpdateCourseSelection.Handler>();
+        services.AddScoped<DeleteCourseSelection.Handler>();
+        services.AddScoped<IValidator<CreateCourseSelection.Request>, CreateCourseSelection.Validator>();
+        services.AddScoped<IValidator<UpdateCourseSelection.Request>, UpdateCourseSelection.Validator>();
+        services.AddScoped<CreateGradeLevel.Handler>();
+        services.AddScoped<GetGradeLevelById.Handler>();
+        services.AddScoped<GetGradeLevelPage.Handler>();
+        services.AddScoped<UpdateGradeLevel.Handler>();
+        services.AddScoped<DeleteGradeLevel.Handler>();
+        services.AddScoped<IValidator<CreateGradeLevel.Request>, CreateGradeLevel.Validator>();
+        services.AddScoped<IValidator<UpdateGradeLevel.Request>, UpdateGradeLevel.Validator>();
+        services.AddScoped<CreateProgram.Handler>();
+        services.AddScoped<GetProgramById.Handler>();
+        services.AddScoped<GetProgramPage.Handler>();
+        services.AddScoped<UpdateProgram.Handler>();
+        services.AddScoped<DeleteProgram.Handler>();
+        services.AddScoped<IValidator<CreateProgram.Request>, CreateProgram.Validator>();
+        services.AddScoped<IValidator<UpdateProgram.Request>, UpdateProgram.Validator>();
+        services.AddScoped<CreateSubject.Handler>();
+        services.AddScoped<GetSubjectById.Handler>();
+        services.AddScoped<GetSubjectPage.Handler>();
+        services.AddScoped<UpdateSubject.Handler>();
+        services.AddScoped<DeleteSubject.Handler>();
+        services.AddScoped<IValidator<CreateSubject.Request>, CreateSubject.Validator>();
+        services.AddScoped<IValidator<UpdateSubject.Request>, UpdateSubject.Validator>();
+        services.AddScoped<CreateTeacherAssignment.Handler>();
+        services.AddScoped<GetTeacherAssignmentById.Handler>();
+        services.AddScoped<GetTeacherAssignmentPage.Handler>();
+        services.AddScoped<UpdateTeacherAssignment.Handler>();
+        services.AddScoped<DeleteTeacherAssignment.Handler>();
+        services.AddScoped<IValidator<CreateTeacherAssignment.Request>, CreateTeacherAssignment.Validator>();
+        services.AddScoped<IValidator<UpdateTeacherAssignment.Request>, UpdateTeacherAssignment.Validator>();
+        services.AddScoped<CreateTerm.Handler>();
+        services.AddScoped<GetTermById.Handler>();
+        services.AddScoped<GetTermPage.Handler>();
+        services.AddScoped<UpdateTerm.Handler>();
+        services.AddScoped<DeleteTerm.Handler>();
+        services.AddScoped<IValidator<CreateTerm.Request>, CreateTerm.Validator>();
+        services.AddScoped<IValidator<UpdateTerm.Request>, UpdateTerm.Validator>();
+        services.AddScoped<CreateTimetable.Handler>();
+        services.AddScoped<GetTimetableById.Handler>();
+        services.AddScoped<GetTimetablePage.Handler>();
+        services.AddScoped<UpdateTimetable.Handler>();
+        services.AddScoped<DeleteTimetable.Handler>();
+        services.AddScoped<IValidator<CreateTimetable.Request>, CreateTimetable.Validator>();
+        services.AddScoped<IValidator<UpdateTimetable.Request>, UpdateTimetable.Validator>();
+        services.AddScoped<CreateTimetableEntry.Handler>();
+        services.AddScoped<GetTimetableEntryById.Handler>();
+        services.AddScoped<GetTimetableEntryPage.Handler>();
+        services.AddScoped<UpdateTimetableEntry.Handler>();
+        services.AddScoped<DeleteTimetableEntry.Handler>();
+        services.AddScoped<IValidator<CreateTimetableEntry.Request>, CreateTimetableEntry.Validator>();
+        services.AddScoped<IValidator<UpdateTimetableEntry.Request>, UpdateTimetableEntry.Validator>();
+
+        return services;
+    }
+
+    public static IEndpointRouteBuilder MapAcademicsEndpoints(
+        this IEndpointRouteBuilder endpoints)
+    {
+        CreateAcademicSystem.MapEndpoint(endpoints);
+        GetAcademicSystemById.MapEndpoint(endpoints);
+        GetAcademicSystemPage.MapEndpoint(endpoints);
+        UpdateAcademicSystem.MapEndpoint(endpoints);
+        DeleteAcademicSystem.MapEndpoint(endpoints);
+        CreateAcademicYear.MapEndpoint(endpoints);
+        GetAcademicYearById.MapEndpoint(endpoints);
+        GetAcademicYearPage.MapEndpoint(endpoints);
+        UpdateAcademicYear.MapEndpoint(endpoints);
+        DeleteAcademicYear.MapEndpoint(endpoints);
+        CreateClassSection.MapEndpoint(endpoints);
+        GetClassSectionById.MapEndpoint(endpoints);
+        GetClassSectionPage.MapEndpoint(endpoints);
+        UpdateClassSection.MapEndpoint(endpoints);
+        DeleteClassSection.MapEndpoint(endpoints);
+        CreateCourseOffering.MapEndpoint(endpoints);
+        GetCourseOfferingById.MapEndpoint(endpoints);
+        GetCourseOfferingPage.MapEndpoint(endpoints);
+        UpdateCourseOffering.MapEndpoint(endpoints);
+        DeleteCourseOffering.MapEndpoint(endpoints);
+        CreateCourseSelection.MapEndpoint(endpoints);
+        GetCourseSelectionById.MapEndpoint(endpoints);
+        GetCourseSelectionPage.MapEndpoint(endpoints);
+        UpdateCourseSelection.MapEndpoint(endpoints);
+        DeleteCourseSelection.MapEndpoint(endpoints);
+        CreateGradeLevel.MapEndpoint(endpoints);
+        GetGradeLevelById.MapEndpoint(endpoints);
+        GetGradeLevelPage.MapEndpoint(endpoints);
+        UpdateGradeLevel.MapEndpoint(endpoints);
+        DeleteGradeLevel.MapEndpoint(endpoints);
+        CreateProgram.MapEndpoint(endpoints);
+        GetProgramById.MapEndpoint(endpoints);
+        GetProgramPage.MapEndpoint(endpoints);
+        UpdateProgram.MapEndpoint(endpoints);
+        DeleteProgram.MapEndpoint(endpoints);
+        CreateSubject.MapEndpoint(endpoints);
+        GetSubjectById.MapEndpoint(endpoints);
+        GetSubjectPage.MapEndpoint(endpoints);
+        UpdateSubject.MapEndpoint(endpoints);
+        DeleteSubject.MapEndpoint(endpoints);
+        CreateTeacherAssignment.MapEndpoint(endpoints);
+        GetTeacherAssignmentById.MapEndpoint(endpoints);
+        GetTeacherAssignmentPage.MapEndpoint(endpoints);
+        UpdateTeacherAssignment.MapEndpoint(endpoints);
+        DeleteTeacherAssignment.MapEndpoint(endpoints);
+        CreateTerm.MapEndpoint(endpoints);
+        GetTermById.MapEndpoint(endpoints);
+        GetTermPage.MapEndpoint(endpoints);
+        UpdateTerm.MapEndpoint(endpoints);
+        DeleteTerm.MapEndpoint(endpoints);
+        CreateTimetable.MapEndpoint(endpoints);
+        GetTimetableById.MapEndpoint(endpoints);
+        GetTimetablePage.MapEndpoint(endpoints);
+        UpdateTimetable.MapEndpoint(endpoints);
+        DeleteTimetable.MapEndpoint(endpoints);
+        CreateTimetableEntry.MapEndpoint(endpoints);
+        GetTimetableEntryById.MapEndpoint(endpoints);
+        GetTimetableEntryPage.MapEndpoint(endpoints);
+        UpdateTimetableEntry.MapEndpoint(endpoints);
+        DeleteTimetableEntry.MapEndpoint(endpoints);
+
+        return endpoints;
+    }
+}
