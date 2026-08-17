@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.Modules.Admissions.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteInquiry
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         IInquiryQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteInquiry
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Inquiry))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

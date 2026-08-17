@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AITutor.Persistence;
 
 /// <summary>
-/// Read-side persistence for GeneratedQuiz.
+/// Read-side persistence for GeneratedQuizEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AITutor module.
 /// </summary>
 public sealed class GeneratedQuizQuery : IGeneratedQuizQuery
 {
-    public Task<GeneratedQuiz?> GetByIdAsync(
+    public Task<GeneratedQuizEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GeneratedQuiz read persistence has not been connected to the module DbContext.");
+            "GeneratedQuizEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<GeneratedQuiz>> GetPageAsync(
+    public Task<PagedResult<GeneratedQuizEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GeneratedQuiz paging persistence has not been connected to the module DbContext.");
+            "GeneratedQuizEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class GeneratedQuizQuery : IGeneratedQuizQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GeneratedQuiz uniqueness persistence has not been connected to the module DbContext.");
+            "GeneratedQuizEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

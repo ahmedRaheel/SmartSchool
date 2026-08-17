@@ -3,32 +3,32 @@ using SmartSchool.Modules.Academics.Models;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for AcademicYear.
+/// Write-side persistence for AcademicYearEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class AcademicYearCommand : IAcademicYearCommand
 {
     public Task AddAsync(
-        AcademicYear entity,
+        AcademicYearEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AcademicYear create persistence has not been connected to the module DbContext.");
+            "AcademicYearEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        AcademicYear entity,
+        AcademicYearEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AcademicYear update persistence has not been connected to the module DbContext.");
+            "AcademicYearEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        AcademicYear entity,
+        AcademicYearEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AcademicYear delete persistence has not been connected to the module DbContext.");
+            "AcademicYearEntity delete persistence has not been connected to the module DbContext.");
     }
 }

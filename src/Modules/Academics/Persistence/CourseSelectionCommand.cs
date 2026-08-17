@@ -3,32 +3,32 @@ using SmartSchool.Modules.Academics.Models;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for CourseSelection.
+/// Write-side persistence for CourseSelectionEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class CourseSelectionCommand : ICourseSelectionCommand
 {
     public Task AddAsync(
-        CourseSelection entity,
+        CourseSelectionEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CourseSelection create persistence has not been connected to the module DbContext.");
+            "CourseSelectionEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        CourseSelection entity,
+        CourseSelectionEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CourseSelection update persistence has not been connected to the module DbContext.");
+            "CourseSelectionEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        CourseSelection entity,
+        CourseSelectionEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CourseSelection delete persistence has not been connected to the module DbContext.");
+            "CourseSelectionEntity delete persistence has not been connected to the module DbContext.");
     }
 }

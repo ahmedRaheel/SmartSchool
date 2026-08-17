@@ -2,17 +2,29 @@ using SmartSchool.Modules.Learning.Models;
 
 namespace SmartSchool.Modules.Learning.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for AssignmentSubmissionEntity.
+/// </summary>
 public interface IAssignmentSubmissionCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        AssignmentSubmission entity,
+        AssignmentSubmissionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        AssignmentSubmission entity,
+        AssignmentSubmissionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        AssignmentSubmission entity,
+        AssignmentSubmissionEntity entity,
         CancellationToken cancellationToken);
 }

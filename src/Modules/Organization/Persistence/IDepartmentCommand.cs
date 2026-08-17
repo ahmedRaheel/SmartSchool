@@ -2,17 +2,29 @@ using SmartSchool.Modules.Organization.Models;
 
 namespace SmartSchool.Modules.Organization.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for DepartmentEntity.
+/// </summary>
 public interface IDepartmentCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Department entity,
+        DepartmentEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Department entity,
+        DepartmentEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Department entity,
+        DepartmentEntity entity,
         CancellationToken cancellationToken);
 }

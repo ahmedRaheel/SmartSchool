@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AIParent.Contracts;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.AIParent.Features.ParentConversation;
 
 public static class GetParentConversationById
 {
+
+    /// <summary>
+    /// Represents the response returned by this ParentConversationEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<ParentConversationResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IParentConversationQuery entityQuery)
-        : IRequestHandler<Query, Result<ParentConversationResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<ParentConversationResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetParentConversationById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ParentConversationResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentConversation))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentConversationEntity))));
             }
-            return Result<ParentConversationResponse>.Success(ParentConversationResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetParentConversationById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<ParentConversationResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetParentConversationById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AIParent.Models.ParentConversationEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

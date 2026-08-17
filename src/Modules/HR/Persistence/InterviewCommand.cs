@@ -3,32 +3,32 @@ using SmartSchool.Modules.HR.Models;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Write-side persistence for Interview.
+/// Write-side persistence for InterviewEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class InterviewCommand : IInterviewCommand
 {
     public Task AddAsync(
-        Interview entity,
+        InterviewEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Interview create persistence has not been connected to the module DbContext.");
+            "InterviewEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Interview entity,
+        InterviewEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Interview update persistence has not been connected to the module DbContext.");
+            "InterviewEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Interview entity,
+        InterviewEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Interview delete persistence has not been connected to the module DbContext.");
+            "InterviewEntity delete persistence has not been connected to the module DbContext.");
     }
 }

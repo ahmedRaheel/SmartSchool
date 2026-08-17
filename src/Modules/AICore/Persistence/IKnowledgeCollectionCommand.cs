@@ -2,17 +2,29 @@ using SmartSchool.Modules.AICore.Models;
 
 namespace SmartSchool.Modules.AICore.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for KnowledgeCollectionEntity.
+/// </summary>
 public interface IKnowledgeCollectionCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        KnowledgeCollection entity,
+        KnowledgeCollectionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        KnowledgeCollection entity,
+        KnowledgeCollectionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        KnowledgeCollection entity,
+        KnowledgeCollectionEntity entity,
         CancellationToken cancellationToken);
 }

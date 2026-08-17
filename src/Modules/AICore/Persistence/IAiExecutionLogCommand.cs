@@ -2,17 +2,29 @@ using SmartSchool.Modules.AICore.Models;
 
 namespace SmartSchool.Modules.AICore.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for AiExecutionLogEntity.
+/// </summary>
 public interface IAiExecutionLogCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        AiExecutionLog entity,
+        AiExecutionLogEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        AiExecutionLog entity,
+        AiExecutionLogEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        AiExecutionLog entity,
+        AiExecutionLogEntity entity,
         CancellationToken cancellationToken);
 }

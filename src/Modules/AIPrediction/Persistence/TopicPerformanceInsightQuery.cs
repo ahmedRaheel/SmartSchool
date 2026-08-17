@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Read-side persistence for TopicPerformanceInsight.
+/// Read-side persistence for TopicPerformanceInsightEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AIPrediction module.
 /// </summary>
 public sealed class TopicPerformanceInsightQuery : ITopicPerformanceInsightQuery
 {
-    public Task<TopicPerformanceInsight?> GetByIdAsync(
+    public Task<TopicPerformanceInsightEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TopicPerformanceInsight read persistence has not been connected to the module DbContext.");
+            "TopicPerformanceInsightEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<TopicPerformanceInsight>> GetPageAsync(
+    public Task<PagedResult<TopicPerformanceInsightEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TopicPerformanceInsight paging persistence has not been connected to the module DbContext.");
+            "TopicPerformanceInsightEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class TopicPerformanceInsightQuery : ITopicPerformanceInsightQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TopicPerformanceInsight uniqueness persistence has not been connected to the module DbContext.");
+            "TopicPerformanceInsightEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

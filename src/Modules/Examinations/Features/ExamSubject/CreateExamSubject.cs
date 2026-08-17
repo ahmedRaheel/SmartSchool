@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Examinations.Contracts;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
@@ -10,10 +10,24 @@ namespace SmartSchool.Modules.Examinations.Features.ExamSubject;
 
 public static class CreateExamSubject
 {
+
+    /// <summary>
+    /// Represents the response returned by this ExamSubjectEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name) : IRequest<Result<ExamSubjectResponse>>;
+        string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -27,42 +41,29 @@ public static class CreateExamSubject
 
     public sealed class Handler(
         IExamSubjectQuery entityQuery,
-        IExamSubjectCommand entityCommand,
-        IValidator<Request> validator)
-        : IRequestHandler<Request, Result<ExamSubjectResponse>>
+        IExamSubjectCommand entityCommand)
+        : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<ExamSubjectResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validation = await validator.ValidateAsync(request, cancellationToken);
-            if (!validation.IsValid)
-            {
-                var message = string.Join(
-                    "; ",
-                    validation.Errors.Select(error => error.ErrorMessage));
-                return Result<ExamSubjectResponse>.Failure(Error.Validation(message));
-            }
-
-            var exists = await entityQuery.ExistsByCodeAsync(
+var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
-                return Result<ExamSubjectResponse>.Failure(
+                return Result<Response>.Failure(
                     Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(ExamSubject), request.Code)));
+                        ErrorMessages.DuplicateCode(nameof(ExamSubjectEntity), request.Code)));
             }
 
-            var entity = new ExamSubject
-            {
-                TenantId = request.TenantId,
-                Code = request.Code.Trim(),
-                Name = request.Name.Trim(),
-                IsActive = true
-            };
+            var entity = ExamSubjectEntity.Create(
+                request.TenantId,
+                request.Code,
+                request.Name);
 
             await entityCommand.AddAsync(entity, cancellationToken);
-            return Result<ExamSubjectResponse>.Success(ExamSubjectResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -72,7 +73,7 @@ public static class CreateExamSubject
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "exam-subject"),
                 async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.SendAsync<Request, Result<ExamSubjectResponse>>(
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -81,4 +82,15 @@ public static class CreateExamSubject
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Examinations.Models.ExamSubjectEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

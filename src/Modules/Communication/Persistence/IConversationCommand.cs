@@ -2,17 +2,29 @@ using SmartSchool.Modules.Communication.Models;
 
 namespace SmartSchool.Modules.Communication.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ConversationEntity.
+/// </summary>
 public interface IConversationCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Conversation entity,
+        ConversationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Conversation entity,
+        ConversationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Conversation entity,
+        ConversationEntity entity,
         CancellationToken cancellationToken);
 }

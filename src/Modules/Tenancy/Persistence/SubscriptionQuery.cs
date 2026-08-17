@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
 /// <summary>
-/// Read-side persistence for Subscription.
+/// Read-side persistence for SubscriptionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Tenancy module.
 /// </summary>
 public sealed class SubscriptionQuery : ISubscriptionQuery
 {
-    public Task<Subscription?> GetByIdAsync(
+    public Task<SubscriptionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Subscription read persistence has not been connected to the module DbContext.");
+            "SubscriptionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Subscription>> GetPageAsync(
+    public Task<PagedResult<SubscriptionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Subscription paging persistence has not been connected to the module DbContext.");
+            "SubscriptionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class SubscriptionQuery : ISubscriptionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Subscription uniqueness persistence has not been connected to the module DbContext.");
+            "SubscriptionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

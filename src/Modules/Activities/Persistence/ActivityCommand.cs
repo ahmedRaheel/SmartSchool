@@ -3,32 +3,32 @@ using SmartSchool.Modules.Activities.Models;
 namespace SmartSchool.Modules.Activities.Persistence;
 
 /// <summary>
-/// Write-side persistence for Activity.
+/// Write-side persistence for ActivityEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class ActivityCommand : IActivityCommand
 {
     public Task AddAsync(
-        Activity entity,
+        ActivityEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Activity create persistence has not been connected to the module DbContext.");
+            "ActivityEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Activity entity,
+        ActivityEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Activity update persistence has not been connected to the module DbContext.");
+            "ActivityEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Activity entity,
+        ActivityEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Activity delete persistence has not been connected to the module DbContext.");
+            "ActivityEntity delete persistence has not been connected to the module DbContext.");
     }
 }

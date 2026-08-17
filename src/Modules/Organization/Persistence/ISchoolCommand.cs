@@ -2,17 +2,29 @@ using SmartSchool.Modules.Organization.Models;
 
 namespace SmartSchool.Modules.Organization.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for SchoolEntity.
+/// </summary>
 public interface ISchoolCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        School entity,
+        SchoolEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        School entity,
+        SchoolEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        School entity,
+        SchoolEntity entity,
         CancellationToken cancellationToken);
 }

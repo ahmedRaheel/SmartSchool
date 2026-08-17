@@ -3,32 +3,32 @@ using SmartSchool.Modules.Learning.Models;
 namespace SmartSchool.Modules.Learning.Persistence;
 
 /// <summary>
-/// Write-side persistence for Lesson.
+/// Write-side persistence for LessonEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class LessonCommand : ILessonCommand
 {
     public Task AddAsync(
-        Lesson entity,
+        LessonEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Lesson create persistence has not been connected to the module DbContext.");
+            "LessonEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Lesson entity,
+        LessonEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Lesson update persistence has not been connected to the module DbContext.");
+            "LessonEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Lesson entity,
+        LessonEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Lesson delete persistence has not been connected to the module DbContext.");
+            "LessonEntity delete persistence has not been connected to the module DbContext.");
     }
 }

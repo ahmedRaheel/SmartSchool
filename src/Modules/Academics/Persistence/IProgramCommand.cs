@@ -2,17 +2,29 @@ using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ProgramEntity.
+/// </summary>
 public interface IProgramCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Program entity,
+        ProgramEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Program entity,
+        ProgramEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Program entity,
+        ProgramEntity entity,
         CancellationToken cancellationToken);
 }

@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Academics.Contracts;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Academics.Features.Program;
 
 public static class GetProgramById
 {
+
+    /// <summary>
+    /// Represents the response returned by this ProgramEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<ProgramResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IProgramQuery entityQuery)
-        : IRequestHandler<Query, Result<ProgramResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<ProgramResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetProgramById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ProgramResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Program))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ProgramEntity))));
             }
-            return Result<ProgramResponse>.Success(ProgramResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetProgramById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<ProgramResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetProgramById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Academics.Models.ProgramEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

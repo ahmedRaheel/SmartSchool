@@ -3,32 +3,32 @@ using SmartSchool.Modules.AIPrediction.Models;
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Write-side persistence for PredictionModel.
+/// Write-side persistence for PredictionModelEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class PredictionModelCommand : IPredictionModelCommand
 {
     public Task AddAsync(
-        PredictionModel entity,
+        PredictionModelEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PredictionModel create persistence has not been connected to the module DbContext.");
+            "PredictionModelEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        PredictionModel entity,
+        PredictionModelEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PredictionModel update persistence has not been connected to the module DbContext.");
+            "PredictionModelEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        PredictionModel entity,
+        PredictionModelEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PredictionModel delete persistence has not been connected to the module DbContext.");
+            "PredictionModelEntity delete persistence has not been connected to the module DbContext.");
     }
 }

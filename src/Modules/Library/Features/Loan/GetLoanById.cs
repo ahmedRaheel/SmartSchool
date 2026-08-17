@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Library.Contracts;
 using SmartSchool.Modules.Library.Models;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Library.Features.Loan;
 
 public static class GetLoanById
 {
+
+    /// <summary>
+    /// Represents the response returned by this LoanEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<LoanResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(ILoanQuery entityQuery)
-        : IRequestHandler<Query, Result<LoanResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<LoanResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetLoanById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<LoanResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Loan))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LoanEntity))));
             }
-            return Result<LoanResponse>.Success(LoanResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetLoanById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<LoanResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetLoanById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Library.Models.LoanEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

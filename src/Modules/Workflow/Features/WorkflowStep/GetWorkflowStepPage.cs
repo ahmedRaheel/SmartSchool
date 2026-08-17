@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.Workflow.Contracts;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -9,15 +9,29 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 
 public static class GetWorkflowStepPage
 {
+
+    /// <summary>
+    /// Represents the response returned by this WorkflowStepEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
         int Page = 1,
-        int PageSize = 25) : IRequest<Result<PagedResult<WorkflowStepResponse>>>;
+        int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
     public sealed class Handler(IWorkflowStepQuery entityQuery)
-        : IRequestHandler<Query, Result<PagedResult<WorkflowStepResponse>>>
+        : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
-        public async Task<Result<PagedResult<WorkflowStepResponse>>> HandleAsync(
+        public async Task<Result<PagedResult<Response>>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -27,12 +41,12 @@ public static class GetWorkflowStepPage
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
                 cancellationToken);
-            var response = new PagedResult<WorkflowStepResponse>(
-                page.Items.Select(WorkflowStepResponse.FromEntity).ToArray(),
+            var response = new PagedResult<Response>(
+                page.Items.Select(MapResponse).ToArray(),
                 page.Page,
                 page.PageSize,
                 page.TotalCount);
-            return Result<PagedResult<WorkflowStepResponse>>.Success(response);
+            return Result<PagedResult<Response>>.Success(response);
         }
     }
 
@@ -43,7 +57,7 @@ public static class GetWorkflowStepPage
                 async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, page, pageSize);
-                    var result = await mediator.SendAsync<Query, Result<PagedResult<WorkflowStepResponse>>>(
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -52,4 +66,15 @@ public static class GetWorkflowStepPage
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Workflow.Models.WorkflowStepEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

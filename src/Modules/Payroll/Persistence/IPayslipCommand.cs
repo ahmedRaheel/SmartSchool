@@ -2,17 +2,29 @@ using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for PayslipEntity.
+/// </summary>
 public interface IPayslipCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Payslip entity,
+        PayslipEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Payslip entity,
+        PayslipEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Payslip entity,
+        PayslipEntity entity,
         CancellationToken cancellationToken);
 }

@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Read-side persistence for StudentIntervention.
+/// Read-side persistence for StudentInterventionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AIPrediction module.
 /// </summary>
 public sealed class StudentInterventionQuery : IStudentInterventionQuery
 {
-    public Task<StudentIntervention?> GetByIdAsync(
+    public Task<StudentInterventionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentIntervention read persistence has not been connected to the module DbContext.");
+            "StudentInterventionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<StudentIntervention>> GetPageAsync(
+    public Task<PagedResult<StudentInterventionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentIntervention paging persistence has not been connected to the module DbContext.");
+            "StudentInterventionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class StudentInterventionQuery : IStudentInterventionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentIntervention uniqueness persistence has not been connected to the module DbContext.");
+            "StudentInterventionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

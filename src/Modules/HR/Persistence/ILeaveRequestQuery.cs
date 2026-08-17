@@ -3,19 +3,31 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
+/// <summary>
+/// Defines query persistence operations for LeaveRequestEntity.
+/// </summary>
 public interface ILeaveRequestQuery
 {
-    Task<LeaveRequest?> GetByIdAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<LeaveRequestEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken);
 
-    Task<PagedResult<LeaveRequest>> GetPageAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PagedResult<LeaveRequestEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task<bool> ExistsByCodeAsync(
         Guid tenantId,
         string code,

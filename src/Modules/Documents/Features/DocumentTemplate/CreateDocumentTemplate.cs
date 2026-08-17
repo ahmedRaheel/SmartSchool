@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Documents.Contracts;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
@@ -10,10 +10,24 @@ namespace SmartSchool.Modules.Documents.Features.DocumentTemplate;
 
 public static class CreateDocumentTemplate
 {
+
+    /// <summary>
+    /// Represents the response returned by this DocumentTemplateEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name) : IRequest<Result<DocumentTemplateResponse>>;
+        string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -27,42 +41,29 @@ public static class CreateDocumentTemplate
 
     public sealed class Handler(
         IDocumentTemplateQuery entityQuery,
-        IDocumentTemplateCommand entityCommand,
-        IValidator<Request> validator)
-        : IRequestHandler<Request, Result<DocumentTemplateResponse>>
+        IDocumentTemplateCommand entityCommand)
+        : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<DocumentTemplateResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validation = await validator.ValidateAsync(request, cancellationToken);
-            if (!validation.IsValid)
-            {
-                var message = string.Join(
-                    "; ",
-                    validation.Errors.Select(error => error.ErrorMessage));
-                return Result<DocumentTemplateResponse>.Failure(Error.Validation(message));
-            }
-
-            var exists = await entityQuery.ExistsByCodeAsync(
+var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
-                return Result<DocumentTemplateResponse>.Failure(
+                return Result<Response>.Failure(
                     Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(DocumentTemplate), request.Code)));
+                        ErrorMessages.DuplicateCode(nameof(DocumentTemplateEntity), request.Code)));
             }
 
-            var entity = new DocumentTemplate
-            {
-                TenantId = request.TenantId,
-                Code = request.Code.Trim(),
-                Name = request.Name.Trim(),
-                IsActive = true
-            };
+            var entity = DocumentTemplateEntity.Create(
+                request.TenantId,
+                request.Code,
+                request.Name);
 
             await entityCommand.AddAsync(entity, cancellationToken);
-            return Result<DocumentTemplateResponse>.Success(DocumentTemplateResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -72,7 +73,7 @@ public static class CreateDocumentTemplate
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "document-template"),
                 async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.SendAsync<Request, Result<DocumentTemplateResponse>>(
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -81,4 +82,15 @@ public static class CreateDocumentTemplate
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Documents.Models.DocumentTemplateEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

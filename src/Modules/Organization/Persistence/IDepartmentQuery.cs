@@ -3,19 +3,31 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Organization.Persistence;
 
+/// <summary>
+/// Defines query persistence operations for DepartmentEntity.
+/// </summary>
 public interface IDepartmentQuery
 {
-    Task<Department?> GetByIdAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<DepartmentEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken);
 
-    Task<PagedResult<Department>> GetPageAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PagedResult<DepartmentEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task<bool> ExistsByCodeAsync(
         Guid tenantId,
         string code,

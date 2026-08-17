@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Read-side persistence for Subject.
+/// Read-side persistence for SubjectEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Academics module.
 /// </summary>
 public sealed class SubjectQuery : ISubjectQuery
 {
-    public Task<Subject?> GetByIdAsync(
+    public Task<SubjectEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Subject read persistence has not been connected to the module DbContext.");
+            "SubjectEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Subject>> GetPageAsync(
+    public Task<PagedResult<SubjectEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Subject paging persistence has not been connected to the module DbContext.");
+            "SubjectEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class SubjectQuery : ISubjectQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Subject uniqueness persistence has not been connected to the module DbContext.");
+            "SubjectEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

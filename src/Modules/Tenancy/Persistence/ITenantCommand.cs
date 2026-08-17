@@ -2,17 +2,29 @@ using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for TenantEntity.
+/// </summary>
 public interface ITenantCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Tenant entity,
+        TenantEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Tenant entity,
+        TenantEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Tenant entity,
+        TenantEntity entity,
         CancellationToken cancellationToken);
 }

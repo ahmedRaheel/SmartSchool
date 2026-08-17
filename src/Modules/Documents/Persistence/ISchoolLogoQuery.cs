@@ -3,19 +3,31 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Documents.Persistence;
 
+/// <summary>
+/// Defines query persistence operations for SchoolLogoEntity.
+/// </summary>
 public interface ISchoolLogoQuery
 {
-    Task<SchoolLogo?> GetByIdAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<SchoolLogoEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken);
 
-    Task<PagedResult<SchoolLogo>> GetPageAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PagedResult<SchoolLogoEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task<bool> ExistsByCodeAsync(
         Guid tenantId,
         string code,

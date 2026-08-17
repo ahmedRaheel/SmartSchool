@@ -3,19 +3,31 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
+/// <summary>
+/// Defines query persistence operations for EmploymentHistoryEntity.
+/// </summary>
 public interface IEmploymentHistoryQuery
 {
-    Task<EmploymentHistory?> GetByIdAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<EmploymentHistoryEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken);
 
-    Task<PagedResult<EmploymentHistory>> GetPageAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PagedResult<EmploymentHistoryEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task<bool> ExistsByCodeAsync(
         Guid tenantId,
         string code,

@@ -3,19 +3,31 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
+/// <summary>
+/// Defines query persistence operations for PaymentEntity.
+/// </summary>
 public interface IPaymentQuery
 {
-    Task<Payment?> GetByIdAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PaymentEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken);
 
-    Task<PagedResult<Payment>> GetPageAsync(
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PagedResult<PaymentEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task<bool> ExistsByCodeAsync(
         Guid tenantId,
         string code,

@@ -2,17 +2,29 @@ using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for StockTransactionEntity.
+/// </summary>
 public interface IStockTransactionCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        StockTransaction entity,
+        StockTransactionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        StockTransaction entity,
+        StockTransactionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        StockTransaction entity,
+        StockTransactionEntity entity,
         CancellationToken cancellationToken);
 }

@@ -2,17 +2,29 @@ using SmartSchool.Modules.AIParent.Models;
 
 namespace SmartSchool.Modules.AIParent.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ParentConversationEntity.
+/// </summary>
 public interface IParentConversationCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        ParentConversation entity,
+        ParentConversationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        ParentConversation entity,
+        ParentConversationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        ParentConversation entity,
+        ParentConversationEntity entity,
         CancellationToken cancellationToken);
 }

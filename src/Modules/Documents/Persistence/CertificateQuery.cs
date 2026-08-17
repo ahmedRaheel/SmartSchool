@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Documents.Persistence;
 
 /// <summary>
-/// Read-side persistence for Certificate.
+/// Read-side persistence for CertificateEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Documents module.
 /// </summary>
 public sealed class CertificateQuery : ICertificateQuery
 {
-    public Task<Certificate?> GetByIdAsync(
+    public Task<CertificateEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Certificate read persistence has not been connected to the module DbContext.");
+            "CertificateEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Certificate>> GetPageAsync(
+    public Task<PagedResult<CertificateEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Certificate paging persistence has not been connected to the module DbContext.");
+            "CertificateEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class CertificateQuery : ICertificateQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Certificate uniqueness persistence has not been connected to the module DbContext.");
+            "CertificateEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

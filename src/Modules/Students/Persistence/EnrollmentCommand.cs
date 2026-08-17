@@ -3,32 +3,32 @@ using SmartSchool.Modules.Students.Models;
 namespace SmartSchool.Modules.Students.Persistence;
 
 /// <summary>
-/// Write-side persistence for Enrollment.
+/// Write-side persistence for EnrollmentEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class EnrollmentCommand : IEnrollmentCommand
 {
     public Task AddAsync(
-        Enrollment entity,
+        EnrollmentEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Enrollment create persistence has not been connected to the module DbContext.");
+            "EnrollmentEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Enrollment entity,
+        EnrollmentEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Enrollment update persistence has not been connected to the module DbContext.");
+            "EnrollmentEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Enrollment entity,
+        EnrollmentEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Enrollment delete persistence has not been connected to the module DbContext.");
+            "EnrollmentEntity delete persistence has not been connected to the module DbContext.");
     }
 }

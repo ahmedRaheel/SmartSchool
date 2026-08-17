@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Academics.Contracts;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
@@ -10,10 +10,24 @@ namespace SmartSchool.Modules.Academics.Features.TimetableEntry;
 
 public static class CreateTimetableEntry
 {
+
+    /// <summary>
+    /// Represents the response returned by this TimetableEntryEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name) : IRequest<Result<TimetableEntryResponse>>;
+        string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -27,42 +41,29 @@ public static class CreateTimetableEntry
 
     public sealed class Handler(
         ITimetableEntryQuery entityQuery,
-        ITimetableEntryCommand entityCommand,
-        IValidator<Request> validator)
-        : IRequestHandler<Request, Result<TimetableEntryResponse>>
+        ITimetableEntryCommand entityCommand)
+        : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<TimetableEntryResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validation = await validator.ValidateAsync(request, cancellationToken);
-            if (!validation.IsValid)
-            {
-                var message = string.Join(
-                    "; ",
-                    validation.Errors.Select(error => error.ErrorMessage));
-                return Result<TimetableEntryResponse>.Failure(Error.Validation(message));
-            }
-
-            var exists = await entityQuery.ExistsByCodeAsync(
+var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
-                return Result<TimetableEntryResponse>.Failure(
+                return Result<Response>.Failure(
                     Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(TimetableEntry), request.Code)));
+                        ErrorMessages.DuplicateCode(nameof(TimetableEntryEntity), request.Code)));
             }
 
-            var entity = new TimetableEntry
-            {
-                TenantId = request.TenantId,
-                Code = request.Code.Trim(),
-                Name = request.Name.Trim(),
-                IsActive = true
-            };
+            var entity = TimetableEntryEntity.Create(
+                request.TenantId,
+                request.Code,
+                request.Name);
 
             await entityCommand.AddAsync(entity, cancellationToken);
-            return Result<TimetableEntryResponse>.Success(TimetableEntryResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -72,7 +73,7 @@ public static class CreateTimetableEntry
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "timetable-entry"),
                 async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.SendAsync<Request, Result<TimetableEntryResponse>>(
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -81,4 +82,15 @@ public static class CreateTimetableEntry
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Academics.Models.TimetableEntryEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

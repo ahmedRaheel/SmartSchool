@@ -2,17 +2,29 @@ using SmartSchool.Modules.Organization.Models;
 
 namespace SmartSchool.Modules.Organization.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for CampusEntity.
+/// </summary>
 public interface ICampusCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Campus entity,
+        CampusEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Campus entity,
+        CampusEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Campus entity,
+        CampusEntity entity,
         CancellationToken cancellationToken);
 }

@@ -3,32 +3,32 @@ using SmartSchool.Modules.Academics.Models;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for Term.
+/// Write-side persistence for TermEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class TermCommand : ITermCommand
 {
     public Task AddAsync(
-        Term entity,
+        TermEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Term create persistence has not been connected to the module DbContext.");
+            "TermEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Term entity,
+        TermEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Term update persistence has not been connected to the module DbContext.");
+            "TermEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Term entity,
+        TermEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Term delete persistence has not been connected to the module DbContext.");
+            "TermEntity delete persistence has not been connected to the module DbContext.");
     }
 }

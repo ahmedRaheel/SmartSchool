@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.Organization.Contracts;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -9,15 +9,29 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 
 public static class GetCampusPage
 {
+
+    /// <summary>
+    /// Represents the response returned by this CampusEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
         int Page = 1,
-        int PageSize = 25) : IRequest<Result<PagedResult<CampusResponse>>>;
+        int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
     public sealed class Handler(ICampusQuery entityQuery)
-        : IRequestHandler<Query, Result<PagedResult<CampusResponse>>>
+        : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
-        public async Task<Result<PagedResult<CampusResponse>>> HandleAsync(
+        public async Task<Result<PagedResult<Response>>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -27,12 +41,12 @@ public static class GetCampusPage
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
                 cancellationToken);
-            var response = new PagedResult<CampusResponse>(
-                page.Items.Select(CampusResponse.FromEntity).ToArray(),
+            var response = new PagedResult<Response>(
+                page.Items.Select(MapResponse).ToArray(),
                 page.Page,
                 page.PageSize,
                 page.TotalCount);
-            return Result<PagedResult<CampusResponse>>.Success(response);
+            return Result<PagedResult<Response>>.Success(response);
         }
     }
 
@@ -43,7 +57,7 @@ public static class GetCampusPage
                 async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, page, pageSize);
-                    var result = await mediator.SendAsync<Query, Result<PagedResult<CampusResponse>>>(
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -52,4 +66,15 @@ public static class GetCampusPage
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Organization.Models.CampusEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

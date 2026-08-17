@@ -3,32 +3,32 @@ using SmartSchool.Modules.Admissions.Models;
 namespace SmartSchool.Modules.Admissions.Persistence;
 
 /// <summary>
-/// Write-side persistence for Applicant.
+/// Write-side persistence for ApplicantEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class ApplicantCommand : IApplicantCommand
 {
     public Task AddAsync(
-        Applicant entity,
+        ApplicantEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Applicant create persistence has not been connected to the module DbContext.");
+            "ApplicantEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Applicant entity,
+        ApplicantEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Applicant update persistence has not been connected to the module DbContext.");
+            "ApplicantEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Applicant entity,
+        ApplicantEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Applicant delete persistence has not been connected to the module DbContext.");
+            "ApplicantEntity delete persistence has not been connected to the module DbContext.");
     }
 }

@@ -2,17 +2,29 @@ using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for TermEntity.
+/// </summary>
 public interface ITermCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Term entity,
+        TermEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Term entity,
+        TermEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Term entity,
+        TermEntity entity,
         CancellationToken cancellationToken);
 }

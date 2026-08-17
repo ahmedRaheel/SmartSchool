@@ -3,32 +3,32 @@ using SmartSchool.Modules.HR.Models;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Write-side persistence for Position.
+/// Write-side persistence for PositionEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class PositionCommand : IPositionCommand
 {
     public Task AddAsync(
-        Position entity,
+        PositionEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Position create persistence has not been connected to the module DbContext.");
+            "PositionEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Position entity,
+        PositionEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Position update persistence has not been connected to the module DbContext.");
+            "PositionEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Position entity,
+        PositionEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Position delete persistence has not been connected to the module DbContext.");
+            "PositionEntity delete persistence has not been connected to the module DbContext.");
     }
 }

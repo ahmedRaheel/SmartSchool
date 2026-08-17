@@ -3,32 +3,32 @@ using SmartSchool.Modules.Activities.Models;
 namespace SmartSchool.Modules.Activities.Persistence;
 
 /// <summary>
-/// Write-side persistence for Award.
+/// Write-side persistence for AwardEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class AwardCommand : IAwardCommand
 {
     public Task AddAsync(
-        Award entity,
+        AwardEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Award create persistence has not been connected to the module DbContext.");
+            "AwardEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Award entity,
+        AwardEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Award update persistence has not been connected to the module DbContext.");
+            "AwardEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Award entity,
+        AwardEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Award delete persistence has not been connected to the module DbContext.");
+            "AwardEntity delete persistence has not been connected to the module DbContext.");
     }
 }

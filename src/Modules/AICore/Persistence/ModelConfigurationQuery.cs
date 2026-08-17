@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Read-side persistence for ModelConfiguration.
+/// Read-side persistence for ModelConfigurationEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AICore module.
 /// </summary>
 public sealed class ModelConfigurationQuery : IModelConfigurationQuery
 {
-    public Task<ModelConfiguration?> GetByIdAsync(
+    public Task<ModelConfigurationEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ModelConfiguration read persistence has not been connected to the module DbContext.");
+            "ModelConfigurationEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<ModelConfiguration>> GetPageAsync(
+    public Task<PagedResult<ModelConfigurationEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ModelConfiguration paging persistence has not been connected to the module DbContext.");
+            "ModelConfigurationEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ModelConfigurationQuery : IModelConfigurationQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ModelConfiguration uniqueness persistence has not been connected to the module DbContext.");
+            "ModelConfigurationEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Admissions.Persistence;
 
 /// <summary>
-/// Read-side persistence for AdmissionDecision.
+/// Read-side persistence for AdmissionDecisionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Admissions module.
 /// </summary>
 public sealed class AdmissionDecisionQuery : IAdmissionDecisionQuery
 {
-    public Task<AdmissionDecision?> GetByIdAsync(
+    public Task<AdmissionDecisionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AdmissionDecision read persistence has not been connected to the module DbContext.");
+            "AdmissionDecisionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<AdmissionDecision>> GetPageAsync(
+    public Task<PagedResult<AdmissionDecisionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AdmissionDecision paging persistence has not been connected to the module DbContext.");
+            "AdmissionDecisionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class AdmissionDecisionQuery : IAdmissionDecisionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AdmissionDecision uniqueness persistence has not been connected to the module DbContext.");
+            "AdmissionDecisionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

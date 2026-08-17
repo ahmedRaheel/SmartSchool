@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Read-side persistence for Resume.
+/// Read-side persistence for ResumeEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the HR module.
 /// </summary>
 public sealed class ResumeQuery : IResumeQuery
 {
-    public Task<Resume?> GetByIdAsync(
+    public Task<ResumeEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Resume read persistence has not been connected to the module DbContext.");
+            "ResumeEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Resume>> GetPageAsync(
+    public Task<PagedResult<ResumeEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Resume paging persistence has not been connected to the module DbContext.");
+            "ResumeEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ResumeQuery : IResumeQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Resume uniqueness persistence has not been connected to the module DbContext.");
+            "ResumeEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

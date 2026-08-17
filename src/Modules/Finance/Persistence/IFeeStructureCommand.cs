@@ -2,17 +2,29 @@ using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for FeeStructureEntity.
+/// </summary>
 public interface IFeeStructureCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        FeeStructure entity,
+        FeeStructureEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        FeeStructure entity,
+        FeeStructureEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        FeeStructure entity,
+        FeeStructureEntity entity,
         CancellationToken cancellationToken);
 }

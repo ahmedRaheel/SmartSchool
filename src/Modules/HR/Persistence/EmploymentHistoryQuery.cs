@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Read-side persistence for EmploymentHistory.
+/// Read-side persistence for EmploymentHistoryEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the HR module.
 /// </summary>
 public sealed class EmploymentHistoryQuery : IEmploymentHistoryQuery
 {
-    public Task<EmploymentHistory?> GetByIdAsync(
+    public Task<EmploymentHistoryEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmploymentHistory read persistence has not been connected to the module DbContext.");
+            "EmploymentHistoryEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<EmploymentHistory>> GetPageAsync(
+    public Task<PagedResult<EmploymentHistoryEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmploymentHistory paging persistence has not been connected to the module DbContext.");
+            "EmploymentHistoryEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class EmploymentHistoryQuery : IEmploymentHistoryQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmploymentHistory uniqueness persistence has not been connected to the module DbContext.");
+            "EmploymentHistoryEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

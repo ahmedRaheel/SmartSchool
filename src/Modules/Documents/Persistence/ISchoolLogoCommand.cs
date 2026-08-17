@@ -2,17 +2,29 @@ using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for SchoolLogoEntity.
+/// </summary>
 public interface ISchoolLogoCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        SchoolLogo entity,
+        SchoolLogoEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        SchoolLogo entity,
+        SchoolLogoEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        SchoolLogo entity,
+        SchoolLogoEntity entity,
         CancellationToken cancellationToken);
 }

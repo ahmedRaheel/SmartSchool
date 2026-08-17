@@ -2,17 +2,29 @@ using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for DiscountEntity.
+/// </summary>
 public interface IDiscountCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Discount entity,
+        DiscountEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Discount entity,
+        DiscountEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Discount entity,
+        DiscountEntity entity,
         CancellationToken cancellationToken);
 }

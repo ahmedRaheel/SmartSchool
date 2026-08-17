@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Examinations.Persistence;
 
 /// <summary>
-/// Read-side persistence for StudentExamResult.
+/// Read-side persistence for StudentExamResultEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Examinations module.
 /// </summary>
 public sealed class StudentExamResultQuery : IStudentExamResultQuery
 {
-    public Task<StudentExamResult?> GetByIdAsync(
+    public Task<StudentExamResultEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentExamResult read persistence has not been connected to the module DbContext.");
+            "StudentExamResultEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<StudentExamResult>> GetPageAsync(
+    public Task<PagedResult<StudentExamResultEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentExamResult paging persistence has not been connected to the module DbContext.");
+            "StudentExamResultEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class StudentExamResultQuery : IStudentExamResultQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentExamResult uniqueness persistence has not been connected to the module DbContext.");
+            "StudentExamResultEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

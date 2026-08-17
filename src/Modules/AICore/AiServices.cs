@@ -4,7 +4,7 @@ public sealed record AiRequest(
     Guid TenantId,
     Guid? UserId,
     string Assistant,
-    string Message);
+    string MessageEntity);
 
 public sealed record AiResponse(
     string Answer,

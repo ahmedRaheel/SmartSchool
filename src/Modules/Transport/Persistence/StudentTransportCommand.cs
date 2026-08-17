@@ -3,32 +3,32 @@ using SmartSchool.Modules.Transport.Models;
 namespace SmartSchool.Modules.Transport.Persistence;
 
 /// <summary>
-/// Write-side persistence for StudentTransport.
+/// Write-side persistence for StudentTransportEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class StudentTransportCommand : IStudentTransportCommand
 {
     public Task AddAsync(
-        StudentTransport entity,
+        StudentTransportEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentTransport create persistence has not been connected to the module DbContext.");
+            "StudentTransportEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        StudentTransport entity,
+        StudentTransportEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentTransport update persistence has not been connected to the module DbContext.");
+            "StudentTransportEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        StudentTransport entity,
+        StudentTransportEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentTransport delete persistence has not been connected to the module DbContext.");
+            "StudentTransportEntity delete persistence has not been connected to the module DbContext.");
     }
 }

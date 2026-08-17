@@ -30,7 +30,7 @@ public static class AuthorizationRegistration
             AddPolicy(
                 options,
                 SmartSchoolPolicies.StudentSelfService,
-                SmartSchoolRoles.Student);
+                SmartSchoolRoles.StudentEntity);
 
             AddPolicy(
                 options,

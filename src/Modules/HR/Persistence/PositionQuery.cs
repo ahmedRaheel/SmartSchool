@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Read-side persistence for Position.
+/// Read-side persistence for PositionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the HR module.
 /// </summary>
 public sealed class PositionQuery : IPositionQuery
 {
-    public Task<Position?> GetByIdAsync(
+    public Task<PositionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Position read persistence has not been connected to the module DbContext.");
+            "PositionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Position>> GetPageAsync(
+    public Task<PagedResult<PositionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Position paging persistence has not been connected to the module DbContext.");
+            "PositionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class PositionQuery : IPositionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Position uniqueness persistence has not been connected to the module DbContext.");
+            "PositionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

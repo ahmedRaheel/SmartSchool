@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AICore.Contracts;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
@@ -10,12 +10,25 @@ namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 
 public static class UpdateToolDefinition
 {
+
+    /// <summary>
+    /// Represents the response returned by this ToolDefinitionEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Request(
         Guid TenantId,
         Guid Id,
         string Code,
-        string Name,
-        bool IsActive) : IRequest<Result<ToolDefinitionResponse>>;
+        string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -30,46 +43,35 @@ public static class UpdateToolDefinition
 
     public sealed class Handler(
         IToolDefinitionQuery entityQuery,
-        IToolDefinitionCommand entityCommand,
-        IValidator<Request> validator)
-        : IRequestHandler<Request, Result<ToolDefinitionResponse>>
+        IToolDefinitionCommand entityCommand)
+        : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<ToolDefinitionResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validation = await validator.ValidateAsync(request, cancellationToken);
-            if (!validation.IsValid)
-            {
-                var message = string.Join(
-                    "; ",
-                    validation.Errors.Select(error => error.ErrorMessage));
-                return Result<ToolDefinitionResponse>.Failure(Error.Validation(message));
-            }
-
-            var entity = await entityQuery.GetByIdAsync(
+var entity = await entityQuery.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ToolDefinitionResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ToolDefinition))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ToolDefinitionEntity))));
             }
 
             var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, request.Id, cancellationToken);
             if (exists)
             {
-                return Result<ToolDefinitionResponse>.Failure(
+                return Result<Response>.Failure(
                     Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(ToolDefinition), request.Code)));
+                        ErrorMessages.DuplicateCode(nameof(ToolDefinitionEntity), request.Code)));
             }
 
-            entity.Code = request.Code.Trim();
-            entity.Name = request.Name.Trim();
-            entity.IsActive = request.IsActive;
-            entity.UpdatedAt = DateTimeOffset.UtcNow;
+            entity.UpdateDetails(
+                request.Code,
+                request.Name);
             await entityCommand.UpdateAsync(entity, cancellationToken);
-            return Result<ToolDefinitionResponse>.Success(ToolDefinitionResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -80,7 +82,7 @@ public static class UpdateToolDefinition
                 async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var command = request with { Id = id };
-                    var result = await mediator.SendAsync<Request, Result<ToolDefinitionResponse>>(
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
                         command, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -89,4 +91,15 @@ public static class UpdateToolDefinition
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AICore.Models.ToolDefinitionEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

@@ -2,17 +2,29 @@ using SmartSchool.Modules.Activities.Models;
 
 namespace SmartSchool.Modules.Activities.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ActivityEntity.
+/// </summary>
 public interface IActivityCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Activity entity,
+        ActivityEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Activity entity,
+        ActivityEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Activity entity,
+        ActivityEntity entity,
         CancellationToken cancellationToken);
 }

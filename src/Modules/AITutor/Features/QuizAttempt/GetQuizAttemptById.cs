@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AITutor.Contracts;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.AITutor.Features.QuizAttempt;
 
 public static class GetQuizAttemptById
 {
+
+    /// <summary>
+    /// Represents the response returned by this QuizAttemptEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<QuizAttemptResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IQuizAttemptQuery entityQuery)
-        : IRequestHandler<Query, Result<QuizAttemptResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<QuizAttemptResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetQuizAttemptById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<QuizAttemptResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(QuizAttempt))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(QuizAttemptEntity))));
             }
-            return Result<QuizAttemptResponse>.Success(QuizAttemptResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetQuizAttemptById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<QuizAttemptResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetQuizAttemptById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AITutor.Models.QuizAttemptEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

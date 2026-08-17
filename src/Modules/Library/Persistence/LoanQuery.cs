@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// Read-side persistence for Loan.
+/// Read-side persistence for LoanEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Library module.
 /// </summary>
 public sealed class LoanQuery : ILoanQuery
 {
-    public Task<Loan?> GetByIdAsync(
+    public Task<LoanEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Loan read persistence has not been connected to the module DbContext.");
+            "LoanEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Loan>> GetPageAsync(
+    public Task<PagedResult<LoanEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Loan paging persistence has not been connected to the module DbContext.");
+            "LoanEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class LoanQuery : ILoanQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Loan uniqueness persistence has not been connected to the module DbContext.");
+            "LoanEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

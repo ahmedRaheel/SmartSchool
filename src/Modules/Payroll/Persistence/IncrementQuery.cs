@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Payroll.Persistence;
 
 /// <summary>
-/// Read-side persistence for Increment.
+/// Read-side persistence for IncrementEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Payroll module.
 /// </summary>
 public sealed class IncrementQuery : IIncrementQuery
 {
-    public Task<Increment?> GetByIdAsync(
+    public Task<IncrementEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Increment read persistence has not been connected to the module DbContext.");
+            "IncrementEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Increment>> GetPageAsync(
+    public Task<PagedResult<IncrementEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Increment paging persistence has not been connected to the module DbContext.");
+            "IncrementEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class IncrementQuery : IIncrementQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Increment uniqueness persistence has not been connected to the module DbContext.");
+            "IncrementEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

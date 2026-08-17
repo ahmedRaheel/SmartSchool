@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Read-side persistence for CourseOffering.
+/// Read-side persistence for CourseOfferingEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Academics module.
 /// </summary>
 public sealed class CourseOfferingQuery : ICourseOfferingQuery
 {
-    public Task<CourseOffering?> GetByIdAsync(
+    public Task<CourseOfferingEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CourseOffering read persistence has not been connected to the module DbContext.");
+            "CourseOfferingEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<CourseOffering>> GetPageAsync(
+    public Task<PagedResult<CourseOfferingEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CourseOffering paging persistence has not been connected to the module DbContext.");
+            "CourseOfferingEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class CourseOfferingQuery : ICourseOfferingQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CourseOffering uniqueness persistence has not been connected to the module DbContext.");
+            "CourseOfferingEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

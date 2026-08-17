@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AIParent.Contracts;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
@@ -10,12 +10,25 @@ namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 
 public static class UpdateParentToolExecution
 {
+
+    /// <summary>
+    /// Represents the response returned by this ParentToolExecutionEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Request(
         Guid TenantId,
         Guid Id,
         string Code,
-        string Name,
-        bool IsActive) : IRequest<Result<ParentToolExecutionResponse>>;
+        string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -30,46 +43,35 @@ public static class UpdateParentToolExecution
 
     public sealed class Handler(
         IParentToolExecutionQuery entityQuery,
-        IParentToolExecutionCommand entityCommand,
-        IValidator<Request> validator)
-        : IRequestHandler<Request, Result<ParentToolExecutionResponse>>
+        IParentToolExecutionCommand entityCommand)
+        : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<ParentToolExecutionResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validation = await validator.ValidateAsync(request, cancellationToken);
-            if (!validation.IsValid)
-            {
-                var message = string.Join(
-                    "; ",
-                    validation.Errors.Select(error => error.ErrorMessage));
-                return Result<ParentToolExecutionResponse>.Failure(Error.Validation(message));
-            }
-
-            var entity = await entityQuery.GetByIdAsync(
+var entity = await entityQuery.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ParentToolExecutionResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentToolExecution))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentToolExecutionEntity))));
             }
 
             var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, request.Id, cancellationToken);
             if (exists)
             {
-                return Result<ParentToolExecutionResponse>.Failure(
+                return Result<Response>.Failure(
                     Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(ParentToolExecution), request.Code)));
+                        ErrorMessages.DuplicateCode(nameof(ParentToolExecutionEntity), request.Code)));
             }
 
-            entity.Code = request.Code.Trim();
-            entity.Name = request.Name.Trim();
-            entity.IsActive = request.IsActive;
-            entity.UpdatedAt = DateTimeOffset.UtcNow;
+            entity.UpdateDetails(
+                request.Code,
+                request.Name);
             await entityCommand.UpdateAsync(entity, cancellationToken);
-            return Result<ParentToolExecutionResponse>.Success(ParentToolExecutionResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -80,7 +82,7 @@ public static class UpdateParentToolExecution
                 async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var command = request with { Id = id };
-                    var result = await mediator.SendAsync<Request, Result<ParentToolExecutionResponse>>(
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
                         command, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -89,4 +91,15 @@ public static class UpdateParentToolExecution
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AIParent.Models.ParentToolExecutionEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

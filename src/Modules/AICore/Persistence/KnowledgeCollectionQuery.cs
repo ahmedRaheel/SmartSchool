@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Read-side persistence for KnowledgeCollection.
+/// Read-side persistence for KnowledgeCollectionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AICore module.
 /// </summary>
 public sealed class KnowledgeCollectionQuery : IKnowledgeCollectionQuery
 {
-    public Task<KnowledgeCollection?> GetByIdAsync(
+    public Task<KnowledgeCollectionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeCollection read persistence has not been connected to the module DbContext.");
+            "KnowledgeCollectionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<KnowledgeCollection>> GetPageAsync(
+    public Task<PagedResult<KnowledgeCollectionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeCollection paging persistence has not been connected to the module DbContext.");
+            "KnowledgeCollectionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class KnowledgeCollectionQuery : IKnowledgeCollectionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeCollection uniqueness persistence has not been connected to the module DbContext.");
+            "KnowledgeCollectionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

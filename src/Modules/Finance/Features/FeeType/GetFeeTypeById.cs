@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Finance.Contracts;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Finance.Features.FeeType;
 
 public static class GetFeeTypeById
 {
+
+    /// <summary>
+    /// Represents the response returned by this FeeTypeEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<FeeTypeResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IFeeTypeQuery entityQuery)
-        : IRequestHandler<Query, Result<FeeTypeResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<FeeTypeResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetFeeTypeById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<FeeTypeResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeType))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeTypeEntity))));
             }
-            return Result<FeeTypeResponse>.Success(FeeTypeResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetFeeTypeById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<FeeTypeResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetFeeTypeById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Finance.Models.FeeTypeEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

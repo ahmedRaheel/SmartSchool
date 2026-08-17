@@ -2,17 +2,29 @@ using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for PaymentEntity.
+/// </summary>
 public interface IPaymentCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Payment entity,
+        PaymentEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Payment entity,
+        PaymentEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Payment entity,
+        PaymentEntity entity,
         CancellationToken cancellationToken);
 }

@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Academics.Contracts;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Academics.Features.ClassSection;
 
 public static class GetClassSectionById
 {
+
+    /// <summary>
+    /// Represents the response returned by this ClassSectionEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<ClassSectionResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IClassSectionQuery entityQuery)
-        : IRequestHandler<Query, Result<ClassSectionResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<ClassSectionResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetClassSectionById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ClassSectionResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ClassSection))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ClassSectionEntity))));
             }
-            return Result<ClassSectionResponse>.Success(ClassSectionResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetClassSectionById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<ClassSectionResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetClassSectionById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Academics.Models.ClassSectionEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

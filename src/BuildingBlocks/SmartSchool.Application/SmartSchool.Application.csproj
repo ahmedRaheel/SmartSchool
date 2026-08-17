@@ -1,9 +1,1 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="../SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Routing"  />
-    <PackageReference Include="Microsoft.Extensions.Logging"  />
-  </ItemGroup>
-
-</Project>
+<Project Sdk="Microsoft.NET.Sdk" />

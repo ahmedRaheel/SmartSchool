@@ -2,17 +2,29 @@ using SmartSchool.Modules.Students.Models;
 
 namespace SmartSchool.Modules.Students.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for StudentGuardianEntity.
+/// </summary>
 public interface IStudentGuardianCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        StudentGuardian entity,
+        StudentGuardianEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        StudentGuardian entity,
+        StudentGuardianEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        StudentGuardian entity,
+        StudentGuardianEntity entity,
         CancellationToken cancellationToken);
 }

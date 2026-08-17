@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Students.Contracts;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Students.Features.Student;
 
 public static class GetStudentById
 {
+
+    /// <summary>
+    /// Represents the response returned by this StudentEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<StudentResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IStudentQuery entityQuery)
-        : IRequestHandler<Query, Result<StudentResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<StudentResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetStudentById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<StudentResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Student))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentEntity))));
             }
-            return Result<StudentResponse>.Success(StudentResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetStudentById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<StudentResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetStudentById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Students.Models.StudentEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

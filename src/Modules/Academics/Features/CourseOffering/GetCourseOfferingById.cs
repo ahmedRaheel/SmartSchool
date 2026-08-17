@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Academics.Contracts;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Academics.Features.CourseOffering;
 
 public static class GetCourseOfferingById
 {
+
+    /// <summary>
+    /// Represents the response returned by this CourseOfferingEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<CourseOfferingResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(ICourseOfferingQuery entityQuery)
-        : IRequestHandler<Query, Result<CourseOfferingResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<CourseOfferingResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetCourseOfferingById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<CourseOfferingResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CourseOffering))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CourseOfferingEntity))));
             }
-            return Result<CourseOfferingResponse>.Success(CourseOfferingResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetCourseOfferingById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<CourseOfferingResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetCourseOfferingById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Academics.Models.CourseOfferingEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

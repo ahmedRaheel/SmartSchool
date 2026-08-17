@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Read-side persistence for Timetable.
+/// Read-side persistence for TimetableEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Academics module.
 /// </summary>
 public sealed class TimetableQuery : ITimetableQuery
 {
-    public Task<Timetable?> GetByIdAsync(
+    public Task<TimetableEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Timetable read persistence has not been connected to the module DbContext.");
+            "TimetableEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Timetable>> GetPageAsync(
+    public Task<PagedResult<TimetableEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Timetable paging persistence has not been connected to the module DbContext.");
+            "TimetableEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class TimetableQuery : ITimetableQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Timetable uniqueness persistence has not been connected to the module DbContext.");
+            "TimetableEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

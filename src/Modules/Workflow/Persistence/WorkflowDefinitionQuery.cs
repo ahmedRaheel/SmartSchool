@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Workflow.Persistence;
 
 /// <summary>
-/// Read-side persistence for WorkflowDefinition.
+/// Read-side persistence for WorkflowDefinitionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Workflow module.
 /// </summary>
 public sealed class WorkflowDefinitionQuery : IWorkflowDefinitionQuery
 {
-    public Task<WorkflowDefinition?> GetByIdAsync(
+    public Task<WorkflowDefinitionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "WorkflowDefinition read persistence has not been connected to the module DbContext.");
+            "WorkflowDefinitionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<WorkflowDefinition>> GetPageAsync(
+    public Task<PagedResult<WorkflowDefinitionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "WorkflowDefinition paging persistence has not been connected to the module DbContext.");
+            "WorkflowDefinitionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class WorkflowDefinitionQuery : IWorkflowDefinitionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "WorkflowDefinition uniqueness persistence has not been connected to the module DbContext.");
+            "WorkflowDefinitionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

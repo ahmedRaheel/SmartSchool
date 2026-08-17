@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.Modules.Documents.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteSchoolLogo
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         ISchoolLogoQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteSchoolLogo
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogo))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogoEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

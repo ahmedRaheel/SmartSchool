@@ -48,7 +48,7 @@ public static class SampleActors
                 "ahmed.student@smartschool.local",
                 "Ahmed",
                 "Khan",
-                SmartSchoolRoles.Student,
+                SmartSchoolRoles.StudentEntity,
                 "STD-2026-0001"),
 
             Create(

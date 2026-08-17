@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Read-side persistence for Job.
+/// Read-side persistence for JobEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the HR module.
 /// </summary>
 public sealed class JobQuery : IJobQuery
 {
-    public Task<Job?> GetByIdAsync(
+    public Task<JobEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Job read persistence has not been connected to the module DbContext.");
+            "JobEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Job>> GetPageAsync(
+    public Task<PagedResult<JobEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Job paging persistence has not been connected to the module DbContext.");
+            "JobEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class JobQuery : IJobQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Job uniqueness persistence has not been connected to the module DbContext.");
+            "JobEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

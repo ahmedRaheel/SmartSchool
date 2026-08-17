@@ -2,17 +2,29 @@ using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for PurchaseOrderEntity.
+/// </summary>
 public interface IPurchaseOrderCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        PurchaseOrder entity,
+        PurchaseOrderEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        PurchaseOrder entity,
+        PurchaseOrderEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        PurchaseOrder entity,
+        PurchaseOrderEntity entity,
         CancellationToken cancellationToken);
 }

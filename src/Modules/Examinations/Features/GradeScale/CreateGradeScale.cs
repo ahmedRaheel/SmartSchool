@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Examinations.Contracts;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
@@ -10,10 +10,24 @@ namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
 public static class CreateGradeScale
 {
+
+    /// <summary>
+    /// Represents the response returned by this GradeScaleEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name) : IRequest<Result<GradeScaleResponse>>;
+        string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -27,42 +41,29 @@ public static class CreateGradeScale
 
     public sealed class Handler(
         IGradeScaleQuery entityQuery,
-        IGradeScaleCommand entityCommand,
-        IValidator<Request> validator)
-        : IRequestHandler<Request, Result<GradeScaleResponse>>
+        IGradeScaleCommand entityCommand)
+        : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<GradeScaleResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validation = await validator.ValidateAsync(request, cancellationToken);
-            if (!validation.IsValid)
-            {
-                var message = string.Join(
-                    "; ",
-                    validation.Errors.Select(error => error.ErrorMessage));
-                return Result<GradeScaleResponse>.Failure(Error.Validation(message));
-            }
-
-            var exists = await entityQuery.ExistsByCodeAsync(
+var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
-                return Result<GradeScaleResponse>.Failure(
+                return Result<Response>.Failure(
                     Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(GradeScale), request.Code)));
+                        ErrorMessages.DuplicateCode(nameof(GradeScaleEntity), request.Code)));
             }
 
-            var entity = new GradeScale
-            {
-                TenantId = request.TenantId,
-                Code = request.Code.Trim(),
-                Name = request.Name.Trim(),
-                IsActive = true
-            };
+            var entity = GradeScaleEntity.Create(
+                request.TenantId,
+                request.Code,
+                request.Name);
 
             await entityCommand.AddAsync(entity, cancellationToken);
-            return Result<GradeScaleResponse>.Success(GradeScaleResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -72,7 +73,7 @@ public static class CreateGradeScale
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "grade-scale"),
                 async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.SendAsync<Request, Result<GradeScaleResponse>>(
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -81,4 +82,15 @@ public static class CreateGradeScale
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Examinations.Models.GradeScaleEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

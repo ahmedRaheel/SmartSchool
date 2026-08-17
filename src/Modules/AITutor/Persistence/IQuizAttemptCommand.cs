@@ -2,17 +2,29 @@ using SmartSchool.Modules.AITutor.Models;
 
 namespace SmartSchool.Modules.AITutor.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for QuizAttemptEntity.
+/// </summary>
 public interface IQuizAttemptCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        QuizAttempt entity,
+        QuizAttemptEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        QuizAttempt entity,
+        QuizAttemptEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        QuizAttempt entity,
+        QuizAttemptEntity entity,
         CancellationToken cancellationToken);
 }

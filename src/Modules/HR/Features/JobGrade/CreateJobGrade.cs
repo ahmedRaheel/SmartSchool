@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.HR.Contracts;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
@@ -10,10 +10,24 @@ namespace SmartSchool.Modules.HR.Features.JobGrade;
 
 public static class CreateJobGrade
 {
+
+    /// <summary>
+    /// Represents the response returned by this JobGradeEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name) : IRequest<Result<JobGradeResponse>>;
+        string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -27,42 +41,29 @@ public static class CreateJobGrade
 
     public sealed class Handler(
         IJobGradeQuery entityQuery,
-        IJobGradeCommand entityCommand,
-        IValidator<Request> validator)
-        : IRequestHandler<Request, Result<JobGradeResponse>>
+        IJobGradeCommand entityCommand)
+        : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<JobGradeResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validation = await validator.ValidateAsync(request, cancellationToken);
-            if (!validation.IsValid)
-            {
-                var message = string.Join(
-                    "; ",
-                    validation.Errors.Select(error => error.ErrorMessage));
-                return Result<JobGradeResponse>.Failure(Error.Validation(message));
-            }
-
-            var exists = await entityQuery.ExistsByCodeAsync(
+var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
-                return Result<JobGradeResponse>.Failure(
+                return Result<Response>.Failure(
                     Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(JobGrade), request.Code)));
+                        ErrorMessages.DuplicateCode(nameof(JobGradeEntity), request.Code)));
             }
 
-            var entity = new JobGrade
-            {
-                TenantId = request.TenantId,
-                Code = request.Code.Trim(),
-                Name = request.Name.Trim(),
-                IsActive = true
-            };
+            var entity = JobGradeEntity.Create(
+                request.TenantId,
+                request.Code,
+                request.Name);
 
             await entityCommand.AddAsync(entity, cancellationToken);
-            return Result<JobGradeResponse>.Success(JobGradeResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -72,7 +73,7 @@ public static class CreateJobGrade
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "job-grade"),
                 async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.SendAsync<Request, Result<JobGradeResponse>>(
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -81,4 +82,15 @@ public static class CreateJobGrade
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.HR.Models.JobGradeEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

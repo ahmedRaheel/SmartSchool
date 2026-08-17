@@ -6,7 +6,7 @@ public static class SmartSchoolRoles
     public const string SchoolAdmin = "SchoolAdmin";
     public const string Principal = "Principal";
     public const string Teacher = "Teacher";
-    public const string Student = "Student";
+    public const string StudentEntity = "StudentEntity";
     public const string Parent = "Parent";
     public const string Accountant = "Accountant";
     public const string HrManager = "HRManager";

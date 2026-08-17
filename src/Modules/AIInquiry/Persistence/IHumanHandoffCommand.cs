@@ -2,17 +2,29 @@ using SmartSchool.Modules.AIInquiry.Models;
 
 namespace SmartSchool.Modules.AIInquiry.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for HumanHandoffEntity.
+/// </summary>
 public interface IHumanHandoffCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        HumanHandoff entity,
+        HumanHandoffEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        HumanHandoff entity,
+        HumanHandoffEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        HumanHandoff entity,
+        HumanHandoffEntity entity,
         CancellationToken cancellationToken);
 }

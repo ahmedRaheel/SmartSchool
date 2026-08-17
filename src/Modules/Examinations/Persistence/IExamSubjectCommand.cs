@@ -2,17 +2,29 @@ using SmartSchool.Modules.Examinations.Models;
 
 namespace SmartSchool.Modules.Examinations.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ExamSubjectEntity.
+/// </summary>
 public interface IExamSubjectCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        ExamSubject entity,
+        ExamSubjectEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        ExamSubject entity,
+        ExamSubjectEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        ExamSubject entity,
+        ExamSubjectEntity entity,
         CancellationToken cancellationToken);
 }

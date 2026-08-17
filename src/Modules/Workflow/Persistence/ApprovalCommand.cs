@@ -3,32 +3,32 @@ using SmartSchool.Modules.Workflow.Models;
 namespace SmartSchool.Modules.Workflow.Persistence;
 
 /// <summary>
-/// Write-side persistence for Approval.
+/// Write-side persistence for ApprovalEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class ApprovalCommand : IApprovalCommand
 {
     public Task AddAsync(
-        Approval entity,
+        ApprovalEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Approval create persistence has not been connected to the module DbContext.");
+            "ApprovalEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Approval entity,
+        ApprovalEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Approval update persistence has not been connected to the module DbContext.");
+            "ApprovalEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Approval entity,
+        ApprovalEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Approval delete persistence has not been connected to the module DbContext.");
+            "ApprovalEntity delete persistence has not been connected to the module DbContext.");
     }
 }

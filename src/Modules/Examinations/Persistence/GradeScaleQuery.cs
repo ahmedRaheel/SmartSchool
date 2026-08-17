@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Examinations.Persistence;
 
 /// <summary>
-/// Read-side persistence for GradeScale.
+/// Read-side persistence for GradeScaleEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Examinations module.
 /// </summary>
 public sealed class GradeScaleQuery : IGradeScaleQuery
 {
-    public Task<GradeScale?> GetByIdAsync(
+    public Task<GradeScaleEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeScale read persistence has not been connected to the module DbContext.");
+            "GradeScaleEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<GradeScale>> GetPageAsync(
+    public Task<PagedResult<GradeScaleEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeScale paging persistence has not been connected to the module DbContext.");
+            "GradeScaleEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class GradeScaleQuery : IGradeScaleQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeScale uniqueness persistence has not been connected to the module DbContext.");
+            "GradeScaleEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

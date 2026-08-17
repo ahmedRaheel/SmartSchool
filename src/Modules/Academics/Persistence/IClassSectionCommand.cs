@@ -2,17 +2,29 @@ using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ClassSectionEntity.
+/// </summary>
 public interface IClassSectionCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        ClassSection entity,
+        ClassSectionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        ClassSection entity,
+        ClassSectionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        ClassSection entity,
+        ClassSectionEntity entity,
         CancellationToken cancellationToken);
 }

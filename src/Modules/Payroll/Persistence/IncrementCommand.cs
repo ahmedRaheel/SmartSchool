@@ -3,32 +3,32 @@ using SmartSchool.Modules.Payroll.Models;
 namespace SmartSchool.Modules.Payroll.Persistence;
 
 /// <summary>
-/// Write-side persistence for Increment.
+/// Write-side persistence for IncrementEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class IncrementCommand : IIncrementCommand
 {
     public Task AddAsync(
-        Increment entity,
+        IncrementEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Increment create persistence has not been connected to the module DbContext.");
+            "IncrementEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Increment entity,
+        IncrementEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Increment update persistence has not been connected to the module DbContext.");
+            "IncrementEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Increment entity,
+        IncrementEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Increment delete persistence has not been connected to the module DbContext.");
+            "IncrementEntity delete persistence has not been connected to the module DbContext.");
     }
 }

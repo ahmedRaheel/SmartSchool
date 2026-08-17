@@ -3,32 +3,32 @@ using SmartSchool.Modules.AICore.Models;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Write-side persistence for AiExecutionLog.
+/// Write-side persistence for AiExecutionLogEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class AiExecutionLogCommand : IAiExecutionLogCommand
 {
     public Task AddAsync(
-        AiExecutionLog entity,
+        AiExecutionLogEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AiExecutionLog create persistence has not been connected to the module DbContext.");
+            "AiExecutionLogEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        AiExecutionLog entity,
+        AiExecutionLogEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AiExecutionLog update persistence has not been connected to the module DbContext.");
+            "AiExecutionLogEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        AiExecutionLog entity,
+        AiExecutionLogEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "AiExecutionLog delete persistence has not been connected to the module DbContext.");
+            "AiExecutionLogEntity delete persistence has not been connected to the module DbContext.");
     }
 }

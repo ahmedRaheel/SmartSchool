@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.Modules.AIParent.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteParentMessage
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         IParentMessageQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteParentMessage
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentMessage))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentMessageEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

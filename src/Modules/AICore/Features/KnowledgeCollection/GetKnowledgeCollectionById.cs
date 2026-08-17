@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AICore.Contracts;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeCollection;
 
 public static class GetKnowledgeCollectionById
 {
+
+    /// <summary>
+    /// Represents the response returned by this KnowledgeCollectionEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<KnowledgeCollectionResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IKnowledgeCollectionQuery entityQuery)
-        : IRequestHandler<Query, Result<KnowledgeCollectionResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<KnowledgeCollectionResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetKnowledgeCollectionById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<KnowledgeCollectionResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeCollection))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeCollectionEntity))));
             }
-            return Result<KnowledgeCollectionResponse>.Success(KnowledgeCollectionResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetKnowledgeCollectionById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<KnowledgeCollectionResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetKnowledgeCollectionById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AICore.Models.KnowledgeCollectionEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

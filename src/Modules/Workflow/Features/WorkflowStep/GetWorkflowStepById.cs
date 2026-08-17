@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Workflow.Contracts;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 
 public static class GetWorkflowStepById
 {
+
+    /// <summary>
+    /// Represents the response returned by this WorkflowStepEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<WorkflowStepResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IWorkflowStepQuery entityQuery)
-        : IRequestHandler<Query, Result<WorkflowStepResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<WorkflowStepResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetWorkflowStepById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<WorkflowStepResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowStep))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowStepEntity))));
             }
-            return Result<WorkflowStepResponse>.Success(WorkflowStepResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetWorkflowStepById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<WorkflowStepResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetWorkflowStepById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Workflow.Models.WorkflowStepEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

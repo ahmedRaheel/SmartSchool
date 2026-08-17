@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.Modules.Communication.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteMessageReceipt
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         IMessageReceiptQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteMessageReceipt
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(MessageReceipt))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(MessageReceiptEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

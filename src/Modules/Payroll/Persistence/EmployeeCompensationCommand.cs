@@ -3,32 +3,32 @@ using SmartSchool.Modules.Payroll.Models;
 namespace SmartSchool.Modules.Payroll.Persistence;
 
 /// <summary>
-/// Write-side persistence for EmployeeCompensation.
+/// Write-side persistence for EmployeeCompensationEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class EmployeeCompensationCommand : IEmployeeCompensationCommand
 {
     public Task AddAsync(
-        EmployeeCompensation entity,
+        EmployeeCompensationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmployeeCompensation create persistence has not been connected to the module DbContext.");
+            "EmployeeCompensationEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        EmployeeCompensation entity,
+        EmployeeCompensationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmployeeCompensation update persistence has not been connected to the module DbContext.");
+            "EmployeeCompensationEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        EmployeeCompensation entity,
+        EmployeeCompensationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmployeeCompensation delete persistence has not been connected to the module DbContext.");
+            "EmployeeCompensationEntity delete persistence has not been connected to the module DbContext.");
     }
 }

@@ -3,32 +3,32 @@ using SmartSchool.Modules.Library.Models;
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// Write-side persistence for Loan.
+/// Write-side persistence for LoanEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class LoanCommand : ILoanCommand
 {
     public Task AddAsync(
-        Loan entity,
+        LoanEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Loan create persistence has not been connected to the module DbContext.");
+            "LoanEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Loan entity,
+        LoanEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Loan update persistence has not been connected to the module DbContext.");
+            "LoanEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Loan entity,
+        LoanEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Loan delete persistence has not been connected to the module DbContext.");
+            "LoanEntity delete persistence has not been connected to the module DbContext.");
     }
 }

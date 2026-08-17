@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AIParent.Persistence;
 
 /// <summary>
-/// Read-side persistence for ParentMessage.
+/// Read-side persistence for ParentMessageEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AIParent module.
 /// </summary>
 public sealed class ParentMessageQuery : IParentMessageQuery
 {
-    public Task<ParentMessage?> GetByIdAsync(
+    public Task<ParentMessageEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ParentMessage read persistence has not been connected to the module DbContext.");
+            "ParentMessageEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<ParentMessage>> GetPageAsync(
+    public Task<PagedResult<ParentMessageEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ParentMessage paging persistence has not been connected to the module DbContext.");
+            "ParentMessageEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ParentMessageQuery : IParentMessageQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ParentMessage uniqueness persistence has not been connected to the module DbContext.");
+            "ParentMessageEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

@@ -2,17 +2,29 @@ using SmartSchool.Modules.AITutor.Models;
 
 namespace SmartSchool.Modules.AITutor.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for TutorConversationEntity.
+/// </summary>
 public interface ITutorConversationCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        TutorConversation entity,
+        TutorConversationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        TutorConversation entity,
+        TutorConversationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        TutorConversation entity,
+        TutorConversationEntity entity,
         CancellationToken cancellationToken);
 }

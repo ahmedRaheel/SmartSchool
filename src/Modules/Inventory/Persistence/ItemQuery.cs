@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// Read-side persistence for Item.
+/// Read-side persistence for ItemEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Inventory module.
 /// </summary>
 public sealed class ItemQuery : IItemQuery
 {
-    public Task<Item?> GetByIdAsync(
+    public Task<ItemEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Item read persistence has not been connected to the module DbContext.");
+            "ItemEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Item>> GetPageAsync(
+    public Task<PagedResult<ItemEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Item paging persistence has not been connected to the module DbContext.");
+            "ItemEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ItemQuery : IItemQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Item uniqueness persistence has not been connected to the module DbContext.");
+            "ItemEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

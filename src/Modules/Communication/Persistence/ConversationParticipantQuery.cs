@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Communication.Persistence;
 
 /// <summary>
-/// Read-side persistence for ConversationParticipant.
+/// Read-side persistence for ConversationParticipantEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Communication module.
 /// </summary>
 public sealed class ConversationParticipantQuery : IConversationParticipantQuery
 {
-    public Task<ConversationParticipant?> GetByIdAsync(
+    public Task<ConversationParticipantEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ConversationParticipant read persistence has not been connected to the module DbContext.");
+            "ConversationParticipantEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<ConversationParticipant>> GetPageAsync(
+    public Task<PagedResult<ConversationParticipantEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ConversationParticipant paging persistence has not been connected to the module DbContext.");
+            "ConversationParticipantEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ConversationParticipantQuery : IConversationParticipantQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ConversationParticipant uniqueness persistence has not been connected to the module DbContext.");
+            "ConversationParticipantEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

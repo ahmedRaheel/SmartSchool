@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.Modules.Finance.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteFeeType
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         IFeeTypeQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteFeeType
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeType))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeTypeEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

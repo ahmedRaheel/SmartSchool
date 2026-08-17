@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Documents.Persistence;
 
 /// <summary>
-/// Read-side persistence for DocumentTemplate.
+/// Read-side persistence for DocumentTemplateEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Documents module.
 /// </summary>
 public sealed class DocumentTemplateQuery : IDocumentTemplateQuery
 {
-    public Task<DocumentTemplate?> GetByIdAsync(
+    public Task<DocumentTemplateEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "DocumentTemplate read persistence has not been connected to the module DbContext.");
+            "DocumentTemplateEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<DocumentTemplate>> GetPageAsync(
+    public Task<PagedResult<DocumentTemplateEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "DocumentTemplate paging persistence has not been connected to the module DbContext.");
+            "DocumentTemplateEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class DocumentTemplateQuery : IDocumentTemplateQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "DocumentTemplate uniqueness persistence has not been connected to the module DbContext.");
+            "DocumentTemplateEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

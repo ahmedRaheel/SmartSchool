@@ -2,17 +2,29 @@ using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for EmployeeCompensationEntity.
+/// </summary>
 public interface IEmployeeCompensationCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        EmployeeCompensation entity,
+        EmployeeCompensationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        EmployeeCompensation entity,
+        EmployeeCompensationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        EmployeeCompensation entity,
+        EmployeeCompensationEntity entity,
         CancellationToken cancellationToken);
 }

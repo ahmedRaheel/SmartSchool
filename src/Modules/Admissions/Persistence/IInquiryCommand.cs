@@ -2,17 +2,29 @@ using SmartSchool.Modules.Admissions.Models;
 
 namespace SmartSchool.Modules.Admissions.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for InquiryEntity.
+/// </summary>
 public interface IInquiryCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Inquiry entity,
+        InquiryEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Inquiry entity,
+        InquiryEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Inquiry entity,
+        InquiryEntity entity,
         CancellationToken cancellationToken);
 }

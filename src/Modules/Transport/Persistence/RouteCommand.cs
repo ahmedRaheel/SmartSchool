@@ -3,32 +3,32 @@ using SmartSchool.Modules.Transport.Models;
 namespace SmartSchool.Modules.Transport.Persistence;
 
 /// <summary>
-/// Write-side persistence for Route.
+/// Write-side persistence for RouteEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class RouteCommand : IRouteCommand
 {
     public Task AddAsync(
-        Route entity,
+        RouteEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Route create persistence has not been connected to the module DbContext.");
+            "RouteEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Route entity,
+        RouteEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Route update persistence has not been connected to the module DbContext.");
+            "RouteEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Route entity,
+        RouteEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Route delete persistence has not been connected to the module DbContext.");
+            "RouteEntity delete persistence has not been connected to the module DbContext.");
     }
 }

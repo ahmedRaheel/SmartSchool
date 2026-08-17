@@ -2,17 +2,29 @@ using SmartSchool.Modules.AIPrediction.Models;
 
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for PredictionModelEntity.
+/// </summary>
 public interface IPredictionModelCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        PredictionModel entity,
+        PredictionModelEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        PredictionModel entity,
+        PredictionModelEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        PredictionModel entity,
+        PredictionModelEntity entity,
         CancellationToken cancellationToken);
 }

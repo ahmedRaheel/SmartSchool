@@ -2,17 +2,29 @@ using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for InvoiceEntity.
+/// </summary>
 public interface IInvoiceCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Invoice entity,
+        InvoiceEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Invoice entity,
+        InvoiceEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Invoice entity,
+        InvoiceEntity entity,
         CancellationToken cancellationToken);
 }

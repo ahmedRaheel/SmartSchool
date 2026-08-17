@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Communication.Persistence;
 
 /// <summary>
-/// Read-side persistence for Conversation.
+/// Read-side persistence for ConversationEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Communication module.
 /// </summary>
 public sealed class ConversationQuery : IConversationQuery
 {
-    public Task<Conversation?> GetByIdAsync(
+    public Task<ConversationEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Conversation read persistence has not been connected to the module DbContext.");
+            "ConversationEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Conversation>> GetPageAsync(
+    public Task<PagedResult<ConversationEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Conversation paging persistence has not been connected to the module DbContext.");
+            "ConversationEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ConversationQuery : IConversationQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Conversation uniqueness persistence has not been connected to the module DbContext.");
+            "ConversationEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

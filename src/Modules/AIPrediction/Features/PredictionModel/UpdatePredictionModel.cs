@@ -1,6 +1,6 @@
+using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AIPrediction.Contracts;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
@@ -10,12 +10,25 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 
 public static class UpdatePredictionModel
 {
+
+    /// <summary>
+    /// Represents the response returned by this PredictionModelEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Request(
         Guid TenantId,
         Guid Id,
         string Code,
-        string Name,
-        bool IsActive) : IRequest<Result<PredictionModelResponse>>;
+        string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -30,46 +43,35 @@ public static class UpdatePredictionModel
 
     public sealed class Handler(
         IPredictionModelQuery entityQuery,
-        IPredictionModelCommand entityCommand,
-        IValidator<Request> validator)
-        : IRequestHandler<Request, Result<PredictionModelResponse>>
+        IPredictionModelCommand entityCommand)
+        : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<PredictionModelResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validation = await validator.ValidateAsync(request, cancellationToken);
-            if (!validation.IsValid)
-            {
-                var message = string.Join(
-                    "; ",
-                    validation.Errors.Select(error => error.ErrorMessage));
-                return Result<PredictionModelResponse>.Failure(Error.Validation(message));
-            }
-
-            var entity = await entityQuery.GetByIdAsync(
+var entity = await entityQuery.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<PredictionModelResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PredictionModel))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(PredictionModelEntity))));
             }
 
             var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, request.Id, cancellationToken);
             if (exists)
             {
-                return Result<PredictionModelResponse>.Failure(
+                return Result<Response>.Failure(
                     Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(PredictionModel), request.Code)));
+                        ErrorMessages.DuplicateCode(nameof(PredictionModelEntity), request.Code)));
             }
 
-            entity.Code = request.Code.Trim();
-            entity.Name = request.Name.Trim();
-            entity.IsActive = request.IsActive;
-            entity.UpdatedAt = DateTimeOffset.UtcNow;
+            entity.UpdateDetails(
+                request.Code,
+                request.Name);
             await entityCommand.UpdateAsync(entity, cancellationToken);
-            return Result<PredictionModelResponse>.Success(PredictionModelResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -80,7 +82,7 @@ public static class UpdatePredictionModel
                 async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var command = request with { Id = id };
-                    var result = await mediator.SendAsync<Request, Result<PredictionModelResponse>>(
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
                         command, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -89,4 +91,15 @@ public static class UpdatePredictionModel
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AIPrediction.Models.PredictionModelEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

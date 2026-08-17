@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Read-side persistence for LeaveRequest.
+/// Read-side persistence for LeaveRequestEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the HR module.
 /// </summary>
 public sealed class LeaveRequestQuery : ILeaveRequestQuery
 {
-    public Task<LeaveRequest?> GetByIdAsync(
+    public Task<LeaveRequestEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeaveRequest read persistence has not been connected to the module DbContext.");
+            "LeaveRequestEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<LeaveRequest>> GetPageAsync(
+    public Task<PagedResult<LeaveRequestEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeaveRequest paging persistence has not been connected to the module DbContext.");
+            "LeaveRequestEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class LeaveRequestQuery : ILeaveRequestQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeaveRequest uniqueness persistence has not been connected to the module DbContext.");
+            "LeaveRequestEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

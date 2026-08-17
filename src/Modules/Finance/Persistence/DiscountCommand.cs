@@ -3,32 +3,32 @@ using SmartSchool.Modules.Finance.Models;
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// Write-side persistence for Discount.
+/// Write-side persistence for DiscountEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class DiscountCommand : IDiscountCommand
 {
     public Task AddAsync(
-        Discount entity,
+        DiscountEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Discount create persistence has not been connected to the module DbContext.");
+            "DiscountEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Discount entity,
+        DiscountEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Discount update persistence has not been connected to the module DbContext.");
+            "DiscountEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Discount entity,
+        DiscountEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Discount delete persistence has not been connected to the module DbContext.");
+            "DiscountEntity delete persistence has not been connected to the module DbContext.");
     }
 }

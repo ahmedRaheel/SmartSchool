@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Admissions.Contracts;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Admissions.Features.Application;
 
 public static class GetApplicationById
 {
+
+    /// <summary>
+    /// Represents the response returned by this ApplicationEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<ApplicationResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IApplicationQuery entityQuery)
-        : IRequestHandler<Query, Result<ApplicationResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<ApplicationResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetApplicationById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ApplicationResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Application))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ApplicationEntity))));
             }
-            return Result<ApplicationResponse>.Success(ApplicationResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetApplicationById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<ApplicationResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetApplicationById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Admissions.Models.ApplicationEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

@@ -3,32 +3,32 @@ using SmartSchool.Modules.Examinations.Models;
 namespace SmartSchool.Modules.Examinations.Persistence;
 
 /// <summary>
-/// Write-side persistence for StudentExamResult.
+/// Write-side persistence for StudentExamResultEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class StudentExamResultCommand : IStudentExamResultCommand
 {
     public Task AddAsync(
-        StudentExamResult entity,
+        StudentExamResultEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentExamResult create persistence has not been connected to the module DbContext.");
+            "StudentExamResultEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        StudentExamResult entity,
+        StudentExamResultEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentExamResult update persistence has not been connected to the module DbContext.");
+            "StudentExamResultEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        StudentExamResult entity,
+        StudentExamResultEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentExamResult delete persistence has not been connected to the module DbContext.");
+            "StudentExamResultEntity delete persistence has not been connected to the module DbContext.");
     }
 }

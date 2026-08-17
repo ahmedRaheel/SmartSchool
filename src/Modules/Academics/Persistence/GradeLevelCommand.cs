@@ -3,32 +3,32 @@ using SmartSchool.Modules.Academics.Models;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for GradeLevel.
+/// Write-side persistence for GradeLevelEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class GradeLevelCommand : IGradeLevelCommand
 {
     public Task AddAsync(
-        GradeLevel entity,
+        GradeLevelEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeLevel create persistence has not been connected to the module DbContext.");
+            "GradeLevelEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        GradeLevel entity,
+        GradeLevelEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeLevel update persistence has not been connected to the module DbContext.");
+            "GradeLevelEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        GradeLevel entity,
+        GradeLevelEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeLevel delete persistence has not been connected to the module DbContext.");
+            "GradeLevelEntity delete persistence has not been connected to the module DbContext.");
     }
 }

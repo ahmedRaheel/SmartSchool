@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.Modules.Academics.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteCourseSelection
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         ICourseSelectionQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteCourseSelection
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CourseSelection))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CourseSelectionEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

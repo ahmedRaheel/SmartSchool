@@ -2,17 +2,29 @@ using SmartSchool.Modules.Audit.Models;
 
 namespace SmartSchool.Modules.Audit.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for AuditLogEntity.
+/// </summary>
 public interface IAuditLogCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        AuditLog entity,
+        AuditLogEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        AuditLog entity,
+        AuditLogEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        AuditLog entity,
+        AuditLogEntity entity,
         CancellationToken cancellationToken);
 }

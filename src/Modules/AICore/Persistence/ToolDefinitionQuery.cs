@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Read-side persistence for ToolDefinition.
+/// Read-side persistence for ToolDefinitionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AICore module.
 /// </summary>
 public sealed class ToolDefinitionQuery : IToolDefinitionQuery
 {
-    public Task<ToolDefinition?> GetByIdAsync(
+    public Task<ToolDefinitionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ToolDefinition read persistence has not been connected to the module DbContext.");
+            "ToolDefinitionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<ToolDefinition>> GetPageAsync(
+    public Task<PagedResult<ToolDefinitionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ToolDefinition paging persistence has not been connected to the module DbContext.");
+            "ToolDefinitionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ToolDefinitionQuery : IToolDefinitionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ToolDefinition uniqueness persistence has not been connected to the module DbContext.");
+            "ToolDefinitionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

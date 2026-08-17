@@ -1,8 +1,8 @@
-using SmartSchool.Modules.HR.Contracts;
+
 using SmartSchool.SharedKernel;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Persistence;
-using FluentValidation;
+
 using SmartSchool.Modules.HR.Features.Candidate;
 using SmartSchool.Modules.HR.Features.Employee;
 using SmartSchool.Modules.HR.Features.EmploymentHistory;
@@ -38,71 +38,6 @@ public static class Module
         services.AddScoped<IPositionCommand, PositionCommand>();
         services.AddScoped<IResumeQuery, ResumeQuery>();
         services.AddScoped<IResumeCommand, ResumeCommand>();
-        services.AddScoped<IValidator<CreateCandidate.Request>, CreateCandidate.Validator>();
-        services.AddScoped<IValidator<UpdateCandidate.Request>, UpdateCandidate.Validator>();
-        services.AddScoped<IValidator<CreateEmployee.Request>, CreateEmployee.Validator>();
-        services.AddScoped<IValidator<UpdateEmployee.Request>, UpdateEmployee.Validator>();
-        services.AddScoped<IValidator<CreateEmploymentHistory.Request>, CreateEmploymentHistory.Validator>();
-        services.AddScoped<IValidator<UpdateEmploymentHistory.Request>, UpdateEmploymentHistory.Validator>();
-        services.AddScoped<IValidator<CreateInterview.Request>, CreateInterview.Validator>();
-        services.AddScoped<IValidator<UpdateInterview.Request>, UpdateInterview.Validator>();
-        services.AddScoped<IValidator<CreateJob.Request>, CreateJob.Validator>();
-        services.AddScoped<IValidator<UpdateJob.Request>, UpdateJob.Validator>();
-        services.AddScoped<IValidator<CreateJobGrade.Request>, CreateJobGrade.Validator>();
-        services.AddScoped<IValidator<UpdateJobGrade.Request>, UpdateJobGrade.Validator>();
-        services.AddScoped<IValidator<CreateLeaveRequest.Request>, CreateLeaveRequest.Validator>();
-        services.AddScoped<IValidator<UpdateLeaveRequest.Request>, UpdateLeaveRequest.Validator>();
-        services.AddScoped<IValidator<CreatePosition.Request>, CreatePosition.Validator>();
-        services.AddScoped<IValidator<UpdatePosition.Request>, UpdatePosition.Validator>();
-        services.AddScoped<IValidator<CreateResume.Request>, CreateResume.Validator>();
-        services.AddScoped<IValidator<UpdateResume.Request>, UpdateResume.Validator>();
-
-
-        services.AddScoped<IRequestHandler<CreateCandidate.Request, Result<CandidateResponse>>, CreateCandidate.Handler>();
-        services.AddScoped<IRequestHandler<GetCandidateById.Query, Result<CandidateResponse>>, GetCandidateById.Handler>();
-        services.AddScoped<IRequestHandler<GetCandidatePage.Query, Result<PagedResult<CandidateResponse>>>, GetCandidatePage.Handler>();
-        services.AddScoped<IRequestHandler<UpdateCandidate.Request, Result<CandidateResponse>>, UpdateCandidate.Handler>();
-        services.AddScoped<IRequestHandler<DeleteCandidate.Command, Result<DeleteCandidate.Response>>, DeleteCandidate.Handler>();
-        services.AddScoped<IRequestHandler<CreateEmployee.Request, Result<EmployeeResponse>>, CreateEmployee.Handler>();
-        services.AddScoped<IRequestHandler<GetEmployeeById.Query, Result<EmployeeResponse>>, GetEmployeeById.Handler>();
-        services.AddScoped<IRequestHandler<GetEmployeePage.Query, Result<PagedResult<EmployeeResponse>>>, GetEmployeePage.Handler>();
-        services.AddScoped<IRequestHandler<UpdateEmployee.Request, Result<EmployeeResponse>>, UpdateEmployee.Handler>();
-        services.AddScoped<IRequestHandler<DeleteEmployee.Command, Result<DeleteEmployee.Response>>, DeleteEmployee.Handler>();
-        services.AddScoped<IRequestHandler<CreateEmploymentHistory.Request, Result<EmploymentHistoryResponse>>, CreateEmploymentHistory.Handler>();
-        services.AddScoped<IRequestHandler<GetEmploymentHistoryById.Query, Result<EmploymentHistoryResponse>>, GetEmploymentHistoryById.Handler>();
-        services.AddScoped<IRequestHandler<GetEmploymentHistoryPage.Query, Result<PagedResult<EmploymentHistoryResponse>>>, GetEmploymentHistoryPage.Handler>();
-        services.AddScoped<IRequestHandler<UpdateEmploymentHistory.Request, Result<EmploymentHistoryResponse>>, UpdateEmploymentHistory.Handler>();
-        services.AddScoped<IRequestHandler<DeleteEmploymentHistory.Command, Result<DeleteEmploymentHistory.Response>>, DeleteEmploymentHistory.Handler>();
-        services.AddScoped<IRequestHandler<CreateInterview.Request, Result<InterviewResponse>>, CreateInterview.Handler>();
-        services.AddScoped<IRequestHandler<GetInterviewById.Query, Result<InterviewResponse>>, GetInterviewById.Handler>();
-        services.AddScoped<IRequestHandler<GetInterviewPage.Query, Result<PagedResult<InterviewResponse>>>, GetInterviewPage.Handler>();
-        services.AddScoped<IRequestHandler<UpdateInterview.Request, Result<InterviewResponse>>, UpdateInterview.Handler>();
-        services.AddScoped<IRequestHandler<DeleteInterview.Command, Result<DeleteInterview.Response>>, DeleteInterview.Handler>();
-        services.AddScoped<IRequestHandler<CreateJob.Request, Result<JobResponse>>, CreateJob.Handler>();
-        services.AddScoped<IRequestHandler<GetJobById.Query, Result<JobResponse>>, GetJobById.Handler>();
-        services.AddScoped<IRequestHandler<GetJobPage.Query, Result<PagedResult<JobResponse>>>, GetJobPage.Handler>();
-        services.AddScoped<IRequestHandler<UpdateJob.Request, Result<JobResponse>>, UpdateJob.Handler>();
-        services.AddScoped<IRequestHandler<DeleteJob.Command, Result<DeleteJob.Response>>, DeleteJob.Handler>();
-        services.AddScoped<IRequestHandler<CreateJobGrade.Request, Result<JobGradeResponse>>, CreateJobGrade.Handler>();
-        services.AddScoped<IRequestHandler<GetJobGradeById.Query, Result<JobGradeResponse>>, GetJobGradeById.Handler>();
-        services.AddScoped<IRequestHandler<GetJobGradePage.Query, Result<PagedResult<JobGradeResponse>>>, GetJobGradePage.Handler>();
-        services.AddScoped<IRequestHandler<UpdateJobGrade.Request, Result<JobGradeResponse>>, UpdateJobGrade.Handler>();
-        services.AddScoped<IRequestHandler<DeleteJobGrade.Command, Result<DeleteJobGrade.Response>>, DeleteJobGrade.Handler>();
-        services.AddScoped<IRequestHandler<CreateLeaveRequest.Request, Result<LeaveRequestResponse>>, CreateLeaveRequest.Handler>();
-        services.AddScoped<IRequestHandler<GetLeaveRequestById.Query, Result<LeaveRequestResponse>>, GetLeaveRequestById.Handler>();
-        services.AddScoped<IRequestHandler<GetLeaveRequestPage.Query, Result<PagedResult<LeaveRequestResponse>>>, GetLeaveRequestPage.Handler>();
-        services.AddScoped<IRequestHandler<UpdateLeaveRequest.Request, Result<LeaveRequestResponse>>, UpdateLeaveRequest.Handler>();
-        services.AddScoped<IRequestHandler<DeleteLeaveRequest.Command, Result<DeleteLeaveRequest.Response>>, DeleteLeaveRequest.Handler>();
-        services.AddScoped<IRequestHandler<CreatePosition.Request, Result<PositionResponse>>, CreatePosition.Handler>();
-        services.AddScoped<IRequestHandler<GetPositionById.Query, Result<PositionResponse>>, GetPositionById.Handler>();
-        services.AddScoped<IRequestHandler<GetPositionPage.Query, Result<PagedResult<PositionResponse>>>, GetPositionPage.Handler>();
-        services.AddScoped<IRequestHandler<UpdatePosition.Request, Result<PositionResponse>>, UpdatePosition.Handler>();
-        services.AddScoped<IRequestHandler<DeletePosition.Command, Result<DeletePosition.Response>>, DeletePosition.Handler>();
-        services.AddScoped<IRequestHandler<CreateResume.Request, Result<ResumeResponse>>, CreateResume.Handler>();
-        services.AddScoped<IRequestHandler<GetResumeById.Query, Result<ResumeResponse>>, GetResumeById.Handler>();
-        services.AddScoped<IRequestHandler<GetResumePage.Query, Result<PagedResult<ResumeResponse>>>, GetResumePage.Handler>();
-        services.AddScoped<IRequestHandler<UpdateResume.Request, Result<ResumeResponse>>, UpdateResume.Handler>();
-        services.AddScoped<IRequestHandler<DeleteResume.Command, Result<DeleteResume.Response>>, DeleteResume.Handler>();
 
         return services;
     }

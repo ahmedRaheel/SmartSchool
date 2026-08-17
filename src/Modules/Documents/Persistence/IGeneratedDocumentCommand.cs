@@ -2,17 +2,29 @@ using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for GeneratedDocumentEntity.
+/// </summary>
 public interface IGeneratedDocumentCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        GeneratedDocument entity,
+        GeneratedDocumentEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        GeneratedDocument entity,
+        GeneratedDocumentEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        GeneratedDocument entity,
+        GeneratedDocumentEntity entity,
         CancellationToken cancellationToken);
 }

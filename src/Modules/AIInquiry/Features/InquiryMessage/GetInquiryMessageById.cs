@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AIInquiry.Contracts;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.AIInquiry.Features.InquiryMessage;
 
 public static class GetInquiryMessageById
 {
+
+    /// <summary>
+    /// Represents the response returned by this InquiryMessageEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<InquiryMessageResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IInquiryMessageQuery entityQuery)
-        : IRequestHandler<Query, Result<InquiryMessageResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<InquiryMessageResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetInquiryMessageById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<InquiryMessageResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryMessage))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryMessageEntity))));
             }
-            return Result<InquiryMessageResponse>.Success(InquiryMessageResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetInquiryMessageById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<InquiryMessageResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetInquiryMessageById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AIInquiry.Models.InquiryMessageEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

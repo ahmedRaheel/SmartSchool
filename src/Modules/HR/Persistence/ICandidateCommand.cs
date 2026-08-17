@@ -2,17 +2,29 @@ using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for CandidateEntity.
+/// </summary>
 public interface ICandidateCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Candidate entity,
+        CandidateEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Candidate entity,
+        CandidateEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Candidate entity,
+        CandidateEntity entity,
         CancellationToken cancellationToken);
 }

@@ -2,17 +2,29 @@ using SmartSchool.Modules.AIInquiry.Models;
 
 namespace SmartSchool.Modules.AIInquiry.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for InquiryConversationEntity.
+/// </summary>
 public interface IInquiryConversationCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        InquiryConversation entity,
+        InquiryConversationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        InquiryConversation entity,
+        InquiryConversationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        InquiryConversation entity,
+        InquiryConversationEntity entity,
         CancellationToken cancellationToken);
 }

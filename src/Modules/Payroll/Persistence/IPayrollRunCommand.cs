@@ -2,17 +2,29 @@ using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for PayrollRunEntity.
+/// </summary>
 public interface IPayrollRunCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        PayrollRun entity,
+        PayrollRunEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        PayrollRun entity,
+        PayrollRunEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        PayrollRun entity,
+        PayrollRunEntity entity,
         CancellationToken cancellationToken);
 }

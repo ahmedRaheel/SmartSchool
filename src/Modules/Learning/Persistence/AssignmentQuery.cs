@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Learning.Persistence;
 
 /// <summary>
-/// Read-side persistence for Assignment.
+/// Read-side persistence for AssignmentEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Learning module.
 /// </summary>
 public sealed class AssignmentQuery : IAssignmentQuery
 {
-    public Task<Assignment?> GetByIdAsync(
+    public Task<AssignmentEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Assignment read persistence has not been connected to the module DbContext.");
+            "AssignmentEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Assignment>> GetPageAsync(
+    public Task<PagedResult<AssignmentEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Assignment paging persistence has not been connected to the module DbContext.");
+            "AssignmentEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class AssignmentQuery : IAssignmentQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Assignment uniqueness persistence has not been connected to the module DbContext.");
+            "AssignmentEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

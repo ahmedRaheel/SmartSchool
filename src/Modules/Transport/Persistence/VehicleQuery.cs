@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Transport.Persistence;
 
 /// <summary>
-/// Read-side persistence for Vehicle.
+/// Read-side persistence for VehicleEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Transport module.
 /// </summary>
 public sealed class VehicleQuery : IVehicleQuery
 {
-    public Task<Vehicle?> GetByIdAsync(
+    public Task<VehicleEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Vehicle read persistence has not been connected to the module DbContext.");
+            "VehicleEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Vehicle>> GetPageAsync(
+    public Task<PagedResult<VehicleEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Vehicle paging persistence has not been connected to the module DbContext.");
+            "VehicleEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class VehicleQuery : IVehicleQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Vehicle uniqueness persistence has not been connected to the module DbContext.");
+            "VehicleEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

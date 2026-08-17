@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Payroll.Persistence;
 
 /// <summary>
-/// Read-side persistence for EmployeeCompensation.
+/// Read-side persistence for EmployeeCompensationEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Payroll module.
 /// </summary>
 public sealed class EmployeeCompensationQuery : IEmployeeCompensationQuery
 {
-    public Task<EmployeeCompensation?> GetByIdAsync(
+    public Task<EmployeeCompensationEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmployeeCompensation read persistence has not been connected to the module DbContext.");
+            "EmployeeCompensationEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<EmployeeCompensation>> GetPageAsync(
+    public Task<PagedResult<EmployeeCompensationEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmployeeCompensation paging persistence has not been connected to the module DbContext.");
+            "EmployeeCompensationEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class EmployeeCompensationQuery : IEmployeeCompensationQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "EmployeeCompensation uniqueness persistence has not been connected to the module DbContext.");
+            "EmployeeCompensationEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

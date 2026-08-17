@@ -2,17 +2,29 @@ using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ResumeEntity.
+/// </summary>
 public interface IResumeCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Resume entity,
+        ResumeEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Resume entity,
+        ResumeEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Resume entity,
+        ResumeEntity entity,
         CancellationToken cancellationToken);
 }

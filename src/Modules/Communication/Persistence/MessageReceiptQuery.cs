@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Communication.Persistence;
 
 /// <summary>
-/// Read-side persistence for MessageReceipt.
+/// Read-side persistence for MessageReceiptEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Communication module.
 /// </summary>
 public sealed class MessageReceiptQuery : IMessageReceiptQuery
 {
-    public Task<MessageReceipt?> GetByIdAsync(
+    public Task<MessageReceiptEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "MessageReceipt read persistence has not been connected to the module DbContext.");
+            "MessageReceiptEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<MessageReceipt>> GetPageAsync(
+    public Task<PagedResult<MessageReceiptEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "MessageReceipt paging persistence has not been connected to the module DbContext.");
+            "MessageReceiptEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class MessageReceiptQuery : IMessageReceiptQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "MessageReceipt uniqueness persistence has not been connected to the module DbContext.");
+            "MessageReceiptEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

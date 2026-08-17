@@ -3,32 +3,32 @@ using SmartSchool.Modules.AITutor.Models;
 namespace SmartSchool.Modules.AITutor.Persistence;
 
 /// <summary>
-/// Write-side persistence for LearningRecommendation.
+/// Write-side persistence for LearningRecommendationEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class LearningRecommendationCommand : ILearningRecommendationCommand
 {
     public Task AddAsync(
-        LearningRecommendation entity,
+        LearningRecommendationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LearningRecommendation create persistence has not been connected to the module DbContext.");
+            "LearningRecommendationEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        LearningRecommendation entity,
+        LearningRecommendationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LearningRecommendation update persistence has not been connected to the module DbContext.");
+            "LearningRecommendationEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        LearningRecommendation entity,
+        LearningRecommendationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LearningRecommendation delete persistence has not been connected to the module DbContext.");
+            "LearningRecommendationEntity delete persistence has not been connected to the module DbContext.");
     }
 }

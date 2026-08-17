@@ -2,17 +2,29 @@ using SmartSchool.Modules.Transport.Models;
 
 namespace SmartSchool.Modules.Transport.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for StopEntity.
+/// </summary>
 public interface IStopCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Stop entity,
+        StopEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Stop entity,
+        StopEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Stop entity,
+        StopEntity entity,
         CancellationToken cancellationToken);
 }

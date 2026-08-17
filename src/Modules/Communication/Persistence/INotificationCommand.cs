@@ -2,17 +2,29 @@ using SmartSchool.Modules.Communication.Models;
 
 namespace SmartSchool.Modules.Communication.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for NotificationEntity.
+/// </summary>
 public interface INotificationCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Notification entity,
+        NotificationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Notification entity,
+        NotificationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Notification entity,
+        NotificationEntity entity,
         CancellationToken cancellationToken);
 }

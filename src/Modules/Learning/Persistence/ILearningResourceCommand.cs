@@ -2,17 +2,29 @@ using SmartSchool.Modules.Learning.Models;
 
 namespace SmartSchool.Modules.Learning.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for LearningResourceEntity.
+/// </summary>
 public interface ILearningResourceCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        LearningResource entity,
+        LearningResourceEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        LearningResource entity,
+        LearningResourceEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        LearningResource entity,
+        LearningResourceEntity entity,
         CancellationToken cancellationToken);
 }

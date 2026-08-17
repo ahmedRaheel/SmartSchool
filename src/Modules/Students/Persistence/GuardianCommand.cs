@@ -3,32 +3,32 @@ using SmartSchool.Modules.Students.Models;
 namespace SmartSchool.Modules.Students.Persistence;
 
 /// <summary>
-/// Write-side persistence for Guardian.
+/// Write-side persistence for GuardianEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class GuardianCommand : IGuardianCommand
 {
     public Task AddAsync(
-        Guardian entity,
+        GuardianEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Guardian create persistence has not been connected to the module DbContext.");
+            "GuardianEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Guardian entity,
+        GuardianEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Guardian update persistence has not been connected to the module DbContext.");
+            "GuardianEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Guardian entity,
+        GuardianEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Guardian delete persistence has not been connected to the module DbContext.");
+            "GuardianEntity delete persistence has not been connected to the module DbContext.");
     }
 }

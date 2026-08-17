@@ -2,7 +2,7 @@ using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.SharedKernel;
 
-public sealed record Error(string Code, string Message)
+public sealed record Error(string Code, string MessageEntity)
 {
     public static readonly Error None = new(string.Empty, string.Empty);
 

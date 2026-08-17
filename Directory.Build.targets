@@ -1,3 +1,3 @@
 <Project>
-  <!-- Reserved for build-time targets only. PackageReference items intentionally live in Directory.Build.props. -->
+  <!-- Build-time targets only. Package references belong in Directory.Build.props. -->
 </Project>

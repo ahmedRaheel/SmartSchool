@@ -2,17 +2,29 @@ using SmartSchool.Modules.Identity.Models;
 
 namespace SmartSchool.Modules.Identity.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for UserProfileEntity.
+/// </summary>
 public interface IUserProfileCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        UserProfile entity,
+        UserProfileEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        UserProfile entity,
+        UserProfileEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        UserProfile entity,
+        UserProfileEntity entity,
         CancellationToken cancellationToken);
 }

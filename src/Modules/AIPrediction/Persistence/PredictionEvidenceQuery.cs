@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Read-side persistence for PredictionEvidence.
+/// Read-side persistence for PredictionEvidenceEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AIPrediction module.
 /// </summary>
 public sealed class PredictionEvidenceQuery : IPredictionEvidenceQuery
 {
-    public Task<PredictionEvidence?> GetByIdAsync(
+    public Task<PredictionEvidenceEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PredictionEvidence read persistence has not been connected to the module DbContext.");
+            "PredictionEvidenceEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<PredictionEvidence>> GetPageAsync(
+    public Task<PagedResult<PredictionEvidenceEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PredictionEvidence paging persistence has not been connected to the module DbContext.");
+            "PredictionEvidenceEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class PredictionEvidenceQuery : IPredictionEvidenceQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PredictionEvidence uniqueness persistence has not been connected to the module DbContext.");
+            "PredictionEvidenceEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

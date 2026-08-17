@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// Read-side persistence for Invoice.
+/// Read-side persistence for InvoiceEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Finance module.
 /// </summary>
 public sealed class InvoiceQuery : IInvoiceQuery
 {
-    public Task<Invoice?> GetByIdAsync(
+    public Task<InvoiceEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Invoice read persistence has not been connected to the module DbContext.");
+            "InvoiceEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Invoice>> GetPageAsync(
+    public Task<PagedResult<InvoiceEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Invoice paging persistence has not been connected to the module DbContext.");
+            "InvoiceEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class InvoiceQuery : IInvoiceQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Invoice uniqueness persistence has not been connected to the module DbContext.");
+            "InvoiceEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

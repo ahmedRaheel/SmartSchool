@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AIInquiry.Persistence;
 
 /// <summary>
-/// Read-side persistence for HumanHandoff.
+/// Read-side persistence for HumanHandoffEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AIInquiry module.
 /// </summary>
 public sealed class HumanHandoffQuery : IHumanHandoffQuery
 {
-    public Task<HumanHandoff?> GetByIdAsync(
+    public Task<HumanHandoffEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "HumanHandoff read persistence has not been connected to the module DbContext.");
+            "HumanHandoffEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<HumanHandoff>> GetPageAsync(
+    public Task<PagedResult<HumanHandoffEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "HumanHandoff paging persistence has not been connected to the module DbContext.");
+            "HumanHandoffEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class HumanHandoffQuery : IHumanHandoffQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "HumanHandoff uniqueness persistence has not been connected to the module DbContext.");
+            "HumanHandoffEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

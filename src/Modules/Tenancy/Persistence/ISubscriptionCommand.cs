@@ -2,17 +2,29 @@ using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for SubscriptionEntity.
+/// </summary>
 public interface ISubscriptionCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Subscription entity,
+        SubscriptionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Subscription entity,
+        SubscriptionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Subscription entity,
+        SubscriptionEntity entity,
         CancellationToken cancellationToken);
 }

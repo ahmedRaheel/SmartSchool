@@ -3,32 +3,32 @@ using SmartSchool.Modules.Documents.Models;
 namespace SmartSchool.Modules.Documents.Persistence;
 
 /// <summary>
-/// Write-side persistence for DocumentTemplate.
+/// Write-side persistence for DocumentTemplateEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class DocumentTemplateCommand : IDocumentTemplateCommand
 {
     public Task AddAsync(
-        DocumentTemplate entity,
+        DocumentTemplateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "DocumentTemplate create persistence has not been connected to the module DbContext.");
+            "DocumentTemplateEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        DocumentTemplate entity,
+        DocumentTemplateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "DocumentTemplate update persistence has not been connected to the module DbContext.");
+            "DocumentTemplateEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        DocumentTemplate entity,
+        DocumentTemplateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "DocumentTemplate delete persistence has not been connected to the module DbContext.");
+            "DocumentTemplateEntity delete persistence has not been connected to the module DbContext.");
     }
 }

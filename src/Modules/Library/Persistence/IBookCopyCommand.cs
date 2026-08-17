@@ -2,17 +2,29 @@ using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for BookCopyEntity.
+/// </summary>
 public interface IBookCopyCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        BookCopy entity,
+        BookCopyEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        BookCopy entity,
+        BookCopyEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        BookCopy entity,
+        BookCopyEntity entity,
         CancellationToken cancellationToken);
 }

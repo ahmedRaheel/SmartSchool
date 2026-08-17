@@ -2,17 +2,29 @@ using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for CampusBrandingEntity.
+/// </summary>
 public interface ICampusBrandingCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        CampusBranding entity,
+        CampusBrandingEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        CampusBranding entity,
+        CampusBrandingEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        CampusBranding entity,
+        CampusBrandingEntity entity,
         CancellationToken cancellationToken);
 }

@@ -2,17 +2,29 @@ using SmartSchool.Modules.Activities.Models;
 
 namespace SmartSchool.Modules.Activities.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for AwardEntity.
+/// </summary>
 public interface IAwardCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Award entity,
+        AwardEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Award entity,
+        AwardEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Award entity,
+        AwardEntity entity,
         CancellationToken cancellationToken);
 }

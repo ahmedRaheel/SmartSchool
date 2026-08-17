@@ -2,17 +2,29 @@ using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for WorkflowStepEntity.
+/// </summary>
 public interface IWorkflowStepCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        WorkflowStep entity,
+        WorkflowStepEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        WorkflowStep entity,
+        WorkflowStepEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        WorkflowStep entity,
+        WorkflowStepEntity entity,
         CancellationToken cancellationToken);
 }

@@ -3,32 +3,32 @@ using SmartSchool.Modules.Workflow.Models;
 namespace SmartSchool.Modules.Workflow.Persistence;
 
 /// <summary>
-/// Write-side persistence for WorkflowInstance.
+/// Write-side persistence for WorkflowInstanceEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class WorkflowInstanceCommand : IWorkflowInstanceCommand
 {
     public Task AddAsync(
-        WorkflowInstance entity,
+        WorkflowInstanceEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "WorkflowInstance create persistence has not been connected to the module DbContext.");
+            "WorkflowInstanceEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        WorkflowInstance entity,
+        WorkflowInstanceEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "WorkflowInstance update persistence has not been connected to the module DbContext.");
+            "WorkflowInstanceEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        WorkflowInstance entity,
+        WorkflowInstanceEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "WorkflowInstance delete persistence has not been connected to the module DbContext.");
+            "WorkflowInstanceEntity delete persistence has not been connected to the module DbContext.");
     }
 }

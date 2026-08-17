@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.Modules.Workflow.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteApproval
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         IApprovalQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteApproval
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Approval))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ApprovalEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

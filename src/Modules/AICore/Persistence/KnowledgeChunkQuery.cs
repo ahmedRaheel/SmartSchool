@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Read-side persistence for KnowledgeChunk.
+/// Read-side persistence for KnowledgeChunkEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AICore module.
 /// </summary>
 public sealed class KnowledgeChunkQuery : IKnowledgeChunkQuery
 {
-    public Task<KnowledgeChunk?> GetByIdAsync(
+    public Task<KnowledgeChunkEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeChunk read persistence has not been connected to the module DbContext.");
+            "KnowledgeChunkEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<KnowledgeChunk>> GetPageAsync(
+    public Task<PagedResult<KnowledgeChunkEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeChunk paging persistence has not been connected to the module DbContext.");
+            "KnowledgeChunkEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class KnowledgeChunkQuery : IKnowledgeChunkQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeChunk uniqueness persistence has not been connected to the module DbContext.");
+            "KnowledgeChunkEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

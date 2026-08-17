@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Read-side persistence for ClassSection.
+/// Read-side persistence for ClassSectionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Academics module.
 /// </summary>
 public sealed class ClassSectionQuery : IClassSectionQuery
 {
-    public Task<ClassSection?> GetByIdAsync(
+    public Task<ClassSectionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ClassSection read persistence has not been connected to the module DbContext.");
+            "ClassSectionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<ClassSection>> GetPageAsync(
+    public Task<PagedResult<ClassSectionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ClassSection paging persistence has not been connected to the module DbContext.");
+            "ClassSectionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ClassSectionQuery : IClassSectionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "ClassSection uniqueness persistence has not been connected to the module DbContext.");
+            "ClassSectionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

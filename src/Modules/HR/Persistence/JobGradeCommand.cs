@@ -3,32 +3,32 @@ using SmartSchool.Modules.HR.Models;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Write-side persistence for JobGrade.
+/// Write-side persistence for JobGradeEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class JobGradeCommand : IJobGradeCommand
 {
     public Task AddAsync(
-        JobGrade entity,
+        JobGradeEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "JobGrade create persistence has not been connected to the module DbContext.");
+            "JobGradeEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        JobGrade entity,
+        JobGradeEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "JobGrade update persistence has not been connected to the module DbContext.");
+            "JobGradeEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        JobGrade entity,
+        JobGradeEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "JobGrade delete persistence has not been connected to the module DbContext.");
+            "JobGradeEntity delete persistence has not been connected to the module DbContext.");
     }
 }

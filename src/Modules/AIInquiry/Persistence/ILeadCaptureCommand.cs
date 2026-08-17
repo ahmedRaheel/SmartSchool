@@ -2,17 +2,29 @@ using SmartSchool.Modules.AIInquiry.Models;
 
 namespace SmartSchool.Modules.AIInquiry.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for LeadCaptureEntity.
+/// </summary>
 public interface ILeadCaptureCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        LeadCapture entity,
+        LeadCaptureEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        LeadCapture entity,
+        LeadCaptureEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        LeadCapture entity,
+        LeadCaptureEntity entity,
         CancellationToken cancellationToken);
 }

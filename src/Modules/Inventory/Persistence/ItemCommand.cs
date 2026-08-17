@@ -3,32 +3,32 @@ using SmartSchool.Modules.Inventory.Models;
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// Write-side persistence for Item.
+/// Write-side persistence for ItemEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class ItemCommand : IItemCommand
 {
     public Task AddAsync(
-        Item entity,
+        ItemEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Item create persistence has not been connected to the module DbContext.");
+            "ItemEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Item entity,
+        ItemEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Item update persistence has not been connected to the module DbContext.");
+            "ItemEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Item entity,
+        ItemEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Item delete persistence has not been connected to the module DbContext.");
+            "ItemEntity delete persistence has not been connected to the module DbContext.");
     }
 }

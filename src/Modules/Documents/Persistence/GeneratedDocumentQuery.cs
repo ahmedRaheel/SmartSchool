@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Documents.Persistence;
 
 /// <summary>
-/// Read-side persistence for GeneratedDocument.
+/// Read-side persistence for GeneratedDocumentEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Documents module.
 /// </summary>
 public sealed class GeneratedDocumentQuery : IGeneratedDocumentQuery
 {
-    public Task<GeneratedDocument?> GetByIdAsync(
+    public Task<GeneratedDocumentEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GeneratedDocument read persistence has not been connected to the module DbContext.");
+            "GeneratedDocumentEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<GeneratedDocument>> GetPageAsync(
+    public Task<PagedResult<GeneratedDocumentEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GeneratedDocument paging persistence has not been connected to the module DbContext.");
+            "GeneratedDocumentEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class GeneratedDocumentQuery : IGeneratedDocumentQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GeneratedDocument uniqueness persistence has not been connected to the module DbContext.");
+            "GeneratedDocumentEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

@@ -3,32 +3,32 @@ using SmartSchool.Modules.Students.Models;
 namespace SmartSchool.Modules.Students.Persistence;
 
 /// <summary>
-/// Write-side persistence for StudentGuardian.
+/// Write-side persistence for StudentGuardianEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class StudentGuardianCommand : IStudentGuardianCommand
 {
     public Task AddAsync(
-        StudentGuardian entity,
+        StudentGuardianEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentGuardian create persistence has not been connected to the module DbContext.");
+            "StudentGuardianEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        StudentGuardian entity,
+        StudentGuardianEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentGuardian update persistence has not been connected to the module DbContext.");
+            "StudentGuardianEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        StudentGuardian entity,
+        StudentGuardianEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StudentGuardian delete persistence has not been connected to the module DbContext.");
+            "StudentGuardianEntity delete persistence has not been connected to the module DbContext.");
     }
 }

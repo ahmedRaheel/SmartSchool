@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AICore.Contracts;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
 public static class GetModelConfigurationById
 {
+
+    /// <summary>
+    /// Represents the response returned by this ModelConfigurationEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<ModelConfigurationResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IModelConfigurationQuery entityQuery)
-        : IRequestHandler<Query, Result<ModelConfigurationResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<ModelConfigurationResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetModelConfigurationById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ModelConfigurationResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ModelConfiguration))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ModelConfigurationEntity))));
             }
-            return Result<ModelConfigurationResponse>.Success(ModelConfigurationResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetModelConfigurationById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<ModelConfigurationResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetModelConfigurationById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AICore.Models.ModelConfigurationEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

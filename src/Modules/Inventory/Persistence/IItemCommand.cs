@@ -2,17 +2,29 @@ using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ItemEntity.
+/// </summary>
 public interface IItemCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Item entity,
+        ItemEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Item entity,
+        ItemEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Item entity,
+        ItemEntity entity,
         CancellationToken cancellationToken);
 }

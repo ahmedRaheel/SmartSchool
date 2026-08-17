@@ -2,17 +2,29 @@ using SmartSchool.Modules.AIParent.Models;
 
 namespace SmartSchool.Modules.AIParent.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ParentToolExecutionEntity.
+/// </summary>
 public interface IParentToolExecutionCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        ParentToolExecution entity,
+        ParentToolExecutionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        ParentToolExecution entity,
+        ParentToolExecutionEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        ParentToolExecution entity,
+        ParentToolExecutionEntity entity,
         CancellationToken cancellationToken);
 }

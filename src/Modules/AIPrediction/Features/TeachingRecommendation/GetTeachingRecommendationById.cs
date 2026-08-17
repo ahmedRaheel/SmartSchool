@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AIPrediction.Contracts;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 
 public static class GetTeachingRecommendationById
 {
+
+    /// <summary>
+    /// Represents the response returned by this TeachingRecommendationEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<TeachingRecommendationResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(ITeachingRecommendationQuery entityQuery)
-        : IRequestHandler<Query, Result<TeachingRecommendationResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<TeachingRecommendationResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetTeachingRecommendationById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<TeachingRecommendationResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeachingRecommendation))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeachingRecommendationEntity))));
             }
-            return Result<TeachingRecommendationResponse>.Success(TeachingRecommendationResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetTeachingRecommendationById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<TeachingRecommendationResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetTeachingRecommendationById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.AIPrediction.Models.TeachingRecommendationEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

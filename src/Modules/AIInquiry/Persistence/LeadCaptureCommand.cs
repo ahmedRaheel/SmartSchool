@@ -3,32 +3,32 @@ using SmartSchool.Modules.AIInquiry.Models;
 namespace SmartSchool.Modules.AIInquiry.Persistence;
 
 /// <summary>
-/// Write-side persistence for LeadCapture.
+/// Write-side persistence for LeadCaptureEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class LeadCaptureCommand : ILeadCaptureCommand
 {
     public Task AddAsync(
-        LeadCapture entity,
+        LeadCaptureEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeadCapture create persistence has not been connected to the module DbContext.");
+            "LeadCaptureEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        LeadCapture entity,
+        LeadCaptureEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeadCapture update persistence has not been connected to the module DbContext.");
+            "LeadCaptureEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        LeadCapture entity,
+        LeadCaptureEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeadCapture delete persistence has not been connected to the module DbContext.");
+            "LeadCaptureEntity delete persistence has not been connected to the module DbContext.");
     }
 }

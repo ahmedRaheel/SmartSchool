@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// Read-side persistence for StockTransaction.
+/// Read-side persistence for StockTransactionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Inventory module.
 /// </summary>
 public sealed class StockTransactionQuery : IStockTransactionQuery
 {
-    public Task<StockTransaction?> GetByIdAsync(
+    public Task<StockTransactionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StockTransaction read persistence has not been connected to the module DbContext.");
+            "StockTransactionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<StockTransaction>> GetPageAsync(
+    public Task<PagedResult<StockTransactionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StockTransaction paging persistence has not been connected to the module DbContext.");
+            "StockTransactionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class StockTransactionQuery : IStockTransactionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "StockTransaction uniqueness persistence has not been connected to the module DbContext.");
+            "StockTransactionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

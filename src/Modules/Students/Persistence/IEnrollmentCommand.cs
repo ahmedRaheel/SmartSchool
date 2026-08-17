@@ -2,17 +2,29 @@ using SmartSchool.Modules.Students.Models;
 
 namespace SmartSchool.Modules.Students.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for EnrollmentEntity.
+/// </summary>
 public interface IEnrollmentCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Enrollment entity,
+        EnrollmentEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Enrollment entity,
+        EnrollmentEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Enrollment entity,
+        EnrollmentEntity entity,
         CancellationToken cancellationToken);
 }

@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.HR.Contracts;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 
 public static class GetEmploymentHistoryById
 {
+
+    /// <summary>
+    /// Represents the response returned by this EmploymentHistoryEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<EmploymentHistoryResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IEmploymentHistoryQuery entityQuery)
-        : IRequestHandler<Query, Result<EmploymentHistoryResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<EmploymentHistoryResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetEmploymentHistoryById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<EmploymentHistoryResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmploymentHistory))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmploymentHistoryEntity))));
             }
-            return Result<EmploymentHistoryResponse>.Success(EmploymentHistoryResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetEmploymentHistoryById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<EmploymentHistoryResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetEmploymentHistoryById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.HR.Models.EmploymentHistoryEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

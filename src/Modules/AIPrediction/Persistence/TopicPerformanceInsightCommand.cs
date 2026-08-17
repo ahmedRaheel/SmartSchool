@@ -3,32 +3,32 @@ using SmartSchool.Modules.AIPrediction.Models;
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Write-side persistence for TopicPerformanceInsight.
+/// Write-side persistence for TopicPerformanceInsightEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class TopicPerformanceInsightCommand : ITopicPerformanceInsightCommand
 {
     public Task AddAsync(
-        TopicPerformanceInsight entity,
+        TopicPerformanceInsightEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TopicPerformanceInsight create persistence has not been connected to the module DbContext.");
+            "TopicPerformanceInsightEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        TopicPerformanceInsight entity,
+        TopicPerformanceInsightEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TopicPerformanceInsight update persistence has not been connected to the module DbContext.");
+            "TopicPerformanceInsightEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        TopicPerformanceInsight entity,
+        TopicPerformanceInsightEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TopicPerformanceInsight delete persistence has not been connected to the module DbContext.");
+            "TopicPerformanceInsightEntity delete persistence has not been connected to the module DbContext.");
     }
 }

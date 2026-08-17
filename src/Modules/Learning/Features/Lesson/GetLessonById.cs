@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Learning.Contracts;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Learning.Features.Lesson;
 
 public static class GetLessonById
 {
+
+    /// <summary>
+    /// Represents the response returned by this LessonEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<LessonResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(ILessonQuery entityQuery)
-        : IRequestHandler<Query, Result<LessonResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<LessonResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetLessonById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<LessonResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Lesson))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LessonEntity))));
             }
-            return Result<LessonResponse>.Success(LessonResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetLessonById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<LessonResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetLessonById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Learning.Models.LessonEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

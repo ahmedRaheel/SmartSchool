@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AIInquiry.Persistence;
 
 /// <summary>
-/// Read-side persistence for LeadCapture.
+/// Read-side persistence for LeadCaptureEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AIInquiry module.
 /// </summary>
 public sealed class LeadCaptureQuery : ILeadCaptureQuery
 {
-    public Task<LeadCapture?> GetByIdAsync(
+    public Task<LeadCaptureEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeadCapture read persistence has not been connected to the module DbContext.");
+            "LeadCaptureEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<LeadCapture>> GetPageAsync(
+    public Task<PagedResult<LeadCaptureEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeadCapture paging persistence has not been connected to the module DbContext.");
+            "LeadCaptureEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class LeadCaptureQuery : ILeadCaptureQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LeadCapture uniqueness persistence has not been connected to the module DbContext.");
+            "LeadCaptureEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

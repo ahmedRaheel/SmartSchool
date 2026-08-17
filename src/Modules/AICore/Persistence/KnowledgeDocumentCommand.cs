@@ -3,32 +3,32 @@ using SmartSchool.Modules.AICore.Models;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Write-side persistence for KnowledgeDocument.
+/// Write-side persistence for KnowledgeDocumentEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class KnowledgeDocumentCommand : IKnowledgeDocumentCommand
 {
     public Task AddAsync(
-        KnowledgeDocument entity,
+        KnowledgeDocumentEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeDocument create persistence has not been connected to the module DbContext.");
+            "KnowledgeDocumentEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        KnowledgeDocument entity,
+        KnowledgeDocumentEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeDocument update persistence has not been connected to the module DbContext.");
+            "KnowledgeDocumentEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        KnowledgeDocument entity,
+        KnowledgeDocumentEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "KnowledgeDocument delete persistence has not been connected to the module DbContext.");
+            "KnowledgeDocumentEntity delete persistence has not been connected to the module DbContext.");
     }
 }

@@ -3,32 +3,32 @@ using SmartSchool.Modules.Transport.Models;
 namespace SmartSchool.Modules.Transport.Persistence;
 
 /// <summary>
-/// Write-side persistence for Stop.
+/// Write-side persistence for StopEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class StopCommand : IStopCommand
 {
     public Task AddAsync(
-        Stop entity,
+        StopEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Stop create persistence has not been connected to the module DbContext.");
+            "StopEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Stop entity,
+        StopEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Stop update persistence has not been connected to the module DbContext.");
+            "StopEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Stop entity,
+        StopEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Stop delete persistence has not been connected to the module DbContext.");
+            "StopEntity delete persistence has not been connected to the module DbContext.");
     }
 }

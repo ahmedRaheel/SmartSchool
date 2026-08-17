@@ -2,17 +2,29 @@ using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for LeaveRequestEntity.
+/// </summary>
 public interface ILeaveRequestCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        LeaveRequest entity,
+        LeaveRequestEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        LeaveRequest entity,
+        LeaveRequestEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        LeaveRequest entity,
+        LeaveRequestEntity entity,
         CancellationToken cancellationToken);
 }

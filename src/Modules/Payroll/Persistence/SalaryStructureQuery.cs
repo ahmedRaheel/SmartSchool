@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Payroll.Persistence;
 
 /// <summary>
-/// Read-side persistence for SalaryStructure.
+/// Read-side persistence for SalaryStructureEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Payroll module.
 /// </summary>
 public sealed class SalaryStructureQuery : ISalaryStructureQuery
 {
-    public Task<SalaryStructure?> GetByIdAsync(
+    public Task<SalaryStructureEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "SalaryStructure read persistence has not been connected to the module DbContext.");
+            "SalaryStructureEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<SalaryStructure>> GetPageAsync(
+    public Task<PagedResult<SalaryStructureEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "SalaryStructure paging persistence has not been connected to the module DbContext.");
+            "SalaryStructureEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class SalaryStructureQuery : ISalaryStructureQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "SalaryStructure uniqueness persistence has not been connected to the module DbContext.");
+            "SalaryStructureEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

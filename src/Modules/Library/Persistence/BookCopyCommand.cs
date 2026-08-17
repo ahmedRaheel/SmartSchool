@@ -3,32 +3,32 @@ using SmartSchool.Modules.Library.Models;
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// Write-side persistence for BookCopy.
+/// Write-side persistence for BookCopyEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class BookCopyCommand : IBookCopyCommand
 {
     public Task AddAsync(
-        BookCopy entity,
+        BookCopyEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "BookCopy create persistence has not been connected to the module DbContext.");
+            "BookCopyEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        BookCopy entity,
+        BookCopyEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "BookCopy update persistence has not been connected to the module DbContext.");
+            "BookCopyEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        BookCopy entity,
+        BookCopyEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "BookCopy delete persistence has not been connected to the module DbContext.");
+            "BookCopyEntity delete persistence has not been connected to the module DbContext.");
     }
 }

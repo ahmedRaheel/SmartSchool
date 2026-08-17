@@ -2,17 +2,29 @@ using SmartSchool.Modules.Transport.Models;
 
 namespace SmartSchool.Modules.Transport.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for VehicleEntity.
+/// </summary>
 public interface IVehicleCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Vehicle entity,
+        VehicleEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Vehicle entity,
+        VehicleEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Vehicle entity,
+        VehicleEntity entity,
         CancellationToken cancellationToken);
 }

@@ -3,32 +3,32 @@ using SmartSchool.Modules.Tenancy.Models;
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
 /// <summary>
-/// Write-side persistence for CampusBranding.
+/// Write-side persistence for CampusBrandingEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class CampusBrandingCommand : ICampusBrandingCommand
 {
     public Task AddAsync(
-        CampusBranding entity,
+        CampusBrandingEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CampusBranding create persistence has not been connected to the module DbContext.");
+            "CampusBrandingEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        CampusBranding entity,
+        CampusBrandingEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CampusBranding update persistence has not been connected to the module DbContext.");
+            "CampusBrandingEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        CampusBranding entity,
+        CampusBrandingEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "CampusBranding delete persistence has not been connected to the module DbContext.");
+            "CampusBrandingEntity delete persistence has not been connected to the module DbContext.");
     }
 }

@@ -2,7 +2,7 @@ namespace SmartSchool.SharedKernel.Constants;
 
 /// <summary>
 /// Default API messages. These are fallback messages only.
-/// Tenant-configurable business messages should be resolved through IMessageProvider.
+/// TenantEntity-configurable business messages should be resolved through IMessageProvider.
 /// </summary>
 public static class ErrorMessages
 {

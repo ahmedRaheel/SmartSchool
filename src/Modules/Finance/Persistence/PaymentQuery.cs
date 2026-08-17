@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// Read-side persistence for Payment.
+/// Read-side persistence for PaymentEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Finance module.
 /// </summary>
 public sealed class PaymentQuery : IPaymentQuery
 {
-    public Task<Payment?> GetByIdAsync(
+    public Task<PaymentEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Payment read persistence has not been connected to the module DbContext.");
+            "PaymentEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Payment>> GetPageAsync(
+    public Task<PagedResult<PaymentEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Payment paging persistence has not been connected to the module DbContext.");
+            "PaymentEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class PaymentQuery : IPaymentQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Payment uniqueness persistence has not been connected to the module DbContext.");
+            "PaymentEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

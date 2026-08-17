@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Read-side persistence for PromptTemplate.
+/// Read-side persistence for PromptTemplateEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AICore module.
 /// </summary>
 public sealed class PromptTemplateQuery : IPromptTemplateQuery
 {
-    public Task<PromptTemplate?> GetByIdAsync(
+    public Task<PromptTemplateEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PromptTemplate read persistence has not been connected to the module DbContext.");
+            "PromptTemplateEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<PromptTemplate>> GetPageAsync(
+    public Task<PagedResult<PromptTemplateEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PromptTemplate paging persistence has not been connected to the module DbContext.");
+            "PromptTemplateEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class PromptTemplateQuery : IPromptTemplateQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PromptTemplate uniqueness persistence has not been connected to the module DbContext.");
+            "PromptTemplateEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

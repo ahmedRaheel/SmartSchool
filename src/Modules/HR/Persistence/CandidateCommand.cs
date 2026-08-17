@@ -3,32 +3,32 @@ using SmartSchool.Modules.HR.Models;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Write-side persistence for Candidate.
+/// Write-side persistence for CandidateEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class CandidateCommand : ICandidateCommand
 {
     public Task AddAsync(
-        Candidate entity,
+        CandidateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Candidate create persistence has not been connected to the module DbContext.");
+            "CandidateEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        Candidate entity,
+        CandidateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Candidate update persistence has not been connected to the module DbContext.");
+            "CandidateEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        Candidate entity,
+        CandidateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Candidate delete persistence has not been connected to the module DbContext.");
+            "CandidateEntity delete persistence has not been connected to the module DbContext.");
     }
 }

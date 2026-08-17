@@ -2,17 +2,29 @@ using SmartSchool.Modules.Admissions.Models;
 
 namespace SmartSchool.Modules.Admissions.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ApplicantEntity.
+/// </summary>
 public interface IApplicantCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Applicant entity,
+        ApplicantEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Applicant entity,
+        ApplicantEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Applicant entity,
+        ApplicantEntity entity,
         CancellationToken cancellationToken);
 }

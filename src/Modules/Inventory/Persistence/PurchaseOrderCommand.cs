@@ -3,32 +3,32 @@ using SmartSchool.Modules.Inventory.Models;
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// Write-side persistence for PurchaseOrder.
+/// Write-side persistence for PurchaseOrderEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class PurchaseOrderCommand : IPurchaseOrderCommand
 {
     public Task AddAsync(
-        PurchaseOrder entity,
+        PurchaseOrderEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PurchaseOrder create persistence has not been connected to the module DbContext.");
+            "PurchaseOrderEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        PurchaseOrder entity,
+        PurchaseOrderEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PurchaseOrder update persistence has not been connected to the module DbContext.");
+            "PurchaseOrderEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        PurchaseOrder entity,
+        PurchaseOrderEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PurchaseOrder delete persistence has not been connected to the module DbContext.");
+            "PurchaseOrderEntity delete persistence has not been connected to the module DbContext.");
     }
 }

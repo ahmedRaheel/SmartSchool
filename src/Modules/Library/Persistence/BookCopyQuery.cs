@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// Read-side persistence for BookCopy.
+/// Read-side persistence for BookCopyEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Library module.
 /// </summary>
 public sealed class BookCopyQuery : IBookCopyQuery
 {
-    public Task<BookCopy?> GetByIdAsync(
+    public Task<BookCopyEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "BookCopy read persistence has not been connected to the module DbContext.");
+            "BookCopyEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<BookCopy>> GetPageAsync(
+    public Task<PagedResult<BookCopyEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "BookCopy paging persistence has not been connected to the module DbContext.");
+            "BookCopyEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class BookCopyQuery : IBookCopyQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "BookCopy uniqueness persistence has not been connected to the module DbContext.");
+            "BookCopyEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

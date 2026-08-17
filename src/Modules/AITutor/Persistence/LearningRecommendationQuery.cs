@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AITutor.Persistence;
 
 /// <summary>
-/// Read-side persistence for LearningRecommendation.
+/// Read-side persistence for LearningRecommendationEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AITutor module.
 /// </summary>
 public sealed class LearningRecommendationQuery : ILearningRecommendationQuery
 {
-    public Task<LearningRecommendation?> GetByIdAsync(
+    public Task<LearningRecommendationEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LearningRecommendation read persistence has not been connected to the module DbContext.");
+            "LearningRecommendationEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<LearningRecommendation>> GetPageAsync(
+    public Task<PagedResult<LearningRecommendationEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LearningRecommendation paging persistence has not been connected to the module DbContext.");
+            "LearningRecommendationEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class LearningRecommendationQuery : ILearningRecommendationQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "LearningRecommendation uniqueness persistence has not been connected to the module DbContext.");
+            "LearningRecommendationEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

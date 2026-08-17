@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Academics.Contracts;
 using SmartSchool.Modules.Academics.Models;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Academics.Features.TimetableEntry;
 
 public static class GetTimetableEntryById
 {
+
+    /// <summary>
+    /// Represents the response returned by this TimetableEntryEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<TimetableEntryResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(ITimetableEntryQuery entityQuery)
-        : IRequestHandler<Query, Result<TimetableEntryResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<TimetableEntryResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetTimetableEntryById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<TimetableEntryResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TimetableEntry))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TimetableEntryEntity))));
             }
-            return Result<TimetableEntryResponse>.Success(TimetableEntryResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetTimetableEntryById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<TimetableEntryResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetTimetableEntryById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Academics.Models.TimetableEntryEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

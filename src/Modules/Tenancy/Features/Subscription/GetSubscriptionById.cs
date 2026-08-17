@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Tenancy.Contracts;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Tenancy.Features.Subscription;
 
 public static class GetSubscriptionById
 {
+
+    /// <summary>
+    /// Represents the response returned by this SubscriptionEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<SubscriptionResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(ISubscriptionQuery entityQuery)
-        : IRequestHandler<Query, Result<SubscriptionResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<SubscriptionResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetSubscriptionById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<SubscriptionResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Subscription))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SubscriptionEntity))));
             }
-            return Result<SubscriptionResponse>.Success(SubscriptionResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetSubscriptionById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<SubscriptionResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetSubscriptionById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Tenancy.Models.SubscriptionEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

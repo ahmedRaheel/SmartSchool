@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.Modules.Tenancy.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteTenant
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         ITenantQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteTenant
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Tenant))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TenantEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

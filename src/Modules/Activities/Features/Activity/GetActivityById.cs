@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Activities.Contracts;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.Activities.Features.Activity;
 
 public static class GetActivityById
 {
+
+    /// <summary>
+    /// Represents the response returned by this ActivityEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<ActivityResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(IActivityQuery entityQuery)
-        : IRequestHandler<Query, Result<ActivityResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<ActivityResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetActivityById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ActivityResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Activity))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ActivityEntity))));
             }
-            return Result<ActivityResponse>.Success(ActivityResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetActivityById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<ActivityResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetActivityById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.Activities.Models.ActivityEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }

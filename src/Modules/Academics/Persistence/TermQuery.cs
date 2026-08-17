@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Read-side persistence for Term.
+/// Read-side persistence for TermEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Academics module.
 /// </summary>
 public sealed class TermQuery : ITermQuery
 {
-    public Task<Term?> GetByIdAsync(
+    public Task<TermEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Term read persistence has not been connected to the module DbContext.");
+            "TermEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Term>> GetPageAsync(
+    public Task<PagedResult<TermEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Term paging persistence has not been connected to the module DbContext.");
+            "TermEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class TermQuery : ITermQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Term uniqueness persistence has not been connected to the module DbContext.");
+            "TermEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

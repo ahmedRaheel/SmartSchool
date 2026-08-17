@@ -2,17 +2,29 @@ using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for DocumentTemplateEntity.
+/// </summary>
 public interface IDocumentTemplateCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        DocumentTemplate entity,
+        DocumentTemplateEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        DocumentTemplate entity,
+        DocumentTemplateEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        DocumentTemplate entity,
+        DocumentTemplateEntity entity,
         CancellationToken cancellationToken);
 }

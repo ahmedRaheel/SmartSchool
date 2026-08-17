@@ -2,17 +2,29 @@ using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for JobEntity.
+/// </summary>
 public interface IJobCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Job entity,
+        JobEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Job entity,
+        JobEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Job entity,
+        JobEntity entity,
         CancellationToken cancellationToken);
 }

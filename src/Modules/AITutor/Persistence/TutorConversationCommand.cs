@@ -3,32 +3,32 @@ using SmartSchool.Modules.AITutor.Models;
 namespace SmartSchool.Modules.AITutor.Persistence;
 
 /// <summary>
-/// Write-side persistence for TutorConversation.
+/// Write-side persistence for TutorConversationEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class TutorConversationCommand : ITutorConversationCommand
 {
     public Task AddAsync(
-        TutorConversation entity,
+        TutorConversationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TutorConversation create persistence has not been connected to the module DbContext.");
+            "TutorConversationEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        TutorConversation entity,
+        TutorConversationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TutorConversation update persistence has not been connected to the module DbContext.");
+            "TutorConversationEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        TutorConversation entity,
+        TutorConversationEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TutorConversation delete persistence has not been connected to the module DbContext.");
+            "TutorConversationEntity delete persistence has not been connected to the module DbContext.");
     }
 }

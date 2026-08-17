@@ -1,6 +1,7 @@
 using Confluent.Kafka;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Context;
@@ -38,15 +39,13 @@ public sealed class KafkaPublisher(
             new ProducerBuilder<string, string>(producerConfig)
                 .Build();
 
-        var message = new Message<string, string>
-        {
-            Key = Guid.NewGuid().ToString("N"),
-            Value = JsonSerializer.Serialize(value)
-        };
+        Dictionary<string, string>? message = new Dictionary<string, string>();
+        message.Add(Guid.NewGuid().ToString("N"),
+            JsonSerializer.Serialize(value));
 
         await producer.ProduceAsync(
             topic,
-            message,
+            null,
             cancellationToken);
     }
 }
@@ -105,7 +104,7 @@ public static class PlatformRegistration
                     .Enrich.WithEnvironmentName()
                     .Enrich.WithThreadId()
                     .Enrich.WithProperty(
-                        "Application",
+                        "ApplicationEntity",
                         ApplicationConstants.ApplicationName);
             });
     }

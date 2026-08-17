@@ -2,17 +2,29 @@ using SmartSchool.Modules.AITutor.Models;
 
 namespace SmartSchool.Modules.AITutor.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for LearningRecommendationEntity.
+/// </summary>
 public interface ILearningRecommendationCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        LearningRecommendation entity,
+        LearningRecommendationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        LearningRecommendation entity,
+        LearningRecommendationEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        LearningRecommendation entity,
+        LearningRecommendationEntity entity,
         CancellationToken cancellationToken);
 }

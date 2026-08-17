@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Read-side persistence for GradeLevel.
+/// Read-side persistence for GradeLevelEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Academics module.
 /// </summary>
 public sealed class GradeLevelQuery : IGradeLevelQuery
 {
-    public Task<GradeLevel?> GetByIdAsync(
+    public Task<GradeLevelEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeLevel read persistence has not been connected to the module DbContext.");
+            "GradeLevelEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<GradeLevel>> GetPageAsync(
+    public Task<PagedResult<GradeLevelEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeLevel paging persistence has not been connected to the module DbContext.");
+            "GradeLevelEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class GradeLevelQuery : IGradeLevelQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "GradeLevel uniqueness persistence has not been connected to the module DbContext.");
+            "GradeLevelEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

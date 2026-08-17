@@ -2,17 +2,29 @@ using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Persistence;
 
+/// <summary>
+/// Defines command persistence operations for ApprovalEntity.
+/// </summary>
 public interface IApprovalCommand
 {
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task AddAsync(
-        Approval entity,
+        ApprovalEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task UpdateAsync(
-        Approval entity,
+        ApprovalEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
     Task DeleteAsync(
-        Approval entity,
+        ApprovalEntity entity,
         CancellationToken cancellationToken);
 }

@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Read-side persistence for Program.
+/// Read-side persistence for ProgramEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Academics module.
 /// </summary>
 public sealed class ProgramQuery : IProgramQuery
 {
-    public Task<Program?> GetByIdAsync(
+    public Task<ProgramEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Program read persistence has not been connected to the module DbContext.");
+            "ProgramEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Program>> GetPageAsync(
+    public Task<PagedResult<ProgramEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Program paging persistence has not been connected to the module DbContext.");
+            "ProgramEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class ProgramQuery : IProgramQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Program uniqueness persistence has not been connected to the module DbContext.");
+            "ProgramEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

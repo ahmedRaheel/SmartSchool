@@ -1,3 +1,4 @@
+using SmartSchool.Application;
 using SmartSchool.Infrastructure.Identity;
 using SmartSchool.Api.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -107,6 +108,32 @@ builder.Services.AddStudentsModule();
 builder.Services.AddTenancyModule();
 builder.Services.AddTransportModule();
 builder.Services.AddWorkflowModule();
+
+builder.Services.AddSmartSchoolMediator(
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly,
+        typeof(Module).Assembly);
 
 var app =
     builder.Build();

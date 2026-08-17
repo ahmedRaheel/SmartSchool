@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.Modules.HR.Persistence;
@@ -12,7 +13,9 @@ public static class DeleteCandidate
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
     public sealed class Handler(
         ICandidateQuery entityQuery,
@@ -28,10 +31,10 @@ public static class DeleteCandidate
             if (entity is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Candidate))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CandidateEntity))));
             }
             await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.Id));
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }
 

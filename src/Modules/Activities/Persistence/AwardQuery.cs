@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Activities.Persistence;
 
 /// <summary>
-/// Read-side persistence for Award.
+/// Read-side persistence for AwardEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the Activities module.
 /// </summary>
 public sealed class AwardQuery : IAwardQuery
 {
-    public Task<Award?> GetByIdAsync(
+    public Task<AwardEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Award read persistence has not been connected to the module DbContext.");
+            "AwardEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<Award>> GetPageAsync(
+    public Task<PagedResult<AwardEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Award paging persistence has not been connected to the module DbContext.");
+            "AwardEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class AwardQuery : IAwardQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "Award uniqueness persistence has not been connected to the module DbContext.");
+            "AwardEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

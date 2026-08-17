@@ -4,29 +4,29 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AITutor.Persistence;
 
 /// <summary>
-/// Read-side persistence for TutorSession.
+/// Read-side persistence for TutorSessionEntity.
 /// Replace the scaffolded methods with optimized EF Core/Dapper queries
 /// owned by the AITutor module.
 /// </summary>
 public sealed class TutorSessionQuery : ITutorSessionQuery
 {
-    public Task<TutorSession?> GetByIdAsync(
+    public Task<TutorSessionEntity?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TutorSession read persistence has not been connected to the module DbContext.");
+            "TutorSessionEntity read persistence has not been connected to the module DbContext.");
     }
 
-    public Task<PagedResult<TutorSession>> GetPageAsync(
+    public Task<PagedResult<TutorSessionEntity>> GetPageAsync(
         Guid tenantId,
         int page,
         int pageSize,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TutorSession paging persistence has not been connected to the module DbContext.");
+            "TutorSessionEntity paging persistence has not been connected to the module DbContext.");
     }
 
     public Task<bool> ExistsByCodeAsync(
@@ -36,6 +36,6 @@ public sealed class TutorSessionQuery : ITutorSessionQuery
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "TutorSession uniqueness persistence has not been connected to the module DbContext.");
+            "TutorSessionEntity uniqueness persistence has not been connected to the module DbContext.");
     }
 }

@@ -3,32 +3,32 @@ using SmartSchool.Modules.AICore.Models;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Write-side persistence for PromptTemplate.
+/// Write-side persistence for PromptTemplateEntity.
 /// Transaction boundaries remain explicit in the application use case.
 /// </summary>
 public sealed class PromptTemplateCommand : IPromptTemplateCommand
 {
     public Task AddAsync(
-        PromptTemplate entity,
+        PromptTemplateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PromptTemplate create persistence has not been connected to the module DbContext.");
+            "PromptTemplateEntity create persistence has not been connected to the module DbContext.");
     }
 
     public Task UpdateAsync(
-        PromptTemplate entity,
+        PromptTemplateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PromptTemplate update persistence has not been connected to the module DbContext.");
+            "PromptTemplateEntity update persistence has not been connected to the module DbContext.");
     }
 
     public Task DeleteAsync(
-        PromptTemplate entity,
+        PromptTemplateEntity entity,
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException(
-            "PromptTemplate delete persistence has not been connected to the module DbContext.");
+            "PromptTemplateEntity delete persistence has not been connected to the module DbContext.");
     }
 }

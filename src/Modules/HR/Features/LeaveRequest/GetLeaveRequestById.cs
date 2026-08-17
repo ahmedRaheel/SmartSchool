@@ -1,5 +1,5 @@
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.HR.Contracts;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
@@ -9,14 +9,28 @@ namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 
 public static class GetLeaveRequestById
 {
+
+    /// <summary>
+    /// Represents the response returned by this LeaveRequestEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        string Code,
+        string Name);
+
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<LeaveRequestResponse>>;
+        Guid Id) : IRequest<Result<Response>>;
 
     public sealed class Handler(ILeaveRequestQuery entityQuery)
-        : IRequestHandler<Query, Result<LeaveRequestResponse>>
+        : IRequestHandler<Query, Result<Response>>
     {
-        public async Task<Result<LeaveRequestResponse>> HandleAsync(
+        public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -24,10 +38,10 @@ public static class GetLeaveRequestById
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<LeaveRequestResponse>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LeaveRequest))));
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LeaveRequestEntity))));
             }
-            return Result<LeaveRequestResponse>.Success(LeaveRequestResponse.FromEntity(entity));
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -38,7 +52,7 @@ public static class GetLeaveRequestById
                 async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var request = new Query(tenantId, id);
-                    var result = await mediator.SendAsync<Query, Result<LeaveRequestResponse>>(
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
                 })
@@ -47,4 +61,15 @@ public static class GetLeaveRequestById
             .RequireAuthorization();
         return endpoints;
     }
+
+    private static Response MapResponse(
+        SmartSchool.Modules.HR.Models.LeaveRequestEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.Id,
+            entity.Code,
+            entity.Name);
+    }
+
 }
