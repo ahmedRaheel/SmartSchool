@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Documents;
 using FluentValidation;
-using SmartSchool.Modules.Documents.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Documents.Contracts;
 using SmartSchool.Modules.Documents.Models;
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -14,109 +15,78 @@ public static class UpdateSchoolLogo
         Guid Id,
         string Code,
         string Name,
-        bool IsActive);
+        bool IsActive) : IRequest<Result<SchoolLogoResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Id)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        ISchoolLogoQuery query,
-        ISchoolLogoCommand command,
+        ISchoolLogoQuery entityQuery,
+        ISchoolLogoCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<SchoolLogoResponse>>
     {
-        public async Task<Result<SchoolLogo>> HandleAsync(
+        public async Task<Result<SchoolLogoResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<SchoolLogo>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<SchoolLogoResponse>.Failure(Error.Validation(message));
             }
 
-            var entity = await query.GetByIdAsync(
-                request.TenantId,
-                request.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<SchoolLogo>.Failure(
+                return Result<SchoolLogoResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogo))));
             }
 
-            var duplicateCode = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                request.Id,
-                cancellationToken);
-
-            if (duplicateCode)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, request.Id, cancellationToken);
+            if (exists)
             {
-                return Result<SchoolLogo>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(SchoolLogo), request.Code)));
+                return Result<SchoolLogoResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(SchoolLogo), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
             entity.Name = request.Name.Trim();
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
-
-            await command.UpdateAsync(
-                entity,
-                cancellationToken);
-
-            return Result<SchoolLogo>.Success(entity);
+            await entityCommand.UpdateAsync(entity, cancellationToken);
+            return Result<SchoolLogoResponse>.Success(SchoolLogoResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPut(
-                "/api/documents/school-logo/{id:guid}",
-                async (
-                    Guid id,
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "school-logo"),
+                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var command = request with { Id = id };
-
-                    var result = await handler.HandleAsync(
-                        command,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<SchoolLogoResponse>>(
+                        command, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("UpdateSchoolLogo")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

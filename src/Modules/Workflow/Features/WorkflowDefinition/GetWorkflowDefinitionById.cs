@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Workflow;
-using SmartSchool.Modules.Workflow.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Workflow.Contracts;
 using SmartSchool.Modules.Workflow.Models;
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetWorkflowDefinitionById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<WorkflowDefinitionResponse>>;
 
-    public sealed class Handler(
-        IWorkflowDefinitionQuery query)
+    public sealed class Handler(IWorkflowDefinitionQuery entityQuery)
+        : IRequestHandler<Query, Result<WorkflowDefinitionResponse>>
     {
-        public async Task<Result<WorkflowDefinition>> HandleAsync(
-            Query query,
+        public async Task<Result<WorkflowDefinitionResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<WorkflowDefinition>.Failure(
+                return Result<WorkflowDefinitionResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowDefinition))));
             }
-
-            return Result<WorkflowDefinition>.Success(entity);
+            return Result<WorkflowDefinitionResponse>.Success(WorkflowDefinitionResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/workflow/workflow-definition/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "workflow-definition"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<WorkflowDefinitionResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetWorkflowDefinitionById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

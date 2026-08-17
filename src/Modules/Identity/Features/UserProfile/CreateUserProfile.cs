@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Identity;
 using FluentValidation;
-using SmartSchool.Modules.Identity.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Identity.Contracts;
 using SmartSchool.Modules.Identity.Models;
+using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,57 +13,44 @@ public static class CreateUserProfile
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name);
+        string Name) : IRequest<Result<UserProfileResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IUserProfileQuery query,
-        IUserProfileCommand command,
+        IUserProfileQuery entityQuery,
+        IUserProfileCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<UserProfileResponse>>
     {
-        public async Task<Result<UserProfile>> HandleAsync(
+        public async Task<Result<UserProfileResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<UserProfile>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<UserProfileResponse>.Failure(Error.Validation(message));
             }
 
-            var codeExists = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                excludingId: null,
-                cancellationToken);
-
-            if (codeExists)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, null, cancellationToken);
+            if (exists)
             {
-                return Result<UserProfile>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(UserProfile), request.Code)));
+                return Result<UserProfileResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(UserProfile), request.Code)));
             }
 
             var entity = new UserProfile
@@ -73,34 +61,24 @@ public static class CreateUserProfile
                 IsActive = true
             };
 
-            await command.AddAsync(
-                entity,
-                cancellationToken);
-
-            return Result<UserProfile>.Success(entity);
+            await entityCommand.AddAsync(entity, cancellationToken);
+            return Result<UserProfileResponse>.Success(UserProfileResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "user-profile"),
-                async (
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await handler.HandleAsync(
-                        request,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<UserProfileResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("CreateUserProfile")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

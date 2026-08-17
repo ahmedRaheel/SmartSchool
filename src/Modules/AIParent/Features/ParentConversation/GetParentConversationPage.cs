@@ -1,7 +1,7 @@
-using SmartSchool.Modules.AIParent;
-using SmartSchool.Modules.AIParent.Persistence;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.AIParent.Models;
+using SmartSchool.Modules.AIParent.Contracts;
+using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,56 +12,44 @@ public static class GetParentConversationPage
     public sealed record Query(
         Guid TenantId,
         int Page = 1,
-        int PageSize = 25);
+        int PageSize = 25) : IRequest<Result<PagedResult<ParentConversationResponse>>>;
 
-    public sealed class Handler(
-        IParentConversationQuery query)
+    public sealed class Handler(IParentConversationQuery entityQuery)
+        : IRequestHandler<Query, Result<PagedResult<ParentConversationResponse>>>
     {
-        public async Task<Result<PagedResult<ParentConversation>>> HandleAsync(
-            Query query,
+        public async Task<Result<PagedResult<ParentConversationResponse>>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var pageRequest = new PageRequest(
-                query.Page,
-                query.PageSize);
-
-            var result = await query.GetPageAsync(
-                query.TenantId,
+            var pageRequest = new PageRequest(request.Page, request.PageSize);
+            var page = await entityQuery.GetPageAsync(
+                request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
                 cancellationToken);
-
-            return Result<PagedResult<ParentConversation>>.Success(result);
+            var response = new PagedResult<ParentConversationResponse>(
+                page.Items.Select(ParentConversationResponse.FromEntity).ToArray(),
+                page.Page,
+                page.PageSize,
+                page.TotalCount);
+            return Result<PagedResult<ParentConversationResponse>>.Success(response);
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "parent-conversation"),
-                async (
-                    Guid tenantId,
-                    int page,
-                    int pageSize,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(
-                        tenantId,
-                        page,
-                        pageSize);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, page, pageSize);
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<ParentConversationResponse>>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetParentConversationPage")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

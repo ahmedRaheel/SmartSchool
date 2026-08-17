@@ -1,6 +1,7 @@
-using SmartSchool.Modules.HR;
-using SmartSchool.Modules.HR.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.HR.Contracts;
 using SmartSchool.Modules.HR.Models;
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetJobGradeById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<JobGradeResponse>>;
 
-    public sealed class Handler(
-        IJobGradeQuery query)
+    public sealed class Handler(IJobGradeQuery entityQuery)
+        : IRequestHandler<Query, Result<JobGradeResponse>>
     {
-        public async Task<Result<JobGrade>> HandleAsync(
-            Query query,
+        public async Task<Result<JobGradeResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<JobGrade>.Failure(
+                return Result<JobGradeResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(JobGrade))));
             }
-
-            return Result<JobGrade>.Success(entity);
+            return Result<JobGradeResponse>.Success(JobGradeResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/hr/job-grade/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "job-grade"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<JobGradeResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetJobGradeById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

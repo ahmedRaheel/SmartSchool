@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Activities;
 using FluentValidation;
-using SmartSchool.Modules.Activities.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Activities.Contracts;
 using SmartSchool.Modules.Activities.Models;
+using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,57 +13,44 @@ public static class CreateActivity
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name);
+        string Name) : IRequest<Result<ActivityResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IActivityQuery query,
-        IActivityCommand command,
+        IActivityQuery entityQuery,
+        IActivityCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<ActivityResponse>>
     {
-        public async Task<Result<Activity>> HandleAsync(
+        public async Task<Result<ActivityResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<Activity>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<ActivityResponse>.Failure(Error.Validation(message));
             }
 
-            var codeExists = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                excludingId: null,
-                cancellationToken);
-
-            if (codeExists)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, null, cancellationToken);
+            if (exists)
             {
-                return Result<Activity>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Activity), request.Code)));
+                return Result<ActivityResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(Activity), request.Code)));
             }
 
             var entity = new Activity
@@ -73,34 +61,24 @@ public static class CreateActivity
                 IsActive = true
             };
 
-            await command.AddAsync(
-                entity,
-                cancellationToken);
-
-            return Result<Activity>.Success(entity);
+            await entityCommand.AddAsync(entity, cancellationToken);
+            return Result<ActivityResponse>.Success(ActivityResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "activity"),
-                async (
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await handler.HandleAsync(
-                        request,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<ActivityResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("CreateActivity")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

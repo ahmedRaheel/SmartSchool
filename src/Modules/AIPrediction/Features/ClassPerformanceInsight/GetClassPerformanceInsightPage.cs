@@ -1,7 +1,7 @@
-using SmartSchool.Modules.AIPrediction;
-using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.AIPrediction.Models;
+using SmartSchool.Modules.AIPrediction.Contracts;
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,56 +12,44 @@ public static class GetClassPerformanceInsightPage
     public sealed record Query(
         Guid TenantId,
         int Page = 1,
-        int PageSize = 25);
+        int PageSize = 25) : IRequest<Result<PagedResult<ClassPerformanceInsightResponse>>>;
 
-    public sealed class Handler(
-        IClassPerformanceInsightQuery query)
+    public sealed class Handler(IClassPerformanceInsightQuery entityQuery)
+        : IRequestHandler<Query, Result<PagedResult<ClassPerformanceInsightResponse>>>
     {
-        public async Task<Result<PagedResult<ClassPerformanceInsight>>> HandleAsync(
-            Query query,
+        public async Task<Result<PagedResult<ClassPerformanceInsightResponse>>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var pageRequest = new PageRequest(
-                query.Page,
-                query.PageSize);
-
-            var result = await query.GetPageAsync(
-                query.TenantId,
+            var pageRequest = new PageRequest(request.Page, request.PageSize);
+            var page = await entityQuery.GetPageAsync(
+                request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
                 cancellationToken);
-
-            return Result<PagedResult<ClassPerformanceInsight>>.Success(result);
+            var response = new PagedResult<ClassPerformanceInsightResponse>(
+                page.Items.Select(ClassPerformanceInsightResponse.FromEntity).ToArray(),
+                page.Page,
+                page.PageSize,
+                page.TotalCount);
+            return Result<PagedResult<ClassPerformanceInsightResponse>>.Success(response);
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "class-performance-insight"),
-                async (
-                    Guid tenantId,
-                    int page,
-                    int pageSize,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(
-                        tenantId,
-                        page,
-                        pageSize);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, page, pageSize);
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<ClassPerformanceInsightResponse>>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetClassPerformanceInsightPage")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

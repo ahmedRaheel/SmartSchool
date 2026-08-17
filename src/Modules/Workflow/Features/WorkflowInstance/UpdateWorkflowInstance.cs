@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Workflow;
 using FluentValidation;
-using SmartSchool.Modules.Workflow.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Workflow.Contracts;
 using SmartSchool.Modules.Workflow.Models;
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -14,109 +15,78 @@ public static class UpdateWorkflowInstance
         Guid Id,
         string Code,
         string Name,
-        bool IsActive);
+        bool IsActive) : IRequest<Result<WorkflowInstanceResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Id)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IWorkflowInstanceQuery query,
-        IWorkflowInstanceCommand command,
+        IWorkflowInstanceQuery entityQuery,
+        IWorkflowInstanceCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<WorkflowInstanceResponse>>
     {
-        public async Task<Result<WorkflowInstance>> HandleAsync(
+        public async Task<Result<WorkflowInstanceResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<WorkflowInstance>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<WorkflowInstanceResponse>.Failure(Error.Validation(message));
             }
 
-            var entity = await query.GetByIdAsync(
-                request.TenantId,
-                request.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<WorkflowInstance>.Failure(
+                return Result<WorkflowInstanceResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowInstance))));
             }
 
-            var duplicateCode = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                request.Id,
-                cancellationToken);
-
-            if (duplicateCode)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, request.Id, cancellationToken);
+            if (exists)
             {
-                return Result<WorkflowInstance>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(WorkflowInstance), request.Code)));
+                return Result<WorkflowInstanceResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(WorkflowInstance), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
             entity.Name = request.Name.Trim();
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
-
-            await command.UpdateAsync(
-                entity,
-                cancellationToken);
-
-            return Result<WorkflowInstance>.Success(entity);
+            await entityCommand.UpdateAsync(entity, cancellationToken);
+            return Result<WorkflowInstanceResponse>.Success(WorkflowInstanceResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPut(
-                "/api/workflow/workflow-instance/{id:guid}",
-                async (
-                    Guid id,
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "workflow-instance"),
+                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var command = request with { Id = id };
-
-                    var result = await handler.HandleAsync(
-                        command,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<WorkflowInstanceResponse>>(
+                        command, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("UpdateWorkflowInstance")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Examinations;
-using SmartSchool.Modules.Examinations.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Examinations.Contracts;
 using SmartSchool.Modules.Examinations.Models;
+using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetExamSubjectById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<ExamSubjectResponse>>;
 
-    public sealed class Handler(
-        IExamSubjectQuery query)
+    public sealed class Handler(IExamSubjectQuery entityQuery)
+        : IRequestHandler<Query, Result<ExamSubjectResponse>>
     {
-        public async Task<Result<ExamSubject>> HandleAsync(
-            Query query,
+        public async Task<Result<ExamSubjectResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ExamSubject>.Failure(
+                return Result<ExamSubjectResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ExamSubject))));
             }
-
-            return Result<ExamSubject>.Success(entity);
+            return Result<ExamSubjectResponse>.Success(ExamSubjectResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/examinations/exam-subject/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "exam-subject"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<ExamSubjectResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetExamSubjectById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

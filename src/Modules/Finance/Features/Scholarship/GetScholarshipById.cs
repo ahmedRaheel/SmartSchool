@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Finance;
-using SmartSchool.Modules.Finance.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Finance.Contracts;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetScholarshipById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<ScholarshipResponse>>;
 
-    public sealed class Handler(
-        IScholarshipQuery query)
+    public sealed class Handler(IScholarshipQuery entityQuery)
+        : IRequestHandler<Query, Result<ScholarshipResponse>>
     {
-        public async Task<Result<Scholarship>> HandleAsync(
-            Query query,
+        public async Task<Result<ScholarshipResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Scholarship>.Failure(
+                return Result<ScholarshipResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(Scholarship))));
             }
-
-            return Result<Scholarship>.Success(entity);
+            return Result<ScholarshipResponse>.Success(ScholarshipResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/finance/scholarship/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "scholarship"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<ScholarshipResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetScholarshipById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

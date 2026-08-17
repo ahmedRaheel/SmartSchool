@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Tenancy;
-using SmartSchool.Modules.Tenancy.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Tenancy.Contracts;
 using SmartSchool.Modules.Tenancy.Models;
+using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetCampusBrandingById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<CampusBrandingResponse>>;
 
-    public sealed class Handler(
-        ICampusBrandingQuery query)
+    public sealed class Handler(ICampusBrandingQuery entityQuery)
+        : IRequestHandler<Query, Result<CampusBrandingResponse>>
     {
-        public async Task<Result<CampusBranding>> HandleAsync(
-            Query query,
+        public async Task<Result<CampusBrandingResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<CampusBranding>.Failure(
+                return Result<CampusBrandingResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusBranding))));
             }
-
-            return Result<CampusBranding>.Success(entity);
+            return Result<CampusBrandingResponse>.Success(CampusBrandingResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/tenancy/campus-branding/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "campus-branding"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<CampusBrandingResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetCampusBrandingById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

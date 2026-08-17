@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AIPrediction;
-using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AIPrediction.Contracts;
 using SmartSchool.Modules.AIPrediction.Models;
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetPredictionEvidenceById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<PredictionEvidenceResponse>>;
 
-    public sealed class Handler(
-        IPredictionEvidenceQuery query)
+    public sealed class Handler(IPredictionEvidenceQuery entityQuery)
+        : IRequestHandler<Query, Result<PredictionEvidenceResponse>>
     {
-        public async Task<Result<PredictionEvidence>> HandleAsync(
-            Query query,
+        public async Task<Result<PredictionEvidenceResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<PredictionEvidence>.Failure(
+                return Result<PredictionEvidenceResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(PredictionEvidence))));
             }
-
-            return Result<PredictionEvidence>.Success(entity);
+            return Result<PredictionEvidenceResponse>.Success(PredictionEvidenceResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/prediction-evidence/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "prediction-evidence"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<PredictionEvidenceResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetPredictionEvidenceById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

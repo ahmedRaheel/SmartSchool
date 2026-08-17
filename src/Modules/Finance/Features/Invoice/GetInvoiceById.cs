@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Finance;
-using SmartSchool.Modules.Finance.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Finance.Contracts;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetInvoiceById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<InvoiceResponse>>;
 
-    public sealed class Handler(
-        IInvoiceQuery query)
+    public sealed class Handler(IInvoiceQuery entityQuery)
+        : IRequestHandler<Query, Result<InvoiceResponse>>
     {
-        public async Task<Result<Invoice>> HandleAsync(
-            Query query,
+        public async Task<Result<InvoiceResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Invoice>.Failure(
+                return Result<InvoiceResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(Invoice))));
             }
-
-            return Result<Invoice>.Success(entity);
+            return Result<InvoiceResponse>.Success(InvoiceResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/finance/invoice/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "invoice"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<InvoiceResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetInvoiceById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

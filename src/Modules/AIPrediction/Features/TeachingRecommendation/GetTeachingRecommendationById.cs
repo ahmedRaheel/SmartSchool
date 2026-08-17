@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AIPrediction;
-using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AIPrediction.Contracts;
 using SmartSchool.Modules.AIPrediction.Models;
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetTeachingRecommendationById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<TeachingRecommendationResponse>>;
 
-    public sealed class Handler(
-        ITeachingRecommendationQuery query)
+    public sealed class Handler(ITeachingRecommendationQuery entityQuery)
+        : IRequestHandler<Query, Result<TeachingRecommendationResponse>>
     {
-        public async Task<Result<TeachingRecommendation>> HandleAsync(
-            Query query,
+        public async Task<Result<TeachingRecommendationResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<TeachingRecommendation>.Failure(
+                return Result<TeachingRecommendationResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeachingRecommendation))));
             }
-
-            return Result<TeachingRecommendation>.Success(entity);
+            return Result<TeachingRecommendationResponse>.Success(TeachingRecommendationResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/teaching-recommendation/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "teaching-recommendation"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<TeachingRecommendationResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetTeachingRecommendationById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

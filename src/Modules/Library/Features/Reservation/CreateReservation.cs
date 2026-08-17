@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Library;
 using FluentValidation;
-using SmartSchool.Modules.Library.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Library.Contracts;
 using SmartSchool.Modules.Library.Models;
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,57 +13,44 @@ public static class CreateReservation
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name);
+        string Name) : IRequest<Result<ReservationResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IReservationQuery query,
-        IReservationCommand command,
+        IReservationQuery entityQuery,
+        IReservationCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<ReservationResponse>>
     {
-        public async Task<Result<Reservation>> HandleAsync(
+        public async Task<Result<ReservationResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<Reservation>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<ReservationResponse>.Failure(Error.Validation(message));
             }
 
-            var codeExists = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                excludingId: null,
-                cancellationToken);
-
-            if (codeExists)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, null, cancellationToken);
+            if (exists)
             {
-                return Result<Reservation>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Reservation), request.Code)));
+                return Result<ReservationResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(Reservation), request.Code)));
             }
 
             var entity = new Reservation
@@ -73,34 +61,24 @@ public static class CreateReservation
                 IsActive = true
             };
 
-            await command.AddAsync(
-                entity,
-                cancellationToken);
-
-            return Result<Reservation>.Success(entity);
+            await entityCommand.AddAsync(entity, cancellationToken);
+            return Result<ReservationResponse>.Success(ReservationResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "reservation"),
-                async (
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await handler.HandleAsync(
-                        request,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<ReservationResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("CreateReservation")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

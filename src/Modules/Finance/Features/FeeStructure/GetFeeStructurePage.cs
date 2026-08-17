@@ -1,7 +1,7 @@
-using SmartSchool.Modules.Finance;
-using SmartSchool.Modules.Finance.Persistence;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Modules.Finance.Contracts;
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,56 +12,44 @@ public static class GetFeeStructurePage
     public sealed record Query(
         Guid TenantId,
         int Page = 1,
-        int PageSize = 25);
+        int PageSize = 25) : IRequest<Result<PagedResult<FeeStructureResponse>>>;
 
-    public sealed class Handler(
-        IFeeStructureQuery query)
+    public sealed class Handler(IFeeStructureQuery entityQuery)
+        : IRequestHandler<Query, Result<PagedResult<FeeStructureResponse>>>
     {
-        public async Task<Result<PagedResult<FeeStructure>>> HandleAsync(
-            Query query,
+        public async Task<Result<PagedResult<FeeStructureResponse>>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var pageRequest = new PageRequest(
-                query.Page,
-                query.PageSize);
-
-            var result = await query.GetPageAsync(
-                query.TenantId,
+            var pageRequest = new PageRequest(request.Page, request.PageSize);
+            var page = await entityQuery.GetPageAsync(
+                request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
                 cancellationToken);
-
-            return Result<PagedResult<FeeStructure>>.Success(result);
+            var response = new PagedResult<FeeStructureResponse>(
+                page.Items.Select(FeeStructureResponse.FromEntity).ToArray(),
+                page.Page,
+                page.PageSize,
+                page.TotalCount);
+            return Result<PagedResult<FeeStructureResponse>>.Success(response);
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "fee-structure"),
-                async (
-                    Guid tenantId,
-                    int page,
-                    int pageSize,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(
-                        tenantId,
-                        page,
-                        pageSize);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, page, pageSize);
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<FeeStructureResponse>>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetFeeStructurePage")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

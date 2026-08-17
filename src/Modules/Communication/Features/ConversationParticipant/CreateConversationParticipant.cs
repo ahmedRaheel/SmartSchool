@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Communication;
 using FluentValidation;
-using SmartSchool.Modules.Communication.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Communication.Contracts;
 using SmartSchool.Modules.Communication.Models;
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,57 +13,44 @@ public static class CreateConversationParticipant
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name);
+        string Name) : IRequest<Result<ConversationParticipantResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IConversationParticipantQuery query,
-        IConversationParticipantCommand command,
+        IConversationParticipantQuery entityQuery,
+        IConversationParticipantCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<ConversationParticipantResponse>>
     {
-        public async Task<Result<ConversationParticipant>> HandleAsync(
+        public async Task<Result<ConversationParticipantResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<ConversationParticipant>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<ConversationParticipantResponse>.Failure(Error.Validation(message));
             }
 
-            var codeExists = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                excludingId: null,
-                cancellationToken);
-
-            if (codeExists)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, null, cancellationToken);
+            if (exists)
             {
-                return Result<ConversationParticipant>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ConversationParticipant), request.Code)));
+                return Result<ConversationParticipantResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(ConversationParticipant), request.Code)));
             }
 
             var entity = new ConversationParticipant
@@ -73,34 +61,24 @@ public static class CreateConversationParticipant
                 IsActive = true
             };
 
-            await command.AddAsync(
-                entity,
-                cancellationToken);
-
-            return Result<ConversationParticipant>.Success(entity);
+            await entityCommand.AddAsync(entity, cancellationToken);
+            return Result<ConversationParticipantResponse>.Success(ConversationParticipantResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "conversation-participant"),
-                async (
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await handler.HandleAsync(
-                        request,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<ConversationParticipantResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("CreateConversationParticipant")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

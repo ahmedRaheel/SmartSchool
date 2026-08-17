@@ -1,3 +1,6 @@
+using SmartSchool.Modules.Activities.Contracts;
+using SmartSchool.SharedKernel;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Activities.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Activities.Features.Activity;
@@ -20,35 +23,36 @@ public static class Module
         services.AddScoped<IStudentActivityCommand, StudentActivityCommand>();
         services.AddScoped<IStudentOfMonthQuery, StudentOfMonthQuery>();
         services.AddScoped<IStudentOfMonthCommand, StudentOfMonthCommand>();
-
-        services.AddScoped<CreateActivity.Handler>();
-        services.AddScoped<GetActivityById.Handler>();
-        services.AddScoped<GetActivityPage.Handler>();
-        services.AddScoped<UpdateActivity.Handler>();
-        services.AddScoped<DeleteActivity.Handler>();
         services.AddScoped<IValidator<CreateActivity.Request>, CreateActivity.Validator>();
         services.AddScoped<IValidator<UpdateActivity.Request>, UpdateActivity.Validator>();
-        services.AddScoped<CreateAward.Handler>();
-        services.AddScoped<GetAwardById.Handler>();
-        services.AddScoped<GetAwardPage.Handler>();
-        services.AddScoped<UpdateAward.Handler>();
-        services.AddScoped<DeleteAward.Handler>();
         services.AddScoped<IValidator<CreateAward.Request>, CreateAward.Validator>();
         services.AddScoped<IValidator<UpdateAward.Request>, UpdateAward.Validator>();
-        services.AddScoped<CreateStudentActivity.Handler>();
-        services.AddScoped<GetStudentActivityById.Handler>();
-        services.AddScoped<GetStudentActivityPage.Handler>();
-        services.AddScoped<UpdateStudentActivity.Handler>();
-        services.AddScoped<DeleteStudentActivity.Handler>();
         services.AddScoped<IValidator<CreateStudentActivity.Request>, CreateStudentActivity.Validator>();
         services.AddScoped<IValidator<UpdateStudentActivity.Request>, UpdateStudentActivity.Validator>();
-        services.AddScoped<CreateStudentOfMonth.Handler>();
-        services.AddScoped<GetStudentOfMonthById.Handler>();
-        services.AddScoped<GetStudentOfMonthPage.Handler>();
-        services.AddScoped<UpdateStudentOfMonth.Handler>();
-        services.AddScoped<DeleteStudentOfMonth.Handler>();
         services.AddScoped<IValidator<CreateStudentOfMonth.Request>, CreateStudentOfMonth.Validator>();
         services.AddScoped<IValidator<UpdateStudentOfMonth.Request>, UpdateStudentOfMonth.Validator>();
+
+
+        services.AddScoped<IRequestHandler<CreateActivity.Request, Result<ActivityResponse>>, CreateActivity.Handler>();
+        services.AddScoped<IRequestHandler<GetActivityById.Query, Result<ActivityResponse>>, GetActivityById.Handler>();
+        services.AddScoped<IRequestHandler<GetActivityPage.Query, Result<PagedResult<ActivityResponse>>>, GetActivityPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateActivity.Request, Result<ActivityResponse>>, UpdateActivity.Handler>();
+        services.AddScoped<IRequestHandler<DeleteActivity.Command, Result<DeleteActivity.Response>>, DeleteActivity.Handler>();
+        services.AddScoped<IRequestHandler<CreateAward.Request, Result<AwardResponse>>, CreateAward.Handler>();
+        services.AddScoped<IRequestHandler<GetAwardById.Query, Result<AwardResponse>>, GetAwardById.Handler>();
+        services.AddScoped<IRequestHandler<GetAwardPage.Query, Result<PagedResult<AwardResponse>>>, GetAwardPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateAward.Request, Result<AwardResponse>>, UpdateAward.Handler>();
+        services.AddScoped<IRequestHandler<DeleteAward.Command, Result<DeleteAward.Response>>, DeleteAward.Handler>();
+        services.AddScoped<IRequestHandler<CreateStudentActivity.Request, Result<StudentActivityResponse>>, CreateStudentActivity.Handler>();
+        services.AddScoped<IRequestHandler<GetStudentActivityById.Query, Result<StudentActivityResponse>>, GetStudentActivityById.Handler>();
+        services.AddScoped<IRequestHandler<GetStudentActivityPage.Query, Result<PagedResult<StudentActivityResponse>>>, GetStudentActivityPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateStudentActivity.Request, Result<StudentActivityResponse>>, UpdateStudentActivity.Handler>();
+        services.AddScoped<IRequestHandler<DeleteStudentActivity.Command, Result<DeleteStudentActivity.Response>>, DeleteStudentActivity.Handler>();
+        services.AddScoped<IRequestHandler<CreateStudentOfMonth.Request, Result<StudentOfMonthResponse>>, CreateStudentOfMonth.Handler>();
+        services.AddScoped<IRequestHandler<GetStudentOfMonthById.Query, Result<StudentOfMonthResponse>>, GetStudentOfMonthById.Handler>();
+        services.AddScoped<IRequestHandler<GetStudentOfMonthPage.Query, Result<PagedResult<StudentOfMonthResponse>>>, GetStudentOfMonthPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateStudentOfMonth.Request, Result<StudentOfMonthResponse>>, UpdateStudentOfMonth.Handler>();
+        services.AddScoped<IRequestHandler<DeleteStudentOfMonth.Command, Result<DeleteStudentOfMonth.Response>>, DeleteStudentOfMonth.Handler>();
 
         return services;
     }

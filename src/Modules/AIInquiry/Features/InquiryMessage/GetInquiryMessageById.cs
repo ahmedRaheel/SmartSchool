@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AIInquiry;
-using SmartSchool.Modules.AIInquiry.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AIInquiry.Contracts;
 using SmartSchool.Modules.AIInquiry.Models;
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetInquiryMessageById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<InquiryMessageResponse>>;
 
-    public sealed class Handler(
-        IInquiryMessageQuery query)
+    public sealed class Handler(IInquiryMessageQuery entityQuery)
+        : IRequestHandler<Query, Result<InquiryMessageResponse>>
     {
-        public async Task<Result<InquiryMessage>> HandleAsync(
-            Query query,
+        public async Task<Result<InquiryMessageResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<InquiryMessage>.Failure(
+                return Result<InquiryMessageResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryMessage))));
             }
-
-            return Result<InquiryMessage>.Success(entity);
+            return Result<InquiryMessageResponse>.Success(InquiryMessageResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiinquiry/inquiry-message/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "inquiry-message"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<InquiryMessageResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetInquiryMessageById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

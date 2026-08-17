@@ -1,3 +1,6 @@
+using SmartSchool.Modules.Admissions.Contracts;
+using SmartSchool.SharedKernel;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Admissions.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Admissions.Features.AdmissionDecision;
@@ -20,35 +23,36 @@ public static class Module
         services.AddScoped<IApplicationCommand, ApplicationCommand>();
         services.AddScoped<IInquiryQuery, InquiryQuery>();
         services.AddScoped<IInquiryCommand, InquiryCommand>();
-
-        services.AddScoped<CreateAdmissionDecision.Handler>();
-        services.AddScoped<GetAdmissionDecisionById.Handler>();
-        services.AddScoped<GetAdmissionDecisionPage.Handler>();
-        services.AddScoped<UpdateAdmissionDecision.Handler>();
-        services.AddScoped<DeleteAdmissionDecision.Handler>();
         services.AddScoped<IValidator<CreateAdmissionDecision.Request>, CreateAdmissionDecision.Validator>();
         services.AddScoped<IValidator<UpdateAdmissionDecision.Request>, UpdateAdmissionDecision.Validator>();
-        services.AddScoped<CreateApplicant.Handler>();
-        services.AddScoped<GetApplicantById.Handler>();
-        services.AddScoped<GetApplicantPage.Handler>();
-        services.AddScoped<UpdateApplicant.Handler>();
-        services.AddScoped<DeleteApplicant.Handler>();
         services.AddScoped<IValidator<CreateApplicant.Request>, CreateApplicant.Validator>();
         services.AddScoped<IValidator<UpdateApplicant.Request>, UpdateApplicant.Validator>();
-        services.AddScoped<CreateApplication.Handler>();
-        services.AddScoped<GetApplicationById.Handler>();
-        services.AddScoped<GetApplicationPage.Handler>();
-        services.AddScoped<UpdateApplication.Handler>();
-        services.AddScoped<DeleteApplication.Handler>();
         services.AddScoped<IValidator<CreateApplication.Request>, CreateApplication.Validator>();
         services.AddScoped<IValidator<UpdateApplication.Request>, UpdateApplication.Validator>();
-        services.AddScoped<CreateInquiry.Handler>();
-        services.AddScoped<GetInquiryById.Handler>();
-        services.AddScoped<GetInquiryPage.Handler>();
-        services.AddScoped<UpdateInquiry.Handler>();
-        services.AddScoped<DeleteInquiry.Handler>();
         services.AddScoped<IValidator<CreateInquiry.Request>, CreateInquiry.Validator>();
         services.AddScoped<IValidator<UpdateInquiry.Request>, UpdateInquiry.Validator>();
+
+
+        services.AddScoped<IRequestHandler<CreateAdmissionDecision.Request, Result<AdmissionDecisionResponse>>, CreateAdmissionDecision.Handler>();
+        services.AddScoped<IRequestHandler<GetAdmissionDecisionById.Query, Result<AdmissionDecisionResponse>>, GetAdmissionDecisionById.Handler>();
+        services.AddScoped<IRequestHandler<GetAdmissionDecisionPage.Query, Result<PagedResult<AdmissionDecisionResponse>>>, GetAdmissionDecisionPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateAdmissionDecision.Request, Result<AdmissionDecisionResponse>>, UpdateAdmissionDecision.Handler>();
+        services.AddScoped<IRequestHandler<DeleteAdmissionDecision.Command, Result<DeleteAdmissionDecision.Response>>, DeleteAdmissionDecision.Handler>();
+        services.AddScoped<IRequestHandler<CreateApplicant.Request, Result<ApplicantResponse>>, CreateApplicant.Handler>();
+        services.AddScoped<IRequestHandler<GetApplicantById.Query, Result<ApplicantResponse>>, GetApplicantById.Handler>();
+        services.AddScoped<IRequestHandler<GetApplicantPage.Query, Result<PagedResult<ApplicantResponse>>>, GetApplicantPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateApplicant.Request, Result<ApplicantResponse>>, UpdateApplicant.Handler>();
+        services.AddScoped<IRequestHandler<DeleteApplicant.Command, Result<DeleteApplicant.Response>>, DeleteApplicant.Handler>();
+        services.AddScoped<IRequestHandler<CreateApplication.Request, Result<ApplicationResponse>>, CreateApplication.Handler>();
+        services.AddScoped<IRequestHandler<GetApplicationById.Query, Result<ApplicationResponse>>, GetApplicationById.Handler>();
+        services.AddScoped<IRequestHandler<GetApplicationPage.Query, Result<PagedResult<ApplicationResponse>>>, GetApplicationPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateApplication.Request, Result<ApplicationResponse>>, UpdateApplication.Handler>();
+        services.AddScoped<IRequestHandler<DeleteApplication.Command, Result<DeleteApplication.Response>>, DeleteApplication.Handler>();
+        services.AddScoped<IRequestHandler<CreateInquiry.Request, Result<InquiryResponse>>, CreateInquiry.Handler>();
+        services.AddScoped<IRequestHandler<GetInquiryById.Query, Result<InquiryResponse>>, GetInquiryById.Handler>();
+        services.AddScoped<IRequestHandler<GetInquiryPage.Query, Result<PagedResult<InquiryResponse>>>, GetInquiryPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateInquiry.Request, Result<InquiryResponse>>, UpdateInquiry.Handler>();
+        services.AddScoped<IRequestHandler<DeleteInquiry.Command, Result<DeleteInquiry.Response>>, DeleteInquiry.Handler>();
 
         return services;
     }

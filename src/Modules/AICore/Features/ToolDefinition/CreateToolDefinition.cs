@@ -1,7 +1,8 @@
-using SmartSchool.Modules.AICore;
 using FluentValidation;
-using SmartSchool.Modules.AICore.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AICore.Contracts;
 using SmartSchool.Modules.AICore.Models;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,57 +13,44 @@ public static class CreateToolDefinition
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name);
+        string Name) : IRequest<Result<ToolDefinitionResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IToolDefinitionQuery query,
-        IToolDefinitionCommand command,
+        IToolDefinitionQuery entityQuery,
+        IToolDefinitionCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<ToolDefinitionResponse>>
     {
-        public async Task<Result<ToolDefinition>> HandleAsync(
+        public async Task<Result<ToolDefinitionResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<ToolDefinition>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<ToolDefinitionResponse>.Failure(Error.Validation(message));
             }
 
-            var codeExists = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                excludingId: null,
-                cancellationToken);
-
-            if (codeExists)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, null, cancellationToken);
+            if (exists)
             {
-                return Result<ToolDefinition>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(ToolDefinition), request.Code)));
+                return Result<ToolDefinitionResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(ToolDefinition), request.Code)));
             }
 
             var entity = new ToolDefinition
@@ -73,34 +61,24 @@ public static class CreateToolDefinition
                 IsActive = true
             };
 
-            await command.AddAsync(
-                entity,
-                cancellationToken);
-
-            return Result<ToolDefinition>.Success(entity);
+            await entityCommand.AddAsync(entity, cancellationToken);
+            return Result<ToolDefinitionResponse>.Success(ToolDefinitionResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "tool-definition"),
-                async (
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await handler.HandleAsync(
-                        request,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<ToolDefinitionResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("CreateToolDefinition")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

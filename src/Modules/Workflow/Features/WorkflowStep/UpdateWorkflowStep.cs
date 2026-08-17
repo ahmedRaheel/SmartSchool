@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Workflow;
 using FluentValidation;
-using SmartSchool.Modules.Workflow.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Workflow.Contracts;
 using SmartSchool.Modules.Workflow.Models;
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -14,109 +15,78 @@ public static class UpdateWorkflowStep
         Guid Id,
         string Code,
         string Name,
-        bool IsActive);
+        bool IsActive) : IRequest<Result<WorkflowStepResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Id)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IWorkflowStepQuery query,
-        IWorkflowStepCommand command,
+        IWorkflowStepQuery entityQuery,
+        IWorkflowStepCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<WorkflowStepResponse>>
     {
-        public async Task<Result<WorkflowStep>> HandleAsync(
+        public async Task<Result<WorkflowStepResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<WorkflowStep>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<WorkflowStepResponse>.Failure(Error.Validation(message));
             }
 
-            var entity = await query.GetByIdAsync(
-                request.TenantId,
-                request.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<WorkflowStep>.Failure(
+                return Result<WorkflowStepResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowStep))));
             }
 
-            var duplicateCode = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                request.Id,
-                cancellationToken);
-
-            if (duplicateCode)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, request.Id, cancellationToken);
+            if (exists)
             {
-                return Result<WorkflowStep>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(WorkflowStep), request.Code)));
+                return Result<WorkflowStepResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(WorkflowStep), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
             entity.Name = request.Name.Trim();
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
-
-            await command.UpdateAsync(
-                entity,
-                cancellationToken);
-
-            return Result<WorkflowStep>.Success(entity);
+            await entityCommand.UpdateAsync(entity, cancellationToken);
+            return Result<WorkflowStepResponse>.Success(WorkflowStepResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPut(
-                "/api/workflow/workflow-step/{id:guid}",
-                async (
-                    Guid id,
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "workflow-step"),
+                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var command = request with { Id = id };
-
-                    var result = await handler.HandleAsync(
-                        command,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<WorkflowStepResponse>>(
+                        command, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("UpdateWorkflowStep")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

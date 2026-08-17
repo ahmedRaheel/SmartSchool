@@ -1,7 +1,7 @@
-using SmartSchool.Modules.AIPrediction;
-using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.AIPrediction.Models;
+using SmartSchool.Modules.AIPrediction.Contracts;
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,56 +12,44 @@ public static class GetStudentInterventionPage
     public sealed record Query(
         Guid TenantId,
         int Page = 1,
-        int PageSize = 25);
+        int PageSize = 25) : IRequest<Result<PagedResult<StudentInterventionResponse>>>;
 
-    public sealed class Handler(
-        IStudentInterventionQuery query)
+    public sealed class Handler(IStudentInterventionQuery entityQuery)
+        : IRequestHandler<Query, Result<PagedResult<StudentInterventionResponse>>>
     {
-        public async Task<Result<PagedResult<StudentIntervention>>> HandleAsync(
-            Query query,
+        public async Task<Result<PagedResult<StudentInterventionResponse>>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var pageRequest = new PageRequest(
-                query.Page,
-                query.PageSize);
-
-            var result = await query.GetPageAsync(
-                query.TenantId,
+            var pageRequest = new PageRequest(request.Page, request.PageSize);
+            var page = await entityQuery.GetPageAsync(
+                request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
                 cancellationToken);
-
-            return Result<PagedResult<StudentIntervention>>.Success(result);
+            var response = new PagedResult<StudentInterventionResponse>(
+                page.Items.Select(StudentInterventionResponse.FromEntity).ToArray(),
+                page.Page,
+                page.PageSize,
+                page.TotalCount);
+            return Result<PagedResult<StudentInterventionResponse>>.Success(response);
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-intervention"),
-                async (
-                    Guid tenantId,
-                    int page,
-                    int pageSize,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(
-                        tenantId,
-                        page,
-                        pageSize);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, page, pageSize);
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<StudentInterventionResponse>>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentInterventionPage")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

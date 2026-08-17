@@ -1,7 +1,8 @@
-using SmartSchool.Modules.AIInquiry;
 using FluentValidation;
-using SmartSchool.Modules.AIInquiry.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AIInquiry.Contracts;
 using SmartSchool.Modules.AIInquiry.Models;
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,57 +13,44 @@ public static class CreateHumanHandoff
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name);
+        string Name) : IRequest<Result<HumanHandoffResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IHumanHandoffQuery query,
-        IHumanHandoffCommand command,
+        IHumanHandoffQuery entityQuery,
+        IHumanHandoffCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<HumanHandoffResponse>>
     {
-        public async Task<Result<HumanHandoff>> HandleAsync(
+        public async Task<Result<HumanHandoffResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<HumanHandoff>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<HumanHandoffResponse>.Failure(Error.Validation(message));
             }
 
-            var codeExists = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                excludingId: null,
-                cancellationToken);
-
-            if (codeExists)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, null, cancellationToken);
+            if (exists)
             {
-                return Result<HumanHandoff>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(HumanHandoff), request.Code)));
+                return Result<HumanHandoffResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(HumanHandoff), request.Code)));
             }
 
             var entity = new HumanHandoff
@@ -73,34 +61,24 @@ public static class CreateHumanHandoff
                 IsActive = true
             };
 
-            await command.AddAsync(
-                entity,
-                cancellationToken);
-
-            return Result<HumanHandoff>.Success(entity);
+            await entityCommand.AddAsync(entity, cancellationToken);
+            return Result<HumanHandoffResponse>.Success(HumanHandoffResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "human-handoff"),
-                async (
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await handler.HandleAsync(
-                        request,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<HumanHandoffResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("CreateHumanHandoff")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

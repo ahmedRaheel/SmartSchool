@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Academics;
 using FluentValidation;
-using SmartSchool.Modules.Academics.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Academics.Contracts;
 using SmartSchool.Modules.Academics.Models;
+using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -14,109 +15,78 @@ public static class UpdateTerm
         Guid Id,
         string Code,
         string Name,
-        bool IsActive);
+        bool IsActive) : IRequest<Result<TermResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Id)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        ITermQuery query,
-        ITermCommand command,
+        ITermQuery entityQuery,
+        ITermCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<TermResponse>>
     {
-        public async Task<Result<Term>> HandleAsync(
+        public async Task<Result<TermResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<Term>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<TermResponse>.Failure(Error.Validation(message));
             }
 
-            var entity = await query.GetByIdAsync(
-                request.TenantId,
-                request.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Term>.Failure(
+                return Result<TermResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(Term))));
             }
 
-            var duplicateCode = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                request.Id,
-                cancellationToken);
-
-            if (duplicateCode)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, request.Id, cancellationToken);
+            if (exists)
             {
-                return Result<Term>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(Term), request.Code)));
+                return Result<TermResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(Term), request.Code)));
             }
 
             entity.Code = request.Code.Trim();
             entity.Name = request.Name.Trim();
             entity.IsActive = request.IsActive;
             entity.UpdatedAt = DateTimeOffset.UtcNow;
-
-            await command.UpdateAsync(
-                entity,
-                cancellationToken);
-
-            return Result<Term>.Success(entity);
+            await entityCommand.UpdateAsync(entity, cancellationToken);
+            return Result<TermResponse>.Success(TermResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPut(
-                "/api/academics/term/{id:guid}",
-                async (
-                    Guid id,
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "term"),
+                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var command = request with { Id = id };
-
-                    var result = await handler.HandleAsync(
-                        command,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<TermResponse>>(
+                        command, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("UpdateTerm")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

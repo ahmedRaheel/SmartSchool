@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AITutor;
-using SmartSchool.Modules.AITutor.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AITutor.Contracts;
 using SmartSchool.Modules.AITutor.Models;
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetTutorSessionById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<TutorSessionResponse>>;
 
-    public sealed class Handler(
-        ITutorSessionQuery query)
+    public sealed class Handler(ITutorSessionQuery entityQuery)
+        : IRequestHandler<Query, Result<TutorSessionResponse>>
     {
-        public async Task<Result<TutorSession>> HandleAsync(
-            Query query,
+        public async Task<Result<TutorSessionResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<TutorSession>.Failure(
+                return Result<TutorSessionResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(TutorSession))));
             }
-
-            return Result<TutorSession>.Success(entity);
+            return Result<TutorSessionResponse>.Success(TutorSessionResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aitutor/tutor-session/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "tutor-session"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<TutorSessionResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetTutorSessionById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AITutor;
-using SmartSchool.Modules.AITutor.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AITutor.Contracts;
 using SmartSchool.Modules.AITutor.Models;
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetTutorConversationById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<TutorConversationResponse>>;
 
-    public sealed class Handler(
-        ITutorConversationQuery query)
+    public sealed class Handler(ITutorConversationQuery entityQuery)
+        : IRequestHandler<Query, Result<TutorConversationResponse>>
     {
-        public async Task<Result<TutorConversation>> HandleAsync(
-            Query query,
+        public async Task<Result<TutorConversationResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<TutorConversation>.Failure(
+                return Result<TutorConversationResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(TutorConversation))));
             }
-
-            return Result<TutorConversation>.Success(entity);
+            return Result<TutorConversationResponse>.Success(TutorConversationResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aitutor/tutor-conversation/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "tutor-conversation"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<TutorConversationResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetTutorConversationById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

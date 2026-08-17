@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Library;
-using SmartSchool.Modules.Library.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Library.Contracts;
 using SmartSchool.Modules.Library.Models;
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetBookCopyById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<BookCopyResponse>>;
 
-    public sealed class Handler(
-        IBookCopyQuery query)
+    public sealed class Handler(IBookCopyQuery entityQuery)
+        : IRequestHandler<Query, Result<BookCopyResponse>>
     {
-        public async Task<Result<BookCopy>> HandleAsync(
-            Query query,
+        public async Task<Result<BookCopyResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<BookCopy>.Failure(
+                return Result<BookCopyResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(BookCopy))));
             }
-
-            return Result<BookCopy>.Success(entity);
+            return Result<BookCopyResponse>.Success(BookCopyResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/library/book-copy/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "book-copy"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<BookCopyResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetBookCopyById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

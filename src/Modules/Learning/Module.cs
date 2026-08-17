@@ -1,3 +1,6 @@
+using SmartSchool.Modules.Learning.Contracts;
+using SmartSchool.SharedKernel;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Learning.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Learning.Features.Assignment;
@@ -20,35 +23,36 @@ public static class Module
         services.AddScoped<ILearningResourceCommand, LearningResourceCommand>();
         services.AddScoped<ILessonQuery, LessonQuery>();
         services.AddScoped<ILessonCommand, LessonCommand>();
-
-        services.AddScoped<CreateAssignment.Handler>();
-        services.AddScoped<GetAssignmentById.Handler>();
-        services.AddScoped<GetAssignmentPage.Handler>();
-        services.AddScoped<UpdateAssignment.Handler>();
-        services.AddScoped<DeleteAssignment.Handler>();
         services.AddScoped<IValidator<CreateAssignment.Request>, CreateAssignment.Validator>();
         services.AddScoped<IValidator<UpdateAssignment.Request>, UpdateAssignment.Validator>();
-        services.AddScoped<CreateAssignmentSubmission.Handler>();
-        services.AddScoped<GetAssignmentSubmissionById.Handler>();
-        services.AddScoped<GetAssignmentSubmissionPage.Handler>();
-        services.AddScoped<UpdateAssignmentSubmission.Handler>();
-        services.AddScoped<DeleteAssignmentSubmission.Handler>();
         services.AddScoped<IValidator<CreateAssignmentSubmission.Request>, CreateAssignmentSubmission.Validator>();
         services.AddScoped<IValidator<UpdateAssignmentSubmission.Request>, UpdateAssignmentSubmission.Validator>();
-        services.AddScoped<CreateLearningResource.Handler>();
-        services.AddScoped<GetLearningResourceById.Handler>();
-        services.AddScoped<GetLearningResourcePage.Handler>();
-        services.AddScoped<UpdateLearningResource.Handler>();
-        services.AddScoped<DeleteLearningResource.Handler>();
         services.AddScoped<IValidator<CreateLearningResource.Request>, CreateLearningResource.Validator>();
         services.AddScoped<IValidator<UpdateLearningResource.Request>, UpdateLearningResource.Validator>();
-        services.AddScoped<CreateLesson.Handler>();
-        services.AddScoped<GetLessonById.Handler>();
-        services.AddScoped<GetLessonPage.Handler>();
-        services.AddScoped<UpdateLesson.Handler>();
-        services.AddScoped<DeleteLesson.Handler>();
         services.AddScoped<IValidator<CreateLesson.Request>, CreateLesson.Validator>();
         services.AddScoped<IValidator<UpdateLesson.Request>, UpdateLesson.Validator>();
+
+
+        services.AddScoped<IRequestHandler<CreateAssignment.Request, Result<AssignmentResponse>>, CreateAssignment.Handler>();
+        services.AddScoped<IRequestHandler<GetAssignmentById.Query, Result<AssignmentResponse>>, GetAssignmentById.Handler>();
+        services.AddScoped<IRequestHandler<GetAssignmentPage.Query, Result<PagedResult<AssignmentResponse>>>, GetAssignmentPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateAssignment.Request, Result<AssignmentResponse>>, UpdateAssignment.Handler>();
+        services.AddScoped<IRequestHandler<DeleteAssignment.Command, Result<DeleteAssignment.Response>>, DeleteAssignment.Handler>();
+        services.AddScoped<IRequestHandler<CreateAssignmentSubmission.Request, Result<AssignmentSubmissionResponse>>, CreateAssignmentSubmission.Handler>();
+        services.AddScoped<IRequestHandler<GetAssignmentSubmissionById.Query, Result<AssignmentSubmissionResponse>>, GetAssignmentSubmissionById.Handler>();
+        services.AddScoped<IRequestHandler<GetAssignmentSubmissionPage.Query, Result<PagedResult<AssignmentSubmissionResponse>>>, GetAssignmentSubmissionPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateAssignmentSubmission.Request, Result<AssignmentSubmissionResponse>>, UpdateAssignmentSubmission.Handler>();
+        services.AddScoped<IRequestHandler<DeleteAssignmentSubmission.Command, Result<DeleteAssignmentSubmission.Response>>, DeleteAssignmentSubmission.Handler>();
+        services.AddScoped<IRequestHandler<CreateLearningResource.Request, Result<LearningResourceResponse>>, CreateLearningResource.Handler>();
+        services.AddScoped<IRequestHandler<GetLearningResourceById.Query, Result<LearningResourceResponse>>, GetLearningResourceById.Handler>();
+        services.AddScoped<IRequestHandler<GetLearningResourcePage.Query, Result<PagedResult<LearningResourceResponse>>>, GetLearningResourcePage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateLearningResource.Request, Result<LearningResourceResponse>>, UpdateLearningResource.Handler>();
+        services.AddScoped<IRequestHandler<DeleteLearningResource.Command, Result<DeleteLearningResource.Response>>, DeleteLearningResource.Handler>();
+        services.AddScoped<IRequestHandler<CreateLesson.Request, Result<LessonResponse>>, CreateLesson.Handler>();
+        services.AddScoped<IRequestHandler<GetLessonById.Query, Result<LessonResponse>>, GetLessonById.Handler>();
+        services.AddScoped<IRequestHandler<GetLessonPage.Query, Result<PagedResult<LessonResponse>>>, GetLessonPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateLesson.Request, Result<LessonResponse>>, UpdateLesson.Handler>();
+        services.AddScoped<IRequestHandler<DeleteLesson.Command, Result<DeleteLesson.Response>>, DeleteLesson.Handler>();
 
         return services;
     }

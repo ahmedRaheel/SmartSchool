@@ -1,31 +1,32 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  
   <ItemGroup>
-    <ProjectReference Include="../BuildingBlocks/SmartSchool.Infrastructure/SmartSchool.Infrastructure.csproj"/>
-    <ProjectReference Include="../Modules/Tenancy/SmartSchool.Modules.Tenancy.csproj"/>
-    <ProjectReference Include="../Modules/Organization/SmartSchool.Modules.Organization.csproj"/>
-    <ProjectReference Include="../Modules/Identity/SmartSchool.Modules.Identity.csproj"/>
-    <ProjectReference Include="../Modules/Academics/SmartSchool.Modules.Academics.csproj"/>
-    <ProjectReference Include="../Modules/Students/SmartSchool.Modules.Students.csproj"/>
-    <ProjectReference Include="../Modules/Admissions/SmartSchool.Modules.Admissions.csproj"/>
-    <ProjectReference Include="../Modules/Learning/SmartSchool.Modules.Learning.csproj"/>
-    <ProjectReference Include="../Modules/Examinations/SmartSchool.Modules.Examinations.csproj"/>
-    <ProjectReference Include="../Modules/Finance/SmartSchool.Modules.Finance.csproj"/>
-    <ProjectReference Include="../Modules/HR/SmartSchool.Modules.HR.csproj"/>
-    <ProjectReference Include="../Modules/Payroll/SmartSchool.Modules.Payroll.csproj"/>
-    <ProjectReference Include="../Modules/Documents/SmartSchool.Modules.Documents.csproj"/>
-    <ProjectReference Include="../Modules/Communication/SmartSchool.Modules.Communication.csproj"/>
-    <ProjectReference Include="../Modules/Workflow/SmartSchool.Modules.Workflow.csproj"/>
-    <ProjectReference Include="../Modules/Activities/SmartSchool.Modules.Activities.csproj"/>
-    <ProjectReference Include="../Modules/Transport/SmartSchool.Modules.Transport.csproj"/>
-    <ProjectReference Include="../Modules/Library/SmartSchool.Modules.Library.csproj"/>
-    <ProjectReference Include="../Modules/Inventory/SmartSchool.Modules.Inventory.csproj"/>
-    <ProjectReference Include="../Modules/AICore/SmartSchool.Modules.AICore.csproj"/>
-    <ProjectReference Include="../Modules/AITutor/SmartSchool.Modules.AITutor.csproj"/>
-    <ProjectReference Include="../Modules/AIInquiry/SmartSchool.Modules.AIInquiry.csproj"/>
-    <ProjectReference Include="../Modules/AIParent/SmartSchool.Modules.AIParent.csproj"/>
-    <ProjectReference Include="../Modules/AIPrediction/SmartSchool.Modules.AIPrediction.csproj"/>
-    <ProjectReference Include="../Modules/Audit/SmartSchool.Modules.Audit.csproj"/>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience"/>
+    <ProjectReference Include="../BuildingBlocks/SmartSchool.Infrastructure/SmartSchool.Infrastructure.csproj" />
+    <ProjectReference Include="../Modules/Tenancy/SmartSchool.Modules.Tenancy.csproj" />
+    <ProjectReference Include="../Modules/Organization/SmartSchool.Modules.Organization.csproj" />
+    <ProjectReference Include="../Modules/Identity/SmartSchool.Modules.Identity.csproj" />
+    <ProjectReference Include="../Modules/Academics/SmartSchool.Modules.Academics.csproj" />
+    <ProjectReference Include="../Modules/Students/SmartSchool.Modules.Students.csproj" />
+    <ProjectReference Include="../Modules/Admissions/SmartSchool.Modules.Admissions.csproj" />
+    <ProjectReference Include="../Modules/Learning/SmartSchool.Modules.Learning.csproj" />
+    <ProjectReference Include="../Modules/Examinations/SmartSchool.Modules.Examinations.csproj" />
+    <ProjectReference Include="../Modules/Finance/SmartSchool.Modules.Finance.csproj" />
+    <ProjectReference Include="../Modules/HR/SmartSchool.Modules.HR.csproj" />
+    <ProjectReference Include="../Modules/Payroll/SmartSchool.Modules.Payroll.csproj" />
+    <ProjectReference Include="../Modules/Documents/SmartSchool.Modules.Documents.csproj" />
+    <ProjectReference Include="../Modules/Communication/SmartSchool.Modules.Communication.csproj" />
+    <ProjectReference Include="../Modules/Workflow/SmartSchool.Modules.Workflow.csproj" />
+    <ProjectReference Include="../Modules/Activities/SmartSchool.Modules.Activities.csproj" />
+    <ProjectReference Include="../Modules/Transport/SmartSchool.Modules.Transport.csproj" />
+    <ProjectReference Include="../Modules/Library/SmartSchool.Modules.Library.csproj" />
+    <ProjectReference Include="../Modules/Inventory/SmartSchool.Modules.Inventory.csproj" />
+    <ProjectReference Include="../Modules/AICore/SmartSchool.Modules.AICore.csproj" />
+    <ProjectReference Include="../Modules/AITutor/SmartSchool.Modules.AITutor.csproj" />
+    <ProjectReference Include="../Modules/AIInquiry/SmartSchool.Modules.AIInquiry.csproj" />
+    <ProjectReference Include="../Modules/AIParent/SmartSchool.Modules.AIParent.csproj" />
+    <ProjectReference Include="../Modules/AIPrediction/SmartSchool.Modules.AIPrediction.csproj" />
+    <ProjectReference Include="../Modules/Audit/SmartSchool.Modules.Audit.csproj" />
+   
+   
   </ItemGroup>
 </Project>

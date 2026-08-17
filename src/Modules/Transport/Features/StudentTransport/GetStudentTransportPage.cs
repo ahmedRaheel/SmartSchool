@@ -1,7 +1,7 @@
-using SmartSchool.Modules.Transport;
-using SmartSchool.Modules.Transport.Persistence;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.Transport.Models;
+using SmartSchool.Modules.Transport.Contracts;
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,56 +12,44 @@ public static class GetStudentTransportPage
     public sealed record Query(
         Guid TenantId,
         int Page = 1,
-        int PageSize = 25);
+        int PageSize = 25) : IRequest<Result<PagedResult<StudentTransportResponse>>>;
 
-    public sealed class Handler(
-        IStudentTransportQuery query)
+    public sealed class Handler(IStudentTransportQuery entityQuery)
+        : IRequestHandler<Query, Result<PagedResult<StudentTransportResponse>>>
     {
-        public async Task<Result<PagedResult<StudentTransport>>> HandleAsync(
-            Query query,
+        public async Task<Result<PagedResult<StudentTransportResponse>>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var pageRequest = new PageRequest(
-                query.Page,
-                query.PageSize);
-
-            var result = await query.GetPageAsync(
-                query.TenantId,
+            var pageRequest = new PageRequest(request.Page, request.PageSize);
+            var page = await entityQuery.GetPageAsync(
+                request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
                 cancellationToken);
-
-            return Result<PagedResult<StudentTransport>>.Success(result);
+            var response = new PagedResult<StudentTransportResponse>(
+                page.Items.Select(StudentTransportResponse.FromEntity).ToArray(),
+                page.Page,
+                page.PageSize,
+                page.TotalCount);
+            return Result<PagedResult<StudentTransportResponse>>.Success(response);
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-transport"),
-                async (
-                    Guid tenantId,
-                    int page,
-                    int pageSize,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(
-                        tenantId,
-                        page,
-                        pageSize);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, page, pageSize);
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<StudentTransportResponse>>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentTransportPage")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

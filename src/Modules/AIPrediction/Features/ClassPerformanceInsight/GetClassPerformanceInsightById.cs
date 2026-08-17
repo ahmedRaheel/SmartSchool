@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AIPrediction;
-using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AIPrediction.Contracts;
 using SmartSchool.Modules.AIPrediction.Models;
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetClassPerformanceInsightById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<ClassPerformanceInsightResponse>>;
 
-    public sealed class Handler(
-        IClassPerformanceInsightQuery query)
+    public sealed class Handler(IClassPerformanceInsightQuery entityQuery)
+        : IRequestHandler<Query, Result<ClassPerformanceInsightResponse>>
     {
-        public async Task<Result<ClassPerformanceInsight>> HandleAsync(
-            Query query,
+        public async Task<Result<ClassPerformanceInsightResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ClassPerformanceInsight>.Failure(
+                return Result<ClassPerformanceInsightResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ClassPerformanceInsight))));
             }
-
-            return Result<ClassPerformanceInsight>.Success(entity);
+            return Result<ClassPerformanceInsightResponse>.Success(ClassPerformanceInsightResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/class-performance-insight/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "class-performance-insight"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<ClassPerformanceInsightResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetClassPerformanceInsightById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

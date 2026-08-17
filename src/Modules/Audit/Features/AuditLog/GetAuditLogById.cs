@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Audit;
-using SmartSchool.Modules.Audit.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Audit.Contracts;
 using SmartSchool.Modules.Audit.Models;
+using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetAuditLogById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<AuditLogResponse>>;
 
-    public sealed class Handler(
-        IAuditLogQuery query)
+    public sealed class Handler(IAuditLogQuery entityQuery)
+        : IRequestHandler<Query, Result<AuditLogResponse>>
     {
-        public async Task<Result<AuditLog>> HandleAsync(
-            Query query,
+        public async Task<Result<AuditLogResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<AuditLog>.Failure(
+                return Result<AuditLogResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(AuditLog))));
             }
-
-            return Result<AuditLog>.Success(entity);
+            return Result<AuditLogResponse>.Success(AuditLogResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/audit/audit-log/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "audit-log"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<AuditLogResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetAuditLogById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

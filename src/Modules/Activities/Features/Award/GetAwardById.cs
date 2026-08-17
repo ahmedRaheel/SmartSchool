@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Activities;
-using SmartSchool.Modules.Activities.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Activities.Contracts;
 using SmartSchool.Modules.Activities.Models;
+using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetAwardById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<AwardResponse>>;
 
-    public sealed class Handler(
-        IAwardQuery query)
+    public sealed class Handler(IAwardQuery entityQuery)
+        : IRequestHandler<Query, Result<AwardResponse>>
     {
-        public async Task<Result<Award>> HandleAsync(
-            Query query,
+        public async Task<Result<AwardResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Award>.Failure(
+                return Result<AwardResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(Award))));
             }
-
-            return Result<Award>.Success(entity);
+            return Result<AwardResponse>.Success(AwardResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/activities/award/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "award"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<AwardResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetAwardById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AICore;
-using SmartSchool.Modules.AICore.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AICore.Contracts;
 using SmartSchool.Modules.AICore.Models;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetKnowledgeDocumentById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<KnowledgeDocumentResponse>>;
 
-    public sealed class Handler(
-        IKnowledgeDocumentQuery query)
+    public sealed class Handler(IKnowledgeDocumentQuery entityQuery)
+        : IRequestHandler<Query, Result<KnowledgeDocumentResponse>>
     {
-        public async Task<Result<KnowledgeDocument>> HandleAsync(
-            Query query,
+        public async Task<Result<KnowledgeDocumentResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<KnowledgeDocument>.Failure(
+                return Result<KnowledgeDocumentResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeDocument))));
             }
-
-            return Result<KnowledgeDocument>.Success(entity);
+            return Result<KnowledgeDocumentResponse>.Success(KnowledgeDocumentResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aicore/knowledge-document/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "knowledge-document"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<KnowledgeDocumentResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetKnowledgeDocumentById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

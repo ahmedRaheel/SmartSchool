@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Identity;
-using SmartSchool.Modules.Identity.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Identity.Contracts;
 using SmartSchool.Modules.Identity.Models;
+using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetUserProfileById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<UserProfileResponse>>;
 
-    public sealed class Handler(
-        IUserProfileQuery query)
+    public sealed class Handler(IUserProfileQuery entityQuery)
+        : IRequestHandler<Query, Result<UserProfileResponse>>
     {
-        public async Task<Result<UserProfile>> HandleAsync(
-            Query query,
+        public async Task<Result<UserProfileResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<UserProfile>.Failure(
+                return Result<UserProfileResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(UserProfile))));
             }
-
-            return Result<UserProfile>.Success(entity);
+            return Result<UserProfileResponse>.Success(UserProfileResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/identity/user-profile/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "user-profile"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<UserProfileResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetUserProfileById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

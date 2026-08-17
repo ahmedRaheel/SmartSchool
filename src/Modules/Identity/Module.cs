@@ -1,3 +1,6 @@
+using SmartSchool.Modules.Identity.Contracts;
+using SmartSchool.SharedKernel;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Identity.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Identity.Features.RoleAssignment;
@@ -14,21 +17,22 @@ public static class Module
         services.AddScoped<IRoleAssignmentCommand, RoleAssignmentCommand>();
         services.AddScoped<IUserProfileQuery, UserProfileQuery>();
         services.AddScoped<IUserProfileCommand, UserProfileCommand>();
-
-        services.AddScoped<CreateRoleAssignment.Handler>();
-        services.AddScoped<GetRoleAssignmentById.Handler>();
-        services.AddScoped<GetRoleAssignmentPage.Handler>();
-        services.AddScoped<UpdateRoleAssignment.Handler>();
-        services.AddScoped<DeleteRoleAssignment.Handler>();
         services.AddScoped<IValidator<CreateRoleAssignment.Request>, CreateRoleAssignment.Validator>();
         services.AddScoped<IValidator<UpdateRoleAssignment.Request>, UpdateRoleAssignment.Validator>();
-        services.AddScoped<CreateUserProfile.Handler>();
-        services.AddScoped<GetUserProfileById.Handler>();
-        services.AddScoped<GetUserProfilePage.Handler>();
-        services.AddScoped<UpdateUserProfile.Handler>();
-        services.AddScoped<DeleteUserProfile.Handler>();
         services.AddScoped<IValidator<CreateUserProfile.Request>, CreateUserProfile.Validator>();
         services.AddScoped<IValidator<UpdateUserProfile.Request>, UpdateUserProfile.Validator>();
+
+
+        services.AddScoped<IRequestHandler<CreateRoleAssignment.Request, Result<RoleAssignmentResponse>>, CreateRoleAssignment.Handler>();
+        services.AddScoped<IRequestHandler<GetRoleAssignmentById.Query, Result<RoleAssignmentResponse>>, GetRoleAssignmentById.Handler>();
+        services.AddScoped<IRequestHandler<GetRoleAssignmentPage.Query, Result<PagedResult<RoleAssignmentResponse>>>, GetRoleAssignmentPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateRoleAssignment.Request, Result<RoleAssignmentResponse>>, UpdateRoleAssignment.Handler>();
+        services.AddScoped<IRequestHandler<DeleteRoleAssignment.Command, Result<DeleteRoleAssignment.Response>>, DeleteRoleAssignment.Handler>();
+        services.AddScoped<IRequestHandler<CreateUserProfile.Request, Result<UserProfileResponse>>, CreateUserProfile.Handler>();
+        services.AddScoped<IRequestHandler<GetUserProfileById.Query, Result<UserProfileResponse>>, GetUserProfileById.Handler>();
+        services.AddScoped<IRequestHandler<GetUserProfilePage.Query, Result<PagedResult<UserProfileResponse>>>, GetUserProfilePage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateUserProfile.Request, Result<UserProfileResponse>>, UpdateUserProfile.Handler>();
+        services.AddScoped<IRequestHandler<DeleteUserProfile.Command, Result<DeleteUserProfile.Response>>, DeleteUserProfile.Handler>();
 
         return services;
     }

@@ -1,3 +1,6 @@
+using SmartSchool.Modules.Tenancy.Contracts;
+using SmartSchool.SharedKernel;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Tenancy.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Tenancy.Features.CampusBranding;
@@ -17,28 +20,29 @@ public static class Module
         services.AddScoped<ISubscriptionCommand, SubscriptionCommand>();
         services.AddScoped<ITenantQuery, TenantQuery>();
         services.AddScoped<ITenantCommand, TenantCommand>();
-
-        services.AddScoped<CreateCampusBranding.Handler>();
-        services.AddScoped<GetCampusBrandingById.Handler>();
-        services.AddScoped<GetCampusBrandingPage.Handler>();
-        services.AddScoped<UpdateCampusBranding.Handler>();
-        services.AddScoped<DeleteCampusBranding.Handler>();
         services.AddScoped<IValidator<CreateCampusBranding.Request>, CreateCampusBranding.Validator>();
         services.AddScoped<IValidator<UpdateCampusBranding.Request>, UpdateCampusBranding.Validator>();
-        services.AddScoped<CreateSubscription.Handler>();
-        services.AddScoped<GetSubscriptionById.Handler>();
-        services.AddScoped<GetSubscriptionPage.Handler>();
-        services.AddScoped<UpdateSubscription.Handler>();
-        services.AddScoped<DeleteSubscription.Handler>();
         services.AddScoped<IValidator<CreateSubscription.Request>, CreateSubscription.Validator>();
         services.AddScoped<IValidator<UpdateSubscription.Request>, UpdateSubscription.Validator>();
-        services.AddScoped<CreateTenant.Handler>();
-        services.AddScoped<GetTenantById.Handler>();
-        services.AddScoped<GetTenantPage.Handler>();
-        services.AddScoped<UpdateTenant.Handler>();
-        services.AddScoped<DeleteTenant.Handler>();
         services.AddScoped<IValidator<CreateTenant.Request>, CreateTenant.Validator>();
         services.AddScoped<IValidator<UpdateTenant.Request>, UpdateTenant.Validator>();
+
+
+        services.AddScoped<IRequestHandler<CreateCampusBranding.Request, Result<CampusBrandingResponse>>, CreateCampusBranding.Handler>();
+        services.AddScoped<IRequestHandler<GetCampusBrandingById.Query, Result<CampusBrandingResponse>>, GetCampusBrandingById.Handler>();
+        services.AddScoped<IRequestHandler<GetCampusBrandingPage.Query, Result<PagedResult<CampusBrandingResponse>>>, GetCampusBrandingPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateCampusBranding.Request, Result<CampusBrandingResponse>>, UpdateCampusBranding.Handler>();
+        services.AddScoped<IRequestHandler<DeleteCampusBranding.Command, Result<DeleteCampusBranding.Response>>, DeleteCampusBranding.Handler>();
+        services.AddScoped<IRequestHandler<CreateSubscription.Request, Result<SubscriptionResponse>>, CreateSubscription.Handler>();
+        services.AddScoped<IRequestHandler<GetSubscriptionById.Query, Result<SubscriptionResponse>>, GetSubscriptionById.Handler>();
+        services.AddScoped<IRequestHandler<GetSubscriptionPage.Query, Result<PagedResult<SubscriptionResponse>>>, GetSubscriptionPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateSubscription.Request, Result<SubscriptionResponse>>, UpdateSubscription.Handler>();
+        services.AddScoped<IRequestHandler<DeleteSubscription.Command, Result<DeleteSubscription.Response>>, DeleteSubscription.Handler>();
+        services.AddScoped<IRequestHandler<CreateTenant.Request, Result<TenantResponse>>, CreateTenant.Handler>();
+        services.AddScoped<IRequestHandler<GetTenantById.Query, Result<TenantResponse>>, GetTenantById.Handler>();
+        services.AddScoped<IRequestHandler<GetTenantPage.Query, Result<PagedResult<TenantResponse>>>, GetTenantPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateTenant.Request, Result<TenantResponse>>, UpdateTenant.Handler>();
+        services.AddScoped<IRequestHandler<DeleteTenant.Command, Result<DeleteTenant.Response>>, DeleteTenant.Handler>();
 
         return services;
     }

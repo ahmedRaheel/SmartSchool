@@ -1,7 +1,8 @@
-using SmartSchool.Modules.Admissions;
 using FluentValidation;
-using SmartSchool.Modules.Admissions.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Admissions.Contracts;
 using SmartSchool.Modules.Admissions.Models;
+using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,57 +13,44 @@ public static class CreateAdmissionDecision
     public sealed record Request(
         Guid TenantId,
         string Code,
-        string Name);
+        string Name) : IRequest<Result<AdmissionDecisionResponse>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId)
-                .NotEmpty();
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .MaximumLength(100);
-
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public sealed class Handler(
-        IAdmissionDecisionQuery query,
-        IAdmissionDecisionCommand command,
+        IAdmissionDecisionQuery entityQuery,
+        IAdmissionDecisionCommand entityCommand,
         IValidator<Request> validator)
+        : IRequestHandler<Request, Result<AdmissionDecisionResponse>>
     {
-        public async Task<Result<AdmissionDecision>> HandleAsync(
+        public async Task<Result<AdmissionDecisionResponse>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var validationResult =
-                await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
             {
                 var message = string.Join(
                     "; ",
-                    validationResult.Errors.Select(error => error.ErrorMessage));
-
-                return Result<AdmissionDecision>.Failure(
-                    Error.Validation(message));
+                    validation.Errors.Select(error => error.ErrorMessage));
+                return Result<AdmissionDecisionResponse>.Failure(Error.Validation(message));
             }
 
-            var codeExists = await query.ExistsByCodeAsync(
-                request.TenantId,
-                request.Code,
-                excludingId: null,
-                cancellationToken);
-
-            if (codeExists)
+            var exists = await entityQuery.ExistsByCodeAsync(
+                request.TenantId, request.Code, null, cancellationToken);
+            if (exists)
             {
-                return Result<AdmissionDecision>.Failure(
-                    Error.Conflict(ErrorMessages.DuplicateCode(nameof(AdmissionDecision), request.Code)));
+                return Result<AdmissionDecisionResponse>.Failure(
+                    Error.Conflict(
+                        ErrorMessages.DuplicateCode(nameof(AdmissionDecision), request.Code)));
             }
 
             var entity = new AdmissionDecision
@@ -73,34 +61,24 @@ public static class CreateAdmissionDecision
                 IsActive = true
             };
 
-            await command.AddAsync(
-                entity,
-                cancellationToken);
-
-            return Result<AdmissionDecision>.Success(entity);
+            await entityCommand.AddAsync(entity, cancellationToken);
+            return Result<AdmissionDecisionResponse>.Success(AdmissionDecisionResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "admission-decision"),
-                async (
-                    Request request,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await handler.HandleAsync(
-                        request,
-                        cancellationToken);
-
+                    var result = await mediator.SendAsync<Request, Result<AdmissionDecisionResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("CreateAdmissionDecision")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Workflow;
-using SmartSchool.Modules.Workflow.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Workflow.Contracts;
 using SmartSchool.Modules.Workflow.Models;
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetApprovalById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<ApprovalResponse>>;
 
-    public sealed class Handler(
-        IApprovalQuery query)
+    public sealed class Handler(IApprovalQuery entityQuery)
+        : IRequestHandler<Query, Result<ApprovalResponse>>
     {
-        public async Task<Result<Approval>> HandleAsync(
-            Query query,
+        public async Task<Result<ApprovalResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Approval>.Failure(
+                return Result<ApprovalResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(Approval))));
             }
-
-            return Result<Approval>.Success(entity);
+            return Result<ApprovalResponse>.Success(ApprovalResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/workflow/approval/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "approval"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<ApprovalResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetApprovalById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

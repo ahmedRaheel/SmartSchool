@@ -1,3 +1,6 @@
+using SmartSchool.Modules.Library.Contracts;
+using SmartSchool.SharedKernel;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Library.Persistence;
 using FluentValidation;
 using SmartSchool.Modules.Library.Features.Book;
@@ -20,35 +23,36 @@ public static class Module
         services.AddScoped<ILoanCommand, LoanCommand>();
         services.AddScoped<IReservationQuery, ReservationQuery>();
         services.AddScoped<IReservationCommand, ReservationCommand>();
-
-        services.AddScoped<CreateBook.Handler>();
-        services.AddScoped<GetBookById.Handler>();
-        services.AddScoped<GetBookPage.Handler>();
-        services.AddScoped<UpdateBook.Handler>();
-        services.AddScoped<DeleteBook.Handler>();
         services.AddScoped<IValidator<CreateBook.Request>, CreateBook.Validator>();
         services.AddScoped<IValidator<UpdateBook.Request>, UpdateBook.Validator>();
-        services.AddScoped<CreateBookCopy.Handler>();
-        services.AddScoped<GetBookCopyById.Handler>();
-        services.AddScoped<GetBookCopyPage.Handler>();
-        services.AddScoped<UpdateBookCopy.Handler>();
-        services.AddScoped<DeleteBookCopy.Handler>();
         services.AddScoped<IValidator<CreateBookCopy.Request>, CreateBookCopy.Validator>();
         services.AddScoped<IValidator<UpdateBookCopy.Request>, UpdateBookCopy.Validator>();
-        services.AddScoped<CreateLoan.Handler>();
-        services.AddScoped<GetLoanById.Handler>();
-        services.AddScoped<GetLoanPage.Handler>();
-        services.AddScoped<UpdateLoan.Handler>();
-        services.AddScoped<DeleteLoan.Handler>();
         services.AddScoped<IValidator<CreateLoan.Request>, CreateLoan.Validator>();
         services.AddScoped<IValidator<UpdateLoan.Request>, UpdateLoan.Validator>();
-        services.AddScoped<CreateReservation.Handler>();
-        services.AddScoped<GetReservationById.Handler>();
-        services.AddScoped<GetReservationPage.Handler>();
-        services.AddScoped<UpdateReservation.Handler>();
-        services.AddScoped<DeleteReservation.Handler>();
         services.AddScoped<IValidator<CreateReservation.Request>, CreateReservation.Validator>();
         services.AddScoped<IValidator<UpdateReservation.Request>, UpdateReservation.Validator>();
+
+
+        services.AddScoped<IRequestHandler<CreateBook.Request, Result<BookResponse>>, CreateBook.Handler>();
+        services.AddScoped<IRequestHandler<GetBookById.Query, Result<BookResponse>>, GetBookById.Handler>();
+        services.AddScoped<IRequestHandler<GetBookPage.Query, Result<PagedResult<BookResponse>>>, GetBookPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateBook.Request, Result<BookResponse>>, UpdateBook.Handler>();
+        services.AddScoped<IRequestHandler<DeleteBook.Command, Result<DeleteBook.Response>>, DeleteBook.Handler>();
+        services.AddScoped<IRequestHandler<CreateBookCopy.Request, Result<BookCopyResponse>>, CreateBookCopy.Handler>();
+        services.AddScoped<IRequestHandler<GetBookCopyById.Query, Result<BookCopyResponse>>, GetBookCopyById.Handler>();
+        services.AddScoped<IRequestHandler<GetBookCopyPage.Query, Result<PagedResult<BookCopyResponse>>>, GetBookCopyPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateBookCopy.Request, Result<BookCopyResponse>>, UpdateBookCopy.Handler>();
+        services.AddScoped<IRequestHandler<DeleteBookCopy.Command, Result<DeleteBookCopy.Response>>, DeleteBookCopy.Handler>();
+        services.AddScoped<IRequestHandler<CreateLoan.Request, Result<LoanResponse>>, CreateLoan.Handler>();
+        services.AddScoped<IRequestHandler<GetLoanById.Query, Result<LoanResponse>>, GetLoanById.Handler>();
+        services.AddScoped<IRequestHandler<GetLoanPage.Query, Result<PagedResult<LoanResponse>>>, GetLoanPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateLoan.Request, Result<LoanResponse>>, UpdateLoan.Handler>();
+        services.AddScoped<IRequestHandler<DeleteLoan.Command, Result<DeleteLoan.Response>>, DeleteLoan.Handler>();
+        services.AddScoped<IRequestHandler<CreateReservation.Request, Result<ReservationResponse>>, CreateReservation.Handler>();
+        services.AddScoped<IRequestHandler<GetReservationById.Query, Result<ReservationResponse>>, GetReservationById.Handler>();
+        services.AddScoped<IRequestHandler<GetReservationPage.Query, Result<PagedResult<ReservationResponse>>>, GetReservationPage.Handler>();
+        services.AddScoped<IRequestHandler<UpdateReservation.Request, Result<ReservationResponse>>, UpdateReservation.Handler>();
+        services.AddScoped<IRequestHandler<DeleteReservation.Command, Result<DeleteReservation.Response>>, DeleteReservation.Handler>();
 
         return services;
     }

@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AIParent;
-using SmartSchool.Modules.AIParent.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AIParent.Contracts;
 using SmartSchool.Modules.AIParent.Models;
+using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetParentMessageById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<ParentMessageResponse>>;
 
-    public sealed class Handler(
-        IParentMessageQuery query)
+    public sealed class Handler(IParentMessageQuery entityQuery)
+        : IRequestHandler<Query, Result<ParentMessageResponse>>
     {
-        public async Task<Result<ParentMessage>> HandleAsync(
-            Query query,
+        public async Task<Result<ParentMessageResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<ParentMessage>.Failure(
+                return Result<ParentMessageResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentMessage))));
             }
-
-            return Result<ParentMessage>.Success(entity);
+            return Result<ParentMessageResponse>.Success(ParentMessageResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiparent/parent-message/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "parent-message"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<ParentMessageResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetParentMessageById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

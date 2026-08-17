@@ -1,6 +1,6 @@
-using SmartSchool.Modules.Inventory;
-using SmartSchool.Modules.Inventory.Persistence;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Inventory.Models;
+using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,60 +10,45 @@ public static class DeleteStockTransaction
 {
     public sealed record Command(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<Response>>;
+
+    public sealed record Response(Guid Id);
 
     public sealed class Handler(
-        IStockTransactionQuery query,
-        IStockTransactionCommand command)
+        IStockTransactionQuery entityQuery,
+        IStockTransactionCommand entityCommand)
+        : IRequestHandler<Command, Result<Response>>
     {
-        public async Task<Result<bool>> HandleAsync(
-            Command command,
+        public async Task<Result<Response>> HandleAsync(
+            Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                command.TenantId,
-                command.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<bool>.Failure(
+                return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(StockTransaction))));
             }
-
-            await command.DeleteAsync(
-                entity,
-                cancellationToken);
-
-            return Result<bool>.Success(true);
+            await entityCommand.DeleteAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(request.Id));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapDelete(
-                "/api/inventory/stock-transaction/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "stock-transaction"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var command = new Command(
-                        tenantId,
-                        id);
-
-                    var result = await handler.HandleAsync(
-                        command,
-                        cancellationToken);
-
+                    var request = new Command(tenantId, id);
+                    var result = await mediator.SendAsync<Command, Result<Response>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("DeleteStockTransaction")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

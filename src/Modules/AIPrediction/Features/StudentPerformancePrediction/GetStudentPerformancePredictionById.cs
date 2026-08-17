@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AIPrediction;
-using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AIPrediction.Contracts;
 using SmartSchool.Modules.AIPrediction.Models;
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetStudentPerformancePredictionById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<StudentPerformancePredictionResponse>>;
 
-    public sealed class Handler(
-        IStudentPerformancePredictionQuery query)
+    public sealed class Handler(IStudentPerformancePredictionQuery entityQuery)
+        : IRequestHandler<Query, Result<StudentPerformancePredictionResponse>>
     {
-        public async Task<Result<StudentPerformancePrediction>> HandleAsync(
-            Query query,
+        public async Task<Result<StudentPerformancePredictionResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<StudentPerformancePrediction>.Failure(
+                return Result<StudentPerformancePredictionResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentPerformancePrediction))));
             }
-
-            return Result<StudentPerformancePrediction>.Success(entity);
+            return Result<StudentPerformancePredictionResponse>.Success(StudentPerformancePredictionResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aiprediction/student-performance-prediction/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "student-performance-prediction"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<StudentPerformancePredictionResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetStudentPerformancePredictionById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

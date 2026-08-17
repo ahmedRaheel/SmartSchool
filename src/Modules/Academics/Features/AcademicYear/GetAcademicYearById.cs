@@ -1,6 +1,7 @@
-using SmartSchool.Modules.Academics;
-using SmartSchool.Modules.Academics.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Academics.Contracts;
 using SmartSchool.Modules.Academics.Models;
+using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetAcademicYearById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<AcademicYearResponse>>;
 
-    public sealed class Handler(
-        IAcademicYearQuery query)
+    public sealed class Handler(IAcademicYearQuery entityQuery)
+        : IRequestHandler<Query, Result<AcademicYearResponse>>
     {
-        public async Task<Result<AcademicYear>> HandleAsync(
-            Query query,
+        public async Task<Result<AcademicYearResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<AcademicYear>.Failure(
+                return Result<AcademicYearResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(AcademicYear))));
             }
-
-            return Result<AcademicYear>.Success(entity);
+            return Result<AcademicYearResponse>.Success(AcademicYearResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/academics/academic-year/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "academic-year"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<AcademicYearResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetAcademicYearById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

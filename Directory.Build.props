@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'SmartSchool.Application'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
     <PackageReference Include="FluentValidation" />
   </ItemGroup>

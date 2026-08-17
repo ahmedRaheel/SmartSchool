@@ -1,6 +1,6 @@
-using SmartSchool.Modules.Organization;
-using SmartSchool.Modules.Organization.Persistence;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
+using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,60 +10,45 @@ public static class DeleteDepartment
 {
     public sealed record Command(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<Response>>;
+
+    public sealed record Response(Guid Id);
 
     public sealed class Handler(
-        IDepartmentQuery query,
-        IDepartmentCommand command)
+        IDepartmentQuery entityQuery,
+        IDepartmentCommand entityCommand)
+        : IRequestHandler<Command, Result<Response>>
     {
-        public async Task<Result<bool>> HandleAsync(
-            Command command,
+        public async Task<Result<Response>> HandleAsync(
+            Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                command.TenantId,
-                command.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<bool>.Failure(
+                return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(Department))));
             }
-
-            await command.DeleteAsync(
-                entity,
-                cancellationToken);
-
-            return Result<bool>.Success(true);
+            await entityCommand.DeleteAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(request.Id));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapDelete(
-                "/api/organization/department/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "department"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var command = new Command(
-                        tenantId,
-                        id);
-
-                    var result = await handler.HandleAsync(
-                        command,
-                        cancellationToken);
-
+                    var request = new Command(tenantId, id);
+                    var result = await mediator.SendAsync<Command, Result<Response>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("DeleteDepartment")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

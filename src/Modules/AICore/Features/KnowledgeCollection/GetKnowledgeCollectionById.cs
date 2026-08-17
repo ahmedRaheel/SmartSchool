@@ -1,6 +1,7 @@
-using SmartSchool.Modules.AICore;
-using SmartSchool.Modules.AICore.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.AICore.Contracts;
 using SmartSchool.Modules.AICore.Models;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetKnowledgeCollectionById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<KnowledgeCollectionResponse>>;
 
-    public sealed class Handler(
-        IKnowledgeCollectionQuery query)
+    public sealed class Handler(IKnowledgeCollectionQuery entityQuery)
+        : IRequestHandler<Query, Result<KnowledgeCollectionResponse>>
     {
-        public async Task<Result<KnowledgeCollection>> HandleAsync(
-            Query query,
+        public async Task<Result<KnowledgeCollectionResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<KnowledgeCollection>.Failure(
+                return Result<KnowledgeCollectionResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeCollection))));
             }
-
-            return Result<KnowledgeCollection>.Success(entity);
+            return Result<KnowledgeCollectionResponse>.Success(KnowledgeCollectionResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/aicore/knowledge-collection/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "knowledge-collection"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<KnowledgeCollectionResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetKnowledgeCollectionById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }

@@ -1,6 +1,7 @@
-using SmartSchool.Modules.HR;
-using SmartSchool.Modules.HR.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.HR.Contracts;
 using SmartSchool.Modules.HR.Models;
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -10,53 +11,40 @@ public static class GetResumeById
 {
     public sealed record Query(
         Guid TenantId,
-        Guid Id);
+        Guid Id) : IRequest<Result<ResumeResponse>>;
 
-    public sealed class Handler(
-        IResumeQuery query)
+    public sealed class Handler(IResumeQuery entityQuery)
+        : IRequestHandler<Query, Result<ResumeResponse>>
     {
-        public async Task<Result<Resume>> HandleAsync(
-            Query query,
+        public async Task<Result<ResumeResponse>> HandleAsync(
+            Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await query.GetByIdAsync(
-                query.TenantId,
-                query.Id,
-                cancellationToken);
-
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Resume>.Failure(
+                return Result<ResumeResponse>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(Resume))));
             }
-
-            return Result<Resume>.Success(entity);
+            return Result<ResumeResponse>.Success(ResumeResponse.FromEntity(entity));
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(
-        IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/hr/resume/{id:guid}",
-                async (
-                    Guid id,
-                    Guid tenantId,
-                    Handler handler,
-                    CancellationToken cancellationToken) =>
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "resume"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var query = new Query(tenantId, id);
-
-                    var result = await handler.HandleAsync(
-                        query,
-                        cancellationToken);
-
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<ResumeResponse>>(
+                        request, cancellationToken);
                     return result.ToHttpResult();
                 })
             .WithName("GetResumeById")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
-
         return endpoints;
     }
 }
