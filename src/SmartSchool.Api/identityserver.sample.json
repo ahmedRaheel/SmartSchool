@@ -1,0 +1,24 @@
+{
+  "clientId": "smartschool-web",
+  "flow": "Authorization Code + PKCE",
+  "apiScope": "smartschool-api",
+  "requiredClaims": [
+    "sub",
+    "tenant_id",
+    "school_id",
+    "role"
+  ],
+  "roles": [
+    "SuperAdmin",
+    "SchoolAdmin",
+    "Principal",
+    "Teacher",
+    "Student",
+    "Parent",
+    "Accountant",
+    "HRManager",
+    "Librarian",
+    "TransportManager",
+    "AdmissionOfficer"
+  ]
+}

@@ -13,7 +13,7 @@ public static class GetAiExecutionLogById
         Guid Id);
 
     public sealed class Handler(
-        IAiExecutionLogQuery query)
+        IAiExecutionLogQuery query) : IRequest<Query, AiExecutionLog>  
     {
         public async Task<Result<AiExecutionLog>> HandleAsync(
             Query query,

@@ -104,7 +104,6 @@ public static class PlatformRegistration
                     .Enrich.WithMachineName()
                     .Enrich.WithEnvironmentName()
                     .Enrich.WithThreadId()
-                    .Enrich.WithSpan()
                     .Enrich.WithProperty(
                         "Application",
                         ApplicationConstants.ApplicationName);

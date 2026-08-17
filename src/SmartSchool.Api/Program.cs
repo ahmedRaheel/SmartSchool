@@ -1,3 +1,5 @@
+using SmartSchool.Infrastructure.Identity;
+using SmartSchool.Api.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -53,9 +55,16 @@ builder.Services
 
             options.RequireHttpsMetadata =
                 identityOptions.RequireHttpsMetadata;
+
+            options.TokenValidationParameters.NameClaimType =
+                "name";
+
+            options.TokenValidationParameters.RoleClaimType =
+                SmartSchoolClaims.Role;
         });
 
-builder.Services.AddAuthorization();
+builder.Services.AddSmartSchoolAuthorization();
+builder.Services.AddScoped<SampleActorSeeder>();
 
 builder.Services
     .AddHttpClient(
@@ -101,6 +110,17 @@ builder.Services.AddWorkflowModule();
 
 var app =
     builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope =
+        app.Services.CreateScope();
+
+    var sampleActorSeeder =
+        scope.ServiceProvider.GetRequiredService<SampleActorSeeder>();
+
+    await sampleActorSeeder.SeedAsync();
+}
 
 app.UseExceptionHandler();
 app.UseCorrelationId();

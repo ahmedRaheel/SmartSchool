@@ -9,4 +9,47 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
+  <!--
+    PackageReference items must be available during NuGet restore evaluation.
+    Keep them in Directory.Build.props, not Directory.Build.targets.
+    Versions remain centralized in Directory.Packages.props.
+  -->
+  <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('SmartSchool.Modules.'))">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.Application/SmartSchool.Application.csproj" />
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SmartSchool.Application'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SmartSchool.Infrastructure'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.Application/SmartSchool.Application.csproj" />
+    <PackageReference Include="Confluent.Kafka" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.PostgreSql" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Enrichers.Environment" />
+    <PackageReference Include="Serilog.Enrichers.Thread" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SmartSchool.Api'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.Infrastructure/SmartSchool.Infrastructure.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/Modules/*/SmartSchool.Modules.*.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)build/SmartSchool.GlobalUsings.cs"
+             Link="SmartSchool.GlobalUsings.g.cs" />
+  </ItemGroup>
+
 </Project>

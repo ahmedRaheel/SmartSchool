@@ -1,0 +1,26 @@
+{
+  "tenantId": "11111111-1111-1111-1111-111111111111",
+  "schoolId": "22222222-2222-2222-2222-222222222222",
+  "actors": [
+    {
+      "username": "admin.smartschool",
+      "role": "SchoolAdmin",
+      "reference": "ADM-ADMIN-001"
+    },
+    {
+      "username": "sara.teacher",
+      "role": "Teacher",
+      "reference": "TCH-2026-001"
+    },
+    {
+      "username": "ahmed.student",
+      "role": "Student",
+      "reference": "STD-2026-0001"
+    },
+    {
+      "username": "imran.parent",
+      "role": "Parent",
+      "reference": "PAR-2026-0001"
+    }
+  ]
+}
