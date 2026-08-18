@@ -32,35 +32,4 @@
              Link="SmartSchool.AspNetCoreGlobalUsings.g.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SmartSchool.Infrastructure'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-
-    <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)src/BuildingBlocks/SmartSchool.Application/SmartSchool.Application.csproj" />
-
-    <PackageReference Include="Confluent.Kafka" />
-    <PackageReference Include="Hangfire.AspNetCore" />
-    <PackageReference Include="Hangfire.PostgreSql" />
-    <PackageReference Include="Serilog.AspNetCore" />
-    <PackageReference Include="Serilog.Enrichers.Environment" />
-    <PackageReference Include="Serilog.Enrichers.Thread" />
-    <PackageReference Include="Serilog.Formatting.Compact" />
-    <PackageReference Include="Serilog.Sinks.Console" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
-
-    <Compile Include="$(MSBuildThisFileDirectory)build/SmartSchool.AspNetCoreGlobalUsings.cs"
-             Link="SmartSchool.AspNetCoreGlobalUsings.g.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SmartSchool.Api'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-    <PackageReference Include="Scalar.AspNetCore" />
-
-    <Compile Include="$(MSBuildThisFileDirectory)build/SmartSchool.AspNetCoreGlobalUsings.cs"
-             Link="SmartSchool.AspNetCoreGlobalUsings.g.cs" />
-  </ItemGroup>
-
 </Project>
