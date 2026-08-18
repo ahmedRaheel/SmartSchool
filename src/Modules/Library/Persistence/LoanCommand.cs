@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// Write-side persistence for LoanEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for LoanEntity.
 /// </summary>
-public sealed class LoanCommand : ILoanCommand
+public sealed class LoanCommand(IEfMockStore store) : ILoanCommand
 {
-    public Task AddAsync(
-        LoanEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LoanEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(LoanEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        LoanEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LoanEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(LoanEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        LoanEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LoanEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(LoanEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

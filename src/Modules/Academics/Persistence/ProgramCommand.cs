@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for ProgramEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for ProgramEntity.
 /// </summary>
-public sealed class ProgramCommand : IProgramCommand
+public sealed class ProgramCommand(IEfMockStore store) : IProgramCommand
 {
-    public Task AddAsync(
-        ProgramEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ProgramEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(ProgramEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        ProgramEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ProgramEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(ProgramEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        ProgramEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ProgramEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(ProgramEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Organization.Persistence;
 
 /// <summary>
-/// Read-side persistence for SchoolEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Organization module.
+/// EF-backed read persistence for SchoolEntity.
 /// </summary>
-public sealed class SchoolQuery : ISchoolQuery
+public sealed class SchoolQuery(IEfMockStore store) : ISchoolQuery
 {
-    public Task<SchoolEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "SchoolEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<SchoolEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<SchoolEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<SchoolEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "SchoolEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<SchoolEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<SchoolEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "SchoolEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<SchoolEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

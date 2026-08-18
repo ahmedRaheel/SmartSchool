@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Examinations.Persistence;
 
 /// <summary>
-/// Read-side persistence for ExamEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Examinations module.
+/// EF-backed read persistence for ExamEntity.
 /// </summary>
-public sealed class ExamQuery : IExamQuery
+public sealed class ExamQuery(IEfMockStore store) : IExamQuery
 {
-    public Task<ExamEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ExamEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<ExamEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<ExamEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<ExamEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ExamEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<ExamEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<ExamEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ExamEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<ExamEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

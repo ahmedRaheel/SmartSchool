@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for CourseSelectionEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for CourseSelectionEntity.
 /// </summary>
-public sealed class CourseSelectionCommand : ICourseSelectionCommand
+public sealed class CourseSelectionCommand(IEfMockStore store) : ICourseSelectionCommand
 {
-    public Task AddAsync(
-        CourseSelectionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "CourseSelectionEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(CourseSelectionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        CourseSelectionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "CourseSelectionEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(CourseSelectionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        CourseSelectionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "CourseSelectionEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(CourseSelectionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

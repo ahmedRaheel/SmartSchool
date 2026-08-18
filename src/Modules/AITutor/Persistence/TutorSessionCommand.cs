@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 
 namespace SmartSchool.Modules.AITutor.Persistence;
 
 /// <summary>
-/// Write-side persistence for TutorSessionEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for TutorSessionEntity.
 /// </summary>
-public sealed class TutorSessionCommand : ITutorSessionCommand
+public sealed class TutorSessionCommand(IEfMockStore store) : ITutorSessionCommand
 {
-    public Task AddAsync(
-        TutorSessionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TutorSessionEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(TutorSessionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        TutorSessionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TutorSessionEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(TutorSessionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        TutorSessionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TutorSessionEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(TutorSessionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

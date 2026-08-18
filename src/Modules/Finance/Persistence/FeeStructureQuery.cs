@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// Read-side persistence for FeeStructureEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Finance module.
+/// EF-backed read persistence for FeeStructureEntity.
 /// </summary>
-public sealed class FeeStructureQuery : IFeeStructureQuery
+public sealed class FeeStructureQuery(IEfMockStore store) : IFeeStructureQuery
 {
-    public Task<FeeStructureEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "FeeStructureEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<FeeStructureEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<FeeStructureEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<FeeStructureEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "FeeStructureEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<FeeStructureEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<FeeStructureEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "FeeStructureEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<FeeStructureEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

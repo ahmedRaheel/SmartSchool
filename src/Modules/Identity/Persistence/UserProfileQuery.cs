@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Identity.Persistence;
 
 /// <summary>
-/// Read-side persistence for UserProfileEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Identity module.
+/// EF-backed read persistence for UserProfileEntity.
 /// </summary>
-public sealed class UserProfileQuery : IUserProfileQuery
+public sealed class UserProfileQuery(IEfMockStore store) : IUserProfileQuery
 {
-    public Task<UserProfileEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "UserProfileEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<UserProfileEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<UserProfileEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<UserProfileEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "UserProfileEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<UserProfileEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<UserProfileEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "UserProfileEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<UserProfileEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

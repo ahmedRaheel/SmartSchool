@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// Write-side persistence for PurchaseOrderEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for PurchaseOrderEntity.
 /// </summary>
-public sealed class PurchaseOrderCommand : IPurchaseOrderCommand
+public sealed class PurchaseOrderCommand(IEfMockStore store) : IPurchaseOrderCommand
 {
-    public Task AddAsync(
-        PurchaseOrderEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PurchaseOrderEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(PurchaseOrderEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        PurchaseOrderEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PurchaseOrderEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(PurchaseOrderEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        PurchaseOrderEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PurchaseOrderEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(PurchaseOrderEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

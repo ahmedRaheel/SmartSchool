@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
 /// <summary>
-/// Write-side persistence for TenantEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for TenantEntity.
 /// </summary>
-public sealed class TenantCommand : ITenantCommand
+public sealed class TenantCommand(IEfMockStore store) : ITenantCommand
 {
-    public Task AddAsync(
-        TenantEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TenantEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(TenantEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        TenantEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TenantEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(TenantEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        TenantEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TenantEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(TenantEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

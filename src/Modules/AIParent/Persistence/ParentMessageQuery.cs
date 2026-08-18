@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIParent.Persistence;
 
 /// <summary>
-/// Read-side persistence for ParentMessageEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the AIParent module.
+/// EF-backed read persistence for ParentMessageEntity.
 /// </summary>
-public sealed class ParentMessageQuery : IParentMessageQuery
+public sealed class ParentMessageQuery(IEfMockStore store) : IParentMessageQuery
 {
-    public Task<ParentMessageEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ParentMessageEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<ParentMessageEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<ParentMessageEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<ParentMessageEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ParentMessageEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<ParentMessageEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<ParentMessageEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ParentMessageEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<ParentMessageEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

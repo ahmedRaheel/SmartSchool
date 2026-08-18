@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Write-side persistence for StudentPerformancePredictionEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for StudentPerformancePredictionEntity.
 /// </summary>
-public sealed class StudentPerformancePredictionCommand : IStudentPerformancePredictionCommand
+public sealed class StudentPerformancePredictionCommand(IEfMockStore store) : IStudentPerformancePredictionCommand
 {
-    public Task AddAsync(
-        StudentPerformancePredictionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentPerformancePredictionEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(StudentPerformancePredictionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        StudentPerformancePredictionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentPerformancePredictionEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(StudentPerformancePredictionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        StudentPerformancePredictionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentPerformancePredictionEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(StudentPerformancePredictionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Activities.Models;
 
 namespace SmartSchool.Modules.Activities.Persistence;
 
 /// <summary>
-/// Write-side persistence for AwardEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for AwardEntity.
 /// </summary>
-public sealed class AwardCommand : IAwardCommand
+public sealed class AwardCommand(IEfMockStore store) : IAwardCommand
 {
-    public Task AddAsync(
-        AwardEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AwardEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(AwardEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        AwardEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AwardEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(AwardEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        AwardEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AwardEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(AwardEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

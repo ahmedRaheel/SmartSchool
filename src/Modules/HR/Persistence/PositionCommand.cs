@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Write-side persistence for PositionEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for PositionEntity.
 /// </summary>
-public sealed class PositionCommand : IPositionCommand
+public sealed class PositionCommand(IEfMockStore store) : IPositionCommand
 {
-    public Task AddAsync(
-        PositionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PositionEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(PositionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        PositionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PositionEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(PositionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        PositionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PositionEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(PositionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

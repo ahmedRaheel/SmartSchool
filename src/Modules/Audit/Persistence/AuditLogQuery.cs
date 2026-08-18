@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Audit.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Audit.Persistence;
 
 /// <summary>
-/// Read-side persistence for AuditLogEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Audit module.
+/// EF-backed read persistence for AuditLogEntity.
 /// </summary>
-public sealed class AuditLogQuery : IAuditLogQuery
+public sealed class AuditLogQuery(IEfMockStore store) : IAuditLogQuery
 {
-    public Task<AuditLogEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AuditLogEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<AuditLogEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<AuditLogEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<AuditLogEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AuditLogEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<AuditLogEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<AuditLogEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AuditLogEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<AuditLogEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Identity.Models;
 
 namespace SmartSchool.Modules.Identity.Persistence;
 
 /// <summary>
-/// Write-side persistence for UserProfileEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for UserProfileEntity.
 /// </summary>
-public sealed class UserProfileCommand : IUserProfileCommand
+public sealed class UserProfileCommand(IEfMockStore store) : IUserProfileCommand
 {
-    public Task AddAsync(
-        UserProfileEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "UserProfileEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(UserProfileEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        UserProfileEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "UserProfileEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(UserProfileEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        UserProfileEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "UserProfileEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(UserProfileEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Activities.Persistence;
 
 /// <summary>
-/// Read-side persistence for StudentActivityEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Activities module.
+/// EF-backed read persistence for StudentActivityEntity.
 /// </summary>
-public sealed class StudentActivityQuery : IStudentActivityQuery
+public sealed class StudentActivityQuery(IEfMockStore store) : IStudentActivityQuery
 {
-    public Task<StudentActivityEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentActivityEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<StudentActivityEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<StudentActivityEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<StudentActivityEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentActivityEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<StudentActivityEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<StudentActivityEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentActivityEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<StudentActivityEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

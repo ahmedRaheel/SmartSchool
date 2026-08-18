@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 
 namespace SmartSchool.Modules.Admissions.Persistence;
 
 /// <summary>
-/// Write-side persistence for ApplicantEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for ApplicantEntity.
 /// </summary>
-public sealed class ApplicantCommand : IApplicantCommand
+public sealed class ApplicantCommand(IEfMockStore store) : IApplicantCommand
 {
-    public Task AddAsync(
-        ApplicantEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ApplicantEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(ApplicantEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        ApplicantEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ApplicantEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(ApplicantEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        ApplicantEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ApplicantEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(ApplicantEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

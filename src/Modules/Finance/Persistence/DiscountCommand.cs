@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// Write-side persistence for DiscountEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for DiscountEntity.
 /// </summary>
-public sealed class DiscountCommand : IDiscountCommand
+public sealed class DiscountCommand(IEfMockStore store) : IDiscountCommand
 {
-    public Task AddAsync(
-        DiscountEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "DiscountEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(DiscountEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        DiscountEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "DiscountEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(DiscountEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        DiscountEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "DiscountEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(DiscountEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

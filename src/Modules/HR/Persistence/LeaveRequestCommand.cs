@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Write-side persistence for LeaveRequestEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for LeaveRequestEntity.
 /// </summary>
-public sealed class LeaveRequestCommand : ILeaveRequestCommand
+public sealed class LeaveRequestCommand(IEfMockStore store) : ILeaveRequestCommand
 {
-    public Task AddAsync(
-        LeaveRequestEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LeaveRequestEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(LeaveRequestEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        LeaveRequestEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LeaveRequestEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(LeaveRequestEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        LeaveRequestEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LeaveRequestEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(LeaveRequestEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

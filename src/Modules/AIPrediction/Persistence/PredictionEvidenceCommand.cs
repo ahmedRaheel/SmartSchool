@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Write-side persistence for PredictionEvidenceEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for PredictionEvidenceEntity.
 /// </summary>
-public sealed class PredictionEvidenceCommand : IPredictionEvidenceCommand
+public sealed class PredictionEvidenceCommand(IEfMockStore store) : IPredictionEvidenceCommand
 {
-    public Task AddAsync(
-        PredictionEvidenceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionEvidenceEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(PredictionEvidenceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        PredictionEvidenceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionEvidenceEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(PredictionEvidenceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        PredictionEvidenceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionEvidenceEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(PredictionEvidenceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

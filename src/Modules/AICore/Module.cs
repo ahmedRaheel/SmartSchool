@@ -10,71 +10,74 @@ using SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 using SmartSchool.Modules.AICore.Features.ModelConfiguration;
 using SmartSchool.Modules.AICore.Features.PromptTemplate;
 using SmartSchool.Modules.AICore.Features.ToolDefinition;
+using SmartSchool.Application;
 
 namespace SmartSchool.Modules.AICore;
 
 public static class Module
 {
-    public static IServiceCollection AddAICoreModule(
-        this IServiceCollection services)
-    {
-        services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
-        services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
-        services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();
-        services.AddScoped<IKnowledgeChunkCommand, KnowledgeChunkCommand>();
-        services.AddScoped<IKnowledgeCollectionQuery, KnowledgeCollectionQuery>();
-        services.AddScoped<IKnowledgeCollectionCommand, KnowledgeCollectionCommand>();
-        services.AddScoped<IKnowledgeDocumentQuery, KnowledgeDocumentQuery>();
-        services.AddScoped<IKnowledgeDocumentCommand, KnowledgeDocumentCommand>();
-        services.AddScoped<IModelConfigurationQuery, ModelConfigurationQuery>();
-        services.AddScoped<IModelConfigurationCommand, ModelConfigurationCommand>();
-        services.AddScoped<IPromptTemplateQuery, PromptTemplateQuery>();
-        services.AddScoped<IPromptTemplateCommand, PromptTemplateCommand>();
-        services.AddScoped<IToolDefinitionQuery, ToolDefinitionQuery>();
-        services.AddScoped<IToolDefinitionCommand, ToolDefinitionCommand>();
+	public static IServiceCollection AddAICoreModule(
+		this IServiceCollection services)
+	{
+		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
-        return services;
-    }
+		services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
+		services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
+		services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();
+		services.AddScoped<IKnowledgeChunkCommand, KnowledgeChunkCommand>();
+		services.AddScoped<IKnowledgeCollectionQuery, KnowledgeCollectionQuery>();
+		services.AddScoped<IKnowledgeCollectionCommand, KnowledgeCollectionCommand>();
+		services.AddScoped<IKnowledgeDocumentQuery, KnowledgeDocumentQuery>();
+		services.AddScoped<IKnowledgeDocumentCommand, KnowledgeDocumentCommand>();
+		services.AddScoped<IModelConfigurationQuery, ModelConfigurationQuery>();
+		services.AddScoped<IModelConfigurationCommand, ModelConfigurationCommand>();
+		services.AddScoped<IPromptTemplateQuery, PromptTemplateQuery>();
+		services.AddScoped<IPromptTemplateCommand, PromptTemplateCommand>();
+		services.AddScoped<IToolDefinitionQuery, ToolDefinitionQuery>();
+		services.AddScoped<IToolDefinitionCommand, ToolDefinitionCommand>();
 
-    public static IEndpointRouteBuilder MapAICoreEndpoints(
-        this IEndpointRouteBuilder endpoints)
-    {
-        CreateAiExecutionLog.MapEndpoint(endpoints);
-        GetAiExecutionLogById.MapEndpoint(endpoints);
-        GetAiExecutionLogPage.MapEndpoint(endpoints);
-        UpdateAiExecutionLog.MapEndpoint(endpoints);
-        DeleteAiExecutionLog.MapEndpoint(endpoints);
-        CreateKnowledgeChunk.MapEndpoint(endpoints);
-        GetKnowledgeChunkById.MapEndpoint(endpoints);
-        GetKnowledgeChunkPage.MapEndpoint(endpoints);
-        UpdateKnowledgeChunk.MapEndpoint(endpoints);
-        DeleteKnowledgeChunk.MapEndpoint(endpoints);
-        CreateKnowledgeCollection.MapEndpoint(endpoints);
-        GetKnowledgeCollectionById.MapEndpoint(endpoints);
-        GetKnowledgeCollectionPage.MapEndpoint(endpoints);
-        UpdateKnowledgeCollection.MapEndpoint(endpoints);
-        DeleteKnowledgeCollection.MapEndpoint(endpoints);
-        CreateKnowledgeDocument.MapEndpoint(endpoints);
-        GetKnowledgeDocumentById.MapEndpoint(endpoints);
-        GetKnowledgeDocumentPage.MapEndpoint(endpoints);
-        UpdateKnowledgeDocument.MapEndpoint(endpoints);
-        DeleteKnowledgeDocument.MapEndpoint(endpoints);
-        CreateModelConfiguration.MapEndpoint(endpoints);
-        GetModelConfigurationById.MapEndpoint(endpoints);
-        GetModelConfigurationPage.MapEndpoint(endpoints);
-        UpdateModelConfiguration.MapEndpoint(endpoints);
-        DeleteModelConfiguration.MapEndpoint(endpoints);
-        CreatePromptTemplate.MapEndpoint(endpoints);
-        GetPromptTemplateById.MapEndpoint(endpoints);
-        GetPromptTemplatePage.MapEndpoint(endpoints);
-        UpdatePromptTemplate.MapEndpoint(endpoints);
-        DeletePromptTemplate.MapEndpoint(endpoints);
-        CreateToolDefinition.MapEndpoint(endpoints);
-        GetToolDefinitionById.MapEndpoint(endpoints);
-        GetToolDefinitionPage.MapEndpoint(endpoints);
-        UpdateToolDefinition.MapEndpoint(endpoints);
-        DeleteToolDefinition.MapEndpoint(endpoints);
+		return services;
+	}
 
-        return endpoints;
-    }
+	public static IEndpointRouteBuilder MapAICoreEndpoints(
+		this IEndpointRouteBuilder endpoints)
+	{
+		CreateAiExecutionLog.MapEndpoint(endpoints);
+		GetAiExecutionLogById.MapEndpoint(endpoints);
+		GetAiExecutionLogPage.MapEndpoint(endpoints);
+		UpdateAiExecutionLog.MapEndpoint(endpoints);
+		DeleteAiExecutionLog.MapEndpoint(endpoints);
+		CreateKnowledgeChunk.MapEndpoint(endpoints);
+		GetKnowledgeChunkById.MapEndpoint(endpoints);
+		GetKnowledgeChunkPage.MapEndpoint(endpoints);
+		UpdateKnowledgeChunk.MapEndpoint(endpoints);
+		DeleteKnowledgeChunk.MapEndpoint(endpoints);
+		CreateKnowledgeCollection.MapEndpoint(endpoints);
+		GetKnowledgeCollectionById.MapEndpoint(endpoints);
+		GetKnowledgeCollectionPage.MapEndpoint(endpoints);
+		UpdateKnowledgeCollection.MapEndpoint(endpoints);
+		DeleteKnowledgeCollection.MapEndpoint(endpoints);
+		CreateKnowledgeDocument.MapEndpoint(endpoints);
+		GetKnowledgeDocumentById.MapEndpoint(endpoints);
+		GetKnowledgeDocumentPage.MapEndpoint(endpoints);
+		UpdateKnowledgeDocument.MapEndpoint(endpoints);
+		DeleteKnowledgeDocument.MapEndpoint(endpoints);
+		CreateModelConfiguration.MapEndpoint(endpoints);
+		GetModelConfigurationById.MapEndpoint(endpoints);
+		GetModelConfigurationPage.MapEndpoint(endpoints);
+		UpdateModelConfiguration.MapEndpoint(endpoints);
+		DeleteModelConfiguration.MapEndpoint(endpoints);
+		CreatePromptTemplate.MapEndpoint(endpoints);
+		GetPromptTemplateById.MapEndpoint(endpoints);
+		GetPromptTemplatePage.MapEndpoint(endpoints);
+		UpdatePromptTemplate.MapEndpoint(endpoints);
+		DeletePromptTemplate.MapEndpoint(endpoints);
+		CreateToolDefinition.MapEndpoint(endpoints);
+		GetToolDefinitionById.MapEndpoint(endpoints);
+		GetToolDefinitionPage.MapEndpoint(endpoints);
+		UpdateToolDefinition.MapEndpoint(endpoints);
+		DeleteToolDefinition.MapEndpoint(endpoints);
+
+		return endpoints;
+	}
 }

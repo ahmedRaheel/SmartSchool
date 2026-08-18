@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// Write-side persistence for StudentFeeEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for StudentFeeEntity.
 /// </summary>
-public sealed class StudentFeeCommand : IStudentFeeCommand
+public sealed class StudentFeeCommand(IEfMockStore store) : IStudentFeeCommand
 {
-    public Task AddAsync(
-        StudentFeeEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentFeeEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(StudentFeeEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        StudentFeeEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentFeeEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(StudentFeeEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        StudentFeeEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentFeeEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(StudentFeeEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

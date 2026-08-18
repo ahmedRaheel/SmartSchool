@@ -9,49 +9,49 @@ namespace SmartSchool.Modules.AITutor.Features.TutorSession;
 
 public static class DeleteTutorSession
 {
-    public sealed record Command(
-        Guid TenantId,
-        Guid Id) : IRequest<Result<Response>>;
+	public sealed record Command(
+		Guid TenantId,
+		Guid Id) : IRequest<Result<Response>>;
 
-    public sealed record Response(
-        Guid TenantId,
-        Guid Id);
+	public sealed record Response(
+		Guid TenantId,
+		Guid Id);
 
-    public sealed class Handler(
-        ITutorSessionQuery entityQuery,
-        ITutorSessionCommand entityCommand)
-        : IRequestHandler<Command, Result<Response>>
-    {
-        public async Task<Result<Response>> HandleAsync(
-            Command request,
-            CancellationToken cancellationToken)
-        {
-            var entity = await entityQuery.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
-            {
-                return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(TutorSessionEntity))));
-            }
-            await entityCommand.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.TenantId, request.Id));
-        }
-    }
+	public sealed class Handler(
+		ITutorSessionQuery entityQuery,
+		ITutorSessionCommand entityCommand)
+		: IRequestHandler<Command, Result<Response>>
+	{
+		public async Task<Result<Response>> HandleAsync(
+			Command request,
+			CancellationToken cancellationToken)
+		{
+			var entity = await entityQuery.GetByIdAsync(
+				request.TenantId, request.Id, cancellationToken);
+			if (entity is null)
+			{
+				return Result<Response>.Failure(
+					Error.NotFound(ErrorMessages.EntityNotFound(nameof(TutorSessionEntity))));
+			}
+			await entityCommand.DeleteAsync(entity, cancellationToken);
+			return Result<Response>.Success(new Response(request.TenantId, request.Id));
+		}
+	}
 
-    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapDelete(
-                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "tutor-session"),
-                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var request = new Command(tenantId, id);
-                    var result = await mediator.SendAsync<Command, Result<Response>>(
-                        request, cancellationToken);
-                    return result.ToHttpResult();
-                })
-            .WithName("DeleteTutorSession")
-            .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
-        return endpoints;
-    }
+	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+	{
+		endpoints.MapDelete(
+				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "tutor-session"),
+				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+				{
+					var request = new Command(tenantId, id);
+					var result = await mediator.SendAsync<Command, Result<Response>>(
+						request, cancellationToken);
+					return result.ToHttpResult();
+				})
+			.WithName("DeleteTutorSession")
+			.WithTags(ModuleConstants.Name)
+			.RequireAuthorization();
+		return endpoints;
+	}
 }

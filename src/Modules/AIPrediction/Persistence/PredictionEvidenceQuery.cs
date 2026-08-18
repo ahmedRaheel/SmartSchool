@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Read-side persistence for PredictionEvidenceEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the AIPrediction module.
+/// EF-backed read persistence for PredictionEvidenceEntity.
 /// </summary>
-public sealed class PredictionEvidenceQuery : IPredictionEvidenceQuery
+public sealed class PredictionEvidenceQuery(IEfMockStore store) : IPredictionEvidenceQuery
 {
-    public Task<PredictionEvidenceEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionEvidenceEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<PredictionEvidenceEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<PredictionEvidenceEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<PredictionEvidenceEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionEvidenceEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<PredictionEvidenceEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<PredictionEvidenceEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionEvidenceEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<PredictionEvidenceEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

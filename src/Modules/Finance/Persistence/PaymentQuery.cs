@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// Read-side persistence for PaymentEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Finance module.
+/// EF-backed read persistence for PaymentEntity.
 /// </summary>
-public sealed class PaymentQuery : IPaymentQuery
+public sealed class PaymentQuery(IEfMockStore store) : IPaymentQuery
 {
-    public Task<PaymentEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PaymentEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<PaymentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<PaymentEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<PaymentEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PaymentEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<PaymentEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<PaymentEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PaymentEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<PaymentEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

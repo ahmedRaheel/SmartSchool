@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Workflow.Persistence;
 
 /// <summary>
-/// Read-side persistence for ApprovalEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Workflow module.
+/// EF-backed read persistence for ApprovalEntity.
 /// </summary>
-public sealed class ApprovalQuery : IApprovalQuery
+public sealed class ApprovalQuery(IEfMockStore store) : IApprovalQuery
 {
-    public Task<ApprovalEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ApprovalEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<ApprovalEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<ApprovalEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<ApprovalEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ApprovalEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<ApprovalEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<ApprovalEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ApprovalEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<ApprovalEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

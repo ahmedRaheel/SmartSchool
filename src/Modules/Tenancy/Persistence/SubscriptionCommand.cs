@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
 /// <summary>
-/// Write-side persistence for SubscriptionEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for SubscriptionEntity.
 /// </summary>
-public sealed class SubscriptionCommand : ISubscriptionCommand
+public sealed class SubscriptionCommand(IEfMockStore store) : ISubscriptionCommand
 {
-    public Task AddAsync(
-        SubscriptionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "SubscriptionEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(SubscriptionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        SubscriptionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "SubscriptionEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(SubscriptionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        SubscriptionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "SubscriptionEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(SubscriptionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

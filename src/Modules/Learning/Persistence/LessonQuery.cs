@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Learning.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Learning.Persistence;
 
 /// <summary>
-/// Read-side persistence for LessonEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Learning module.
+/// EF-backed read persistence for LessonEntity.
 /// </summary>
-public sealed class LessonQuery : ILessonQuery
+public sealed class LessonQuery(IEfMockStore store) : ILessonQuery
 {
-    public Task<LessonEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LessonEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<LessonEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<LessonEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<LessonEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LessonEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<LessonEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<LessonEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "LessonEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<LessonEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

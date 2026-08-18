@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Persistence;
 
 /// <summary>
-/// Write-side persistence for WorkflowInstanceEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for WorkflowInstanceEntity.
 /// </summary>
-public sealed class WorkflowInstanceCommand : IWorkflowInstanceCommand
+public sealed class WorkflowInstanceCommand(IEfMockStore store) : IWorkflowInstanceCommand
 {
-    public Task AddAsync(
-        WorkflowInstanceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "WorkflowInstanceEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(WorkflowInstanceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        WorkflowInstanceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "WorkflowInstanceEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(WorkflowInstanceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        WorkflowInstanceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "WorkflowInstanceEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(WorkflowInstanceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }
