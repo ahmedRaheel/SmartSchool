@@ -1,3 +1,4 @@
+using SmartSchool.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
 using SmartSchool.Application;
 using SmartSchool.Infrastructure.Identity;
