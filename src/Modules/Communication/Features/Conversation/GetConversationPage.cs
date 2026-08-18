@@ -17,10 +17,11 @@ public static class GetConversationPage
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-		Guid TenantId,
-		Guid Id,
-		string Code,
-		string Name);
+	Guid TenantId,
+	Guid Id,
+	string Code,
+	string Name,
+	string? MetadataJson);
 
 	public sealed record Query(
 		Guid TenantId,
