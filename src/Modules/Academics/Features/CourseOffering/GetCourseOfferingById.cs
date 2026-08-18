@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.CourseOffering;
 
 public static class GetCourseOfferingById
 {
-
     /// <summary>
     /// Represents the response returned by this CourseOfferingEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetCourseOfferingById
             entity.Code,
             entity.Name);
     }
-
 }

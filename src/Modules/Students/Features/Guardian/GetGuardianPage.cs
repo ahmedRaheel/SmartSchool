@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Students.Features.Guardian;
 
 public static class GetGuardianPage
 {
-
     /// <summary>
     /// Represents the response returned by this GuardianEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetGuardianPage
             entity.Code,
             entity.Name);
     }
-
 }

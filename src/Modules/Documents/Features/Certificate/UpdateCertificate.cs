@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.Documents.Features.Certificate;
 
 public static class UpdateCertificate
 {
-
     /// <summary>
     /// Represents the response returned by this CertificateEntity feature.
     /// </summary>
@@ -50,7 +49,7 @@ public static class UpdateCertificate
             Request request,
             CancellationToken cancellationToken)
         {
-var entity = await entityQuery.GetByIdAsync(
+            var entity = await entityQuery.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -101,5 +100,4 @@ var entity = await entityQuery.GetByIdAsync(
             entity.Code,
             entity.Name);
     }
-
 }

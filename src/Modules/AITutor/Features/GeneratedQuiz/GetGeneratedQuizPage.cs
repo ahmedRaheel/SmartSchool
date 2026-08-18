@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 
 public static class GetGeneratedQuizPage
 {
-
     /// <summary>
     /// Represents the response returned by this GeneratedQuizEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetGeneratedQuizPage
             entity.Code,
             entity.Name);
     }
-
 }

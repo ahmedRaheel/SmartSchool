@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Identity.Features.UserProfile;
 
 public static class GetUserProfilePage
 {
-
     /// <summary>
     /// Represents the response returned by this UserProfileEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetUserProfilePage
             entity.Code,
             entity.Name);
     }
-
 }

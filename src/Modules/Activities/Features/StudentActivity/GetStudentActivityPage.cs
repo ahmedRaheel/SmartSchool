@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Activities.Features.StudentActivity;
 
 public static class GetStudentActivityPage
 {
-
     /// <summary>
     /// Represents the response returned by this StudentActivityEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetStudentActivityPage
             entity.Code,
             entity.Name);
     }
-
 }

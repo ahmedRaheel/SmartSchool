@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 
 public static class GetRoleAssignmentById
 {
-
     /// <summary>
     /// Represents the response returned by this RoleAssignmentEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetRoleAssignmentById
             entity.Code,
             entity.Name);
     }
-
 }

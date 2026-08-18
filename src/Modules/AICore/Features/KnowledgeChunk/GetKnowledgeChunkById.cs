@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 
 public static class GetKnowledgeChunkById
 {
-
     /// <summary>
     /// Represents the response returned by this KnowledgeChunkEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetKnowledgeChunkById
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AITutor.Features.TutorMessage;
 
 public static class GetTutorMessageById
 {
-
     /// <summary>
     /// Represents the response returned by this TutorMessageEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetTutorMessageById
             entity.Code,
             entity.Name);
     }
-
 }

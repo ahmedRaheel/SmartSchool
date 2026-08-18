@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.GradeLevel;
 
 public static class GetGradeLevelById
 {
-
     /// <summary>
     /// Represents the response returned by this GradeLevelEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetGradeLevelById
             entity.Code,
             entity.Name);
     }
-
 }

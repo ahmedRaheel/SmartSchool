@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Learning.Features.Assignment;
 
 public static class GetAssignmentPage
 {
-
     /// <summary>
     /// Represents the response returned by this AssignmentEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetAssignmentPage
             entity.Code,
             entity.Name);
     }
-
 }

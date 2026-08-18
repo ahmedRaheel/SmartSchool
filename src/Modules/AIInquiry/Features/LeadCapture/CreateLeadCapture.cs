@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AIInquiry.Features.LeadCapture;
 
 public static class CreateLeadCapture
 {
-
     /// <summary>
     /// Represents the response returned by this LeadCaptureEntity feature.
     /// </summary>
@@ -48,7 +47,7 @@ public static class CreateLeadCapture
             Request request,
             CancellationToken cancellationToken)
         {
-var exists = await entityQuery.ExistsByCodeAsync(
+            var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
@@ -92,5 +91,4 @@ var exists = await entityQuery.ExistsByCodeAsync(
             entity.Code,
             entity.Name);
     }
-
 }

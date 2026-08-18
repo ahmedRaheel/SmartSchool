@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 
 public static class UpdateEmploymentHistory
 {
-
     /// <summary>
     /// Represents the response returned by this EmploymentHistoryEntity feature.
     /// </summary>
@@ -50,7 +49,7 @@ public static class UpdateEmploymentHistory
             Request request,
             CancellationToken cancellationToken)
         {
-var entity = await entityQuery.GetByIdAsync(
+            var entity = await entityQuery.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -101,5 +100,4 @@ var entity = await entityQuery.GetByIdAsync(
             entity.Code,
             entity.Name);
     }
-
 }

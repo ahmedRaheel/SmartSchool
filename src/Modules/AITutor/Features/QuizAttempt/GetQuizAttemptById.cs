@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AITutor.Features.QuizAttempt;
 
 public static class GetQuizAttemptById
 {
-
     /// <summary>
     /// Represents the response returned by this QuizAttemptEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetQuizAttemptById
             entity.Code,
             entity.Name);
     }
-
 }

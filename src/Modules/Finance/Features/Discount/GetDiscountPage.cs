@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Finance.Features.Discount;
 
 public static class GetDiscountPage
 {
-
     /// <summary>
     /// Represents the response returned by this DiscountEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetDiscountPage
             entity.Code,
             entity.Name);
     }
-
 }

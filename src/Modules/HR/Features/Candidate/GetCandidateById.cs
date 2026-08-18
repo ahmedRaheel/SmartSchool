@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.Candidate;
 
 public static class GetCandidateById
 {
-
     /// <summary>
     /// Represents the response returned by this CandidateEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetCandidateById
             entity.Code,
             entity.Name);
     }
-
 }

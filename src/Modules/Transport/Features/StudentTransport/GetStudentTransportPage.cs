@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 
 public static class GetStudentTransportPage
 {
-
     /// <summary>
     /// Represents the response returned by this StudentTransportEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetStudentTransportPage
             entity.Code,
             entity.Name);
     }
-
 }

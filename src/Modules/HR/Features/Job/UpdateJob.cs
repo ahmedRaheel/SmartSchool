@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.HR.Features.Job;
 
 public static class UpdateJob
 {
-
     /// <summary>
     /// Represents the response returned by this JobEntity feature.
     /// </summary>
@@ -50,7 +49,7 @@ public static class UpdateJob
             Request request,
             CancellationToken cancellationToken)
         {
-var entity = await entityQuery.GetByIdAsync(
+            var entity = await entityQuery.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -101,5 +100,4 @@ var entity = await entityQuery.GetByIdAsync(
             entity.Code,
             entity.Name);
     }
-
 }

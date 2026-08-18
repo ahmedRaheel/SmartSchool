@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.Resume;
 
 public static class GetResumeById
 {
-
     /// <summary>
     /// Represents the response returned by this ResumeEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetResumeById
             entity.Code,
             entity.Name);
     }
-
 }

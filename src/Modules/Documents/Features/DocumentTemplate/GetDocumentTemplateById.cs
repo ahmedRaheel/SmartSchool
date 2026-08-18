@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Documents.Features.DocumentTemplate;
 
 public static class GetDocumentTemplateById
 {
-
     /// <summary>
     /// Represents the response returned by this DocumentTemplateEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetDocumentTemplateById
             entity.Code,
             entity.Name);
     }
-
 }

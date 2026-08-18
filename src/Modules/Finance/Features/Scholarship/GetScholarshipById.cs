@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Finance.Features.Scholarship;
 
 public static class GetScholarshipById
 {
-
     /// <summary>
     /// Represents the response returned by this ScholarshipEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetScholarshipById
             entity.Code,
             entity.Name);
     }
-
 }

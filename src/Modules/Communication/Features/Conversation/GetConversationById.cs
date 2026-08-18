@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Communication.Features.Conversation;
 
 public static class GetConversationById
 {
-
     /// <summary>
     /// Represents the response returned by this ConversationEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetConversationById
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Payroll.Features.Payslip;
 
 public static class GetPayslipById
 {
-
     /// <summary>
     /// Represents the response returned by this PayslipEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetPayslipById
             entity.Code,
             entity.Name);
     }
-
 }

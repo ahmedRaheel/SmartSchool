@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Documents.Features.GeneratedDocument;
 
 public static class GetGeneratedDocumentById
 {
-
     /// <summary>
     /// Represents the response returned by this GeneratedDocumentEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetGeneratedDocumentById
             entity.Code,
             entity.Name);
     }
-
 }

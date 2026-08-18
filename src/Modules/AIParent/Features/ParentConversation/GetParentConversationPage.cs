@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIParent.Features.ParentConversation;
 
 public static class GetParentConversationPage
 {
-
     /// <summary>
     /// Represents the response returned by this ParentConversationEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetParentConversationPage
             entity.Code,
             entity.Name);
     }
-
 }

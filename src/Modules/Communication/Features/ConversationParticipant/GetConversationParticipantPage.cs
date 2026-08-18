@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Communication.Features.ConversationParticipant;
 
 public static class GetConversationParticipantPage
 {
-
     /// <summary>
     /// Represents the response returned by this ConversationParticipantEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetConversationParticipantPage
             entity.Code,
             entity.Name);
     }
-
 }

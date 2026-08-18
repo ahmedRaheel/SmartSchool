@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Library.Features.Reservation;
 
 public static class GetReservationById
 {
-
     /// <summary>
     /// Represents the response returned by this ReservationEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetReservationById
             entity.Code,
             entity.Name);
     }
-
 }

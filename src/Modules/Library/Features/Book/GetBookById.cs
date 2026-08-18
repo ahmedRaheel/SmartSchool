@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Library.Features.Book;
 
 public static class GetBookById
 {
-
     /// <summary>
     /// Represents the response returned by this BookEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetBookById
             entity.Code,
             entity.Name);
     }
-
 }

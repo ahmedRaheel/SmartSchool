@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 
 public static class GetParentToolExecutionById
 {
-
     /// <summary>
     /// Represents the response returned by this ParentToolExecutionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetParentToolExecutionById
             entity.Code,
             entity.Name);
     }
-
 }

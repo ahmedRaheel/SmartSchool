@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Activities.Features.Award;
 
 public static class GetAwardById
 {
-
     /// <summary>
     /// Represents the response returned by this AwardEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetAwardById
             entity.Code,
             entity.Name);
     }
-
 }

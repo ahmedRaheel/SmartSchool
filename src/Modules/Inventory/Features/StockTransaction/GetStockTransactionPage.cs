@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Inventory.Features.StockTransaction;
 
 public static class GetStockTransactionPage
 {
-
     /// <summary>
     /// Represents the response returned by this StockTransactionEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetStockTransactionPage
             entity.Code,
             entity.Name);
     }
-
 }

@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AICore.Features.PromptTemplate;
 
 public static class CreatePromptTemplate
 {
-
     /// <summary>
     /// Represents the response returned by this PromptTemplateEntity feature.
     /// </summary>
@@ -84,7 +83,7 @@ public static class CreatePromptTemplate
     }
 
     private static Response MapResponse(
-        PromptTemplateEntity entity)
+        SmartSchool.Modules.AICore.Models.PromptTemplateEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -92,5 +91,4 @@ public static class CreatePromptTemplate
             entity.Code,
             entity.Name);
     }
-
 }

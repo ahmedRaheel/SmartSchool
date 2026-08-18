@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Tenancy.Features.Subscription;
 
 public static class GetSubscriptionById
 {
-
     /// <summary>
     /// Represents the response returned by this SubscriptionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetSubscriptionById
             entity.Code,
             entity.Name);
     }
-
 }

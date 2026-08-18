@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Payroll.Features.Increment;
 
 public static class GetIncrementById
 {
-
     /// <summary>
     /// Represents the response returned by this IncrementEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetIncrementById
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Payroll.Features.EmployeeCompensation;
 
 public static class GetEmployeeCompensationById
 {
-
     /// <summary>
     /// Represents the response returned by this EmployeeCompensationEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetEmployeeCompensationById
             entity.Code,
             entity.Name);
     }
-
 }

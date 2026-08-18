@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 
 public static class GetLearningRecommendationById
 {
-
     /// <summary>
     /// Represents the response returned by this LearningRecommendationEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetLearningRecommendationById
             entity.Code,
             entity.Name);
     }
-
 }

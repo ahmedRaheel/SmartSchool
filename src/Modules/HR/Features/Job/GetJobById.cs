@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.Job;
 
 public static class GetJobById
 {
-
     /// <summary>
     /// Represents the response returned by this JobEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetJobById
             entity.Code,
             entity.Name);
     }
-
 }

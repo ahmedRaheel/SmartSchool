@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.Interview;
 
 public static class GetInterviewPage
 {
-
     /// <summary>
     /// Represents the response returned by this InterviewEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetInterviewPage
             entity.Code,
             entity.Name);
     }
-
 }

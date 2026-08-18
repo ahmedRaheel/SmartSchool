@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.Term;
 
 public static class GetTermById
 {
-
     /// <summary>
     /// Represents the response returned by this TermEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetTermById
             entity.Code,
             entity.Name);
     }
-
 }

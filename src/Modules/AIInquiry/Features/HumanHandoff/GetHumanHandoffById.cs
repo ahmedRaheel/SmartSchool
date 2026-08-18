@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 
 public static class GetHumanHandoffById
 {
-
     /// <summary>
     /// Represents the response returned by this HumanHandoffEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetHumanHandoffById
             entity.Code,
             entity.Name);
     }
-
 }

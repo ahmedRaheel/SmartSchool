@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Audit.Features.AuditLog;
 
 public static class GetAuditLogById
 {
-
     /// <summary>
     /// Represents the response returned by this AuditLogEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetAuditLogById
             entity.Code,
             entity.Name);
     }
-
 }

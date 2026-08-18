@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIInquiry.Features.InquiryMessage;
 
 public static class GetInquiryMessageById
 {
-
     /// <summary>
     /// Represents the response returned by this InquiryMessageEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetInquiryMessageById
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 
 public static class GetWorkflowStepById
 {
-
     /// <summary>
     /// Represents the response returned by this WorkflowStepEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetWorkflowStepById
             entity.Code,
             entity.Name);
     }
-
 }

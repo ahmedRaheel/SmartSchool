@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
 
 public static class GetStudentInterventionById
 {
-
     /// <summary>
     /// Represents the response returned by this StudentInterventionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetStudentInterventionById
             entity.Code,
             entity.Name);
     }
-
 }

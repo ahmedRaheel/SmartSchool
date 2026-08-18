@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Workflow.Features.Approval;
 
 public static class GetApprovalById
 {
-
     /// <summary>
     /// Represents the response returned by this ApprovalEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetApprovalById
             entity.Code,
             entity.Name);
     }
-
 }

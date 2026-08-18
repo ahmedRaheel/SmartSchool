@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Examinations.Features.Exam;
 
 public static class GetExamPage
 {
-
     /// <summary>
     /// Represents the response returned by this ExamEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetExamPage
             entity.Code,
             entity.Name);
     }
-
 }

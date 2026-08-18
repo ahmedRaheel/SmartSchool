@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Finance.Features.FeeType;
 
 public static class GetFeeTypeById
 {
-
     /// <summary>
     /// Represents the response returned by this FeeTypeEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetFeeTypeById
             entity.Code,
             entity.Name);
     }
-
 }

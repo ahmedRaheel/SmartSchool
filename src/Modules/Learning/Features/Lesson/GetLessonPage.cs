@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Learning.Features.Lesson;
 
 public static class GetLessonPage
 {
-
     /// <summary>
     /// Represents the response returned by this LessonEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetLessonPage
             entity.Code,
             entity.Name);
     }
-
 }

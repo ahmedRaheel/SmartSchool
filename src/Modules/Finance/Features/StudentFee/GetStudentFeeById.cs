@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Finance.Features.StudentFee;
 
 public static class GetStudentFeeById
 {
-
     /// <summary>
     /// Represents the response returned by this StudentFeeEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetStudentFeeById
             entity.Code,
             entity.Name);
     }
-
 }

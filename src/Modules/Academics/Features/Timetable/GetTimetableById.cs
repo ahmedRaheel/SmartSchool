@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.Timetable;
 
 public static class GetTimetableById
 {
-
     /// <summary>
     /// Represents the response returned by this TimetableEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetTimetableById
             entity.Code,
             entity.Name);
     }
-
 }

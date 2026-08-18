@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.Subject;
 
 public static class GetSubjectById
 {
-
     /// <summary>
     /// Represents the response returned by this SubjectEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetSubjectById
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 
 public static class GetTeachingRecommendationPage
 {
-
     /// <summary>
     /// Represents the response returned by this TeachingRecommendationEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetTeachingRecommendationPage
             entity.Code,
             entity.Name);
     }
-
 }

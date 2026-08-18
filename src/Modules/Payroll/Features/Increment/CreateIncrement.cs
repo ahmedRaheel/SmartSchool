@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.Payroll.Features.Increment;
 
 public static class CreateIncrement
 {
-
     /// <summary>
     /// Represents the response returned by this IncrementEntity feature.
     /// </summary>
@@ -48,7 +47,7 @@ public static class CreateIncrement
             Request request,
             CancellationToken cancellationToken)
         {
-var exists = await entityQuery.ExistsByCodeAsync(
+            var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
@@ -92,5 +91,4 @@ var exists = await entityQuery.ExistsByCodeAsync(
             entity.Code,
             entity.Name);
     }
-
 }

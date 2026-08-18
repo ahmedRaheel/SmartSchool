@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Inventory.Features.PurchaseOrder;
 
 public static class GetPurchaseOrderById
 {
-
     /// <summary>
     /// Represents the response returned by this PurchaseOrderEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetPurchaseOrderById
             entity.Code,
             entity.Name);
     }
-
 }

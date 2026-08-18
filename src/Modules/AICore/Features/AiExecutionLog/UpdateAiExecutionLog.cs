@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AICore.Features.AiExecutionLog;
 
 public static class UpdateAiExecutionLog
 {
-
     /// <summary>
     /// Represents the response returned by this AiExecutionLogEntity feature.
     /// </summary>
@@ -93,7 +92,7 @@ public static class UpdateAiExecutionLog
     }
 
     private static Response MapResponse(
-        AiExecutionLogEntity entity)
+        SmartSchool.Modules.AICore.Models.AiExecutionLogEntity entity)
     {
         return new Response(
             entity.TenantId,

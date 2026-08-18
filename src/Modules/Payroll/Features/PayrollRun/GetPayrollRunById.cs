@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Payroll.Features.PayrollRun;
 
 public static class GetPayrollRunById
 {
-
     /// <summary>
     /// Represents the response returned by this PayrollRunEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetPayrollRunById
             entity.Code,
             entity.Name);
     }
-
 }

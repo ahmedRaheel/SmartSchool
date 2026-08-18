@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Admissions.Features.Application;
 
 public static class GetApplicationPage
 {
-
     /// <summary>
     /// Represents the response returned by this ApplicationEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetApplicationPage
             entity.Code,
             entity.Name);
     }
-
 }

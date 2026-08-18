@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeCollection;
 
 public static class GetKnowledgeCollectionPage
 {
-
     /// <summary>
     /// Represents the response returned by this KnowledgeCollectionEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetKnowledgeCollectionPage
             entity.Code,
             entity.Name);
     }
-
 }

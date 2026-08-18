@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Organization.Features.Department;
 
 public static class GetDepartmentPage
 {
-
     /// <summary>
     /// Represents the response returned by this DepartmentEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetDepartmentPage
             entity.Code,
             entity.Name);
     }
-
 }

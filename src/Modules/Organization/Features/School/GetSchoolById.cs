@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Organization.Features.School;
 
 public static class GetSchoolById
 {
-
     /// <summary>
     /// Represents the response returned by this SchoolEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetSchoolById
             entity.Code,
             entity.Name);
     }
-
 }

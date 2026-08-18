@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 
 public static class UpdateInquiryConversation
 {
-
     /// <summary>
     /// Represents the response returned by this InquiryConversationEntity feature.
     /// </summary>
@@ -93,7 +92,7 @@ public static class UpdateInquiryConversation
     }
 
     private static Response MapResponse(
-        InquiryConversationEntity entity)
+        SmartSchool.Modules.AIInquiry.Models.InquiryConversationEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -101,5 +100,4 @@ public static class UpdateInquiryConversation
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.Position;
 
 public static class GetPositionById
 {
-
     /// <summary>
     /// Represents the response returned by this PositionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetPositionById
             entity.Code,
             entity.Name);
     }
-
 }

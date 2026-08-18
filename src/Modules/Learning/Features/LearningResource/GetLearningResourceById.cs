@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Learning.Features.LearningResource;
 
 public static class GetLearningResourceById
 {
-
     /// <summary>
     /// Represents the response returned by this LearningResourceEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetLearningResourceById
             entity.Code,
             entity.Name);
     }
-
 }

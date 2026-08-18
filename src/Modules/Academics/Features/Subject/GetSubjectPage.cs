@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.Subject;
 
 public static class GetSubjectPage
 {
-
     /// <summary>
     /// Represents the response returned by this SubjectEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetSubjectPage
             entity.Code,
             entity.Name);
     }
-
 }

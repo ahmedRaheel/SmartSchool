@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Students.Features.StudentGuardian;
 
 public static class GetStudentGuardianById
 {
-
     /// <summary>
     /// Represents the response returned by this StudentGuardianEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetStudentGuardianById
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.AcademicYear;
 
 public static class GetAcademicYearPage
 {
-
     /// <summary>
     /// Represents the response returned by this AcademicYearEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetAcademicYearPage
             entity.Code,
             entity.Name);
     }
-
 }

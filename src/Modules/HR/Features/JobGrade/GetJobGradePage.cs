@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.JobGrade;
 
 public static class GetJobGradePage
 {
-
     /// <summary>
     /// Represents the response returned by this JobGradeEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetJobGradePage
             entity.Code,
             entity.Name);
     }
-
 }

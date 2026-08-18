@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Workflow.Features.Approval;
 
 public static class GetApprovalPage
 {
-
     /// <summary>
     /// Represents the response returned by this ApprovalEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetApprovalPage
             entity.Code,
             entity.Name);
     }
-
 }

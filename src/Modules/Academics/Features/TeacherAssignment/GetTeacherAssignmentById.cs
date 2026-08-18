@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.TeacherAssignment;
 
 public static class GetTeacherAssignmentById
 {
-
     /// <summary>
     /// Represents the response returned by this TeacherAssignmentEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetTeacherAssignmentById
             entity.Code,
             entity.Name);
     }
-
 }

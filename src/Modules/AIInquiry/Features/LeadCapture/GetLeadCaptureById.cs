@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIInquiry.Features.LeadCapture;
 
 public static class GetLeadCaptureById
 {
-
     /// <summary>
     /// Represents the response returned by this LeadCaptureEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetLeadCaptureById
             entity.Code,
             entity.Name);
     }
-
 }

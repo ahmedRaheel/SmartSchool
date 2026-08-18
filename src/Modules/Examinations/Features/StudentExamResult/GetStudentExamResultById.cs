@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Examinations.Features.StudentExamResult;
 
 public static class GetStudentExamResultById
 {
-
     /// <summary>
     /// Represents the response returned by this StudentExamResultEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetStudentExamResultById
             entity.Code,
             entity.Name);
     }
-
 }

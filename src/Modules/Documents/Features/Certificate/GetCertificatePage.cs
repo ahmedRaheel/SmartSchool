@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Documents.Features.Certificate;
 
 public static class GetCertificatePage
 {
-
     /// <summary>
     /// Represents the response returned by this CertificateEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetCertificatePage
             entity.Code,
             entity.Name);
     }
-
 }

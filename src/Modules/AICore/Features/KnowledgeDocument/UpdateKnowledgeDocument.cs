@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 
 public static class UpdateKnowledgeDocument
 {
-
     /// <summary>
     /// Represents the response returned by this KnowledgeDocumentEntity feature.
     /// </summary>
@@ -93,7 +92,7 @@ public static class UpdateKnowledgeDocument
     }
 
     private static Response MapResponse(
-        KnowledgeDocumentEntity entity)
+        SmartSchool.Modules.AICore.Models.KnowledgeDocumentEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -101,5 +100,4 @@ public static class UpdateKnowledgeDocument
             entity.Code,
             entity.Name);
     }
-
 }

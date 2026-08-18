@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeCollection;
 
 public static class UpdateKnowledgeCollection
 {
-
     /// <summary>
     /// Represents the response returned by this KnowledgeCollectionEntity feature.
     /// </summary>
@@ -93,7 +92,7 @@ public static class UpdateKnowledgeCollection
     }
 
     private static Response MapResponse(
-        KnowledgeCollectionEntity entity)
+        SmartSchool.Modules.AICore.Models.KnowledgeCollectionEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -101,5 +100,4 @@ public static class UpdateKnowledgeCollection
             entity.Code,
             entity.Name);
     }
-
 }

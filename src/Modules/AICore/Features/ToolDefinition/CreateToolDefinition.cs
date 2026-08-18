@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 
 public static class CreateToolDefinition
 {
-
     /// <summary>
     /// Represents the response returned by this ToolDefinitionEntity feature.
     /// </summary>
@@ -84,7 +83,7 @@ public static class CreateToolDefinition
     }
 
     private static Response MapResponse(
-        ToolDefinitionEntity entity)
+        SmartSchool.Modules.AICore.Models.ToolDefinitionEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -92,5 +91,4 @@ public static class CreateToolDefinition
             entity.Code,
             entity.Name);
     }
-
 }

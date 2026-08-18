@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Library.Features.BookCopy;
 
 public static class GetBookCopyById
 {
-
     /// <summary>
     /// Represents the response returned by this BookCopyEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetBookCopyById
             entity.Code,
             entity.Name);
     }
-
 }

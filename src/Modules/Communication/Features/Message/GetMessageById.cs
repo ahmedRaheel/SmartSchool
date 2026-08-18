@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Communication.Features.Message;
 
 public static class GetMessageById
 {
-
     /// <summary>
     /// Represents the response returned by this MessageEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetMessageById
             entity.Code,
             entity.Name);
     }
-
 }

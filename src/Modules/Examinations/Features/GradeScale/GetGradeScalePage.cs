@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
 public static class GetGradeScalePage
 {
-
     /// <summary>
     /// Represents the response returned by this GradeScaleEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetGradeScalePage
             entity.Code,
             entity.Name);
     }
-
 }

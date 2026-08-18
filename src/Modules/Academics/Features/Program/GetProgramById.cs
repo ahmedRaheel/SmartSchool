@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.Program;
 
 public static class GetProgramById
 {
-
     /// <summary>
     /// Represents the response returned by this ProgramEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetProgramById
             entity.Code,
             entity.Name);
     }
-
 }

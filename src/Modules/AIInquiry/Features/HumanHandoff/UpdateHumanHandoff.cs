@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 
 public static class UpdateHumanHandoff
 {
-
     /// <summary>
     /// Represents the response returned by this HumanHandoffEntity feature.
     /// </summary>
@@ -93,7 +92,7 @@ public static class UpdateHumanHandoff
     }
 
     private static Response MapResponse(
-        HumanHandoffEntity entity)
+        SmartSchool.Modules.AIInquiry.Models.HumanHandoffEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -101,5 +100,4 @@ public static class UpdateHumanHandoff
             entity.Code,
             entity.Name);
     }
-
 }

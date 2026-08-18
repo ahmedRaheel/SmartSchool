@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Finance.Features.Invoice;
 
 public static class GetInvoicePage
 {
-
     /// <summary>
     /// Represents the response returned by this InvoiceEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetInvoicePage
             entity.Code,
             entity.Name);
     }
-
 }

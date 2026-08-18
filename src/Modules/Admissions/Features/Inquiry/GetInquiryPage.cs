@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Admissions.Features.Inquiry;
 
 public static class GetInquiryPage
 {
-
     /// <summary>
     /// Represents the response returned by this InquiryEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetInquiryPage
             entity.Code,
             entity.Name);
     }
-
 }

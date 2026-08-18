@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 
 public static class GetToolDefinitionById
 {
-
     /// <summary>
     /// Represents the response returned by this ToolDefinitionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetToolDefinitionById
             entity.Code,
             entity.Name);
     }
-
 }

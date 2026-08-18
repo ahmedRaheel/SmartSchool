@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 
 public static class GetSalaryStructureById
 {
-
     /// <summary>
     /// Represents the response returned by this SalaryStructureEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetSalaryStructureById
             entity.Code,
             entity.Name);
     }
-
 }

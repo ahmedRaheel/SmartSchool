@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIParent.Features.ParentMessage;
 
 public static class GetParentMessageById
 {
-
     /// <summary>
     /// Represents the response returned by this ParentMessageEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetParentMessageById
             entity.Code,
             entity.Name);
     }
-
 }

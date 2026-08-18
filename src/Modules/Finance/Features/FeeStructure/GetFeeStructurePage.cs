@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Finance.Features.FeeStructure;
 
 public static class GetFeeStructurePage
 {
-
     /// <summary>
     /// Represents the response returned by this FeeStructureEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetFeeStructurePage
             entity.Code,
             entity.Name);
     }
-
 }

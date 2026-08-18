@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Transport.Features.Vehicle;
 
 public static class GetVehicleById
 {
-
     /// <summary>
     /// Represents the response returned by this VehicleEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetVehicleById
             entity.Code,
             entity.Name);
     }
-
 }

@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
 public static class CreateModelConfiguration
 {
-
     /// <summary>
     /// Represents the response returned by this ModelConfigurationEntity feature.
     /// </summary>
@@ -84,7 +83,7 @@ public static class CreateModelConfiguration
     }
 
     private static Response MapResponse(
-        ModelConfigurationEntity entity)
+        SmartSchool.Modules.AICore.Models.ModelConfigurationEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -92,5 +91,4 @@ public static class CreateModelConfiguration
             entity.Code,
             entity.Name);
     }
-
 }

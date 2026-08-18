@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Transport.Features.Stop;
 
 public static class GetStopPage
 {
-
     /// <summary>
     /// Represents the response returned by this StopEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetStopPage
             entity.Code,
             entity.Name);
     }
-
 }

@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.Inventory.Features.Item;
 
 public static class CreateItem
 {
-
     /// <summary>
     /// Represents the response returned by this ItemEntity feature.
     /// </summary>
@@ -48,7 +47,7 @@ public static class CreateItem
             Request request,
             CancellationToken cancellationToken)
         {
-var exists = await entityQuery.ExistsByCodeAsync(
+            var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
@@ -92,5 +91,4 @@ var exists = await entityQuery.ExistsByCodeAsync(
             entity.Code,
             entity.Name);
     }
-
 }

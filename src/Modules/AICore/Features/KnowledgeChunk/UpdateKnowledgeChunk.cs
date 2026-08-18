@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 
 public static class UpdateKnowledgeChunk
 {
-
     /// <summary>
     /// Represents the response returned by this KnowledgeChunkEntity feature.
     /// </summary>
@@ -93,7 +92,7 @@ public static class UpdateKnowledgeChunk
     }
 
     private static Response MapResponse(
-        KnowledgeChunkEntity entity)
+        SmartSchool.Modules.AICore.Models.KnowledgeChunkEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -101,5 +100,4 @@ public static class UpdateKnowledgeChunk
             entity.Code,
             entity.Name);
     }
-
 }

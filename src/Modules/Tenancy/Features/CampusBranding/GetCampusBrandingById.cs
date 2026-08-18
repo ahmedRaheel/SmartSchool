@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Tenancy.Features.CampusBranding;
 
 public static class GetCampusBrandingById
 {
-
     /// <summary>
     /// Represents the response returned by this CampusBrandingEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetCampusBrandingById
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.AcademicSystem;
 
 public static class GetAcademicSystemPage
 {
-
     /// <summary>
     /// Represents the response returned by this AcademicSystemEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetAcademicSystemPage
             entity.Code,
             entity.Name);
     }
-
 }

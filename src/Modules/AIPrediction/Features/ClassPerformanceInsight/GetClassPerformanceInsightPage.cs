@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIPrediction.Features.ClassPerformanceInsight;
 
 public static class GetClassPerformanceInsightPage
 {
-
     /// <summary>
     /// Represents the response returned by this ClassPerformanceInsightEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetClassPerformanceInsightPage
             entity.Code,
             entity.Name);
     }
-
 }

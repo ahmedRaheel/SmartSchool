@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Library.Features.Loan;
 
 public static class GetLoanById
 {
-
     /// <summary>
     /// Represents the response returned by this LoanEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetLoanById
             entity.Code,
             entity.Name);
     }
-
 }

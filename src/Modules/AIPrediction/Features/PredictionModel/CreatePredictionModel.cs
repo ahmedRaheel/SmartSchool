@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 
 public static class CreatePredictionModel
 {
-
     /// <summary>
     /// Represents the response returned by this PredictionModelEntity feature.
     /// </summary>
@@ -48,7 +47,7 @@ public static class CreatePredictionModel
             Request request,
             CancellationToken cancellationToken)
         {
-var exists = await entityQuery.ExistsByCodeAsync(
+            var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
@@ -92,5 +91,4 @@ var exists = await entityQuery.ExistsByCodeAsync(
             entity.Code,
             entity.Name);
     }
-
 }

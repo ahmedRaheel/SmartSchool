@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.Communication.Features.Notification;
 
 public static class CreateNotification
 {
-
     /// <summary>
     /// Represents the response returned by this NotificationEntity feature.
     /// </summary>
@@ -48,7 +47,7 @@ public static class CreateNotification
             Request request,
             CancellationToken cancellationToken)
         {
-var exists = await entityQuery.ExistsByCodeAsync(
+            var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
@@ -92,5 +91,4 @@ var exists = await entityQuery.ExistsByCodeAsync(
             entity.Code,
             entity.Name);
     }
-
 }

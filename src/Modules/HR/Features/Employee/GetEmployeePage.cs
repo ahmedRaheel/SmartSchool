@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.Employee;
 
 public static class GetEmployeePage
 {
-
     /// <summary>
     /// Represents the response returned by this EmployeeEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetEmployeePage
             entity.Code,
             entity.Name);
     }
-
 }

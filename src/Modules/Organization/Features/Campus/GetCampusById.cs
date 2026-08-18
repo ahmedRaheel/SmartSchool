@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 
 public static class GetCampusById
 {
-
     /// <summary>
     /// Represents the response returned by this CampusEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetCampusById
             entity.Code,
             entity.Name);
     }
-
 }

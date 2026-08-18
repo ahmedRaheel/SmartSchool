@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
 public static class UpdateModelConfiguration
 {
-
     /// <summary>
     /// Represents the response returned by this ModelConfigurationEntity feature.
     /// </summary>
@@ -93,7 +92,7 @@ public static class UpdateModelConfiguration
     }
 
     private static Response MapResponse(
-        ModelConfigurationEntity entity)
+        SmartSchool.Modules.AICore.Models.ModelConfigurationEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -101,5 +100,4 @@ public static class UpdateModelConfiguration
             entity.Code,
             entity.Name);
     }
-
 }

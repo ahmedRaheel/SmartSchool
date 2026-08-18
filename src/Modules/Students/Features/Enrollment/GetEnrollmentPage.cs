@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Students.Features.Enrollment;
 
 public static class GetEnrollmentPage
 {
-
     /// <summary>
     /// Represents the response returned by this EnrollmentEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetEnrollmentPage
             entity.Code,
             entity.Name);
     }
-
 }

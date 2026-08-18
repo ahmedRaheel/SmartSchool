@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Tenancy.Features.Subscription;
 
 public static class GetSubscriptionPage
 {
-
     /// <summary>
     /// Represents the response returned by this SubscriptionEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetSubscriptionPage
             entity.Code,
             entity.Name);
     }
-
 }

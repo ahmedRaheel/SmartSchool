@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
 public static class CreateGradeScale
 {
-
     /// <summary>
     /// Represents the response returned by this GradeScaleEntity feature.
     /// </summary>
@@ -48,7 +47,7 @@ public static class CreateGradeScale
             Request request,
             CancellationToken cancellationToken)
         {
-var exists = await entityQuery.ExistsByCodeAsync(
+            var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
@@ -92,5 +91,4 @@ var exists = await entityQuery.ExistsByCodeAsync(
             entity.Code,
             entity.Name);
     }
-
 }

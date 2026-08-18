@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Transport.Features.Stop;
 
 public static class GetStopById
 {
-
     /// <summary>
     /// Represents the response returned by this StopEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetStopById
             entity.Code,
             entity.Name);
     }
-
 }

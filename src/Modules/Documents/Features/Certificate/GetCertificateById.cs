@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Documents.Features.Certificate;
 
 public static class GetCertificateById
 {
-
     /// <summary>
     /// Represents the response returned by this CertificateEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetCertificateById
             entity.Code,
             entity.Name);
     }
-
 }

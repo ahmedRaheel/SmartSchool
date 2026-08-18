@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 
 public static class GetInquiryConversationPage
 {
-
     /// <summary>
     /// Represents the response returned by this InquiryConversationEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetInquiryConversationPage
             entity.Code,
             entity.Name);
     }
-
 }

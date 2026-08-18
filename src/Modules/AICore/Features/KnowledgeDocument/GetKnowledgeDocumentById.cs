@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 
 public static class GetKnowledgeDocumentById
 {
-
     /// <summary>
     /// Represents the response returned by this KnowledgeDocumentEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetKnowledgeDocumentById
             entity.Code,
             entity.Name);
     }
-
 }

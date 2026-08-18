@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 
 public static class GetPredictionModelPage
 {
-
     /// <summary>
     /// Represents the response returned by this PredictionModelEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetPredictionModelPage
             entity.Code,
             entity.Name);
     }
-
 }

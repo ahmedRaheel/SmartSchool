@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AICore.Features.PromptTemplate;
 
 public static class GetPromptTemplatePage
 {
-
     /// <summary>
     /// Represents the response returned by this PromptTemplateEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetPromptTemplatePage
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowInstance;
 
 public static class GetWorkflowInstancePage
 {
-
     /// <summary>
     /// Represents the response returned by this WorkflowInstanceEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetWorkflowInstancePage
             entity.Code,
             entity.Name);
     }
-
 }

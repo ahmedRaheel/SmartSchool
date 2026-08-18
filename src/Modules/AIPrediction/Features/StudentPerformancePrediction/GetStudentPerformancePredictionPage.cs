@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction
 
 public static class GetStudentPerformancePredictionPage
 {
-
     /// <summary>
     /// Represents the response returned by this StudentPerformancePredictionEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetStudentPerformancePredictionPage
             entity.Code,
             entity.Name);
     }
-
 }

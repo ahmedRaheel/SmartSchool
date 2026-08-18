@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AITutor.Features.TutorSession;
 
 public static class GetTutorSessionById
 {
-
     /// <summary>
     /// Represents the response returned by this TutorSessionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetTutorSessionById
             entity.Code,
             entity.Name);
     }
-
 }

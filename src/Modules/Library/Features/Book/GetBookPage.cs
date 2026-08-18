@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Library.Features.Book;
 
 public static class GetBookPage
 {
-
     /// <summary>
     /// Represents the response returned by this BookEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetBookPage
             entity.Code,
             entity.Name);
     }
-
 }

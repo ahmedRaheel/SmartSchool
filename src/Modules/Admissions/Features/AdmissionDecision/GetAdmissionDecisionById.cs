@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 
 public static class GetAdmissionDecisionById
 {
-
     /// <summary>
     /// Represents the response returned by this AdmissionDecisionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetAdmissionDecisionById
             entity.Code,
             entity.Name);
     }
-
 }

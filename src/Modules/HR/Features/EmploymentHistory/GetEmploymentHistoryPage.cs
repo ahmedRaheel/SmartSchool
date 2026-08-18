@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 
 public static class GetEmploymentHistoryPage
 {
-
     /// <summary>
     /// Represents the response returned by this EmploymentHistoryEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetEmploymentHistoryPage
             entity.Code,
             entity.Name);
     }
-
 }

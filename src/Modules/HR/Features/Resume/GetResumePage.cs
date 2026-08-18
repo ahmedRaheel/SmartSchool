@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.Resume;
 
 public static class GetResumePage
 {
-
     /// <summary>
     /// Represents the response returned by this ResumeEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetResumePage
             entity.Code,
             entity.Name);
     }
-
 }

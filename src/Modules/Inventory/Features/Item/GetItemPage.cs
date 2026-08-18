@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Inventory.Features.Item;
 
 public static class GetItemPage
 {
-
     /// <summary>
     /// Represents the response returned by this ItemEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetItemPage
             entity.Code,
             entity.Name);
     }
-
 }

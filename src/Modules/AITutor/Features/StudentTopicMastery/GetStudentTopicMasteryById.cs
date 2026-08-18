@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AITutor.Features.StudentTopicMastery;
 
 public static class GetStudentTopicMasteryById
 {
-
     /// <summary>
     /// Represents the response returned by this StudentTopicMasteryEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetStudentTopicMasteryById
             entity.Code,
             entity.Name);
     }
-
 }

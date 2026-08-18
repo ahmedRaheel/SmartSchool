@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionEvidence;
 
 public static class GetPredictionEvidenceById
 {
-
     /// <summary>
     /// Represents the response returned by this PredictionEvidenceEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetPredictionEvidenceById
             entity.Code,
             entity.Name);
     }
-
 }

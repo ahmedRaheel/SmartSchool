@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Transport.Features.Route;
 
 public static class GetRouteById
 {
-
     /// <summary>
     /// Represents the response returned by this RouteEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetRouteById
             entity.Code,
             entity.Name);
     }
-
 }

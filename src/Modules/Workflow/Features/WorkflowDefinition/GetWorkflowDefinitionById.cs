@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
 
 public static class GetWorkflowDefinitionById
 {
-
     /// <summary>
     /// Represents the response returned by this WorkflowDefinitionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetWorkflowDefinitionById
             entity.Code,
             entity.Name);
     }
-
 }

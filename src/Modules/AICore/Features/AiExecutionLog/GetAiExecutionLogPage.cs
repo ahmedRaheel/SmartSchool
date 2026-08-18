@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AICore.Features.AiExecutionLog;
 
 public static class GetAiExecutionLogPage
 {
-
     /// <summary>
     /// Represents the response returned by this AiExecutionLogEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetAiExecutionLogPage
             entity.Code,
             entity.Name);
     }
-
 }

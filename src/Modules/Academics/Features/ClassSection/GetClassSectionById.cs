@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.ClassSection;
 
 public static class GetClassSectionById
 {
-
     /// <summary>
     /// Represents the response returned by this ClassSectionEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetClassSectionById
             entity.Code,
             entity.Name);
     }
-
 }

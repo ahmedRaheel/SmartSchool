@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 
 public static class GetSchoolLogoPage
 {
-
     /// <summary>
     /// Represents the response returned by this SchoolLogoEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetSchoolLogoPage
             entity.Code,
             entity.Name);
     }
-
 }

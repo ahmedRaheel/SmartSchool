@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 
 public static class GetTenantPage
 {
-
     /// <summary>
     /// Represents the response returned by this TenantEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetTenantPage
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.TimetableEntry;
 
 public static class GetTimetableEntryPage
 {
-
     /// <summary>
     /// Represents the response returned by this TimetableEntryEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetTimetableEntryPage
             entity.Code,
             entity.Name);
     }
-
 }

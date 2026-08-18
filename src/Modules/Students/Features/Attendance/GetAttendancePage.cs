@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Students.Features.Attendance;
 
 public static class GetAttendancePage
 {
-
     /// <summary>
     /// Represents the response returned by this AttendanceEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetAttendancePage
             entity.Code,
             entity.Name);
     }
-
 }

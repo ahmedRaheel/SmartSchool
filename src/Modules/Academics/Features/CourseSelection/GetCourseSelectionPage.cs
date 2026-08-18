@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Academics.Features.CourseSelection;
 
 public static class GetCourseSelectionPage
 {
-
     /// <summary>
     /// Represents the response returned by this CourseSelectionEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetCourseSelectionPage
             entity.Code,
             entity.Name);
     }
-
 }

@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Communication.Features.Notification;
 
 public static class GetNotificationPage
 {
-
     /// <summary>
     /// Represents the response returned by this NotificationEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetNotificationPage
             entity.Code,
             entity.Name);
     }
-
 }

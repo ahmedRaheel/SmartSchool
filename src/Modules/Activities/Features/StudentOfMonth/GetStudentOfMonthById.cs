@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Activities.Features.StudentOfMonth;
 
 public static class GetStudentOfMonthById
 {
-
     /// <summary>
     /// Represents the response returned by this StudentOfMonthEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetStudentOfMonthById
             entity.Code,
             entity.Name);
     }
-
 }

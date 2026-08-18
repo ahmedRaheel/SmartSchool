@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 
 public static class GetLeaveRequestById
 {
-
     /// <summary>
     /// Represents the response returned by this LeaveRequestEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetLeaveRequestById
             entity.Code,
             entity.Name);
     }
-
 }

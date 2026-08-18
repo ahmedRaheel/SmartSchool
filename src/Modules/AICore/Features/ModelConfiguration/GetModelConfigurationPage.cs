@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 
 public static class GetModelConfigurationPage
 {
-
     /// <summary>
     /// Represents the response returned by this ModelConfigurationEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetModelConfigurationPage
             entity.Code,
             entity.Name);
     }
-
 }

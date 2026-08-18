@@ -10,7 +10,6 @@ namespace SmartSchool.Modules.Finance.Features.Scholarship;
 
 public static class UpdateScholarship
 {
-
     /// <summary>
     /// Represents the response returned by this ScholarshipEntity feature.
     /// </summary>
@@ -50,7 +49,7 @@ public static class UpdateScholarship
             Request request,
             CancellationToken cancellationToken)
         {
-var entity = await entityQuery.GetByIdAsync(
+            var entity = await entityQuery.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -101,5 +100,4 @@ var entity = await entityQuery.GetByIdAsync(
             entity.Code,
             entity.Name);
     }
-
 }

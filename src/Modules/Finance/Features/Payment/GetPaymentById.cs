@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Finance.Features.Payment;
 
 public static class GetPaymentById
 {
-
     /// <summary>
     /// Represents the response returned by this PaymentEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetPaymentById
             entity.Code,
             entity.Name);
     }
-
 }

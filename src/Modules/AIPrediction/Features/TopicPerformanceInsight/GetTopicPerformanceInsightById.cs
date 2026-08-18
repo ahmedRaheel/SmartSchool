@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
 
 public static class GetTopicPerformanceInsightById
 {
-
     /// <summary>
     /// Represents the response returned by this TopicPerformanceInsightEntity feature.
     /// </summary>
@@ -71,5 +70,4 @@ public static class GetTopicPerformanceInsightById
             entity.Code,
             entity.Name);
     }
-
 }

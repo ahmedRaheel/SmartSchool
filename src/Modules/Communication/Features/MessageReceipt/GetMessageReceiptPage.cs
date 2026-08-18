@@ -9,7 +9,6 @@ namespace SmartSchool.Modules.Communication.Features.MessageReceipt;
 
 public static class GetMessageReceiptPage
 {
-
     /// <summary>
     /// Represents the response returned by this MessageReceiptEntity feature.
     /// </summary>
@@ -76,5 +75,4 @@ public static class GetMessageReceiptPage
             entity.Code,
             entity.Name);
     }
-
 }
