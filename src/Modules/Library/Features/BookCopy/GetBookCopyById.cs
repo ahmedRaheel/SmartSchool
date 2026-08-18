@@ -69,6 +69,7 @@ public static class GetBookCopyById
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }

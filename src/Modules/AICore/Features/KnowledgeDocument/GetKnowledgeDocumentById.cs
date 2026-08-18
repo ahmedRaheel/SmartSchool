@@ -69,6 +69,7 @@ public static class GetKnowledgeDocumentById
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }

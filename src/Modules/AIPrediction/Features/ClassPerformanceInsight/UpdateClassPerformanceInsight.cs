@@ -99,6 +99,7 @@ public static class UpdateClassPerformanceInsight
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }

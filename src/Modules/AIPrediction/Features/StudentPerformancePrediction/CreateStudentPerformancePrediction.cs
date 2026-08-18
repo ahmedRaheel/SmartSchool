@@ -90,6 +90,7 @@ public static class CreateStudentPerformancePrediction
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }

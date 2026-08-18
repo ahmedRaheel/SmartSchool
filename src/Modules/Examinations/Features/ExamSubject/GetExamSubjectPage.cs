@@ -74,6 +74,7 @@ public static class GetExamSubjectPage
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }

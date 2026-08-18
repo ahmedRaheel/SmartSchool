@@ -74,6 +74,7 @@ public static class GetLeaveRequestPage
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }

@@ -90,6 +90,7 @@ public static class CreateDocumentTemplate
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }
