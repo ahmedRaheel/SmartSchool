@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for SalaryStructureEntity.
+/// Executes database writes for <see cref="SalaryStructureEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class SalaryStructureCommand(IEfMockStore store) : ISalaryStructureCommand
+public sealed class SalaryStructureCommand(IApplicationDbContext dbContext) : ISalaryStructureCommand
 {
-	public Task AddAsync(SalaryStructureEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		SalaryStructureEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<SalaryStructureEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(SalaryStructureEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		SalaryStructureEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<SalaryStructureEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(SalaryStructureEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		SalaryStructureEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<SalaryStructureEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

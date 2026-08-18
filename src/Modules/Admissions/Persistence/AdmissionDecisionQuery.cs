@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +6,64 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Admissions.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for AdmissionDecisionEntity.
+/// Executes database reads for <see cref="AdmissionDecisionEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class AdmissionDecisionQuery(IEfMockStore store) : IAdmissionDecisionQuery
+public sealed class AdmissionDecisionQuery(IApplicationDbContext dbContext) : IAdmissionDecisionQuery
 {
-	public Task<AdmissionDecisionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<AdmissionDecisionEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<AdmissionDecisionEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<AdmissionDecisionEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<AdmissionDecisionEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<AdmissionDecisionEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<AdmissionDecisionEntity>(tenantId, page, pageSize, cancellationToken);
+		var query = dbContext
+			.Set<AdmissionDecisionEntity>()
+			.AsNoTracking()
+			.Where(entity => entity.TenantId == tenantId);
+
+		var totalCount = await query.LongCountAsync(cancellationToken);
+
+		var items = await query
+			.OrderBy(entity => entity.Id)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync(cancellationToken);
+
+		return new PagedResult<AdmissionDecisionEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<AdmissionDecisionEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<AdmissionDecisionEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

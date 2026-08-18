@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +6,64 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for ToolDefinitionEntity.
+/// Executes database reads for <see cref="ToolDefinitionEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ToolDefinitionQuery(IEfMockStore store) : IToolDefinitionQuery
+public sealed class ToolDefinitionQuery(IApplicationDbContext dbContext) : IToolDefinitionQuery
 {
-	public Task<ToolDefinitionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<ToolDefinitionEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<ToolDefinitionEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<ToolDefinitionEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<ToolDefinitionEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<ToolDefinitionEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<ToolDefinitionEntity>(tenantId, page, pageSize, cancellationToken);
+		var query = dbContext
+			.Set<ToolDefinitionEntity>()
+			.AsNoTracking()
+			.Where(entity => entity.TenantId == tenantId);
+
+		var totalCount = await query.LongCountAsync(cancellationToken);
+
+		var items = await query
+			.OrderBy(entity => entity.Id)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync(cancellationToken);
+
+		return new PagedResult<ToolDefinitionEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<ToolDefinitionEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<ToolDefinitionEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

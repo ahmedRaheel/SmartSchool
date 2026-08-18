@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for JobGradeEntity.
+/// Executes database writes for <see cref="JobGradeEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class JobGradeCommand(IEfMockStore store) : IJobGradeCommand
+public sealed class JobGradeCommand(IApplicationDbContext dbContext) : IJobGradeCommand
 {
-	public Task AddAsync(JobGradeEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		JobGradeEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<JobGradeEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(JobGradeEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		JobGradeEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<JobGradeEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(JobGradeEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		JobGradeEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<JobGradeEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

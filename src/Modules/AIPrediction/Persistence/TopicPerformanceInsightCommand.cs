@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for TopicPerformanceInsightEntity.
+/// Executes database writes for <see cref="TopicPerformanceInsightEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class TopicPerformanceInsightCommand(IEfMockStore store) : ITopicPerformanceInsightCommand
+public sealed class TopicPerformanceInsightCommand(IApplicationDbContext dbContext) : ITopicPerformanceInsightCommand
 {
-	public Task AddAsync(TopicPerformanceInsightEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		TopicPerformanceInsightEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<TopicPerformanceInsightEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(TopicPerformanceInsightEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		TopicPerformanceInsightEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<TopicPerformanceInsightEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(TopicPerformanceInsightEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		TopicPerformanceInsightEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<TopicPerformanceInsightEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

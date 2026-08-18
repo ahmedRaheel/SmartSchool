@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ProgramEntity.
+/// Executes database writes for <see cref="ProgramEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ProgramCommand(IEfMockStore store) : IProgramCommand
+public sealed class ProgramCommand(IApplicationDbContext dbContext) : IProgramCommand
 {
-	public Task AddAsync(ProgramEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ProgramEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ProgramEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ProgramEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ProgramEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ProgramEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ProgramEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ProgramEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ProgramEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

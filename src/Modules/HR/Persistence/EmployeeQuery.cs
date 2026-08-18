@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +6,64 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for EmployeeEntity.
+/// Executes database reads for <see cref="EmployeeEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class EmployeeQuery(IEfMockStore store) : IEmployeeQuery
+public sealed class EmployeeQuery(IApplicationDbContext dbContext) : IEmployeeQuery
 {
-	public Task<EmployeeEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<EmployeeEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<EmployeeEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<EmployeeEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<EmployeeEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<EmployeeEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<EmployeeEntity>(tenantId, page, pageSize, cancellationToken);
+		var query = dbContext
+			.Set<EmployeeEntity>()
+			.AsNoTracking()
+			.Where(entity => entity.TenantId == tenantId);
+
+		var totalCount = await query.LongCountAsync(cancellationToken);
+
+		var items = await query
+			.OrderBy(entity => entity.Id)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync(cancellationToken);
+
+		return new PagedResult<EmployeeEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<EmployeeEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<EmployeeEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

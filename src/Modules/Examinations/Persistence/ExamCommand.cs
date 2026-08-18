@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 
 namespace SmartSchool.Modules.Examinations.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ExamEntity.
+/// Executes database writes for <see cref="ExamEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ExamCommand(IEfMockStore store) : IExamCommand
+public sealed class ExamCommand(IApplicationDbContext dbContext) : IExamCommand
 {
-	public Task AddAsync(ExamEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ExamEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ExamEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ExamEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ExamEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ExamEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ExamEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ExamEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ExamEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for SchoolLogoEntity.
+/// Executes database writes for <see cref="SchoolLogoEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class SchoolLogoCommand(IEfMockStore store) : ISchoolLogoCommand
+public sealed class SchoolLogoCommand(IApplicationDbContext dbContext) : ISchoolLogoCommand
 {
-	public Task AddAsync(SchoolLogoEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		SchoolLogoEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<SchoolLogoEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(SchoolLogoEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		SchoolLogoEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<SchoolLogoEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(SchoolLogoEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		SchoolLogoEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<SchoolLogoEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

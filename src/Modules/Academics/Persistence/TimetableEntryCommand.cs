@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for TimetableEntryEntity.
+/// Executes database writes for <see cref="TimetableEntryEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class TimetableEntryCommand(IEfMockStore store) : ITimetableEntryCommand
+public sealed class TimetableEntryCommand(IApplicationDbContext dbContext) : ITimetableEntryCommand
 {
-	public Task AddAsync(TimetableEntryEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		TimetableEntryEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<TimetableEntryEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(TimetableEntryEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		TimetableEntryEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<TimetableEntryEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(TimetableEntryEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		TimetableEntryEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<TimetableEntryEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

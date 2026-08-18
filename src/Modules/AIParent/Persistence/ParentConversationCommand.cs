@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 
 namespace SmartSchool.Modules.AIParent.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ParentConversationEntity.
+/// Executes database writes for <see cref="ParentConversationEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ParentConversationCommand(IEfMockStore store) : IParentConversationCommand
+public sealed class ParentConversationCommand(IApplicationDbContext dbContext) : IParentConversationCommand
 {
-	public Task AddAsync(ParentConversationEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ParentConversationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ParentConversationEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ParentConversationEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ParentConversationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ParentConversationEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ParentConversationEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ParentConversationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ParentConversationEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

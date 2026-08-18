@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +6,64 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for ItemEntity.
+/// Executes database reads for <see cref="ItemEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ItemQuery(IEfMockStore store) : IItemQuery
+public sealed class ItemQuery(IApplicationDbContext dbContext) : IItemQuery
 {
-	public Task<ItemEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<ItemEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<ItemEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<ItemEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<ItemEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<ItemEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<ItemEntity>(tenantId, page, pageSize, cancellationToken);
+		var query = dbContext
+			.Set<ItemEntity>()
+			.AsNoTracking()
+			.Where(entity => entity.TenantId == tenantId);
+
+		var totalCount = await query.LongCountAsync(cancellationToken);
+
+		var items = await query
+			.OrderBy(entity => entity.Id)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync(cancellationToken);
+
+		return new PagedResult<ItemEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<ItemEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<ItemEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for BookEntity.
+/// Executes database writes for <see cref="BookEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class BookCommand(IEfMockStore store) : IBookCommand
+public sealed class BookCommand(IApplicationDbContext dbContext) : IBookCommand
 {
-	public Task AddAsync(BookEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		BookEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<BookEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(BookEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		BookEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<BookEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(BookEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		BookEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<BookEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

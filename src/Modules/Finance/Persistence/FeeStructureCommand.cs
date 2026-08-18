@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for FeeStructureEntity.
+/// Executes database writes for <see cref="FeeStructureEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class FeeStructureCommand(IEfMockStore store) : IFeeStructureCommand
+public sealed class FeeStructureCommand(IApplicationDbContext dbContext) : IFeeStructureCommand
 {
-	public Task AddAsync(FeeStructureEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		FeeStructureEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<FeeStructureEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(FeeStructureEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		FeeStructureEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<FeeStructureEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(FeeStructureEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		FeeStructureEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<FeeStructureEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

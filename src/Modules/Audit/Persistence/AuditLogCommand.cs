@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Audit.Models;
 
 namespace SmartSchool.Modules.Audit.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for AuditLogEntity.
+/// Executes database writes for <see cref="AuditLogEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class AuditLogCommand(IEfMockStore store) : IAuditLogCommand
+public sealed class AuditLogCommand(IApplicationDbContext dbContext) : IAuditLogCommand
 {
-	public Task AddAsync(AuditLogEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		AuditLogEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<AuditLogEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(AuditLogEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		AuditLogEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<AuditLogEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(AuditLogEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		AuditLogEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<AuditLogEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

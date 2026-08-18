@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for LeaveRequestEntity.
+/// Executes database writes for <see cref="LeaveRequestEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class LeaveRequestCommand(IEfMockStore store) : ILeaveRequestCommand
+public sealed class LeaveRequestCommand(IApplicationDbContext dbContext) : ILeaveRequestCommand
 {
-	public Task AddAsync(LeaveRequestEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		LeaveRequestEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<LeaveRequestEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(LeaveRequestEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		LeaveRequestEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<LeaveRequestEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(LeaveRequestEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		LeaveRequestEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<LeaveRequestEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

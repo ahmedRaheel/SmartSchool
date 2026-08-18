@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +6,64 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Workflow.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for WorkflowDefinitionEntity.
+/// Executes database reads for <see cref="WorkflowDefinitionEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class WorkflowDefinitionQuery(IEfMockStore store) : IWorkflowDefinitionQuery
+public sealed class WorkflowDefinitionQuery(IApplicationDbContext dbContext) : IWorkflowDefinitionQuery
 {
-	public Task<WorkflowDefinitionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<WorkflowDefinitionEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<WorkflowDefinitionEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<WorkflowDefinitionEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<WorkflowDefinitionEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<WorkflowDefinitionEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<WorkflowDefinitionEntity>(tenantId, page, pageSize, cancellationToken);
+		var query = dbContext
+			.Set<WorkflowDefinitionEntity>()
+			.AsNoTracking()
+			.Where(entity => entity.TenantId == tenantId);
+
+		var totalCount = await query.LongCountAsync(cancellationToken);
+
+		var items = await query
+			.OrderBy(entity => entity.Id)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync(cancellationToken);
+
+		return new PagedResult<WorkflowDefinitionEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<WorkflowDefinitionEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<WorkflowDefinitionEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

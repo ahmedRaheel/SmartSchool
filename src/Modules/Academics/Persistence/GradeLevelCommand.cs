@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for GradeLevelEntity.
+/// Executes database writes for <see cref="GradeLevelEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class GradeLevelCommand(IEfMockStore store) : IGradeLevelCommand
+public sealed class GradeLevelCommand(IApplicationDbContext dbContext) : IGradeLevelCommand
 {
-	public Task AddAsync(GradeLevelEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		GradeLevelEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<GradeLevelEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(GradeLevelEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		GradeLevelEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<GradeLevelEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(GradeLevelEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		GradeLevelEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<GradeLevelEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

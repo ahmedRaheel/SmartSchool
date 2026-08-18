@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for EmployeeEntity.
+/// Executes database writes for <see cref="EmployeeEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class EmployeeCommand(IEfMockStore store) : IEmployeeCommand
+public sealed class EmployeeCommand(IApplicationDbContext dbContext) : IEmployeeCommand
 {
-	public Task AddAsync(EmployeeEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		EmployeeEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<EmployeeEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(EmployeeEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		EmployeeEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<EmployeeEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(EmployeeEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		EmployeeEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<EmployeeEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

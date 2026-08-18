@@ -13,14 +13,8 @@ public sealed class ParentProfileEntity : Entity
 	public string RelationshipCode { get; private set; } = string.Empty;
 	public string MobileNumber { get; private set; } = string.Empty;
 	public string? AlternateMobileNumber { get; private set; }
-	public string? EmailAddress
-	{
-		get; private set;
-	}
-	public string? Occupation
-	{
-		get; private set;
-	}
+	public string? EmailAddress { get; private set; }
+	public string? Occupation { get; private set; }
 	public string? EmployerName { get; private set; }
 	public string? WorkAddress { get; private set; }
 	public string? ResidentialAddress { get; private set; }

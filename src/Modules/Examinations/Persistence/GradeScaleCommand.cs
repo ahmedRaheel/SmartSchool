@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 
 namespace SmartSchool.Modules.Examinations.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for GradeScaleEntity.
+/// Executes database writes for <see cref="GradeScaleEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class GradeScaleCommand(IEfMockStore store) : IGradeScaleCommand
+public sealed class GradeScaleCommand(IApplicationDbContext dbContext) : IGradeScaleCommand
 {
-	public Task AddAsync(GradeScaleEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		GradeScaleEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<GradeScaleEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(GradeScaleEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		GradeScaleEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<GradeScaleEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(GradeScaleEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		GradeScaleEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<GradeScaleEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

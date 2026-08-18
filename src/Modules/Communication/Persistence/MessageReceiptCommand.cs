@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Communication.Models;
 
 namespace SmartSchool.Modules.Communication.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for MessageReceiptEntity.
+/// Executes database writes for <see cref="MessageReceiptEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class MessageReceiptCommand(IEfMockStore store) : IMessageReceiptCommand
+public sealed class MessageReceiptCommand(IApplicationDbContext dbContext) : IMessageReceiptCommand
 {
-	public Task AddAsync(MessageReceiptEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		MessageReceiptEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<MessageReceiptEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(MessageReceiptEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		MessageReceiptEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<MessageReceiptEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(MessageReceiptEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		MessageReceiptEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<MessageReceiptEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

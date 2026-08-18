@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for TenantEntity.
+/// Executes database writes for <see cref="TenantEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class TenantCommand(IEfMockStore store) : ITenantCommand
+public sealed class TenantCommand(IApplicationDbContext dbContext) : ITenantCommand
 {
-	public Task AddAsync(TenantEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		TenantEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<TenantEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(TenantEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		TenantEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<TenantEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(TenantEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		TenantEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<TenantEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

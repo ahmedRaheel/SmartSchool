@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Identity.Models;
 
 namespace SmartSchool.Modules.Identity.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for RoleAssignmentEntity.
+/// Executes database writes for <see cref="RoleAssignmentEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class RoleAssignmentCommand(IEfMockStore store) : IRoleAssignmentCommand
+public sealed class RoleAssignmentCommand(IApplicationDbContext dbContext) : IRoleAssignmentCommand
 {
-	public Task AddAsync(RoleAssignmentEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		RoleAssignmentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<RoleAssignmentEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(RoleAssignmentEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		RoleAssignmentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<RoleAssignmentEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(RoleAssignmentEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		RoleAssignmentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<RoleAssignmentEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

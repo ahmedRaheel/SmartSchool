@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Communication.Models;
 
 namespace SmartSchool.Modules.Communication.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ConversationParticipantEntity.
+/// Executes database writes for <see cref="ConversationParticipantEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ConversationParticipantCommand(IEfMockStore store) : IConversationParticipantCommand
+public sealed class ConversationParticipantCommand(IApplicationDbContext dbContext) : IConversationParticipantCommand
 {
-	public Task AddAsync(ConversationParticipantEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ConversationParticipantEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ConversationParticipantEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ConversationParticipantEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ConversationParticipantEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ConversationParticipantEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ConversationParticipantEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ConversationParticipantEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ConversationParticipantEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

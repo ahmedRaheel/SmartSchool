@@ -1,3 +1,4 @@
+using SmartSchool.Application.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -45,36 +46,60 @@ public static class DataPlatformServiceCollectionExtensions
 		IServiceCollection services,
 		IConfiguration configuration)
 	{
-		var options = configuration
+		var persistenceOptions = configuration
 			.GetSection(PersistenceOptions.SectionName)
 			.Get<PersistenceOptions>() ?? new PersistenceOptions();
 
 		var connectionString = configuration.GetConnectionString(
-			options.ConnectionStringName);
+			persistenceOptions.ConnectionStringName);
 
-		switch (options.Provider)
+		services.AddDbContext<ApplicationDbContext>(dbContextOptions =>
 		{
-			case PersistenceProvider.Mock:
-				services.AddDbContext<SmartSchoolMockDbContext>(
-					dbOptions => dbOptions.UseInMemoryDatabase("SmartSchool"));
-				break;
+			switch (persistenceOptions.Provider)
+			{
+				case PersistenceProvider.Mock:
+					dbContextOptions.UseInMemoryDatabase("SmartSchoolDevelopment");
+					break;
 
-			case PersistenceProvider.PostgreSql:
-				EnsureConnectionString(connectionString, options.ConnectionStringName);
-				services.AddDbContext<SmartSchoolDbContext>(
-					dbOptions => dbOptions.UseNpgsql(connectionString));
-				break;
+				case PersistenceProvider.PostgreSql:
+					EnsureConnectionString(
+						connectionString,
+						persistenceOptions.ConnectionStringName);
 
-			case PersistenceProvider.SqlServer:
-				EnsureConnectionString(connectionString, options.ConnectionStringName);
-				services.AddDbContext<SmartSchoolDbContext>(
-					dbOptions => dbOptions.UseSqlServer(connectionString));
-				break;
+					dbContextOptions.UseNpgsql(
+						connectionString,
+						providerOptions =>
+						{
+							providerOptions.EnableRetryOnFailure(5);
+						});
+					break;
 
-			default:
-				throw new InvalidOperationException(
-					$"Unsupported persistence provider '{options.Provider}'.");
-		}
+				case PersistenceProvider.SqlServer:
+					EnsureConnectionString(
+						connectionString,
+						persistenceOptions.ConnectionStringName);
+
+					dbContextOptions.UseSqlServer(
+						connectionString,
+						providerOptions =>
+						{
+							providerOptions.EnableRetryOnFailure(5);
+						});
+					break;
+
+				default:
+					throw new InvalidOperationException(
+						$"Unsupported persistence provider '{persistenceOptions.Provider}'.");
+			}
+
+			if (persistenceOptions.EnableSensitiveDataLogging)
+			{
+				dbContextOptions.EnableSensitiveDataLogging();
+			}
+		});
+
+		services.AddScoped<IApplicationDbContext>(
+			serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 	}
 
 	private static void AddCaching(

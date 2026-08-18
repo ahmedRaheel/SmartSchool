@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Communication.Models;
 
 namespace SmartSchool.Modules.Communication.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for MessageEntity.
+/// Executes database writes for <see cref="MessageEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class MessageCommand(IEfMockStore store) : IMessageCommand
+public sealed class MessageCommand(IApplicationDbContext dbContext) : IMessageCommand
 {
-	public Task AddAsync(MessageEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		MessageEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<MessageEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(MessageEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		MessageEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<MessageEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(MessageEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		MessageEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<MessageEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

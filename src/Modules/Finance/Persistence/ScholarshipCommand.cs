@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ScholarshipEntity.
+/// Executes database writes for <see cref="ScholarshipEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ScholarshipCommand(IEfMockStore store) : IScholarshipCommand
+public sealed class ScholarshipCommand(IApplicationDbContext dbContext) : IScholarshipCommand
 {
-	public Task AddAsync(ScholarshipEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ScholarshipEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ScholarshipEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ScholarshipEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ScholarshipEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ScholarshipEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ScholarshipEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ScholarshipEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ScholarshipEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

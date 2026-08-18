@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
 
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for KnowledgeChunkEntity.
+/// Executes database writes for <see cref="KnowledgeChunkEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class KnowledgeChunkCommand(IEfMockStore store) : IKnowledgeChunkCommand
+public sealed class KnowledgeChunkCommand(IApplicationDbContext dbContext) : IKnowledgeChunkCommand
 {
-	public Task AddAsync(KnowledgeChunkEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		KnowledgeChunkEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<KnowledgeChunkEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(KnowledgeChunkEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		KnowledgeChunkEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<KnowledgeChunkEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(KnowledgeChunkEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		KnowledgeChunkEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<KnowledgeChunkEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

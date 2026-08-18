@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for PayrollRunEntity.
+/// Executes database writes for <see cref="PayrollRunEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PayrollRunCommand(IEfMockStore store) : IPayrollRunCommand
+public sealed class PayrollRunCommand(IApplicationDbContext dbContext) : IPayrollRunCommand
 {
-	public Task AddAsync(PayrollRunEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		PayrollRunEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<PayrollRunEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(PayrollRunEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		PayrollRunEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<PayrollRunEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(PayrollRunEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		PayrollRunEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<PayrollRunEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

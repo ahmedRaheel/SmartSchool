@@ -166,8 +166,7 @@ public static class PlatformRegistration
 	{
 		services.AddDbContext<SmartSchoolMockDbContext>(options =>
 			options.UseInMemoryDatabase("SmartSchool-Development"));
-		services.AddScoped<IEfMockStore, EfMockStore>();
-		services.AddScoped<MockDatabaseSeeder>();
+services.AddScoped<MockDatabaseSeeder>();
 	}
 
 	private static void ConfigureHangfire(

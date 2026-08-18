@@ -1,26 +1,45 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Learning.Models;
 
 namespace SmartSchool.Modules.Learning.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for AssignmentSubmissionEntity.
+/// Executes database writes for <see cref="AssignmentSubmissionEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class AssignmentSubmissionCommand(IEfMockStore store) : IAssignmentSubmissionCommand
+public sealed class AssignmentSubmissionCommand(IApplicationDbContext dbContext) : IAssignmentSubmissionCommand
 {
-	public Task AddAsync(AssignmentSubmissionEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		AssignmentSubmissionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<AssignmentSubmissionEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(AssignmentSubmissionEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		AssignmentSubmissionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<AssignmentSubmissionEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(AssignmentSubmissionEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		AssignmentSubmissionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<AssignmentSubmissionEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }
