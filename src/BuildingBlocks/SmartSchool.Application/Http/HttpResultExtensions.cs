@@ -40,7 +40,7 @@ public static class HttpResultExtensions
             ErrorCodes.Unauthorized => Results.Unauthorized(),
             _ => Results.Problem(
                 title: ErrorMessages.RequestFailed,
-                detail: error.MessageEntity,
+                detail: error.Message,
                 statusCode: StatusCodes.Status500InternalServerError)
         };
 }

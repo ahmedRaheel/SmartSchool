@@ -3,8 +3,7 @@ namespace SmartSchool.Api.Seed;
 public sealed class SampleActorSeeder(
     ILogger<SampleActorSeeder> logger)
 {
-    public Task SeedAsync(
-        CancellationToken cancellationToken = default)
+    public Task SeedAsync()
     {
         foreach (var actor in SampleActors.All)
         {

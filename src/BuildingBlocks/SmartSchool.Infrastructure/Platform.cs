@@ -1,6 +1,7 @@
 using Confluent.Kafka;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Context;
@@ -38,7 +39,7 @@ public sealed class KafkaPublisher(
             new ProducerBuilder<string, string>(producerConfig)
                 .Build();
 
-        var message = new MessageEntity<string, string>
+        var message = new Message<string, string>
         {
             Key = Guid.NewGuid().ToString("N"),
             Value = JsonSerializer.Serialize(value)

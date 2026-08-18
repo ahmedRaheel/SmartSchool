@@ -44,8 +44,8 @@ public sealed class RefreshPredictionsJob(
     ILogger<RefreshPredictionsJob> logger)
 {
     public Task ExecuteAsync(
-        Guid tenantId,
-        CancellationToken cancellationToken = default)
+        Guid tenantId
+       )
     {
         logger.LogInformation(
             "Refreshing predictions for tenant {TenantId}",
