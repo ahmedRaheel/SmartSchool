@@ -48,7 +48,7 @@ public static class CreateInquiryMessage
             Request request,
             CancellationToken cancellationToken)
         {
-var exists = await entityQuery.ExistsByCodeAsync(
+            var exists = await entityQuery.ExistsByCodeAsync(
                 request.TenantId, request.Code, null, cancellationToken);
             if (exists)
             {
@@ -84,7 +84,7 @@ var exists = await entityQuery.ExistsByCodeAsync(
     }
 
     private static Response MapResponse(
-        SmartSchool.Modules.AIInquiry.Models.InquiryMessageEntity entity)
+        InquiryMessageEntity entity)
     {
         return new Response(
             entity.TenantId,

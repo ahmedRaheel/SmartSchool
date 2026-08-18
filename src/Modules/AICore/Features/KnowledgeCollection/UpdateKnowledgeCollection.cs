@@ -50,7 +50,7 @@ public static class UpdateKnowledgeCollection
             Request request,
             CancellationToken cancellationToken)
         {
-var entity = await entityQuery.GetByIdAsync(
+            var entity = await entityQuery.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -93,7 +93,7 @@ var entity = await entityQuery.GetByIdAsync(
     }
 
     private static Response MapResponse(
-        SmartSchool.Modules.AICore.Models.KnowledgeCollectionEntity entity)
+        KnowledgeCollectionEntity entity)
     {
         return new Response(
             entity.TenantId,
