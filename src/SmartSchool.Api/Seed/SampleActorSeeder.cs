@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 namespace SmartSchool.Api.Seed;
 
 public sealed class SampleActorSeeder(

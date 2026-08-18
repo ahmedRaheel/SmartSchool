@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Application.Persistence;

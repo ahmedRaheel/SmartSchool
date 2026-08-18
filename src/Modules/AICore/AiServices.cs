@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 namespace SmartSchool.Modules.AICore;
 
 public sealed record AiRequest(

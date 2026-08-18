@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.AIParent.Models;
 
 namespace SmartSchool.Modules.AIParent.Persistence;

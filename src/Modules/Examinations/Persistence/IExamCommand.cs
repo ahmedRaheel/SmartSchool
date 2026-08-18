@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Examinations.Models;
 
 namespace SmartSchool.Modules.Examinations.Persistence;

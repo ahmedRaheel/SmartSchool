@@ -31,8 +31,8 @@ public static class DataPlatformServiceCollectionExtensions
 			.ValidateOnStart();
 
 		services
-			.AddOptions<IdentityOptions>()
-			.Bind(configuration.GetSection(IdentityOptions.SectionName))
+			.AddOptions<SmartSchool.Infrastructure.Options.AuthenticationOptions>()
+			.Bind(configuration.GetSection(SmartSchool.Infrastructure.Options.AuthenticationOptions.SectionName))
 			.ValidateOnStart();
 
 		AddPersistence(services, configuration);
@@ -146,8 +146,8 @@ public static class DataPlatformServiceCollectionExtensions
 		IConfiguration configuration)
 	{
 		var options = configuration
-			.GetSection(IdentityOptions.SectionName)
-			.Get<IdentityOptions>() ?? new IdentityOptions();
+			.GetSection(SmartSchool.Infrastructure.Options.AuthenticationOptions.SectionName)
+			.Get<SmartSchool.Infrastructure.Options.AuthenticationOptions>() ?? new SmartSchool.Infrastructure.Options.AuthenticationOptions();
 
 		if (options.Provider == IdentityProvider.Mock)
 		{

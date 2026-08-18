@@ -3,7 +3,7 @@ namespace SmartSchool.Infrastructure.Identity;
 /// <summary>
 /// Configures authentication for local mock development or an external OIDC identity server.
 /// </summary>
-public sealed class IdentityOptions
+public sealed class MockIdentityOptions
 {
 	public const string SectionName = "Identity";
 

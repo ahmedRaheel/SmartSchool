@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Identity.Models;
 
 namespace SmartSchool.Modules.Identity.Persistence;

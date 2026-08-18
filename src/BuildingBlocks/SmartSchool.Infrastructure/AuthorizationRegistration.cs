@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
 using SmartSchool.SharedKernel.Constants;
 

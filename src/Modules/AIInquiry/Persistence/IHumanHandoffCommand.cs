@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.AIInquiry.Models;
 
 namespace SmartSchool.Modules.AIInquiry.Persistence;

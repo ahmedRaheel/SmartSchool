@@ -1,3 +1,6 @@
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
 using SmartSchool.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
 using SmartSchool.Application;
@@ -48,8 +51,8 @@ builder.Services
 		options =>
 		{
 			var identityOptions = builder.Configuration
-				.GetSection(IdentityOptions.SectionName)
-				.Get<IdentityOptions>()
+				.GetSection(AuthenticationOptions.SectionName)
+				.Get<AuthenticationOptions>()
 				?? throw new InvalidOperationException(
 					"Identity configuration is missing.");
 

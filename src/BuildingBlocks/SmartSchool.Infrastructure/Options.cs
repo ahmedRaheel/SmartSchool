@@ -11,7 +11,7 @@ public sealed class DatabaseOptions
 	public int CommandTimeoutSeconds { get; init; } = 30;
 }
 
-public sealed class IdentityOptions
+public sealed class AuthenticationOptions
 {
 	public const string SectionName = ConfigurationSections.Identity;
 

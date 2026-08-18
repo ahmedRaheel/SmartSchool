@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Persistence;

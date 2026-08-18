@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
