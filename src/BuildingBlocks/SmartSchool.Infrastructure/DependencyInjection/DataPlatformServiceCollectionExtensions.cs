@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using SmartSchool.Infrastructure.Caching;
 using SmartSchool.Infrastructure.Identity;
 using SmartSchool.Infrastructure.Persistence;
+using SmartSchool.Infrastructure.Options;
 
 namespace SmartSchool.Infrastructure.DependencyInjection;
 
@@ -31,8 +32,8 @@ public static class DataPlatformServiceCollectionExtensions
 			.ValidateOnStart();
 
 		services
-			.AddOptions<SmartSchool.Infrastructure.Options.AuthenticationOptions>()
-			.Bind(configuration.GetSection(SmartSchool.Infrastructure.Options.AuthenticationOptions.SectionName))
+			.AddOptions<AuthenticationOptions>()
+			.Bind(configuration.GetSection(AuthenticationOptions.SectionName))
 			.ValidateOnStart();
 
 		AddPersistence(services, configuration);
@@ -146,8 +147,8 @@ public static class DataPlatformServiceCollectionExtensions
 		IConfiguration configuration)
 	{
 		var options = configuration
-			.GetSection(SmartSchool.Infrastructure.Options.AuthenticationOptions.SectionName)
-			.Get<SmartSchool.Infrastructure.Options.AuthenticationOptions>() ?? new SmartSchool.Infrastructure.Options.AuthenticationOptions();
+			.GetSection(AuthenticationOptions.SectionName)
+			.Get<AuthenticationOptions>() ?? new AuthenticationOptions();
 
 		if (options.Provider == IdentityProvider.Mock)
 		{

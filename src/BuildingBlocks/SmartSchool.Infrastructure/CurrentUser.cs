@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Infrastructure.Identity;
