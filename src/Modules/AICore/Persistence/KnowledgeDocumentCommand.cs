@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
 
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Write-side persistence for KnowledgeDocumentEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for KnowledgeDocumentEntity.
 /// </summary>
-public sealed class KnowledgeDocumentCommand : IKnowledgeDocumentCommand
+public sealed class KnowledgeDocumentCommand(IEfMockStore store) : IKnowledgeDocumentCommand
 {
-    public Task AddAsync(
-        KnowledgeDocumentEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "KnowledgeDocumentEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(KnowledgeDocumentEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        KnowledgeDocumentEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "KnowledgeDocumentEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(KnowledgeDocumentEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        KnowledgeDocumentEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "KnowledgeDocumentEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(KnowledgeDocumentEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

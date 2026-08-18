@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Transport.Persistence;
 
 /// <summary>
-/// Read-side persistence for RouteEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Transport module.
+/// EF-backed read persistence for RouteEntity.
 /// </summary>
-public sealed class RouteQuery : IRouteQuery
+public sealed class RouteQuery(IEfMockStore store) : IRouteQuery
 {
-    public Task<RouteEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "RouteEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<RouteEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<RouteEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<RouteEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "RouteEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<RouteEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<RouteEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "RouteEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<RouteEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

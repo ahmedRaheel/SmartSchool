@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Write-side persistence for ClassPerformanceInsightEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for ClassPerformanceInsightEntity.
 /// </summary>
-public sealed class ClassPerformanceInsightCommand : IClassPerformanceInsightCommand
+public sealed class ClassPerformanceInsightCommand(IEfMockStore store) : IClassPerformanceInsightCommand
 {
-    public Task AddAsync(
-        ClassPerformanceInsightEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ClassPerformanceInsightEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(ClassPerformanceInsightEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        ClassPerformanceInsightEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ClassPerformanceInsightEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(ClassPerformanceInsightEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        ClassPerformanceInsightEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ClassPerformanceInsightEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(ClassPerformanceInsightEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

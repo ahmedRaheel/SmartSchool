@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Read-side persistence for ToolDefinitionEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the AICore module.
+/// EF-backed read persistence for ToolDefinitionEntity.
 /// </summary>
-public sealed class ToolDefinitionQuery : IToolDefinitionQuery
+public sealed class ToolDefinitionQuery(IEfMockStore store) : IToolDefinitionQuery
 {
-    public Task<ToolDefinitionEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ToolDefinitionEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<ToolDefinitionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<ToolDefinitionEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<ToolDefinitionEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ToolDefinitionEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<ToolDefinitionEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<ToolDefinitionEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ToolDefinitionEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<ToolDefinitionEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

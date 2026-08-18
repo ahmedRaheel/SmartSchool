@@ -7,24 +7,24 @@ namespace SmartSchool.Modules.Admissions.Persistence;
 /// </summary>
 public interface IAdmissionDecisionCommand
 {
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task AddAsync(
-        AdmissionDecisionEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task AddAsync(
+		AdmissionDecisionEntity entity,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task UpdateAsync(
-        AdmissionDecisionEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task UpdateAsync(
+		AdmissionDecisionEntity entity,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task DeleteAsync(
-        AdmissionDecisionEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task DeleteAsync(
+		AdmissionDecisionEntity entity,
+		CancellationToken cancellationToken);
 }

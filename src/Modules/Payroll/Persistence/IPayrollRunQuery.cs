@@ -8,29 +8,29 @@ namespace SmartSchool.Modules.Payroll.Persistence;
 /// </summary>
 public interface IPayrollRunQuery
 {
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task<PayrollRunEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task<PayrollRunEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task<PagedResult<PayrollRunEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task<PagedResult<PayrollRunEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken);
 }

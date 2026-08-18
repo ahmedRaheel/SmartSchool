@@ -7,24 +7,24 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// </summary>
 public interface IPromptTemplateCommand
 {
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task AddAsync(
-        PromptTemplateEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task AddAsync(
+		PromptTemplateEntity entity,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task UpdateAsync(
-        PromptTemplateEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task UpdateAsync(
+		PromptTemplateEntity entity,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task DeleteAsync(
-        PromptTemplateEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task DeleteAsync(
+		PromptTemplateEntity entity,
+		CancellationToken cancellationToken);
 }

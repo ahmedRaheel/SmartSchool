@@ -8,29 +8,29 @@ namespace SmartSchool.Modules.Documents.Persistence;
 /// </summary>
 public interface IGeneratedDocumentQuery
 {
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task<GeneratedDocumentEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task<GeneratedDocumentEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task<PagedResult<GeneratedDocumentEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task<PagedResult<GeneratedDocumentEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken);
 }

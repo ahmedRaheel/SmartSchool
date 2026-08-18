@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// Write-side persistence for EmployeeEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for EmployeeEntity.
 /// </summary>
-public sealed class EmployeeCommand : IEmployeeCommand
+public sealed class EmployeeCommand(IEfMockStore store) : IEmployeeCommand
 {
-    public Task AddAsync(
-        EmployeeEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "EmployeeEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(EmployeeEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        EmployeeEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "EmployeeEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(EmployeeEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        EmployeeEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "EmployeeEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(EmployeeEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

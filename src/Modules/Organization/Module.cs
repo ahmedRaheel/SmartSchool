@@ -11,39 +11,39 @@ namespace SmartSchool.Modules.Organization;
 
 public static class Module
 {
-    public static IServiceCollection AddOrganizationModule(
-        this IServiceCollection services)
-    {
-        services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<ICampusQuery, CampusQuery>();
-        services.AddScoped<ICampusCommand, CampusCommand>();
-        services.AddScoped<IDepartmentQuery, DepartmentQuery>();
-        services.AddScoped<IDepartmentCommand, DepartmentCommand>();
-        services.AddScoped<ISchoolQuery, SchoolQuery>();
-        services.AddScoped<ISchoolCommand, SchoolCommand>();
+	public static IServiceCollection AddOrganizationModule(
+		this IServiceCollection services)
+	{
+		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<ICampusQuery, CampusQuery>();
+		services.AddScoped<ICampusCommand, CampusCommand>();
+		services.AddScoped<IDepartmentQuery, DepartmentQuery>();
+		services.AddScoped<IDepartmentCommand, DepartmentCommand>();
+		services.AddScoped<ISchoolQuery, SchoolQuery>();
+		services.AddScoped<ISchoolCommand, SchoolCommand>();
 
-        return services;
-    }
+		return services;
+	}
 
-    public static IEndpointRouteBuilder MapOrganizationEndpoints(
-        this IEndpointRouteBuilder endpoints)
-    {
-        CreateCampus.MapEndpoint(endpoints);
-        GetCampusById.MapEndpoint(endpoints);
-        GetCampusPage.MapEndpoint(endpoints);
-        UpdateCampus.MapEndpoint(endpoints);
-        DeleteCampus.MapEndpoint(endpoints);
-        CreateDepartment.MapEndpoint(endpoints);
-        GetDepartmentById.MapEndpoint(endpoints);
-        GetDepartmentPage.MapEndpoint(endpoints);
-        UpdateDepartment.MapEndpoint(endpoints);
-        DeleteDepartment.MapEndpoint(endpoints);
-        CreateSchool.MapEndpoint(endpoints);
-        GetSchoolById.MapEndpoint(endpoints);
-        GetSchoolPage.MapEndpoint(endpoints);
-        UpdateSchool.MapEndpoint(endpoints);
-        DeleteSchool.MapEndpoint(endpoints);
+	public static IEndpointRouteBuilder MapOrganizationEndpoints(
+		this IEndpointRouteBuilder endpoints)
+	{
+		CreateCampus.MapEndpoint(endpoints);
+		GetCampusById.MapEndpoint(endpoints);
+		GetCampusPage.MapEndpoint(endpoints);
+		UpdateCampus.MapEndpoint(endpoints);
+		DeleteCampus.MapEndpoint(endpoints);
+		CreateDepartment.MapEndpoint(endpoints);
+		GetDepartmentById.MapEndpoint(endpoints);
+		GetDepartmentPage.MapEndpoint(endpoints);
+		UpdateDepartment.MapEndpoint(endpoints);
+		DeleteDepartment.MapEndpoint(endpoints);
+		CreateSchool.MapEndpoint(endpoints);
+		GetSchoolById.MapEndpoint(endpoints);
+		GetSchoolPage.MapEndpoint(endpoints);
+		UpdateSchool.MapEndpoint(endpoints);
+		DeleteSchool.MapEndpoint(endpoints);
 
-        return endpoints;
-    }
+		return endpoints;
+	}
 }

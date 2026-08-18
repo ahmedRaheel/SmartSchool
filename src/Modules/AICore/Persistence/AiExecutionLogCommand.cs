@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
 
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Write-side persistence for AiExecutionLogEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for AiExecutionLogEntity.
 /// </summary>
-public sealed class AiExecutionLogCommand : IAiExecutionLogCommand
+public sealed class AiExecutionLogCommand(IEfMockStore store) : IAiExecutionLogCommand
 {
-    public Task AddAsync(
-        AiExecutionLogEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AiExecutionLogEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(AiExecutionLogEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        AiExecutionLogEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AiExecutionLogEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(AiExecutionLogEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        AiExecutionLogEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AiExecutionLogEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(AiExecutionLogEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

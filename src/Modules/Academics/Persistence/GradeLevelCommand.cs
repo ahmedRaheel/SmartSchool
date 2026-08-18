@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for GradeLevelEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for GradeLevelEntity.
 /// </summary>
-public sealed class GradeLevelCommand : IGradeLevelCommand
+public sealed class GradeLevelCommand(IEfMockStore store) : IGradeLevelCommand
 {
-    public Task AddAsync(
-        GradeLevelEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "GradeLevelEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(GradeLevelEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        GradeLevelEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "GradeLevelEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(GradeLevelEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        GradeLevelEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "GradeLevelEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(GradeLevelEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

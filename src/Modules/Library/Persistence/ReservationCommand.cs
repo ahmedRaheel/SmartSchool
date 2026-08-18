@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// Write-side persistence for ReservationEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for ReservationEntity.
 /// </summary>
-public sealed class ReservationCommand : IReservationCommand
+public sealed class ReservationCommand(IEfMockStore store) : IReservationCommand
 {
-    public Task AddAsync(
-        ReservationEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ReservationEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(ReservationEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        ReservationEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ReservationEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(ReservationEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        ReservationEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ReservationEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(ReservationEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

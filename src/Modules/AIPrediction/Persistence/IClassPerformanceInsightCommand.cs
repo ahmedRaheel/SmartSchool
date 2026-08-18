@@ -7,24 +7,24 @@ namespace SmartSchool.Modules.AIPrediction.Persistence;
 /// </summary>
 public interface IClassPerformanceInsightCommand
 {
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task AddAsync(
-        ClassPerformanceInsightEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task AddAsync(
+		ClassPerformanceInsightEntity entity,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task UpdateAsync(
-        ClassPerformanceInsightEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task UpdateAsync(
+		ClassPerformanceInsightEntity entity,
+		CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Executes the persistence operation.
-    /// </summary>
-    Task DeleteAsync(
-        ClassPerformanceInsightEntity entity,
-        CancellationToken cancellationToken);
+	/// <summary>
+	/// Executes the persistence operation.
+	/// </summary>
+	Task DeleteAsync(
+		ClassPerformanceInsightEntity entity,
+		CancellationToken cancellationToken);
 }

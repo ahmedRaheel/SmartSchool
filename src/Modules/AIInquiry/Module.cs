@@ -12,46 +12,46 @@ namespace SmartSchool.Modules.AIInquiry;
 
 public static class Module
 {
-    public static IServiceCollection AddAIInquiryModule(
-        this IServiceCollection services)
-    {
-        services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IHumanHandoffQuery, HumanHandoffQuery>();
-        services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();
-        services.AddScoped<IInquiryConversationQuery, InquiryConversationQuery>();
-        services.AddScoped<IInquiryConversationCommand, InquiryConversationCommand>();
-        services.AddScoped<IInquiryMessageQuery, InquiryMessageQuery>();
-        services.AddScoped<IInquiryMessageCommand, InquiryMessageCommand>();
-        services.AddScoped<ILeadCaptureQuery, LeadCaptureQuery>();
-        services.AddScoped<ILeadCaptureCommand, LeadCaptureCommand>();
+	public static IServiceCollection AddAIInquiryModule(
+		this IServiceCollection services)
+	{
+		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IHumanHandoffQuery, HumanHandoffQuery>();
+		services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();
+		services.AddScoped<IInquiryConversationQuery, InquiryConversationQuery>();
+		services.AddScoped<IInquiryConversationCommand, InquiryConversationCommand>();
+		services.AddScoped<IInquiryMessageQuery, InquiryMessageQuery>();
+		services.AddScoped<IInquiryMessageCommand, InquiryMessageCommand>();
+		services.AddScoped<ILeadCaptureQuery, LeadCaptureQuery>();
+		services.AddScoped<ILeadCaptureCommand, LeadCaptureCommand>();
 
-        return services;
-    }
+		return services;
+	}
 
-    public static IEndpointRouteBuilder MapAIInquiryEndpoints(
-        this IEndpointRouteBuilder endpoints)
-    {
-        CreateHumanHandoff.MapEndpoint(endpoints);
-        GetHumanHandoffById.MapEndpoint(endpoints);
-        GetHumanHandoffPage.MapEndpoint(endpoints);
-        UpdateHumanHandoff.MapEndpoint(endpoints);
-        DeleteHumanHandoff.MapEndpoint(endpoints);
-        CreateInquiryConversation.MapEndpoint(endpoints);
-        GetInquiryConversationById.MapEndpoint(endpoints);
-        GetInquiryConversationPage.MapEndpoint(endpoints);
-        UpdateInquiryConversation.MapEndpoint(endpoints);
-        DeleteInquiryConversation.MapEndpoint(endpoints);
-        CreateInquiryMessage.MapEndpoint(endpoints);
-        GetInquiryMessageById.MapEndpoint(endpoints);
-        GetInquiryMessagePage.MapEndpoint(endpoints);
-        UpdateInquiryMessage.MapEndpoint(endpoints);
-        DeleteInquiryMessage.MapEndpoint(endpoints);
-        CreateLeadCapture.MapEndpoint(endpoints);
-        GetLeadCaptureById.MapEndpoint(endpoints);
-        GetLeadCapturePage.MapEndpoint(endpoints);
-        UpdateLeadCapture.MapEndpoint(endpoints);
-        DeleteLeadCapture.MapEndpoint(endpoints);
+	public static IEndpointRouteBuilder MapAIInquiryEndpoints(
+		this IEndpointRouteBuilder endpoints)
+	{
+		CreateHumanHandoff.MapEndpoint(endpoints);
+		GetHumanHandoffById.MapEndpoint(endpoints);
+		GetHumanHandoffPage.MapEndpoint(endpoints);
+		UpdateHumanHandoff.MapEndpoint(endpoints);
+		DeleteHumanHandoff.MapEndpoint(endpoints);
+		CreateInquiryConversation.MapEndpoint(endpoints);
+		GetInquiryConversationById.MapEndpoint(endpoints);
+		GetInquiryConversationPage.MapEndpoint(endpoints);
+		UpdateInquiryConversation.MapEndpoint(endpoints);
+		DeleteInquiryConversation.MapEndpoint(endpoints);
+		CreateInquiryMessage.MapEndpoint(endpoints);
+		GetInquiryMessageById.MapEndpoint(endpoints);
+		GetInquiryMessagePage.MapEndpoint(endpoints);
+		UpdateInquiryMessage.MapEndpoint(endpoints);
+		DeleteInquiryMessage.MapEndpoint(endpoints);
+		CreateLeadCapture.MapEndpoint(endpoints);
+		GetLeadCaptureById.MapEndpoint(endpoints);
+		GetLeadCapturePage.MapEndpoint(endpoints);
+		UpdateLeadCapture.MapEndpoint(endpoints);
+		DeleteLeadCapture.MapEndpoint(endpoints);
 
-        return endpoints;
-    }
+		return endpoints;
+	}
 }

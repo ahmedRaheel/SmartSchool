@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// Write-side persistence for StockTransactionEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for StockTransactionEntity.
 /// </summary>
-public sealed class StockTransactionCommand : IStockTransactionCommand
+public sealed class StockTransactionCommand(IEfMockStore store) : IStockTransactionCommand
 {
-    public Task AddAsync(
-        StockTransactionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StockTransactionEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(StockTransactionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        StockTransactionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StockTransactionEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(StockTransactionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        StockTransactionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StockTransactionEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(StockTransactionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

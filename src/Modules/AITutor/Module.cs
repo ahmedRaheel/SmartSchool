@@ -15,67 +15,67 @@ namespace SmartSchool.Modules.AITutor;
 
 public static class Module
 {
-    public static IServiceCollection AddAITutorModule(
-        this IServiceCollection services)
-    {
-        services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IGeneratedQuizQuery, GeneratedQuizQuery>();
-        services.AddScoped<IGeneratedQuizCommand, GeneratedQuizCommand>();
-        services.AddScoped<ILearningRecommendationQuery, LearningRecommendationQuery>();
-        services.AddScoped<ILearningRecommendationCommand, LearningRecommendationCommand>();
-        services.AddScoped<IQuizAttemptQuery, QuizAttemptQuery>();
-        services.AddScoped<IQuizAttemptCommand, QuizAttemptCommand>();
-        services.AddScoped<IStudentTopicMasteryQuery, StudentTopicMasteryQuery>();
-        services.AddScoped<IStudentTopicMasteryCommand, StudentTopicMasteryCommand>();
-        services.AddScoped<ITutorConversationQuery, TutorConversationQuery>();
-        services.AddScoped<ITutorConversationCommand, TutorConversationCommand>();
-        services.AddScoped<ITutorMessageQuery, TutorMessageQuery>();
-        services.AddScoped<ITutorMessageCommand, TutorMessageCommand>();
-        services.AddScoped<ITutorSessionQuery, TutorSessionQuery>();
-        services.AddScoped<ITutorSessionCommand, TutorSessionCommand>();
+	public static IServiceCollection AddAITutorModule(
+		this IServiceCollection services)
+	{
+		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IGeneratedQuizQuery, GeneratedQuizQuery>();
+		services.AddScoped<IGeneratedQuizCommand, GeneratedQuizCommand>();
+		services.AddScoped<ILearningRecommendationQuery, LearningRecommendationQuery>();
+		services.AddScoped<ILearningRecommendationCommand, LearningRecommendationCommand>();
+		services.AddScoped<IQuizAttemptQuery, QuizAttemptQuery>();
+		services.AddScoped<IQuizAttemptCommand, QuizAttemptCommand>();
+		services.AddScoped<IStudentTopicMasteryQuery, StudentTopicMasteryQuery>();
+		services.AddScoped<IStudentTopicMasteryCommand, StudentTopicMasteryCommand>();
+		services.AddScoped<ITutorConversationQuery, TutorConversationQuery>();
+		services.AddScoped<ITutorConversationCommand, TutorConversationCommand>();
+		services.AddScoped<ITutorMessageQuery, TutorMessageQuery>();
+		services.AddScoped<ITutorMessageCommand, TutorMessageCommand>();
+		services.AddScoped<ITutorSessionQuery, TutorSessionQuery>();
+		services.AddScoped<ITutorSessionCommand, TutorSessionCommand>();
 
-        return services;
-    }
+		return services;
+	}
 
-    public static IEndpointRouteBuilder MapAITutorEndpoints(
-        this IEndpointRouteBuilder endpoints)
-    {
-        CreateGeneratedQuiz.MapEndpoint(endpoints);
-        GetGeneratedQuizById.MapEndpoint(endpoints);
-        GetGeneratedQuizPage.MapEndpoint(endpoints);
-        UpdateGeneratedQuiz.MapEndpoint(endpoints);
-        DeleteGeneratedQuiz.MapEndpoint(endpoints);
-        CreateLearningRecommendation.MapEndpoint(endpoints);
-        GetLearningRecommendationById.MapEndpoint(endpoints);
-        GetLearningRecommendationPage.MapEndpoint(endpoints);
-        UpdateLearningRecommendation.MapEndpoint(endpoints);
-        DeleteLearningRecommendation.MapEndpoint(endpoints);
-        CreateQuizAttempt.MapEndpoint(endpoints);
-        GetQuizAttemptById.MapEndpoint(endpoints);
-        GetQuizAttemptPage.MapEndpoint(endpoints);
-        UpdateQuizAttempt.MapEndpoint(endpoints);
-        DeleteQuizAttempt.MapEndpoint(endpoints);
-        CreateStudentTopicMastery.MapEndpoint(endpoints);
-        GetStudentTopicMasteryById.MapEndpoint(endpoints);
-        GetStudentTopicMasteryPage.MapEndpoint(endpoints);
-        UpdateStudentTopicMastery.MapEndpoint(endpoints);
-        DeleteStudentTopicMastery.MapEndpoint(endpoints);
-        CreateTutorConversation.MapEndpoint(endpoints);
-        GetTutorConversationById.MapEndpoint(endpoints);
-        GetTutorConversationPage.MapEndpoint(endpoints);
-        UpdateTutorConversation.MapEndpoint(endpoints);
-        DeleteTutorConversation.MapEndpoint(endpoints);
-        CreateTutorMessage.MapEndpoint(endpoints);
-        GetTutorMessageById.MapEndpoint(endpoints);
-        GetTutorMessagePage.MapEndpoint(endpoints);
-        UpdateTutorMessage.MapEndpoint(endpoints);
-        DeleteTutorMessage.MapEndpoint(endpoints);
-        CreateTutorSession.MapEndpoint(endpoints);
-        GetTutorSessionById.MapEndpoint(endpoints);
-        GetTutorSessionPage.MapEndpoint(endpoints);
-        UpdateTutorSession.MapEndpoint(endpoints);
-        DeleteTutorSession.MapEndpoint(endpoints);
+	public static IEndpointRouteBuilder MapAITutorEndpoints(
+		this IEndpointRouteBuilder endpoints)
+	{
+		CreateGeneratedQuiz.MapEndpoint(endpoints);
+		GetGeneratedQuizById.MapEndpoint(endpoints);
+		GetGeneratedQuizPage.MapEndpoint(endpoints);
+		UpdateGeneratedQuiz.MapEndpoint(endpoints);
+		DeleteGeneratedQuiz.MapEndpoint(endpoints);
+		CreateLearningRecommendation.MapEndpoint(endpoints);
+		GetLearningRecommendationById.MapEndpoint(endpoints);
+		GetLearningRecommendationPage.MapEndpoint(endpoints);
+		UpdateLearningRecommendation.MapEndpoint(endpoints);
+		DeleteLearningRecommendation.MapEndpoint(endpoints);
+		CreateQuizAttempt.MapEndpoint(endpoints);
+		GetQuizAttemptById.MapEndpoint(endpoints);
+		GetQuizAttemptPage.MapEndpoint(endpoints);
+		UpdateQuizAttempt.MapEndpoint(endpoints);
+		DeleteQuizAttempt.MapEndpoint(endpoints);
+		CreateStudentTopicMastery.MapEndpoint(endpoints);
+		GetStudentTopicMasteryById.MapEndpoint(endpoints);
+		GetStudentTopicMasteryPage.MapEndpoint(endpoints);
+		UpdateStudentTopicMastery.MapEndpoint(endpoints);
+		DeleteStudentTopicMastery.MapEndpoint(endpoints);
+		CreateTutorConversation.MapEndpoint(endpoints);
+		GetTutorConversationById.MapEndpoint(endpoints);
+		GetTutorConversationPage.MapEndpoint(endpoints);
+		UpdateTutorConversation.MapEndpoint(endpoints);
+		DeleteTutorConversation.MapEndpoint(endpoints);
+		CreateTutorMessage.MapEndpoint(endpoints);
+		GetTutorMessageById.MapEndpoint(endpoints);
+		GetTutorMessagePage.MapEndpoint(endpoints);
+		UpdateTutorMessage.MapEndpoint(endpoints);
+		DeleteTutorMessage.MapEndpoint(endpoints);
+		CreateTutorSession.MapEndpoint(endpoints);
+		GetTutorSessionById.MapEndpoint(endpoints);
+		GetTutorSessionPage.MapEndpoint(endpoints);
+		UpdateTutorSession.MapEndpoint(endpoints);
+		DeleteTutorSession.MapEndpoint(endpoints);
 
-        return endpoints;
-    }
+		return endpoints;
+	}
 }

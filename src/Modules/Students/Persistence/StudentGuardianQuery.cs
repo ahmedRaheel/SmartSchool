@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Students.Persistence;
 
 /// <summary>
-/// Read-side persistence for StudentGuardianEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Students module.
+/// EF-backed read persistence for StudentGuardianEntity.
 /// </summary>
-public sealed class StudentGuardianQuery : IStudentGuardianQuery
+public sealed class StudentGuardianQuery(IEfMockStore store) : IStudentGuardianQuery
 {
-    public Task<StudentGuardianEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentGuardianEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<StudentGuardianEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<StudentGuardianEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<StudentGuardianEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentGuardianEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<StudentGuardianEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<StudentGuardianEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentGuardianEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<StudentGuardianEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

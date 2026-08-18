@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Activities.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Activities.Persistence;
 
 /// <summary>
-/// Read-side persistence for AwardEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Activities module.
+/// EF-backed read persistence for AwardEntity.
 /// </summary>
-public sealed class AwardQuery : IAwardQuery
+public sealed class AwardQuery(IEfMockStore store) : IAwardQuery
 {
-    public Task<AwardEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AwardEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<AwardEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<AwardEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<AwardEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AwardEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<AwardEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<AwardEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AwardEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<AwardEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

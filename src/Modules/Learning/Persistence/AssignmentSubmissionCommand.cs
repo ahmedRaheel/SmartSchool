@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Learning.Models;
 
 namespace SmartSchool.Modules.Learning.Persistence;
 
 /// <summary>
-/// Write-side persistence for AssignmentSubmissionEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for AssignmentSubmissionEntity.
 /// </summary>
-public sealed class AssignmentSubmissionCommand : IAssignmentSubmissionCommand
+public sealed class AssignmentSubmissionCommand(IEfMockStore store) : IAssignmentSubmissionCommand
 {
-    public Task AddAsync(
-        AssignmentSubmissionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AssignmentSubmissionEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(AssignmentSubmissionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        AssignmentSubmissionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AssignmentSubmissionEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(AssignmentSubmissionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        AssignmentSubmissionEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AssignmentSubmissionEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(AssignmentSubmissionEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

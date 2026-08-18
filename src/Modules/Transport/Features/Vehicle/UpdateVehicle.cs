@@ -10,94 +10,94 @@ namespace SmartSchool.Modules.Transport.Features.Vehicle;
 
 public static class UpdateVehicle
 {
-    /// <summary>
-    /// Represents the response returned by this VehicleEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-        Guid TenantId,
-        Guid Id,
-        string Code,
-        string Name);
+	/// <summary>
+	/// Represents the response returned by this VehicleEntity feature.
+	/// </summary>
+	/// <param name="TenantId">The owning tenant identifier.</param>
+	/// <param name="Id">The entity identifier.</param>
+	/// <param name="Code">The business code.</param>
+	/// <param name="Name">The display name.</param>
+	public sealed record Response(
+		Guid TenantId,
+		Guid Id,
+		string Code,
+		string Name);
 
-    public sealed record Request(
-        Guid TenantId,
-        Guid Id,
-        string Code,
-        string Name) : IRequest<Result<Response>>;
+	public sealed record Request(
+		Guid TenantId,
+		Guid Id,
+		string Code,
+		string Name) : IRequest<Result<Response>>;
 
-    public sealed class Validator : AbstractValidator<Request>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.TenantId).NotEmpty();
-            RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-        }
-    }
+	public sealed class Validator : AbstractValidator<Request>
+	{
+		public Validator()
+		{
+			RuleFor(x => x.TenantId).NotEmpty();
+			RuleFor(x => x.Id).NotEmpty();
+			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+		}
+	}
 
-    public sealed class Handler(
-        IVehicleQuery entityQuery,
-        IVehicleCommand entityCommand)
-        : IRequestHandler<Request, Result<Response>>
-    {
-        public async Task<Result<Response>> HandleAsync(
-            Request request,
-            CancellationToken cancellationToken)
-        {
-            var entity = await entityQuery.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
-            {
-                return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(VehicleEntity))));
-            }
+	public sealed class Handler(
+		IVehicleQuery entityQuery,
+		IVehicleCommand entityCommand)
+		: IRequestHandler<Request, Result<Response>>
+	{
+		public async Task<Result<Response>> HandleAsync(
+			Request request,
+			CancellationToken cancellationToken)
+		{
+			var entity = await entityQuery.GetByIdAsync(
+				request.TenantId, request.Id, cancellationToken);
+			if (entity is null)
+			{
+				return Result<Response>.Failure(
+					Error.NotFound(ErrorMessages.EntityNotFound(nameof(VehicleEntity))));
+			}
 
-            var exists = await entityQuery.ExistsByCodeAsync(
-                request.TenantId, request.Code, request.Id, cancellationToken);
-            if (exists)
-            {
-                return Result<Response>.Failure(
-                    Error.Conflict(
-                        ErrorMessages.DuplicateCode(nameof(VehicleEntity), request.Code)));
-            }
+			var exists = await entityQuery.ExistsByCodeAsync(
+				request.TenantId, request.Code, request.Id, cancellationToken);
+			if (exists)
+			{
+				return Result<Response>.Failure(
+					Error.Conflict(
+						ErrorMessages.DuplicateCode(nameof(VehicleEntity), request.Code)));
+			}
 
-            entity.UpdateDetails(
-                request.Code,
-                request.Name);
-            await entityCommand.UpdateAsync(entity, cancellationToken);
-            return Result<Response>.Success(MapResponse(entity));
-        }
-    }
+			entity.UpdateDetails(
+				request.Code,
+				request.Name);
+			await entityCommand.UpdateAsync(entity, cancellationToken);
+			return Result<Response>.Success(MapResponse(entity));
+		}
+	}
 
-    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapPut(
-                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "vehicle"),
-                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var command = request with { Id = id };
-                    var result = await mediator.SendAsync<Request, Result<Response>>(
-                        command, cancellationToken);
-                    return result.ToHttpResult();
-                })
-            .WithName("UpdateVehicle")
-            .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
-        return endpoints;
-    }
+	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+	{
+		endpoints.MapPut(
+				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "vehicle"),
+				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+				{
+					var command = request with { Id = id };
+					var result = await mediator.SendAsync<Request, Result<Response>>(
+						command, cancellationToken);
+					return result.ToHttpResult();
+				})
+			.WithName("UpdateVehicle")
+			.WithTags(ModuleConstants.Name)
+			.RequireAuthorization();
+		return endpoints;
+	}
 
-    private static Response MapResponse(
-        SmartSchool.Modules.Transport.Models.VehicleEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.Id,
-            entity.Code,
-            entity.Name);
-    }
+	private static Response MapResponse(
+		SmartSchool.Modules.Transport.Models.VehicleEntity entity)
+	{
+		return new Response(
+			entity.TenantId,
+			entity.Id,
+			entity.Code,
+			entity.Name);
+	}
 }

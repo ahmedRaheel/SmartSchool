@@ -46,6 +46,8 @@
     <PackageReference Include="Serilog.Enrichers.Thread" />
     <PackageReference Include="Serilog.Formatting.Compact" />
     <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
 
     <Compile Include="$(MSBuildThisFileDirectory)build/SmartSchool.AspNetCoreGlobalUsings.cs"
              Link="SmartSchool.AspNetCoreGlobalUsings.g.cs" />
@@ -54,6 +56,8 @@
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'SmartSchool.Api'">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
 
     <Compile Include="$(MSBuildThisFileDirectory)build/SmartSchool.AspNetCoreGlobalUsings.cs"
              Link="SmartSchool.AspNetCoreGlobalUsings.g.cs" />

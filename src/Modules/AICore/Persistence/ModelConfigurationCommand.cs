@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
 
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// Write-side persistence for ModelConfigurationEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for ModelConfigurationEntity.
 /// </summary>
-public sealed class ModelConfigurationCommand : IModelConfigurationCommand
+public sealed class ModelConfigurationCommand(IEfMockStore store) : IModelConfigurationCommand
 {
-    public Task AddAsync(
-        ModelConfigurationEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ModelConfigurationEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(ModelConfigurationEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        ModelConfigurationEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ModelConfigurationEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(ModelConfigurationEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        ModelConfigurationEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "ModelConfigurationEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(ModelConfigurationEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

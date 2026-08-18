@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Examinations.Persistence;
 
 /// <summary>
-/// Read-side persistence for StudentExamResultEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Examinations module.
+/// EF-backed read persistence for StudentExamResultEntity.
 /// </summary>
-public sealed class StudentExamResultQuery : IStudentExamResultQuery
+public sealed class StudentExamResultQuery(IEfMockStore store) : IStudentExamResultQuery
 {
-    public Task<StudentExamResultEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentExamResultEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<StudentExamResultEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<StudentExamResultEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<StudentExamResultEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentExamResultEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<StudentExamResultEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<StudentExamResultEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "StudentExamResultEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<StudentExamResultEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

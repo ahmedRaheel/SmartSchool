@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// Write-side persistence for BookCopyEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for BookCopyEntity.
 /// </summary>
-public sealed class BookCopyCommand : IBookCopyCommand
+public sealed class BookCopyCommand(IEfMockStore store) : IBookCopyCommand
 {
-    public Task AddAsync(
-        BookCopyEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "BookCopyEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(BookCopyEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        BookCopyEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "BookCopyEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(BookCopyEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        BookCopyEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "BookCopyEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(BookCopyEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

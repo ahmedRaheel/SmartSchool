@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for TimetableEntryEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for TimetableEntryEntity.
 /// </summary>
-public sealed class TimetableEntryCommand : ITimetableEntryCommand
+public sealed class TimetableEntryCommand(IEfMockStore store) : ITimetableEntryCommand
 {
-    public Task AddAsync(
-        TimetableEntryEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TimetableEntryEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(TimetableEntryEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        TimetableEntryEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TimetableEntryEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(TimetableEntryEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        TimetableEntryEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "TimetableEntryEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(TimetableEntryEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using SmartSchool.Application;
 using SmartSchool.Infrastructure.Identity;
 using SmartSchool.Api.Seed;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using SmartSchool.Infrastructure;
 using SmartSchool.Infrastructure.Options;
+using SmartSchool.Infrastructure.Persistence;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AIInquiry;
@@ -33,56 +35,58 @@ using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Workflow;
 
 var builder =
-    WebApplication.CreateBuilder(args);
+	WebApplication.CreateBuilder(args);
 
 builder.AddSmartSchoolPlatform();
 
+builder.Services.AddOpenApi();
+
 builder.Services
-    .AddAuthentication(AuthenticationConstants.BearerScheme)
-    .AddJwtBearer(
-        options =>
-        {
-            var identityOptions = builder.Configuration
-                .GetSection(IdentityOptions.SectionName)
-                .Get<IdentityOptions>()
-                ?? throw new InvalidOperationException(
-                    "Identity configuration is missing.");
+	.AddAuthentication(AuthenticationConstants.BearerScheme)
+	.AddJwtBearer(
+		options =>
+		{
+			var identityOptions = builder.Configuration
+				.GetSection(IdentityOptions.SectionName)
+				.Get<IdentityOptions>()
+				?? throw new InvalidOperationException(
+					"Identity configuration is missing.");
 
-            options.Authority =
-                identityOptions.Authority;
+			options.Authority =
+				identityOptions.Authority;
 
-            options.Audience =
-                identityOptions.Audience;
+			options.Audience =
+				identityOptions.Audience;
 
-            options.RequireHttpsMetadata =
-                identityOptions.RequireHttpsMetadata;
+			options.RequireHttpsMetadata =
+				identityOptions.RequireHttpsMetadata;
 
-            options.TokenValidationParameters.NameClaimType =
-                "name";
+			options.TokenValidationParameters.NameClaimType =
+				"name";
 
-            options.TokenValidationParameters.RoleClaimType =
-                SmartSchoolClaims.Role;
-        });
+			options.TokenValidationParameters.RoleClaimType =
+				SmartSchoolClaims.Role;
+		});
 
 builder.Services.AddSmartSchoolAuthorization();
 builder.Services.AddScoped<SampleActorSeeder>();
 
 builder.Services
-    .AddHttpClient(
-        ApplicationConstants.MachineLearningHttpClient,
-        (serviceProvider, client) =>
-        {
-            var options = serviceProvider
-                .GetRequiredService<IOptionsMonitor<MachineLearningOptions>>()
-                .CurrentValue;
+	.AddHttpClient(
+		ApplicationConstants.MachineLearningHttpClient,
+		(serviceProvider, client) =>
+		{
+			var options = serviceProvider
+				.GetRequiredService<IOptionsMonitor<MachineLearningOptions>>()
+				.CurrentValue;
 
-            client.BaseAddress =
-                new Uri(options.BaseUrl);
+			client.BaseAddress =
+				new Uri(options.BaseUrl);
 
-            client.Timeout =
-                TimeSpan.FromSeconds(options.TimeoutSeconds);
-        })
-    .AddStandardResilienceHandler();
+			client.Timeout =
+				TimeSpan.FromSeconds(options.TimeoutSeconds);
+		})
+	.AddStandardResilienceHandler();
 
 builder.Services.AddAICoreModule();
 builder.Services.AddAIInquiryModule();
@@ -111,17 +115,25 @@ builder.Services.AddWorkflowModule();
 
 
 var app =
-    builder.Build();
+	builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    using var scope =
-        app.Services.CreateScope();
+	app.MapOpenApi();
+	app.MapScalarApiReference(options => options.WithTitle("SmartSchool API"));
 
-    var sampleActorSeeder =
-        scope.ServiceProvider.GetRequiredService<SampleActorSeeder>();
+	using var scope =
+		app.Services.CreateScope();
 
-    await sampleActorSeeder.SeedAsync();
+	var mockDatabaseSeeder =
+		scope.ServiceProvider.GetRequiredService<MockDatabaseSeeder>();
+
+	await mockDatabaseSeeder.SeedAsync();
+
+	var sampleActorSeeder =
+		scope.ServiceProvider.GetRequiredService<SampleActorSeeder>();
+
+	await sampleActorSeeder.SeedAsync();
 }
 
 app.UseExceptionHandler();
@@ -131,13 +143,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet(
-    ApiRoutes.Health,
-    () => Results.Ok(
-        new
-        {
-            Status = ApplicationConstants.HealthStatusOk,
-            Product = ApplicationConstants.ProductName
-        }));
+	ApiRoutes.Health,
+	() => Results.Ok(
+		new
+		{
+			Status = ApplicationConstants.HealthStatusOk,
+			Product = ApplicationConstants.ProductName
+		}));
 
 app.MapAICoreEndpoints();
 app.MapAIInquiryEndpoints();

@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Persistence;
 
 /// <summary>
-/// Write-side persistence for CertificateEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for CertificateEntity.
 /// </summary>
-public sealed class CertificateCommand : ICertificateCommand
+public sealed class CertificateCommand(IEfMockStore store) : ICertificateCommand
 {
-    public Task AddAsync(
-        CertificateEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "CertificateEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(CertificateEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        CertificateEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "CertificateEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(CertificateEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        CertificateEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "CertificateEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(CertificateEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

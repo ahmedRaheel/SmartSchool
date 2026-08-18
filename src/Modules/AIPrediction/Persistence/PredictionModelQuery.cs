@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// Read-side persistence for PredictionModelEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the AIPrediction module.
+/// EF-backed read persistence for PredictionModelEntity.
 /// </summary>
-public sealed class PredictionModelQuery : IPredictionModelQuery
+public sealed class PredictionModelQuery(IEfMockStore store) : IPredictionModelQuery
 {
-    public Task<PredictionModelEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionModelEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<PredictionModelEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<PredictionModelEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<PredictionModelEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionModelEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<PredictionModelEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<PredictionModelEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "PredictionModelEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<PredictionModelEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

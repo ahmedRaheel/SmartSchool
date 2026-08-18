@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// Write-side persistence for InvoiceEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for InvoiceEntity.
 /// </summary>
-public sealed class InvoiceCommand : IInvoiceCommand
+public sealed class InvoiceCommand(IEfMockStore store) : IInvoiceCommand
 {
-    public Task AddAsync(
-        InvoiceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "InvoiceEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(InvoiceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        InvoiceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "InvoiceEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(InvoiceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        InvoiceEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "InvoiceEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(InvoiceEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

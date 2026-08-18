@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Admissions.Persistence;
 
 /// <summary>
-/// Read-side persistence for InquiryEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Admissions module.
+/// EF-backed read persistence for InquiryEntity.
 /// </summary>
-public sealed class InquiryQuery : IInquiryQuery
+public sealed class InquiryQuery(IEfMockStore store) : IInquiryQuery
 {
-    public Task<InquiryEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "InquiryEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<InquiryEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<InquiryEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<InquiryEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "InquiryEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<InquiryEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<InquiryEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "InquiryEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<InquiryEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

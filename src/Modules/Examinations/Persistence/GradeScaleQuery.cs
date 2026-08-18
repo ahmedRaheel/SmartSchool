@@ -1,41 +1,27 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Examinations.Persistence;
 
 /// <summary>
-/// Read-side persistence for GradeScaleEntity.
-/// Replace the scaffolded methods with optimized EF Core/Dapper queries
-/// owned by the Examinations module.
+/// EF-backed read persistence for GradeScaleEntity.
 /// </summary>
-public sealed class GradeScaleQuery : IGradeScaleQuery
+public sealed class GradeScaleQuery(IEfMockStore store) : IGradeScaleQuery
 {
-    public Task<GradeScaleEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "GradeScaleEntity read persistence has not been connected to the module DbContext.");
-    }
+	public Task<GradeScaleEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	{
+		return store.GetByIdAsync<GradeScaleEntity>(tenantId, id, cancellationToken);
+	}
 
-    public Task<PagedResult<GradeScaleEntity>> GetPageAsync(
-        Guid tenantId,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "GradeScaleEntity paging persistence has not been connected to the module DbContext.");
-    }
+	public Task<PagedResult<GradeScaleEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		return store.GetPageAsync<GradeScaleEntity>(tenantId, page, pageSize, cancellationToken);
+	}
 
-    public Task<bool> ExistsByCodeAsync(
-        Guid tenantId,
-        string code,
-        Guid? excludingId,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "GradeScaleEntity uniqueness persistence has not been connected to the module DbContext.");
-    }
+	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	{
+		return store.ExistsByCodeAsync<GradeScaleEntity>(tenantId, code, excludingId, cancellationToken);
+	}
+
 }

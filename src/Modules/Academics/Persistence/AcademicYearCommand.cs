@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// Write-side persistence for AcademicYearEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for AcademicYearEntity.
 /// </summary>
-public sealed class AcademicYearCommand : IAcademicYearCommand
+public sealed class AcademicYearCommand(IEfMockStore store) : IAcademicYearCommand
 {
-    public Task AddAsync(
-        AcademicYearEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AcademicYearEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(AcademicYearEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        AcademicYearEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AcademicYearEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(AcademicYearEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        AcademicYearEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "AcademicYearEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(AcademicYearEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }

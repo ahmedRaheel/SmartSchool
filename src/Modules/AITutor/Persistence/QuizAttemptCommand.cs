@@ -1,34 +1,26 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 
 namespace SmartSchool.Modules.AITutor.Persistence;
 
 /// <summary>
-/// Write-side persistence for QuizAttemptEntity.
-/// Transaction boundaries remain explicit in the application use case.
+/// EF-backed write persistence for QuizAttemptEntity.
 /// </summary>
-public sealed class QuizAttemptCommand : IQuizAttemptCommand
+public sealed class QuizAttemptCommand(IEfMockStore store) : IQuizAttemptCommand
 {
-    public Task AddAsync(
-        QuizAttemptEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "QuizAttemptEntity create persistence has not been connected to the module DbContext.");
-    }
+	public Task AddAsync(QuizAttemptEntity entity, CancellationToken cancellationToken)
+	{
+		return store.AddAsync(entity, cancellationToken);
+	}
 
-    public Task UpdateAsync(
-        QuizAttemptEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "QuizAttemptEntity update persistence has not been connected to the module DbContext.");
-    }
+	public Task UpdateAsync(QuizAttemptEntity entity, CancellationToken cancellationToken)
+	{
+		return store.UpdateAsync(entity, cancellationToken);
+	}
 
-    public Task DeleteAsync(
-        QuizAttemptEntity entity,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException(
-            "QuizAttemptEntity delete persistence has not been connected to the module DbContext.");
-    }
+	public Task DeleteAsync(QuizAttemptEntity entity, CancellationToken cancellationToken)
+	{
+		return store.DeleteAsync(entity, cancellationToken);
+	}
+
 }
