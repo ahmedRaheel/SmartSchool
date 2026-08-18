@@ -1,12 +1,12 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Workflow.Persistence;
-
 using SmartSchool.Modules.Workflow.Features.Approval;
 using SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
 using SmartSchool.Modules.Workflow.Features.WorkflowInstance;
 using SmartSchool.Modules.Workflow.Features.WorkflowStep;
+using SmartSchool.Modules.Workflow.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Workflow;
 
@@ -15,6 +15,7 @@ public static class Module
     public static IServiceCollection AddWorkflowModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IApprovalQuery, ApprovalQuery>();
         services.AddScoped<IApprovalCommand, ApprovalCommand>();
         services.AddScoped<IWorkflowDefinitionQuery, WorkflowDefinitionQuery>();

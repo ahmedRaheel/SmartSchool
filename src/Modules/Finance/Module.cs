@@ -1,8 +1,6 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Finance.Persistence;
-
 using SmartSchool.Modules.Finance.Features.Discount;
 using SmartSchool.Modules.Finance.Features.FeeStructure;
 using SmartSchool.Modules.Finance.Features.FeeType;
@@ -10,6 +8,8 @@ using SmartSchool.Modules.Finance.Features.Invoice;
 using SmartSchool.Modules.Finance.Features.Payment;
 using SmartSchool.Modules.Finance.Features.Scholarship;
 using SmartSchool.Modules.Finance.Features.StudentFee;
+using SmartSchool.Modules.Finance.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Finance;
 
@@ -18,6 +18,7 @@ public static class Module
     public static IServiceCollection AddFinanceModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IDiscountQuery, DiscountQuery>();
         services.AddScoped<IDiscountCommand, DiscountCommand>();
         services.AddScoped<IFeeStructureQuery, FeeStructureQuery>();

@@ -1,13 +1,13 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Students.Persistence;
-
 using SmartSchool.Modules.Students.Features.Attendance;
 using SmartSchool.Modules.Students.Features.Enrollment;
 using SmartSchool.Modules.Students.Features.Guardian;
 using SmartSchool.Modules.Students.Features.Student;
 using SmartSchool.Modules.Students.Features.StudentGuardian;
+using SmartSchool.Modules.Students.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Students;
 
@@ -16,6 +16,7 @@ public static class Module
     public static IServiceCollection AddStudentsModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IAttendanceQuery, AttendanceQuery>();
         services.AddScoped<IAttendanceCommand, AttendanceCommand>();
         services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();

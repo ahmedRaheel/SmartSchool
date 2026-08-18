@@ -1,8 +1,6 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AITutor.Persistence;
-
 using SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 using SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 using SmartSchool.Modules.AITutor.Features.QuizAttempt;
@@ -10,6 +8,8 @@ using SmartSchool.Modules.AITutor.Features.StudentTopicMastery;
 using SmartSchool.Modules.AITutor.Features.TutorConversation;
 using SmartSchool.Modules.AITutor.Features.TutorMessage;
 using SmartSchool.Modules.AITutor.Features.TutorSession;
+using SmartSchool.Modules.AITutor.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AITutor;
 
@@ -18,6 +18,7 @@ public static class Module
     public static IServiceCollection AddAITutorModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IGeneratedQuizQuery, GeneratedQuizQuery>();
         services.AddScoped<IGeneratedQuizCommand, GeneratedQuizCommand>();
         services.AddScoped<ILearningRecommendationQuery, LearningRecommendationQuery>();

@@ -1,12 +1,12 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Examinations.Persistence;
-
 using SmartSchool.Modules.Examinations.Features.Exam;
 using SmartSchool.Modules.Examinations.Features.ExamSubject;
 using SmartSchool.Modules.Examinations.Features.GradeScale;
 using SmartSchool.Modules.Examinations.Features.StudentExamResult;
+using SmartSchool.Modules.Examinations.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Examinations;
 
@@ -15,6 +15,7 @@ public static class Module
     public static IServiceCollection AddExaminationsModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IExamQuery, ExamQuery>();
         services.AddScoped<IExamCommand, ExamCommand>();
         services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();

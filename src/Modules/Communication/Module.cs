@@ -1,13 +1,13 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Communication.Persistence;
-
 using SmartSchool.Modules.Communication.Features.Conversation;
 using SmartSchool.Modules.Communication.Features.ConversationParticipant;
 using SmartSchool.Modules.Communication.Features.Message;
 using SmartSchool.Modules.Communication.Features.MessageReceipt;
 using SmartSchool.Modules.Communication.Features.Notification;
+using SmartSchool.Modules.Communication.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Communication;
 
@@ -16,6 +16,7 @@ public static class Module
     public static IServiceCollection AddCommunicationModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IConversationQuery, ConversationQuery>();
         services.AddScoped<IConversationCommand, ConversationCommand>();
         services.AddScoped<IConversationParticipantQuery, ConversationParticipantQuery>();

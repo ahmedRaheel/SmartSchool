@@ -1,12 +1,12 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Learning.Persistence;
-
 using SmartSchool.Modules.Learning.Features.Assignment;
 using SmartSchool.Modules.Learning.Features.AssignmentSubmission;
 using SmartSchool.Modules.Learning.Features.LearningResource;
 using SmartSchool.Modules.Learning.Features.Lesson;
+using SmartSchool.Modules.Learning.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Learning;
 
@@ -15,6 +15,7 @@ public static class Module
     public static IServiceCollection AddLearningModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IAssignmentQuery, AssignmentQuery>();
         services.AddScoped<IAssignmentCommand, AssignmentCommand>();
         services.AddScoped<IAssignmentSubmissionQuery, AssignmentSubmissionQuery>();

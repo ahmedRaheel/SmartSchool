@@ -1,12 +1,12 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Admissions.Persistence;
-
 using SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 using SmartSchool.Modules.Admissions.Features.Applicant;
 using SmartSchool.Modules.Admissions.Features.Application;
 using SmartSchool.Modules.Admissions.Features.Inquiry;
+using SmartSchool.Modules.Admissions.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Admissions;
 
@@ -15,6 +15,7 @@ public static class Module
     public static IServiceCollection AddAdmissionsModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IAdmissionDecisionQuery, AdmissionDecisionQuery>();
         services.AddScoped<IAdmissionDecisionCommand, AdmissionDecisionCommand>();
         services.AddScoped<IApplicantQuery, ApplicantQuery>();

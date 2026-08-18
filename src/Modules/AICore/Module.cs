@@ -10,6 +10,7 @@ using SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 using SmartSchool.Modules.AICore.Features.ModelConfiguration;
 using SmartSchool.Modules.AICore.Features.PromptTemplate;
 using SmartSchool.Modules.AICore.Features.ToolDefinition;
+using SmartSchool.Application;
 
 namespace SmartSchool.Modules.AICore;
 
@@ -18,6 +19,8 @@ public static class Module
     public static IServiceCollection AddAICoreModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
+
         services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
         services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
         services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();

@@ -1,8 +1,6 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AIPrediction.Persistence;
-
 using SmartSchool.Modules.AIPrediction.Features.ClassPerformanceInsight;
 using SmartSchool.Modules.AIPrediction.Features.PredictionEvaluation;
 using SmartSchool.Modules.AIPrediction.Features.PredictionEvidence;
@@ -11,6 +9,8 @@ using SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
 using SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction;
 using SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 using SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
+using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIPrediction;
 
@@ -19,6 +19,7 @@ public static class Module
     public static IServiceCollection AddAIPredictionModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IClassPerformanceInsightQuery, ClassPerformanceInsightQuery>();
         services.AddScoped<IClassPerformanceInsightCommand, ClassPerformanceInsightCommand>();
         services.AddScoped<IPredictionEvaluationQuery, PredictionEvaluationQuery>();

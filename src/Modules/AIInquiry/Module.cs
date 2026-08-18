@@ -1,12 +1,12 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AIInquiry.Persistence;
-
 using SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 using SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 using SmartSchool.Modules.AIInquiry.Features.InquiryMessage;
 using SmartSchool.Modules.AIInquiry.Features.LeadCapture;
+using SmartSchool.Modules.AIInquiry.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIInquiry;
 
@@ -15,6 +15,7 @@ public static class Module
     public static IServiceCollection AddAIInquiryModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IHumanHandoffQuery, HumanHandoffQuery>();
         services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();
         services.AddScoped<IInquiryConversationQuery, InquiryConversationQuery>();

@@ -1,12 +1,12 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Documents.Persistence;
-
 using SmartSchool.Modules.Documents.Features.Certificate;
 using SmartSchool.Modules.Documents.Features.DocumentTemplate;
 using SmartSchool.Modules.Documents.Features.GeneratedDocument;
 using SmartSchool.Modules.Documents.Features.SchoolLogo;
+using SmartSchool.Modules.Documents.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Documents;
 
@@ -15,6 +15,7 @@ public static class Module
     public static IServiceCollection AddDocumentsModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<ICertificateQuery, CertificateQuery>();
         services.AddScoped<ICertificateCommand, CertificateCommand>();
         services.AddScoped<IDocumentTemplateQuery, DocumentTemplateQuery>();

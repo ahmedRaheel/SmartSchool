@@ -1,12 +1,12 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Transport.Persistence;
-
 using SmartSchool.Modules.Transport.Features.Route;
 using SmartSchool.Modules.Transport.Features.Stop;
 using SmartSchool.Modules.Transport.Features.StudentTransport;
 using SmartSchool.Modules.Transport.Features.Vehicle;
+using SmartSchool.Modules.Transport.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Transport;
 
@@ -15,6 +15,7 @@ public static class Module
     public static IServiceCollection AddTransportModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IRouteQuery, RouteQuery>();
         services.AddScoped<IRouteCommand, RouteCommand>();
         services.AddScoped<IStopQuery, StopQuery>();

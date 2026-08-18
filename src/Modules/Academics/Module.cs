@@ -1,8 +1,6 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Academics.Persistence;
-
 using SmartSchool.Modules.Academics.Features.AcademicSystem;
 using SmartSchool.Modules.Academics.Features.AcademicYear;
 using SmartSchool.Modules.Academics.Features.ClassSection;
@@ -15,6 +13,8 @@ using SmartSchool.Modules.Academics.Features.TeacherAssignment;
 using SmartSchool.Modules.Academics.Features.Term;
 using SmartSchool.Modules.Academics.Features.Timetable;
 using SmartSchool.Modules.Academics.Features.TimetableEntry;
+using SmartSchool.Modules.Academics.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Academics;
 
@@ -23,6 +23,7 @@ public static class Module
     public static IServiceCollection AddAcademicsModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IAcademicSystemQuery, AcademicSystemQuery>();
         services.AddScoped<IAcademicSystemCommand, AcademicSystemCommand>();
         services.AddScoped<IAcademicYearQuery, AcademicYearQuery>();

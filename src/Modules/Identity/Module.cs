@@ -1,10 +1,10 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Identity.Persistence;
-
 using SmartSchool.Modules.Identity.Features.RoleAssignment;
 using SmartSchool.Modules.Identity.Features.UserProfile;
+using SmartSchool.Modules.Identity.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Identity;
 
@@ -13,6 +13,7 @@ public static class Module
     public static IServiceCollection AddIdentityModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IRoleAssignmentQuery, RoleAssignmentQuery>();
         services.AddScoped<IRoleAssignmentCommand, RoleAssignmentCommand>();
         services.AddScoped<IUserProfileQuery, UserProfileQuery>();

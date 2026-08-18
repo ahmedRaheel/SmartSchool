@@ -1,8 +1,6 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.HR.Persistence;
-
 using SmartSchool.Modules.HR.Features.Candidate;
 using SmartSchool.Modules.HR.Features.Employee;
 using SmartSchool.Modules.HR.Features.EmploymentHistory;
@@ -12,6 +10,8 @@ using SmartSchool.Modules.HR.Features.JobGrade;
 using SmartSchool.Modules.HR.Features.LeaveRequest;
 using SmartSchool.Modules.HR.Features.Position;
 using SmartSchool.Modules.HR.Features.Resume;
+using SmartSchool.Modules.HR.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.HR;
 
@@ -20,6 +20,7 @@ public static class Module
     public static IServiceCollection AddHRModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<ICandidateQuery, CandidateQuery>();
         services.AddScoped<ICandidateCommand, CandidateCommand>();
         services.AddScoped<IEmployeeQuery, EmployeeQuery>();

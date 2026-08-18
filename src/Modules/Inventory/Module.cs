@@ -1,11 +1,11 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Inventory.Persistence;
-
 using SmartSchool.Modules.Inventory.Features.Item;
 using SmartSchool.Modules.Inventory.Features.PurchaseOrder;
 using SmartSchool.Modules.Inventory.Features.StockTransaction;
+using SmartSchool.Modules.Inventory.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Inventory;
 
@@ -14,6 +14,7 @@ public static class Module
     public static IServiceCollection AddInventoryModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IItemQuery, ItemQuery>();
         services.AddScoped<IItemCommand, ItemCommand>();
         services.AddScoped<IPurchaseOrderQuery, PurchaseOrderQuery>();

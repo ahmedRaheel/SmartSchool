@@ -1,11 +1,11 @@
 
-using SmartSchool.SharedKernel;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AIParent.Persistence;
-
 using SmartSchool.Modules.AIParent.Features.ParentConversation;
 using SmartSchool.Modules.AIParent.Features.ParentMessage;
 using SmartSchool.Modules.AIParent.Features.ParentToolExecution;
+using SmartSchool.Modules.AIParent.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIParent;
 
@@ -14,6 +14,7 @@ public static class Module
     public static IServiceCollection AddAIParentModule(
         this IServiceCollection services)
     {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
         services.AddScoped<IParentConversationQuery, ParentConversationQuery>();
         services.AddScoped<IParentConversationCommand, ParentConversationCommand>();
         services.AddScoped<IParentMessageQuery, ParentMessageQuery>();
