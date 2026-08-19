@@ -12,7 +12,7 @@ public sealed class CertificateEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<CertificateEntity> builder)
 	{
-		builder.ToTable("Certificate");
+		builder.ToTable("Certificate", schema: "document");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -24,11 +24,11 @@ public sealed class CertificateEntityConfiguration
 			.Property(entity => entity.IsActive)
 			.IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
-
 		builder.HasIndex(entity => entity.TenantId);
+
+		builder.Property(entity => entity.CreatedAt).IsRequired();
+		builder.Property(entity => entity.UpdatedAt);
+		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
 		builder
 			.Property(entity => entity.Code)

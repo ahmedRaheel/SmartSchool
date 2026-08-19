@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Library.Persistence;
 /// </summary>
 public sealed class BookCopyQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IBookCopyQuery
+	IDbConnectionFactory connectionFactory) : IBookCopyQuery
 {
 	public Task<BookCopyEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class BookCopyQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<BookCopyEntity>> GetPageAsync(
+	public async Task<PagedResult<BookCopyEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<BookCopyEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.BookCopy
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				bookcopy_id AS "Id"
+			FROM public.BookCopy
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY bookcopy_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<BookCopyEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<BookCopyEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(BookCopyEntity.Code),
-				nameof(BookCopyEntity.Name),
-				nameof(BookCopyEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

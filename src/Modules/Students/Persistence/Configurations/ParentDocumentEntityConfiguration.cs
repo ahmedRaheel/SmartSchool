@@ -13,7 +13,7 @@ public sealed class ParentDocumentEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<ParentDocumentEntity> builder)
 	{
-		builder.ToTable("ParentDocument");
+		builder.ToTable("ParentDocument", schema: "student");
 
 		builder.HasKey(document => document.Id);
 

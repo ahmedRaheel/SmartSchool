@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Documents.Persistence;
 /// </summary>
 public sealed class CertificateQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : ICertificateQuery
+	IDbConnectionFactory connectionFactory) : ICertificateQuery
 {
 	public Task<CertificateEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class CertificateQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<CertificateEntity>> GetPageAsync(
+	public async Task<PagedResult<CertificateEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<CertificateEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.Certificate
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				certificate_id AS "Id"
+			FROM public.Certificate
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY certificate_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<CertificateEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<CertificateEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(CertificateEntity.Code),
-				nameof(CertificateEntity.Name),
-				nameof(CertificateEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

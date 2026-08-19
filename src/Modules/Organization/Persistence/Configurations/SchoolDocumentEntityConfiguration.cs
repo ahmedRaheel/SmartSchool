@@ -13,7 +13,7 @@ public sealed class SchoolDocumentEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<SchoolDocumentEntity> builder)
 	{
-		builder.ToTable("SchoolDocument");
+		builder.ToTable("SchoolDocument", schema: "org");
 
 		builder.HasKey(document => document.Id);
 

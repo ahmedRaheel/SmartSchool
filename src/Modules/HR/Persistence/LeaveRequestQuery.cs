@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.HR.Persistence;
 /// </summary>
 public sealed class LeaveRequestQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : ILeaveRequestQuery
+	IDbConnectionFactory connectionFactory) : ILeaveRequestQuery
 {
 	public Task<LeaveRequestEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class LeaveRequestQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<LeaveRequestEntity>> GetPageAsync(
+	public async Task<PagedResult<LeaveRequestEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<LeaveRequestEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.LeaveRequest
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				leaverequest_id AS "Id"
+			FROM public.LeaveRequest
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY leaverequest_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<LeaveRequestEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<LeaveRequestEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(LeaveRequestEntity.Code),
-				nameof(LeaveRequestEntity.Name),
-				nameof(LeaveRequestEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

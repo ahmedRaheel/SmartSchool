@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Finance.Persistence;
 /// </summary>
 public sealed class FeeStructureQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IFeeStructureQuery
+	IDbConnectionFactory connectionFactory) : IFeeStructureQuery
 {
 	public Task<FeeStructureEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class FeeStructureQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<FeeStructureEntity>> GetPageAsync(
+	public async Task<PagedResult<FeeStructureEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<FeeStructureEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.FeeStructure
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				feestructure_id AS "Id"
+			FROM public.FeeStructure
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY feestructure_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<FeeStructureEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<FeeStructureEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(FeeStructureEntity.Code),
-				nameof(FeeStructureEntity.Name),
-				nameof(FeeStructureEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

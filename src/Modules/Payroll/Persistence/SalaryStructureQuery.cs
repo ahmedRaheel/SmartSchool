@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Payroll.Persistence;
 /// </summary>
 public sealed class SalaryStructureQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : ISalaryStructureQuery
+	IDbConnectionFactory connectionFactory) : ISalaryStructureQuery
 {
 	public Task<SalaryStructureEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class SalaryStructureQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<SalaryStructureEntity>> GetPageAsync(
+	public async Task<PagedResult<SalaryStructureEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<SalaryStructureEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.SalaryStructure
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				salarystructure_id AS "Id"
+			FROM public.SalaryStructure
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY salarystructure_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<SalaryStructureEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<SalaryStructureEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(SalaryStructureEntity.Code),
-				nameof(SalaryStructureEntity.Name),
-				nameof(SalaryStructureEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

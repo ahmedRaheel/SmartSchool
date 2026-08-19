@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Academics.Persistence;
 /// </summary>
 public sealed class TeacherAssignmentQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : ITeacherAssignmentQuery
+	IDbConnectionFactory connectionFactory) : ITeacherAssignmentQuery
 {
 	public Task<TeacherAssignmentEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class TeacherAssignmentQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<TeacherAssignmentEntity>> GetPageAsync(
+	public async Task<PagedResult<TeacherAssignmentEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<TeacherAssignmentEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.TeacherAssignment
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				teacherassignment_id AS "Id"
+			FROM public.TeacherAssignment
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY teacherassignment_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<TeacherAssignmentEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<TeacherAssignmentEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(TeacherAssignmentEntity.Code),
-				nameof(TeacherAssignmentEntity.Name),
-				nameof(TeacherAssignmentEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

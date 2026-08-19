@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Documents.Persistence;
 /// </summary>
 public sealed class DocumentTemplateQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IDocumentTemplateQuery
+	IDbConnectionFactory connectionFactory) : IDocumentTemplateQuery
 {
 	public Task<DocumentTemplateEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class DocumentTemplateQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<DocumentTemplateEntity>> GetPageAsync(
+	public async Task<PagedResult<DocumentTemplateEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<DocumentTemplateEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.DocumentTemplate
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				documenttemplate_id AS "Id"
+			FROM public.DocumentTemplate
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY documenttemplate_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<DocumentTemplateEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<DocumentTemplateEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(DocumentTemplateEntity.Code),
-				nameof(DocumentTemplateEntity.Name),
-				nameof(DocumentTemplateEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

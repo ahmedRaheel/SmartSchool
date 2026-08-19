@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Payroll.Persistence;
 /// </summary>
 public sealed class EmployeeCompensationQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IEmployeeCompensationQuery
+	IDbConnectionFactory connectionFactory) : IEmployeeCompensationQuery
 {
 	public Task<EmployeeCompensationEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class EmployeeCompensationQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<EmployeeCompensationEntity>> GetPageAsync(
+	public async Task<PagedResult<EmployeeCompensationEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<EmployeeCompensationEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.EmployeeCompensation
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				employeecompensation_id AS "Id"
+			FROM public.EmployeeCompensation
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY employeecompensation_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<EmployeeCompensationEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<EmployeeCompensationEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(EmployeeCompensationEntity.Code),
-				nameof(EmployeeCompensationEntity.Name),
-				nameof(EmployeeCompensationEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// </summary>
 public sealed class HumanHandoffQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IHumanHandoffQuery
+	IDbConnectionFactory connectionFactory) : IHumanHandoffQuery
 {
 	public Task<HumanHandoffEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class HumanHandoffQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<HumanHandoffEntity>> GetPageAsync(
+	public async Task<PagedResult<HumanHandoffEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<HumanHandoffEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.HumanHandoff
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				humanhandoff_id AS "Id"
+			FROM public.HumanHandoff
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY humanhandoff_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<HumanHandoffEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<HumanHandoffEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(HumanHandoffEntity.Code),
-				nameof(HumanHandoffEntity.Name),
-				nameof(HumanHandoffEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

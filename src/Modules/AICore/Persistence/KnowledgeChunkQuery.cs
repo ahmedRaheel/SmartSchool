@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// </summary>
 public sealed class KnowledgeChunkQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IKnowledgeChunkQuery
+	IDbConnectionFactory connectionFactory) : IKnowledgeChunkQuery
 {
 	public Task<KnowledgeChunkEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class KnowledgeChunkQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<KnowledgeChunkEntity>> GetPageAsync(
+	public async Task<PagedResult<KnowledgeChunkEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<KnowledgeChunkEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.KnowledgeChunk
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				knowledgechunk_id AS "Id"
+			FROM public.KnowledgeChunk
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY knowledgechunk_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<KnowledgeChunkEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<KnowledgeChunkEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(KnowledgeChunkEntity.Code),
-				nameof(KnowledgeChunkEntity.Name),
-				nameof(KnowledgeChunkEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

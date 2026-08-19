@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AITutor.Persistence;
 /// </summary>
 public sealed class GeneratedQuizQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IGeneratedQuizQuery
+	IDbConnectionFactory connectionFactory) : IGeneratedQuizQuery
 {
 	public Task<GeneratedQuizEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class GeneratedQuizQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<GeneratedQuizEntity>> GetPageAsync(
+	public async Task<PagedResult<GeneratedQuizEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<GeneratedQuizEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.GeneratedQuiz
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				generatedquiz_id AS "Id"
+			FROM public.GeneratedQuiz
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY generatedquiz_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<GeneratedQuizEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<GeneratedQuizEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(GeneratedQuizEntity.Code),
-				nameof(GeneratedQuizEntity.Name),
-				nameof(GeneratedQuizEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

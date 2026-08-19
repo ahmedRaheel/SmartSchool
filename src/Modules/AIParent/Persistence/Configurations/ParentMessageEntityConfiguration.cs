@@ -12,7 +12,7 @@ public sealed class ParentMessageEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<ParentMessageEntity> builder)
 	{
-		builder.ToTable("ParentMessage");
+		builder.ToTable("ParentMessage", schema: "ai_parent");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -24,11 +24,11 @@ public sealed class ParentMessageEntityConfiguration
 			.Property(entity => entity.IsActive)
 			.IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
-
 		builder.HasIndex(entity => entity.TenantId);
+
+		builder.Property(entity => entity.CreatedAt).IsRequired();
+		builder.Property(entity => entity.UpdatedAt);
+		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
 		builder
 			.Property(entity => entity.Code)

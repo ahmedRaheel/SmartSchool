@@ -12,7 +12,7 @@ public sealed class DocumentTemplateEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<DocumentTemplateEntity> builder)
 	{
-		builder.ToTable("DocumentTemplate");
+		builder.ToTable("DocumentTemplate", schema: "document");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -24,11 +24,11 @@ public sealed class DocumentTemplateEntityConfiguration
 			.Property(entity => entity.IsActive)
 			.IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
-
 		builder.HasIndex(entity => entity.TenantId);
+
+		builder.Property(entity => entity.CreatedAt).IsRequired();
+		builder.Property(entity => entity.UpdatedAt);
+		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
 		builder
 			.Property(entity => entity.Code)

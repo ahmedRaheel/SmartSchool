@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.HR.Persistence;
 /// </summary>
 public sealed class EmployeeQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IEmployeeQuery
+	IDbConnectionFactory connectionFactory) : IEmployeeQuery
 {
 	public Task<EmployeeEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,30 +28,67 @@ public sealed class EmployeeQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<EmployeeEntity>> GetPageAsync(
+	public async Task<PagedResult<EmployeeEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<EmployeeEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM hr.employee
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				employee_id AS "Id",
+				employee_number AS "EmployeeNumber",
+				first_name AS "FirstName",
+				last_name AS "LastName",
+				cnic_number AS "CnicNumber",
+				email AS "Email",
+				phone AS "Phone",
+				hire_date AS "HireDate",
+				employment_type_code AS "EmploymentTypeCode",
+				status AS "Status"
+			FROM hr.employee
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY employee_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<EmployeeEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<EmployeeEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(EmployeeEntity.EmployeeNumber),
-				nameof(EmployeeEntity.FirstName),
-				nameof(EmployeeEntity.LastName),
-				nameof(EmployeeEntity.CnicNumber),
-				nameof(EmployeeEntity.Email),
-				nameof(EmployeeEntity.Phone),
-				nameof(EmployeeEntity.HireDate),
-				nameof(EmployeeEntity.EmploymentTypeCode),
-				nameof(EmployeeEntity.Status)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByEmployeeNumberAsync(

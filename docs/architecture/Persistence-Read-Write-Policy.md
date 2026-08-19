@@ -1,33 +1,31 @@
-# SmartSchool Persistence Read/Write Policy
+# SmartSchool Persistence Policy
 
-## Decision
+## Read side
+Dapper is used for public read APIs, paging, searching, dashboards, reporting and read models.
 
-SmartSchool uses **EF Core for writes and aggregate loading** and **Dapper for API/list/search reads**.
+Every Dapper query:
+- owns explicit SQL;
+- selects only required columns;
+- maps directly to its read response;
+- does not inspect EF metadata;
+- does not use reflection;
+- does not use SELECT *;
+- excludes BLOB/document/image columns unless explicitly required.
 
-### EF Core is allowed for
-- POST/create commands.
-- PUT/PATCH/update commands.
-- DELETE/deactivate commands.
-- Loading an aggregate by `Id` for domain mutation.
-- Loading an aggregate by a natural/business key such as `Code` or `StudentNumber` when an insert/update/delete invariant requires the complete entity.
-- Transactions, optimistic concurrency and unit-of-work behavior.
+## Command side
+EF Core and SmartSchoolDbContext are used for:
+- create;
+- update;
+- delete/deactivate;
+- aggregate loading for domain behavior;
+- transactions;
+- optimistic concurrency.
 
-### Dapper is required for
-- Paged endpoints.
-- Search/filter endpoints.
-- Dashboard/read-model endpoints.
-- Reports.
-- Lookup lists that do not require domain behavior.
-- Any read where only a subset of columns is needed.
+Internal GetById/GetByCode may use EF when a command needs the aggregate.
+Simple uniqueness/existence checks should prefer AnyAsync rather than loading a full entity.
 
-### Projection rule
-Paged/list/search queries MUST explicitly name projected properties. BLOB/image/document columns are excluded unless the endpoint explicitly exists to retrieve them.
-
-### No duplicate mapping
-`DapperReadStore` obtains table/schema/column identifiers from EF metadata. EF entity configurations therefore remain the single mapping source for both EF writes and Dapper reads.
-
-### By-id policy
-Public GET-by-id endpoints may use a dedicated Dapper detail projection where performance warrants it. EF GetById/GetByCode is reserved primarily for command-side/domain workflows that require a tracked or complete aggregate.
-
-### Concurrency
-`RowVersion` is an optimistic concurrency token. PostgreSQL does not have SQL Server `rowversion`; SmartSchool stores a `bytea` token and refreshes it on update using a database trigger.
+## Mapping
+C# keeps domain-friendly names such as Id and TenantId.
+PostgreSQL keeps database-friendly names such as student_id and tenant_id.
+EF configurations explicitly bridge these names on the write side.
+Dapper SQL uses the physical database names directly on the read side.

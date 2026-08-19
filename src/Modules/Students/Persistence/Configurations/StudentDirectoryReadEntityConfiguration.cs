@@ -12,7 +12,7 @@ public sealed class StudentDirectoryReadEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<StudentDirectoryReadEntity> builder)
 	{
-		builder.ToTable("StudentDirectoryRead");
+		builder.ToTable("StudentDirectoryRead", schema: "student");
 		builder.HasKey(readModel => readModel.Id);
 		builder.Property(readModel => readModel.TenantId).IsRequired();
 		builder.Property(readModel => readModel.StudentId).IsRequired();

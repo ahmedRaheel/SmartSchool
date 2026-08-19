@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Finance.Persistence;
 /// </summary>
 public sealed class StudentFeeQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IStudentFeeQuery
+	IDbConnectionFactory connectionFactory) : IStudentFeeQuery
 {
 	public Task<StudentFeeEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class StudentFeeQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<StudentFeeEntity>> GetPageAsync(
+	public async Task<PagedResult<StudentFeeEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<StudentFeeEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.StudentFee
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				studentfee_id AS "Id"
+			FROM public.StudentFee
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY studentfee_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<StudentFeeEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<StudentFeeEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(StudentFeeEntity.Code),
-				nameof(StudentFeeEntity.Name),
-				nameof(StudentFeeEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

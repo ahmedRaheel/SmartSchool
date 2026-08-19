@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AIParent.Persistence;
 /// </summary>
 public sealed class ParentToolExecutionQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IParentToolExecutionQuery
+	IDbConnectionFactory connectionFactory) : IParentToolExecutionQuery
 {
 	public Task<ParentToolExecutionEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class ParentToolExecutionQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<ParentToolExecutionEntity>> GetPageAsync(
+	public async Task<PagedResult<ParentToolExecutionEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<ParentToolExecutionEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.ParentToolExecution
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				parenttoolexecution_id AS "Id"
+			FROM public.ParentToolExecution
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY parenttoolexecution_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<ParentToolExecutionEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<ParentToolExecutionEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(ParentToolExecutionEntity.Code),
-				nameof(ParentToolExecutionEntity.Name),
-				nameof(ParentToolExecutionEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

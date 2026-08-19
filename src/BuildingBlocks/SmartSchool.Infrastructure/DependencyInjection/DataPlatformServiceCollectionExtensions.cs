@@ -98,9 +98,9 @@ public static class DataPlatformServiceCollectionExtensions
 			}
 		});
 
+		services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
 		services.AddScoped<IApplicationDbContext>(
 			serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
-		services.AddScoped<IDapperReadStore, DapperReadStore>();
 		services.AddScoped<MockDatabaseSeeder>();
 		services.AddScoped<IEfMockStore, EfMockStore>();
 	}

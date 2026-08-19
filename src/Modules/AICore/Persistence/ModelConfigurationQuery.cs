@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// </summary>
 public sealed class ModelConfigurationQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IModelConfigurationQuery
+	IDbConnectionFactory connectionFactory) : IModelConfigurationQuery
 {
 	public Task<ModelConfigurationEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class ModelConfigurationQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<ModelConfigurationEntity>> GetPageAsync(
+	public async Task<PagedResult<ModelConfigurationEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<ModelConfigurationEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.ModelConfiguration
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				modelconfiguration_id AS "Id"
+			FROM public.ModelConfiguration
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY modelconfiguration_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<ModelConfigurationEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<ModelConfigurationEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(ModelConfigurationEntity.Code),
-				nameof(ModelConfigurationEntity.Name),
-				nameof(ModelConfigurationEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.HR.Persistence;
 /// </summary>
 public sealed class EmploymentHistoryQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IEmploymentHistoryQuery
+	IDbConnectionFactory connectionFactory) : IEmploymentHistoryQuery
 {
 	public Task<EmploymentHistoryEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class EmploymentHistoryQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<EmploymentHistoryEntity>> GetPageAsync(
+	public async Task<PagedResult<EmploymentHistoryEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<EmploymentHistoryEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.EmploymentHistory
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				employmenthistory_id AS "Id"
+			FROM public.EmploymentHistory
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY employmenthistory_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<EmploymentHistoryEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<EmploymentHistoryEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(EmploymentHistoryEntity.Code),
-				nameof(EmploymentHistoryEntity.Name),
-				nameof(EmploymentHistoryEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

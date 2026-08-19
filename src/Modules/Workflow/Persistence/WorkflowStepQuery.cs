@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Workflow.Persistence;
 /// </summary>
 public sealed class WorkflowStepQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IWorkflowStepQuery
+	IDbConnectionFactory connectionFactory) : IWorkflowStepQuery
 {
 	public Task<WorkflowStepEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class WorkflowStepQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<WorkflowStepEntity>> GetPageAsync(
+	public async Task<PagedResult<WorkflowStepEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<WorkflowStepEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.WorkflowStep
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				workflowstep_id AS "Id"
+			FROM public.WorkflowStep
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY workflowstep_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<WorkflowStepEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<WorkflowStepEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(WorkflowStepEntity.Code),
-				nameof(WorkflowStepEntity.Name),
-				nameof(WorkflowStepEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

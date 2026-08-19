@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Students.Persistence;
 /// </summary>
 public sealed class StudentGuardianQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IStudentGuardianQuery
+	IDbConnectionFactory connectionFactory) : IStudentGuardianQuery
 {
 	public Task<StudentGuardianEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class StudentGuardianQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<StudentGuardianEntity>> GetPageAsync(
+	public async Task<PagedResult<StudentGuardianEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<StudentGuardianEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.StudentGuardian
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				studentguardian_id AS "Id"
+			FROM public.StudentGuardian
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY studentguardian_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<StudentGuardianEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<StudentGuardianEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(StudentGuardianEntity.Code),
-				nameof(StudentGuardianEntity.Name),
-				nameof(StudentGuardianEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

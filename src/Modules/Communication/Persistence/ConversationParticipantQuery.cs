@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Communication.Persistence;
 /// </summary>
 public sealed class ConversationParticipantQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IConversationParticipantQuery
+	IDbConnectionFactory connectionFactory) : IConversationParticipantQuery
 {
 	public Task<ConversationParticipantEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class ConversationParticipantQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<ConversationParticipantEntity>> GetPageAsync(
+	public async Task<PagedResult<ConversationParticipantEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<ConversationParticipantEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.ConversationParticipant
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				conversationparticipant_id AS "Id"
+			FROM public.ConversationParticipant
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY conversationparticipant_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<ConversationParticipantEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<ConversationParticipantEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(ConversationParticipantEntity.Code),
-				nameof(ConversationParticipantEntity.Name),
-				nameof(ConversationParticipantEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

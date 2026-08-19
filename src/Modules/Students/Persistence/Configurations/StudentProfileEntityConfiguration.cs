@@ -12,7 +12,7 @@ public sealed class StudentProfileEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<StudentProfileEntity> builder)
 	{
-		builder.ToTable("StudentProfile");
+		builder.ToTable("StudentProfile", schema: "student");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -24,11 +24,11 @@ public sealed class StudentProfileEntityConfiguration
 			.Property(entity => entity.IsActive)
 			.IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
-
 		builder.HasIndex(entity => entity.TenantId);
+
+		builder.Property(entity => entity.CreatedAt).IsRequired();
+		builder.Property(entity => entity.UpdatedAt);
+		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
 	}
 }

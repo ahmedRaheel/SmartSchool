@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// </summary>
 public sealed class AiExecutionLogQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IAiExecutionLogQuery
+	IDbConnectionFactory connectionFactory) : IAiExecutionLogQuery
 {
 	public Task<AiExecutionLogEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class AiExecutionLogQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<AiExecutionLogEntity>> GetPageAsync(
+	public async Task<PagedResult<AiExecutionLogEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<AiExecutionLogEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.AiExecutionLog
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				aiexecutionlog_id AS "Id"
+			FROM public.AiExecutionLog
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY aiexecutionlog_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<AiExecutionLogEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<AiExecutionLogEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(AiExecutionLogEntity.Code),
-				nameof(AiExecutionLogEntity.Name),
-				nameof(AiExecutionLogEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

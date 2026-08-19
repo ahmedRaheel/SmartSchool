@@ -1,3 +1,4 @@
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Communication.Models;
@@ -5,72 +6,118 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Communication.Persistence;
 
-/// <summary>Executes tenant and recipient scoped notification reads.</summary>
+/// <summary>
+/// Provides optimized notification reads and command-side aggregate loading.
+/// </summary>
 public sealed class NotificationQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : INotificationQuery
+	IDbConnectionFactory connectionFactory) : INotificationQuery
 {
-	/// <inheritdoc />
-	public Task<NotificationEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
-	{
-		return dbContext.Set<NotificationEntity>().SingleOrDefaultAsync(
-			entity => entity.TenantId == tenantId && entity.Id == id, cancellationToken);
-	}
-
-	/// <inheritdoc />
-	public Task<PagedResult<NotificationEntity>> GetPageAsync(
+	public async Task<PagedResult<NotificationEntity>> GetPageAsync(
 		Guid tenantId,
 		Guid recipientUserId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetFilteredPageAsync<NotificationEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM communication.notification
+			WHERE tenant_id = @TenantId
+			  AND recipient_user_id = @RecipientUserId;
+			""";
+
+		const string pageSql = """
+			SELECT
+				notification_id AS "Id",
+				tenant_id AS "TenantId",
+				recipient_user_id AS "RecipientUserId",
+				type AS "Type",
+				title AS "Title",
+				message AS "Message",
+				related_entity_id AS "RelatedEntityId",
+				related_entity_type AS "RelatedEntityType",
+				action_url AS "ActionUrl",
+				priority AS "Priority",
+				is_read AS "IsRead",
+				read_at AS "ReadAt",
+				occurred_at AS "OccurredAt"
+			FROM communication.notification
+			WHERE tenant_id = @TenantId
+			  AND recipient_user_id = @RecipientUserId
+			ORDER BY occurred_at DESC
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			RecipientUserId = recipientUserId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<NotificationEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<NotificationEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.Id),
-				nameof(Entity.TenantId),
-				nameof(NotificationEntity.RecipientUserId),
-				nameof(NotificationEntity.Type),
-				nameof(NotificationEntity.Title),
-				nameof(NotificationEntity.Message),
-				nameof(NotificationEntity.RelatedEntityId),
-				nameof(NotificationEntity.RelatedEntityType),
-				nameof(NotificationEntity.ActionUrl),
-				nameof(NotificationEntity.Priority),
-				nameof(NotificationEntity.IsRead),
-				nameof(NotificationEntity.ReadAt),
-				nameof(NotificationEntity.OccurredAt)
-			],
-			new Dictionary<string, object?>
-			{
-				[nameof(NotificationEntity.RecipientUserId)] = recipientUserId
-			},
-			nameof(NotificationEntity.OccurredAt),
-			descending: true,
-			cancellationToken);
+			totalCount);
 	}
 
-	/// <inheritdoc />
-	public Task<int> GetUnreadCountAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken)
+	public async Task<int> GetUnreadCountAsync(
+		Guid tenantId,
+		Guid recipientUserId,
+		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.CountAsync<NotificationEntity>(
-			tenantId,
-			new Dictionary<string, object?>
-			{
-				[nameof(NotificationEntity.RecipientUserId)] = recipientUserId,
-				[nameof(NotificationEntity.IsRead)] = false
-			},
-			cancellationToken);
+		const string sql = """
+			SELECT COUNT(*)
+			FROM communication.notification
+			WHERE tenant_id = @TenantId
+			  AND recipient_user_id = @RecipientUserId
+			  AND is_read = FALSE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		return await connection.ExecuteScalarAsync<int>(
+			new CommandDefinition(
+				sql,
+				new
+				{
+					TenantId = tenantId,
+					RecipientUserId = recipientUserId
+				},
+				cancellationToken: cancellationToken));
 	}
 
-	/// <inheritdoc />
-	public async Task<IReadOnlyCollection<NotificationEntity>> GetUnreadAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken)
+	public Task<NotificationEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return await dbContext.Set<NotificationEntity>()
-			.Where(entity => entity.TenantId == tenantId && entity.RecipientUserId == recipientUserId && !entity.IsRead)
-			.ToListAsync(cancellationToken);
+		return dbContext
+			.Set<NotificationEntity>()
+			.SingleOrDefaultAsync(
+				entity =>
+					entity.TenantId == tenantId &&
+					entity.Id == id,
+				cancellationToken);
 	}
 }

@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// </summary>
 public sealed class KnowledgeDocumentQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IKnowledgeDocumentQuery
+	IDbConnectionFactory connectionFactory) : IKnowledgeDocumentQuery
 {
 	public Task<KnowledgeDocumentEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class KnowledgeDocumentQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<KnowledgeDocumentEntity>> GetPageAsync(
+	public async Task<PagedResult<KnowledgeDocumentEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<KnowledgeDocumentEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.KnowledgeDocument
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				knowledgedocument_id AS "Id"
+			FROM public.KnowledgeDocument
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY knowledgedocument_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<KnowledgeDocumentEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<KnowledgeDocumentEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(KnowledgeDocumentEntity.Code),
-				nameof(KnowledgeDocumentEntity.Name),
-				nameof(KnowledgeDocumentEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

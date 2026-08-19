@@ -13,7 +13,7 @@ public sealed class DriverDocumentEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<DriverDocumentEntity> builder)
 	{
-		builder.ToTable("DriverDocument");
+		builder.ToTable("DriverDocument", schema: "transport");
 
 		builder.HasKey(document => document.Id);
 

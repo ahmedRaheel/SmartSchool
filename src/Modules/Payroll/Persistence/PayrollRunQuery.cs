@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Payroll.Persistence;
 /// </summary>
 public sealed class PayrollRunQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IPayrollRunQuery
+	IDbConnectionFactory connectionFactory) : IPayrollRunQuery
 {
 	public Task<PayrollRunEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class PayrollRunQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<PayrollRunEntity>> GetPageAsync(
+	public async Task<PagedResult<PayrollRunEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<PayrollRunEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.PayrollRun
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				payrollrun_id AS "Id"
+			FROM public.PayrollRun
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY payrollrun_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<PayrollRunEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<PayrollRunEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(PayrollRunEntity.Code),
-				nameof(PayrollRunEntity.Name),
-				nameof(PayrollRunEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

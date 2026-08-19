@@ -12,7 +12,7 @@ public sealed class GeneratedDocumentEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<GeneratedDocumentEntity> builder)
 	{
-		builder.ToTable("GeneratedDocument");
+		builder.ToTable("GeneratedDocument", schema: "document");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -24,11 +24,11 @@ public sealed class GeneratedDocumentEntityConfiguration
 			.Property(entity => entity.IsActive)
 			.IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
-
 		builder.HasIndex(entity => entity.TenantId);
+
+		builder.Property(entity => entity.CreatedAt).IsRequired();
+		builder.Property(entity => entity.UpdatedAt);
+		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
 		builder
 			.Property(entity => entity.Code)

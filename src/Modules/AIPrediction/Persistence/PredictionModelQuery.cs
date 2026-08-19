@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AIPrediction.Persistence;
 /// </summary>
 public sealed class PredictionModelQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IPredictionModelQuery
+	IDbConnectionFactory connectionFactory) : IPredictionModelQuery
 {
 	public Task<PredictionModelEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class PredictionModelQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<PredictionModelEntity>> GetPageAsync(
+	public async Task<PagedResult<PredictionModelEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<PredictionModelEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.PredictionModel
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				predictionmodel_id AS "Id"
+			FROM public.PredictionModel
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY predictionmodel_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<PredictionModelEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<PredictionModelEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(PredictionModelEntity.Code),
-				nameof(PredictionModelEntity.Name),
-				nameof(PredictionModelEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

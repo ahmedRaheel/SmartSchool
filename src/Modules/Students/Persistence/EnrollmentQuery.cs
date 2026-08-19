@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Students.Persistence;
 /// </summary>
 public sealed class EnrollmentQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IEnrollmentQuery
+	IDbConnectionFactory connectionFactory) : IEnrollmentQuery
 {
 	public Task<EnrollmentEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class EnrollmentQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<EnrollmentEntity>> GetPageAsync(
+	public async Task<PagedResult<EnrollmentEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<EnrollmentEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.Enrollment
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				enrollment_id AS "Id"
+			FROM public.Enrollment
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY enrollment_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<EnrollmentEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<EnrollmentEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(EnrollmentEntity.Code),
-				nameof(EnrollmentEntity.Name),
-				nameof(EnrollmentEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

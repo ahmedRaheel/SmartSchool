@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// </summary>
 public sealed class LeadCaptureQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : ILeadCaptureQuery
+	IDbConnectionFactory connectionFactory) : ILeadCaptureQuery
 {
 	public Task<LeadCaptureEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class LeadCaptureQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<LeadCaptureEntity>> GetPageAsync(
+	public async Task<PagedResult<LeadCaptureEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<LeadCaptureEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.LeadCapture
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				leadcapture_id AS "Id"
+			FROM public.LeadCapture
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY leadcapture_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<LeadCaptureEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<LeadCaptureEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(LeadCaptureEntity.Code),
-				nameof(LeadCaptureEntity.Name),
-				nameof(LeadCaptureEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Identity.Persistence;
 /// </summary>
 public sealed class RoleAssignmentQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : IRoleAssignmentQuery
+	IDbConnectionFactory connectionFactory) : IRoleAssignmentQuery
 {
 	public Task<RoleAssignmentEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class RoleAssignmentQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<RoleAssignmentEntity>> GetPageAsync(
+	public async Task<PagedResult<RoleAssignmentEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<RoleAssignmentEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.RoleAssignment
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				roleassignment_id AS "Id"
+			FROM public.RoleAssignment
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY roleassignment_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<RoleAssignmentEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<RoleAssignmentEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(RoleAssignmentEntity.Code),
-				nameof(RoleAssignmentEntity.Name),
-				nameof(RoleAssignmentEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

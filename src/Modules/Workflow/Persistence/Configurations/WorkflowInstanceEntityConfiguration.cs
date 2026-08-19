@@ -12,7 +12,7 @@ public sealed class WorkflowInstanceEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<WorkflowInstanceEntity> builder)
 	{
-		builder.ToTable("WorkflowInstance");
+		builder.ToTable("WorkflowInstance", schema: "workflow");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -24,11 +24,11 @@ public sealed class WorkflowInstanceEntityConfiguration
 			.Property(entity => entity.IsActive)
 			.IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
-
 		builder.HasIndex(entity => entity.TenantId);
+
+		builder.Property(entity => entity.CreatedAt).IsRequired();
+		builder.Property(entity => entity.UpdatedAt);
+		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
 		builder
 			.Property(entity => entity.Code)

@@ -1,3 +1,4 @@
+using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Academics.Persistence;
 /// </summary>
 public sealed class CourseSelectionQuery(
 	IApplicationDbContext dbContext,
-	IDapperReadStore dapperReadStore) : ICourseSelectionQuery
+	IDbConnectionFactory connectionFactory) : ICourseSelectionQuery
 {
 	public Task<CourseSelectionEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -27,24 +28,58 @@ public sealed class CourseSelectionQuery(
 				cancellationToken);
 	}
 
-	public Task<PagedResult<CourseSelectionEntity>> GetPageAsync(
+	public async Task<PagedResult<CourseSelectionEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		return dapperReadStore.GetPageAsync<CourseSelectionEntity>(
-			tenantId,
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.CourseSelection
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				courseselection_id AS "Id"
+			FROM public.CourseSelection
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY courseselection_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<CourseSelectionEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<CourseSelectionEntity>(
+			items,
 			page,
 			pageSize,
-			[
-				nameof(Entity.TenantId),
-				nameof(Entity.Id),
-				nameof(CourseSelectionEntity.Code),
-				nameof(CourseSelectionEntity.Name),
-				nameof(CourseSelectionEntity.MetadataJson)
-			],
-			cancellationToken);
+			totalCount);
 	}
 
 	public Task<bool> ExistsByCodeAsync(
