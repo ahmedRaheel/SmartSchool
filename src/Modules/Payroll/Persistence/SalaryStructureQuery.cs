@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Payroll.Persistence;
 /// Executes database reads for <see cref="SalaryStructureEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class SalaryStructureQuery(IApplicationDbContext dbContext) : ISalaryStructureQuery
+public sealed class SalaryStructureQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : ISalaryStructureQuery
 {
 	public Task<SalaryStructureEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class SalaryStructureQuery(IApplicationDbContext dbContext) : ISal
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<SalaryStructureEntity>> GetPageAsync(
+	public Task<PagedResult<SalaryStructureEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<SalaryStructureEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<SalaryStructureEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<SalaryStructureEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(SalaryStructureEntity.Code),
+				nameof(SalaryStructureEntity.Name),
+				nameof(SalaryStructureEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Payroll.Persistence;
 /// Executes database reads for <see cref="PayslipEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class PayslipQuery(IApplicationDbContext dbContext) : IPayslipQuery
+public sealed class PayslipQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IPayslipQuery
 {
 	public Task<PayslipEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class PayslipQuery(IApplicationDbContext dbContext) : IPayslipQuer
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<PayslipEntity>> GetPageAsync(
+	public Task<PagedResult<PayslipEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<PayslipEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<PayslipEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<PayslipEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(PayslipEntity.Code),
+				nameof(PayslipEntity.Name),
+				nameof(PayslipEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

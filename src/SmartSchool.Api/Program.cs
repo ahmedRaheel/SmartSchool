@@ -6,7 +6,6 @@ using Scalar.AspNetCore;
 using SmartSchool.Application;
 using SmartSchool.Infrastructure.Identity;
 using SmartSchool.Api.Seed;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Serilog;
 using SmartSchool.Infrastructure;
@@ -44,33 +43,6 @@ var builder =
 builder.AddSmartSchoolPlatform();
 
 builder.Services.AddOpenApi();
-
-builder.Services
-	.AddAuthentication(AuthenticationConstants.BearerScheme)
-	.AddJwtBearer(
-		options =>
-		{
-			var identityOptions = builder.Configuration
-				.GetSection(AuthenticationOptions.SectionName)
-				.Get<AuthenticationOptions>()
-				?? throw new InvalidOperationException(
-					"Identity configuration is missing.");
-
-			options.Authority =
-				identityOptions.Authority;
-
-			options.Audience =
-				identityOptions.Audience;
-
-			options.RequireHttpsMetadata =
-				identityOptions.RequireHttpsMetadata;
-
-			options.TokenValidationParameters.NameClaimType =
-				"name";
-
-			options.TokenValidationParameters.RoleClaimType =
-				SmartSchoolClaims.Role;
-		});
 
 builder.Services.AddSmartSchoolAuthorization();
 builder.Services.AddScoped<SampleActorSeeder>();
@@ -129,10 +101,17 @@ if (app.Environment.IsDevelopment())
 	using var scope =
 		app.Services.CreateScope();
 
-	var mockDatabaseSeeder =
-		scope.ServiceProvider.GetRequiredService<MockDatabaseSeeder>();
+	var persistenceOptions = scope.ServiceProvider
+		.GetRequiredService<IOptions<PersistenceOptions>>()
+		.Value;
 
-	await mockDatabaseSeeder.SeedAsync();
+	if (persistenceOptions.Provider == PersistenceProvider.Mock)
+	{
+		var mockDatabaseSeeder =
+			scope.ServiceProvider.GetRequiredService<MockDatabaseSeeder>();
+
+		await mockDatabaseSeeder.SeedAsync();
+	}
 
 	var sampleActorSeeder =
 		scope.ServiceProvider.GetRequiredService<SampleActorSeeder>();

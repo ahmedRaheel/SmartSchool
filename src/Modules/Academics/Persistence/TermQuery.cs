@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Academics.Persistence;
 /// Executes database reads for <see cref="TermEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class TermQuery(IApplicationDbContext dbContext) : ITermQuery
+public sealed class TermQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : ITermQuery
 {
 	public Task<TermEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class TermQuery(IApplicationDbContext dbContext) : ITermQuery
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<TermEntity>> GetPageAsync(
+	public Task<PagedResult<TermEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<TermEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<TermEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<TermEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(TermEntity.Code),
+				nameof(TermEntity.Name),
+				nameof(TermEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.HR.Persistence;
 /// Executes database reads for <see cref="EmployeeEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class EmployeeQuery(IApplicationDbContext dbContext) : IEmployeeQuery
+public sealed class EmployeeQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IEmployeeQuery
 {
 	public Task<EmployeeEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,35 +27,35 @@ public sealed class EmployeeQuery(IApplicationDbContext dbContext) : IEmployeeQu
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<EmployeeEntity>> GetPageAsync(
+	public Task<PagedResult<EmployeeEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<EmployeeEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<EmployeeEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<EmployeeEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(EmployeeEntity.EmployeeNumber),
+				nameof(EmployeeEntity.FirstName),
+				nameof(EmployeeEntity.LastName),
+				nameof(EmployeeEntity.CnicNumber),
+				nameof(EmployeeEntity.Email),
+				nameof(EmployeeEntity.Phone),
+				nameof(EmployeeEntity.HireDate),
+				nameof(EmployeeEntity.EmploymentTypeCode),
+				nameof(EmployeeEntity.Status)
+			],
+			cancellationToken);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsByEmployeeNumberAsync(
 		Guid tenantId,
-		string code,
+		string employeeNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
@@ -62,8 +64,7 @@ public sealed class EmployeeQuery(IApplicationDbContext dbContext) : IEmployeeQu
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
+					entity.TenantId == tenantId && entity.EmployeeNumber == employeeNumber
 					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
 				cancellationToken);
 	}

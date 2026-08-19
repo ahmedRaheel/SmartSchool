@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// Executes database reads for <see cref="HumanHandoffEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class HumanHandoffQuery(IApplicationDbContext dbContext) : IHumanHandoffQuery
+public sealed class HumanHandoffQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IHumanHandoffQuery
 {
 	public Task<HumanHandoffEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class HumanHandoffQuery(IApplicationDbContext dbContext) : IHumanH
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<HumanHandoffEntity>> GetPageAsync(
+	public Task<PagedResult<HumanHandoffEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<HumanHandoffEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<HumanHandoffEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<HumanHandoffEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(HumanHandoffEntity.Code),
+				nameof(HumanHandoffEntity.Name),
+				nameof(HumanHandoffEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

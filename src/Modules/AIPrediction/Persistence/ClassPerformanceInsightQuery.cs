@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AIPrediction.Persistence;
 /// Executes database reads for <see cref="ClassPerformanceInsightEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ClassPerformanceInsightQuery(IApplicationDbContext dbContext) : IClassPerformanceInsightQuery
+public sealed class ClassPerformanceInsightQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IClassPerformanceInsightQuery
 {
 	public Task<ClassPerformanceInsightEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class ClassPerformanceInsightQuery(IApplicationDbContext dbContext
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<ClassPerformanceInsightEntity>> GetPageAsync(
+	public Task<PagedResult<ClassPerformanceInsightEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<ClassPerformanceInsightEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<ClassPerformanceInsightEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<ClassPerformanceInsightEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(ClassPerformanceInsightEntity.Code),
+				nameof(ClassPerformanceInsightEntity.Name),
+				nameof(ClassPerformanceInsightEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

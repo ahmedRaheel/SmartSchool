@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Finance.Persistence;
 /// Executes database reads for <see cref="DiscountEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class DiscountQuery(IApplicationDbContext dbContext) : IDiscountQuery
+public sealed class DiscountQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IDiscountQuery
 {
 	public Task<DiscountEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class DiscountQuery(IApplicationDbContext dbContext) : IDiscountQu
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<DiscountEntity>> GetPageAsync(
+	public Task<PagedResult<DiscountEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<DiscountEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<DiscountEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<DiscountEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(DiscountEntity.Code),
+				nameof(DiscountEntity.Name),
+				nameof(DiscountEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

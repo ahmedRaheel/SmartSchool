@@ -29,9 +29,9 @@ public interface IGuardianQuery
 	/// <summary>
 	/// Executes the persistence operation.
 	/// </summary>
-	Task<bool> ExistsByCodeAsync(
+	Task<bool> ExistsByCnicNumberAsync(
 		Guid tenantId,
-		string code,
+		string cnicNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken);
 }

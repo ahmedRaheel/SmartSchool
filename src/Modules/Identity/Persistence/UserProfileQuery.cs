@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Identity.Persistence;
 /// Executes database reads for <see cref="UserProfileEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class UserProfileQuery(IApplicationDbContext dbContext) : IUserProfileQuery
+public sealed class UserProfileQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IUserProfileQuery
 {
 	public Task<UserProfileEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class UserProfileQuery(IApplicationDbContext dbContext) : IUserPro
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<UserProfileEntity>> GetPageAsync(
+	public Task<PagedResult<UserProfileEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<UserProfileEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<UserProfileEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<UserProfileEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(UserProfileEntity.Code),
+				nameof(UserProfileEntity.Name),
+				nameof(UserProfileEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

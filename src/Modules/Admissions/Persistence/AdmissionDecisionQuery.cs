@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Admissions.Persistence;
 /// Executes database reads for <see cref="AdmissionDecisionEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class AdmissionDecisionQuery(IApplicationDbContext dbContext) : IAdmissionDecisionQuery
+public sealed class AdmissionDecisionQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IAdmissionDecisionQuery
 {
 	public Task<AdmissionDecisionEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class AdmissionDecisionQuery(IApplicationDbContext dbContext) : IA
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<AdmissionDecisionEntity>> GetPageAsync(
+	public Task<PagedResult<AdmissionDecisionEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<AdmissionDecisionEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<AdmissionDecisionEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<AdmissionDecisionEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(AdmissionDecisionEntity.Code),
+				nameof(AdmissionDecisionEntity.Name),
+				nameof(AdmissionDecisionEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AIPrediction.Persistence;
 /// Executes database reads for <see cref="PredictionEvidenceEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class PredictionEvidenceQuery(IApplicationDbContext dbContext) : IPredictionEvidenceQuery
+public sealed class PredictionEvidenceQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IPredictionEvidenceQuery
 {
 	public Task<PredictionEvidenceEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class PredictionEvidenceQuery(IApplicationDbContext dbContext) : I
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<PredictionEvidenceEntity>> GetPageAsync(
+	public Task<PagedResult<PredictionEvidenceEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<PredictionEvidenceEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<PredictionEvidenceEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<PredictionEvidenceEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(PredictionEvidenceEntity.Code),
+				nameof(PredictionEvidenceEntity.Name),
+				nameof(PredictionEvidenceEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Documents.Persistence;
 /// Executes database reads for <see cref="DocumentTemplateEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class DocumentTemplateQuery(IApplicationDbContext dbContext) : IDocumentTemplateQuery
+public sealed class DocumentTemplateQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IDocumentTemplateQuery
 {
 	public Task<DocumentTemplateEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class DocumentTemplateQuery(IApplicationDbContext dbContext) : IDo
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<DocumentTemplateEntity>> GetPageAsync(
+	public Task<PagedResult<DocumentTemplateEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<DocumentTemplateEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<DocumentTemplateEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<DocumentTemplateEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(DocumentTemplateEntity.Code),
+				nameof(DocumentTemplateEntity.Name),
+				nameof(DocumentTemplateEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

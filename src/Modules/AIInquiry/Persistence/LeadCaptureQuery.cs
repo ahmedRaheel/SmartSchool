@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// Executes database reads for <see cref="LeadCaptureEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class LeadCaptureQuery(IApplicationDbContext dbContext) : ILeadCaptureQuery
+public sealed class LeadCaptureQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : ILeadCaptureQuery
 {
 	public Task<LeadCaptureEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class LeadCaptureQuery(IApplicationDbContext dbContext) : ILeadCap
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<LeadCaptureEntity>> GetPageAsync(
+	public Task<PagedResult<LeadCaptureEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<LeadCaptureEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<LeadCaptureEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<LeadCaptureEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(LeadCaptureEntity.Code),
+				nameof(LeadCaptureEntity.Name),
+				nameof(LeadCaptureEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

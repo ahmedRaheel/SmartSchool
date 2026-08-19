@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Learning.Persistence;
 /// Executes database reads for <see cref="AssignmentSubmissionEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class AssignmentSubmissionQuery(IApplicationDbContext dbContext) : IAssignmentSubmissionQuery
+public sealed class AssignmentSubmissionQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IAssignmentSubmissionQuery
 {
 	public Task<AssignmentSubmissionEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class AssignmentSubmissionQuery(IApplicationDbContext dbContext) :
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<AssignmentSubmissionEntity>> GetPageAsync(
+	public Task<PagedResult<AssignmentSubmissionEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<AssignmentSubmissionEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<AssignmentSubmissionEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<AssignmentSubmissionEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(AssignmentSubmissionEntity.Code),
+				nameof(AssignmentSubmissionEntity.Name),
+				nameof(AssignmentSubmissionEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

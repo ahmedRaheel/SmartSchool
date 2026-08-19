@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Inventory.Persistence;
 /// Executes database reads for <see cref="PurchaseOrderEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class PurchaseOrderQuery(IApplicationDbContext dbContext) : IPurchaseOrderQuery
+public sealed class PurchaseOrderQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IPurchaseOrderQuery
 {
 	public Task<PurchaseOrderEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class PurchaseOrderQuery(IApplicationDbContext dbContext) : IPurch
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<PurchaseOrderEntity>> GetPageAsync(
+	public Task<PagedResult<PurchaseOrderEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<PurchaseOrderEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<PurchaseOrderEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<PurchaseOrderEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(PurchaseOrderEntity.Code),
+				nameof(PurchaseOrderEntity.Name),
+				nameof(PurchaseOrderEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

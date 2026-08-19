@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Workflow.Persistence;
 /// Executes database reads for <see cref="ApprovalEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ApprovalQuery(IApplicationDbContext dbContext) : IApprovalQuery
+public sealed class ApprovalQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IApprovalQuery
 {
 	public Task<ApprovalEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class ApprovalQuery(IApplicationDbContext dbContext) : IApprovalQu
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<ApprovalEntity>> GetPageAsync(
+	public Task<PagedResult<ApprovalEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<ApprovalEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<ApprovalEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<ApprovalEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(ApprovalEntity.Code),
+				nameof(ApprovalEntity.Name),
+				nameof(ApprovalEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

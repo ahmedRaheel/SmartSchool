@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// Executes database reads for <see cref="ToolDefinitionEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ToolDefinitionQuery(IApplicationDbContext dbContext) : IToolDefinitionQuery
+public sealed class ToolDefinitionQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IToolDefinitionQuery
 {
 	public Task<ToolDefinitionEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class ToolDefinitionQuery(IApplicationDbContext dbContext) : ITool
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<ToolDefinitionEntity>> GetPageAsync(
+	public Task<PagedResult<ToolDefinitionEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<ToolDefinitionEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<ToolDefinitionEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<ToolDefinitionEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(ToolDefinitionEntity.Code),
+				nameof(ToolDefinitionEntity.Name),
+				nameof(ToolDefinitionEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

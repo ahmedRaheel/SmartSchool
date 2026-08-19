@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Documents.Persistence;
 /// Executes database reads for <see cref="CertificateEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class CertificateQuery(IApplicationDbContext dbContext) : ICertificateQuery
+public sealed class CertificateQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : ICertificateQuery
 {
 	public Task<CertificateEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class CertificateQuery(IApplicationDbContext dbContext) : ICertifi
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<CertificateEntity>> GetPageAsync(
+	public Task<PagedResult<CertificateEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<CertificateEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<CertificateEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<CertificateEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(CertificateEntity.Code),
+				nameof(CertificateEntity.Name),
+				nameof(CertificateEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

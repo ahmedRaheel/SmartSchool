@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.HR.Persistence;
 /// Executes database reads for <see cref="ResumeEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ResumeQuery(IApplicationDbContext dbContext) : IResumeQuery
+public sealed class ResumeQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IResumeQuery
 {
 	public Task<ResumeEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class ResumeQuery(IApplicationDbContext dbContext) : IResumeQuery
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<ResumeEntity>> GetPageAsync(
+	public Task<PagedResult<ResumeEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<ResumeEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<ResumeEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<ResumeEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(ResumeEntity.Code),
+				nameof(ResumeEntity.Name),
+				nameof(ResumeEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

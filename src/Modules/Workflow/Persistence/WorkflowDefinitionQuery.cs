@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Workflow.Persistence;
 /// Executes database reads for <see cref="WorkflowDefinitionEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class WorkflowDefinitionQuery(IApplicationDbContext dbContext) : IWorkflowDefinitionQuery
+public sealed class WorkflowDefinitionQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IWorkflowDefinitionQuery
 {
 	public Task<WorkflowDefinitionEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class WorkflowDefinitionQuery(IApplicationDbContext dbContext) : I
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<WorkflowDefinitionEntity>> GetPageAsync(
+	public Task<PagedResult<WorkflowDefinitionEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<WorkflowDefinitionEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<WorkflowDefinitionEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<WorkflowDefinitionEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(WorkflowDefinitionEntity.Code),
+				nameof(WorkflowDefinitionEntity.Name),
+				nameof(WorkflowDefinitionEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -6,7 +6,9 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Communication.Persistence;
 
 /// <summary>Executes tenant and recipient scoped notification reads.</summary>
-public sealed class NotificationQuery(IApplicationDbContext dbContext) : INotificationQuery
+public sealed class NotificationQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : INotificationQuery
 {
 	/// <inheritdoc />
 	public Task<NotificationEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
@@ -16,21 +18,52 @@ public sealed class NotificationQuery(IApplicationDbContext dbContext) : INotifi
 	}
 
 	/// <inheritdoc />
-	public async Task<PagedResult<NotificationEntity>> GetPageAsync(Guid tenantId, Guid recipientUserId, int page, int pageSize, CancellationToken cancellationToken)
+	public Task<PagedResult<NotificationEntity>> GetPageAsync(
+		Guid tenantId,
+		Guid recipientUserId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		var query = dbContext.Set<NotificationEntity>().AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId && entity.RecipientUserId == recipientUserId);
-		var totalCount = await query.LongCountAsync(cancellationToken);
-		var items = await query.OrderByDescending(entity => entity.OccurredAt)
-			.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
-		return new PagedResult<NotificationEntity>(items, page, pageSize, totalCount);
+		return dapperReadStore.GetFilteredPageAsync<NotificationEntity>(
+			tenantId,
+			page,
+			pageSize,
+			[
+				nameof(Entity.Id),
+				nameof(Entity.TenantId),
+				nameof(NotificationEntity.RecipientUserId),
+				nameof(NotificationEntity.Type),
+				nameof(NotificationEntity.Title),
+				nameof(NotificationEntity.Message),
+				nameof(NotificationEntity.RelatedEntityId),
+				nameof(NotificationEntity.RelatedEntityType),
+				nameof(NotificationEntity.ActionUrl),
+				nameof(NotificationEntity.Priority),
+				nameof(NotificationEntity.IsRead),
+				nameof(NotificationEntity.ReadAt),
+				nameof(NotificationEntity.OccurredAt)
+			],
+			new Dictionary<string, object?>
+			{
+				[nameof(NotificationEntity.RecipientUserId)] = recipientUserId
+			},
+			nameof(NotificationEntity.OccurredAt),
+			descending: true,
+			cancellationToken);
 	}
 
 	/// <inheritdoc />
 	public Task<int> GetUnreadCountAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken)
 	{
-		return dbContext.Set<NotificationEntity>().AsNoTracking().CountAsync(
-			entity => entity.TenantId == tenantId && entity.RecipientUserId == recipientUserId && !entity.IsRead, cancellationToken);
+		return dapperReadStore.CountAsync<NotificationEntity>(
+			tenantId,
+			new Dictionary<string, object?>
+			{
+				[nameof(NotificationEntity.RecipientUserId)] = recipientUserId,
+				[nameof(NotificationEntity.IsRead)] = false
+			},
+			cancellationToken);
 	}
 
 	/// <inheritdoc />

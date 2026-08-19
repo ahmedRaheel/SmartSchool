@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Academics.Persistence;
 /// Executes database reads for <see cref="AcademicYearEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class AcademicYearQuery(IApplicationDbContext dbContext) : IAcademicYearQuery
+public sealed class AcademicYearQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IAcademicYearQuery
 {
 	public Task<AcademicYearEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class AcademicYearQuery(IApplicationDbContext dbContext) : IAcadem
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<AcademicYearEntity>> GetPageAsync(
+	public Task<PagedResult<AcademicYearEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<AcademicYearEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<AcademicYearEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<AcademicYearEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(AcademicYearEntity.Code),
+				nameof(AcademicYearEntity.Name),
+				nameof(AcademicYearEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

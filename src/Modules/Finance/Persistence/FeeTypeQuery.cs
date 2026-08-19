@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Finance.Persistence;
 /// Executes database reads for <see cref="FeeTypeEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class FeeTypeQuery(IApplicationDbContext dbContext) : IFeeTypeQuery
+public sealed class FeeTypeQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IFeeTypeQuery
 {
 	public Task<FeeTypeEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class FeeTypeQuery(IApplicationDbContext dbContext) : IFeeTypeQuer
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<FeeTypeEntity>> GetPageAsync(
+	public Task<PagedResult<FeeTypeEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<FeeTypeEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<FeeTypeEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<FeeTypeEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(FeeTypeEntity.Code),
+				nameof(FeeTypeEntity.Name),
+				nameof(FeeTypeEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

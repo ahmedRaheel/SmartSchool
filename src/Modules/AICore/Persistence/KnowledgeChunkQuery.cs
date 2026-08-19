@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// Executes database reads for <see cref="KnowledgeChunkEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class KnowledgeChunkQuery(IApplicationDbContext dbContext) : IKnowledgeChunkQuery
+public sealed class KnowledgeChunkQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IKnowledgeChunkQuery
 {
 	public Task<KnowledgeChunkEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class KnowledgeChunkQuery(IApplicationDbContext dbContext) : IKnow
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<KnowledgeChunkEntity>> GetPageAsync(
+	public Task<PagedResult<KnowledgeChunkEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<KnowledgeChunkEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<KnowledgeChunkEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<KnowledgeChunkEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(KnowledgeChunkEntity.Code),
+				nameof(KnowledgeChunkEntity.Name),
+				nameof(KnowledgeChunkEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

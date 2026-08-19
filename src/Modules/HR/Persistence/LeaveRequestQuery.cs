@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.HR.Persistence;
 /// Executes database reads for <see cref="LeaveRequestEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class LeaveRequestQuery(IApplicationDbContext dbContext) : ILeaveRequestQuery
+public sealed class LeaveRequestQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : ILeaveRequestQuery
 {
 	public Task<LeaveRequestEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class LeaveRequestQuery(IApplicationDbContext dbContext) : ILeaveR
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<LeaveRequestEntity>> GetPageAsync(
+	public Task<PagedResult<LeaveRequestEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<LeaveRequestEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<LeaveRequestEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<LeaveRequestEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(LeaveRequestEntity.Code),
+				nameof(LeaveRequestEntity.Name),
+				nameof(LeaveRequestEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

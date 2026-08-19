@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Students.Persistence;
 /// Executes database reads for <see cref="StudentEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class StudentQuery(IApplicationDbContext dbContext) : IStudentQuery
+public sealed class StudentQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IStudentQuery
 {
 	public Task<StudentEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,35 +27,33 @@ public sealed class StudentQuery(IApplicationDbContext dbContext) : IStudentQuer
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<StudentEntity>> GetPageAsync(
+	public Task<PagedResult<StudentEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<StudentEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<StudentEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<StudentEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(StudentEntity.StudentNumber),
+				nameof(StudentEntity.FirstName),
+				nameof(StudentEntity.LastName),
+				nameof(StudentEntity.DateOfBirth),
+				nameof(StudentEntity.Gender),
+				nameof(StudentEntity.AdmissionDate),
+				nameof(StudentEntity.Status)
+			],
+			cancellationToken);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsByStudentNumberAsync(
 		Guid tenantId,
-		string code,
+		string studentNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
@@ -62,8 +62,7 @@ public sealed class StudentQuery(IApplicationDbContext dbContext) : IStudentQuer
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
+					entity.TenantId == tenantId && entity.StudentNumber == studentNumber
 					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
 				cancellationToken);
 	}

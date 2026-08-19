@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// Executes database reads for <see cref="InquiryMessageEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class InquiryMessageQuery(IApplicationDbContext dbContext) : IInquiryMessageQuery
+public sealed class InquiryMessageQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IInquiryMessageQuery
 {
 	public Task<InquiryMessageEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class InquiryMessageQuery(IApplicationDbContext dbContext) : IInqu
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<InquiryMessageEntity>> GetPageAsync(
+	public Task<PagedResult<InquiryMessageEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<InquiryMessageEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<InquiryMessageEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<InquiryMessageEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(InquiryMessageEntity.Code),
+				nameof(InquiryMessageEntity.Name),
+				nameof(InquiryMessageEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

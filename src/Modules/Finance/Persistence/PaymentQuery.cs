@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Finance.Persistence;
 /// Executes database reads for <see cref="PaymentEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class PaymentQuery(IApplicationDbContext dbContext) : IPaymentQuery
+public sealed class PaymentQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IPaymentQuery
 {
 	public Task<PaymentEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class PaymentQuery(IApplicationDbContext dbContext) : IPaymentQuer
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<PaymentEntity>> GetPageAsync(
+	public Task<PagedResult<PaymentEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<PaymentEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<PaymentEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<PaymentEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(PaymentEntity.Code),
+				nameof(PaymentEntity.Name),
+				nameof(PaymentEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

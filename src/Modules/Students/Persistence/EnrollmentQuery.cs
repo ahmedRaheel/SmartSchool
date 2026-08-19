@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Students.Persistence;
 /// Executes database reads for <see cref="EnrollmentEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class EnrollmentQuery(IApplicationDbContext dbContext) : IEnrollmentQuery
+public sealed class EnrollmentQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IEnrollmentQuery
 {
 	public Task<EnrollmentEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class EnrollmentQuery(IApplicationDbContext dbContext) : IEnrollme
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<EnrollmentEntity>> GetPageAsync(
+	public Task<PagedResult<EnrollmentEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<EnrollmentEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<EnrollmentEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<EnrollmentEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(EnrollmentEntity.Code),
+				nameof(EnrollmentEntity.Name),
+				nameof(EnrollmentEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

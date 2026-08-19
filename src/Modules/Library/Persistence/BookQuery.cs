@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Library.Persistence;
 /// Executes database reads for <see cref="BookEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class BookQuery(IApplicationDbContext dbContext) : IBookQuery
+public sealed class BookQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IBookQuery
 {
 	public Task<BookEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class BookQuery(IApplicationDbContext dbContext) : IBookQuery
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<BookEntity>> GetPageAsync(
+	public Task<PagedResult<BookEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<BookEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<BookEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<BookEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(BookEntity.Code),
+				nameof(BookEntity.Name),
+				nameof(BookEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

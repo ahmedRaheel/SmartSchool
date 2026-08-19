@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Inventory.Persistence;
 /// Executes database reads for <see cref="StockTransactionEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class StockTransactionQuery(IApplicationDbContext dbContext) : IStockTransactionQuery
+public sealed class StockTransactionQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IStockTransactionQuery
 {
 	public Task<StockTransactionEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class StockTransactionQuery(IApplicationDbContext dbContext) : ISt
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<StockTransactionEntity>> GetPageAsync(
+	public Task<PagedResult<StockTransactionEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<StockTransactionEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<StockTransactionEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<StockTransactionEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(StockTransactionEntity.Code),
+				nameof(StockTransactionEntity.Name),
+				nameof(StockTransactionEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

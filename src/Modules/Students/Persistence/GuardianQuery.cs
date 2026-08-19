@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Students.Persistence;
 /// Executes database reads for <see cref="GuardianEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class GuardianQuery(IApplicationDbContext dbContext) : IGuardianQuery
+public sealed class GuardianQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IGuardianQuery
 {
 	public Task<GuardianEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,35 +27,31 @@ public sealed class GuardianQuery(IApplicationDbContext dbContext) : IGuardianQu
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<GuardianEntity>> GetPageAsync(
+	public Task<PagedResult<GuardianEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<GuardianEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<GuardianEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<GuardianEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(GuardianEntity.UserId),
+				nameof(GuardianEntity.FullName),
+				nameof(GuardianEntity.CnicNumber),
+				nameof(GuardianEntity.Email),
+				nameof(GuardianEntity.Phone)
+			],
+			cancellationToken);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsByCnicNumberAsync(
 		Guid tenantId,
-		string code,
+		string cnicNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
@@ -62,8 +60,7 @@ public sealed class GuardianQuery(IApplicationDbContext dbContext) : IGuardianQu
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
+					entity.TenantId == tenantId && entity.CnicNumber == cnicNumber
 					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
 				cancellationToken);
 	}

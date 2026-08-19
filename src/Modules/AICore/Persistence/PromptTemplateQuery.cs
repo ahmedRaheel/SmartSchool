@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// Executes database reads for <see cref="PromptTemplateEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class PromptTemplateQuery(IApplicationDbContext dbContext) : IPromptTemplateQuery
+public sealed class PromptTemplateQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IPromptTemplateQuery
 {
 	public Task<PromptTemplateEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class PromptTemplateQuery(IApplicationDbContext dbContext) : IProm
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<PromptTemplateEntity>> GetPageAsync(
+	public Task<PagedResult<PromptTemplateEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<PromptTemplateEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<PromptTemplateEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<PromptTemplateEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(PromptTemplateEntity.Code),
+				nameof(PromptTemplateEntity.Name),
+				nameof(PromptTemplateEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AIPrediction.Persistence;
 /// Executes database reads for <see cref="PredictionEvaluationEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class PredictionEvaluationQuery(IApplicationDbContext dbContext) : IPredictionEvaluationQuery
+public sealed class PredictionEvaluationQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IPredictionEvaluationQuery
 {
 	public Task<PredictionEvaluationEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class PredictionEvaluationQuery(IApplicationDbContext dbContext) :
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<PredictionEvaluationEntity>> GetPageAsync(
+	public Task<PagedResult<PredictionEvaluationEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<PredictionEvaluationEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<PredictionEvaluationEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<PredictionEvaluationEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(PredictionEvaluationEntity.Code),
+				nameof(PredictionEvaluationEntity.Name),
+				nameof(PredictionEvaluationEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

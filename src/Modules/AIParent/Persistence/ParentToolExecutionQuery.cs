@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AIParent.Persistence;
 /// Executes database reads for <see cref="ParentToolExecutionEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ParentToolExecutionQuery(IApplicationDbContext dbContext) : IParentToolExecutionQuery
+public sealed class ParentToolExecutionQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IParentToolExecutionQuery
 {
 	public Task<ParentToolExecutionEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class ParentToolExecutionQuery(IApplicationDbContext dbContext) : 
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<ParentToolExecutionEntity>> GetPageAsync(
+	public Task<PagedResult<ParentToolExecutionEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<ParentToolExecutionEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<ParentToolExecutionEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<ParentToolExecutionEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(ParentToolExecutionEntity.Code),
+				nameof(ParentToolExecutionEntity.Name),
+				nameof(ParentToolExecutionEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

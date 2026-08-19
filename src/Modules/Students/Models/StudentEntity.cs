@@ -3,7 +3,7 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Students.Models;
 
 /// <summary>
-/// Represents the StudentEntity domain entity.
+/// Represents a student enrolled in a SmartSchool tenant.
 /// </summary>
 public sealed class StudentEntity : Entity
 {
@@ -11,54 +11,105 @@ public sealed class StudentEntity : Entity
 	{
 	}
 
-	/// <summary>Gets the business code.</summary>
-	public string Code { get; private set; } = string.Empty;
+	/// <summary>Gets the optional authenticated user identifier.</summary>
+	public Guid? UserId { get; private set; }
 
-	/// <summary>Gets the display name.</summary>
-	public string Name { get; private set; } = string.Empty;
+	/// <summary>Gets the tenant-unique student number.</summary>
+	public string StudentNumber { get; private set; } = string.Empty;
 
-	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
-	public string? MetadataJson { get; private set; }
+	/// <summary>Gets the student's first name.</summary>
+	public string FirstName { get; private set; } = string.Empty;
 
-	/// <summary>Creates a new StudentEntity.</summary>
-	/// <param name="tenantId">The owning tenant identifier.</param>
-	/// <param name="code">The business code.</param>
-	/// <param name="name">The display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	/// <returns>The newly created entity.</returns>
+	/// <summary>Gets the student's last name.</summary>
+	public string? LastName { get; private set; }
+
+	/// <summary>Gets the student's date of birth.</summary>
+	public DateOnly? DateOfBirth { get; private set; }
+
+	/// <summary>Gets the student's gender.</summary>
+	public string? Gender { get; private set; }
+
+	/// <summary>Gets the student photograph bytes.</summary>
+	public byte[]? Photo { get; private set; }
+
+	/// <summary>Gets the photograph MIME type.</summary>
+	public string? PhotoContentType { get; private set; }
+
+	/// <summary>Gets the photograph file name.</summary>
+	public string? PhotoFileName { get; private set; }
+
+	/// <summary>Gets the admission date.</summary>
+	public DateOnly? AdmissionDate { get; private set; }
+
+	/// <summary>Gets the current student status.</summary>
+	public string Status { get; private set; } = "ACTIVE";
+
+	/// <summary>Creates a student.</summary>
 	public static StudentEntity Create(
 		Guid tenantId,
-		string code,
-		string name,
-		string? metadataJson = null)
+		Guid? userId,
+		string studentNumber,
+		string firstName,
+		string? lastName,
+		DateOnly? dateOfBirth,
+		string? gender,
+		byte[]? photo,
+		string? photoContentType,
+		string? photoFileName,
+		DateOnly? admissionDate,
+		string status)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+		ArgumentException.ThrowIfNullOrWhiteSpace(studentNumber);
+		ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
+		ArgumentException.ThrowIfNullOrWhiteSpace(status);
 
 		return new StudentEntity
 		{
 			TenantId = tenantId,
-			Code = code.Trim(),
-			Name = name.Trim(),
-			MetadataJson = metadataJson
+			UserId = userId,
+			StudentNumber = studentNumber.Trim(),
+			FirstName = firstName.Trim(),
+			LastName = lastName?.Trim(),
+			DateOfBirth = dateOfBirth,
+			Gender = gender?.Trim(),
+			Photo = photo,
+			PhotoContentType = photoContentType?.Trim(),
+			PhotoFileName = photoFileName?.Trim(),
+			AdmissionDate = admissionDate,
+			Status = status.Trim()
 		};
 	}
 
-	/// <summary>Updates the business details.</summary>
-	/// <param name="code">The new business code.</param>
-	/// <param name="name">The new display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
+	/// <summary>Updates editable student details.</summary>
 	public void UpdateDetails(
-		string code,
-		string name,
-		string? metadataJson = null)
+		string firstName,
+		string? lastName,
+		DateOnly? dateOfBirth,
+		string? gender,
+		DateOnly? admissionDate,
+		string status)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+		ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
+		ArgumentException.ThrowIfNullOrWhiteSpace(status);
 
-		Code = code.Trim();
-		Name = name.Trim();
-		MetadataJson = metadataJson;
+		FirstName = firstName.Trim();
+		LastName = lastName?.Trim();
+		DateOfBirth = dateOfBirth;
+		Gender = gender?.Trim();
+		AdmissionDate = admissionDate;
+		Status = status.Trim();
+		MarkAsUpdated();
+	}
+
+	/// <summary>Updates the student photograph.</summary>
+	public void UpdatePhoto(
+		byte[]? photo,
+		string? contentType,
+		string? fileName)
+	{
+		Photo = photo;
+		PhotoContentType = contentType?.Trim();
+		PhotoFileName = fileName?.Trim();
 		MarkAsUpdated();
 	}
 }

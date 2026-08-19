@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Academics.Persistence;
 /// Executes database reads for <see cref="TimetableEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class TimetableQuery(IApplicationDbContext dbContext) : ITimetableQuery
+public sealed class TimetableQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : ITimetableQuery
 {
 	public Task<TimetableEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class TimetableQuery(IApplicationDbContext dbContext) : ITimetable
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<TimetableEntity>> GetPageAsync(
+	public Task<PagedResult<TimetableEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<TimetableEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<TimetableEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<TimetableEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(TimetableEntity.Code),
+				nameof(TimetableEntity.Name),
+				nameof(TimetableEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

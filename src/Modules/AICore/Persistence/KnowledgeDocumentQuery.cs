@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AICore.Persistence;
 /// Executes database reads for <see cref="KnowledgeDocumentEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class KnowledgeDocumentQuery(IApplicationDbContext dbContext) : IKnowledgeDocumentQuery
+public sealed class KnowledgeDocumentQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IKnowledgeDocumentQuery
 {
 	public Task<KnowledgeDocumentEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class KnowledgeDocumentQuery(IApplicationDbContext dbContext) : IK
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<KnowledgeDocumentEntity>> GetPageAsync(
+	public Task<PagedResult<KnowledgeDocumentEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<KnowledgeDocumentEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<KnowledgeDocumentEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<KnowledgeDocumentEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(KnowledgeDocumentEntity.Code),
+				nameof(KnowledgeDocumentEntity.Name),
+				nameof(KnowledgeDocumentEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

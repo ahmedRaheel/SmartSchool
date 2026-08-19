@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AITutor.Persistence;
 /// Executes database reads for <see cref="LearningRecommendationEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class LearningRecommendationQuery(IApplicationDbContext dbContext) : ILearningRecommendationQuery
+public sealed class LearningRecommendationQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : ILearningRecommendationQuery
 {
 	public Task<LearningRecommendationEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class LearningRecommendationQuery(IApplicationDbContext dbContext)
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<LearningRecommendationEntity>> GetPageAsync(
+	public Task<PagedResult<LearningRecommendationEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<LearningRecommendationEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<LearningRecommendationEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<LearningRecommendationEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(LearningRecommendationEntity.Code),
+				nameof(LearningRecommendationEntity.Name),
+				nameof(LearningRecommendationEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

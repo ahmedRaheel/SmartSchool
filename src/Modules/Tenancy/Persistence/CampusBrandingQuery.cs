@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Tenancy.Persistence;
 /// Executes database reads for <see cref="CampusBrandingEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class CampusBrandingQuery(IApplicationDbContext dbContext) : ICampusBrandingQuery
+public sealed class CampusBrandingQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : ICampusBrandingQuery
 {
 	public Task<CampusBrandingEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class CampusBrandingQuery(IApplicationDbContext dbContext) : ICamp
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<CampusBrandingEntity>> GetPageAsync(
+	public Task<PagedResult<CampusBrandingEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<CampusBrandingEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<CampusBrandingEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<CampusBrandingEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(CampusBrandingEntity.Code),
+				nameof(CampusBrandingEntity.Name),
+				nameof(CampusBrandingEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

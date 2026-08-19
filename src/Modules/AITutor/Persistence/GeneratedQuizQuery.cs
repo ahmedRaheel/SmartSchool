@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.AITutor.Persistence;
 /// Executes database reads for <see cref="GeneratedQuizEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class GeneratedQuizQuery(IApplicationDbContext dbContext) : IGeneratedQuizQuery
+public sealed class GeneratedQuizQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IGeneratedQuizQuery
 {
 	public Task<GeneratedQuizEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class GeneratedQuizQuery(IApplicationDbContext dbContext) : IGener
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<GeneratedQuizEntity>> GetPageAsync(
+	public Task<PagedResult<GeneratedQuizEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<GeneratedQuizEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<GeneratedQuizEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<GeneratedQuizEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(GeneratedQuizEntity.Code),
+				nameof(GeneratedQuizEntity.Name),
+				nameof(GeneratedQuizEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

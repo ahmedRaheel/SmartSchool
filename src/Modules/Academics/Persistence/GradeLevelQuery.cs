@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Academics.Persistence;
 /// Executes database reads for <see cref="GradeLevelEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class GradeLevelQuery(IApplicationDbContext dbContext) : IGradeLevelQuery
+public sealed class GradeLevelQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IGradeLevelQuery
 {
 	public Task<GradeLevelEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class GradeLevelQuery(IApplicationDbContext dbContext) : IGradeLev
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<GradeLevelEntity>> GetPageAsync(
+	public Task<PagedResult<GradeLevelEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<GradeLevelEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<GradeLevelEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<GradeLevelEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(GradeLevelEntity.Code),
+				nameof(GradeLevelEntity.Name),
+				nameof(GradeLevelEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(

@@ -10,7 +10,9 @@ namespace SmartSchool.Modules.Transport.Persistence;
 /// Executes database reads for <see cref="RouteEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class RouteQuery(IApplicationDbContext dbContext) : IRouteQuery
+public sealed class RouteQuery(
+	IApplicationDbContext dbContext,
+	IDapperReadStore dapperReadStore) : IRouteQuery
 {
 	public Task<RouteEntity?> GetByIdAsync(
 		Guid tenantId,
@@ -25,30 +27,24 @@ public sealed class RouteQuery(IApplicationDbContext dbContext) : IRouteQuery
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<RouteEntity>> GetPageAsync(
+	public Task<PagedResult<RouteEntity>> GetPageAsync(
 		Guid tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
-		var query = dbContext
-			.Set<RouteEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId);
-
-		var totalCount = await query.LongCountAsync(cancellationToken);
-
-		var items = await query
-			.OrderBy(entity => entity.Id)
-			.Skip((page - 1) * pageSize)
-			.Take(pageSize)
-			.ToListAsync(cancellationToken);
-
-		return new PagedResult<RouteEntity>(
-			items,
+		return dapperReadStore.GetPageAsync<RouteEntity>(
+			tenantId,
 			page,
 			pageSize,
-			totalCount);
+			[
+				nameof(Entity.TenantId),
+				nameof(Entity.Id),
+				nameof(RouteEntity.Code),
+				nameof(RouteEntity.Name),
+				nameof(RouteEntity.MetadataJson)
+			],
+			cancellationToken);
 	}
 
 	public Task<bool> ExistsByCodeAsync(
