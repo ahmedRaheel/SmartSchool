@@ -15,9 +15,7 @@ public static class GetNotificationById
 	/// </summary>
 	/// <param name="TenantId">The owning tenant identifier.</param>
 	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
+			public sealed record Response(
 	Guid TenantId,
 	Guid Id,
 	Guid RecipientUserId,

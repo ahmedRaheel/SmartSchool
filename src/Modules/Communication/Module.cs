@@ -60,6 +60,9 @@ public static class Module
 		GetNotificationPage.MapEndpoint(endpoints);
 		UpdateNotification.MapEndpoint(endpoints);
 		DeleteNotification.MapEndpoint(endpoints);
+		MarkNotificationAsRead.MapEndpoint(endpoints);
+		MarkAllNotificationsAsRead.MapEndpoint(endpoints);
+		GetUnreadNotificationCount.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

@@ -16,9 +16,7 @@ public static class GetNotificationPage
 	/// </summary>
 	/// <param name="TenantId">The owning tenant identifier.</param>
 	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
+			public sealed record Response(
 	Guid TenantId,
 	Guid Id,
 	Guid RecipientUserId,
@@ -35,6 +33,7 @@ public static class GetNotificationPage
 
 	public sealed record Query(
 		Guid TenantId,
+		Guid RecipientUserId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
@@ -48,6 +47,7 @@ public static class GetNotificationPage
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
 			var page = await entityQuery.GetPageAsync(
 				request.TenantId,
+				request.RecipientUserId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
@@ -64,9 +64,9 @@ public static class GetNotificationPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "notification"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid tenantId, Guid recipientUserId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, page, pageSize);
+					var request = new Query(tenantId, recipientUserId, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();

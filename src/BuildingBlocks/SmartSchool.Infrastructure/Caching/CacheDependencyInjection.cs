@@ -24,10 +24,11 @@ public static class CacheDependencyInjection
             case DistributedCacheProvider.Redis:
                 services.AddStackExchangeRedisCache(redis =>
                 {
+                    redis.InstanceName = options.InstanceName;
                     redis.Configuration =
-                        configuration.GetConnectionString("Redis")
+                        configuration.GetConnectionString(options.RedisConnectionStringName)
                         ?? throw new InvalidOperationException(
-                            "Redis connection string is required.");
+                            $"Connection string '{options.RedisConnectionStringName}' is required.");
                 });
                 break;
 

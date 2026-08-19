@@ -106,39 +106,7 @@ public static class DataPlatformServiceCollectionExtensions
 		IServiceCollection services,
 		IConfiguration configuration)
 	{
-		var options = configuration
-			.GetSection(CacheOptions.SectionName)
-			.Get<CacheOptions>() ?? new CacheOptions();
-
-		if (options.Provider ==  DistributedCacheProvider.Redis)
-		{
-			var redisConnectionString = configuration.GetConnectionString(
-				options.RedisConnectionStringName);
-
-			EnsureConnectionString(
-				redisConnectionString,
-				options.RedisConnectionStringName);
-
-			services.AddStackExchangeRedisCache(redisOptions =>
-			{
-				redisOptions.Configuration = redisConnectionString;
-				redisOptions.InstanceName = options.InstanceName;
-			});
-		}
-		else
-		{
-			services.AddDistributedMemoryCache();
-		}
-
-		services.AddHybridCache(hybridOptions =>
-		{
-			hybridOptions.DefaultEntryOptions = new HybridCacheEntryOptions
-			{
-				Expiration = TimeSpan.FromMinutes(options.DefaultExpirationMinutes),
-				LocalCacheExpiration = TimeSpan.FromMinutes(
-					Math.Min(options.DefaultExpirationMinutes, 5))
-			};
-		});
+		services.AddSmartSchoolCaching(configuration);
 	}
 
 	private static void AddAuthentication(

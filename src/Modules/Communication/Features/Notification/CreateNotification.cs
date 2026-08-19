@@ -16,9 +16,7 @@ public static class CreateNotification
 	/// </summary>
 	/// <param name="TenantId">The owning tenant identifier.</param>
 	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
+			public sealed record Response(
 			Guid TenantId,
 			Guid Id,
 			Guid RecipientUserId,
@@ -51,13 +49,13 @@ public static class CreateNotification
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Type).IsInEnum();
 			RuleFor(x => x.Title).NotEmpty().MaximumLength(250);
-			RuleFor(x => x.Message).NotEmpty().MaximumLength(500);
-			RuleFor(x => x.Priority).IsInEnum();
+			RuleFor(x => x.Message).NotEmpty().MaximumLength(2000);
+			RuleFor(x => x.Priority).NotEmpty().MaximumLength(50);
 		}
 	}
 
 	public sealed class Handler(
-		INotificationQuery entityQuery,
+		
 		INotificationCommand entityCommand)
 		: IRequestHandler<Request, Result<Response>>
 	{
@@ -65,14 +63,6 @@ public static class CreateNotification
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Type, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(NotificationEntity), request.Type.ToString())));
-			}
 
 			var entity = NotificationEntity.Create(
 					request.TenantId,

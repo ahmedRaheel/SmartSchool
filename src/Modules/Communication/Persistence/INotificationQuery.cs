@@ -1,37 +1,20 @@
-using System.Threading.Tasks;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Communication.Persistence;
 
-/// <summary>
-/// Defines query persistence operations for NotificationEntity.
-/// </summary>
+/// <summary>Defines tenant-scoped notification read operations.</summary>
 public interface INotificationQuery
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<NotificationEntity?> GetByIdAsync(
-		Guid tenantId,
-		Guid id,
-		CancellationToken cancellationToken);
+	/// <summary>Gets a notification by identifier.</summary>
+	Task<NotificationEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<PagedResult<NotificationEntity>> GetPageAsync(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		CancellationToken cancellationToken);
+	/// <summary>Gets a recipient's notifications ordered newest first.</summary>
+	Task<PagedResult<NotificationEntity>> GetPageAsync(Guid tenantId, Guid recipientUserId, int page, int pageSize, CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<bool> ExistsByCodeAsync(
-		Guid tenantId,
-		NotificationType code,
-		Guid? excludingId,
-		CancellationToken cancellationToken);
+	/// <summary>Gets the unread notification count for a recipient.</summary>
+	Task<int> GetUnreadCountAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken);
+
+	/// <summary>Gets all unread notifications for a recipient.</summary>
+	Task<IReadOnlyCollection<NotificationEntity>> GetUnreadAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken);
 }
