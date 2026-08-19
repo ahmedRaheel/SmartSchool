@@ -15,9 +15,3 @@ public sealed class MockIdentityOptions
 
 	public bool RequireHttpsMetadata { get; init; } = true;
 }
-
-public enum IdentityProvider
-{
-	Mock,
-	IdentityServer
-}

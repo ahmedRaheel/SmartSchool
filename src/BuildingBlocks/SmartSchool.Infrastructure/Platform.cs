@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using Confluent.Kafka;
@@ -133,8 +132,8 @@ public static class PlatformRegistration
 			.ValidateOnStart();
 
 		services
-			.AddOptions<SmartSchool.Infrastructure.Options.AuthenticationOptions>()
-			.Bind(configuration.GetSection(SmartSchool.Infrastructure.Options.AuthenticationOptions.SectionName))
+			.AddOptions<AuthenticationOptions>()
+			.Bind(configuration.GetSection(AuthenticationOptions.SectionName))
 			.Validate(
 				options => !string.IsNullOrWhiteSpace(
 					options.Authority),
