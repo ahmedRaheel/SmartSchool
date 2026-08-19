@@ -31,7 +31,7 @@ public interface INotificationQuery
 	/// </summary>
 	Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
-		string code,
+		NotificationType code,
 		Guid? excludingId,
 		CancellationToken cancellationToken);
 }

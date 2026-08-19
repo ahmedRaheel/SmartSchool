@@ -53,7 +53,7 @@ public sealed class NotificationQuery(IApplicationDbContext dbContext) : INotifi
 
 	public Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
-		string code,
+		NotificationType code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
@@ -63,7 +63,7 @@ public sealed class NotificationQuery(IApplicationDbContext dbContext) : INotifi
 			.AnyAsync(
 				entity =>
 					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
+					&& EF.Property<NotificationType>(entity, "type") == code
 					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
 				cancellationToken);
 	}

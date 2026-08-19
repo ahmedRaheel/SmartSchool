@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   
   <ItemGroup>
+    <ProjectReference Include="../BuildingBlocks/SmartSchool.BackgroundJobs/SmartSchool.BackgroundJobs.csproj" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Serilog.AspNetCore" />
     <ProjectReference Include="../BuildingBlocks/SmartSchool.Infrastructure/SmartSchool.Infrastructure.csproj" />
     <ProjectReference Include="../Modules/Tenancy/SmartSchool.Modules.Tenancy.csproj" />

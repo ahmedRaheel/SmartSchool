@@ -31,8 +31,8 @@ public static class DataPlatformServiceCollectionExtensions
 			.ValidateOnStart();
 
 		services
-			.AddOptions<SmartSchool.Infrastructure.Options.AuthenticationOptions>()
-			.Bind(configuration.GetSection(SmartSchool.Infrastructure.Options.AuthenticationOptions.SectionName))
+			.AddOptions<Options.AuthenticationOptions>()
+			.Bind(configuration.GetSection(Options.AuthenticationOptions.SectionName))
 			.ValidateOnStart();
 
 		AddPersistence(services, configuration);
@@ -110,7 +110,7 @@ public static class DataPlatformServiceCollectionExtensions
 			.GetSection(CacheOptions.SectionName)
 			.Get<CacheOptions>() ?? new CacheOptions();
 
-		if (options.Provider == CacheProvider.Redis)
+		if (options.Provider ==  DistributedCacheProvider.Redis)
 		{
 			var redisConnectionString = configuration.GetConnectionString(
 				options.RedisConnectionStringName);
@@ -146,8 +146,8 @@ public static class DataPlatformServiceCollectionExtensions
 		IConfiguration configuration)
 	{
 		var options = configuration
-			.GetSection(SmartSchool.Infrastructure.Options.AuthenticationOptions.SectionName)
-			.Get<SmartSchool.Infrastructure.Options.AuthenticationOptions>() ?? new SmartSchool.Infrastructure.Options.AuthenticationOptions();
+			.GetSection(Options.AuthenticationOptions.SectionName)
+			.Get<Options.AuthenticationOptions>() ?? new Options.AuthenticationOptions();
 
 		if (options.Provider == IdentityProvider.Mock)
 		{

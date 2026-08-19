@@ -21,15 +21,28 @@ public static class UpdateNotification
 	public sealed record Response(
 	Guid TenantId,
 	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+	Guid RecipientUserId,
+	NotificationType Type,
+	string Title,
+	string Message,
+	Guid? RelatedEntityId,
+	string? RelatedEntityType,
+	string? ActionUrl,
+	string Priority,
+	bool IsRead,
+	DateTimeOffset? ReadAt,
+	DateTimeOffset OccurredAt);
 
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+		NotificationType Type,
+		string Title,
+		string Message,
+		Guid? RelatedEntityId,
+		string? RelatedEntityType,
+		string? ActionUrl,
+		string Priority) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -37,8 +50,10 @@ public static class UpdateNotification
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Type).IsInEnum();
+			RuleFor(x => x.Title).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Message).NotEmpty().MaximumLength(500);
+			RuleFor(x => x.Priority).IsInEnum();
 		}
 	}
 
@@ -60,17 +75,22 @@ public static class UpdateNotification
 			}
 
 			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
+				request.TenantId, request.Type, request.Id, cancellationToken);
 			if (exists)
 			{
 				return Result<Response>.Failure(
 					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(NotificationEntity), request.Code)));
+						ErrorMessages.DuplicateCode(nameof(NotificationEntity), request.Type.ToString())));
 			}
 
 			entity.UpdateDetails(
-				request.Code,
-				request.Name);
+				request.Type,
+				request.Title,
+				request.Message,
+				request.RelatedEntityId,
+				request.RelatedEntityType,
+				request.ActionUrl,
+				request.Priority);
 			await entityCommand.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
@@ -94,13 +114,21 @@ public static class UpdateNotification
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.NotificationEntity entity)
+		NotificationEntity entity)
 	{
 		return new Response(
-			entity.TenantId,
+		entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
+			entity.RecipientUserId,
+			entity.Type,
+			entity.Title,
+			entity.Message,
+			entity.RelatedEntityId,
+			entity.RelatedEntityType,
+			entity.ActionUrl,
+			entity.Priority,
+			entity.IsRead,
+			entity.ReadAt,
+			entity.OccurredAt);
 	}
 }

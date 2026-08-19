@@ -19,24 +19,40 @@ public static class CreateNotification
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+			Guid TenantId,
+			Guid Id,
+			Guid RecipientUserId,
+			NotificationType Type,
+			string Title,
+			string Message,
+			Guid? RelatedEntityId,
+			string? RelatedEntityType,
+			string? ActionUrl,
+			string Priority,
+			bool IsRead,
+			DateTimeOffset? ReadAt,
+			DateTimeOffset OccurredAt);
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+		Guid RecipientUserId,
+		NotificationType Type,
+		string Title,
+		string Message,
+		Guid? RelatedEntityId,
+		string? RelatedEntityType,
+		string? ActionUrl,
+		string Priority) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Type).IsInEnum();
+			RuleFor(x => x.Title).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Message).NotEmpty().MaximumLength(500);
+			RuleFor(x => x.Priority).IsInEnum();
 		}
 	}
 
@@ -50,19 +66,24 @@ public static class CreateNotification
 			CancellationToken cancellationToken)
 		{
 			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
+				request.TenantId, request.Type, null, cancellationToken);
 			if (exists)
 			{
 				return Result<Response>.Failure(
 					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(NotificationEntity), request.Code)));
+						ErrorMessages.DuplicateCode(nameof(NotificationEntity), request.Type.ToString())));
 			}
 
 			var entity = NotificationEntity.Create(
-				request.TenantId,
-				request.Code,
-				request.Name);
-
+					request.TenantId,
+					request.RecipientUserId,
+					request.Type,
+					request.Title,
+					request.Message,
+					request.RelatedEntityId,
+					request.RelatedEntityType,
+					request.ActionUrl,
+					request.Priority);
 			await entityCommand.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
@@ -85,13 +106,21 @@ public static class CreateNotification
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.NotificationEntity entity)
+		NotificationEntity entity)
 	{
 		return new Response(
-			entity.TenantId,
+		entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
+			entity.RecipientUserId,
+			entity.Type,
+			entity.Title,
+			entity.Message,
+			entity.RelatedEntityId,
+			entity.RelatedEntityType,
+			entity.ActionUrl,
+			entity.Priority,
+			entity.IsRead,
+			entity.ReadAt,
+			entity.OccurredAt);
 	}
 }

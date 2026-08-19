@@ -1,0 +1,22 @@
+{
+  "collection": "SmartSchool.SampleGuidelines",
+  "roles": [
+    "Student",
+    "Parent",
+    "Teacher",
+    "Principal",
+    "Admin",
+    "Exam",
+    "Academics"
+  ],
+  "tenantIsolation": true,
+  "documentLevelAuthorization": true,
+  "citationsRequired": true,
+  "documents": [
+    "student-guidelines.md",
+    "parent-guidelines.md",
+    "teacher-guidelines.md",
+    "principal-admin-guidelines.md",
+    "exam-academic-guidelines.md"
+  ]
+}

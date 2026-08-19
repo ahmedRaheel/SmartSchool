@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
+using SmartSchool.Modules.Communication.Models;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -20,9 +21,17 @@ public static class GetNotificationPage
 	public sealed record Response(
 	Guid TenantId,
 	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+	Guid RecipientUserId,
+	NotificationType Type,
+	string Title,
+	string Message,
+	Guid? RelatedEntityId,
+	string? RelatedEntityType,
+	string? ActionUrl,
+	string Priority,
+	bool IsRead,
+	DateTimeOffset? ReadAt,
+	DateTimeOffset OccurredAt);
 
 	public sealed record Query(
 		Guid TenantId,
@@ -69,13 +78,21 @@ public static class GetNotificationPage
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.NotificationEntity entity)
+	    NotificationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
+			entity.RecipientUserId,
+			entity.Type,
+			entity.Title,
+			entity.Message,
+			entity.RelatedEntityId,
+			entity.RelatedEntityType,
+			entity.ActionUrl,
+			entity.Priority,
+			entity.IsRead,
+			entity.ReadAt,
+			entity.OccurredAt);
 	}
 }

@@ -20,9 +20,17 @@ public static class GetNotificationById
 	public sealed record Response(
 	Guid TenantId,
 	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+	Guid RecipientUserId,
+	NotificationType Type,
+	string Title,
+	string Message,
+	Guid? RelatedEntityId,
+	string? RelatedEntityType,
+	string? ActionUrl,
+	string Priority,
+	bool IsRead,
+	DateTimeOffset? ReadAt,
+	DateTimeOffset OccurredAt);
 
 	public sealed record Query(
 		Guid TenantId,
@@ -64,13 +72,21 @@ public static class GetNotificationById
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.NotificationEntity entity)
+		NotificationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
+			entity.RecipientUserId,
+			entity.Type,
+			entity.Title,
+			entity.Message,
+			entity.RelatedEntityId,
+			entity.RelatedEntityType,
+			entity.ActionUrl,
+			entity.Priority,
+			entity.IsRead,
+			entity.ReadAt,
+			entity.OccurredAt);
 	}
 }
