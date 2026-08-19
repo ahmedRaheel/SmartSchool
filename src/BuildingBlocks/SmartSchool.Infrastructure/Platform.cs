@@ -15,6 +15,7 @@ using SmartSchool.Infrastructure.Errors;
 using SmartSchool.Infrastructure.Options;
 using SmartSchool.SharedKernel.Constants;
 using System.Text.Json;
+using SmartSchool.Infrastructure.DependencyInjection;
 
 namespace SmartSchool.Infrastructure;
 

@@ -120,4 +120,9 @@ public sealed class NotificationQuery(
 					entity.Id == id,
 				cancellationToken);
 	}
+
+	public Task<IReadOnlyCollection<NotificationEntity>> GetUnreadAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken)
+	{
+		throw new NotImplementedException();
+	}
 }
