@@ -100,6 +100,8 @@ public static class DataPlatformServiceCollectionExtensions
 
 		services.AddScoped<IApplicationDbContext>(
 			serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
+		services.AddScoped<MockDatabaseSeeder>();
+		services.AddScoped<IEfMockStore, EfMockStore>();
 	}
 
 	private static void AddCaching(

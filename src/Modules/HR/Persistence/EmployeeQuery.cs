@@ -51,9 +51,9 @@ public sealed class EmployeeQuery(IApplicationDbContext dbContext) : IEmployeeQu
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsByEmployeeNumberAsync(
 		Guid tenantId,
-		string code,
+		string employeeNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
@@ -62,8 +62,7 @@ public sealed class EmployeeQuery(IApplicationDbContext dbContext) : IEmployeeQu
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
+					entity.TenantId == tenantId && entity.EmployeeNumber == employeeNumber
 					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
 				cancellationToken);
 	}

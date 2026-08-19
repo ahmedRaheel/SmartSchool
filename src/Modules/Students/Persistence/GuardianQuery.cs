@@ -51,9 +51,9 @@ public sealed class GuardianQuery(IApplicationDbContext dbContext) : IGuardianQu
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsByCnicNumberAsync(
 		Guid tenantId,
-		string code,
+		string cnicNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
@@ -62,8 +62,7 @@ public sealed class GuardianQuery(IApplicationDbContext dbContext) : IGuardianQu
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
+					entity.TenantId == tenantId && entity.CnicNumber == cnicNumber
 					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
 				cancellationToken);
 	}

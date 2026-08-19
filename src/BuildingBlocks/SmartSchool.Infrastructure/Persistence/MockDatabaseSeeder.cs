@@ -9,7 +9,7 @@ namespace SmartSchool.Infrastructure.Persistence;
 /// in the development database.
 /// </summary>
 public sealed class MockDatabaseSeeder(
-	SmartSchoolMockDbContext dbContext)
+	ApplicationDbContext dbContext)
 {
 	/// <summary>
 	/// Gets the tenant identifier used by development seed data.
@@ -102,7 +102,7 @@ public sealed class MockDatabaseSeeder(
 			"Create",
 			BindingFlags.Public | BindingFlags.Static);
 
-		if (createMethod is null)
+		if (createMethod is null || createMethod.GetParameters().Length != 4)
 		{
 			return;
 		}

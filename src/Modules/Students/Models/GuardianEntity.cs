@@ -3,7 +3,7 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Students.Models;
 
 /// <summary>
-/// Represents the GuardianEntity domain entity.
+/// Represents a parent or guardian belonging to a SmartSchool tenant.
 /// </summary>
 public sealed class GuardianEntity : Entity
 {
@@ -11,54 +11,56 @@ public sealed class GuardianEntity : Entity
 	{
 	}
 
-	/// <summary>Gets the business code.</summary>
-	public string Code { get; private set; } = string.Empty;
+	/// <summary>Gets the optional authenticated user identifier.</summary>
+	public Guid? UserId { get; private set; }
 
-	/// <summary>Gets the display name.</summary>
-	public string Name { get; private set; } = string.Empty;
+	/// <summary>Gets the guardian full name.</summary>
+	public string FullName { get; private set; } = string.Empty;
 
-	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
-	public string? MetadataJson { get; private set; }
+	/// <summary>Gets the guardian CNIC number.</summary>
+	public string? CnicNumber { get; private set; }
 
-	/// <summary>Creates a new GuardianEntity.</summary>
-	/// <param name="tenantId">The owning tenant identifier.</param>
-	/// <param name="code">The business code.</param>
-	/// <param name="name">The display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	/// <returns>The newly created entity.</returns>
+	/// <summary>Gets the guardian email address.</summary>
+	public string? Email { get; private set; }
+
+	/// <summary>Gets the guardian phone number.</summary>
+	public string? Phone { get; private set; }
+
+	/// <summary>Creates a guardian.</summary>
 	public static GuardianEntity Create(
 		Guid tenantId,
-		string code,
-		string name,
-		string? metadataJson = null)
+		Guid? userId,
+		string fullName,
+		string? cnicNumber,
+		string? email,
+		string? phone)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+		ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
 
 		return new GuardianEntity
 		{
 			TenantId = tenantId,
-			Code = code.Trim(),
-			Name = name.Trim(),
-			MetadataJson = metadataJson
+			UserId = userId,
+			FullName = fullName.Trim(),
+			CnicNumber = cnicNumber?.Trim(),
+			Email = email?.Trim(),
+			Phone = phone?.Trim()
 		};
 	}
 
-	/// <summary>Updates the business details.</summary>
-	/// <param name="code">The new business code.</param>
-	/// <param name="name">The new display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
+	/// <summary>Updates guardian details.</summary>
 	public void UpdateDetails(
-		string code,
-		string name,
-		string? metadataJson = null)
+		string fullName,
+		string? cnicNumber,
+		string? email,
+		string? phone)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+		ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
 
-		Code = code.Trim();
-		Name = name.Trim();
-		MetadataJson = metadataJson;
+		FullName = fullName.Trim();
+		CnicNumber = cnicNumber?.Trim();
+		Email = email?.Trim();
+		Phone = phone?.Trim();
 		MarkAsUpdated();
 	}
 }
