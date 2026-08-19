@@ -51,9 +51,9 @@ public sealed class StudentQuery(IApplicationDbContext dbContext) : IStudentQuer
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsByStudentNumberAsync(
 		Guid tenantId,
-		string code,
+		string studentNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
@@ -62,8 +62,7 @@ public sealed class StudentQuery(IApplicationDbContext dbContext) : IStudentQuer
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
+					entity.TenantId == tenantId && entity.StudentNumber == studentNumber
 					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
 				cancellationToken);
 	}
