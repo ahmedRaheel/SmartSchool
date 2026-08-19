@@ -4,45 +4,31 @@ using SmartSchool.Modules.Students.Models;
 
 namespace SmartSchool.Modules.Students.Persistence.Configurations;
 
-/// <summary>
-/// Defines relational persistence rules for <see cref="StudentEntity"/>.
-/// </summary>
-public sealed class StudentEntityConfiguration
-	: IEntityTypeConfiguration<StudentEntity>
+/// <summary>Defines persistence rules for <see cref="StudentEntity"/>.</summary>
+public sealed class StudentEntityConfiguration : IEntityTypeConfiguration<StudentEntity>
 {
 	public void Configure(EntityTypeBuilder<StudentEntity> builder)
 	{
-		builder.ToTable("Student");
-
+		builder.ToTable("student", schema: "student");
 		builder.HasKey(entity => entity.Id);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+		builder.Property(entity => entity.Id).HasColumnName("student_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.StudentNumber).HasColumnName("student_number").HasMaxLength(60).IsRequired();
+		builder.Property(entity => entity.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
+		builder.Property(entity => entity.LastName).HasColumnName("last_name").HasMaxLength(100);
+		builder.Property(entity => entity.DateOfBirth).HasColumnName("date_of_birth");
+		builder.Property(entity => entity.Gender).HasColumnName("gender").HasMaxLength(30);
+		builder.Property(entity => entity.Photo).HasColumnName("photo");
+		builder.Property(entity => entity.PhotoContentType).HasColumnName("photo_content_type").HasMaxLength(150);
+		builder.Property(entity => entity.PhotoFileName).HasColumnName("photo_file_name").HasMaxLength(255);
+		builder.Property(entity => entity.AdmissionDate).HasColumnName("admission_date");
+		builder.Property(entity => entity.Status).HasColumnName("status").HasMaxLength(30).IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+		builder.HasIndex(entity => new { entity.TenantId, entity.StudentNumber }).IsUnique();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
-
-		builder.HasIndex(entity => entity.TenantId);
-
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
-
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
-
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
-
+		builder.Ignore(entity => entity.IsActive);
+		builder.Ignore(entity => entity.RowVersion);
 	}
 }

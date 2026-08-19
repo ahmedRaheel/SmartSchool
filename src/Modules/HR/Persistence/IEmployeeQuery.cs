@@ -29,9 +29,9 @@ public interface IEmployeeQuery
 	/// <summary>
 	/// Executes the persistence operation.
 	/// </summary>
-	Task<bool> ExistsByCodeAsync(
+	Task<bool> ExistsByEmployeeNumberAsync(
 		Guid tenantId,
-		string code,
+		string employeeNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken);
 }

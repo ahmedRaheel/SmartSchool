@@ -4,45 +4,25 @@ using SmartSchool.Modules.Students.Models;
 
 namespace SmartSchool.Modules.Students.Persistence.Configurations;
 
-/// <summary>
-/// Defines relational persistence rules for <see cref="GuardianEntity"/>.
-/// </summary>
-public sealed class GuardianEntityConfiguration
-	: IEntityTypeConfiguration<GuardianEntity>
+/// <summary>Defines persistence rules for <see cref="GuardianEntity"/>.</summary>
+public sealed class GuardianEntityConfiguration : IEntityTypeConfiguration<GuardianEntity>
 {
 	public void Configure(EntityTypeBuilder<GuardianEntity> builder)
 	{
-		builder.ToTable("Guardian");
-
+		builder.ToTable("guardian", schema: "student");
 		builder.HasKey(entity => entity.Id);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+		builder.Property(entity => entity.Id).HasColumnName("guardian_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.FullName).HasColumnName("full_name").HasMaxLength(200).IsRequired();
+		builder.Property(entity => entity.CnicNumber).HasColumnName("cnic_number").HasMaxLength(20);
+		builder.Property(entity => entity.Email).HasColumnName("email").HasMaxLength(250);
+		builder.Property(entity => entity.Phone).HasColumnName("phone").HasMaxLength(50);
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+		builder.HasIndex(entity => new { entity.TenantId, entity.CnicNumber }).IsUnique();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
-
-		builder.HasIndex(entity => entity.TenantId);
-
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
-
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
-
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
-
+		builder.Ignore(entity => entity.IsActive);
+		builder.Ignore(entity => entity.RowVersion);
 	}
 }
