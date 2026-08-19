@@ -43,6 +43,11 @@ var builder =
 
 builder.AddSmartSchoolPlatform();
 
+// Ensure the application DbContext implementation is available via the IApplicationDbContext interface
+// This maps the concrete ApplicationDbContext registered by the platform to the application-facing interface
+builder.Services.AddScoped<SmartSchool.Application.Persistence.IApplicationDbContext>(
+	sp => sp.GetRequiredService<ApplicationDbContext>());
+
 builder.Services.AddOpenApi();
 
 builder.Services
@@ -126,18 +131,18 @@ if (app.Environment.IsDevelopment())
 	app.MapOpenApi();
 	app.MapScalarApiReference(options => options.WithTitle("SmartSchool API"));
 
-	using var scope =
-		app.Services.CreateScope();
+	//using var scope =
+	//	app.Services.CreateScope();
 
-	var mockDatabaseSeeder =
-		scope.ServiceProvider.GetRequiredService<MockDatabaseSeeder>();
+	//var mockDatabaseSeeder =
+	//	scope.ServiceProvider.GetRequiredService<MockDatabaseSeeder>();
 
-	await mockDatabaseSeeder.SeedAsync();
+	//await mockDatabaseSeeder.SeedAsync();
 
-	var sampleActorSeeder =
-		scope.ServiceProvider.GetRequiredService<SampleActorSeeder>();
+	//var sampleActorSeeder =
+	//	scope.ServiceProvider.GetRequiredService<SampleActorSeeder>();
 
-	await sampleActorSeeder.SeedAsync();
+	//await sampleActorSeeder.SeedAsync();
 }
 
 app.UseExceptionHandler();
