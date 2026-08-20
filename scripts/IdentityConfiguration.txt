@@ -24,6 +24,11 @@ dotnet ef database update `
   --startup-project src/SmartSchool.Identity.Api/SmartSchool.Identity.Api.csproj
 2. Duende configuration tables
 
+
+
+check 
+https://localhost:7101/.well-known/openid-configuration/
+https://localhost:7101/.well-known/openid-configuration/jwks
 These are the important IdentityServer tables containing clients, scopes, API resources, identity resources, redirect URIs, etc.
 
 dotnet ef migrations add InitialDuendeConfiguration `
