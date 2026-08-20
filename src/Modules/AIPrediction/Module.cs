@@ -4,6 +4,9 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIPrediction.Features.ClassPerformanceInsight;
 using SmartSchool.Modules.AIPrediction.Features.PredictionEvaluation;
+using SmartSchool.Modules.AIPrediction.Features.ExamPrediction;
+using SmartSchool.Modules.AIPrediction.Features.PredictionSuite;
+using SmartSchool.Modules.AIPrediction.ML;
 using SmartSchool.Modules.AIPrediction.Features.PredictionEvidence;
 using SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 using SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
@@ -21,6 +24,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
+		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
 		services.AddScoped<IClassPerformanceInsightQuery, ClassPerformanceInsightQuery>();
 		services.AddScoped<IClassPerformanceInsightCommand, ClassPerformanceInsightCommand>();
 		services.AddScoped<IPredictionEvaluationQuery, PredictionEvaluationQuery>();
@@ -45,6 +50,8 @@ public static class Module
 		this IEndpointRouteBuilder endpoints)
 	{
 		CreateClassPerformanceInsight.MapEndpoint(endpoints);
+		PredictExamPerformance.MapEndpoint(endpoints);
+		PredictionSuiteEndpoints.MapEndpoints(endpoints);
 		GetClassPerformanceInsightById.MapEndpoint(endpoints);
 		GetClassPerformanceInsightPage.MapEndpoint(endpoints);
 		UpdateClassPerformanceInsight.MapEndpoint(endpoints);

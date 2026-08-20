@@ -6,3 +6,5 @@
 \i 004_communication.sql
 \i 005_pgvector_rag.sql
 \i 006_distributed_cache.sql
+
+\i 009_prediction_suite.sql
