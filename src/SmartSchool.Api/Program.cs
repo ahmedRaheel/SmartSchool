@@ -26,7 +26,6 @@ using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.HR;
-using SmartSchool.Modules.Identity;
 using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Library;

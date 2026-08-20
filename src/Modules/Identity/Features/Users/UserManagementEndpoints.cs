@@ -129,7 +129,7 @@ public static class UserManagementEndpoints
 
 		return new UserResponse(
 			user.Id,
-			user.TenantId,
+			user.TenantId  ?? Guid.Empty,
 			user.Email ?? string.Empty,
 			user.FirstName,
 			user.LastName,

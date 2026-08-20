@@ -34,7 +34,8 @@ public sealed class DuendeConfigurationSeeder(
 		var apiScopes = new[]
 		{
 			new ApiScope("smartschool.api", "SmartSchool API",
-				["tenant_id", "role", "given_name", "family_name", "name"])
+				["tenant_id", "role", "given_name", "family_name", "name"]),
+			new ApiScope("smartschool.identity.manage", "SmartSchool account lifecycle management")
 		};
 
 		var apiResources = new[]
@@ -46,8 +47,21 @@ public sealed class DuendeConfigurationSeeder(
 			}
 		};
 
+		var serviceClientSecret =
+			configuration["SmartSchoolApiClient:ClientSecret"]
+			?? throw new InvalidOperationException(
+				"SmartSchoolApiClient:ClientSecret is required.");
+
 		var clients = new[]
 		{
+			new Client
+			{
+				ClientId = "smartschool-api-service",
+				ClientName = "SmartSchool API Service",
+				AllowedGrantTypes = GrantTypes.ClientCredentials,
+				ClientSecrets = { new Secret(serviceClientSecret.Sha256()) },
+				AllowedScopes = { "smartschool.identity.manage" }
+			},
 			new Client
 			{
 				ClientId = "smartschool-portal",

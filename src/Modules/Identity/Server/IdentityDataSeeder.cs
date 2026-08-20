@@ -8,28 +8,93 @@ public sealed class IdentityDataSeeder(
 	UserManager<SmartSchoolUser> userManager,
 	IConfiguration configuration)
 {
-	private static readonly string[] Roles = ["SuperAdmin","Principal","Admin","Teacher","Parent","Student","Exam","Academics","Finance","HR","Transport"];
+	private static readonly string[] Roles =
+	[
+		"SuperAdmin", "Principal", "Admin", "Teacher", "Parent", "Student",
+		"Exam", "Academics", "Finance", "HR", "Transport"
+	];
 
 	public async Task SeedAsync()
 	{
-		foreach(var roleName in Roles)
+		await SeedRolesAsync();
+		await SeedSuperAdminAsync();
+	}
+
+	private async Task SeedRolesAsync()
+	{
+		foreach (var roleName in Roles)
 		{
-			if(await roleManager.RoleExistsAsync(roleName)) continue;
-			await roleManager.CreateAsync(new SmartSchoolRole {
-				Id=Guid.NewGuid(), Name=roleName, Description=$"SmartSchool {roleName} role", IsSystemRole=true
+			if (await roleManager.RoleExistsAsync(roleName))
+			{
+				continue;
+			}
+
+			var result = await roleManager.CreateAsync(new SmartSchoolRole
+			{
+				Id = Guid.NewGuid(),
+				Name = roleName,
+				Description = $"SmartSchool {roleName} role",
+				IsSystemRole = true
 			});
+
+			EnsureSucceeded(result, $"create role '{roleName}'");
+		}
+	}
+
+	private async Task SeedSuperAdminAsync()
+	{
+		if (!configuration.GetValue<bool>("BootstrapSuperAdmin:Enabled"))
+		{
+			return;
 		}
 
-		var email=configuration["DuendeIdentityServer:SeedAdmin:Email"];
-		var password=configuration["DuendeIdentityServer:SeedAdmin:Password"];
-		if(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)) return;
-		if(await userManager.FindByEmailAsync(email) is not null) return;
+		var email = configuration["BootstrapSuperAdmin:Email"];
+		var password = configuration["BootstrapSuperAdmin:Password"];
 
-		var user=new SmartSchoolUser {
-			Id=Guid.NewGuid(), TenantId=Guid.Parse("11111111-1111-1111-1111-111111111111"),
-			UserName=email, Email=email, EmailConfirmed=true, FirstName="System", LastName="Administrator", DisplayName="System Administrator"
-		};
-		var created=await userManager.CreateAsync(user,password);
-		if(created.Succeeded) await userManager.AddToRoleAsync(user,"SuperAdmin");
+		if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+		{
+			throw new InvalidOperationException(
+				"BootstrapSuperAdmin Email and Password are required when bootstrap is enabled.");
+		}
+
+		var user = await userManager.FindByEmailAsync(email);
+		if (user is null)
+		{
+			var firstName = configuration["BootstrapSuperAdmin:FirstName"] ?? "SmartSchool";
+			var lastName = configuration["BootstrapSuperAdmin:LastName"] ?? "SuperAdmin";
+
+			user = new SmartSchoolUser
+			{
+				Id = Guid.NewGuid(),
+				TenantId = null,
+				BusinessEntityId = null,
+				AccountType = "SuperAdmin",
+				UserName = email,
+				Email = email,
+				EmailConfirmed = true,
+				FirstName = firstName,
+				LastName = lastName,
+				DisplayName = $"{firstName} {lastName}",
+				IsActive = true
+			};
+
+			EnsureSucceeded(
+				await userManager.CreateAsync(user, password),
+				"create bootstrap SuperAdmin");
+		}
+
+		if (!await userManager.IsInRoleAsync(user, "SuperAdmin"))
+		{
+			EnsureSucceeded(
+				await userManager.AddToRoleAsync(user, "SuperAdmin"),
+				"assign SuperAdmin role");
+		}
+	}
+
+	private static void EnsureSucceeded(IdentityResult result, string operation)
+	{
+		if (result.Succeeded) return;
+		var errors = string.Join("; ", result.Errors.Select(x => $"{x.Code}: {x.Description}"));
+		throw new InvalidOperationException($"Failed to {operation}. {errors}");
 	}
 }

@@ -109,7 +109,22 @@ public static class Module
 		return services;
 	}
 
-	public static IEndpointRouteBuilder MapIdentityEndpoints(
+	public static IEndpointRouteBuilder MapIdentityServerEndpoints(
+		this IEndpointRouteBuilder endpoints)
+	{
+		UserManagementEndpoints.MapEndpoints(endpoints);
+		RoleManagementEndpoints.MapEndpoints(endpoints);
+		AccountEndpoints.MapEndpoints(endpoints);
+		AccountProvisioningEndpoints.MapEndpoints(endpoints);
+
+		return endpoints;
+	}
+
+	/// <summary>
+	/// Maps legacy SmartSchool business-profile CQRS endpoints.
+	/// These belong to SmartSchool.Api, not the dedicated Identity host.
+	/// </summary>
+	public static IEndpointRouteBuilder MapIdentityBusinessEndpoints(
 		this IEndpointRouteBuilder endpoints)
 	{
 		CreateRoleAssignment.MapEndpoint(endpoints);
@@ -123,11 +138,6 @@ public static class Module
 		UpdateUserProfile.MapEndpoint(endpoints);
 		DeleteUserProfile.MapEndpoint(endpoints);
 
-				UserManagementEndpoints.MapEndpoints(endpoints);
-		RoleManagementEndpoints.MapEndpoints(endpoints);
-		AccountEndpoints.MapEndpoints(endpoints);
-		AccountProvisioningEndpoints.MapEndpoints(endpoints);
-
-return endpoints;
+		return endpoints;
 	}
 }

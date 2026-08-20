@@ -21,7 +21,7 @@ public sealed class SmartSchoolProfileService(
 		var roles = await userManager.GetRolesAsync(user);
 		var claims = new List<Claim>
 		{
-			new("tenant_id", user.TenantId.ToString()),
+			new("tenant_id", user.TenantId?.ToString() ?? string.Empty),
 			new("given_name", user.FirstName),
 			new("family_name", user.LastName),
 			new("name", user.DisplayName ?? $"{user.FirstName} {user.LastName}".Trim()),
