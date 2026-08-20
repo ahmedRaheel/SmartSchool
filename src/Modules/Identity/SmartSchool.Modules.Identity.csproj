@@ -1,6 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Duende.IdentityServer" />
+    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" />
+    <PackageReference Include="Duende.IdentityServer.EntityFramework" />
+    <ProjectReference Include="../../BuildingBlocks/SmartSchool.Application/SmartSchool.Application.csproj" />
+    <ProjectReference Include="../../BuildingBlocks/SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
   </ItemGroup>
 </Project>

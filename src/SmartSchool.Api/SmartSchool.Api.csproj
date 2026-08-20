@@ -11,6 +11,7 @@
     <ProjectReference Include="../Modules/Tenancy/SmartSchool.Modules.Tenancy.csproj" />
     <ProjectReference Include="../Modules/Organization/SmartSchool.Modules.Organization.csproj" />
     <ProjectReference Include="../Modules/Identity/SmartSchool.Modules.Identity.csproj" />
+    <ProjectReference Include="../Modules/Reference/SmartSchool.Modules.Reference.csproj" />
     <ProjectReference Include="../Modules/Academics/SmartSchool.Modules.Academics.csproj" />
     <ProjectReference Include="../Modules/Students/SmartSchool.Modules.Students.csproj" />
     <ProjectReference Include="../Modules/Admissions/SmartSchool.Modules.Admissions.csproj" />

@@ -32,6 +32,7 @@ using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Payroll;
+using SmartSchool.Modules.Reference;
 using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Tenancy;
 using SmartSchool.Modules.Transport;
@@ -78,12 +79,13 @@ builder.Services.AddDocumentsModule();
 builder.Services.AddExaminationsModule();
 builder.Services.AddFinanceModule();
 builder.Services.AddHRModule();
-builder.Services.AddIdentityModule();
+
 builder.Services.AddInventoryModule();
 builder.Services.AddLearningModule();
 builder.Services.AddLibraryModule();
 builder.Services.AddOrganizationModule();
 builder.Services.AddPayrollModule();
+builder.Services.AddReferenceModule();
 builder.Services.AddStudentsModule();
 builder.Services.AddTenancyModule();
 builder.Services.AddTransportModule();
@@ -112,8 +114,7 @@ if (app.Environment.IsDevelopment())
 
 		await mockDatabaseSeeder.SeedAsync();
 	}
-
-	var sampleActorSeeder =
+var sampleActorSeeder =
 		scope.ServiceProvider.GetRequiredService<SampleActorSeeder>();
 
 	await sampleActorSeeder.SeedAsync();
@@ -121,6 +122,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler();
 app.UseCorrelationId();
+
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -148,12 +150,13 @@ app.MapDocumentsEndpoints();
 app.MapExaminationsEndpoints();
 app.MapFinanceEndpoints();
 app.MapHREndpoints();
-app.MapIdentityEndpoints();
+
 app.MapInventoryEndpoints();
 app.MapLearningEndpoints();
 app.MapLibraryEndpoints();
 app.MapOrganizationEndpoints();
 app.MapPayrollEndpoints();
+app.MapReferenceEndpoints();
 app.MapStudentsEndpoints();
 app.MapTenancyEndpoints();
 app.MapTransportEndpoints();

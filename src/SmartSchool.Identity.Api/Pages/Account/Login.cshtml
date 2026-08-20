@@ -1,0 +1,17 @@
+@page
+@model SmartSchool.Identity.Api.Pages.Account.LoginModel
+<!doctype html>
+<html><head><title>SmartSchool Login</title><meta name="viewport" content="width=device-width"/></head>
+<body>
+<main>
+<h1>SmartSchool</h1><h2>Sign in</h2>
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <p>@Model.ErrorMessage</p> }
+<form method="post">
+<input type="hidden" asp-for="ReturnUrl" />
+<label>Email <input asp-for="Email" type="email" autocomplete="username" required /></label><br/>
+<label>Password <input asp-for="Password" type="password" autocomplete="current-password" required /></label><br/>
+<label><input asp-for="RememberLogin" /> Remember me</label><br/>
+<button type="submit">Sign in</button>
+</form>
+<p><a href="/account/forgot-password">Forgot password?</a></p>
+</main></body></html>
