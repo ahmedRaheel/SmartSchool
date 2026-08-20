@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <ProjectReference Include="../Modules/Identity/SmartSchool.Modules.Identity.csproj" />
   </ItemGroup>
 </Project>
