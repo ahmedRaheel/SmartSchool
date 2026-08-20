@@ -17,6 +17,18 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+	using var scope = app.Services.CreateScope();
+	var identitySeeder = scope.ServiceProvider
+		.GetRequiredService<SmartSchool.Modules.Identity.Server.IdentityDataSeeder>();
+	await identitySeeder.SeedAsync();
+
+	var duendeSeeder = scope.ServiceProvider
+		.GetRequiredService<SmartSchool.Modules.Identity.Server.DuendeConfigurationSeeder>();
+	await duendeSeeder.SeedAsync();
+}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -24,7 +36,7 @@ app.UseIdentityServer();
 app.UseAuthorization();
 
 app.MapRazorPages();
-app.MapIdentityEndpoints();
+app.MapIdentityServerEndpoints();
 
 app.MapGet("/", () => Results.Ok(new
 {

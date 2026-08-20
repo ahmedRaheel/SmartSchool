@@ -1,3 +1,4 @@
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,21 @@ public static class DataPlatformServiceCollectionExtensions
 		AddPersistence(services, configuration);
 		AddCaching(services, configuration);
 		AddAuthentication(services, configuration);
+		var identityServiceOptions = configuration
+			.GetSection(IdentityServiceOptions.SectionName)
+			.Get<IdentityServiceOptions>();
+
+		if (identityServiceOptions is not null &&
+			!string.IsNullOrWhiteSpace(identityServiceOptions.BaseUrl))
+		{
+			services.AddSingleton(identityServiceOptions);
+			services.AddHttpClient<IIdentityAccountService, IdentityAccountService>(client =>
+			{
+				client.BaseAddress = new Uri(identityServiceOptions.BaseUrl.TrimEnd('/') + "/");
+				client.Timeout = TimeSpan.FromSeconds(30);
+			});
+		}
+
 
 		return services;
 	}
