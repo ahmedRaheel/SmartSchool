@@ -1,0 +1,58 @@
+First install/update the EF CLI:
+
+dotnet tool update --global dotnet-ef --version 10.0.7
+
+Then for PostgreSQL, set the provider and connection-string name:
+
+$env:Persistence__Provider="PostgreSql"
+$env:Persistence__ConnectionStringName="SmartSchool"
+1. ASP.NET Identity tables
+
+This creates the migration for Users, Roles, UserRoles, claims, tokens, etc.:
+
+dotnet ef migrations add InitialAspNetIdentity `
+  --context SmartSchoolIdentityDbContext `
+  --project src/Modules/Identity/SmartSchool.Modules.Identity.csproj `
+  --startup-project src/SmartSchool.Identity.Api/SmartSchool.Identity.Api.csproj `
+  --output-dir Persistence/Migrations/PostgreSql/AspNetIdentity
+
+Apply it:
+
+dotnet ef database update `
+  --context SmartSchoolIdentityDbContext `
+  --project src/Modules/Identity/SmartSchool.Modules.Identity.csproj `
+  --startup-project src/SmartSchool.Identity.Api/SmartSchool.Identity.Api.csproj
+2. Duende configuration tables
+
+These are the important IdentityServer tables containing clients, scopes, API resources, identity resources, redirect URIs, etc.
+
+dotnet ef migrations add InitialDuendeConfiguration `
+  --context ConfigurationDbContext `
+  --project src/Modules/Identity/SmartSchool.Modules.Identity.csproj `
+  --startup-project src/SmartSchool.Identity.Api/SmartSchool.Identity.Api.csproj `
+  --output-dir Persistence/Migrations/PostgreSql/DuendeConfiguration
+
+Then:
+
+dotnet ef database update `
+  --context ConfigurationDbContext `
+  --project src/Modules/Identity/SmartSchool.Modules.Identity.csproj `
+  --startup-project src/SmartSchool.Identity.Api/SmartSchool.Identity.Api.csproj
+3. Duende operational tables
+
+These include persisted grants, authorization codes, refresh tokens, device codes, server-side sessions, etc.
+
+dotnet ef migrations add InitialDuendeOperational `
+  --context PersistedGrantDbContext `
+  --project src/Modules/Identity/SmartSchool.Modules.Identity.csproj `
+  --startup-project src/SmartSchool.Identity.Api/SmartSchool.Identity.Api.csproj `
+  --output-dir Persistence/Migrations/PostgreSql/DuendeOperational
+
+Apply:
+
+dotnet ef database update `
+  --context PersistedGrantDbContext `
+  --project src/Modules/Identity/SmartSchool.Modules.Identity.csproj `
+  --startup-project src/SmartSchool.Identity.Api/SmartSchool.Identity.Api.csproj
+
+After all three commands, PostgreSQL should contain approximately:

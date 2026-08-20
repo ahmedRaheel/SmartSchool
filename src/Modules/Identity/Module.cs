@@ -72,7 +72,7 @@ public static class Module
 			.AddAspNetIdentity<SmartSchoolUser>()
 			.AddConfigurationStore(options =>
 			{
-				options.DefaultSchema = "identity_server";
+				options.DefaultSchema = "identity";
 				options.ConfigureDbContext = db =>
 					IdentityDatabaseProvider.Configure(
 						db,
@@ -80,11 +80,11 @@ public static class Module
 						connectionString,
 						migrationsAssembly,
 						"__EFMigrationsHistory_DuendeConfiguration",
-						"identity_server");
+						"identity");
 			})
 			.AddOperationalStore(options =>
 			{
-				options.DefaultSchema = "identity_server";
+				options.DefaultSchema = "identity";
 				options.EnableTokenCleanup = true;
 				options.TokenCleanupInterval = 3600;
 				options.ConfigureDbContext = db =>
@@ -94,7 +94,7 @@ public static class Module
 						connectionString,
 						migrationsAssembly,
 						"__EFMigrationsHistory_DuendeOperational",
-						"identity_server");
+						"identity");
 			})
 			.AddConfigurationStoreCache()
 			.AddProfileService<SmartSchoolProfileService>();
