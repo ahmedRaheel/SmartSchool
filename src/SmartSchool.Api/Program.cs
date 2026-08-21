@@ -120,6 +120,7 @@ var sampleActorSeeder =
 }
 
 app.UseExceptionHandler();
+app.UseCors("Portal");
 app.UseCorrelationId();
 
 app.UseSerilogRequestLogging();

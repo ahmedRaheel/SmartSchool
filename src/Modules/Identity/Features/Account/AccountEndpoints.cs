@@ -28,6 +28,7 @@ public static class AccountEndpoints
 	public sealed record ForgotPasswordRequest(string Email);
 	public sealed record ResetPasswordRequest(string Email, string Token, string NewPassword);
 	public sealed record ChangePasswordRequest(string CurrentPassword, string NewPassword);
+	public sealed record RefreshTokenRequest(string RefreshToken);
 
 	public static void MapEndpoints(IEndpointRouteBuilder endpoints)
 	{
@@ -37,6 +38,8 @@ public static class AccountEndpoints
 		group.MapPost("/forgot-password", ForgotPasswordAsync).AllowAnonymous();
 		group.MapPost("/reset-password", ResetPasswordAsync).AllowAnonymous();
 		group.MapPost("/change-password", ChangePasswordAsync).RequireAuthorization();
+		group.MapPost("/refresh", RefreshAsync).AllowAnonymous();
+		group.MapGet("/me", MeAsync).RequireAuthorization();
 	}
 
 	private static async Task<IResult> LoginAsync(
@@ -111,7 +114,7 @@ public static class AccountEndpoints
 			root.TryGetProperty("refresh_token", out var refreshToken) ? refreshToken.GetString() : null,
 			root.TryGetProperty("scope", out var scope) ? scope.GetString() ?? string.Empty : string.Empty,
 			new UserSummary(user.Id, user.TenantId, user.Email ?? string.Empty, user.FirstName, user.LastName,
-				user.DisplayName??string.Empty, user.AccountType ?? string.Empty, roles));
+				user.DisplayName ?? string.Empty, user.AccountType ?? string.Empty, roles));
 
 		return Results.Ok(response);
 	}
@@ -165,6 +168,24 @@ public static class AccountEndpoints
 		return result.Succeeded
 			? Results.NoContent()
 			: Results.ValidationProblem(ToErrors(result));
+	}
+
+	private static async Task<IResult> RefreshAsync(RefreshTokenRequest request, IHttpClientFactory factory, IConfiguration configuration, CancellationToken cancellationToken)
+	{
+		if (string.IsNullOrWhiteSpace(request.RefreshToken)) return Results.BadRequest(new { message = "Refresh token is required." });
+		var clientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api";
+		var clientSecret = configuration["LoginApiClient:ClientSecret"] ?? throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
+		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? "http://127.0.0.1:8080/connect/token";
+		using var message = new HttpRequestMessage(HttpMethod.Post, tokenUrl) { Content = new FormUrlEncodedContent(new Dictionary<string,string> {
+			["grant_type"]="refresh_token", ["client_id"]=clientId, ["client_secret"]=clientSecret, ["refresh_token"]=request.RefreshToken }) };
+		using var response = await factory.CreateClient("IdentityTokenClient").SendAsync(message, cancellationToken);
+		return Results.Content(await response.Content.ReadAsStringAsync(cancellationToken), "application/json", statusCode:(int)response.StatusCode);
+	}
+	private static async Task<IResult> MeAsync(System.Security.Claims.ClaimsPrincipal principal, UserManager<SmartSchoolUser> manager)
+	{
+		var user=await manager.GetUserAsync(principal); if(user is null)return Results.Unauthorized();
+		var roles=(await manager.GetRolesAsync(user)).ToArray();
+		return Results.Ok(new UserSummary(user.Id,user.TenantId,user.Email??string.Empty,user.FirstName,user.LastName,user.DisplayName ?? string.Empty,user.AccountType ?? string.Empty	,roles));
 	}
 
 	private static Dictionary<string, string[]> ToErrors(IdentityResult result) =>

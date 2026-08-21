@@ -15,6 +15,10 @@ builder.Services.AddAuthorization(options =>
 		policy.RequireClaim("scope", "smartschool.identity.manage"));
 });
 
+builder.Services.AddCors(options => options.AddPolicy("Portal", policy => policy
+    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+    .AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -32,6 +36,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseCors("Portal");
 app.UseIdentityServer();
 app.UseAuthorization();
 
