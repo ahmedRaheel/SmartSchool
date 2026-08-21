@@ -6,6 +6,7 @@ using Scalar.AspNetCore;
 using SmartSchool.Application;
 using SmartSchool.Infrastructure.Identity;
 using SmartSchool.Api.Seed;
+using SmartSchool.Api.Features;
 using Microsoft.Extensions.Options;
 using Serilog;
 using SmartSchool.Infrastructure;
@@ -136,6 +137,9 @@ app.MapGet(
 			Product = ApplicationConstants.ProductName
 		}));
 
+app.MapSmartSchoolHealth();
+app.MapDashboardEndpoints();
+app.MapActorProfileEndpoints();
 app.MapAICoreEndpoints();
 app.MapAIInquiryEndpoints();
 app.MapAIParentEndpoints();

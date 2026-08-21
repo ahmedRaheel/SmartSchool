@@ -22,7 +22,9 @@ public sealed class GuardianEntityConfiguration : IEntityTypeConfiguration<Guard
 
 		builder.HasIndex(entity => new { entity.TenantId, entity.CnicNumber }).IsUnique();
 
-		builder.Ignore(entity => entity.IsActive);
-		builder.Ignore(entity => entity.RowVersion);
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active").IsRequired();
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at").IsRequired();
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
 	}
 }
