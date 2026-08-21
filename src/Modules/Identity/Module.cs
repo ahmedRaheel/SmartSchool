@@ -104,6 +104,8 @@ public static class Module
 			identityServer.AddDeveloperSigningCredential();
 		}
 
+		services.AddHttpClient("IdentityTokenClient");
+
 		services.AddScoped<IdentityDataSeeder>();
 		services.AddScoped<DuendeConfigurationSeeder>();
 		return services;

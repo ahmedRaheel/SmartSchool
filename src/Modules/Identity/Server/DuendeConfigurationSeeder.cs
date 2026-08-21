@@ -15,10 +15,6 @@ public sealed class DuendeConfigurationSeeder(
 {
 	public async Task SeedAsync(CancellationToken cancellationToken = default)
 	{
-		if (await dbContext.Clients.AnyAsync(cancellationToken))
-		{
-			return;
-		}
 
 		var portalUrl = configuration["DuendeIdentityServer:PortalUrl"] ?? "https://localhost:5173";
 		var mobileRedirect = configuration["DuendeIdentityServer:MobileRedirectUri"] ?? "smartschool://oauth/callback";
@@ -89,10 +85,33 @@ public sealed class DuendeConfigurationSeeder(
 			}
 		};
 
-		dbContext.IdentityResources.AddRange(identityResources.Select(x => x.ToEntity()));
-		dbContext.ApiScopes.AddRange(apiScopes.Select(x => x.ToEntity()));
-		dbContext.ApiResources.AddRange(apiResources.Select(x => x.ToEntity()));
-		dbContext.Clients.AddRange(clients.Select(x => x.ToEntity()));
+		var loginClientSecret = configuration["LoginApiClient:ClientSecret"]
+			?? throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
+
+		var allClients = clients.Append(new Client
+		{
+			ClientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api",
+			ClientName = "SmartSchool Login API",
+			AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+			ClientSecrets = { new Secret(loginClientSecret.Sha256()) },
+			AllowOfflineAccess = true,
+			AllowedScopes = { "openid", "profile", "email", "smartschool.profile", "smartschool.api", "offline_access" },
+			AccessTokenLifetime = 3600
+		});
+
+		foreach (var resource in identityResources)
+			if (!await dbContext.IdentityResources.AnyAsync(x => x.Name == resource.Name, cancellationToken))
+				dbContext.IdentityResources.Add(resource.ToEntity());
+		foreach (var scope in apiScopes)
+			if (!await dbContext.ApiScopes.AnyAsync(x => x.Name == scope.Name, cancellationToken))
+				dbContext.ApiScopes.Add(scope.ToEntity());
+		foreach (var resource in apiResources)
+			if (!await dbContext.ApiResources.AnyAsync(x => x.Name == resource.Name, cancellationToken))
+				dbContext.ApiResources.Add(resource.ToEntity());
+		foreach (var client in allClients)
+			if (!await dbContext.Clients.AnyAsync(x => x.ClientId == client.ClientId, cancellationToken))
+				dbContext.Clients.Add(client.ToEntity());
+
 		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 }
