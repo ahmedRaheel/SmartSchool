@@ -85,54 +85,32 @@ public sealed class DuendeConfigurationSeeder(
 			}
 		};
 
-		var loginClientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api";
-		var loginClient = new Client
+		var loginClientSecret = configuration["LoginApiClient:ClientSecret"]
+			?? throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
+
+		var allClients = clients.Append(new Client
 		{
-			ClientId = loginClientId,
-			ClientName = "SmartSchool Portal Direct Login",
+			ClientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api",
+			ClientName = "SmartSchool Login API",
 			AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-			RequireClientSecret = false,
+			ClientSecrets = { new Secret(loginClientSecret.Sha256()) },
 			AllowOfflineAccess = true,
 			AllowedScopes = { "openid", "profile", "email", "smartschool.profile", "smartschool.api", "offline_access" },
-			AllowedCorsOrigins = { portalUrl },
 			AccessTokenLifetime = 3600
-		};
-
-		var allClients = clients.Append(loginClient);
+		});
 
 		foreach (var resource in identityResources)
-		{
 			if (!await dbContext.IdentityResources.AnyAsync(x => x.Name == resource.Name, cancellationToken))
 				dbContext.IdentityResources.Add(resource.ToEntity());
-		}
-
 		foreach (var scope in apiScopes)
-		{
 			if (!await dbContext.ApiScopes.AnyAsync(x => x.Name == scope.Name, cancellationToken))
 				dbContext.ApiScopes.Add(scope.ToEntity());
-		}
-
 		foreach (var resource in apiResources)
-		{
 			if (!await dbContext.ApiResources.AnyAsync(x => x.Name == resource.Name, cancellationToken))
 				dbContext.ApiResources.Add(resource.ToEntity());
-		}
-		// Keep the browser login client synchronized because it changed from a confidential
-		// self-HTTP client to a public browser client. Removing the old row also removes
-		// its persisted secret/CORS/grant child rows through the configuration model.
-		var existingLoginClient = await dbContext.Clients
-			.SingleOrDefaultAsync(x => x.ClientId == loginClientId, cancellationToken);
-		if (existingLoginClient is not null)
-		{
-			dbContext.Clients.Remove(existingLoginClient);
-			await dbContext.SaveChangesAsync(cancellationToken);
-		}
-
 		foreach (var client in allClients)
-		{
 			if (!await dbContext.Clients.AnyAsync(x => x.ClientId == client.ClientId, cancellationToken))
 				dbContext.Clients.Add(client.ToEntity());
-		}
 
 		await dbContext.SaveChangesAsync(cancellationToken);
 	}

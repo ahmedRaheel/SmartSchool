@@ -7,30 +7,74 @@ namespace SmartSchool.Api.Observability;
 
 public static class ObservabilityExtensions
 {
-    public static IServiceCollection AddSmartSchoolObservability(this IServiceCollection services, IConfiguration configuration, string serviceName)
+    public static IServiceCollection AddSmartSchoolObservability(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        string serviceName)
     {
-        var endpoint = configuration["OpenTelemetry:OtlpEndpoint"] ?? Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT");
-        var telemetry = services.AddOpenTelemetry().ConfigureResource(r => r.AddService(serviceName));
-        telemetry.WithTracing(t =>
+        var endpoint = configuration["OpenTelemetry:OtlpEndpoint"]
+            ?? Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT");
+
+        var telemetry = services
+            .AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService(serviceName));
+
+        telemetry.WithTracing(tracing =>
         {
-            t.AddAspNetCoreInstrumentation(o => o.RecordException = true)
-             .AddHttpClientInstrumentation();
-            if (!string.IsNullOrWhiteSpace(endpoint)) t.AddOtlpExporter(o => o.Endpoint = new Uri(endpoint));
+            tracing
+                .AddAspNetCoreInstrumentation(options => options.RecordException = true)
+                .AddHttpClientInstrumentation();
+
+            if (!string.IsNullOrWhiteSpace(endpoint))
+            {
+                tracing.AddOtlpExporter(options => options.Endpoint = new Uri(endpoint));
+            }
         });
-        telemetry.WithMetrics(m =>
+
+        telemetry.WithMetrics(metrics =>
         {
-            m.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation().AddRuntimeInstrumentation();
-            if (!string.IsNullOrWhiteSpace(endpoint)) m.AddOtlpExporter(o => o.Endpoint = new Uri(endpoint));
+            metrics
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation();
+
+            if (!string.IsNullOrWhiteSpace(endpoint))
+            {
+                metrics.AddOtlpExporter(options => options.Endpoint = new Uri(endpoint));
+            }
         });
+
         return services;
     }
 
-    public static IApplicationBuilder UseTelemetryResponseHeaders(this IApplicationBuilder app) => app.Use(async (context, next) =>
+    public static IApplicationBuilder UseTelemetryResponseHeaders(
+        this IApplicationBuilder app)
     {
-        await next();
-        var activity = Activity.Current;
-        if (activity is not null) context.Response.Headers["X-Trace-Id"] = activity.TraceId.ToString();
-        if (!context.Response.Headers.ContainsKey("X-Correlation-ID"))
-            context.Response.Headers["X-Correlation-ID"] = context.TraceIdentifier;
-    });
+        return app.Use(async (context, next) =>
+        {
+            var requestCorrelationId =
+                context.Request.Headers["X-Correlation-ID"].FirstOrDefault();
+
+            var correlationId = string.IsNullOrWhiteSpace(requestCorrelationId)
+                ? context.TraceIdentifier
+                : requestCorrelationId;
+
+            // Register before downstream middleware can start the response.
+            context.Response.OnStarting(() =>
+            {
+                var traceId = Activity.Current?.TraceId.ToString();
+
+                context.Response.Headers["X-Correlation-ID"] = correlationId;
+
+                if (!string.IsNullOrWhiteSpace(traceId))
+                {
+                    context.Response.Headers["X-Trace-Id"] = traceId;
+                }
+
+                return Task.CompletedTask;
+            });
+
+            await next();
+        });
+    }
 }

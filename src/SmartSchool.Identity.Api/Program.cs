@@ -1,7 +1,9 @@
+using Serilog;
 using SmartSchool.Identity.Api.Observability;
 using SmartSchool.Modules.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddSmartSchoolSerilog("SmartSchool.Identity.Api");
 
 builder.Services.AddRazorPages();
 builder.Services.AddSmartSchoolObservability(builder.Configuration, "SmartSchool.Identity.Api");
@@ -23,6 +25,15 @@ builder.Services.AddCors(options => options.AddPolicy("Portal", policy => policy
 
 var app = builder.Build();
 
+app.UseSerilogRequestLogging(options =>
+{
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("TraceId", System.Diagnostics.Activity.Current?.TraceId.ToString());
+        diagnosticContext.Set("CorrelationId", httpContext.TraceIdentifier);
+    };
+});
+
 if (app.Environment.IsDevelopment())
 {
 	using var scope = app.Services.CreateScope();
@@ -35,7 +46,10 @@ if (app.Environment.IsDevelopment())
 	await duendeSeeder.SeedAsync();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles();
 app.UseRouting();
 app.UseCors("Portal");
@@ -46,6 +60,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapIdentityServerEndpoints();
+app.MapUiErrorEndpoints();
 
 app.MapGet("/", () => Results.Ok(new
 {
