@@ -45,3 +45,9 @@ docker run -d `
   -v ollama-data:/root/.ollama `
   --restart unless-stopped `
   ollama/ollama
+
+
+push docker compose 
+
+docker compose -f docker-compose.app.yml build
+docker compose -f docker-compose.app.yml up -d
