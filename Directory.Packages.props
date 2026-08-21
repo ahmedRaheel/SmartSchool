@@ -53,6 +53,7 @@
       <PackageVersion Include="Duende.IdentityServer" Version="8.0.2" />
       <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" Version="8.0.2" />
       <PackageVersion Include="Duende.IdentityServer.EntityFramework" Version="8.0.2" />
+      <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.5.0" />
   </ItemGroup>
 
 </Project>

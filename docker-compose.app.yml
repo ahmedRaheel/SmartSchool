@@ -1,0 +1,45 @@
+name: smartschool-app
+
+services:
+  identity-api:
+    build:
+      context: .
+      dockerfile: src/SmartSchool.Identity.Api/Dockerfile
+    image: smartschool/identity-api:local
+    container_name: smartschool-identity-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ConnectionStrings__SmartSchool: "Host=host.docker.internal;Port=5432;Database=smartschool;Username=postgres;Password=${POSTGRES_PASSWORD}"
+      SmartSchoolApiClient__ClientSecret: "${IDENTITY_CLIENT_SECRET}"
+      BootstrapSuperAdmin__Password: "${SUPERADMIN_PASSWORD}"
+      DuendeIdentityServer__IssuerUri: "http://host.docker.internal:7101"
+    ports:
+      - "7101:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  smartschool-api:
+    build:
+      context: .
+      dockerfile: src/SmartSchool.Api/Dockerfile
+    image: smartschool/api:local
+    container_name: smartschool-api
+    depends_on:
+      - identity-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      Database__ConnectionString: "Host=host.docker.internal;Port=5432;Database=smartschool;Username=postgres;Password=${POSTGRES_PASSWORD}"
+      ConnectionStrings__SmartSchool: "Host=host.docker.internal;Port=5432;Database=smartschool;Username=postgres;Password=${POSTGRES_PASSWORD}"
+      ConnectionStrings__Redis: "host.docker.internal:6379"
+      Kafka__BootstrapServers: "host.docker.internal:9092"
+      AI__Provider: "Ollama"
+      AI__Ollama__BaseUrl: "http://host.docker.internal:11434"
+      Identity__Authority: "http://host.docker.internal:7101"
+      IdentityService__BaseUrl: "http://host.docker.internal:7101"
+      IdentityService__ClientSecret: "${IDENTITY_CLIENT_SECRET}"
+    ports:
+      - "7001:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
