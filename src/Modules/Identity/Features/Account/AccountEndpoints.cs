@@ -79,8 +79,7 @@ public static class AccountEndpoints
 			throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
 		}
 
-		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"]
-			?? $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/connect/token";
+		var tokenUrl = GetTokenEndpoint(configuration, httpContext);
 		using var tokenRequest = new HttpRequestMessage(HttpMethod.Post, tokenUrl)
 		{
 			Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -95,7 +94,20 @@ public static class AccountEndpoints
 		};
 
 		var client = httpClientFactory.CreateClient("IdentityTokenClient");
-		using var tokenResponse = await client.SendAsync(tokenRequest, cancellationToken);
+		HttpResponseMessage tokenResponse;
+		try
+		{
+			tokenResponse = await client.SendAsync(tokenRequest, cancellationToken);
+		}
+		catch (HttpRequestException exception)
+		{
+			return Results.Problem(
+				title: "Identity token service is unavailable.",
+				detail: $"Could not reach {tokenUrl}. {exception.Message}",
+				statusCode: StatusCodes.Status503ServiceUnavailable);
+		}
+		using (tokenResponse)
+		{
 		var tokenJson = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
 		if (!tokenResponse.IsSuccessStatusCode)
 		{
@@ -116,7 +128,8 @@ public static class AccountEndpoints
 			new UserSummary(user.Id, user.TenantId, user.Email ?? string.Empty, user.FirstName, user.LastName,
 				user.DisplayName ?? string.Empty, user.AccountType ?? string.Empty, roles));
 
-		return Results.Ok(response);
+			return Results.Ok(response);
+		}
 	}
 
 	private static async Task<IResult> ForgotPasswordAsync(
@@ -186,6 +199,16 @@ public static class AccountEndpoints
 		var user=await manager.GetUserAsync(principal); if(user is null)return Results.Unauthorized();
 		var roles=(await manager.GetRolesAsync(user)).ToArray();
 		return Results.Ok(new UserSummary(user.Id,user.TenantId,user.Email??string.Empty,user.FirstName,user.LastName,user.DisplayName ?? string.Empty,user.AccountType ?? string.Empty,roles));
+	}
+
+	private static string GetTokenEndpoint(IConfiguration configuration, HttpContext httpContext)
+	{
+		var configured = configuration["LoginApiClient:TokenEndpoint"];
+		if (!string.IsNullOrWhiteSpace(configured)) return configured;
+
+		// Docker exposes 7101 on the host, but IdentityServer listens on 8080 inside the container.
+		// Compose explicitly supplies 127.0.0.1:8080. This fallback is for normal local execution.
+		return $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/connect/token";
 	}
 
 	private static Dictionary<string, string[]> ToErrors(IdentityResult result) =>

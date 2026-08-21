@@ -11,7 +11,9 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__SmartSchool: "Host=host.docker.internal;Port=5432;Database=smartschool;Username=postgres;Password=${POSTGRES_PASSWORD}"
       SmartSchoolApiClient__ClientSecret: "${IDENTITY_CLIENT_SECRET}"
+      LoginApiClient__ClientId: "smartschool-login-api"
       LoginApiClient__ClientSecret: "${IDENTITY_LOGIN_SECRET}"
+      LoginApiClient__TokenEndpoint: "http://127.0.0.1:8080/connect/token"
       BootstrapSuperAdmin__Password: "${SUPERADMIN_PASSWORD}"
       DuendeIdentityServer__IssuerUri: "http://host.docker.internal:7101"
     ports:

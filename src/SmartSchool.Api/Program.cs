@@ -1,3 +1,4 @@
+using SmartSchool.Api.Observability;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -44,6 +45,8 @@ var builder =
 builder.AddSmartSchoolPlatform();
 
 builder.Services.AddOpenApi();
+builder.Services.AddSmartSchoolObservability(builder.Configuration, "SmartSchool.Api");
+builder.Services.AddCors(options => options.AddPolicy("Portal", policy => policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithExposedHeaders("X-Correlation-ID", "X-Trace-Id")));
 
 builder.Services.AddSmartSchoolAuthorization();
 builder.Services.AddScoped<SampleActorSeeder>();
@@ -123,6 +126,7 @@ var sampleActorSeeder =
 app.UseExceptionHandler();
 app.UseCors("Portal");
 app.UseCorrelationId();
+app.UseTelemetryResponseHeaders();
 
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
@@ -139,6 +143,7 @@ app.MapGet(
 
 app.MapSmartSchoolHealth();
 app.MapDashboardEndpoints();
+app.MapClientTelemetryEndpoints();
 app.MapActorProfileEndpoints();
 app.MapAICoreEndpoints();
 app.MapAIInquiryEndpoints();
