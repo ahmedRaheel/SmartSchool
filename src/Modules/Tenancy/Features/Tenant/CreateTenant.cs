@@ -80,7 +80,7 @@ public static class CreateTenant
 				})
 			.WithName("CreateTenant")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization("SuperAdminOnly");
 		return endpoints;
 	}
 

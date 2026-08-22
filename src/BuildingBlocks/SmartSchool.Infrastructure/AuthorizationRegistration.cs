@@ -13,7 +13,14 @@ public static class AuthorizationRegistration
 		services.AddScoped<ICurrentUser, CurrentUser>();
 
 		services.AddAuthorization(options =>
-		{
+        {
+            options.AddPolicy(
+                "SuperAdminOnly",
+                policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireRole(SmartSchoolRoles.SuperAdmin);
+                });
 			AddPolicy(
 				options,
 				SmartSchoolPolicies.SchoolAdministration,

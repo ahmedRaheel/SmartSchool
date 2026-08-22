@@ -89,7 +89,7 @@ public static class UpdateTenant
 				})
 			.WithName("UpdateTenant")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization("SuperAdminOnly");
 		return endpoints;
 	}
 

@@ -12,7 +12,9 @@ builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddAuthorization(options =>
 {
 	options.AddPolicy("AdminOnly", policy =>
-		policy.RequireRole("SuperAdmin", "Principal", "Admin"));
+        policy.RequireRole("SuperAdmin", "SchoolAdmin", "Principal", "Admin"));
+    options.AddPolicy("SuperAdminOnly", policy =>
+        policy.RequireRole("SuperAdmin"));
 
 	// SmartSchool.Api obtains a client-credentials token with this scope.
 	options.AddPolicy("SmartSchoolApi", policy =>

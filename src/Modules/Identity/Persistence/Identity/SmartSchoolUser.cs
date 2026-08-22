@@ -6,6 +6,9 @@ public sealed class SmartSchoolUser : IdentityUser<Guid>
 {
 	public Guid? TenantId { get; set; }
 	public Guid? BusinessEntityId { get; set; }
+	public Guid? SchoolId { get; set; }
+	public bool MustChangePassword { get; set; }
+	public DateTimeOffset? PasswordChangedAt { get; set; }
 	public string? AccountType { get; set; }
 	public string FirstName { get; set; } = string.Empty;
 	public string LastName { get; set; } = string.Empty;

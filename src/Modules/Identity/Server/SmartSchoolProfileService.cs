@@ -26,7 +26,9 @@ public sealed class SmartSchoolProfileService(
 			new("family_name", user.LastName),
 			new("name", user.DisplayName ?? $"{user.FirstName} {user.LastName}".Trim()),
 			new("email", user.Email ?? string.Empty),
-			new("account_type", user.AccountType ?? string.Empty)
+			new("account_type", user.AccountType ?? string.Empty),
+			new("school_id", user.SchoolId?.ToString() ?? string.Empty),
+			new("must_change_password", user.MustChangePassword ? "true" : "false")
 		};
 		claims.AddRange(roles.Select(role => new Claim("role", role)));
 		context.IssuedClaims.AddRange(claims);
