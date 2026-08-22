@@ -1,3 +1,5 @@
+using SmartSchool.Application.Http;
+using SmartSchool.SharedKernel;
 using SmartSchool.Modules.Reference.Persistence;
 
 namespace SmartSchool.Modules.Reference.Features.Lookups;
@@ -8,7 +10,10 @@ public static class GetLookupTypes
 	{
 		endpoints.MapGet("/api/lookups/types",
 			async (ILookupQuery query, CancellationToken cancellationToken) =>
-				Results.Ok(await query.GetTypesAsync(cancellationToken)))
+			{
+				var lookupTypes = await query.GetTypesAsync(cancellationToken);
+				return Result<object>.Success(lookupTypes).ToHttpResult();
+			})
 			.WithTags("Lookups")
 			.WithName("GetLookupTypes");
 	}

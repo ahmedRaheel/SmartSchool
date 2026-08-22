@@ -215,9 +215,6 @@ namespace SmartSchool.Modules.Identity.Persistence.Migrations.PostgreSql.AspNetI
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("MustChangePassword")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -225,9 +222,6 @@ namespace SmartSchool.Modules.Identity.Persistence.Migrations.PostgreSql.AspNetI
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
-
-                    b.Property<DateTimeOffset?>("PasswordChangedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
@@ -237,9 +231,6 @@ namespace SmartSchool.Modules.Identity.Persistence.Migrations.PostgreSql.AspNetI
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<Guid?>("SchoolId")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");

@@ -4,36 +4,33 @@ using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Application.Http;
 
+/// <summary>
+/// Maps the application's existing Result model to HTTP without changing its JSON shape.
+/// Result and Result&lt;T&gt; are the single SmartSchool API response contracts.
+/// </summary>
 public static class HttpResultExtensions
 {
-    public static IResult ToHttpResult<T>(this Result<T> result, HttpContext? context = null)
-    {
-        var traceId = context?.TraceIdentifier ?? string.Empty;
-        if (result.IsSuccess)
-            return Results.Ok(ApiResponse<T>.Ok(result.Value, traceId));
+	public static IResult ToHttpResult<T>(this Result<T> result) =>
+		Results.Json(result, statusCode: GetStatusCode(result));
 
-        return Failure<T>(result.Error, traceId);
-    }
+	public static IResult ToHttpResult(this Result result) =>
+		Results.Json(result, statusCode: GetStatusCode(result));
 
-    public static IResult ToHttpResult(this Result result, HttpContext? context = null)
-    {
-        var traceId = context?.TraceIdentifier ?? string.Empty;
-        if (result.IsSuccess)
-            return Results.Ok(ApiResponse<object?>.Ok(null, traceId));
+	private static int GetStatusCode(Result result)
+	{
+		if (result.IsSuccess)
+		{
+			return StatusCodes.Status200OK;
+		}
 
-        return Failure<object?>(result.Error, traceId);
-    }
-
-    private static IResult Failure<T>(Error error, string traceId)
-    {
-        var body = ApiResponse<T>.Fail(error.Code, error.Message, traceId);
-        return error.Code switch
-        {
-            ErrorCodes.Validation => Results.Json(body, statusCode: StatusCodes.Status400BadRequest),
-            ErrorCodes.NotFound => Results.Json(body, statusCode: StatusCodes.Status404NotFound),
-            ErrorCodes.Conflict => Results.Json(body, statusCode: StatusCodes.Status409Conflict),
-            ErrorCodes.Unauthorized => Results.Json(body, statusCode: StatusCodes.Status401Unauthorized),
-            _ => Results.Json(body, statusCode: StatusCodes.Status500InternalServerError)
-        };
-    }
+		return result.Error.Code switch
+		{
+			ErrorCodes.Validation => StatusCodes.Status400BadRequest,
+			ErrorCodes.Unauthorized => StatusCodes.Status401Unauthorized,
+			ErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+			ErrorCodes.NotFound => StatusCodes.Status404NotFound,
+			ErrorCodes.Conflict => StatusCodes.Status409Conflict,
+			_ => StatusCodes.Status500InternalServerError
+		};
+	}
 }

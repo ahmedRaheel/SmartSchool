@@ -123,6 +123,7 @@ var sampleActorSeeder =
 	await sampleActorSeeder.SeedAsync();
 }
 
+app.UseMiddleware<SmartSchool.Api.Middleware.ResultResponseMiddleware>();
 app.UseExceptionHandler();
 app.UseCors("Portal");
 app.UseCorrelationId();

@@ -10,7 +10,7 @@ public static class WorkflowCatalogEndpoints
 
     public static IEndpointRouteBuilder MapWorkflowCatalogEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/workflows/catalog", (HttpContext http) => Results.Ok(ApiResponse<WorkflowDefinitionDto[]>.Ok(Catalog, http.TraceIdentifier)))
+        endpoints.MapGet("/api/workflows/catalog", (HttpContext http) => Result<WorkflowDefinitionDto[]>.Success(Catalog))
             .WithTags("Workflow")
             .RequireAuthorization();
         return endpoints;
