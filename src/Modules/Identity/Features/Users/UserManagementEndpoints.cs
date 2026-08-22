@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel.Constants;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -50,11 +51,11 @@ public static class UserManagementEndpoints
 
         // Platform-only operations.
         group.MapPost("/tenant/{tenantId:guid}/status", SetTenantStatusAsync)
-            .RequireAuthorization("SuperAdminOnly");
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
         group.MapDelete("/tenant/{tenantId:guid}", DeleteTenantUsersAsync)
-            .RequireAuthorization("SuperAdminOnly");
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
         group.MapPost("/impersonation/start", StartImpersonationAsync)
-            .RequireAuthorization("SuperAdminOnly");
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
     }
 
     private static bool IsSuperAdmin(ClaimsPrincipal principal) =>

@@ -52,7 +52,7 @@ public static class DeleteAttendance
 				})
 			.WithName("DeleteAttendance")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 }

@@ -64,7 +64,7 @@ public static class GetVehiclePage
 				})
 			.WithName("GetVehiclePage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

@@ -24,7 +24,7 @@ public static class GetUnreadNotificationCount
 		endpoints.MapGet(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "notification") + "/unread-count",
 			async (Guid tenantId, Guid recipientUserId, IMediator mediator, CancellationToken cancellationToken) =>
 			(await mediator.SendAsync<Query, Result<Response>>(new Query(tenantId, recipientUserId), cancellationToken)).ToHttpResult())
-			.WithName("GetUnreadNotificationCount").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("GetUnreadNotificationCount").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
 		return endpoints;
 	}
 }

@@ -89,7 +89,7 @@ public static class UpdateDepartment
 				})
 			.WithName("UpdateDepartment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 

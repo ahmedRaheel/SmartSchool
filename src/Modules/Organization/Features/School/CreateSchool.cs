@@ -80,7 +80,7 @@ public static class CreateSchool
 				})
 			.WithName("CreateSchool")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 

@@ -52,7 +52,7 @@ public static class DeleteAcademicYear
 				})
 			.WithName("DeleteAcademicYear")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

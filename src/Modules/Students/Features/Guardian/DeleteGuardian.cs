@@ -52,7 +52,7 @@ public static class DeleteGuardian
 				})
 			.WithName("DeleteGuardian")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 }

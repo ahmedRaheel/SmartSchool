@@ -59,7 +59,7 @@ public static class GetTimetableEntryById
 				})
 			.WithName("GetTimetableEntryById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

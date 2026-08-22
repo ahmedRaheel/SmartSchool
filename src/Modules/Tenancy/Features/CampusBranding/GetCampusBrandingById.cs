@@ -59,7 +59,7 @@ public static class GetCampusBrandingById
 				})
 			.WithName("GetCampusBrandingById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

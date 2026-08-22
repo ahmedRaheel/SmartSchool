@@ -52,7 +52,7 @@ public static class DeleteProgram
 				})
 			.WithName("DeleteProgram")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

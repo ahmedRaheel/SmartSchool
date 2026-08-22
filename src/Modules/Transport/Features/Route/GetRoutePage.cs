@@ -64,7 +64,7 @@ public static class GetRoutePage
 				})
 			.WithName("GetRoutePage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

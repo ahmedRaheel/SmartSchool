@@ -59,7 +59,7 @@ public static class GetProgramById
 				})
 			.WithName("GetProgramById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

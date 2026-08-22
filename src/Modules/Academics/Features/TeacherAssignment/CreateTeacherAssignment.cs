@@ -80,7 +80,7 @@ public static class CreateTeacherAssignment
 				})
 			.WithName("CreateTeacherAssignment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

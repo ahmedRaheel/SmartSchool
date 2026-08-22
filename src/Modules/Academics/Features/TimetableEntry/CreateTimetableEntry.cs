@@ -80,7 +80,7 @@ public static class CreateTimetableEntry
 				})
 			.WithName("CreateTimetableEntry")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

@@ -158,6 +158,23 @@ public static class DataPlatformServiceCollectionExtensions
 				jwtOptions.Audience = options.Audience;
 				jwtOptions.RequireHttpsMetadata = options.RequireHttpsMetadata;
 				jwtOptions.MapInboundClaims = false;
+				jwtOptions.Events = new JwtBearerEvents
+				{
+					OnMessageReceived = context =>
+					{
+						var accessToken = context.Request.Query["access_token"];
+						var path = context.HttpContext.Request.Path;
+
+						if (!string.IsNullOrEmpty(accessToken)
+							&& (path.StartsWithSegments("/hubs/notifications")
+								|| path.StartsWithSegments("/hubs/chat")))
+						{
+							context.Token = accessToken;
+						}
+
+						return Task.CompletedTask;
+					}
+				};
 			});
 
 		services.AddAuthorization();

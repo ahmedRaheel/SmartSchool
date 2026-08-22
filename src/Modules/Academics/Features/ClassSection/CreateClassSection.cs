@@ -80,7 +80,7 @@ public static class CreateClassSection
 				})
 			.WithName("CreateClassSection")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

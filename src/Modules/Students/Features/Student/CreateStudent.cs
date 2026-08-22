@@ -90,7 +90,7 @@ public static class CreateStudent
 					var result = await mediator.SendAsync<Request, Result<Response>>(request, cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("CreateStudent").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("CreateStudent").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

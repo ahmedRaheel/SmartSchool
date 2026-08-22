@@ -80,7 +80,7 @@ public static class CreateAcademicYear
 				})
 			.WithName("CreateAcademicYear")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

@@ -80,7 +80,7 @@ public static class CreateStudentGuardian
 				})
 			.WithName("CreateStudentGuardian")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

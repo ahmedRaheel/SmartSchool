@@ -73,7 +73,7 @@ public static class GetNotificationPage
 				})
 			.WithName("GetNotificationPage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
 		return endpoints;
 	}
 

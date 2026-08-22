@@ -8,6 +8,7 @@ using SmartSchool.Modules.Communication.Features.Message;
 using SmartSchool.Modules.Communication.Features.MessageReceipt;
 using SmartSchool.Modules.Communication.Features.Notification;
 using SmartSchool.Modules.Communication.Persistence;
+using SmartSchool.Modules.Communication.Realtime;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Communication;
@@ -18,6 +19,7 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddSignalR();
 		services.AddScoped<IConversationQuery, ConversationQuery>();
 		services.AddScoped<IConversationCommand, ConversationCommand>();
 		services.AddScoped<IConversationParticipantQuery, ConversationParticipantQuery>();

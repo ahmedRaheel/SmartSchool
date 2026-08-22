@@ -59,7 +59,7 @@ public static class GetStopById
 				})
 			.WithName("GetStopById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

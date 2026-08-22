@@ -52,7 +52,7 @@ public static class DeleteGradeLevel
 				})
 			.WithName("DeleteGradeLevel")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

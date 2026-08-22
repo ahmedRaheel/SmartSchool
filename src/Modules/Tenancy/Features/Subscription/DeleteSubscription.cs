@@ -52,7 +52,7 @@ public static class DeleteSubscription
 				})
 			.WithName("DeleteSubscription")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 }

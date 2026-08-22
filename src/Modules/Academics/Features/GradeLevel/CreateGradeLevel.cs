@@ -80,7 +80,7 @@ public static class CreateGradeLevel
 				})
 			.WithName("CreateGradeLevel")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

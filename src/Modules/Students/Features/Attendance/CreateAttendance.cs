@@ -80,7 +80,7 @@ public static class CreateAttendance
 				})
 			.WithName("CreateAttendance")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

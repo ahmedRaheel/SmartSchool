@@ -64,7 +64,7 @@ public static class GetStudentTransportPage
 				})
 			.WithName("GetStudentTransportPage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

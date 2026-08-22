@@ -52,7 +52,7 @@ public static class DeleteCampusBranding
 				})
 			.WithName("DeleteCampusBranding")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 }

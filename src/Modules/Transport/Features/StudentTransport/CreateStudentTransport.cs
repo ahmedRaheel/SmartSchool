@@ -80,7 +80,7 @@ public static class CreateStudentTransport
 				})
 			.WithName("CreateStudentTransport")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

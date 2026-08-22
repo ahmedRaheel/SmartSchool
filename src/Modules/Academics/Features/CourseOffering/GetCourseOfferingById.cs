@@ -59,7 +59,7 @@ public static class GetCourseOfferingById
 				})
 			.WithName("GetCourseOfferingById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

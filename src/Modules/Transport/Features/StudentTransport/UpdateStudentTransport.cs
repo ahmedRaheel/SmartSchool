@@ -89,7 +89,7 @@ public static class UpdateStudentTransport
 				})
 			.WithName("UpdateStudentTransport")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

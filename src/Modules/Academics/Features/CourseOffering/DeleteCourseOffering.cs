@@ -52,7 +52,7 @@ public static class DeleteCourseOffering
 				})
 			.WithName("DeleteCourseOffering")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

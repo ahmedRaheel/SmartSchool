@@ -59,7 +59,7 @@ public static class GetAcademicSystemById
 				})
 			.WithName("GetAcademicSystemById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

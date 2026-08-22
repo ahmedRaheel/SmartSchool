@@ -80,7 +80,7 @@ public static class CreateTerm
 				})
 			.WithName("CreateTerm")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

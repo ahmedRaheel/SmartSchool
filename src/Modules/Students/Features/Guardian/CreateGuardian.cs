@@ -73,7 +73,7 @@ public static class CreateGuardian
 					var result = await mediator.SendAsync<Request, Result<Response>>(request, cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("CreateGuardian").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("CreateGuardian").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

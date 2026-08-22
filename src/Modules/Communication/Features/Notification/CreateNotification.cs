@@ -1,3 +1,5 @@
+using SmartSchool.Modules.Communication.Realtime;
+using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -55,8 +57,8 @@ public static class CreateNotification
 	}
 
 	public sealed class Handler(
-		
-		INotificationCommand entityCommand)
+		INotificationCommand entityCommand,
+		IHubContext<NotificationHub> notificationHub)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -75,7 +77,11 @@ public static class CreateNotification
 					request.ActionUrl,
 					request.Priority);
 			await entityCommand.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
+			var response = MapResponse(entity);
+			await notificationHub.Clients
+				.Group(CommunicationGroups.User(entity.TenantId, entity.RecipientUserId))
+				.SendAsync("NotificationReceived", response, cancellationToken);
+			return Result<Response>.Success(response);
 		}
 	}
 
@@ -91,7 +97,7 @@ public static class CreateNotification
 				})
 			.WithName("CreateNotification")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 

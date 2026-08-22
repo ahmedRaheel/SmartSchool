@@ -89,7 +89,7 @@ public static class UpdateSubject
 				})
 			.WithName("UpdateSubject")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

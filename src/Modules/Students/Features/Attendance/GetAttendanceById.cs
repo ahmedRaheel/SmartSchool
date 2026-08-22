@@ -59,7 +59,7 @@ public static class GetAttendanceById
 				})
 			.WithName("GetAttendanceById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

@@ -89,7 +89,7 @@ public static class UpdateAcademicYear
 				})
 			.WithName("UpdateAcademicYear")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

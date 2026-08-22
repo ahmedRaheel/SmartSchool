@@ -30,7 +30,7 @@ public static class MarkNotificationAsRead
 		endpoints.MapPatch(ApiRoutes.EntityById(ModuleConstants.RouteSegment, "notification") + "/read",
 			async (Guid id, Guid tenantId, Guid recipientUserId, IMediator mediator, CancellationToken cancellationToken) =>
 			(await mediator.SendAsync<Command, Result<Response>>(new Command(tenantId, id, recipientUserId), cancellationToken)).ToHttpResult())
-			.WithName("MarkNotificationAsRead").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("MarkNotificationAsRead").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
 		return endpoints;
 	}
 }

@@ -59,7 +59,7 @@ public static class GetVehicleById
 				})
 			.WithName("GetVehicleById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

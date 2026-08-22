@@ -52,7 +52,7 @@ public static class DeleteEnrollment
 				})
 			.WithName("DeleteEnrollment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 }

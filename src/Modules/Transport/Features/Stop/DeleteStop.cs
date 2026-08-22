@@ -52,7 +52,7 @@ public static class DeleteStop
 				})
 			.WithName("DeleteStop")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 }

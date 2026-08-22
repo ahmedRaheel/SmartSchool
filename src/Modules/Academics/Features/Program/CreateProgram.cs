@@ -80,7 +80,7 @@ public static class CreateProgram
 				})
 			.WithName("CreateProgram")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

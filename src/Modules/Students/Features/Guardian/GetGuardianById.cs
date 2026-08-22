@@ -43,7 +43,7 @@ public static class GetGuardianById
 					var result = await mediator.SendAsync<Query, Result<Response>>(new Query(tenantId, id), cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("GetGuardianById").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("GetGuardianById").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

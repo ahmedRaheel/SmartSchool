@@ -59,7 +59,7 @@ public static class GetTenantById
 				})
 			.WithName("GetTenantById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

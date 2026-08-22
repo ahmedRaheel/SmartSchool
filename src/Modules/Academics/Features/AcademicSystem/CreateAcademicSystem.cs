@@ -80,7 +80,7 @@ public static class CreateAcademicSystem
 				})
 			.WithName("CreateAcademicSystem")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

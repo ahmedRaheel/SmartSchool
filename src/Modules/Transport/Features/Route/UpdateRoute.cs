@@ -89,7 +89,7 @@ public static class UpdateRoute
 				})
 			.WithName("UpdateRoute")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

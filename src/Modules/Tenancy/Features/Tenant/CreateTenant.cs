@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel.Constants;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -126,7 +127,7 @@ public static class CreateTenant
 				})
 			.WithName("CreateTenant")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization("SuperAdminOnly");
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 
 		return endpoints;
 	}

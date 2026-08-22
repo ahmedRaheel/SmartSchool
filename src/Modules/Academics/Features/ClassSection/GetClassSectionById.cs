@@ -59,7 +59,7 @@ public static class GetClassSectionById
 				})
 			.WithName("GetClassSectionById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

@@ -80,7 +80,7 @@ public static class CreateCampusBranding
 				})
 			.WithName("CreateCampusBranding")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

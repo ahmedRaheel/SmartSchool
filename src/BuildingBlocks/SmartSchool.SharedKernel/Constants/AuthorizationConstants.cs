@@ -34,6 +34,16 @@ public static class SmartSchoolPolicies
     public const string ExaminationManagement = "ExaminationManagement";
     public const string FinanceManagement = "FinanceManagement";
     public const string HumanResourcesManagement = "HumanResourcesManagement";
+
+    // Actor-composition policies. Names intentionally describe every role allowed.
+    public const string SuperAdminOnly = "SuperAdminOnly";
+    public const string SuperAdminTenantOnly = "SuperAdminTenantOnly";
+    public const string SuperAdminTenantTeacher = "SuperAdminTenantTeacher";
+    public const string SuperAdminTenantStudent = "SuperAdminTenantStudent";
+    public const string SuperAdminTenantParent = "SuperAdminTenantParent";
+    public const string SuperAdminTenantAdmin = "SuperAdminTenantAdmin";
+    public const string SuperAdminTenantDriver = "SuperAdminTenantDriver";
+    public const string AllAuthenticatedActors = "AllAuthenticatedActors";
 }
 
 public static class SmartSchoolClaims

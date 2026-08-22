@@ -69,7 +69,7 @@ public static class UpdateGuardian
 					var result = await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("UpdateGuardian").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("UpdateGuardian").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

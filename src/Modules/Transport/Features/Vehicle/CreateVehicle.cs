@@ -80,7 +80,7 @@ public static class CreateVehicle
 				})
 			.WithName("CreateVehicle")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

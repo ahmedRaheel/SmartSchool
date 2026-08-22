@@ -89,7 +89,7 @@ public static class UpdateTimetable
 				})
 			.WithName("UpdateTimetable")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

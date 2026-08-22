@@ -89,7 +89,7 @@ public static class UpdateTenant
 				})
 			.WithName("UpdateTenant")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization("SuperAdminOnly");
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

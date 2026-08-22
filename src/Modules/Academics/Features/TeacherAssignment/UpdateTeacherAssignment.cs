@@ -89,7 +89,7 @@ public static class UpdateTeacherAssignment
 				})
 			.WithName("UpdateTeacherAssignment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

@@ -59,7 +59,7 @@ public static class GetCampusById
 				})
 			.WithName("GetCampusById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 

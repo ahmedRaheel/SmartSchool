@@ -46,7 +46,7 @@ public static class GetGuardianPage
 						new Query(tenantId, page, pageSize), cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("GetGuardianPage").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("GetGuardianPage").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

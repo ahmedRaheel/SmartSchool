@@ -59,7 +59,7 @@ public static class GetTeacherAssignmentById
 				})
 			.WithName("GetTeacherAssignmentById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

@@ -64,7 +64,7 @@ public static class GetTenantPage
 				})
 			.WithName("GetTenantPage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

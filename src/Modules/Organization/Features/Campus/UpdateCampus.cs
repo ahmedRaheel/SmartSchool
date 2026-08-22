@@ -89,7 +89,7 @@ public static class UpdateCampus
 				})
 			.WithName("UpdateCampus")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 

@@ -89,7 +89,7 @@ public static class UpdateAttendance
 				})
 			.WithName("UpdateAttendance")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

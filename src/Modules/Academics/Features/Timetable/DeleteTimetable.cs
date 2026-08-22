@@ -52,7 +52,7 @@ public static class DeleteTimetable
 				})
 			.WithName("DeleteTimetable")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

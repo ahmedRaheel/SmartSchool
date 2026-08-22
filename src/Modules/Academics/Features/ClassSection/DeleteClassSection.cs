@@ -52,7 +52,7 @@ public static class DeleteClassSection
 				})
 			.WithName("DeleteClassSection")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

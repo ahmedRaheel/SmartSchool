@@ -80,7 +80,7 @@ public static class CreateEnrollment
 				})
 			.WithName("CreateEnrollment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

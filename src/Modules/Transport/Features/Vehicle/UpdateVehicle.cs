@@ -89,7 +89,7 @@ public static class UpdateVehicle
 				})
 			.WithName("UpdateVehicle")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

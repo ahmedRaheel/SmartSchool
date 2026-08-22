@@ -59,7 +59,7 @@ public static class GetGradeLevelById
 				})
 			.WithName("GetGradeLevelById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

@@ -52,7 +52,7 @@ public static class DeleteCourseSelection
 				})
 			.WithName("DeleteCourseSelection")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

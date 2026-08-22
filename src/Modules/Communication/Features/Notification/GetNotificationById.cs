@@ -65,7 +65,7 @@ public static class GetNotificationById
 				})
 			.WithName("GetNotificationById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
 		return endpoints;
 	}
 

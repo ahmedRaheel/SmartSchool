@@ -31,8 +31,26 @@ public static class AuthorizationRegistration
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Accountant);
             AddPolicy(options, SmartSchoolPolicies.HumanResourcesManagement,
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.HrManager);
-            options.AddPolicy("SuperAdminOnly", policy =>
-                policy.RequireAuthenticatedUser().RequireRole(SmartSchoolRoles.SuperAdmin));
+            AddPolicy(options, SmartSchoolPolicies.SuperAdminOnly,
+                SmartSchoolRoles.SuperAdmin);
+            AddPolicy(options, SmartSchoolPolicies.SuperAdminTenantOnly,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin);
+            AddPolicy(options, SmartSchoolPolicies.SuperAdminTenantTeacher,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Teacher);
+            AddPolicy(options, SmartSchoolPolicies.SuperAdminTenantStudent,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Student);
+            AddPolicy(options, SmartSchoolPolicies.SuperAdminTenantParent,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Parent);
+            AddPolicy(options, SmartSchoolPolicies.SuperAdminTenantAdmin,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin);
+            AddPolicy(options, SmartSchoolPolicies.SuperAdminTenantDriver,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Driver);
+            AddPolicy(options, SmartSchoolPolicies.AllAuthenticatedActors,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal,
+                SmartSchoolRoles.Teacher, SmartSchoolRoles.Student, SmartSchoolRoles.Parent,
+                SmartSchoolRoles.Driver, SmartSchoolRoles.Examiner, SmartSchoolRoles.Staff,
+                SmartSchoolRoles.Accountant, SmartSchoolRoles.HrManager, SmartSchoolRoles.Librarian,
+                SmartSchoolRoles.TransportManager, SmartSchoolRoles.AdmissionOfficer);
         });
         return services;
     }

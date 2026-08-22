@@ -52,7 +52,7 @@ public static class DeleteNotification
 				})
 			.WithName("DeleteNotification")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 }

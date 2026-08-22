@@ -64,7 +64,7 @@ public static class GetTimetableEntryPage
 				})
 			.WithName("GetTimetableEntryPage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

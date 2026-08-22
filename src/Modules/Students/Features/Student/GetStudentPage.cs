@@ -48,7 +48,7 @@ public static class GetStudentPage
 						new Query(tenantId, page, pageSize), cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("GetStudentPage").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("GetStudentPage").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 

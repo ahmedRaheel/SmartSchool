@@ -52,7 +52,7 @@ public static class DeleteDepartment
 				})
 			.WithName("DeleteDepartment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 }

@@ -99,7 +99,7 @@ public static class UpdateNotification
 				})
 			.WithName("UpdateNotification")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 

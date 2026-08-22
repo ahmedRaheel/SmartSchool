@@ -52,7 +52,7 @@ public static class DeleteCampus
 				})
 			.WithName("DeleteCampus")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 }

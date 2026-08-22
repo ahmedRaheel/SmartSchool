@@ -89,7 +89,7 @@ public static class UpdateClassSection
 				})
 			.WithName("UpdateClassSection")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

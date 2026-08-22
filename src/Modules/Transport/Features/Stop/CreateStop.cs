@@ -80,7 +80,7 @@ public static class CreateStop
 				})
 			.WithName("CreateStop")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

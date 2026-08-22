@@ -25,7 +25,7 @@ public static class MarkAllNotificationsAsRead
 		endpoints.MapPatch(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "notification") + "/read-all",
 			async (Guid tenantId, Guid recipientUserId, IMediator mediator, CancellationToken cancellationToken) =>
 			(await mediator.SendAsync<Command, Result<Response>>(new Command(tenantId, recipientUserId), cancellationToken)).ToHttpResult())
-			.WithName("MarkAllNotificationsAsRead").WithTags(ModuleConstants.Name).RequireAuthorization();
+			.WithName("MarkAllNotificationsAsRead").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
 		return endpoints;
 	}
 }

@@ -52,7 +52,7 @@ public static class DeleteStudentTransport
 				})
 			.WithName("DeleteStudentTransport")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 }

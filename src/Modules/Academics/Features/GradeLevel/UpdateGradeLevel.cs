@@ -89,7 +89,7 @@ public static class UpdateGradeLevel
 				})
 			.WithName("UpdateGradeLevel")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

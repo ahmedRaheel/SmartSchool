@@ -80,7 +80,7 @@ public static class CreateRoute
 				})
 			.WithName("CreateRoute")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

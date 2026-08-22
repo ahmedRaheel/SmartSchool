@@ -59,7 +59,7 @@ public static class GetSubscriptionById
 				})
 			.WithName("GetSubscriptionById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

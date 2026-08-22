@@ -52,7 +52,7 @@ public static class DeleteVehicle
 				})
 			.WithName("DeleteVehicle")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 }

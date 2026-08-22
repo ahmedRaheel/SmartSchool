@@ -80,7 +80,7 @@ public static class CreateDepartment
 				})
 			.WithName("CreateDepartment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 

@@ -80,7 +80,7 @@ public static class CreateCourseSelection
 				})
 			.WithName("CreateCourseSelection")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

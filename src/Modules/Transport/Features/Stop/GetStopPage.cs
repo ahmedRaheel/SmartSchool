@@ -64,7 +64,7 @@ public static class GetStopPage
 				})
 			.WithName("GetStopPage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

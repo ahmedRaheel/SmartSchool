@@ -89,7 +89,7 @@ public static class UpdateSubscription
 				})
 			.WithName("UpdateSubscription")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

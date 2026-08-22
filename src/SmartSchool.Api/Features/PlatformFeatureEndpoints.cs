@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel.Constants;
 using SmartSchool.SharedKernel;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
@@ -13,7 +14,7 @@ public static class PlatformFeatureEndpoints
     {
         var group = endpoints.MapGroup("/api/platform/features")
             .WithTags("Platform - Features")
-            .RequireAuthorization("SuperAdminOnly");
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 
         group.MapGet("/{tenantId:guid}", GetAsync);
         group.MapPut("/{tenantId:guid}", SaveAsync);

@@ -52,7 +52,7 @@ public static class DeleteTenant
 				})
 			.WithName("DeleteTenant")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization("SuperAdminOnly");
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 }

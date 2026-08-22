@@ -64,7 +64,7 @@ public static class GetSubscriptionPage
 				})
 			.WithName("GetSubscriptionPage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

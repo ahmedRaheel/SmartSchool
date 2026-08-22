@@ -59,7 +59,7 @@ public static class GetRouteById
 				})
 			.WithName("GetRouteById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 

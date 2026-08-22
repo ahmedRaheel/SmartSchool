@@ -52,7 +52,7 @@ public static class DeleteTerm
 				})
 			.WithName("DeleteTerm")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

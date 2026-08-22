@@ -80,7 +80,7 @@ public static class CreateSubscription
 				})
 			.WithName("CreateSubscription")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 

@@ -89,7 +89,7 @@ public static class UpdateTerm
 				})
 			.WithName("UpdateTerm")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

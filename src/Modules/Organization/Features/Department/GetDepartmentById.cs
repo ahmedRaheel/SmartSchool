@@ -59,7 +59,7 @@ public static class GetDepartmentById
 				})
 			.WithName("GetDepartmentById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 

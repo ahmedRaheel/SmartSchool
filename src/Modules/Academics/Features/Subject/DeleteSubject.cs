@@ -52,7 +52,7 @@ public static class DeleteSubject
 				})
 			.WithName("DeleteSubject")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

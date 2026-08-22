@@ -52,7 +52,7 @@ public static class DeleteRoute
 				})
 			.WithName("DeleteRoute")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 }

@@ -52,7 +52,7 @@ public static class DeleteTeacherAssignment
 				})
 			.WithName("DeleteTeacherAssignment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

@@ -59,7 +59,7 @@ public static class GetAcademicYearById
 				})
 			.WithName("GetAcademicYearById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

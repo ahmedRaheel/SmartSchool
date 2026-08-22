@@ -80,7 +80,7 @@ public static class CreateSubject
 				})
 			.WithName("CreateSubject")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

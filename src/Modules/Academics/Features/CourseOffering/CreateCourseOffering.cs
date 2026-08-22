@@ -80,7 +80,7 @@ public static class CreateCourseOffering
 				})
 			.WithName("CreateCourseOffering")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 

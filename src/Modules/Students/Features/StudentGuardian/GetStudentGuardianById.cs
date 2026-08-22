@@ -59,7 +59,7 @@ public static class GetStudentGuardianById
 				})
 			.WithName("GetStudentGuardianById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 
