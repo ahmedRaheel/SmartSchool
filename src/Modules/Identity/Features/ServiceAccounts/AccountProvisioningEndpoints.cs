@@ -33,11 +33,12 @@ public static class AccountProvisioningEndpoints
 			Id=Guid.NewGuid(), TenantId=request.TenantId, UserName=request.Email, Email=request.Email,
 			EmailConfirmed=false, FirstName=request.FirstName, LastName=request.LastName,
 			DisplayName=$"{request.FirstName} {request.LastName}".Trim(), IsActive=true,
-			BusinessEntityId=request.BusinessEntityId, AccountType=request.AccountType
+			BusinessEntityId=request.BusinessEntityId, AccountType=request.AccountType,
+			 MustChangePassword=true
 		};
 
-		// No default password is created. The user completes password setup through a reset/invitation token.
-		var created=await users.CreateAsync(user);
+		var temporaryPassword = "smartschool@2026";
+		var created=await users.CreateAsync(user, temporaryPassword);
 		if(!created.Succeeded) return Results.ValidationProblem(Errors(created));
 
 		if(request.Roles.Length>0)
@@ -46,9 +47,16 @@ public static class AccountProvisioningEndpoints
 			if(!roleResult.Succeeded) return Results.ValidationProblem(Errors(roleResult));
 		}
 
-		var setupToken=await users.GeneratePasswordResetTokenAsync(user);
+		// The temporary password is returned only on this provisioning response.
+		// ASP.NET Identity persists only the password hash.
 		return Results.Created($"/api/identity/users/{user.Id}",
-			new { userId=user.Id, setupToken });
+			new
+			{
+				userId=user.Id,
+				email=user.Email!,
+				temporaryPassword,
+				mustChangePassword=true
+			});
 	}
 
 	private static async Task<IResult> DeleteAsync(Guid userId, UserManager<SmartSchoolUser> users)

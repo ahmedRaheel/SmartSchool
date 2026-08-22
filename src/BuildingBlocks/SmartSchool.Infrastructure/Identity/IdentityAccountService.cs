@@ -9,7 +9,7 @@ public sealed class IdentityAccountService(
 	HttpClient httpClient,
 	IdentityServiceOptions options) : IIdentityAccountService
 {
-	public async Task<Guid> CreateAccountAsync(
+	public async Task<ProvisionedAccount> CreateAccountAsync(
 		Guid tenantId, Guid businessEntityId, string accountType,
 		string email, string firstName, string lastName,
 		IReadOnlyCollection<string> roles, CancellationToken cancellationToken)
@@ -28,8 +28,18 @@ public sealed class IdentityAccountService(
 
 		var result = await response.Content.ReadFromJsonAsync<CreateAccountResponse>(
 			cancellationToken: cancellationToken);
-		return result?.UserId ?? throw new InvalidOperationException(
-			"Identity service did not return a user identifier.");
+
+		if (result is null)
+		{
+			throw new InvalidOperationException(
+				"Identity service did not return the provisioned account.");
+		}
+
+		return new ProvisionedAccount(
+			result.UserId,
+			result.Email,
+			result.TemporaryPassword,
+			result.MustChangePassword);
 	}
 
 	public Task DeleteAccountAsync(Guid userId, CancellationToken cancellationToken) =>
@@ -69,5 +79,9 @@ public sealed class IdentityAccountService(
 			?? throw new InvalidOperationException("Identity service returned no access token.");
 	}
 
-	private sealed record CreateAccountResponse(Guid UserId);
+	private sealed record CreateAccountResponse(
+		Guid UserId,
+		string Email,
+		string TemporaryPassword,
+		bool MustChangePassword);
 }
