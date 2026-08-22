@@ -22,6 +22,9 @@ public static class SmartSchoolRoles
 public static class SmartSchoolPolicies
 {
     public const string PlatformAdministration = "PlatformAdministration";
+    public const string UserAdministration = "UserAdministration";
+    public const string Impersonation = "Impersonation";
+    public const string WorkflowAdministration = "WorkflowAdministration";
     public const string SchoolAdministration = "SchoolAdministration";
     public const string AcademicManagement = "AcademicManagement";
     public const string TeacherWorkspace = "TeacherWorkspace";

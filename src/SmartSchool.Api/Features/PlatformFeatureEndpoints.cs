@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 

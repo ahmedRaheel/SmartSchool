@@ -145,6 +145,7 @@ app.MapSmartSchoolHealth();
 app.MapDashboardEndpoints();
 app.MapPlatformFeatureEndpoints();
 app.MapAiAssistantEndpoints();
+app.MapWorkflowCatalogEndpoints();
 app.MapClientTelemetryEndpoints();
 app.MapActorProfileEndpoints();
 app.MapAICoreEndpoints();

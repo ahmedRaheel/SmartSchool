@@ -14,6 +14,9 @@ public static class AuthorizationRegistration
         services.AddAuthorization(options =>
         {
             AddPolicy(options, SmartSchoolPolicies.PlatformAdministration, SmartSchoolRoles.SuperAdmin);
+            AddPolicy(options, SmartSchoolPolicies.UserAdministration, SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin);
+            AddPolicy(options, SmartSchoolPolicies.Impersonation, SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin);
+            AddPolicy(options, SmartSchoolPolicies.WorkflowAdministration, SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal);
             AddPolicy(options, SmartSchoolPolicies.SchoolAdministration,
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal);
             AddPolicy(options, SmartSchoolPolicies.AcademicManagement,

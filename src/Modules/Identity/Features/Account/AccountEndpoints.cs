@@ -199,10 +199,11 @@ public static class AccountEndpoints
 		var user=await manager.GetUserAsync(principal); if(user is null)return Results.Unauthorized();
 		var roles=(await manager.GetRolesAsync(user)).ToArray();
 		return Results.Ok(new UserSummary(user.Id,user.TenantId,
-			         user.Email ?? string.Empty,
-					 user.FirstName ?? string.Empty,
-					 user.LastName ?? string.Empty,user.DisplayName ?? string.Empty,
-					 user.AccountType ?? string.Empty,roles));
+			user.Email??string.Empty,
+			user.FirstName,
+			user.LastName,
+			user.DisplayName ?? string.Empty,
+			user.AccountType ?? string.Empty,roles));
 	}
 
 	private static string GetTokenEndpoint(IConfiguration configuration, HttpContext httpContext)

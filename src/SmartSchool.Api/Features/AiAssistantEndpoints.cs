@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel;
 using System.Net.Http.Json;
 using Dapper;
 using SmartSchool.Application.Persistence;

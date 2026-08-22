@@ -4,43 +4,36 @@ using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Application.Http;
 
-/// <summary>
-/// Converts application results to ASP.NET Core HTTP results.
-/// </summary>
 public static class HttpResultExtensions
 {
-	/// <summary>Converts a typed application result to an HTTP result.</summary>
-	public static IResult ToHttpResult<T>(this Result<T> result)
-	{
-		if (result.IsSuccess)
-		{
-			return Results.Ok(result.Value);
-		}
+    public static IResult ToHttpResult<T>(this Result<T> result, HttpContext? context = null)
+    {
+        var traceId = context?.TraceIdentifier ?? string.Empty;
+        if (result.IsSuccess)
+            return Results.Ok(ApiResponse<T>.Ok(result.Value, traceId));
 
-		return ToFailureResult(result.Error);
-	}
+        return Failure<T>(result.Error, traceId);
+    }
 
-	/// <summary>Converts an application result to an HTTP result.</summary>
-	public static IResult ToHttpResult(this Result result)
-	{
-		if (result.IsSuccess)
-		{
-			return Results.NoContent();
-		}
+    public static IResult ToHttpResult(this Result result, HttpContext? context = null)
+    {
+        var traceId = context?.TraceIdentifier ?? string.Empty;
+        if (result.IsSuccess)
+            return Results.Ok(ApiResponse<object?>.Ok(null, traceId));
 
-		return ToFailureResult(result.Error);
-	}
+        return Failure<object?>(result.Error, traceId);
+    }
 
-	private static IResult ToFailureResult(Error error) =>
-		error.Code switch
-		{
-			ErrorCodes.Validation => Results.BadRequest(error),
-			ErrorCodes.NotFound => Results.NotFound(error),
-			ErrorCodes.Conflict => Results.Conflict(error),
-			ErrorCodes.Unauthorized => Results.Unauthorized(),
-			_ => Results.Problem(
-				title: ErrorMessages.RequestFailed,
-				detail: error.Message,
-				statusCode: StatusCodes.Status500InternalServerError)
-		};
+    private static IResult Failure<T>(Error error, string traceId)
+    {
+        var body = ApiResponse<T>.Fail(error.Code, error.Message, traceId);
+        return error.Code switch
+        {
+            ErrorCodes.Validation => Results.Json(body, statusCode: StatusCodes.Status400BadRequest),
+            ErrorCodes.NotFound => Results.Json(body, statusCode: StatusCodes.Status404NotFound),
+            ErrorCodes.Conflict => Results.Json(body, statusCode: StatusCodes.Status409Conflict),
+            ErrorCodes.Unauthorized => Results.Json(body, statusCode: StatusCodes.Status401Unauthorized),
+            _ => Results.Json(body, statusCode: StatusCodes.Status500InternalServerError)
+        };
+    }
 }
