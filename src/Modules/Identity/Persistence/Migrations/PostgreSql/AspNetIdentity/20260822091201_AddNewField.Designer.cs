@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartSchool.Modules.Identity.Persistence.Identity;
@@ -11,9 +12,11 @@ using SmartSchool.Modules.Identity.Persistence.Identity;
 namespace SmartSchool.Modules.Identity.Persistence.Migrations.PostgreSql.AspNetIdentity
 {
     [DbContext(typeof(SmartSchoolIdentityDbContext))]
-    partial class SmartSchoolIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260822091201_AddNewField")]
+    partial class AddNewField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
