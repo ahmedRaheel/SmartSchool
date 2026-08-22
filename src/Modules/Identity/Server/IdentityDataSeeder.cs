@@ -11,7 +11,7 @@ public sealed class IdentityDataSeeder(
 	private static readonly string[] Roles =
 	[
 		"SuperAdmin", "SchoolAdmin", "Admin", "Principal", "Teacher", "Parent", "Student",
-		"Staff", "Driver", "Exam", "Academics", "Finance", "HR", "Transport"
+		"Staff", "Driver", "Examiner", "Exam", "Academics", "Finance", "HR", "Transport"
 	];
 
 	public async Task SeedAsync()

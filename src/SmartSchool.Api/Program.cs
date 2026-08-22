@@ -143,6 +143,8 @@ app.MapGet(
 
 app.MapSmartSchoolHealth();
 app.MapDashboardEndpoints();
+app.MapPlatformFeatureEndpoints();
+app.MapAiAssistantEndpoints();
 app.MapClientTelemetryEndpoints();
 app.MapActorProfileEndpoints();
 app.MapAICoreEndpoints();
