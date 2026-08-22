@@ -21,10 +21,10 @@ public static class AuthorizationRegistration
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal);
             AddPolicy(options, SmartSchoolPolicies.AcademicManagement,
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal, SmartSchoolRoles.Teacher);
-            AddPolicy(options, SmartSchoolPolicies.TeacherWorkspace, SmartSchoolRoles.Teacher);
-            AddPolicy(options, SmartSchoolPolicies.StudentSelfService, SmartSchoolRoles.Student);
-            AddPolicy(options, SmartSchoolPolicies.ParentSelfService, SmartSchoolRoles.Parent);
-            AddPolicy(options, SmartSchoolPolicies.DriverWorkspace, SmartSchoolRoles.Driver);
+            AddPolicy(options, SmartSchoolPolicies.TeacherWorkspace, SmartSchoolRoles.Teacher, SmartSchoolRoles.SuperAdmin);
+            AddPolicy(options, SmartSchoolPolicies.StudentSelfService, SmartSchoolRoles.Student, SmartSchoolRoles.SuperAdmin);
+            AddPolicy(options, SmartSchoolPolicies.ParentSelfService, SmartSchoolRoles.Parent, SmartSchoolRoles.SuperAdmin);
+            AddPolicy(options, SmartSchoolPolicies.DriverWorkspace, SmartSchoolRoles.Driver, SmartSchoolRoles.SuperAdmin);
             AddPolicy(options, SmartSchoolPolicies.ExaminationManagement,
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal, SmartSchoolRoles.Examiner);
             AddPolicy(options, SmartSchoolPolicies.FinanceManagement,

@@ -44,10 +44,14 @@ var builder =
 	WebApplication.CreateBuilder(args);
 
 builder.AddSmartSchoolPlatform();
-
+var portalurl = builder.Configuration.GetValue<string>("PortalUrl") ?? "http://localhost:5173";
 builder.Services.AddOpenApi();
 builder.Services.AddSmartSchoolObservability(builder.Configuration, "SmartSchool.Api");
-builder.Services.AddCors(options => options.AddPolicy("Portal", policy => policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithExposedHeaders("X-Correlation-ID", "X-Trace-Id")));
+builder.Services.AddCors(options => options.AddPolicy("Portal", policy => policy.WithOrigins(portalurl)
+.AllowAnyHeader()
+.AllowAnyMethod()
+.AllowCredentials()
+.WithExposedHeaders("X-Correlation-ID", "X-Trace-Id")));
 
 builder.Services.AddSmartSchoolAuthorization();
 builder.Services.AddScoped<SampleActorSeeder>();
