@@ -62,167 +62,88 @@ var portalUrl =
 // AddSmartSchoolPlatform must NOT also register JwtBearer authentication.
 // There should be one canonical bearer configuration.
 //
-var identityAuthority =
-	builder.Configuration["Identity:Authority"]
-	?? "http://localhost:7101";
 
-var identityMetadataAddress =
-	builder.Configuration["Identity:MetadataAddress"];
-
-var identityAudience =
-	builder.Configuration["Identity:Audience"]
-	?? "smartschool-api";
-
-builder.Services
-	.AddAuthentication(options =>
+builder.Services.Configure<JwtBearerOptions>(
+	JwtBearerDefaults.AuthenticationScheme,
+	options =>
 	{
-		options.DefaultAuthenticateScheme =
-			JwtBearerDefaults.AuthenticationScheme;
+		options.Authority = "http://localhost:7101";
 
-		options.DefaultChallengeScheme =
-			JwtBearerDefaults.AuthenticationScheme;
+		options.MetadataAddress =
+			"http://host.docker.internal:7101/.well-known/openid-configuration";
 
-		options.DefaultScheme =
-			JwtBearerDefaults.AuthenticationScheme;
-	})
-	.AddJwtBearer(
-		JwtBearerDefaults.AuthenticationScheme,
-		options =>
+		options.Audience = "smartschool-api";
+		options.RequireHttpsMetadata = false;
+		options.MapInboundClaims = false;
+
+		options.TokenValidationParameters ??=
+			new TokenValidationParameters();
+
+		// Token is issued to browser/Postman using localhost:7101.
+		options.TokenValidationParameters.ValidateIssuer = true;
+		options.TokenValidationParameters.ValidIssuer =
+			"http://localhost:7101";
+
+		options.TokenValidationParameters.ValidateAudience = true;
+		options.TokenValidationParameters.ValidAudience =
+			"smartschool-api";
+
+		options.TokenValidationParameters.ValidateLifetime = true;
+		options.TokenValidationParameters.ValidateIssuerSigningKey = true;
+
+		options.TokenValidationParameters.NameClaimType = "name";
+		options.TokenValidationParameters.RoleClaimType = "role";
+
+		options.Events ??= new JwtBearerEvents();
+
+		options.Events.OnMessageReceived = context =>
 		{
-			options.Authority = identityAuthority;
+			var accessToken =
+				context.Request.Query["access_token"];
 
-			//
-			// When SmartSchool.Api runs in Docker, localhost:7101
-			// is not reachable from inside the API container.
-			//
-			// MetadataAddress lets the API retrieve discovery/signing
-			// information through Docker while Authority remains the
-			// actual JWT issuer.
-			//
-			if (!string.IsNullOrWhiteSpace(identityMetadataAddress))
+			if (!string.IsNullOrWhiteSpace(accessToken) &&
+				context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
 			{
-				options.MetadataAddress =
-					identityMetadataAddress;
+				context.Token = accessToken;
 			}
 
-			options.Audience =
-				identityAudience;
+			return Task.CompletedTask;
+		};
 
-			options.RequireHttpsMetadata =
-				builder.Configuration.GetValue(
-					"Identity:RequireHttpsMetadata",
-					false);
+		options.Events.OnAuthenticationFailed = context =>
+		{
+			var logger = context.HttpContext.RequestServices
+				.GetRequiredService<ILoggerFactory>()
+				.CreateLogger("SmartSchool.Authentication");
 
-			options.MapInboundClaims = false;
+			logger.LogError(
+				context.Exception,
+				"JWT authentication failed.");
 
-			options.TokenValidationParameters =
-				new TokenValidationParameters
-				{
-					ValidateIssuer = true,
-					ValidIssuer =
-						identityAuthority.TrimEnd('/'),
+			return Task.CompletedTask;
+		};
 
-					ValidateAudience = true,
-					ValidAudience =
-						identityAudience,
+		options.Events.OnTokenValidated = context =>
+		{
+			var logger = context.HttpContext.RequestServices
+				.GetRequiredService<ILoggerFactory>()
+				.CreateLogger("SmartSchool.Authentication");
 
-					ValidateLifetime = true,
-					ValidateIssuerSigningKey = true,
+			logger.LogInformation(
+				"JWT validated. Subject={Subject}, Roles={Roles}",
+				context.Principal?.FindFirst("sub")?.Value,
+				string.Join(
+					",",
+					context.Principal?
+						.FindAll("role")
+						.Select(x => x.Value)
+					?? []));
 
-					NameClaimType = "name",
-					RoleClaimType = "role",
+			return Task.CompletedTask;
+		};
+	});
 
-					ClockSkew =
-						TimeSpan.FromMinutes(1)
-				};
 
-			options.Events =
-				new JwtBearerEvents
-				{
-					OnMessageReceived = context =>
-					{
-						//
-						// SignalR WebSocket authentication.
-						//
-						var accessToken =
-							context.Request.Query["access_token"];
-
-						var path =
-							context.HttpContext.Request.Path;
-
-						if (
-							!string.IsNullOrWhiteSpace(accessToken)
-							&& path.StartsWithSegments("/hubs"))
-						{
-							context.Token =
-								accessToken;
-						}
-
-						return Task.CompletedTask;
-					},
-
-					OnTokenValidated = context =>
-					{
-						var logger =
-							context.HttpContext
-								.RequestServices
-								.GetRequiredService<ILoggerFactory>()
-								.CreateLogger(
-									"SmartSchool.Authentication");
-
-						var subject =
-							context.Principal?
-								.FindFirstValue("sub");
-
-						var roles =
-							context.Principal?
-								.FindAll("role")
-								.Select(claim => claim.Value)
-								.ToArray()
-							?? [];
-
-						logger.LogInformation(
-							"JWT authenticated. Subject={Subject}, Roles={Roles}",
-							subject,
-							string.Join(",", roles));
-
-						return Task.CompletedTask;
-					},
-
-					OnAuthenticationFailed = context =>
-					{
-						var logger =
-							context.HttpContext
-								.RequestServices
-								.GetRequiredService<ILoggerFactory>()
-								.CreateLogger(
-									"SmartSchool.Authentication");
-
-						logger.LogError(
-							context.Exception,
-							"JWT authentication failed.");
-
-						return Task.CompletedTask;
-					},
-
-					OnChallenge = context =>
-					{
-						var logger =
-							context.HttpContext
-								.RequestServices
-								.GetRequiredService<ILoggerFactory>()
-								.CreateLogger(
-									"SmartSchool.Authentication");
-
-						logger.LogWarning(
-							"JWT challenge. Error={Error}, Description={Description}",
-							context.Error,
-							context.ErrorDescription);
-
-						return Task.CompletedTask;
-					}
-				};
-		});
 
 //
 // Authorization policies
