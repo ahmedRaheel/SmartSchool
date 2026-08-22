@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
 
@@ -28,9 +29,9 @@ public interface IStudentQuery
 	/// <summary>
 	/// Executes the persistence operation.
 	/// </summary>
-	Task<bool> ExistsByCodeAsync(
+	Task<bool> ExistsByStudentNumberAsync(
 		Guid tenantId,
-		string code,
+		string studentNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken);
 }

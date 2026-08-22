@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ItemEntity.
+/// Executes database writes for <see cref="ItemEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ItemCommand(IEfMockStore store) : IItemCommand
+public sealed class ItemCommand(IApplicationDbContext dbContext) : IItemCommand
 {
-	public Task AddAsync(ItemEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ItemEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ItemEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ItemEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ItemEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ItemEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ItemEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ItemEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ItemEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

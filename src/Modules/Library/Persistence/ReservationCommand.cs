@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ReservationEntity.
+/// Executes database writes for <see cref="ReservationEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ReservationCommand(IEfMockStore store) : IReservationCommand
+public sealed class ReservationCommand(IApplicationDbContext dbContext) : IReservationCommand
 {
-	public Task AddAsync(ReservationEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ReservationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ReservationEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ReservationEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ReservationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ReservationEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ReservationEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ReservationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ReservationEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

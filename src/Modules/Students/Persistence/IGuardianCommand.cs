@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Students.Models;
 
 namespace SmartSchool.Modules.Students.Persistence;

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
@@ -17,10 +18,11 @@ public static class GetSchoolById
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-		Guid TenantId,
-		Guid Id,
-		string Code,
-		string Name);
+	Guid TenantId,
+	Guid Id,
+	string Code,
+	string Name,
+	string? MetadataJson);
 
 	public sealed record Query(
 		Guid TenantId,
@@ -57,7 +59,7 @@ public static class GetSchoolById
 				})
 			.WithName("GetSchoolById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 
@@ -68,6 +70,7 @@ public static class GetSchoolById
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }

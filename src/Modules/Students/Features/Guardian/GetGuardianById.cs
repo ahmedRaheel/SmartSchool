@@ -9,32 +9,22 @@ namespace SmartSchool.Modules.Students.Features.Guardian;
 
 public static class GetGuardianById
 {
-	/// <summary>
-	/// Represents the response returned by this GuardianEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name);
+		Guid? UserId,
+		string FullName,
+		string? CnicNumber,
+		string? Email,
+		string? Phone);
 
-	public sealed record Query(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+	public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(IGuardianQuery entityQuery)
-		: IRequestHandler<Query, Result<Response>>
+	public sealed class Handler(IGuardianQuery entityQuery) : IRequestHandler<Query, Result<Response>>
 	{
-		public async Task<Result<Response>> HandleAsync(
-			Query request,
-			CancellationToken cancellationToken)
+		public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
+			var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
@@ -50,24 +40,22 @@ public static class GetGuardianById
 				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "guardian"),
 				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, id);
-					var result = await mediator.SendAsync<Query, Result<Response>>(
-						request, cancellationToken);
+					var result = await mediator.SendAsync<Query, Result<Response>>(new Query(tenantId, id), cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("GetGuardianById")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.WithName("GetGuardianById").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.GuardianEntity entity)
+	private static Response MapResponse(GuardianEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name);
+			entity.UserId,
+			entity.FullName,
+			entity.CnicNumber,
+			entity.Email,
+			entity.Phone);
 	}
 }

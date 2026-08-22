@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
@@ -51,7 +52,7 @@ public static class DeleteCampus
 				})
 			.WithName("DeleteCampus")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 }

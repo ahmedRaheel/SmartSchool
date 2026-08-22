@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for PositionEntity.
+/// Executes database writes for <see cref="PositionEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PositionCommand(IEfMockStore store) : IPositionCommand
+public sealed class PositionCommand(IApplicationDbContext dbContext) : IPositionCommand
 {
-	public Task AddAsync(PositionEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		PositionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<PositionEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(PositionEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		PositionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<PositionEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(PositionEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		PositionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<PositionEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

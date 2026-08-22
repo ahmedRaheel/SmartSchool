@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for IncrementEntity.
+/// Executes database writes for <see cref="IncrementEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class IncrementCommand(IEfMockStore store) : IIncrementCommand
+public sealed class IncrementCommand(IApplicationDbContext dbContext) : IIncrementCommand
 {
-	public Task AddAsync(IncrementEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		IncrementEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<IncrementEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(IncrementEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		IncrementEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<IncrementEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(IncrementEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		IncrementEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<IncrementEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

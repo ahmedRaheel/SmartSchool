@@ -7,7 +7,7 @@ namespace SmartSchool.Infrastructure.Persistence;
 /// <summary>
 /// Implements CRUD operations and paging against the EF Core development database.
 /// </summary>
-public sealed class EfMockStore(SmartSchoolMockDbContext dbContext) : IEfMockStore
+public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
 {
 	public Task<TEntity?> GetByIdAsync<TEntity>(
 		Guid tenantId,

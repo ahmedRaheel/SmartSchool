@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
@@ -51,7 +52,7 @@ public static class DeleteStudent
 				})
 			.WithName("DeleteStudent")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 }

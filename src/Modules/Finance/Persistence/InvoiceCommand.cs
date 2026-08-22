@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for InvoiceEntity.
+/// Executes database writes for <see cref="InvoiceEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class InvoiceCommand(IEfMockStore store) : IInvoiceCommand
+public sealed class InvoiceCommand(IApplicationDbContext dbContext) : IInvoiceCommand
 {
-	public Task AddAsync(InvoiceEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		InvoiceEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<InvoiceEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(InvoiceEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		InvoiceEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<InvoiceEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(InvoiceEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		InvoiceEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<InvoiceEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

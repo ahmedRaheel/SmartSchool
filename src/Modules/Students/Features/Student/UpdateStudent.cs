@@ -1,5 +1,5 @@
-using SmartSchool.Application.Http;
 using FluentValidation;
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.Modules.Students.Persistence;
@@ -10,24 +10,30 @@ namespace SmartSchool.Modules.Students.Features.Student;
 
 public static class UpdateStudent
 {
-	/// <summary>
-	/// Represents the response returned by this StudentEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name);
+		Guid? UserId,
+		string StudentNumber,
+		string FirstName,
+		string? LastName,
+		DateOnly? DateOfBirth,
+		string? Gender,
+		byte[]? Photo,
+		string? PhotoContentType,
+		string? PhotoFileName,
+		DateOnly? AdmissionDate,
+		string Status);
 
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+		string FirstName,
+		string? LastName,
+		DateOnly? DateOfBirth,
+		string? Gender,
+		DateOnly? AdmissionDate,
+		string Status) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -35,40 +41,29 @@ public static class UpdateStudent
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IStudentQuery entityQuery,
-		IStudentCommand entityCommand)
+	public sealed class Handler(IStudentQuery entityQuery, IStudentCommand entityCommand)
 		: IRequestHandler<Request, Result<Response>>
 	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
+		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
+			var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(StudentEntity), request.Code)));
-			}
-
 			entity.UpdateDetails(
-				request.Code,
-				request.Name);
+				request.FirstName,
+				request.LastName,
+				request.DateOfBirth,
+				request.Gender,
+				request.AdmissionDate,
+				request.Status);
+
 			await entityCommand.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
@@ -81,23 +76,28 @@ public static class UpdateStudent
 				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var command = request with { Id = id };
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						command, cancellationToken);
+					var result = await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("UpdateStudent")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.WithName("UpdateStudent").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.StudentEntity entity)
+	private static Response MapResponse(StudentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name);
+			entity.UserId,
+			entity.StudentNumber,
+			entity.FirstName,
+			entity.LastName,
+			entity.DateOfBirth,
+			entity.Gender,
+			entity.Photo,
+			entity.PhotoContentType,
+			entity.PhotoFileName,
+			entity.AdmissionDate,
+			entity.Status);
 	}
 }

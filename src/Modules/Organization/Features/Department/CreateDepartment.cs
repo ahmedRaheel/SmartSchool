@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
@@ -18,10 +19,11 @@ public static class CreateDepartment
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-		Guid TenantId,
-		Guid Id,
-		string Code,
-		string Name);
+	Guid TenantId,
+	Guid Id,
+	string Code,
+	string Name,
+	string? MetadataJson);
 
 	public sealed record Request(
 		Guid TenantId,
@@ -78,7 +80,7 @@ public static class CreateDepartment
 				})
 			.WithName("CreateDepartment")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 
@@ -89,6 +91,7 @@ public static class CreateDepartment
 			entity.TenantId,
 			entity.Id,
 			entity.Code,
-			entity.Name);
+			entity.Name,
+			entity.MetadataJson);
 	}
 }

@@ -17,6 +17,12 @@ public sealed record Error(string Code, string Message)
 
 	public static Error Unauthorized(string message) =>
 		new(ErrorCodes.Unauthorized, message);
+
+	public static Error Forbidden(string message) =>
+		new(ErrorCodes.Forbidden, message);
+
+	public static Error InternalServerError(string message) =>
+		new(ErrorCodes.InternalServerError, message);
 }
 
 public class Result

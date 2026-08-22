@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;

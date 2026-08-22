@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIPrediction.Models;
 
 namespace SmartSchool.Modules.AIPrediction.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for PredictionEvidenceEntity.
+/// Executes database writes for <see cref="PredictionEvidenceEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PredictionEvidenceCommand(IEfMockStore store) : IPredictionEvidenceCommand
+public sealed class PredictionEvidenceCommand(IApplicationDbContext dbContext) : IPredictionEvidenceCommand
 {
-	public Task AddAsync(PredictionEvidenceEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		PredictionEvidenceEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<PredictionEvidenceEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(PredictionEvidenceEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		PredictionEvidenceEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<PredictionEvidenceEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(PredictionEvidenceEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		PredictionEvidenceEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<PredictionEvidenceEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

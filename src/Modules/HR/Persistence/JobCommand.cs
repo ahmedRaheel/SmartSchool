@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for JobEntity.
+/// Executes database writes for <see cref="JobEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class JobCommand(IEfMockStore store) : IJobCommand
+public sealed class JobCommand(IApplicationDbContext dbContext) : IJobCommand
 {
-	public Task AddAsync(JobEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		JobEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<JobEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(JobEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		JobEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<JobEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(JobEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		JobEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<JobEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

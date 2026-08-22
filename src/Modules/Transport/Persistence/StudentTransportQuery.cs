@@ -1,3 +1,6 @@
+using Dapper;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Transport.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +8,94 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Transport.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for StudentTransportEntity.
+/// Executes database reads for <see cref="StudentTransportEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class StudentTransportQuery(IEfMockStore store) : IStudentTransportQuery
+public sealed class StudentTransportQuery(
+	IApplicationDbContext dbContext,
+	IDbConnectionFactory connectionFactory) : IStudentTransportQuery
 {
-	public Task<StudentTransportEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<StudentTransportEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<StudentTransportEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<StudentTransportEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<StudentTransportEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<StudentTransportEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<StudentTransportEntity>(tenantId, page, pageSize, cancellationToken);
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.StudentTransport
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				studenttransport_id AS "Id"
+			FROM public.StudentTransport
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY studenttransport_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<StudentTransportEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<StudentTransportEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<StudentTransportEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<StudentTransportEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

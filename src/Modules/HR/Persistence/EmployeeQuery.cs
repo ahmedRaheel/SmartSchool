@@ -1,3 +1,6 @@
+using Dapper;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +8,102 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for EmployeeEntity.
+/// Executes database reads for <see cref="EmployeeEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class EmployeeQuery(IEfMockStore store) : IEmployeeQuery
+public sealed class EmployeeQuery(
+	IApplicationDbContext dbContext,
+	IDbConnectionFactory connectionFactory) : IEmployeeQuery
 {
-	public Task<EmployeeEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<EmployeeEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<EmployeeEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<EmployeeEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<EmployeeEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<EmployeeEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<EmployeeEntity>(tenantId, page, pageSize, cancellationToken);
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM hr.employee
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				employee_id AS "Id",
+				employee_number AS "EmployeeNumber",
+				first_name AS "FirstName",
+				last_name AS "LastName",
+				cnic_number AS "CnicNumber",
+				email AS "Email",
+				phone AS "Phone",
+				hire_date AS "HireDate",
+				employment_type_code AS "EmploymentTypeCode",
+				status AS "Status"
+			FROM hr.employee
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY employee_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<EmployeeEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<EmployeeEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByEmployeeNumberAsync(
+		Guid tenantId,
+		string employeeNumber,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<EmployeeEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<EmployeeEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId && entity.EmployeeNumber == employeeNumber
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;

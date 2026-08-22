@@ -1667,3 +1667,457 @@ CREATE INDEX ix_employee_tenant_status ON hr.employee(tenant_id,status);
 CREATE INDEX ix_prediction_student_type ON ai.prediction(student_id,prediction_type,predicted_at DESC);
 
 COMMIT;
+
+
+-- ============================================================
+-- SmartSchool normalized document attachments
+-- File bytes belong in object/file storage; these tables retain
+-- relational metadata, verification, integrity and lifecycle.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS DocumentType (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	Code varchar(80) NOT NULL,
+	Name varchar(150) NOT NULL,
+	OwnerCategory varchar(50) NOT NULL,
+	IsIdentityDocument boolean NOT NULL DEFAULT false,
+	RequiresExpiryDate boolean NOT NULL DEFAULT false,
+	RequiresVerification boolean NOT NULL DEFAULT false,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT UQ_DocumentType_Tenant_Code UNIQUE (TenantId, Code)
+);
+
+-- Owner-specific attachment tables intentionally remain separate:
+-- authorization, retention, required-document rules and audit policy differ
+-- between students, guardians, employees, candidates and transport staff.
+
+-- Columns shared by all document tables:
+-- Id, TenantId, OwnerId, DocumentTypeId, OriginalFileName, ContentType,
+-- FileSizeBytes, StorageProvider, StorageKey, Sha256Hash, DocumentNumber,
+-- IssuedOn, ExpiresOn, IsVerified, VerifiedByUserId, VerifiedAt, Notes,
+-- IsActive, CreatedAt, UpdatedAt, RowVersion.
+
+CREATE TABLE IF NOT EXISTS StudentDocument (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	StudentId uuid NOT NULL,
+	DocumentTypeId uuid NOT NULL,
+	OriginalFileName varchar(255) NOT NULL,
+	ContentType varchar(150) NOT NULL,
+	FileSizeBytes bigint NOT NULL CHECK (FileSizeBytes > 0),
+	StorageProvider varchar(50) NOT NULL,
+	StorageKey varchar(500) NOT NULL,
+	Sha256Hash char(64) NOT NULL,
+	DocumentNumber varchar(100) NULL,
+	IssuedOn date NULL,
+	ExpiresOn date NULL,
+	IsVerified boolean NOT NULL DEFAULT false,
+	VerifiedByUserId uuid NULL,
+	VerifiedAt timestamptz NULL,
+	Notes varchar(1000) NULL,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT FK_StudentDocument_DocumentType FOREIGN KEY (DocumentTypeId) REFERENCES DocumentType(Id),
+	CONSTRAINT CK_StudentDocument_Dates CHECK (ExpiresOn IS NULL OR IssuedOn IS NULL OR ExpiresOn >= IssuedOn),
+	CONSTRAINT UQ_StudentDocument_Storage UNIQUE (TenantId, StorageProvider, StorageKey)
+);
+CREATE INDEX IF NOT EXISTS IX_StudentDocument_Owner_Type
+	ON StudentDocument(TenantId, StudentId, DocumentTypeId);
+CREATE INDEX IF NOT EXISTS IX_StudentDocument_Hash
+	ON StudentDocument(TenantId, Sha256Hash);
+
+CREATE TABLE IF NOT EXISTS ParentDocument (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	ParentId uuid NOT NULL,
+	DocumentTypeId uuid NOT NULL,
+	OriginalFileName varchar(255) NOT NULL,
+	ContentType varchar(150) NOT NULL,
+	FileSizeBytes bigint NOT NULL CHECK (FileSizeBytes > 0),
+	StorageProvider varchar(50) NOT NULL,
+	StorageKey varchar(500) NOT NULL,
+	Sha256Hash char(64) NOT NULL,
+	DocumentNumber varchar(100) NULL,
+	IssuedOn date NULL,
+	ExpiresOn date NULL,
+	IsVerified boolean NOT NULL DEFAULT false,
+	VerifiedByUserId uuid NULL,
+	VerifiedAt timestamptz NULL,
+	Notes varchar(1000) NULL,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT FK_ParentDocument_DocumentType FOREIGN KEY (DocumentTypeId) REFERENCES DocumentType(Id),
+	CONSTRAINT CK_ParentDocument_Dates CHECK (ExpiresOn IS NULL OR IssuedOn IS NULL OR ExpiresOn >= IssuedOn),
+	CONSTRAINT UQ_ParentDocument_Storage UNIQUE (TenantId, StorageProvider, StorageKey)
+);
+CREATE INDEX IF NOT EXISTS IX_ParentDocument_Owner_Type
+	ON ParentDocument(TenantId, ParentId, DocumentTypeId);
+CREATE INDEX IF NOT EXISTS IX_ParentDocument_Hash
+	ON ParentDocument(TenantId, Sha256Hash);
+
+CREATE TABLE IF NOT EXISTS TeacherDocument (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	TeacherId uuid NOT NULL,
+	DocumentTypeId uuid NOT NULL,
+	OriginalFileName varchar(255) NOT NULL,
+	ContentType varchar(150) NOT NULL,
+	FileSizeBytes bigint NOT NULL CHECK (FileSizeBytes > 0),
+	StorageProvider varchar(50) NOT NULL,
+	StorageKey varchar(500) NOT NULL,
+	Sha256Hash char(64) NOT NULL,
+	DocumentNumber varchar(100) NULL,
+	IssuedOn date NULL,
+	ExpiresOn date NULL,
+	IsVerified boolean NOT NULL DEFAULT false,
+	VerifiedByUserId uuid NULL,
+	VerifiedAt timestamptz NULL,
+	Notes varchar(1000) NULL,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT FK_TeacherDocument_DocumentType FOREIGN KEY (DocumentTypeId) REFERENCES DocumentType(Id),
+	CONSTRAINT CK_TeacherDocument_Dates CHECK (ExpiresOn IS NULL OR IssuedOn IS NULL OR ExpiresOn >= IssuedOn),
+	CONSTRAINT UQ_TeacherDocument_Storage UNIQUE (TenantId, StorageProvider, StorageKey)
+);
+CREATE INDEX IF NOT EXISTS IX_TeacherDocument_Owner_Type
+	ON TeacherDocument(TenantId, TeacherId, DocumentTypeId);
+CREATE INDEX IF NOT EXISTS IX_TeacherDocument_Hash
+	ON TeacherDocument(TenantId, Sha256Hash);
+
+CREATE TABLE IF NOT EXISTS EmployeeDocument (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	EmployeeId uuid NOT NULL,
+	DocumentTypeId uuid NOT NULL,
+	OriginalFileName varchar(255) NOT NULL,
+	ContentType varchar(150) NOT NULL,
+	FileSizeBytes bigint NOT NULL CHECK (FileSizeBytes > 0),
+	StorageProvider varchar(50) NOT NULL,
+	StorageKey varchar(500) NOT NULL,
+	Sha256Hash char(64) NOT NULL,
+	DocumentNumber varchar(100) NULL,
+	IssuedOn date NULL,
+	ExpiresOn date NULL,
+	IsVerified boolean NOT NULL DEFAULT false,
+	VerifiedByUserId uuid NULL,
+	VerifiedAt timestamptz NULL,
+	Notes varchar(1000) NULL,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT FK_EmployeeDocument_DocumentType FOREIGN KEY (DocumentTypeId) REFERENCES DocumentType(Id),
+	CONSTRAINT CK_EmployeeDocument_Dates CHECK (ExpiresOn IS NULL OR IssuedOn IS NULL OR ExpiresOn >= IssuedOn),
+	CONSTRAINT UQ_EmployeeDocument_Storage UNIQUE (TenantId, StorageProvider, StorageKey)
+);
+CREATE INDEX IF NOT EXISTS IX_EmployeeDocument_Owner_Type
+	ON EmployeeDocument(TenantId, EmployeeId, DocumentTypeId);
+CREATE INDEX IF NOT EXISTS IX_EmployeeDocument_Hash
+	ON EmployeeDocument(TenantId, Sha256Hash);
+
+CREATE TABLE IF NOT EXISTS CandidateDocument (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	CandidateId uuid NOT NULL,
+	DocumentTypeId uuid NOT NULL,
+	OriginalFileName varchar(255) NOT NULL,
+	ContentType varchar(150) NOT NULL,
+	FileSizeBytes bigint NOT NULL CHECK (FileSizeBytes > 0),
+	StorageProvider varchar(50) NOT NULL,
+	StorageKey varchar(500) NOT NULL,
+	Sha256Hash char(64) NOT NULL,
+	DocumentNumber varchar(100) NULL,
+	IssuedOn date NULL,
+	ExpiresOn date NULL,
+	IsVerified boolean NOT NULL DEFAULT false,
+	VerifiedByUserId uuid NULL,
+	VerifiedAt timestamptz NULL,
+	Notes varchar(1000) NULL,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT FK_CandidateDocument_DocumentType FOREIGN KEY (DocumentTypeId) REFERENCES DocumentType(Id),
+	CONSTRAINT CK_CandidateDocument_Dates CHECK (ExpiresOn IS NULL OR IssuedOn IS NULL OR ExpiresOn >= IssuedOn),
+	CONSTRAINT UQ_CandidateDocument_Storage UNIQUE (TenantId, StorageProvider, StorageKey)
+);
+CREATE INDEX IF NOT EXISTS IX_CandidateDocument_Owner_Type
+	ON CandidateDocument(TenantId, CandidateId, DocumentTypeId);
+CREATE INDEX IF NOT EXISTS IX_CandidateDocument_Hash
+	ON CandidateDocument(TenantId, Sha256Hash);
+
+CREATE TABLE IF NOT EXISTS DriverDocument (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	DriverId uuid NOT NULL,
+	DocumentTypeId uuid NOT NULL,
+	OriginalFileName varchar(255) NOT NULL,
+	ContentType varchar(150) NOT NULL,
+	FileSizeBytes bigint NOT NULL CHECK (FileSizeBytes > 0),
+	StorageProvider varchar(50) NOT NULL,
+	StorageKey varchar(500) NOT NULL,
+	Sha256Hash char(64) NOT NULL,
+	DocumentNumber varchar(100) NULL,
+	IssuedOn date NULL,
+	ExpiresOn date NULL,
+	IsVerified boolean NOT NULL DEFAULT false,
+	VerifiedByUserId uuid NULL,
+	VerifiedAt timestamptz NULL,
+	Notes varchar(1000) NULL,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT FK_DriverDocument_DocumentType FOREIGN KEY (DocumentTypeId) REFERENCES DocumentType(Id),
+	CONSTRAINT CK_DriverDocument_Dates CHECK (ExpiresOn IS NULL OR IssuedOn IS NULL OR ExpiresOn >= IssuedOn),
+	CONSTRAINT UQ_DriverDocument_Storage UNIQUE (TenantId, StorageProvider, StorageKey)
+);
+CREATE INDEX IF NOT EXISTS IX_DriverDocument_Owner_Type
+	ON DriverDocument(TenantId, DriverId, DocumentTypeId);
+CREATE INDEX IF NOT EXISTS IX_DriverDocument_Hash
+	ON DriverDocument(TenantId, Sha256Hash);
+
+CREATE TABLE IF NOT EXISTS SchoolDocument (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	SchoolId uuid NOT NULL,
+	DocumentTypeId uuid NOT NULL,
+	OriginalFileName varchar(255) NOT NULL,
+	ContentType varchar(150) NOT NULL,
+	FileSizeBytes bigint NOT NULL CHECK (FileSizeBytes > 0),
+	StorageProvider varchar(50) NOT NULL,
+	StorageKey varchar(500) NOT NULL,
+	Sha256Hash char(64) NOT NULL,
+	DocumentNumber varchar(100) NULL,
+	IssuedOn date NULL,
+	ExpiresOn date NULL,
+	IsVerified boolean NOT NULL DEFAULT false,
+	VerifiedByUserId uuid NULL,
+	VerifiedAt timestamptz NULL,
+	Notes varchar(1000) NULL,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT FK_SchoolDocument_DocumentType FOREIGN KEY (DocumentTypeId) REFERENCES DocumentType(Id),
+	CONSTRAINT CK_SchoolDocument_Dates CHECK (ExpiresOn IS NULL OR IssuedOn IS NULL OR ExpiresOn >= IssuedOn),
+	CONSTRAINT UQ_SchoolDocument_Storage UNIQUE (TenantId, StorageProvider, StorageKey)
+);
+CREATE INDEX IF NOT EXISTS IX_SchoolDocument_Owner_Type
+	ON SchoolDocument(TenantId, SchoolId, DocumentTypeId);
+CREATE INDEX IF NOT EXISTS IX_SchoolDocument_Hash
+	ON SchoolDocument(TenantId, Sha256Hash);
+
+-- Materialized read tables. These are application-managed projections,
+-- portable across PostgreSQL and SQL Server, unlike vendor-specific
+-- materialized views.
+CREATE TABLE IF NOT EXISTS StudentDirectoryRead (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	StudentId uuid NOT NULL,
+	AdmissionNumber varchar(100) NOT NULL,
+	StudentName varchar(250) NOT NULL,
+	ProgramName varchar(250) NULL,
+	ClassName varchar(150) NULL,
+	SectionName varchar(100) NULL,
+	PrimaryGuardianName varchar(250) NULL,
+	PrimaryGuardianMobile varchar(50) NULL,
+	AttendancePercentage numeric(5,2) NULL,
+	LatestExamPercentage numeric(5,2) NULL,
+	OutstandingBalance numeric(18,2) NOT NULL DEFAULT 0,
+	DocumentCount integer NOT NULL DEFAULT 0,
+	VerifiedDocumentCount integer NOT NULL DEFAULT 0,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT UQ_StudentDirectoryRead UNIQUE (TenantId, StudentId)
+);
+
+CREATE TABLE IF NOT EXISTS TeacherDirectoryRead (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	TeacherId uuid NOT NULL,
+	EmployeeNumber varchar(100) NOT NULL,
+	TeacherName varchar(250) NOT NULL,
+	JobTitle varchar(150) NULL,
+	JobGrade varchar(100) NULL,
+	DepartmentName varchar(150) NULL,
+	MobileNumber varchar(50) NULL,
+	ActiveClassAssignments integer NOT NULL DEFAULT 0,
+	DocumentCount integer NOT NULL DEFAULT 0,
+	VerifiedDocumentCount integer NOT NULL DEFAULT 0,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT UQ_TeacherDirectoryRead UNIQUE (TenantId, TeacherId)
+);
+
+CREATE TABLE IF NOT EXISTS DriverDirectoryRead (
+	Id uuid PRIMARY KEY,
+	TenantId uuid NOT NULL,
+	DriverId uuid NOT NULL,
+	EmployeeNumber varchar(100) NOT NULL,
+	DriverName varchar(250) NOT NULL,
+	MobileNumber varchar(50) NULL,
+	LicenseNumber varchar(100) NOT NULL,
+	LicenseExpiryDate date NULL,
+	VehicleRegistrationNumber varchar(100) NULL,
+	RouteName varchar(250) NULL,
+	DocumentCount integer NOT NULL DEFAULT 0,
+	VerifiedDocumentCount integer NOT NULL DEFAULT 0,
+	IsActive boolean NOT NULL DEFAULT true,
+	CreatedAt timestamptz NOT NULL,
+	UpdatedAt timestamptz NULL,
+	RowVersion bytea NOT NULL,
+	CONSTRAINT UQ_DriverDirectoryRead UNIQUE (TenantId, DriverId)
+);
+
+
+-- =========================================================
+-- SMARTSCHOOL ENTITY BASE-FIELD SYNCHRONIZATION
+-- Applies lifecycle/audit/concurrency columns to entity tables
+-- that have a UUID primary key and a tenant_id column.
+-- Junction tables without an Entity aggregate are intentionally excluded.
+-- =========================================================
+DO $$
+DECLARE
+    r record;
+BEGIN
+    FOR r IN
+        SELECT DISTINCT
+            n.nspname AS schema_name,
+            c.relname AS table_name
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        JOIN pg_attribute tenant_column
+          ON tenant_column.attrelid = c.oid
+         AND tenant_column.attname = 'tenant_id'
+         AND tenant_column.attnum > 0
+         AND NOT tenant_column.attisdropped
+        WHERE c.relkind = 'r'
+          AND n.nspname IN (
+              'saas','org','academic','student','admission','lms','exam',
+              'finance','hr','payroll','document','communication','workflow',
+              'activity','transport','library','inventory','ai','ai_core',
+              'ai_tutor','ai_inquiry','ai_parent','audit')
+          AND EXISTS (
+              SELECT 1
+              FROM pg_index i
+              JOIN pg_attribute a
+                ON a.attrelid = i.indrelid
+               AND a.attnum = ANY(i.indkey)
+              WHERE i.indrelid = c.oid
+                AND i.indisprimary
+                AND a.atttypid = 'uuid'::regtype)
+    LOOP
+        EXECUTE format(
+            'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true',
+            r.schema_name, r.table_name);
+
+        EXECUTE format(
+            'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now()',
+            r.schema_name, r.table_name);
+
+        EXECUTE format(
+            'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS updated_at timestamptz NULL',
+            r.schema_name, r.table_name);
+
+        EXECUTE format(
+            'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS row_version bytea NOT NULL DEFAULT gen_random_bytes(8)',
+            r.schema_name, r.table_name);
+    END LOOP;
+END $$;
+
+CREATE OR REPLACE FUNCTION infrastructure.smartschool_set_entity_update_fields()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    NEW.updated_at = now();
+    NEW.row_version = gen_random_bytes(8);
+    RETURN NEW;
+END;
+$$;
+
+DO $$
+DECLARE
+    r record;
+    trigger_name text;
+BEGIN
+    FOR r IN
+        SELECT n.nspname AS schema_name, c.relname AS table_name
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        JOIN pg_attribute a
+          ON a.attrelid = c.oid
+         AND a.attname = 'row_version'
+         AND a.attnum > 0
+         AND NOT a.attisdropped
+        WHERE c.relkind = 'r'
+          AND n.nspname IN (
+              'saas','org','academic','student','admission','lms','exam',
+              'finance','hr','payroll','document','communication','workflow',
+              'activity','transport','library','inventory','ai','ai_core',
+              'ai_tutor','ai_inquiry','ai_parent','audit')
+    LOOP
+        trigger_name := 'trg_' || r.table_name || '_entity_update';
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_trigger t
+            JOIN pg_class tc ON tc.oid = t.tgrelid
+            JOIN pg_namespace tn ON tn.oid = tc.relnamespace
+            WHERE t.tgname = trigger_name
+              AND tn.nspname = r.schema_name
+              AND tc.relname = r.table_name
+              AND NOT t.tgisinternal)
+        THEN
+            EXECUTE format(
+                'CREATE TRIGGER %I BEFORE UPDATE ON %I.%I FOR EACH ROW EXECUTE FUNCTION infrastructure.smartschool_set_entity_update_fields()',
+                trigger_name, r.schema_name, r.table_name);
+        END IF;
+    END LOOP;
+END $$;
+CREATE SCHEMA IF NOT EXISTS ai;
+
+CREATE TABLE IF NOT EXISTS ai.ml_exam_prediction (
+    ml_exam_prediction_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id uuid NOT NULL REFERENCES saas.tenant(tenant_id),
+    student_id uuid NOT NULL REFERENCES student.student(student_id),
+    subject_id uuid NOT NULL REFERENCES academic.subject(subject_id),
+    target_exam_id uuid NULL REFERENCES exam.exam(exam_id),
+    target_exam_subject_id uuid NULL REFERENCES exam.exam_subject(exam_subject_id),
+    target_exam_type_code varchar(40) NOT NULL,
+    predicted_marks numeric(8,2) NOT NULL,
+    predicted_percentage numeric(7,3) NOT NULL,
+    predicted_grade varchar(20) NOT NULL,
+    lower_bound_percentage numeric(7,3) NOT NULL,
+    upper_bound_percentage numeric(7,3) NOT NULL,
+    confidence_score numeric(7,4) NOT NULL CHECK (confidence_score BETWEEN 0 AND 1),
+    pass_probability numeric(7,4) NOT NULL CHECK (pass_probability BETWEEN 0 AND 1),
+    trend varchar(30) NOT NULL,
+    risk_level varchar(30) NOT NULL,
+    model_version varchar(80) NOT NULL,
+    historical_result_count integer NOT NULL,
+    used_machine_learning boolean NOT NULL,
+    generated_at timestamptz NOT NULL DEFAULT now(),
+    is_active boolean NOT NULL DEFAULT true,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NULL,
+    row_version bytea NOT NULL DEFAULT gen_random_bytes(8)
+);
+
+CREATE INDEX IF NOT EXISTS ix_ml_exam_prediction_student_subject
+ON ai.ml_exam_prediction(tenant_id, student_id, subject_id, generated_at DESC);

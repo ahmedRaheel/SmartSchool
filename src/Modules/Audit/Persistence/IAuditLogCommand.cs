@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Audit.Models;
 
 namespace SmartSchool.Modules.Audit.Persistence;

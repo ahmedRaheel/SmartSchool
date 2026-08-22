@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for SubscriptionEntity.
+/// Executes database writes for <see cref="SubscriptionEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class SubscriptionCommand(IEfMockStore store) : ISubscriptionCommand
+public sealed class SubscriptionCommand(IApplicationDbContext dbContext) : ISubscriptionCommand
 {
-	public Task AddAsync(SubscriptionEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		SubscriptionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<SubscriptionEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(SubscriptionEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		SubscriptionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<SubscriptionEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(SubscriptionEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		SubscriptionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<SubscriptionEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

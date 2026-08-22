@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.SharedKernel;
 using SmartSchool.Application.Messaging;

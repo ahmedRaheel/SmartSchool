@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for PurchaseOrderEntity.
+/// Executes database writes for <see cref="PurchaseOrderEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PurchaseOrderCommand(IEfMockStore store) : IPurchaseOrderCommand
+public sealed class PurchaseOrderCommand(IApplicationDbContext dbContext) : IPurchaseOrderCommand
 {
-	public Task AddAsync(PurchaseOrderEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		PurchaseOrderEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<PurchaseOrderEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(PurchaseOrderEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		PurchaseOrderEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<PurchaseOrderEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(PurchaseOrderEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		PurchaseOrderEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<PurchaseOrderEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Identity.Models;
 
 namespace SmartSchool.Modules.Identity.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for UserProfileEntity.
+/// Executes database writes for <see cref="UserProfileEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class UserProfileCommand(IEfMockStore store) : IUserProfileCommand
+public sealed class UserProfileCommand(IApplicationDbContext dbContext) : IUserProfileCommand
 {
-	public Task AddAsync(UserProfileEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		UserProfileEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<UserProfileEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(UserProfileEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		UserProfileEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<UserProfileEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(UserProfileEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		UserProfileEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<UserProfileEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

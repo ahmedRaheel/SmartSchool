@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for EmploymentHistoryEntity.
+/// Executes database writes for <see cref="EmploymentHistoryEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class EmploymentHistoryCommand(IEfMockStore store) : IEmploymentHistoryCommand
+public sealed class EmploymentHistoryCommand(IApplicationDbContext dbContext) : IEmploymentHistoryCommand
 {
-	public Task AddAsync(EmploymentHistoryEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		EmploymentHistoryEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<EmploymentHistoryEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(EmploymentHistoryEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		EmploymentHistoryEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<EmploymentHistoryEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(EmploymentHistoryEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		EmploymentHistoryEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<EmploymentHistoryEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

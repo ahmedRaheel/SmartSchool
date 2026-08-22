@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
+using SmartSchool.Modules.Communication.Models;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -14,16 +16,24 @@ public static class GetNotificationPage
 	/// </summary>
 	/// <param name="TenantId">The owning tenant identifier.</param>
 	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id,
-		string Code,
-		string Name);
+			public sealed record Response(
+	Guid TenantId,
+	Guid Id,
+	Guid RecipientUserId,
+	NotificationType Type,
+	string Title,
+	string Message,
+	Guid? RelatedEntityId,
+	string? RelatedEntityType,
+	string? ActionUrl,
+	string Priority,
+	bool IsRead,
+	DateTimeOffset? ReadAt,
+	DateTimeOffset OccurredAt);
 
 	public sealed record Query(
 		Guid TenantId,
+		Guid RecipientUserId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
@@ -37,6 +47,7 @@ public static class GetNotificationPage
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
 			var page = await entityQuery.GetPageAsync(
 				request.TenantId,
+				request.RecipientUserId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
@@ -53,26 +64,35 @@ public static class GetNotificationPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "notification"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid tenantId, Guid recipientUserId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, page, pageSize);
+					var request = new Query(tenantId, recipientUserId, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();
 				})
 			.WithName("GetNotificationPage")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
 		return endpoints;
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.NotificationEntity entity)
+	    NotificationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name);
+			entity.RecipientUserId,
+			entity.Type,
+			entity.Title,
+			entity.Message,
+			entity.RelatedEntityId,
+			entity.RelatedEntityType,
+			entity.ActionUrl,
+			entity.Priority,
+			entity.IsRead,
+			entity.ReadAt,
+			entity.OccurredAt);
 	}
 }

@@ -1,0 +1,53 @@
+installing wsl 
+wsl --install 
+
+installing ubuntu
+wsl --install -d Ubuntu
+
+installing docker 
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+
+allow user without sudo
+sudo usermod -aG docker $USER
+docker --version
+docker run hello-world
+
+installing postgres with pg vector 
+
+docker run --name postgres `
+  -e POSTGRES_USER=postgres `
+  -e POSTGRES_PASSWORD=postgres123 `
+  -p 5432:5432 `
+  -v postgres-data:/var/lib/postgresql `
+  --restart unless-stopped `
+  -d pgvector/pgvector:pg18
+
+
+installing  Kafka on docker 
+docker run -d `
+  --name kafka `
+  -p 9092:9092 `
+  apache/kafka:4.1.1
+
+installing redis  on docker 
+docker run --name redis `
+  -p 6379:6379 `
+  -v redis-data:/data `
+  --restart unless-stopped `
+  -d redis:8
+
+installing ollama
+docker run -d `
+  --name ollama `
+  -p 11434:11434 `
+  -v ollama-data:/root/.ollama `
+  --restart unless-stopped `
+  ollama/ollama
+
+
+push docker compose 
+
+docker compose -f docker-compose.app.yml build
+docker compose -f docker-compose.app.yml up -d

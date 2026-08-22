@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for CourseSelectionEntity.
+/// Executes database writes for <see cref="CourseSelectionEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class CourseSelectionCommand(IEfMockStore store) : ICourseSelectionCommand
+public sealed class CourseSelectionCommand(IApplicationDbContext dbContext) : ICourseSelectionCommand
 {
-	public Task AddAsync(CourseSelectionEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		CourseSelectionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<CourseSelectionEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(CourseSelectionEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		CourseSelectionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<CourseSelectionEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(CourseSelectionEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		CourseSelectionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<CourseSelectionEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

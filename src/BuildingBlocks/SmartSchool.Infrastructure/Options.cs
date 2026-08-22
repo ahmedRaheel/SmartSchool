@@ -1,3 +1,4 @@
+using SmartSchool.Infrastructure.Identity;
 using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Infrastructure.Options;
@@ -11,7 +12,7 @@ public sealed class DatabaseOptions
 	public int CommandTimeoutSeconds { get; init; } = 30;
 }
 
-public sealed class IdentityOptions
+public sealed class AuthenticationOptions
 {
 	public const string SectionName = ConfigurationSections.Identity;
 
@@ -20,6 +21,7 @@ public sealed class IdentityOptions
 	public string Audience { get; init; } = AuthenticationConstants.DefaultAudience;
 
 	public bool RequireHttpsMetadata { get; init; } = true;
+	public IdentityProvider Provider { get; init; } = IdentityProvider.IdentityServer;
 }
 
 public sealed class KafkaOptions

@@ -1,3 +1,6 @@
+using Dapper;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +8,94 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.AICore.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for KnowledgeDocumentEntity.
+/// Executes database reads for <see cref="KnowledgeDocumentEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class KnowledgeDocumentQuery(IEfMockStore store) : IKnowledgeDocumentQuery
+public sealed class KnowledgeDocumentQuery(
+	IApplicationDbContext dbContext,
+	IDbConnectionFactory connectionFactory) : IKnowledgeDocumentQuery
 {
-	public Task<KnowledgeDocumentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<KnowledgeDocumentEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<KnowledgeDocumentEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<KnowledgeDocumentEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<KnowledgeDocumentEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<KnowledgeDocumentEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<KnowledgeDocumentEntity>(tenantId, page, pageSize, cancellationToken);
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.KnowledgeDocument
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				knowledgedocument_id AS "Id"
+			FROM public.KnowledgeDocument
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY knowledgedocument_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<KnowledgeDocumentEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<KnowledgeDocumentEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<KnowledgeDocumentEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<KnowledgeDocumentEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

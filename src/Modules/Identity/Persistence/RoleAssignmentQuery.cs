@@ -1,3 +1,6 @@
+using Dapper;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +8,94 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Identity.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for RoleAssignmentEntity.
+/// Executes database reads for <see cref="RoleAssignmentEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class RoleAssignmentQuery(IEfMockStore store) : IRoleAssignmentQuery
+public sealed class RoleAssignmentQuery(
+	IApplicationDbContext dbContext,
+	IDbConnectionFactory connectionFactory) : IRoleAssignmentQuery
 {
-	public Task<RoleAssignmentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<RoleAssignmentEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<RoleAssignmentEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<RoleAssignmentEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<RoleAssignmentEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<RoleAssignmentEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<RoleAssignmentEntity>(tenantId, page, pageSize, cancellationToken);
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.RoleAssignment
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				roleassignment_id AS "Id"
+			FROM public.RoleAssignment
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY roleassignment_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<RoleAssignmentEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<RoleAssignmentEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<RoleAssignmentEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<RoleAssignmentEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

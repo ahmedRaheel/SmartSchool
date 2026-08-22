@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Transport.Models;
 
 namespace SmartSchool.Modules.Transport.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for RouteEntity.
+/// Executes database writes for <see cref="RouteEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class RouteCommand(IEfMockStore store) : IRouteCommand
+public sealed class RouteCommand(IApplicationDbContext dbContext) : IRouteCommand
 {
-	public Task AddAsync(RouteEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		RouteEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<RouteEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(RouteEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		RouteEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<RouteEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(RouteEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		RouteEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<RouteEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

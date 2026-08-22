@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ApprovalEntity.
+/// Executes database writes for <see cref="ApprovalEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ApprovalCommand(IEfMockStore store) : IApprovalCommand
+public sealed class ApprovalCommand(IApplicationDbContext dbContext) : IApprovalCommand
 {
-	public Task AddAsync(ApprovalEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ApprovalEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ApprovalEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ApprovalEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ApprovalEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ApprovalEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ApprovalEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ApprovalEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ApprovalEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

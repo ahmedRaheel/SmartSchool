@@ -1,14 +1,26 @@
-using Scalar.AspNetCore;
-using SmartSchool.Application;
-using SmartSchool.Infrastructure.Identity;
-using SmartSchool.Api.Seed;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+
+using Scalar.AspNetCore;
 using Serilog;
+
+using SmartSchool.Api.Features;
+using SmartSchool.Api.Observability;
+using SmartSchool.Api.Seed;
+using SmartSchool.Application;
 using SmartSchool.Infrastructure;
+using SmartSchool.Infrastructure.DependencyInjection;
+using SmartSchool.Infrastructure.Identity;
 using SmartSchool.Infrastructure.Options;
 using SmartSchool.Infrastructure.Persistence;
 using SmartSchool.SharedKernel.Constants;
+
 using SmartSchool.Modules.AICore;
 using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIParent;
@@ -19,56 +31,145 @@ using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Audit;
 using SmartSchool.Modules.Communication;
+using SmartSchool.Modules.Communication.Realtime;
 using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.HR;
-using SmartSchool.Modules.Identity;
 using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Library;
 using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Payroll;
+using SmartSchool.Modules.Reference;
 using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Tenancy;
 using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Workflow;
 
-var builder =
-	WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSmartSchoolPlatform();
 
+var portalUrl =
+	builder.Configuration.GetValue<string>("PortalUrl")
+	?? "http://localhost:5173";
+
+//
+// Authentication
+//
+// IMPORTANT:
+// AddSmartSchoolPlatform must NOT also register JwtBearer authentication.
+// There should be one canonical bearer configuration.
+//
+
+builder.Services.Configure<JwtBearerOptions>(
+	JwtBearerDefaults.AuthenticationScheme,
+	options =>
+	{
+		options.Authority = "http://localhost:7101";
+
+		options.MetadataAddress =
+			"http://host.docker.internal:7101/.well-known/openid-configuration";
+
+		options.Audience = "smartschool-api";
+		options.RequireHttpsMetadata = false;
+		options.MapInboundClaims = false;
+
+		options.TokenValidationParameters ??=
+			new TokenValidationParameters();
+
+		// Token is issued to browser/Postman using localhost:7101.
+		options.TokenValidationParameters.ValidateIssuer = true;
+		options.TokenValidationParameters.ValidIssuer =
+			"http://localhost:7101";
+
+		options.TokenValidationParameters.ValidateAudience = true;
+		options.TokenValidationParameters.ValidAudience =
+			"smartschool-api";
+
+		options.TokenValidationParameters.ValidateLifetime = true;
+		options.TokenValidationParameters.ValidateIssuerSigningKey = true;
+
+		options.TokenValidationParameters.NameClaimType = "name";
+		options.TokenValidationParameters.RoleClaimType = "role";
+
+		options.Events ??= new JwtBearerEvents();
+
+		options.Events.OnMessageReceived = context =>
+		{
+			var accessToken =
+				context.Request.Query["access_token"];
+
+			if (!string.IsNullOrWhiteSpace(accessToken) &&
+				context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+			{
+				context.Token = accessToken;
+			}
+
+			return Task.CompletedTask;
+		};
+
+		options.Events.OnAuthenticationFailed = context =>
+		{
+			var logger = context.HttpContext.RequestServices
+				.GetRequiredService<ILoggerFactory>()
+				.CreateLogger("SmartSchool.Authentication");
+
+			logger.LogError(
+				context.Exception,
+				"JWT authentication failed.");
+
+			return Task.CompletedTask;
+		};
+
+		options.Events.OnTokenValidated = context =>
+		{
+			var logger = context.HttpContext.RequestServices
+				.GetRequiredService<ILoggerFactory>()
+				.CreateLogger("SmartSchool.Authentication");
+
+			logger.LogInformation(
+				"JWT validated. Subject={Subject}, Roles={Roles}",
+				context.Principal?.FindFirst("sub")?.Value,
+				string.Join(
+					",",
+					context.Principal?
+						.FindAll("role")
+						.Select(x => x.Value)
+					?? []));
+
+			return Task.CompletedTask;
+		};
+	});
+
+
+
+//
+// Authorization policies
+//
+builder.Services.AddSmartSchoolAuthorization();
+
 builder.Services.AddOpenApi();
 
-builder.Services
-	.AddAuthentication(AuthenticationConstants.BearerScheme)
-	.AddJwtBearer(
-		options =>
-		{
-			var identityOptions = builder.Configuration
-				.GetSection(IdentityOptions.SectionName)
-				.Get<IdentityOptions>()
-				?? throw new InvalidOperationException(
-					"Identity configuration is missing.");
+builder.Services.AddSmartSchoolObservability(
+	builder.Configuration,
+	"SmartSchool.Api");
 
-			options.Authority =
-				identityOptions.Authority;
+builder.Services.AddCors(
+	options =>
+		options.AddPolicy(
+			"Portal",
+			policy =>
+				policy
+					.WithOrigins(portalUrl)
+					.AllowAnyHeader()
+					.AllowAnyMethod()
+					.AllowCredentials()
+					.WithExposedHeaders(
+						"X-Correlation-ID",
+						"X-Trace-Id")));
 
-			options.Audience =
-				identityOptions.Audience;
-
-			options.RequireHttpsMetadata =
-				identityOptions.RequireHttpsMetadata;
-
-			options.TokenValidationParameters.NameClaimType =
-				"name";
-
-			options.TokenValidationParameters.RoleClaimType =
-				SmartSchoolClaims.Role;
-		});
-
-builder.Services.AddSmartSchoolAuthorization();
 builder.Services.AddScoped<SampleActorSeeder>();
 
 builder.Services
@@ -76,23 +177,30 @@ builder.Services
 		ApplicationConstants.MachineLearningHttpClient,
 		(serviceProvider, client) =>
 		{
-			var options = serviceProvider
-				.GetRequiredService<IOptionsMonitor<MachineLearningOptions>>()
-				.CurrentValue;
+			var options =
+				serviceProvider
+					.GetRequiredService<
+						IOptionsMonitor<MachineLearningOptions>>()
+					.CurrentValue;
 
 			client.BaseAddress =
 				new Uri(options.BaseUrl);
 
 			client.Timeout =
-				TimeSpan.FromSeconds(options.TimeoutSeconds);
+				TimeSpan.FromSeconds(
+					options.TimeoutSeconds);
 		})
 	.AddStandardResilienceHandler();
 
+//
+// Modules
+//
 builder.Services.AddAICoreModule();
 builder.Services.AddAIInquiryModule();
 builder.Services.AddAIParentModule();
 builder.Services.AddAIPredictionModule();
 builder.Services.AddAITutorModule();
+
 builder.Services.AddAcademicsModule();
 builder.Services.AddActivitiesModule();
 builder.Services.AddAdmissionsModule();
@@ -102,78 +210,200 @@ builder.Services.AddDocumentsModule();
 builder.Services.AddExaminationsModule();
 builder.Services.AddFinanceModule();
 builder.Services.AddHRModule();
-builder.Services.AddIdentityModule();
 builder.Services.AddInventoryModule();
 builder.Services.AddLearningModule();
 builder.Services.AddLibraryModule();
 builder.Services.AddOrganizationModule();
 builder.Services.AddPayrollModule();
+builder.Services.AddReferenceModule();
 builder.Services.AddStudentsModule();
 builder.Services.AddTenancyModule();
 builder.Services.AddTransportModule();
 builder.Services.AddWorkflowModule();
 
+var app = builder.Build();
 
-var app =
-	builder.Build();
-
+//
+// Development
+//
 if (app.Environment.IsDevelopment())
 {
 	app.MapOpenApi();
-	app.MapScalarApiReference(options => options.WithTitle("SmartSchool API"));
+
+	app.MapScalarApiReference(
+		options =>
+			options.WithTitle(
+				"SmartSchool API"));
 
 	using var scope =
 		app.Services.CreateScope();
 
-	var mockDatabaseSeeder =
-		scope.ServiceProvider.GetRequiredService<MockDatabaseSeeder>();
+	var persistenceOptions =
+		scope.ServiceProvider
+			.GetRequiredService<
+				IOptions<PersistenceOptions>>()
+			.Value;
 
-	await mockDatabaseSeeder.SeedAsync();
+	if (
+		persistenceOptions.Provider
+		== PersistenceProvider.Mock)
+	{
+		var mockDatabaseSeeder =
+			scope.ServiceProvider
+				.GetRequiredService<
+					MockDatabaseSeeder>();
+
+		await mockDatabaseSeeder.SeedAsync();
+	}
 
 	var sampleActorSeeder =
-		scope.ServiceProvider.GetRequiredService<SampleActorSeeder>();
+		scope.ServiceProvider
+			.GetRequiredService<
+				SampleActorSeeder>();
 
 	await sampleActorSeeder.SeedAsync();
 }
 
+//
+// HTTP pipeline
+//
+app.UseMiddleware<
+	SmartSchool.Api.Middleware.ResultResponseMiddleware>();
+
 app.UseExceptionHandler();
+
+app.UseCors("Portal");
+
 app.UseCorrelationId();
+app.UseTelemetryResponseHeaders();
+
 app.UseSerilogRequestLogging();
+
+//
+// Authentication MUST run before authorization.
+//
 app.UseAuthentication();
 app.UseAuthorization();
 
+//
+// Health
+//
 app.MapGet(
 	ApiRoutes.Health,
-	() => Results.Ok(
-		new
-		{
-			Status = ApplicationConstants.HealthStatusOk,
-			Product = ApplicationConstants.ProductName
-		}));
+	() =>
+		Results.Ok(
+			new
+			{
+				Status =
+					ApplicationConstants.HealthStatusOk,
+
+				Product =
+					ApplicationConstants.ProductName
+			}));
+
+app.MapSmartSchoolHealth();
+
+//
+// Application endpoints
+//
+app.MapDashboardEndpoints();
+app.MapPlatformFeatureEndpoints();
+app.MapAiAssistantEndpoints();
+app.MapWorkflowCatalogEndpoints();
+app.MapClientTelemetryEndpoints();
+app.MapActorProfileEndpoints();
 
 app.MapAICoreEndpoints();
 app.MapAIInquiryEndpoints();
 app.MapAIParentEndpoints();
 app.MapAIPredictionEndpoints();
 app.MapAITutorEndpoints();
+
 app.MapAcademicsEndpoints();
 app.MapActivitiesEndpoints();
 app.MapAdmissionsEndpoints();
 app.MapAuditEndpoints();
+
 app.MapCommunicationEndpoints();
+
+//
+// SignalR
+//
+app.MapHub<NotificationHub>(
+		"/hubs/notifications")
+	.RequireAuthorization();
+
+app.MapHub<ChatHub>(
+		"/hubs/chat")
+	.RequireAuthorization();
+
 app.MapDocumentsEndpoints();
 app.MapExaminationsEndpoints();
 app.MapFinanceEndpoints();
 app.MapHREndpoints();
-app.MapIdentityEndpoints();
 app.MapInventoryEndpoints();
 app.MapLearningEndpoints();
 app.MapLibraryEndpoints();
 app.MapOrganizationEndpoints();
 app.MapPayrollEndpoints();
+app.MapReferenceEndpoints();
 app.MapStudentsEndpoints();
 app.MapTenancyEndpoints();
 app.MapTransportEndpoints();
 app.MapWorkflowEndpoints();
+
+//
+// Temporary authentication diagnostic endpoint.
+//
+// Remove after authentication has been verified.
+//
+app.MapGet(
+		"/api/debug/auth",
+		(HttpContext context) =>
+		{
+			var claims =
+				context.User.Claims
+					.Select(
+						claim =>
+							new
+							{
+								claim.Type,
+								claim.Value
+							})
+					.ToArray();
+
+			return Results.Ok(
+				new
+				{
+					isAuthenticated =
+						context.User.Identity?
+							.IsAuthenticated,
+
+					authenticationType =
+						context.User.Identity?
+							.AuthenticationType,
+
+					subject =
+						context.User
+							.FindFirstValue("sub"),
+
+					roles =
+						context.User
+							.FindAll("role")
+							.Select(
+								claim =>
+									claim.Value)
+							.ToArray(),
+
+					isSuperAdmin =
+						context.User
+							.IsInRole(
+								"SuperAdmin"),
+
+					Claims =
+						claims
+				});
+		})
+	.RequireAuthorization();
 
 app.Run();

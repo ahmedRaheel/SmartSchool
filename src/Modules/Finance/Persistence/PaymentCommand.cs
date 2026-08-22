@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for PaymentEntity.
+/// Executes database writes for <see cref="PaymentEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PaymentCommand(IEfMockStore store) : IPaymentCommand
+public sealed class PaymentCommand(IApplicationDbContext dbContext) : IPaymentCommand
 {
-	public Task AddAsync(PaymentEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		PaymentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<PaymentEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(PaymentEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		PaymentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<PaymentEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(PaymentEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		PaymentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<PaymentEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

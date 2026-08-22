@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for WorkflowStepEntity.
+/// Executes database writes for <see cref="WorkflowStepEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class WorkflowStepCommand(IEfMockStore store) : IWorkflowStepCommand
+public sealed class WorkflowStepCommand(IApplicationDbContext dbContext) : IWorkflowStepCommand
 {
-	public Task AddAsync(WorkflowStepEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		WorkflowStepEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<WorkflowStepEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(WorkflowStepEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		WorkflowStepEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<WorkflowStepEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(WorkflowStepEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		WorkflowStepEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<WorkflowStepEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

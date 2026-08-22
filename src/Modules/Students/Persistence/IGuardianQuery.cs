@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
 
@@ -28,9 +29,9 @@ public interface IGuardianQuery
 	/// <summary>
 	/// Executes the persistence operation.
 	/// </summary>
-	Task<bool> ExistsByCodeAsync(
+	Task<bool> ExistsByCnicNumberAsync(
 		Guid tenantId,
-		string code,
+		string cnicNumber,
 		Guid? excludingId,
 		CancellationToken cancellationToken);
 }

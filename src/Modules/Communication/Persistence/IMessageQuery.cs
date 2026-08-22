@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.SharedKernel;
 

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Transport.Models;
@@ -51,7 +52,7 @@ public static class DeleteStudentTransport
 				})
 			.WithName("DeleteStudentTransport")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
 	}
 }

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Academics.Models;
@@ -51,7 +52,7 @@ public static class DeleteTimetable
 				})
 			.WithName("DeleteTimetable")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 }

@@ -1,3 +1,6 @@
+using Dapper;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
@@ -5,23 +8,94 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.HR.Persistence;
 
 /// <summary>
-/// EF-backed read persistence for LeaveRequestEntity.
+/// Executes database reads for <see cref="LeaveRequestEntity"/>.
+/// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class LeaveRequestQuery(IEfMockStore store) : ILeaveRequestQuery
+public sealed class LeaveRequestQuery(
+	IApplicationDbContext dbContext,
+	IDbConnectionFactory connectionFactory) : ILeaveRequestQuery
 {
-	public Task<LeaveRequestEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+	public Task<LeaveRequestEntity?> GetByIdAsync(
+		Guid tenantId,
+		Guid id,
+		CancellationToken cancellationToken)
 	{
-		return store.GetByIdAsync<LeaveRequestEntity>(tenantId, id, cancellationToken);
+		return dbContext
+			.Set<LeaveRequestEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.Id == id,
+				cancellationToken);
 	}
 
-	public Task<PagedResult<LeaveRequestEntity>> GetPageAsync(Guid tenantId, int page, int pageSize, CancellationToken cancellationToken)
+	public async Task<PagedResult<LeaveRequestEntity>> GetPageAsync(
+		Guid tenantId,
+		int page,
+		int pageSize,
+		CancellationToken cancellationToken)
 	{
-		return store.GetPageAsync<LeaveRequestEntity>(tenantId, page, pageSize, cancellationToken);
+		const string countSql = """
+			SELECT COUNT(*)
+			FROM public.LeaveRequest
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
+
+		const string pageSql = """
+			SELECT
+				tenant_id AS "TenantId",
+				leaverequest_id AS "Id"
+			FROM public.LeaveRequest
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY leaverequest_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		var parameters = new
+		{
+			TenantId = tenantId,
+			PageSize = pageSize,
+			Offset = (page - 1) * pageSize
+		};
+
+		var totalCount = await connection.ExecuteScalarAsync<long>(
+			new CommandDefinition(
+				countSql,
+				parameters,
+				cancellationToken: cancellationToken));
+
+		var items = (await connection.QueryAsync<LeaveRequestEntity>(
+			new CommandDefinition(
+				pageSql,
+				parameters,
+				cancellationToken: cancellationToken)))
+			.AsList();
+
+		return new PagedResult<LeaveRequestEntity>(
+			items,
+			page,
+			pageSize,
+			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+	public Task<bool> ExistsByCodeAsync(
+		Guid tenantId,
+		string code,
+		Guid? excludingId,
+		CancellationToken cancellationToken)
 	{
-		return store.ExistsByCodeAsync<LeaveRequestEntity>(tenantId, code, excludingId, cancellationToken);
+		return dbContext
+			.Set<LeaveRequestEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+				cancellationToken);
 	}
-
 }

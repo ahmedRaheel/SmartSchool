@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for CertificateEntity.
+/// Executes database writes for <see cref="CertificateEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class CertificateCommand(IEfMockStore store) : ICertificateCommand
+public sealed class CertificateCommand(IApplicationDbContext dbContext) : ICertificateCommand
 {
-	public Task AddAsync(CertificateEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		CertificateEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<CertificateEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(CertificateEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		CertificateEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<CertificateEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(CertificateEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		CertificateEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<CertificateEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

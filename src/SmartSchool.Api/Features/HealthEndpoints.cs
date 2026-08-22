@@ -1,0 +1,3 @@
+using Dapper;using SmartSchool.Application.Persistence;
+namespace SmartSchool.Api.Features;
+public static class HealthEndpoints{public static IEndpointRouteBuilder MapSmartSchoolHealth(this IEndpointRouteBuilder e){e.MapGet("/health/live",()=>Results.Ok(new{status="Healthy"})).AllowAnonymous();e.MapGet("/health/ready",Ready).AllowAnonymous();return e;}private static async Task<IResult> Ready(IDbConnectionFactory f,CancellationToken ct){try{await using var c=await f.OpenConnectionAsync(ct);await c.ExecuteScalarAsync<int>(new CommandDefinition("SELECT 1",cancellationToken:ct));return Results.Ok(new{status="Ready",database="Healthy"});}catch(Exception ex){return Results.Json(new{status="NotReady",database="Unhealthy",error=ex.Message},statusCode:503);}}}

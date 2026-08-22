@@ -1,3 +1,6 @@
+using SmartSchool.Modules.Communication.Realtime;
+using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
@@ -15,54 +18,70 @@ public static class CreateNotification
 	/// </summary>
 	/// <param name="TenantId">The owning tenant identifier.</param>
 	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id,
-		string Code,
-		string Name);
+			public sealed record Response(
+			Guid TenantId,
+			Guid Id,
+			Guid RecipientUserId,
+			NotificationType Type,
+			string Title,
+			string Message,
+			Guid? RelatedEntityId,
+			string? RelatedEntityType,
+			string? ActionUrl,
+			string Priority,
+			bool IsRead,
+			DateTimeOffset? ReadAt,
+			DateTimeOffset OccurredAt);
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+		Guid RecipientUserId,
+		NotificationType Type,
+		string Title,
+		string Message,
+		Guid? RelatedEntityId,
+		string? RelatedEntityType,
+		string? ActionUrl,
+		string Priority) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Type).IsInEnum();
+			RuleFor(x => x.Title).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Message).NotEmpty().MaximumLength(2000);
+			RuleFor(x => x.Priority).NotEmpty().MaximumLength(50);
 		}
 	}
 
 	public sealed class Handler(
-		INotificationQuery entityQuery,
-		INotificationCommand entityCommand)
+		INotificationCommand entityCommand,
+		IHubContext<NotificationHub> notificationHub)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(NotificationEntity), request.Code)));
-			}
 
 			var entity = NotificationEntity.Create(
-				request.TenantId,
-				request.Code,
-				request.Name);
-
+					request.TenantId,
+					request.RecipientUserId,
+					request.Type,
+					request.Title,
+					request.Message,
+					request.RelatedEntityId,
+					request.RelatedEntityType,
+					request.ActionUrl,
+					request.Priority);
 			await entityCommand.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
+			var response = MapResponse(entity);
+			await notificationHub.Clients
+				.Group(CommunicationGroups.User(entity.TenantId, entity.RecipientUserId))
+				.SendAsync("NotificationReceived", response, cancellationToken);
+			return Result<Response>.Success(response);
 		}
 	}
 
@@ -78,17 +97,26 @@ public static class CreateNotification
 				})
 			.WithName("CreateNotification")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.NotificationEntity entity)
+		NotificationEntity entity)
 	{
 		return new Response(
-			entity.TenantId,
+		entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name);
+			entity.RecipientUserId,
+			entity.Type,
+			entity.Title,
+			entity.Message,
+			entity.RelatedEntityId,
+			entity.RelatedEntityType,
+			entity.ActionUrl,
+			entity.Priority,
+			entity.IsRead,
+			entity.ReadAt,
+			entity.OccurredAt);
 	}
 }

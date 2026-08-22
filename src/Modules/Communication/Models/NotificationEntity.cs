@@ -2,63 +2,103 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Communication.Models;
 
-/// <summary>
-/// Represents the NotificationEntity domain entity.
-/// </summary>
+/// <summary>Represents a recipient-specific school notification.</summary>
 public sealed class NotificationEntity : Entity
 {
-	private NotificationEntity()
-	{
-	}
+    private NotificationEntity() { }
 
-	/// <summary>Gets the business code.</summary>
-	public string Code { get; private set; } = string.Empty;
+    /// <summary>Gets the recipient user identifier.</summary>
+    public Guid RecipientUserId { get; private set; }
 
-	/// <summary>Gets the display name.</summary>
-	public string Name { get; private set; } = string.Empty;
+    /// <summary>Gets the notification type.</summary>
+    public NotificationType Type { get; private set; }
 
-	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
-	public string? MetadataJson { get; private set; }
+    /// <summary>Gets the notification title.</summary>
+    public string Title { get; private set; } = string.Empty;
 
-	/// <summary>Creates a new NotificationEntity.</summary>
-	/// <param name="tenantId">The owning tenant identifier.</param>
-	/// <param name="code">The business code.</param>
-	/// <param name="name">The display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	/// <returns>The newly created entity.</returns>
-	public static NotificationEntity Create(
-		Guid tenantId,
-		string code,
-		string name,
-		string? metadataJson = null)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+    /// <summary>Gets the notification body.</summary>
+    public string Message { get; private set; } = string.Empty;
 
-		return new NotificationEntity
-		{
-			TenantId = tenantId,
-			Code = code.Trim(),
-			Name = name.Trim(),
-			MetadataJson = metadataJson
-		};
-	}
+    /// <summary>Gets the related business entity identifier.</summary>
+    public Guid? RelatedEntityId { get; private set; }
 
-	/// <summary>Updates the business details.</summary>
-	/// <param name="code">The new business code.</param>
-	/// <param name="name">The new display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
+    /// <summary>Gets the related business entity type.</summary>
+    public string? RelatedEntityType { get; private set; }
+
+    /// <summary>Gets the optional application route.</summary>
+    public string? ActionUrl { get; private set; }
+
+    /// <summary>Gets the notification priority.</summary>
+    public string Priority { get; private set; } = "Normal";
+
+    /// <summary>Gets whether it has been read.</summary>
+    public bool IsRead { get; private set; }
+
+    /// <summary>Gets when it was read.</summary>
+    public DateTimeOffset? ReadAt { get; private set; }
+
+    /// <summary>Gets when the business event occurred.</summary>
+    public DateTimeOffset OccurredAt { get; private set; }
+
+    /// <summary>Creates a notification.</summary>
+    public static NotificationEntity Create(
+        Guid tenantId,
+        Guid recipientUserId,
+        NotificationType type,
+        string title,
+        string message,
+        Guid? relatedEntityId = null,
+        string? relatedEntityType = null,
+        string? actionUrl = null,
+        string priority = "Normal")
+    {
+        return new NotificationEntity
+        {
+            TenantId = tenantId,
+            RecipientUserId = recipientUserId,
+            Type = type,
+            Title = title,
+            Message = message,
+            RelatedEntityId = relatedEntityId,
+            RelatedEntityType = relatedEntityType,
+            ActionUrl = actionUrl,
+            Priority = priority,
+            OccurredAt = DateTimeOffset.UtcNow
+        };
+    }
+
+	/// <summary>
+	/// Updates the editable notification details.
+	/// </summary>
+	/// <param name="type">Notification type.</param>
+	/// <param name="title">Notification title.</param>
+	/// <param name="message">Notification message.</param>
+	/// <param name="relatedEntityId">Related business entity identifier.</param>
+	/// <param name="relatedEntityType">Related business entity type.</param>
+	/// <param name="actionUrl">Application route associated with the notification.</param>
+	/// <param name="priority">Notification priority.</param>
 	public void UpdateDetails(
-		string code,
-		string name,
-		string? metadataJson = null)
+		NotificationType type,
+		string title,
+		string message,
+		Guid? relatedEntityId,
+		string? relatedEntityType,
+		string? actionUrl,
+		string priority)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-		Code = code.Trim();
-		Name = name.Trim();
-		MetadataJson = metadataJson;
-		MarkAsUpdated();
+		Type = type;
+		Title = title;
+		Message = message;
+		RelatedEntityId = relatedEntityId;
+		RelatedEntityType = relatedEntityType;
+		ActionUrl = actionUrl;
+		Priority = priority;
 	}
+
+	/// <summary>Marks the notification as read.</summary>
+	public void MarkAsRead()
+    {
+        IsRead = true;
+        ReadAt = DateTimeOffset.UtcNow;
+    }
 }

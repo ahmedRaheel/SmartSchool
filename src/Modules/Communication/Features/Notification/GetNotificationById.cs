@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Communication.Models;
@@ -14,13 +15,20 @@ public static class GetNotificationById
 	/// </summary>
 	/// <param name="TenantId">The owning tenant identifier.</param>
 	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id,
-		string Code,
-		string Name);
+			public sealed record Response(
+	Guid TenantId,
+	Guid Id,
+	Guid RecipientUserId,
+	NotificationType Type,
+	string Title,
+	string Message,
+	Guid? RelatedEntityId,
+	string? RelatedEntityType,
+	string? ActionUrl,
+	string Priority,
+	bool IsRead,
+	DateTimeOffset? ReadAt,
+	DateTimeOffset OccurredAt);
 
 	public sealed record Query(
 		Guid TenantId,
@@ -57,17 +65,26 @@ public static class GetNotificationById
 				})
 			.WithName("GetNotificationById")
 			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
 		return endpoints;
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.NotificationEntity entity)
+		NotificationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name);
+			entity.RecipientUserId,
+			entity.Type,
+			entity.Title,
+			entity.Message,
+			entity.RelatedEntityId,
+			entity.RelatedEntityType,
+			entity.ActionUrl,
+			entity.Priority,
+			entity.IsRead,
+			entity.ReadAt,
+			entity.OccurredAt);
 	}
 }

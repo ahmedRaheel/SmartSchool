@@ -516,7 +516,7 @@ dotnet_diagnostic.IDE0046.severity = suggestion # leave as suggestion
 dotnet_diagnostic.IDE0047.severity = warning
 
 # IDE0048: Add parentheses for clarity
-dotnet_diagnostic.IDE0048.severity = warning
+dotnet_diagnostic.IDE0048.severity =  none
 
 # IDE0049: Use language keywords instead of framework type names for type references
 dotnet_diagnostic.IDE0049.severity = warning

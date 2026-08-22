@@ -5,42 +5,32 @@ using SmartSchool.SharedKernel.Constants;
 namespace SmartSchool.Application.Http;
 
 /// <summary>
-/// Converts application results to ASP.NET Core HTTP results.
+/// Maps the application's existing Result model to HTTP without changing its JSON shape.
+/// Result and Result&lt;T&gt; are the single SmartSchool API response contracts.
 /// </summary>
 public static class HttpResultExtensions
 {
-	/// <summary>Converts a typed application result to an HTTP result.</summary>
-	public static IResult ToHttpResult<T>(this Result<T> result)
+	public static IResult ToHttpResult<T>(this Result<T> result) =>
+		Results.Json(result, statusCode: GetStatusCode(result));
+
+	public static IResult ToHttpResult(this Result result) =>
+		Results.Json(result, statusCode: GetStatusCode(result));
+
+	private static int GetStatusCode(Result result)
 	{
 		if (result.IsSuccess)
 		{
-			return Results.Ok(result.Value);
+			return StatusCodes.Status200OK;
 		}
 
-		return ToFailureResult(result.Error);
-	}
-
-	/// <summary>Converts an application result to an HTTP result.</summary>
-	public static IResult ToHttpResult(this Result result)
-	{
-		if (result.IsSuccess)
+		return result.Error.Code switch
 		{
-			return Results.NoContent();
-		}
-
-		return ToFailureResult(result.Error);
-	}
-
-	private static IResult ToFailureResult(Error error) =>
-		error.Code switch
-		{
-			ErrorCodes.Validation => Results.BadRequest(error),
-			ErrorCodes.NotFound => Results.NotFound(error),
-			ErrorCodes.Conflict => Results.Conflict(error),
-			ErrorCodes.Unauthorized => Results.Unauthorized(),
-			_ => Results.Problem(
-				title: ErrorMessages.RequestFailed,
-				detail: error.Message,
-				statusCode: StatusCodes.Status500InternalServerError)
+			ErrorCodes.Validation => StatusCodes.Status400BadRequest,
+			ErrorCodes.Unauthorized => StatusCodes.Status401Unauthorized,
+			ErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+			ErrorCodes.NotFound => StatusCodes.Status404NotFound,
+			ErrorCodes.Conflict => StatusCodes.Status409Conflict,
+			_ => StatusCodes.Status500InternalServerError
 		};
+	}
 }

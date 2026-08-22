@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Admissions.Models;
 
 namespace SmartSchool.Modules.Admissions.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for AdmissionDecisionEntity.
+/// Executes database writes for <see cref="AdmissionDecisionEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class AdmissionDecisionCommand(IEfMockStore store) : IAdmissionDecisionCommand
+public sealed class AdmissionDecisionCommand(IApplicationDbContext dbContext) : IAdmissionDecisionCommand
 {
-	public Task AddAsync(AdmissionDecisionEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		AdmissionDecisionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<AdmissionDecisionEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(AdmissionDecisionEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		AdmissionDecisionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<AdmissionDecisionEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(AdmissionDecisionEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		AdmissionDecisionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<AdmissionDecisionEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

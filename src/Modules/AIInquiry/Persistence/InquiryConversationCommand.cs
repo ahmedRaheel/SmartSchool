@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 
 namespace SmartSchool.Modules.AIInquiry.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for InquiryConversationEntity.
+/// Executes database writes for <see cref="InquiryConversationEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class InquiryConversationCommand(IEfMockStore store) : IInquiryConversationCommand
+public sealed class InquiryConversationCommand(IApplicationDbContext dbContext) : IInquiryConversationCommand
 {
-	public Task AddAsync(InquiryConversationEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		InquiryConversationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<InquiryConversationEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(InquiryConversationEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		InquiryConversationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<InquiryConversationEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(InquiryConversationEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		InquiryConversationEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<InquiryConversationEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

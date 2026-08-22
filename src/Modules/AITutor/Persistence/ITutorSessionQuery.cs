@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
 

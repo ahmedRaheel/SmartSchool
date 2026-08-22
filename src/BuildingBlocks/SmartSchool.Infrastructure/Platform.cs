@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 using Confluent.Kafka;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -12,6 +15,7 @@ using SmartSchool.Infrastructure.Errors;
 using SmartSchool.Infrastructure.Options;
 using SmartSchool.SharedKernel.Constants;
 using System.Text.Json;
+using SmartSchool.Infrastructure.DependencyInjection;
 
 namespace SmartSchool.Infrastructure;
 
@@ -64,7 +68,7 @@ public static class PlatformRegistration
 		ConfigureOptions(builder.Services, builder.Configuration);
 		ConfigureExceptionHandling(builder.Services);
 		ConfigureHangfire(builder.Services, builder.Configuration);
-		ConfigureMockDatabase(builder.Services);
+		builder.Services.AddSmartSchoolDataPlatform(builder.Configuration);
 
 		builder.Services.AddSingleton<KafkaPublisher>();
 
@@ -129,8 +133,8 @@ public static class PlatformRegistration
 			.ValidateOnStart();
 
 		services
-			.AddOptions<IdentityOptions>()
-			.Bind(configuration.GetSection(IdentityOptions.SectionName))
+			.AddOptions<AuthenticationOptions>()
+			.Bind(configuration.GetSection(AuthenticationOptions.SectionName))
 			.Validate(
 				options => !string.IsNullOrWhiteSpace(
 					options.Authority),
@@ -162,13 +166,6 @@ public static class PlatformRegistration
 		services.AddProblemDetails();
 	}
 
-	private static void ConfigureMockDatabase(IServiceCollection services)
-	{
-		services.AddDbContext<SmartSchoolMockDbContext>(options =>
-			options.UseInMemoryDatabase("SmartSchool-Development"));
-		services.AddScoped<IEfMockStore, EfMockStore>();
-		services.AddScoped<MockDatabaseSeeder>();
-	}
 
 	private static void ConfigureHangfire(
 		IServiceCollection services,

@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Learning.Models;
 
 namespace SmartSchool.Modules.Learning.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for AssignmentEntity.
+/// Executes database writes for <see cref="AssignmentEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class AssignmentCommand(IEfMockStore store) : IAssignmentCommand
+public sealed class AssignmentCommand(IApplicationDbContext dbContext) : IAssignmentCommand
 {
-	public Task AddAsync(AssignmentEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		AssignmentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<AssignmentEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(AssignmentEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		AssignmentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<AssignmentEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(AssignmentEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		AssignmentEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<AssignmentEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

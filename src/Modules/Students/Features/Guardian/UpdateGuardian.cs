@@ -1,5 +1,5 @@
-using SmartSchool.Application.Http;
 using FluentValidation;
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.Modules.Students.Persistence;
@@ -10,24 +10,22 @@ namespace SmartSchool.Modules.Students.Features.Guardian;
 
 public static class UpdateGuardian
 {
-	/// <summary>
-	/// Represents the response returned by this GuardianEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name);
+		Guid? UserId,
+		string FullName,
+		string? CnicNumber,
+		string? Email,
+		string? Phone);
 
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+		string FullName,
+		string? CnicNumber,
+		string? Email,
+		string? Phone) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -35,40 +33,27 @@ public static class UpdateGuardian
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IGuardianQuery entityQuery,
-		IGuardianCommand entityCommand)
+	public sealed class Handler(IGuardianQuery entityQuery, IGuardianCommand entityCommand)
 		: IRequestHandler<Request, Result<Response>>
 	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
+		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
+			var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(GuardianEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(GuardianEntity), request.Code)));
-			}
-
 			entity.UpdateDetails(
-				request.Code,
-				request.Name);
+				request.FullName,
+				request.CnicNumber,
+				request.Email,
+				request.Phone);
+
 			await entityCommand.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
@@ -81,23 +66,22 @@ public static class UpdateGuardian
 				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var command = request with { Id = id };
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						command, cancellationToken);
+					var result = await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("UpdateGuardian")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
+			.WithName("UpdateGuardian").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.GuardianEntity entity)
+	private static Response MapResponse(GuardianEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.Id,
-			entity.Code,
-			entity.Name);
+			entity.UserId,
+			entity.FullName,
+			entity.CnicNumber,
+			entity.Email,
+			entity.Phone);
 	}
 }

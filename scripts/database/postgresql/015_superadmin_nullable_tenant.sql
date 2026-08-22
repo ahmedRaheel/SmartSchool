@@ -1,0 +1,1 @@
+ALTER TABLE identity."Users" ALTER COLUMN "TenantId" DROP NOT NULL;

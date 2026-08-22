@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 
 namespace SmartSchool.Modules.AIParent.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for ParentMessageEntity.
+/// Executes database writes for <see cref="ParentMessageEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ParentMessageCommand(IEfMockStore store) : IParentMessageCommand
+public sealed class ParentMessageCommand(IApplicationDbContext dbContext) : IParentMessageCommand
 {
-	public Task AddAsync(ParentMessageEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		ParentMessageEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<ParentMessageEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(ParentMessageEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		ParentMessageEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<ParentMessageEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(ParentMessageEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		ParentMessageEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<ParentMessageEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

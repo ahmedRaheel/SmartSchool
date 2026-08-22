@@ -1,0 +1,11 @@
+**/bin
+**/obj
+**/.vs
+**/.idea
+**/node_modules
+.git
+.gitignore
+logs
+**/App_Data
+**/*.user
+**/*.suo

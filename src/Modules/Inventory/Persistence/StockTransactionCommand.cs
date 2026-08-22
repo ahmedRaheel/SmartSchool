@@ -1,26 +1,46 @@
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
 
 /// <summary>
-/// EF-backed write persistence for StockTransactionEntity.
+/// Executes database writes for <see cref="StockTransactionEntity"/>.
+/// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class StockTransactionCommand(IEfMockStore store) : IStockTransactionCommand
+public sealed class StockTransactionCommand(IApplicationDbContext dbContext) : IStockTransactionCommand
 {
-	public Task AddAsync(StockTransactionEntity entity, CancellationToken cancellationToken)
+	public async Task AddAsync(
+		StockTransactionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.AddAsync(entity, cancellationToken);
+		await dbContext
+			.Set<StockTransactionEntity>()
+			.AddAsync(entity, cancellationToken);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task UpdateAsync(StockTransactionEntity entity, CancellationToken cancellationToken)
+	public async Task UpdateAsync(
+		StockTransactionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.UpdateAsync(entity, cancellationToken);
+		dbContext
+			.Set<StockTransactionEntity>()
+			.Update(entity);
+
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	public Task DeleteAsync(StockTransactionEntity entity, CancellationToken cancellationToken)
+	public async Task DeleteAsync(
+		StockTransactionEntity entity,
+		CancellationToken cancellationToken)
 	{
-		return store.DeleteAsync(entity, cancellationToken);
-	}
+		dbContext
+			.Set<StockTransactionEntity>()
+			.Remove(entity);
 
+		await dbContext.SaveChangesAsync(cancellationToken);
+	}
 }

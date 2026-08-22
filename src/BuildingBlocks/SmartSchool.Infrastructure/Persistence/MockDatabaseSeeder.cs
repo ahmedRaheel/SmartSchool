@@ -5,26 +5,22 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Infrastructure.Persistence;
 
 /// <summary>
-/// Seeds representative records for every SmartSchool entity type
-/// in the development EF Core database.
+/// Seeds representative records for SmartSchool entities
+/// in the development database.
 /// </summary>
 public sealed class MockDatabaseSeeder(
-	SmartSchoolMockDbContext dbContext)
+	ApplicationDbContext dbContext)
 {
-	private const int RecordsPerEntity = 3;
-
-	private const string SeedMetadata =
-		"{\"source\":\"ef-inmemory-seed\"}";
-
 	/// <summary>
-	/// Gets the tenant identifier used by the development mock data.
+	/// Gets the tenant identifier used by development seed data.
 	/// </summary>
 	public static readonly Guid DemoTenantId =
 		Guid.Parse("11111111-1111-1111-1111-111111111111");
 
+	private const int RecordsPerEntity = 3;
+
 	/// <summary>
-	/// Creates development records for entity types that do not already
-	/// contain data for the demo tenant.
+	/// Creates development records for supported entity types.
 	/// </summary>
 	/// <param name="cancellationToken">
 	/// Token used to cancel the asynchronous operation.
@@ -32,150 +28,88 @@ public sealed class MockDatabaseSeeder(
 	public async Task SeedAsync(
 		CancellationToken cancellationToken = default)
 	{
-		await dbContext.Database.EnsureCreatedAsync(
-			cancellationToken);
+		await dbContext.Database.EnsureCreatedAsync(cancellationToken);
 
 		var entityTypes = dbContext.Model
 			.GetEntityTypes()
 			.Select(entityType => entityType.ClrType)
-			.Where(entityType => typeof(Entity).IsAssignableFrom(entityType))
-			.Distinct()
+			.Where(IsSeedableEntity)
 			.ToList();
 
 		foreach (var entityType in entityTypes)
 		{
-			var tenantAlreadySeeded = await IsTenantSeededAsync(
-				entityType,
-				cancellationToken);
-
-			if (tenantAlreadySeeded)
+			if (await TenantHasDataAsync(
+					entityType,
+					cancellationToken))
 			{
 				continue;
 			}
 
-			var createMethod = FindCreateMethod(entityType);
-
-			if (createMethod is null)
-			{
-				continue;
-			}
-
-			await SeedEntityTypeAsync(
-				entityType,
-				createMethod,
-				cancellationToken);
+			SeedEntityType(entityType);
 		}
 
-		await dbContext.SaveChangesAsync(
-			cancellationToken);
+		await dbContext.SaveChangesAsync(cancellationToken);
 	}
 
-	/// <summary>
-	/// Determines whether the specified entity type already contains
-	/// records for the development tenant.
-	/// </summary>
-	private async Task<bool> IsTenantSeededAsync(
+	private static bool IsSeedableEntity(Type entityType)
+	{
+		return typeof(Entity).IsAssignableFrom(entityType)
+			&& !entityType.IsAbstract
+			&& entityType.GetMethod(
+				"Create",
+				BindingFlags.Public | BindingFlags.Static) is not null;
+	}
+
+	private async Task<bool> TenantHasDataAsync(
 		Type entityType,
 		CancellationToken cancellationToken)
 	{
 		var setMethod = typeof(DbContext)
-			.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+			.GetMethods()
 			.Single(method =>
-				method.Name == nameof(DbContext.Set) &&
-				method.IsGenericMethodDefinition &&
-				method.GetParameters().Length == 0);
+				method.Name == nameof(DbContext.Set)
+				&& method.IsGenericMethodDefinition
+				&& method.GetParameters().Length == 0);
 
 		var genericSetMethod = setMethod.MakeGenericMethod(entityType);
 
-		var entitySet = genericSetMethod.Invoke(
+		var queryable = genericSetMethod.Invoke(
 			dbContext,
 			null);
 
-		if (entitySet is not IQueryable queryable)
+		if (queryable is not IQueryable query)
 		{
 			return false;
 		}
 
-		return await TenantExistsAsync(
-			queryable,
-			entityType,
-			cancellationToken);
-	}
-
-	/// <summary>
-	/// Executes the tenant existence query for a runtime entity type.
-	/// </summary>
-	private static async Task<bool> TenantExistsAsync(
-		IQueryable queryable,
-		Type entityType,
-		CancellationToken cancellationToken)
-	{
-		var method = typeof(MockDatabaseSeeder)
-			.GetMethod(
-				nameof(TenantExistsCoreAsync),
-				BindingFlags.NonPublic | BindingFlags.Static);
-
-		if (method is null)
+		foreach (var item in query)
 		{
-			throw new InvalidOperationException(
-				"Unable to locate the tenant existence method.");
+			cancellationToken.ThrowIfCancellationRequested();
+
+			if (item is Entity entity &&
+				entity.TenantId == DemoTenantId)
+			{
+				return true;
+			}
 		}
 
-		var genericMethod = method.MakeGenericMethod(entityType);
-
-		var task = genericMethod.Invoke(
-			null,
-			[
-				queryable,
-				cancellationToken
-			]);
-
-		if (task is not Task<bool> resultTask)
-		{
-			throw new InvalidOperationException(
-				$"Unable to query entity type '{entityType.Name}'.");
-		}
-
-		return await resultTask;
+		return false;
 	}
 
-	/// <summary>
-	/// Determines whether the demo tenant already has data
-	/// for the specified entity type.
-	/// </summary>
-	private static Task<bool> TenantExistsCoreAsync<TEntity>(
-		IQueryable queryable,
-		CancellationToken cancellationToken)
-		where TEntity : Entity
+	private void SeedEntityType(Type entityType)
 	{
-		return queryable
-			.Cast<TEntity>()
-			.AnyAsync(
-				entity => entity.TenantId == DemoTenantId,
-				cancellationToken);
-	}
-
-	/// <summary>
-	/// Finds the public static factory method used to create
-	/// the specified entity type.
-	/// </summary>
-	private static MethodInfo? FindCreateMethod(
-		Type entityType)
-	{
-		return entityType.GetMethod(
+		var createMethod = entityType.GetMethod(
 			"Create",
 			BindingFlags.Public | BindingFlags.Static);
-	}
 
-	/// <summary>
-	/// Creates and tracks development records for one entity type.
-	/// </summary>
-	private async Task SeedEntityTypeAsync(
-		Type entityType,
-		MethodInfo createMethod,
-		CancellationToken cancellationToken)
-	{
-		for (var index = 1; index <= RecordsPerEntity; index++)
+		if (createMethod is null || createMethod.GetParameters().Length != 4)
+		{
+			return;
+		}
+
+		for (var index = 1;
+			 index <= RecordsPerEntity;
+			 index++)
 		{
 			var entity = CreateSeedEntity(
 				entityType,
@@ -187,16 +121,10 @@ public sealed class MockDatabaseSeeder(
 				continue;
 			}
 
-			await dbContext.AddAsync(
-				entity,
-				cancellationToken);
+			dbContext.Add(entity);
 		}
 	}
 
-	/// <summary>
-	/// Creates a representative development entity by invoking
-	/// its static factory method.
-	/// </summary>
 	private static object? CreateSeedEntity(
 		Type entityType,
 		MethodInfo createMethod,
@@ -213,13 +141,16 @@ public sealed class MockDatabaseSeeder(
 		var name =
 			$"Demo {entityName} {index}";
 
+		const string metadata =
+			"{\"source\":\"ef-inmemory-seed\"}";
+
 		return createMethod.Invoke(
 			null,
 			[
 				DemoTenantId,
 				code,
 				name,
-				SeedMetadata
+				metadata
 			]);
 	}
 }
