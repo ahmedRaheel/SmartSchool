@@ -12,7 +12,7 @@ public sealed class InterviewEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<InterviewEntity> builder)
 	{
-		builder.ToTable("Interview");
+		builder.ToTable("Interview", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

@@ -12,7 +12,7 @@ public sealed class PositionEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<PositionEntity> builder)
 	{
-		builder.ToTable("Position");
+		builder.ToTable("Position", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

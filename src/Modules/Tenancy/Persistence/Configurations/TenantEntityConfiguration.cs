@@ -12,7 +12,7 @@ public sealed class TenantEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<TenantEntity> builder)
 	{
-		builder.ToTable("Tenant");
+		builder.ToTable("Tenant", SmartSchool.Modules.Tenancy.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Infrastructure.Persistence;
 using Serilog;
 using Serilog.Context;
@@ -20,7 +21,7 @@ using SmartSchool.Infrastructure.DependencyInjection;
 namespace SmartSchool.Infrastructure;
 
 public sealed class KafkaPublisher(
-	IOptionsMonitor<KafkaOptions> options)
+	IOptionsMonitor<KafkaOptions> options) : IIntegrationEventPublisher
 {
 	public async Task PublishAsync<T>(
 		string topic,
@@ -71,6 +72,7 @@ public static class PlatformRegistration
 		builder.Services.AddSmartSchoolDataPlatform(builder.Configuration);
 
 		builder.Services.AddSingleton<KafkaPublisher>();
+		builder.Services.AddSingleton<IIntegrationEventPublisher>(sp => sp.GetRequiredService<KafkaPublisher>());
 
 		return builder;
 	}

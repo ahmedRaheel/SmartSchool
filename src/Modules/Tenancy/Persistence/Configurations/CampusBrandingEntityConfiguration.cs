@@ -12,7 +12,7 @@ public sealed class CampusBrandingEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<CampusBrandingEntity> builder)
 	{
-		builder.ToTable("CampusBranding");
+		builder.ToTable("CampusBranding", SmartSchool.Modules.Tenancy.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

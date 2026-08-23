@@ -10,7 +10,7 @@ public interface INotificationQuery
 	Task<NotificationEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
 
 	/// <summary>Gets a recipient's notifications ordered newest first.</summary>
-	Task<PagedResult<NotificationEntity>> GetPageAsync(Guid tenantId, Guid recipientUserId, int page, int pageSize, CancellationToken cancellationToken);
+	Task<PagedResult<NotificationEntity>> GetPageAsync(Guid? tenantId, Guid recipientUserId, int page, int pageSize, CancellationToken cancellationToken);
 
 	/// <summary>Gets the unread notification count for a recipient.</summary>
 	Task<int> GetUnreadCountAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken);

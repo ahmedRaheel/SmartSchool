@@ -16,7 +16,7 @@ public sealed class CampusQuery(
 	IDbConnectionFactory connectionFactory) : ICampusQuery
 {
 	public Task<CampusEntity?> GetByIdAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
@@ -24,20 +24,20 @@ public sealed class CampusQuery(
 			.Set<CampusEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.Id == id,
 				cancellationToken);
 	}
 
 	public async Task<PagedResult<CampusEntity>> GetPageAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Campus
-			WHERE tenant_id = @TenantId
+			FROM org."Campus"
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND is_active = TRUE;
 			""";
 
@@ -45,8 +45,8 @@ public sealed class CampusQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				campus_id AS "Id"
-			FROM public.Campus
-			WHERE tenant_id = @TenantId
+			FROM org."Campus"
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND is_active = TRUE
 			ORDER BY campus_id
 			LIMIT @PageSize OFFSET @Offset;

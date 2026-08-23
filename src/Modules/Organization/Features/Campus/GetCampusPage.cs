@@ -25,7 +25,7 @@ public static class GetCampusPage
 	string? MetadataJson);
 
 	public sealed record Query(
-		Guid TenantId,
+		Guid? TenantId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
@@ -55,9 +55,10 @@ public static class GetCampusPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "campus"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid? tenantId, int page, int pageSize, SmartSchool.Application.Identity.ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, page, pageSize);
+					var effectiveTenantId = tenantScope.Resolve(tenantId);
+                    var request = new Query(effectiveTenantId ?? Guid.Empty, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();

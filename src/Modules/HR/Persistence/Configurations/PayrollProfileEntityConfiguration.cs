@@ -12,7 +12,7 @@ public sealed class PayrollProfileEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<PayrollProfileEntity> builder)
 	{
-		builder.ToTable("PayrollProfile");
+		builder.ToTable("PayrollProfile", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

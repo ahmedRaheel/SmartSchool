@@ -12,7 +12,7 @@ public sealed class StudentInterventionEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<StudentInterventionEntity> builder)
 	{
-		builder.ToTable("StudentIntervention");
+		builder.ToTable("StudentIntervention", SmartSchool.Modules.AIPrediction.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

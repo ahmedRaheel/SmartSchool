@@ -12,7 +12,7 @@ public static class AiAssistantEndpoints
     public sealed record Citation(Guid Id, string Name, double Score);
     private sealed record OllamaEmbeddingResponse(float[] Embedding);
     private sealed record OllamaGenerateResponse(string Response);
-    private sealed record Chunk(Guid Id, string Name, string? MetadataJson, double Score);
+    private sealed record Chunk(Guid Id, string Name, string Content, double Score);
 
     public static IEndpointRouteBuilder MapAiAssistantEndpoints(this IEndpointRouteBuilder endpoints)
     {
@@ -46,9 +46,9 @@ public static class AiAssistantEndpoints
         // pgvector: migration v55 adds embedding/content columns to ai.knowledge_chunk.
         var vectorLiteral = "[" + string.Join(",", embedding.Embedding.Select(x => x.ToString(System.Globalization.CultureInfo.InvariantCulture))) + "]";
         const string sql = """
-            SELECT id AS "Id", name AS "Name", metadata_json AS "MetadataJson",
+            SELECT id AS "Id", document_name AS "Name", content AS "Content",
                    1 - (embedding <=> CAST(@Vector AS vector)) AS "Score"
-            FROM ai.knowledge_chunk
+            FROM ai_core.rag_knowledge_chunk
             WHERE tenant_id=@TenantId AND is_active=true AND embedding IS NOT NULL
             ORDER BY embedding <=> CAST(@Vector AS vector)
             LIMIT 5;
@@ -57,7 +57,7 @@ public static class AiAssistantEndpoints
         var chunks = (await connection.QueryAsync<Chunk>(
             new CommandDefinition(sql, new { request.TenantId, Vector = vectorLiteral }, cancellationToken: ct))).ToArray();
 
-        var context = string.Join("\n\n", chunks.Select((x, i) => $"[{i + 1}] {x.Name}\n{x.MetadataJson}"));
+        var context = string.Join("\n\n", chunks.Select((x, i) => $"[{i + 1}] {x.Name}\n{x.Content}"));
         var system = $"You are SmartSchool assistant for actor {request.Actor ?? "User"}. Answer only from authorized tenant context. If context is insufficient, say so. Cite sources as [1], [2].";
         var prompt = $"{system}\n\nCONTEXT:\n{context}\n\nQUESTION:\n{request.Question}";
 

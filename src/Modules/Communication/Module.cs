@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Communication.Features.Conversation;
+using SmartSchool.Modules.Communication.Features.Chat;
 using SmartSchool.Modules.Communication.Features.ConversationParticipant;
 using SmartSchool.Modules.Communication.Features.Message;
 using SmartSchool.Modules.Communication.Features.MessageReceipt;
@@ -68,6 +69,7 @@ public static class Module
 		MarkNotificationAsRead.MapEndpoint(endpoints);
 		MarkAllNotificationsAsRead.MapEndpoint(endpoints);
 		GetUnreadNotificationCount.MapEndpoint(endpoints);
+		endpoints.MapChatEndpoints();
 
 		return endpoints;
 	}

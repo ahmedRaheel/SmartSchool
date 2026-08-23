@@ -12,7 +12,7 @@ public sealed class JobGradeEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<JobGradeEntity> builder)
 	{
-		builder.ToTable("JobGrade");
+		builder.ToTable("JobGrade", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

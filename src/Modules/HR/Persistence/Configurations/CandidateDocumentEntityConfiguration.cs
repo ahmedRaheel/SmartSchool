@@ -13,7 +13,7 @@ public sealed class CandidateDocumentEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<CandidateDocumentEntity> builder)
 	{
-		builder.ToTable("CandidateDocument");
+		builder.ToTable("CandidateDocument", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
 		builder.HasKey(document => document.Id);
 

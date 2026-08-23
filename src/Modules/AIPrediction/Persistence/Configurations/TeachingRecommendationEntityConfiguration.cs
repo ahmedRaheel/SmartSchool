@@ -12,7 +12,7 @@ public sealed class TeachingRecommendationEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<TeachingRecommendationEntity> builder)
 	{
-		builder.ToTable("TeachingRecommendation");
+		builder.ToTable("TeachingRecommendation", SmartSchool.Modules.AIPrediction.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

@@ -221,6 +221,8 @@ builder.Services.AddTenancyModule();
 builder.Services.AddTransportModule();
 builder.Services.AddWorkflowModule();
 
+builder.Services.AddHostedService<KafkaCommunicationConsumer>();
+
 var app = builder.Build();
 
 //
@@ -309,6 +311,7 @@ app.MapSmartSchoolHealth();
 app.MapDashboardEndpoints();
 app.MapPlatformFeatureEndpoints();
 app.MapAiAssistantEndpoints();
+app.MapRagChatbotEndpoints();
 app.MapWorkflowCatalogEndpoints();
 app.MapClientTelemetryEndpoints();
 app.MapActorProfileEndpoints();

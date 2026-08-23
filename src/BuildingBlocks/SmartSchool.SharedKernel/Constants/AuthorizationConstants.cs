@@ -4,6 +4,7 @@ public static class SmartSchoolRoles
 {
     public const string SuperAdmin = "SuperAdmin";
     public const string SchoolAdmin = "SchoolAdmin";
+    public const string Admin = "Admin";
     public const string Principal = "Principal";
     public const string Teacher = "Teacher";
     public const string Student = "Student";

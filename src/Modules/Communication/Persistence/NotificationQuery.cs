@@ -14,7 +14,7 @@ public sealed class NotificationQuery(
 	IDbConnectionFactory connectionFactory) : INotificationQuery
 {
 	public async Task<PagedResult<NotificationEntity>> GetPageAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		Guid recipientUserId,
 		int page,
 		int pageSize,
@@ -23,7 +23,7 @@ public sealed class NotificationQuery(
 		const string countSql = """
 			SELECT COUNT(*)
 			FROM communication.notification
-			WHERE tenant_id = @TenantId
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND recipient_user_id = @RecipientUserId;
 			""";
 
@@ -43,7 +43,7 @@ public sealed class NotificationQuery(
 				read_at AS "ReadAt",
 				occurred_at AS "OccurredAt"
 			FROM communication.notification
-			WHERE tenant_id = @TenantId
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND recipient_user_id = @RecipientUserId
 			ORDER BY occurred_at DESC
 			LIMIT @PageSize OFFSET @Offset;

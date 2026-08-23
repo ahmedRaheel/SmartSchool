@@ -12,7 +12,7 @@ public sealed class UserProfileEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<UserProfileEntity> builder)
 	{
-		builder.ToTable("UserProfile");
+		builder.ToTable("UserProfile", SmartSchool.Modules.Identity.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

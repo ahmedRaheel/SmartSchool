@@ -12,7 +12,7 @@ public sealed class LeaveRequestEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<LeaveRequestEntity> builder)
 	{
-		builder.ToTable("LeaveRequest");
+		builder.ToTable("LeaveRequest", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

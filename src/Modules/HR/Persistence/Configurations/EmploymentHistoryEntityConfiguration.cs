@@ -12,7 +12,7 @@ public sealed class EmploymentHistoryEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<EmploymentHistoryEntity> builder)
 	{
-		builder.ToTable("EmploymentHistory");
+		builder.ToTable("EmploymentHistory", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

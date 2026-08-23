@@ -12,7 +12,7 @@ public sealed class TopicPerformanceInsightEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<TopicPerformanceInsightEntity> builder)
 	{
-		builder.ToTable("TopicPerformanceInsight");
+		builder.ToTable("TopicPerformanceInsight", SmartSchool.Modules.AIPrediction.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

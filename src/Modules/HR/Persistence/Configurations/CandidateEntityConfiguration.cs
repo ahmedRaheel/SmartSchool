@@ -12,7 +12,7 @@ public sealed class CandidateEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<CandidateEntity> builder)
 	{
-		builder.ToTable("Candidate");
+		builder.ToTable("Candidate", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

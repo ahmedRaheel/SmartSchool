@@ -22,7 +22,7 @@ public sealed class NotificationEntityConfiguration
 	{
 		builder.ToTable(
 			"Notifications",
-			"Communication");
+			"communication");
 
 		builder.HasKey(entity => entity.Id);
 

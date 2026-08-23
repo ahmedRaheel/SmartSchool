@@ -12,7 +12,7 @@ public sealed class PredictionModelEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<PredictionModelEntity> builder)
 	{
-		builder.ToTable("PredictionModel");
+		builder.ToTable("PredictionModel", SmartSchool.Modules.AIPrediction.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

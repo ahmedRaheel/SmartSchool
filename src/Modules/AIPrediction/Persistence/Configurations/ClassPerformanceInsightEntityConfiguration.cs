@@ -12,7 +12,7 @@ public sealed class ClassPerformanceInsightEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<ClassPerformanceInsightEntity> builder)
 	{
-		builder.ToTable("ClassPerformanceInsight");
+		builder.ToTable("ClassPerformanceInsight", SmartSchool.Modules.AIPrediction.ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 

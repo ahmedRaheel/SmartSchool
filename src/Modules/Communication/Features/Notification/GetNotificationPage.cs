@@ -32,7 +32,7 @@ public static class GetNotificationPage
 	DateTimeOffset OccurredAt);
 
 	public sealed record Query(
-		Guid TenantId,
+		Guid? TenantId,
 		Guid RecipientUserId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
@@ -64,9 +64,11 @@ public static class GetNotificationPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "notification"),
-				async (Guid tenantId, Guid recipientUserId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid? tenantId, Guid recipientUserId, int page, int pageSize, SmartSchool.Application.Identity.ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, recipientUserId, page, pageSize);
+					var effectiveTenantId = tenantScope.Resolve(tenantId);
+                    if (!tenantScope.IsSuperAdmin && recipientUserId != tenantScope.UserId) return Results.Forbid();
+                    var request = new Query(effectiveTenantId, recipientUserId, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();
