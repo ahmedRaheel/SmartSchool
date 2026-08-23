@@ -29,7 +29,13 @@ public static class Module
     private static async Task<IResult> GetMe(ITenantScope scope, IDbConnectionFactory factory, CancellationToken ct)
     {
         const string sql="""SELECT employee_id AS "EmployeeId",tenant_id AS "TenantId",user_id AS "UserId",employee_number AS "EmployeeNumber",first_name AS "FirstName",last_name AS "LastName",email AS "Email",phone AS "Phone",status AS "Status" FROM hr.employee WHERE tenant_id=@TenantId AND user_id=@UserId LIMIT 1;""";
-        await using var c=await factory.OpenConnectionAsync(ct);var row=await c.QuerySingleOrDefaultAsync(new CommandDefinition(sql,new{TenantId=scope.TenantId,UserId=scope.UserId},cancellationToken:ct));return row is null?Results.NotFound(new{message="Teacher profile is not linked to this user."}):Results.Ok(row);
+        await using var c = await factory.OpenConnectionAsync(ct);
+		var row=await c.QuerySingleOrDefaultAsync(new CommandDefinition(sql,
+			new { tenantId= scope.TenantId,userId=scope.UserId},
+			cancellationToken:ct));
+		return row is null ? Results.NotFound( new
+		{ message="Teacher profile is not linked to this user."
+		}): Results.Ok(row);
     }
     private static async Task<IResult> GetTeacher(Guid employeeId,Guid? tenantId,ITenantScope scope,IDbConnectionFactory f,CancellationToken ct)=>await One("""SELECT e.employee_id AS "EmployeeId",e.tenant_id AS "TenantId",e.user_id AS "UserId",e.employee_number AS "EmployeeNumber",e.first_name AS "FirstName",e.last_name AS "LastName",e.email AS "Email",e.phone AS "Phone",e.hire_date AS "HireDate",e.employment_type_code AS "EmploymentType",e.status AS "Status",tp.qualification AS "Qualification",tp.specialization AS "Specialization",tp.teaching_experience_years AS "TeachingExperienceYears" FROM hr.employee e LEFT JOIN hr."TeacherProfile" tp ON tp."EmployeeId"=e.employee_id AND tp."TenantId"=e.tenant_id WHERE e.tenant_id=@TenantId AND e.employee_id=@EmployeeId;""",employeeId,Tenant(scope,tenantId),f,ct);
     private static async Task<IResult> GetClasses(Guid employeeId,Guid? tenantId,ITenantScope scope,IDbConnectionFactory f,CancellationToken ct)=>await Many("""SELECT a.teacher_course_assignment_id AS "AssignmentId",a.course_offering_id AS "CourseOfferingId",a.class_section_id AS "ClassSectionId",a.assignment_role AS "Role",a.periods_per_week AS "PeriodsPerWeek",a.effective_from AS "EffectiveFrom",a.effective_to AS "EffectiveTo" FROM academic.teacher_course_assignment a WHERE a.tenant_id=@TenantId AND a.employee_id=@EmployeeId AND (a.effective_to IS NULL OR a.effective_to>=CURRENT_DATE);""",employeeId,Tenant(scope,tenantId),f,ct);

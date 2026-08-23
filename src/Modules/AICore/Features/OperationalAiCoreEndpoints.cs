@@ -38,9 +38,14 @@ public static class OperationalAiCoreEndpoints
         var vector=await Embed(r.Content,clients,cfg,ct);
         var entity=KnowledgeChunkEntity.Create(tenant.Value,r.Code,r.Name,JsonSerializer.Serialize(new{r.CollectionId,r.DocumentId,r.Content,r.Tags}));
         await command.AddAsync(entity,ct);
-        const string sql="""INSERT INTO ai_core.rag_knowledge_chunk(id,tenant_id,collection,document_name,content,embedding,created_at,is_active)
-        VALUES(@Id,@Tenant,@Collection,@Name,@Content,CAST(@Vector AS vector),CURRENT_TIMESTAMP,TRUE)
-        ON CONFLICT (id) DO UPDATE SET content=EXCLUDED.content,embedding=EXCLUDED.embedding;""";
+        const string sql="""
+			
+			INSERT INTO ai_core.rag_knowledge_chunk
+			(id,tenant_id,collection,document_name,content,embedding,created_at,is_active)			
+			VALUES(@Id,@Tenant,@Collection,@Name,@Content,CAST(@Vector AS vector),CURRENT_TIMESTAMP,TRUE)
+			ON CONFLICT (id) DO UPDATE SET content=EXCLUDED.content,embedding=EXCLUDED.embedding;
+			
+			""";
         await using var cn=await db.OpenConnectionAsync(ct);
         await cn.ExecuteAsync(new CommandDefinition(sql,new{entity.Id,Tenant=tenant.Value,Collection=r.CollectionId.ToString(),r.Name,r.Content,Vector=Literal(vector)},cancellationToken:ct));
         await events.PublishAsync(KafkaTopics.RagDocumentIngestionRequested,new{tenantId=tenant.Value,chunkId=entity.Id,r.CollectionId,r.DocumentId},ct);
@@ -54,10 +59,19 @@ public static class OperationalAiCoreEndpoints
         if(!tenant.HasValue)return Results.BadRequest(new{message="A tenant is required."});
         var vector=await Embed(r.Prompt,clients,cfg,ct);
         var collections=r.Collections is {Length:>0}?r.Collections:["learning","academic","policy","operations","admissions"];
-        const string sql="""SELECT id AS "Id",document_name AS "DocumentName",collection AS "Collection",content AS "Content",
-        1-(embedding <=> CAST(@Vector AS vector)) AS "Score" FROM ai_core.rag_knowledge_chunk
-        WHERE tenant_id=@Tenant AND is_active=TRUE AND collection=ANY(@Collections)
-        ORDER BY embedding <=> CAST(@Vector AS vector) LIMIT @TopK;""";
+        const string sql="""
+			
+			SELECT id AS "Id",
+					document_name AS "DocumentName",
+					  collection AS "Collection",
+					  content AS "Content",
+					  1-(embedding <=> CAST(@Vector AS vector)) AS "Score" 
+				  FROM ai_core.rag_knowledge_chunk 
+				  WHERE 
+						tenant_id=@Tenant AND is_active=TRUE AND collection=ANY(@Collections)
+						ORDER BY embedding <=> CAST(@Vector AS vector) LIMIT @TopK;
+			
+			""";
         await using var cn=await db.OpenConnectionAsync(ct);
         var hits=(await cn.QueryAsync<Hit>(new CommandDefinition(sql,new{Tenant=tenant.Value,Collections=collections,Vector=Literal(vector),TopK=cfg.GetValue("AI:Ollama:TopK",5)},cancellationToken:ct))).ToArray();
         var context=string.Join("\n\n",hits.Select((h,i)=>$"[{i+1}] {h.DocumentName}\n{h.Content}"));
