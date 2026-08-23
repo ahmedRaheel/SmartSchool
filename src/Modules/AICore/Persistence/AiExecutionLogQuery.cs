@@ -36,7 +36,7 @@ public sealed class AiExecutionLogQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.AiExecutionLog
+			FROM ai_core.ai_execution_log
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class AiExecutionLogQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				aiexecutionlog_id AS "Id"
-			FROM public.AiExecutionLog
+			FROM ai_core.ai_execution_log
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY aiexecutionlog_id

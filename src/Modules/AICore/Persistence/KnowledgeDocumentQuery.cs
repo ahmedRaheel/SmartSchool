@@ -36,7 +36,7 @@ public sealed class KnowledgeDocumentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.KnowledgeDocument
+			FROM ai_core.knowledge_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class KnowledgeDocumentQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				knowledgedocument_id AS "Id"
-			FROM public.KnowledgeDocument
+			FROM ai_core.knowledge_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY knowledgedocument_id

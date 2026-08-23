@@ -36,7 +36,7 @@ public sealed class HumanHandoffQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.HumanHandoff
+			FROM ai_inquiry.human_handoff
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class HumanHandoffQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				humanhandoff_id AS "Id"
-			FROM public.HumanHandoff
+			FROM ai_inquiry.human_handoff
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY humanhandoff_id

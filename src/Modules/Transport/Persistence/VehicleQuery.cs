@@ -36,7 +36,7 @@ public sealed class VehicleQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Vehicle
+			FROM transport.vehicle
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class VehicleQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				vehicle_id AS "Id"
-			FROM public.Vehicle
+			FROM transport.vehicle
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY vehicle_id

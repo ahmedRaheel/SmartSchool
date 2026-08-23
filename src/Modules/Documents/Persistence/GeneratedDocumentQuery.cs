@@ -36,7 +36,7 @@ public sealed class GeneratedDocumentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.GeneratedDocument
+			FROM document.generated_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class GeneratedDocumentQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				generateddocument_id AS "Id"
-			FROM public.GeneratedDocument
+			FROM document.generated_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY generateddocument_id

@@ -36,7 +36,7 @@ public sealed class AuditLogQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.AuditLog
+			FROM audit.audit_log
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class AuditLogQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				auditlog_id AS "Id"
-			FROM public.AuditLog
+			FROM audit.audit_log
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY auditlog_id

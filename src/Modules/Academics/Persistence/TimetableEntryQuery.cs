@@ -36,7 +36,7 @@ public sealed class TimetableEntryQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.TimetableEntry
+			FROM academic.timetable_entry
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class TimetableEntryQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				timetableentry_id AS "Id"
-			FROM public.TimetableEntry
+			FROM academic.timetable_entry
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY timetableentry_id

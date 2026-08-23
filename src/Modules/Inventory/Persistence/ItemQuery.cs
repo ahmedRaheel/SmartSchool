@@ -36,7 +36,7 @@ public sealed class ItemQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Item
+			FROM inventory.item
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ItemQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				item_id AS "Id"
-			FROM public.Item
+			FROM inventory.item
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY item_id

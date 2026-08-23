@@ -36,7 +36,7 @@ public sealed class MessageReceiptQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.MessageReceipt
+			FROM communication.message_receipt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class MessageReceiptQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				messagereceipt_id AS "Id"
-			FROM public.MessageReceipt
+			FROM communication.message_receipt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY messagereceipt_id

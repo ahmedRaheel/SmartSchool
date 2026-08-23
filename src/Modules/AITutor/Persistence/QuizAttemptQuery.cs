@@ -36,7 +36,7 @@ public sealed class QuizAttemptQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.QuizAttempt
+			FROM ai_tutor.student_quiz_attempt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class QuizAttemptQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				quizattempt_id AS "Id"
-			FROM public.QuizAttempt
+			FROM ai_tutor.student_quiz_attempt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY quizattempt_id

@@ -36,7 +36,7 @@ public sealed class PromptTemplateQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PromptTemplate
+			FROM ai_core.prompt_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class PromptTemplateQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				prompttemplate_id AS "Id"
-			FROM public.PromptTemplate
+			FROM ai_core.prompt_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY prompttemplate_id

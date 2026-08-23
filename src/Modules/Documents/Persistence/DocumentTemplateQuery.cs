@@ -36,7 +36,7 @@ public sealed class DocumentTemplateQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.DocumentTemplate
+			FROM document.document_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class DocumentTemplateQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				documenttemplate_id AS "Id"
-			FROM public.DocumentTemplate
+			FROM document.document_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY documenttemplate_id

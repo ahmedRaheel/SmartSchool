@@ -36,7 +36,7 @@ public sealed class InvoiceQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Invoice
+			FROM finance.student_invoice
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class InvoiceQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				invoice_id AS "Id"
-			FROM public.Invoice
+			FROM finance.student_invoice
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY invoice_id

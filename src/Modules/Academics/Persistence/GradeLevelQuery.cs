@@ -36,7 +36,7 @@ public sealed class GradeLevelQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.GradeLevel
+			FROM academic.grade_level
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class GradeLevelQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				gradelevel_id AS "Id"
-			FROM public.GradeLevel
+			FROM academic.grade_level
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY gradelevel_id

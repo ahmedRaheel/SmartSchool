@@ -36,7 +36,7 @@ public sealed class KnowledgeCollectionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.KnowledgeCollection
+			FROM ai_core.knowledge_collection
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class KnowledgeCollectionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				knowledgecollection_id AS "Id"
-			FROM public.KnowledgeCollection
+			FROM ai_core.knowledge_collection
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY knowledgecollection_id

@@ -36,7 +36,7 @@ public sealed class PredictionEvidenceQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PredictionEvidence
+			FROM ai.prediction_evidence
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class PredictionEvidenceQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				predictionevidence_id AS "Id"
-			FROM public.PredictionEvidence
+			FROM ai.prediction_evidence
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY predictionevidence_id

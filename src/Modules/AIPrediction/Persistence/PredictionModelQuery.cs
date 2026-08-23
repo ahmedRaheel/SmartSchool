@@ -36,7 +36,7 @@ public sealed class PredictionModelQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PredictionModel
+			FROM ai.prediction_model
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class PredictionModelQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				predictionmodel_id AS "Id"
-			FROM public.PredictionModel
+			FROM ai.prediction_model
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY predictionmodel_id

@@ -36,7 +36,7 @@ public sealed class ModelConfigurationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ModelConfiguration
+			FROM ai_core.model_configuration
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ModelConfigurationQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				modelconfiguration_id AS "Id"
-			FROM public.ModelConfiguration
+			FROM ai_core.model_configuration
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY modelconfiguration_id

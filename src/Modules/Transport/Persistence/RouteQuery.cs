@@ -36,7 +36,7 @@ public sealed class RouteQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Route
+			FROM transport.route
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class RouteQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				route_id AS "Id"
-			FROM public.Route
+			FROM transport.route
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY route_id

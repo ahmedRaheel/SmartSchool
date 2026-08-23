@@ -36,7 +36,7 @@ public sealed class InquiryMessageQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.InquiryMessage
+			FROM ai_inquiry.inquiry_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class InquiryMessageQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				inquirymessage_id AS "Id"
-			FROM public.InquiryMessage
+			FROM ai_inquiry.inquiry_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY inquirymessage_id

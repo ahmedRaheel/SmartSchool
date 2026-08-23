@@ -36,7 +36,7 @@ public sealed class InterviewQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Interview
+			FROM hr.interview
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class InterviewQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				interview_id AS "Id"
-			FROM public.Interview
+			FROM hr.interview
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY interview_id

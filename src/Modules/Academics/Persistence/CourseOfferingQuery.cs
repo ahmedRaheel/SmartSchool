@@ -36,7 +36,7 @@ public sealed class CourseOfferingQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.CourseOffering
+			FROM academic.course_offering
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class CourseOfferingQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				courseoffering_id AS "Id"
-			FROM public.CourseOffering
+			FROM academic.course_offering
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY courseoffering_id

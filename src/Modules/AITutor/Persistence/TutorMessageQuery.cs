@@ -36,7 +36,7 @@ public sealed class TutorMessageQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.TutorMessage
+			FROM ai_tutor.tutor_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class TutorMessageQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				tutormessage_id AS "Id"
-			FROM public.TutorMessage
+			FROM ai_tutor.tutor_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY tutormessage_id

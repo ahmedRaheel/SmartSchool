@@ -36,7 +36,7 @@ public sealed class GeneratedQuizQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.GeneratedQuiz
+			FROM ai_tutor.generated_quiz
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class GeneratedQuizQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				generatedquiz_id AS "Id"
-			FROM public.GeneratedQuiz
+			FROM ai_tutor.generated_quiz
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY generatedquiz_id

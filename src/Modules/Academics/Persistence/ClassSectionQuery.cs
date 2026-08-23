@@ -36,7 +36,7 @@ public sealed class ClassSectionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ClassSection
+			FROM academic.class_section
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ClassSectionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				classsection_id AS "Id"
-			FROM public.ClassSection
+			FROM academic.class_section
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY classsection_id

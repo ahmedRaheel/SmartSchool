@@ -36,7 +36,7 @@ public sealed class LearningRecommendationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.LearningRecommendation
+			FROM ai_tutor.learning_recommendation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class LearningRecommendationQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				learningrecommendation_id AS "Id"
-			FROM public.LearningRecommendation
+			FROM ai_tutor.learning_recommendation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY learningrecommendation_id

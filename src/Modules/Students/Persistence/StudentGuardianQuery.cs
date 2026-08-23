@@ -36,7 +36,7 @@ public sealed class StudentGuardianQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentGuardian
+			FROM student.student_guardian
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class StudentGuardianQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				studentguardian_id AS "Id"
-			FROM public.StudentGuardian
+			FROM student.student_guardian
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY studentguardian_id

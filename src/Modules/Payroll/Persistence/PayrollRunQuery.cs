@@ -36,7 +36,7 @@ public sealed class PayrollRunQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PayrollRun
+			FROM payroll.payroll_run
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class PayrollRunQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				payrollrun_id AS "Id"
-			FROM public.PayrollRun
+			FROM payroll.payroll_run
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY payrollrun_id

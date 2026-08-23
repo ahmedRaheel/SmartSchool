@@ -36,7 +36,7 @@ public sealed class EnrollmentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Enrollment
+			FROM student.student_enrollment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class EnrollmentQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				enrollment_id AS "Id"
-			FROM public.Enrollment
+			FROM student.student_enrollment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY enrollment_id

@@ -36,7 +36,7 @@ public sealed class LeadCaptureQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.LeadCapture
+			FROM ai_inquiry.lead_capture
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class LeadCaptureQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				leadcapture_id AS "Id"
-			FROM public.LeadCapture
+			FROM ai_inquiry.lead_capture
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY leadcapture_id

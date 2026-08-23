@@ -36,7 +36,7 @@ public sealed class CampusBrandingQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.CampusBranding
+			FROM saas.school_branding
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class CampusBrandingQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				campusbranding_id AS "Id"
-			FROM public.CampusBranding
+			FROM saas.school_branding
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY campusbranding_id

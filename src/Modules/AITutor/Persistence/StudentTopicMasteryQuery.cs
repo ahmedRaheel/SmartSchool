@@ -36,7 +36,7 @@ public sealed class StudentTopicMasteryQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentTopicMastery
+			FROM ai_tutor.student_topic_mastery
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class StudentTopicMasteryQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				studenttopicmastery_id AS "Id"
-			FROM public.StudentTopicMastery
+			FROM ai_tutor.student_topic_mastery
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY studenttopicmastery_id

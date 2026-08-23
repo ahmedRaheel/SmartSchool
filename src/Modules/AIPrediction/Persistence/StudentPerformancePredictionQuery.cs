@@ -36,7 +36,7 @@ public sealed class StudentPerformancePredictionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentPerformancePrediction
+			FROM ai.student_performance_prediction
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class StudentPerformancePredictionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				studentperformanceprediction_id AS "Id"
-			FROM public.StudentPerformancePrediction
+			FROM ai.student_performance_prediction
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY studentperformanceprediction_id

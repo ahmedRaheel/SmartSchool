@@ -36,7 +36,7 @@ public sealed class TopicPerformanceInsightQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.TopicPerformanceInsight
+			FROM ai.topic_performance_insight
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class TopicPerformanceInsightQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				topicperformanceinsight_id AS "Id"
-			FROM public.TopicPerformanceInsight
+			FROM ai.topic_performance_insight
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY topicperformanceinsight_id

@@ -36,7 +36,7 @@ public sealed class ParentConversationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ParentConversation
+			FROM ai_parent.parent_conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ParentConversationQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				parentconversation_id AS "Id"
-			FROM public.ParentConversation
+			FROM ai_parent.parent_conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY parentconversation_id

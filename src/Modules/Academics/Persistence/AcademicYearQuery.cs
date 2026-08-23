@@ -36,7 +36,7 @@ public sealed class AcademicYearQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.AcademicYear
+			FROM academic.academic_year
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class AcademicYearQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				academicyear_id AS "Id"
-			FROM public.AcademicYear
+			FROM academic.academic_year
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY academicyear_id

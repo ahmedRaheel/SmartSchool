@@ -36,7 +36,7 @@ public sealed class SubjectQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Subject
+			FROM academic.subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class SubjectQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				subject_id AS "Id"
-			FROM public.Subject
+			FROM academic.subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY subject_id

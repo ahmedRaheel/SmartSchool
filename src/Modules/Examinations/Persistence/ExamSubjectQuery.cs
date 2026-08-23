@@ -36,7 +36,7 @@ public sealed class ExamSubjectQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ExamSubject
+			FROM exam.exam_subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ExamSubjectQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				examsubject_id AS "Id"
-			FROM public.ExamSubject
+			FROM exam.exam_subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY examsubject_id

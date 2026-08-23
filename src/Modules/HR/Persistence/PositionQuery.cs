@@ -36,7 +36,7 @@ public sealed class PositionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Position
+			FROM hr.position
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class PositionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				position_id AS "Id"
-			FROM public.Position
+			FROM hr.position
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY position_id

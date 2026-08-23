@@ -36,7 +36,7 @@ public sealed class DepartmentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Department
+			FROM org.department
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class DepartmentQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				department_id AS "Id"
-			FROM public.Department
+			FROM org.department
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY department_id

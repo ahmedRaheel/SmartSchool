@@ -36,7 +36,7 @@ public sealed class ConversationParticipantQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ConversationParticipant
+			FROM communication.conversation_participant
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ConversationParticipantQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				conversationparticipant_id AS "Id"
-			FROM public.ConversationParticipant
+			FROM communication.conversation_participant
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY conversationparticipant_id

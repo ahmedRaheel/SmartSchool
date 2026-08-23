@@ -36,7 +36,7 @@ public sealed class ProgramQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Program
+			FROM academic.program
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ProgramQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				program_id AS "Id"
-			FROM public.Program
+			FROM academic.program
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY program_id

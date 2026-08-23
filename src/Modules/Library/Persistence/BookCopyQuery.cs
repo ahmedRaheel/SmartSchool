@@ -36,7 +36,7 @@ public sealed class BookCopyQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.BookCopy
+			FROM library.book_copy
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class BookCopyQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				bookcopy_id AS "Id"
-			FROM public.BookCopy
+			FROM library.book_copy
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY bookcopy_id

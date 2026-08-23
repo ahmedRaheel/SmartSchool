@@ -36,7 +36,7 @@ public sealed class PaymentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Payment
+			FROM finance.student_payment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class PaymentQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				payment_id AS "Id"
-			FROM public.Payment
+			FROM finance.student_payment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY payment_id

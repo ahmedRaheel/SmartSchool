@@ -36,7 +36,7 @@ public sealed class KnowledgeChunkQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.KnowledgeChunk
+			FROM ai_core.knowledge_chunk
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class KnowledgeChunkQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				knowledgechunk_id AS "Id"
-			FROM public.KnowledgeChunk
+			FROM ai_core.knowledge_chunk
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY knowledgechunk_id

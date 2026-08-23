@@ -36,7 +36,7 @@ public sealed class ParentMessageQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ParentMessage
+			FROM ai_parent.parent_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ParentMessageQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				parentmessage_id AS "Id"
-			FROM public.ParentMessage
+			FROM ai_parent.parent_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY parentmessage_id

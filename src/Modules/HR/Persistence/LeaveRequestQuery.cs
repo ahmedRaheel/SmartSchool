@@ -36,7 +36,7 @@ public sealed class LeaveRequestQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.LeaveRequest
+			FROM teacher.leave_request
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class LeaveRequestQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				leaverequest_id AS "Id"
-			FROM public.LeaveRequest
+			FROM teacher.leave_request
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY leaverequest_id

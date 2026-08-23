@@ -36,7 +36,7 @@ public sealed class FeeTypeQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.FeeType
+			FROM finance.fee_type
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class FeeTypeQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				feetype_id AS "Id"
-			FROM public.FeeType
+			FROM finance.fee_type
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY feetype_id

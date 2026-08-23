@@ -36,7 +36,7 @@ public sealed class ActivityQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Activity
+			FROM activity.activity
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ActivityQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				activity_id AS "Id"
-			FROM public.Activity
+			FROM activity.activity
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY activity_id

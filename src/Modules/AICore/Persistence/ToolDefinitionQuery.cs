@@ -36,7 +36,7 @@ public sealed class ToolDefinitionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ToolDefinition
+			FROM ai_core.tool_definition
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ToolDefinitionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				tooldefinition_id AS "Id"
-			FROM public.ToolDefinition
+			FROM ai_core.tool_definition
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY tooldefinition_id

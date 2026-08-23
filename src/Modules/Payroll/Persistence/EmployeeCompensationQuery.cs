@@ -36,7 +36,7 @@ public sealed class EmployeeCompensationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.EmployeeCompensation
+			FROM hr.employee_compensation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class EmployeeCompensationQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				employeecompensation_id AS "Id"
-			FROM public.EmployeeCompensation
+			FROM hr.employee_compensation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY employeecompensation_id

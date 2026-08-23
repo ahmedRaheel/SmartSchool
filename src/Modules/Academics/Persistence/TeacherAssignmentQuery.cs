@@ -36,7 +36,7 @@ public sealed class TeacherAssignmentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.TeacherAssignment
+			FROM academic.teacher_course_assignment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class TeacherAssignmentQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				teacherassignment_id AS "Id"
-			FROM public.TeacherAssignment
+			FROM academic.teacher_course_assignment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY teacherassignment_id

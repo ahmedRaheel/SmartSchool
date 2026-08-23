@@ -36,7 +36,7 @@ public sealed class AwardQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Award
+			FROM activity.student_award
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class AwardQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				award_id AS "Id"
-			FROM public.Award
+			FROM activity.student_award
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY award_id

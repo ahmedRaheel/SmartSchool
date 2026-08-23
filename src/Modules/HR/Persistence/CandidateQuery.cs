@@ -36,7 +36,7 @@ public sealed class CandidateQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Candidate
+			FROM hr.candidate
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class CandidateQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				candidate_id AS "Id"
-			FROM public.Candidate
+			FROM hr.candidate
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY candidate_id

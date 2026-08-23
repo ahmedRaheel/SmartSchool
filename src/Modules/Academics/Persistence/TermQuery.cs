@@ -36,7 +36,7 @@ public sealed class TermQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Term
+			FROM academic.term
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class TermQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				term_id AS "Id"
-			FROM public.Term
+			FROM academic.term
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY term_id

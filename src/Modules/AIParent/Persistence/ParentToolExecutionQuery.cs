@@ -36,7 +36,7 @@ public sealed class ParentToolExecutionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ParentToolExecution
+			FROM ai_parent.parent_tool_execution
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ParentToolExecutionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				parenttoolexecution_id AS "Id"
-			FROM public.ParentToolExecution
+			FROM ai_parent.parent_tool_execution
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY parenttoolexecution_id

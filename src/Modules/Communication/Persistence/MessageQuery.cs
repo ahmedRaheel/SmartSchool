@@ -36,7 +36,7 @@ public sealed class MessageQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Message
+			FROM communication.message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class MessageQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				message_id AS "Id"
-			FROM public.Message
+			FROM communication.message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY message_id

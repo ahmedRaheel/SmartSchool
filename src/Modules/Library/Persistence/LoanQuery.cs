@@ -36,7 +36,7 @@ public sealed class LoanQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Loan
+			FROM library.book_loan
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class LoanQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				loan_id AS "Id"
-			FROM public.Loan
+			FROM library.book_loan
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY loan_id
