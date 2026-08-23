@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Students.Features.Attendance;
 using SmartSchool.Modules.Students.Features.Enrollment;
 using SmartSchool.Modules.Students.Features.Guardian;
 using SmartSchool.Modules.Students.Features.Student;
@@ -18,8 +17,6 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IAttendanceQuery, AttendanceQuery>();
-		services.AddScoped<IAttendanceCommand, AttendanceCommand>();
 		services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();
 		services.AddScoped<IEnrollmentCommand, EnrollmentCommand>();
 		services.AddScoped<IGuardianQuery, GuardianQuery>();
@@ -35,11 +32,6 @@ public static class Module
 	public static IEndpointRouteBuilder MapStudentsEndpoints(
 		this IEndpointRouteBuilder endpoints)
 	{
-		CreateAttendance.MapEndpoint(endpoints);
-		GetAttendanceById.MapEndpoint(endpoints);
-		GetAttendancePage.MapEndpoint(endpoints);
-		UpdateAttendance.MapEndpoint(endpoints);
-		DeleteAttendance.MapEndpoint(endpoints);
 		CreateEnrollment.MapEndpoint(endpoints);
 		GetEnrollmentById.MapEndpoint(endpoints);
 		GetEnrollmentPage.MapEndpoint(endpoints);

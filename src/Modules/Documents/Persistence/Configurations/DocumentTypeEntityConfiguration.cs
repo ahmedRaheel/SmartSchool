@@ -12,7 +12,7 @@ public sealed class DocumentTypeEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<DocumentTypeEntity> builder)
 	{
-		builder.ToTable("DocumentType", schema: "document");
+		builder.ToTable("documenttype", schema: "document");
 
 		builder.HasKey(documentType => documentType.Id);
 
@@ -36,5 +36,19 @@ public sealed class DocumentTypeEntityConfiguration
 
 		builder.Property(documentType => documentType.RowVersion)
 			.IsConcurrencyToken();
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.OwnerCategory).HasColumnName("ownercategory");
+		builder.Property(entity => entity.IsIdentityDocument).HasColumnName("isidentitydocument");
+		builder.Property(entity => entity.RequiresExpiryDate).HasColumnName("requiresexpirydate");
+		builder.Property(entity => entity.RequiresVerification).HasColumnName("requiresverification");
+		builder.Property(entity => entity.Id).HasColumnName("id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenantid");
+		builder.Property(entity => entity.IsActive).HasColumnName("isactive");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updatedat");
+		builder.Property(entity => entity.RowVersion).HasColumnName("rowversion");
 	}
 }

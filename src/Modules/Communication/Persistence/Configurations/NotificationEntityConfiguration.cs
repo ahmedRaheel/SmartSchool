@@ -20,9 +20,7 @@ public sealed class NotificationEntityConfiguration
 	public void Configure(
 		EntityTypeBuilder<NotificationEntity> builder)
 	{
-		builder.ToTable(
-			"Notifications",
-			"communication");
+		builder.ToTable("notification", schema: "communication");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -117,5 +115,24 @@ public sealed class NotificationEntityConfiguration
 				entity.TenantId,
 				entity.Type
 			});
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.RecipientUserId).HasColumnName("recipient_user_id");
+		builder.Property(entity => entity.Type).HasColumnName("type");
+		builder.Property(entity => entity.Title).HasColumnName("title");
+		builder.Property(entity => entity.Message).HasColumnName("message");
+		builder.Property(entity => entity.RelatedEntityId).HasColumnName("related_entity_id");
+		builder.Property(entity => entity.RelatedEntityType).HasColumnName("related_entity_type");
+		builder.Property(entity => entity.ActionUrl).HasColumnName("action_url");
+		builder.Property(entity => entity.Priority).HasColumnName("priority");
+		builder.Property(entity => entity.IsRead).HasColumnName("is_read");
+		builder.Property(entity => entity.ReadAt).HasColumnName("read_at");
+		builder.Property(entity => entity.OccurredAt).HasColumnName("occurred_at");
+		builder.Property(entity => entity.Id).HasColumnName("notification_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
 }

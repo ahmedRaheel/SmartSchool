@@ -12,7 +12,7 @@ public sealed class AcademicSystemEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<AcademicSystemEntity> builder)
 	{
-		builder.ToTable("AcademicSystem", schema: "academic");
+		builder.ToTable("academic_system", schema: "academic");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -44,5 +44,16 @@ public sealed class AcademicSystemEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json");
+		builder.Property(entity => entity.Id).HasColumnName("academic_system_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
 }

@@ -5,7 +5,6 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Library.Features.Book;
 using SmartSchool.Modules.Library.Features.BookCopy;
 using SmartSchool.Modules.Library.Features.Loan;
-using SmartSchool.Modules.Library.Features.Reservation;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 
@@ -23,8 +22,6 @@ public static class Module
 		services.AddScoped<IBookCopyCommand, BookCopyCommand>();
 		services.AddScoped<ILoanQuery, LoanQuery>();
 		services.AddScoped<ILoanCommand, LoanCommand>();
-		services.AddScoped<IReservationQuery, ReservationQuery>();
-		services.AddScoped<IReservationCommand, ReservationCommand>();
 
 		return services;
 	}
@@ -47,11 +44,6 @@ public static class Module
 		GetLoanPage.MapEndpoint(endpoints);
 		UpdateLoan.MapEndpoint(endpoints);
 		DeleteLoan.MapEndpoint(endpoints);
-		CreateReservation.MapEndpoint(endpoints);
-		GetReservationById.MapEndpoint(endpoints);
-		GetReservationPage.MapEndpoint(endpoints);
-		UpdateReservation.MapEndpoint(endpoints);
-		DeleteReservation.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

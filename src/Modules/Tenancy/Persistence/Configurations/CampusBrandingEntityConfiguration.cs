@@ -12,7 +12,7 @@ public sealed class CampusBrandingEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<CampusBrandingEntity> builder)
 	{
-		builder.ToTable("CampusBranding", SmartSchool.Modules.Tenancy.ModuleConstants.Schema);
+		builder.ToTable("school_branding", schema: "saas");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -44,5 +44,16 @@ public sealed class CampusBrandingEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json");
+		builder.Property(entity => entity.Id).HasColumnName("id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
 }

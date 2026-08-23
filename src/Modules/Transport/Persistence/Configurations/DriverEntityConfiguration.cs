@@ -12,7 +12,7 @@ public sealed class DriverEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<DriverEntity> builder)
 	{
-		builder.ToTable("Driver", schema: "transport");
+		builder.ToTable("driver", schema: "transport");
 
 		builder.HasKey(entity => entity.Id);
 
@@ -30,5 +30,27 @@ public sealed class DriverEntityConfiguration
 		builder.Property(entity => entity.UpdatedAt);
 		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.EmployeeNumber).HasColumnName("employee_number");
+		builder.Property(entity => entity.FirstName).HasColumnName("first_name");
+		builder.Property(entity => entity.LastName).HasColumnName("last_name");
+		builder.Property(entity => entity.Cnic).HasColumnName("cnic");
+		builder.Property(entity => entity.DateOfBirth).HasColumnName("date_of_birth");
+		builder.Property(entity => entity.MobileNumber).HasColumnName("mobile_number");
+		builder.Property(entity => entity.DrivingLicenseNumber).HasColumnName("driving_license_number");
+		builder.Property(entity => entity.DrivingLicenseCategory).HasColumnName("driving_license_category");
+		builder.Property(entity => entity.LicenseExpiryDate).HasColumnName("license_expiry_date");
+		builder.Property(entity => entity.JoiningDate).HasColumnName("joining_date");
+		builder.Property(entity => entity.EmploymentStatusCode).HasColumnName("employment_status_code");
+		builder.Property(entity => entity.EmergencyContactName).HasColumnName("emergency_contact_name");
+		builder.Property(entity => entity.EmergencyContactPhone).HasColumnName("emergency_contact_phone");
+		builder.Property(entity => entity.AssignedVehicleId).HasColumnName("assigned_vehicle_id");
+		builder.Property(entity => entity.Id).HasColumnName("driver_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
 }

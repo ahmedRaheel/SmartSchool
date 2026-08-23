@@ -40,5 +40,27 @@ public sealed class EmployeeEntityConfiguration : IEntityTypeConfiguration<Emplo
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at").IsRequired();
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.EmployeeNumber).HasColumnName("employee_number");
+		builder.Property(entity => entity.FirstName).HasColumnName("first_name");
+		builder.Property(entity => entity.LastName).HasColumnName("last_name");
+		builder.Property(entity => entity.CnicNumber).HasColumnName("cnic_number");
+		builder.Property(entity => entity.Photo).HasColumnName("photo");
+		builder.Property(entity => entity.PhotoContentType).HasColumnName("photo_content_type");
+		builder.Property(entity => entity.PhotoFileName).HasColumnName("photo_file_name");
+		builder.Property(entity => entity.Email).HasColumnName("email");
+		builder.Property(entity => entity.Phone).HasColumnName("phone");
+		builder.Property(entity => entity.HireDate).HasColumnName("hire_date");
+		builder.Property(entity => entity.EmploymentTypeCode).HasColumnName("employment_type_code");
+		builder.Property(entity => entity.Status).HasColumnName("status");
+		builder.Property(entity => entity.SourceCandidateId).HasColumnName("source_candidate_id");
+		builder.Property(entity => entity.Id).HasColumnName("employee_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
 }

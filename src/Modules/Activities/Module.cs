@@ -5,7 +5,6 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Activities.Features.Activity;
 using SmartSchool.Modules.Activities.Features.Award;
 using SmartSchool.Modules.Activities.Features.StudentActivity;
-using SmartSchool.Modules.Activities.Features.StudentOfMonth;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
 
@@ -23,8 +22,6 @@ public static class Module
 		services.AddScoped<IAwardCommand, AwardCommand>();
 		services.AddScoped<IStudentActivityQuery, StudentActivityQuery>();
 		services.AddScoped<IStudentActivityCommand, StudentActivityCommand>();
-		services.AddScoped<IStudentOfMonthQuery, StudentOfMonthQuery>();
-		services.AddScoped<IStudentOfMonthCommand, StudentOfMonthCommand>();
 
 		return services;
 	}
@@ -47,11 +44,6 @@ public static class Module
 		GetStudentActivityPage.MapEndpoint(endpoints);
 		UpdateStudentActivity.MapEndpoint(endpoints);
 		DeleteStudentActivity.MapEndpoint(endpoints);
-		CreateStudentOfMonth.MapEndpoint(endpoints);
-		GetStudentOfMonthById.MapEndpoint(endpoints);
-		GetStudentOfMonthPage.MapEndpoint(endpoints);
-		UpdateStudentOfMonth.MapEndpoint(endpoints);
-		DeleteStudentOfMonth.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

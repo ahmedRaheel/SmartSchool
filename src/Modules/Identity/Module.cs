@@ -10,8 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Identity.Features.RoleAssignment;
-using SmartSchool.Modules.Identity.Features.UserProfile;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 
@@ -129,16 +127,6 @@ public static class Module
 	public static IEndpointRouteBuilder MapIdentityBusinessEndpoints(
 		this IEndpointRouteBuilder endpoints)
 	{
-		CreateRoleAssignment.MapEndpoint(endpoints);
-		GetRoleAssignmentById.MapEndpoint(endpoints);
-		GetRoleAssignmentPage.MapEndpoint(endpoints);
-		UpdateRoleAssignment.MapEndpoint(endpoints);
-		DeleteRoleAssignment.MapEndpoint(endpoints);
-		CreateUserProfile.MapEndpoint(endpoints);
-		GetUserProfileById.MapEndpoint(endpoints);
-		GetUserProfilePage.MapEndpoint(endpoints);
-		UpdateUserProfile.MapEndpoint(endpoints);
-		DeleteUserProfile.MapEndpoint(endpoints);
 
 		return endpoints;
 	}
