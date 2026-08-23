@@ -19,7 +19,12 @@ public static class Module
 		services.AddScoped<IEmployeeCompensationCommand, EmployeeCompensationCommand>();
 		services.AddScoped<IPayrollRunQuery, PayrollRunQuery>();
 		services.AddScoped<IPayrollRunCommand, PayrollRunCommand>();
-
+		services.AddScoped<IPayslipCommand, PayslipCommand>();
+		services.AddScoped<IPayslipQuery, PayslipQuery>();
+		services.AddScoped<ISalaryStructureCommand, SalaryStructureCommand>();
+		services.AddScoped<ISalaryStructureQuery, SalaryStructureQuery>();
+		services.AddScoped<IIncrementCommand, IncrementCommand>();
+		services.AddScoped<IIncrementQuery, IncrementQuery>();	
 		return services;
 	}
 

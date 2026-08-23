@@ -25,6 +25,8 @@ public static class Module
 		services.AddScoped<IStudentCommand, StudentCommand>();
 		services.AddScoped<IStudentGuardianQuery, StudentGuardianQuery>();
 		services.AddScoped<IStudentGuardianCommand, StudentGuardianCommand>();
+		services.AddScoped<IAttendanceCommand, AttendanceCommand>();
+		services.AddScoped<IAttendanceQuery, AttendanceQuery>();
 
 		return services;
 	}

@@ -19,6 +19,10 @@ public static class Module
 		services.AddScoped<IAssignmentCommand, AssignmentCommand>();
 		services.AddScoped<IAssignmentSubmissionQuery, AssignmentSubmissionQuery>();
 		services.AddScoped<IAssignmentSubmissionCommand, AssignmentSubmissionCommand>();
+		services.AddScoped<ILearningResourceCommand, LearningResourceCommand>();
+		services.AddScoped<ILearningResourceQuery, LearningResourceQuery>();
+		services.AddScoped<ILessonCommand, LessonCommand>();
+		services.AddScoped<ILessonQuery, LessonQuery>();
 
 		return services;
 	}

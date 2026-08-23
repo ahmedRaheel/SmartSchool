@@ -19,7 +19,8 @@ public static class Module
 		services.AddScoped<ICampusBrandingCommand, CampusBrandingCommand>();
 		services.AddScoped<ITenantQuery, TenantQuery>();
 		services.AddScoped<ITenantCommand, TenantCommand>();
-
+		services.AddScoped<ISubscriptionCommand, SubscriptionCommand>();
+		services.AddScoped<ISubscriptionQuery, SubscriptionQuery>();
 		return services;
 	}
 

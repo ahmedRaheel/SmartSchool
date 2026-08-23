@@ -16,6 +16,10 @@ public static class Module
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 		services.AddScoped<IItemQuery, ItemQuery>();
 		services.AddScoped<IItemCommand, ItemCommand>();
+		services.AddScoped<IPurchaseOrderCommand, PurchaseOrderCommand>();
+		services.AddScoped<IPurchaseOrderQuery, PurchaseOrderQuery>();
+		services.AddScoped<IStockTransactionCommand, StockTransactionCommand>();
+		services.AddScoped<IStockTransactionQuery, StockTransactionQuery>();
 
 		return services;
 	}

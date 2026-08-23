@@ -19,7 +19,10 @@ public static class Module
 		services.AddScoped<IRouteCommand, RouteCommand>();
 		services.AddScoped<IVehicleQuery, VehicleQuery>();
 		services.AddScoped<IVehicleCommand, VehicleCommand>();
-
+		services.AddScoped<IStopCommand, StopCommand>();
+		services.AddScoped<IStopQuery, StopQuery>();
+		services.AddScoped<IStudentTransportCommand, StudentTransportCommand>();
+		services.AddScoped<IStudentTransportQuery, StudentTransportQuery>();
 		return services;
 	}
 

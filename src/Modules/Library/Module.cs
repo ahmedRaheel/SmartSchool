@@ -22,7 +22,10 @@ public static class Module
 		services.AddScoped<IBookCopyCommand, BookCopyCommand>();
 		services.AddScoped<ILoanQuery, LoanQuery>();
 		services.AddScoped<ILoanCommand, LoanCommand>();
-
+		services.AddScoped<IReservationCommand, ReservationCommand>();
+		services.AddScoped<IReservationQuery, ReservationQuery>();
+		services.AddScoped<ILoanCommand, LoanCommand>();
+		services.AddScoped<ILoanQuery, LoanQuery>();	
 		return services;
 	}
 
