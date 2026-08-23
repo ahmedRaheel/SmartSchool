@@ -35,28 +35,28 @@ public sealed class ChatHub(IApplicationDbContext dbContext, IIntegrationEventPu
 {
     public async Task JoinConversation(Guid conversationId)
     {
-        var scope = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
-        await Groups.AddToGroupAsync(Context.ConnectionId, CommunicationGroups.Conversation(scope.TenantId, conversationId));
+        var (tenantId, _) = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
+        await Groups.AddToGroupAsync(Context.ConnectionId, CommunicationGroups.Conversation(tenantId, conversationId));
     }
 
     public async Task SendMessage(Guid conversationId, string message)
     {
         if (string.IsNullOrWhiteSpace(message)) throw new HubException("Message is required.");
-        var scope = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
-        var entity = ChatMessageEntity.Create(scope.TenantId, conversationId, scope.UserId, message.Trim());
+        var (tenantId, userId) = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
+        var entity = ChatMessageEntity.Create(tenantId, conversationId, userId, message.Trim());
         await dbContext.Set<ChatMessageEntity>().AddAsync(entity, Context.ConnectionAborted);
         await dbContext.SaveChangesAsync(Context.ConnectionAborted);
 
         var payload = new { entity.TenantId, entity.Id, entity.ConversationId, entity.SenderUserId, entity.Message, entity.SentAt };
         await publisher.PublishAsync(KafkaTopics.ChatMessageSent, payload, Context.ConnectionAborted);
-        await Clients.Group(CommunicationGroups.Conversation(scope.TenantId, conversationId))
+        await Clients.Group(CommunicationGroups.Conversation(tenantId, conversationId))
             .SendAsync("MessageReceived", payload, Context.ConnectionAborted);
     }
 
     public async Task LeaveConversation(Guid conversationId)
     {
-        var scope = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, CommunicationGroups.Conversation(scope.TenantId, conversationId));
+        var (tenantId, _) = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, CommunicationGroups.Conversation(tenantId, conversationId));
     }
 
     private async Task<(Guid TenantId, Guid UserId)> ResolveMembershipAsync(Guid conversationId, CancellationToken ct)
