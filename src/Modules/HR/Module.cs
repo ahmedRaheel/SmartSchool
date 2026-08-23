@@ -34,7 +34,10 @@ public static class Module
 		services.AddScoped<ILeaveRequestCommand, LeaveRequestCommand>();
 		services.AddScoped<IPositionQuery, PositionQuery>();
 		services.AddScoped<IPositionCommand, PositionCommand>();
-
+		services.AddScoped<IResumeCommand,  ResumeCommand>();
+		services.AddScoped<IResumeQuery, ResumeQuery>();	
+		services.AddScoped<IEmploymentHistoryCommand, EmploymentHistoryCommand>();
+		services.AddScoped<IEmploymentHistoryQuery, EmploymentHistoryQuery>();
 		return services;
 	}
 

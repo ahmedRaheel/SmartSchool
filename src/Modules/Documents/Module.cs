@@ -19,7 +19,10 @@ public static class Module
 		services.AddScoped<IDocumentTemplateCommand, DocumentTemplateCommand>();
 		services.AddScoped<IGeneratedDocumentQuery, GeneratedDocumentQuery>();
 		services.AddScoped<IGeneratedDocumentCommand, GeneratedDocumentCommand>();
-
+		services.AddScoped<ICertificateCommand, CertificateCommand>();
+		services.AddScoped<ICertificateQuery, CertificateQuery>();
+		services.AddScoped<ISchoolLogoCommand, SchoolLogoCommand>();
+		services.AddScoped<ISchoolLogoQuery, SchoolLogoQuery>();
 		return services;
 	}
 

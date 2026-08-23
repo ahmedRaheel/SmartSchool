@@ -22,7 +22,8 @@ public static class Module
 		services.AddScoped<IAwardCommand, AwardCommand>();
 		services.AddScoped<IStudentActivityQuery, StudentActivityQuery>();
 		services.AddScoped<IStudentActivityCommand, StudentActivityCommand>();
-
+		services.AddScoped<IStudentOfMonthQuery, StudentOfMonthQuery>();
+		services.AddScoped<IStudentOfMonthCommand, StudentOfMonthCommand>();
 		return services;
 	}
 

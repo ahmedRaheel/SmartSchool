@@ -22,7 +22,14 @@ public static class Module
 		services.AddScoped<IInvoiceCommand, InvoiceCommand>();
 		services.AddScoped<IPaymentQuery, PaymentQuery>();
 		services.AddScoped<IPaymentCommand, PaymentCommand>();
-
+		services.AddScoped<IDiscountCommand, DiscountCommand>();
+		services.AddScoped<IDiscountQuery, DiscountQuery>();
+		services.AddScoped<IFeeStructureCommand, FeeStructureCommand>();
+		services.AddScoped<IFeeStructureQuery, FeeStructureQuery>();
+		services.AddScoped<IScholarshipCommand, ScholarshipCommand>();
+		services.AddScoped<IScholarshipQuery, ScholarshipQuery>();
+		services.AddScoped<IStudentFeeCommand, StudentFeeCommand>();
+		services.AddScoped<IStudentFeeQuery, StudentFeeQuery>();
 		return services;
 	}
 

@@ -22,7 +22,9 @@ public static class Module
 		services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
 		services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
 		services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
-
+		services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
+		services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
+		
 		return services;
 	}
 

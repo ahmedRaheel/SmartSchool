@@ -85,7 +85,7 @@ public static class CreateStudentOfMonth
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Activities.Models.StudentOfMonthEntity entity)
+		StudentOfMonthEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
