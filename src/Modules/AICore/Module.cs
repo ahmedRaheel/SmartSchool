@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Features;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.SharedKernel;
@@ -78,6 +79,8 @@ public static class Module
 		GetToolDefinitionPage.MapEndpoint(endpoints);
 		UpdateToolDefinition.MapEndpoint(endpoints);
 		DeleteToolDefinition.MapEndpoint(endpoints);
+
+		OperationalAiCoreEndpoints.MapOperationalAiCoreEndpoints(endpoints);
 
 		return endpoints;
 	}

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Features;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -52,6 +53,8 @@ public static class Module
 		GetLeadCapturePage.MapEndpoint(endpoints);
 		UpdateLeadCapture.MapEndpoint(endpoints);
 		DeleteLeadCapture.MapEndpoint(endpoints);
+
+		OperationalInquiryEndpoints.MapOperationalInquiryEndpoints(endpoints);
 
 		return endpoints;
 	}

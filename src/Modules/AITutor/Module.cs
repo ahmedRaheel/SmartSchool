@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Features;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -76,6 +77,8 @@ public static class Module
 		GetTutorSessionPage.MapEndpoint(endpoints);
 		UpdateTutorSession.MapEndpoint(endpoints);
 		DeleteTutorSession.MapEndpoint(endpoints);
+
+		OperationalTutorEndpoints.MapOperationalTutorEndpoints(endpoints);
 
 		return endpoints;
 	}

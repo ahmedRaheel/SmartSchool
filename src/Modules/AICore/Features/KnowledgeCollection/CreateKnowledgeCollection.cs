@@ -28,7 +28,8 @@ public static class CreateKnowledgeCollection
 	public sealed record Request(
 		Guid TenantId,
 		string Code,
-		string Name) : IRequest<Result<Response>>;
+		string Name,
+		string? MetadataJson = null) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -61,7 +62,8 @@ public static class CreateKnowledgeCollection
 			var entity = KnowledgeCollectionEntity.Create(
 				request.TenantId,
 				request.Code,
-				request.Name);
+				request.Name,
+				request.MetadataJson);
 
 			await entityCommand.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

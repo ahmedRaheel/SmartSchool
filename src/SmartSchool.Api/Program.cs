@@ -36,6 +36,7 @@ using SmartSchool.Modules.Documents;
 using SmartSchool.Modules.Examinations;
 using SmartSchool.Modules.Finance;
 using SmartSchool.Modules.HR;
+using SmartSchool.Modules.Teachers;
 using SmartSchool.Modules.Inventory;
 using SmartSchool.Modules.Learning;
 using SmartSchool.Modules.Library;
@@ -210,6 +211,7 @@ builder.Services.AddDocumentsModule();
 builder.Services.AddExaminationsModule();
 builder.Services.AddFinanceModule();
 builder.Services.AddHRModule();
+builder.Services.AddTeachersModule();
 builder.Services.AddInventoryModule();
 builder.Services.AddLearningModule();
 builder.Services.AddLibraryModule();
@@ -344,6 +346,7 @@ app.MapDocumentsEndpoints();
 app.MapExaminationsEndpoints();
 app.MapFinanceEndpoints();
 app.MapHREndpoints();
+app.MapTeachersEndpoints();
 app.MapInventoryEndpoints();
 app.MapLearningEndpoints();
 app.MapLibraryEndpoints();
@@ -355,58 +358,5 @@ app.MapTenancyEndpoints();
 app.MapTransportEndpoints();
 app.MapWorkflowEndpoints();
 
-//
-// Temporary authentication diagnostic endpoint.
-//
-// Remove after authentication has been verified.
-//
-app.MapGet(
-		"/api/debug/auth",
-		(HttpContext context) =>
-		{
-			var claims =
-				context.User.Claims
-					.Select(
-						claim =>
-							new
-							{
-								claim.Type,
-								claim.Value
-							})
-					.ToArray();
-
-			return Results.Ok(
-				new
-				{
-					isAuthenticated =
-						context.User.Identity?
-							.IsAuthenticated,
-
-					authenticationType =
-						context.User.Identity?
-							.AuthenticationType,
-
-					subject =
-						context.User
-							.FindFirstValue("sub"),
-
-					roles =
-						context.User
-							.FindAll("role")
-							.Select(
-								claim =>
-									claim.Value)
-							.ToArray(),
-
-					isSuperAdmin =
-						context.User
-							.IsInRole(
-								"SuperAdmin"),
-
-					Claims =
-						claims
-				});
-		})
-	.RequireAuthorization();
 
 app.Run();
