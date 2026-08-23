@@ -89,18 +89,19 @@ public static class RagChatbotEndpoints
                 definition.Collections),
             ct);
 
-        var prompt = $"""{definition.SystemPrompt}
-            The supplied context is authorized for the current tenant and actor.
-            If it does not support the answer, say that the school knowledge base does not contain enough information.
-            Cite [1], [2] where used. Never reveal another tenant's or unauthorized actor's data.
+        var prompt = $"""
+{definition.SystemPrompt} The supplied context is authorized for the current tenant and actor.
+If it does not support the answer, say that the school knowledge base does not contain enough information.
+		
+Cite [1], [2] where used. Never reveal another tenant's or unauthorized actor's data.
 
-            CONTEXT SOURCE: {knowledge.Source}
-            CONTEXT:
-            {knowledge.Content}
+CONTEXT SOURCE: {knowledge.Source}
+CONTEXT:
+{knowledge.Content}
 
-            QUESTION:
-            {request.Question}
-            """;
+QUESTION:
+{request.Question}
+""";
 
         var (answer, model) = await GenerateAsync(prompt, clients, config, ct);
         var response = new AskResponse(

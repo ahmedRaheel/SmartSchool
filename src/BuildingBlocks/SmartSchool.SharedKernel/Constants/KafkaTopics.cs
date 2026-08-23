@@ -12,4 +12,6 @@ public static class KafkaTopics
 	public const string ChatbotQuestionAsked = "smartschool.ai.chatbot-question-asked";
 	public const string NotificationRequested = "smartschool.notification.requested";
 	public const string PredictionRefreshRequested = "smartschool.ai.prediction-refresh-requested";
+	public const string CagContextInvalidationRequested =
+	   "smartschool.ai.cag-context-invalidation-requested";
 }
