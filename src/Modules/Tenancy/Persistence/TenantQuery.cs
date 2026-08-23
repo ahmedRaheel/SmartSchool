@@ -28,26 +28,23 @@ public sealed class TenantQuery(
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<TenantEntity>> GetPageAsync(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		CancellationToken cancellationToken)
+	public async Task<PagedResult<TenantEntity>> GetPageAsync(		
+		int page = 1,
+		int pageSize = 25,
+		CancellationToken cancellationToken = default)
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Tenant
-			WHERE tenant_id = @TenantId
-			  AND is_active = TRUE;
+			FROM saas.Tenant
+			WHERE  is_active = TRUE;
 			""";
 
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
 				tenant_id AS "Id"
-			FROM public.Tenant
-			WHERE tenant_id = @TenantId
-			  AND is_active = TRUE
+			FROM saas.Tenant
+			WHERE is_active = TRUE
 			ORDER BY tenant_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
@@ -56,8 +53,7 @@ public sealed class TenantQuery(
 			await connectionFactory.OpenConnectionAsync(cancellationToken);
 
 		var parameters = new
-		{
-			TenantId = tenantId,
+		{			
 			PageSize = pageSize,
 			Offset = (page - 1) * pageSize
 		};
