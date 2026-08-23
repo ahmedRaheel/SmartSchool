@@ -1,13 +1,12 @@
 using System.Security.Claims;
 using System.Globalization;
 using System.Net.Http.Json;
-using System.Text.Json;
 using Dapper;
-using Microsoft.Extensions.Caching.Distributed;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Identity;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AICore;
 
 namespace SmartSchool.Api.Features;
 
@@ -16,10 +15,9 @@ public static class RagChatbotEndpoints
     public sealed record IndexRequest(Guid? TenantId, string Collection, string DocumentName, string Content);
     public sealed record AskRequest(Guid? TenantId, string Question, Guid? SchoolId = null);
     public sealed record Citation(Guid Id, string DocumentName, string Collection, double Score);
-    public sealed record AskResponse(string Bot, string Answer, string Model, IReadOnlyCollection<Citation> Citations);
+    public sealed record AskResponse(string Bot, string Answer, string Model, string ContextSource, string ContextVersion, IReadOnlyCollection<Citation> Citations);
     private sealed record OllamaEmbeddingResponse(float[] Embedding);
     private sealed record OllamaGenerateResponse(string Response);
-    private sealed record Hit(Guid Id, string DocumentName, string Collection, string Content, double Score);
 
     private static readonly IReadOnlyDictionary<string, BotDefinition> Bots = new Dictionary<string, BotDefinition>(StringComparer.OrdinalIgnoreCase)
     {
@@ -39,7 +37,8 @@ public static class RagChatbotEndpoints
     }
 
     private static async Task<IResult> IndexAsync(IndexRequest request, ITenantScope scope, IDbConnectionFactory db,
-        IHttpClientFactory clients, IConfiguration config, IIntegrationEventPublisher events, CancellationToken ct)
+        IHttpClientFactory clients, IConfiguration config, IIntegrationEventPublisher events,
+        IAiContextService contextService, CancellationToken ct)
     {
         var tenantId = ResolveTenantForWrite(scope, request.TenantId);
         if (string.IsNullOrWhiteSpace(request.Content) || string.IsNullOrWhiteSpace(request.Collection))
@@ -53,44 +52,80 @@ public static class RagChatbotEndpoints
         var id = Guid.NewGuid();
         await using var connection = await db.OpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, new { Id=id, TenantId=tenantId, request.Collection, request.DocumentName, request.Content, Vector=vectorLiteral }, cancellationToken:ct));
+        await contextService.InvalidateTenantAsync(tenantId, ct);
         await events.PublishAsync(KafkaTopics.RagDocumentIngestionRequested, new { tenantId, id, request.Collection, request.DocumentName }, ct);
         return Results.Created($"/api/rag/documents/{id}", new { id, tenantId, request.Collection, request.DocumentName });
     }
 
-    private static async Task<IResult> AskAsync(string bot, AskRequest request, ClaimsPrincipal user, ITenantScope scope,
-        IDbConnectionFactory db, IHttpClientFactory clients, IConfiguration config, IDistributedCache cache,
-        IIntegrationEventPublisher events, CancellationToken ct)
+    private static async Task<IResult> AskAsync(
+        string bot,
+        AskRequest request,
+        ClaimsPrincipal user,
+        ITenantScope scope,
+        IAiContextService contextService,
+        IHttpClientFactory clients,
+        IConfiguration config,
+        IIntegrationEventPublisher events,
+        CancellationToken ct)
     {
-        if (!Bots.TryGetValue(bot, out var definition)) return Results.NotFound(new { message = "Unknown chatbot." });
-        if (!definition.Roles.Any(user.IsInRole)) return Results.Forbid();
-        if (string.IsNullOrWhiteSpace(request.Question)) return Results.BadRequest(new { message = "Question is required." });
+        if (!Bots.TryGetValue(bot, out var definition))
+            return Results.NotFound(new { message = "Unknown chatbot." });
+        if (!definition.Roles.Any(user.IsInRole))
+            return Results.Forbid();
+        if (string.IsNullOrWhiteSpace(request.Question))
+            return Results.BadRequest(new { message = "Question is required." });
 
         var tenantId = scope.IsSuperAdmin ? request.TenantId : scope.Resolve(request.TenantId);
-        if (!tenantId.HasValue) return Results.BadRequest(new { message = "SuperAdmin must select a tenant for tenant knowledge retrieval." });
-        var cacheKey = $"rag:{tenantId}:{definition.Name}:{Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(request.Question.Trim())))}";
-        var cached = await cache.GetStringAsync(cacheKey, ct);
-        if (cached is not null) return Results.Content(cached, "application/json");
+        if (!tenantId.HasValue)
+            return Results.BadRequest(new { message = "SuperAdmin must select a tenant." });
 
-        var vector = await EmbedAsync(request.Question, clients, config, ct);
-        var collections = definition.Collections.ToArray();
-        const string sql = """
-            SELECT id AS "Id", document_name AS "DocumentName", collection AS "Collection", content AS "Content",
-                   1 - (embedding <=> CAST(@Vector AS vector)) AS "Score"
-            FROM ai_core.rag_knowledge_chunk
-            WHERE tenant_id=@TenantId AND is_active=TRUE AND collection = ANY(@Collections)
-            ORDER BY embedding <=> CAST(@Vector AS vector)
-            LIMIT @TopK;
+        var knowledge = await contextService.GetAsync(
+            new AiKnowledgeRequest(
+                tenantId.Value,
+                request.SchoolId,
+                scope.UserId,
+                definition.Name,
+                request.Question.Trim(),
+                definition.Collections),
+            ct);
+
+        var prompt = $"""{definition.SystemPrompt}
+            The supplied context is authorized for the current tenant and actor.
+            If it does not support the answer, say that the school knowledge base does not contain enough information.
+            Cite [1], [2] where used. Never reveal another tenant's or unauthorized actor's data.
+
+            CONTEXT SOURCE: {knowledge.Source}
+            CONTEXT:
+            {knowledge.Content}
+
+            QUESTION:
+            {request.Question}
             """;
-        await using var connection = await db.OpenConnectionAsync(ct);
-        var hits=(await connection.QueryAsync<Hit>(new CommandDefinition(sql,new { TenantId=tenantId.Value, Collections=collections, Vector=VectorLiteral(vector), TopK=config.GetValue("AI:Ollama:TopK",5)},cancellationToken:ct))).ToArray();
-        var context=string.Join("\n\n",hits.Select((h,i)=>$"[{i+1}] {h.DocumentName} ({h.Collection})\n{h.Content}"));
-        var prompt=$"{definition.SystemPrompt}\nIf the context does not support the answer, say that the school knowledge base does not contain enough information. Cite [1], [2] where used.\n\nCONTEXT:\n{context}\n\nQUESTION:\n{request.Question}";
-        var (answer,model)=await GenerateAsync(prompt,clients,config,ct);
-        var response=new AskResponse(definition.Name,answer,model,hits.Select(h=>new Citation(h.Id,h.DocumentName,h.Collection,h.Score)).ToArray());
-        var json=JsonSerializer.Serialize(response);
-        await cache.SetStringAsync(cacheKey,json,new DistributedCacheEntryOptions{AbsoluteExpirationRelativeToNow=TimeSpan.FromMinutes(5)},ct);
-        await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked,new { tenantId, bot=definition.Name, userId=scope.UserId, citationCount=hits.Length },ct);
-        return Results.Content(json,"application/json");
+
+        var (answer, model) = await GenerateAsync(prompt, clients, config, ct);
+        var response = new AskResponse(
+            definition.Name,
+            answer,
+            model,
+            knowledge.Source,
+            knowledge.Version,
+            knowledge.Citations.Select(citation =>
+                new Citation(citation.Id, citation.DocumentName, citation.Collection, citation.Score)).ToArray());
+
+        await events.PublishAsync(
+            KafkaTopics.ChatbotQuestionAsked,
+            new
+            {
+                tenantId = tenantId.Value,
+                bot = definition.Name,
+                userId = scope.UserId,
+                contextSource = knowledge.Source,
+                contextVersion = knowledge.Version,
+                citationCount = knowledge.Citations.Count
+            },
+            ct);
+
+        return Results.Ok(response);
     }
 
     private static Guid ResolveTenantForWrite(ITenantScope scope, Guid? requested) =>

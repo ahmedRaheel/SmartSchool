@@ -92,7 +92,7 @@ public sealed class DuendeConfigurationSeeder(
 		{
 			ClientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api",
 			ClientName = "SmartSchool Login API",
-			AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+			AllowedGrantTypes = [.. GrantTypes.ResourceOwnerPassword, ImpersonationGrantValidator.GrantTypeName],
 			ClientSecrets = { new Secret(loginClientSecret.Sha256()) },
 			AllowOfflineAccess = true,
 			AllowedScopes = { "openid", "profile", "email", "smartschool.profile", "smartschool.api", "offline_access" },

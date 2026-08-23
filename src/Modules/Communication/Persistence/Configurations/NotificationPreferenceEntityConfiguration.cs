@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartSchool.Modules.Communication.Models;
 namespace SmartSchool.Modules.Communication.Persistence.Configurations;
 public sealed class NotificationPreferenceEntityConfiguration:IEntityTypeConfiguration<NotificationPreferenceEntity>
-{
-	public void Configure(EntityTypeBuilder<NotificationPreferenceEntity> builder)
+{public void Configure(EntityTypeBuilder<NotificationPreferenceEntity> builder)
 	{
 		builder.ToTable("notification_preference", "communication");
 		builder.HasKey(x => x.Id);
@@ -24,5 +23,4 @@ public sealed class NotificationPreferenceEntityConfiguration:IEntityTypeConfigu
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
-}		
-
+}

@@ -23,6 +23,8 @@ public static class Module
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
+		services.AddScoped<IAiContextService, AiContextService>();
+
 		services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
 		services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
 		services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();

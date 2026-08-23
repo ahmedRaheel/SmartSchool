@@ -24,4 +24,5 @@ public sealed class ChatParticipantEntityConfiguration : IEntityTypeConfiguratio
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("UpdatedAt");
 		builder.Property(entity => entity.RowVersion).HasColumnName("RowVersion");
 	}
-}	
+}
+	

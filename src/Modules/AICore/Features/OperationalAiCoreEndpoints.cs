@@ -32,18 +32,33 @@ public static class OperationalAiCoreEndpoints
     private static async Task<IResult> IndexAsync(IndexKnowledgeRequest r,ITenantScope scope,IKnowledgeChunkCommand command,
         IDbConnectionFactory db,IHttpClientFactory clients,IConfiguration cfg,IIntegrationEventPublisher events,CancellationToken ct)
     {
-        var tenant=scope.IsSuperAdmin?r.TenantId:scope.Resolve(r.TenantId);
-        if(!tenant.HasValue)return Results.BadRequest(new{message="A tenant is required."});
-        if(string.IsNullOrWhiteSpace(r.Content))return Results.BadRequest(new{message="Content is required."});
-        var vector=await Embed(r.Content,clients,cfg,ct);
-        var entity=KnowledgeChunkEntity.Create(tenant.Value,r.Code,r.Name,JsonSerializer.Serialize(new{r.CollectionId,r.DocumentId,r.Content,r.Tags}));
+        var tenant = scope.IsSuperAdmin? r.TenantId:
+			         scope.Resolve(r.TenantId);
+        if(!tenant.HasValue)
+			return Results.BadRequest(new{message="A tenant is required."});
+
+        if (string.IsNullOrWhiteSpace(r.Content))
+			return Results.BadRequest(new{message="Content is required."});
+        var vector = await Embed(r.Content,clients,cfg,ct);
+        var entity= KnowledgeChunkEntity.Create(tenant.Value,r.Code,r.Name,JsonSerializer.Serialize(new{r.CollectionId,r.DocumentId,r.Content,r.Tags}));
         await command.AddAsync(entity,ct);
         const string sql="""
 			
-			INSERT INTO ai_core.rag_knowledge_chunk
-			(id,tenant_id,collection,document_name,content,embedding,created_at,is_active)			
-			VALUES(@Id,@Tenant,@Collection,@Name,@Content,CAST(@Vector AS vector),CURRENT_TIMESTAMP,TRUE)
-			ON CONFLICT (id) DO UPDATE SET content=EXCLUDED.content,embedding=EXCLUDED.embedding;
+			INSERT INTO ai_core.rag_knowledge_chunk(id,
+			           tenant_id,
+					   collection,document_name,
+					   content,embedding,
+					   created_at,is_active
+					   )
+			VALUES(
+			     @Id,
+				 @Tenant,
+				 @Collection,
+				 @Name,
+				 @Content,
+				 CAST(@Vector AS vector),
+				 CURRENT_TIMESTAMP,TRUE)
+				 ON CONFLICT (id) DO UPDATE SET content=EXCLUDED.content,embedding=EXCLUDED.embedding;
 			
 			""";
         await using var cn=await db.OpenConnectionAsync(ct);
@@ -55,21 +70,17 @@ public static class OperationalAiCoreEndpoints
     private static async Task<IResult> ExecuteAsync(ExecuteRequest r,ITenantScope scope,IDbConnectionFactory db,
         IHttpClientFactory clients,IConfiguration cfg,IAiExecutionLogCommand logs,IIntegrationEventPublisher events,CancellationToken ct)
     {
-        var tenant=scope.IsSuperAdmin?r.TenantId:scope.Resolve(r.TenantId);
-        if(!tenant.HasValue)return Results.BadRequest(new{message="A tenant is required."});
-        var vector=await Embed(r.Prompt,clients,cfg,ct);
-        var collections=r.Collections is {Length:>0}?r.Collections:["learning","academic","policy","operations","admissions"];
+        var tenant = scope.IsSuperAdmin ? r.TenantId:scope.Resolve(r.TenantId);
+        if(!tenant.HasValue)
+			return Results.BadRequest(new{message="A tenant is required."});
+        var vector = await Embed(r.Prompt,clients,cfg,ct);
+        var collections = r.Collections is { Length:>0 } ? r.Collections:["learning","academic","policy","operations","admissions"];
         const string sql="""
 			
-			SELECT id AS "Id",
-					document_name AS "DocumentName",
-					  collection AS "Collection",
-					  content AS "Content",
-					  1-(embedding <=> CAST(@Vector AS vector)) AS "Score" 
-				  FROM ai_core.rag_knowledge_chunk 
-				  WHERE 
-						tenant_id=@Tenant AND is_active=TRUE AND collection=ANY(@Collections)
-						ORDER BY embedding <=> CAST(@Vector AS vector) LIMIT @TopK;
+			SELECT id AS "Id",document_name AS "DocumentName",collection AS "Collection",content AS "Content",
+			1-(embedding <=> CAST(@Vector AS vector)) AS "Score" FROM ai_core.rag_knowledge_chunk 
+			WHERE tenant_id=@Tenant AND is_active=TRUE AND collection=ANY(@Collections) 
+			ORDER BY embedding <=> CAST(@Vector AS vector) LIMIT @TopK;
 			
 			""";
         await using var cn=await db.OpenConnectionAsync(ct);

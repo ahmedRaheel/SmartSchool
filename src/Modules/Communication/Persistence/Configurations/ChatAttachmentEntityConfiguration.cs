@@ -2,7 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartSchool.Modules.Communication.Models;
 namespace SmartSchool.Modules.Communication.Persistence.Configurations;
-public sealed class ChatAttachmentEntityConfiguration:IEntityTypeConfiguration<ChatAttachmentEntity>
+
+public sealed class ChatAttachmentEntityConfiguration : IEntityTypeConfiguration<ChatAttachmentEntity>
 {
 	public void Configure(EntityTypeBuilder<ChatAttachmentEntity> builder)
 	{
@@ -25,5 +26,4 @@ public sealed class ChatAttachmentEntityConfiguration:IEntityTypeConfiguration<C
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
-}
-	
+}	

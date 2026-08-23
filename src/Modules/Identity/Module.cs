@@ -103,6 +103,7 @@ public static class Module
 		}
 
 		services.AddHttpClient("IdentityTokenClient");
+		services.AddTransient<Duende.IdentityServer.Validation.IExtensionGrantValidator, ImpersonationGrantValidator>();
 
 		services.AddScoped<IdentityDataSeeder>();
 		services.AddScoped<DuendeConfigurationSeeder>();

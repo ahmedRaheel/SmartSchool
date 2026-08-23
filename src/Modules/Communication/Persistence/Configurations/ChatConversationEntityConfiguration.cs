@@ -12,7 +12,7 @@ public sealed class ChatConversationEntityConfiguration : IEntityTypeConfigurati
 		builder.Property(x=>x.ConversationType).HasMaxLength(50).IsRequired();
 		builder.Property(x=>x.RelatedEntityType).HasMaxLength(100);
 		builder.Property(x=>x.RowVersion).IsConcurrencyToken();
-		builder.HasIndex(x=>new{x.TenantId,x.CreatedByUserId});
+		builder	.HasIndex(x=>new{x.TenantId,x.CreatedByUserId});
 		builder.Property(entity => entity.Title).HasColumnName("Title");
 		builder.Property(entity => entity.ConversationType).HasColumnName("ConversationType");
 		builder.Property(entity => entity.CreatedByUserId).HasColumnName("CreatedByUserId");
@@ -28,5 +28,3 @@ public sealed class ChatConversationEntityConfiguration : IEntityTypeConfigurati
 		builder.Property(entity => entity.RowVersion).HasColumnName("RowVersion");
 	}
 }
-		
-

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Modules.Identity.Persistence.Identity;
+using SmartSchool.Modules.Identity.Server;
 
 namespace SmartSchool.Modules.Identity.Features.Users;
 
@@ -55,7 +56,7 @@ public static class UserManagementEndpoints
         group.MapDelete("/tenant/{tenantId:guid}", DeleteTenantUsersAsync)
             .RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
         group.MapPost("/impersonation/start", StartImpersonationAsync)
-            .RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
+            .RequireAuthorization(SmartSchoolPolicies.Impersonation);
     }
 
     private static bool IsSuperAdmin(ClaimsPrincipal principal) =>
@@ -205,7 +206,14 @@ public static class UserManagementEndpoints
         var target = await userManager.FindByIdAsync(request.TargetUserId.ToString());
         if (target is null || !target.IsActive) return Results.NotFound();
 
+        var isSuperAdmin = IsSuperAdmin(principal);
+        var callerTenant = CurrentTenant(principal);
+        if (!isSuperAdmin && (!callerTenant.HasValue || target.TenantId != callerTenant.Value))
+            return Results.Forbid();
+
         var roles = await userManager.GetRolesAsync(target);
+        if (!isSuperAdmin && roles.Contains(SmartSchoolRoles.SuperAdmin, StringComparer.OrdinalIgnoreCase))
+            return Results.Forbid();
         var impersonatorId = principal.FindFirst("sub")?.Value;
         loggerFactory.CreateLogger("SmartSchool.Impersonation").LogWarning(
             "SuperAdmin {ImpersonatorId} started support impersonation for {TargetUserId} tenant {TenantId}. Reason: {Reason}",
@@ -224,7 +232,10 @@ public static class UserManagementEndpoints
                 request.Reason,
                 startedAtUtc = DateTimeOffset.UtcNow
             },
-            requiresTokenExchange = true
+            requiresTokenExchange = true,
+            grantType = ImpersonationGrantValidator.GrantTypeName,
+            tokenEndpoint = "/connect/token",
+            tokenParameters = new[] { "actor_token", "target_user_id", "reason" }
         });
     }
 
