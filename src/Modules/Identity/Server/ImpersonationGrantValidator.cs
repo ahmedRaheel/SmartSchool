@@ -21,10 +21,13 @@ public sealed class ImpersonationGrantValidator(
 	ILogger<ImpersonationGrantValidator> logger)
 	: IExtensionGrantValidator
 {
+	/// <summary>Gets the Duende extension grant type used for impersonation.</summary>
 	public const string GrantTypeName = "impersonation";
 
+	/// <summary>Gets the extension grant type handled by this validator.</summary>
 	public string GrantType => GrantTypeName;
 
+	/// <summary>Validates an administrator token and target account before issuing an impersonated subject.</summary>
 	public async Task ValidateAsync(
 		ExtensionGrantValidationContext context,
 		CancellationToken ct)

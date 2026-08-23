@@ -6,7 +6,7 @@ public sealed class ChatParticipantEntityConfiguration : IEntityTypeConfiguratio
 {
  public void Configure(EntityTypeBuilder<ChatParticipantEntity> builder)
 	{
-		builder.ToTable("chat_participant", "communication");
+		builder.ToTable("chat_participant", schema: "communication");
 		builder.HasKey(x => x.Id);
 		builder.Property(x => x.Role).HasMaxLength(50).IsRequired();
 		builder.Property(x => x.RowVersion).IsConcurrencyToken();

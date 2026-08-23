@@ -25,6 +25,7 @@ internal sealed class AiAssistantService(
 
     private readonly AiAssistantOptions _options = options.Value;
 
+    /// <summary>Answers a question using cached authorized context with RAG fallback.</summary>
     public async Task<AiAssistantResponse> AskAsync(AiAssistantRequest request, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(request.Question);
@@ -44,6 +45,7 @@ internal sealed class AiAssistantService(
         return new AiAssistantResponse(request.Assistant, answer, model, strategy, context.Citations);
     }
 
+    /// <summary>Invalidates a tenant knowledge collection without performing Redis key scans.</summary>
     public async Task InvalidateKnowledgeAsync(Guid tenantId, string collection, CancellationToken cancellationToken)
     {
         var versionKey = GetVersionKey(tenantId, collection);

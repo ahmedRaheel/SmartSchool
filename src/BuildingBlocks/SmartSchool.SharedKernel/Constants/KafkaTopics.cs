@@ -1,5 +1,6 @@
 namespace SmartSchool.SharedKernel.Constants;
 
+/// <summary>Defines the canonical Kafka topic names used by SmartSchool integration events.</summary>
 public static class KafkaTopics
 {
 	public const string StudentEnrolled = "smartschool.student.enrolled";
@@ -12,6 +13,5 @@ public static class KafkaTopics
 	public const string ChatbotQuestionAsked = "smartschool.ai.chatbot-question-asked";
 	public const string NotificationRequested = "smartschool.notification.requested";
 	public const string PredictionRefreshRequested = "smartschool.ai.prediction-refresh-requested";
-	public const string CagContextInvalidationRequested =
-	   "smartschool.ai.cag-context-invalidation-requested";
+	public const string CagContextInvalidationRequested = "smartschool.ai.cag-context-invalidation-requested";
 }

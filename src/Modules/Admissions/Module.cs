@@ -1,7 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-
 using SmartSchool.Application;
-using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.SharedKernel;
 

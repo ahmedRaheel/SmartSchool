@@ -1,74 +1,44 @@
-using SmartSchool.SharedKernel;
-using System.Net.Http.Json;
-using Dapper;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Application.Identity;
+using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Api.Features;
 
+/// <summary>Provides the general-purpose authorized SmartSchool AI assistant endpoint.</summary>
 public static class AiAssistantEndpoints
 {
-    public sealed record AskRequest(Guid TenantId, string Question, string? Actor, Guid? SchoolId);
-    public sealed record AskResponse(string Answer, IReadOnlyCollection<Citation> Citations, string Model);
-    public sealed record Citation(Guid Id, string Name, double Score);
-    private sealed record OllamaEmbeddingResponse(float[] Embedding);
-    private sealed record OllamaGenerateResponse(string Response);
-    private sealed record Chunk(Guid Id, string Name, string Content, double Score);
+	/// <summary>Maps the general AI assistant endpoint.</summary>
+	public static IEndpointRouteBuilder MapAiAssistantEndpoints(this IEndpointRouteBuilder endpoints)
+	{
+		endpoints.MapPost("/api/ai/assistant/ask", AskAsync)
+			.WithTags("AI - Assistant")
+			.RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
+		return endpoints;
+	}
 
-    public static IEndpointRouteBuilder MapAiAssistantEndpoints(this IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapPost("/api/ai/assistant/ask", AskAsync)
-            .WithTags("AI - Assistant")
-            .RequireAuthorization();
-        return endpoints;
-    }
+	private static async Task<IResult> AskAsync(
+		AskRequest request,
+		ITenantScope tenantScope,
+		IAiAssistantService assistantService,
+		CancellationToken cancellationToken)
+	{
+		if (string.IsNullOrWhiteSpace(request.Question))
+			return Results.BadRequest(new { message = "Question is required." });
+		var tenantId = tenantScope.IsSuperAdmin ? request.TenantId : tenantScope.Resolve(request.TenantId);
+		if (!tenantId.HasValue)
+			return Results.BadRequest(new { message = "SuperAdmin must select a tenant." });
 
-    private static async Task<IResult> AskAsync(
-        AskRequest request, IHttpClientFactory clients, IDbConnectionFactory db,
-        IConfiguration configuration, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(request.Question))
-            return Results.BadRequest(new { message = "Question is required." });
+		var collections = request.Collections is { Count: > 0 }
+			? request.Collections
+			: ["operations", "policy", "academic"];
 
-        var baseUrl = configuration["AI:Ollama:BaseUrl"] ?? "http://host.docker.internal:11434";
-        var chatModel = configuration["AI:Ollama:ChatModel"] ?? "llama3.2";
-        var embeddingModel = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text";
-        var http = clients.CreateClient();
-        http.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+		var result = await assistantService.AskAsync(
+			new AiAssistantRequest(tenantId.Value, tenantScope.UserId, request.SchoolId, request.Assistant ?? "general", request.Question.Trim(), collections,
+				"You are the SmartSchool assistant. Use only authorized school context and state clearly when verified context is insufficient."),
+			cancellationToken);
+		return Results.Ok(result);
+	}
 
-        // Ollama embeddings.
-        var embeddingHttp = await http.PostAsJsonAsync("api/embeddings",
-            new { model = embeddingModel, prompt = request.Question }, ct);
-        embeddingHttp.EnsureSuccessStatusCode();
-        var embedding = await embeddingHttp.Content.ReadFromJsonAsync<OllamaEmbeddingResponse>(cancellationToken: ct);
-        if (embedding?.Embedding is null || embedding.Embedding.Length == 0)
-            return Results.Problem("Embedding model returned no vector.");
-
-        // pgvector: migration v55 adds embedding/content columns to ai.knowledge_chunk.
-        var vectorLiteral = "[" + string.Join(",", embedding.Embedding.Select(x => x.ToString(System.Globalization.CultureInfo.InvariantCulture))) + "]";
-        const string sql = """
-            SELECT id AS "Id", document_name AS "Name", content AS "Content",
-                   1 - (embedding <=> CAST(@Vector AS vector)) AS "Score"
-            FROM ai_core.rag_knowledge_chunk
-            WHERE tenant_id=@TenantId AND is_active=true AND embedding IS NOT NULL
-            ORDER BY embedding <=> CAST(@Vector AS vector)
-            LIMIT 5;
-            """;
-        await using var connection = await db.OpenConnectionAsync(ct);
-        var chunks = (await connection.QueryAsync<Chunk>(
-            new CommandDefinition(sql, new { request.TenantId, Vector = vectorLiteral }, cancellationToken: ct))).ToArray();
-
-        var context = string.Join("\n\n", chunks.Select((x, i) => $"[{i + 1}] {x.Name}\n{x.Content}"));
-        var system = $"You are SmartSchool assistant for actor {request.Actor ?? "User"}. Answer only from authorized tenant context. If context is insufficient, say so. Cite sources as [1], [2].";
-        var prompt = $"{system}\n\nCONTEXT:\n{context}\n\nQUESTION:\n{request.Question}";
-
-        var generationHttp = await http.PostAsJsonAsync("api/generate",
-            new { model = chatModel, prompt, stream = false }, ct);
-        generationHttp.EnsureSuccessStatusCode();
-        var generated = await generationHttp.Content.ReadFromJsonAsync<OllamaGenerateResponse>(cancellationToken: ct);
-
-        return Results.Ok(new AskResponse(
-            generated?.Response ?? "No response generated.",
-            chunks.Select(x => new Citation(x.Id, x.Name, x.Score)).ToArray(),
-            chatModel));
-    }
+	/// <summary>Represents a general AI assistant question.</summary>
+	public sealed record AskRequest(Guid? TenantId, string Question, Guid? SchoolId, string? Assistant, IReadOnlyCollection<string>? Collections);
 }

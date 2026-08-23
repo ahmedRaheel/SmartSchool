@@ -4,7 +4,9 @@ namespace SmartSchool.Modules.AICore.Cag;
 
 internal interface IOllamaClient
 {
+    /// <summary>Creates an embedding for the supplied text.</summary>
     Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken);
+    /// <summary>Generates a model response for the supplied prompt.</summary>
     Task<(string Answer, string Model)> GenerateAsync(string prompt, CancellationToken cancellationToken);
 }
 
@@ -13,6 +15,7 @@ internal sealed class OllamaClient(IHttpClientFactory httpClientFactory, IConfig
     private sealed record EmbeddingResponse(float[] Embedding);
     private sealed record GenerateResponse(string Response);
 
+    /// <summary>Creates an embedding using the configured Ollama embedding model.</summary>
     public async Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken)
     {
         var client = CreateClient();
@@ -29,6 +32,7 @@ internal sealed class OllamaClient(IHttpClientFactory httpClientFactory, IConfig
             : throw new InvalidOperationException("Ollama returned an empty embedding.");
     }
 
+    /// <summary>Generates a response using the configured Ollama chat model.</summary>
     public async Task<(string Answer, string Model)> GenerateAsync(string prompt, CancellationToken cancellationToken)
     {
         var model = configuration["AI:Ollama:ChatModel"] ?? "llama3.2";

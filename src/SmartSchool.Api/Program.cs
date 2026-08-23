@@ -195,7 +195,7 @@ builder.Services
 //
 // Modules
 //
-builder.Services.AddAICoreModule();
+builder.Services.AddAICoreModule(builder.Configuration);
 builder.Services.AddAIInquiryModule();
 builder.Services.AddAIParentModule();
 builder.Services.AddAIPredictionModule();
@@ -222,6 +222,7 @@ builder.Services.AddTransportModule();
 builder.Services.AddWorkflowModule();
 
 builder.Services.AddHostedService<KafkaCommunicationConsumer>();
+builder.Services.AddHostedService<KafkaCagInvalidationConsumer>();
 
 var app = builder.Build();
 
