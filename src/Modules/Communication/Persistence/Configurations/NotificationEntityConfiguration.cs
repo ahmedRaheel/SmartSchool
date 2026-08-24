@@ -21,8 +21,9 @@ public sealed class NotificationEntityConfiguration
 		EntityTypeBuilder<NotificationEntity> builder)
 	{
 		builder.ToTable("notification", schema: "communication");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.NotificationId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -128,7 +129,7 @@ public sealed class NotificationEntityConfiguration
 		builder.Property(entity => entity.IsRead).HasColumnName("is_read");
 		builder.Property(entity => entity.ReadAt).HasColumnName("read_at");
 		builder.Property(entity => entity.OccurredAt).HasColumnName("occurred_at");
-		builder.Property(entity => entity.Id).HasColumnName("notification_id");
+		builder.Property(entity => entity.NotificationId).HasColumnName("notification_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

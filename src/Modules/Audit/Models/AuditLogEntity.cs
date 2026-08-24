@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Audit.Models;
 /// </summary>
 public sealed class AuditLogEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid AuditLogId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private AuditLogEntity()
 	{
 	}

@@ -14,6 +14,7 @@ public sealed class CandidateDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<CandidateDocumentEntity> builder)
 	{
 		builder.ToTable("candidatedocument", schema: "document");
+		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(document => document.Id);
 

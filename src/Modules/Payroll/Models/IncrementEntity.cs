@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Payroll.Models;
 /// </summary>
 public sealed class IncrementEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid IncrementId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private IncrementEntity()
 	{
 	}

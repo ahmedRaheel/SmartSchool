@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AIParent.Models;
 /// </summary>
 public sealed class ParentToolExecutionEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid ParentToolExecutionId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private ParentToolExecutionEntity()
 	{
 	}

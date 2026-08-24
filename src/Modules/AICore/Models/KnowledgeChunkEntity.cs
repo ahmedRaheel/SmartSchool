@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AICore.Models;
 /// </summary>
 public sealed class KnowledgeChunkEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid KnowledgeChunkId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private KnowledgeChunkEntity()
 	{
 	}

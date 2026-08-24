@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AICore.Models;
 /// </summary>
 public sealed class AiExecutionLogEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid AiExecutionLogId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private AiExecutionLogEntity()
 	{
 	}

@@ -5,6 +5,13 @@ namespace SmartSchool.Modules.Communication.Models;
 /// <summary>Represents a persisted chat message.</summary>
 public sealed class ChatMessageEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid Id
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
     private ChatMessageEntity() { }
 
     /// <summary>Gets the conversation identifier.</summary>

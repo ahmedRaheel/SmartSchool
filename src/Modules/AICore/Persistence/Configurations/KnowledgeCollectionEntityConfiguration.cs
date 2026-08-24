@@ -13,8 +13,9 @@ public sealed class KnowledgeCollectionEntityConfiguration
 	public void Configure(EntityTypeBuilder<KnowledgeCollectionEntity> builder)
 	{
 		builder.ToTable("knowledge_collection", schema: "ai_core");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.KnowledgeCollectionId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class KnowledgeCollectionEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("knowledge_collection_id");
+		builder.Property(entity => entity.KnowledgeCollectionId).HasColumnName("knowledge_collection_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

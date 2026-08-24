@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AITutor.Models;
 /// </summary>
 public sealed class GeneratedQuizEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid GeneratedQuizId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private GeneratedQuizEntity()
 	{
 	}

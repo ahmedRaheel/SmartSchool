@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Workflow.Models;
 /// </summary>
 public sealed class WorkflowDefinitionEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid WorkflowDefinitionId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private WorkflowDefinitionEntity()
 	{
 	}

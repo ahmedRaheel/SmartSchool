@@ -13,8 +13,9 @@ public sealed class RouteEntityConfiguration
 	public void Configure(EntityTypeBuilder<RouteEntity> builder)
 	{
 		builder.ToTable("route", schema: "transport");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.RouteId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class RouteEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("route_id");
+		builder.Property(entity => entity.RouteId).HasColumnName("route_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

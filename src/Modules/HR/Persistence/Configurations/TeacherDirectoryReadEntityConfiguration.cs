@@ -13,6 +13,7 @@ public sealed class TeacherDirectoryReadEntityConfiguration
 	public void Configure(EntityTypeBuilder<TeacherDirectoryReadEntity> builder)
 	{
 		builder.ToTable("teacherdirectoryread", schema: "public");
+		builder.Ignore(entity => entity.Id);
 		builder.HasKey(readModel => readModel.Id);
 		builder.Property(readModel => readModel.TenantId).IsRequired();
 		builder.Property(readModel => readModel.TeacherId).IsRequired();

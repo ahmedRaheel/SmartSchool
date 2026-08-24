@@ -13,8 +13,9 @@ public sealed class ExamSubjectEntityConfiguration
 	public void Configure(EntityTypeBuilder<ExamSubjectEntity> builder)
 	{
 		builder.ToTable("exam_subject", schema: "exam");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.ExamSubjectId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class ExamSubjectEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("exam_subject_id");
+		builder.Property(entity => entity.ExamSubjectId).HasColumnName("exam_subject_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

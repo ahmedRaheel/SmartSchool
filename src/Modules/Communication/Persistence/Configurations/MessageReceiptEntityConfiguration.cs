@@ -13,6 +13,7 @@ public sealed class MessageReceiptEntityConfiguration
 	public void Configure(EntityTypeBuilder<MessageReceiptEntity> builder)
 	{
 		builder.ToTable("message_receipt", schema: "communication");
+		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.Id);
 

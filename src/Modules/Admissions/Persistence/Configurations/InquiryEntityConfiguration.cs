@@ -13,8 +13,9 @@ public sealed class InquiryEntityConfiguration
 	public void Configure(EntityTypeBuilder<InquiryEntity> builder)
 	{
 		builder.ToTable("Inquiry", schema: "admission");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.InquiryId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class InquiryEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("inquiry_id");
+		builder.Property(entity => entity.InquiryId).HasColumnName("inquiry_id");
 	}
 }

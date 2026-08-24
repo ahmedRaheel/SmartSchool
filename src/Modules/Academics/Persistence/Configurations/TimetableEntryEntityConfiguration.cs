@@ -13,8 +13,9 @@ public sealed class TimetableEntryEntityConfiguration
 	public void Configure(EntityTypeBuilder<TimetableEntryEntity> builder)
 	{
 		builder.ToTable("timetable_entry", schema: "academic");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.TimetableEntryId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class TimetableEntryEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("timetable_entry_id");
+		builder.Property(entity => entity.TimetableEntryId).HasColumnName("timetable_entry_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

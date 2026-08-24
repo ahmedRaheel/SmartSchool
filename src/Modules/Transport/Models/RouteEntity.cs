@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Transport.Models;
 /// </summary>
 public sealed class RouteEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid RouteId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private RouteEntity()
 	{
 	}

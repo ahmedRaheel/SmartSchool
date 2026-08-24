@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class JobEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid JobId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private JobEntity()
 	{
 	}

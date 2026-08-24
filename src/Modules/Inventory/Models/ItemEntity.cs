@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Inventory.Models;
 /// </summary>
 public sealed class ItemEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid ItemId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private ItemEntity()
 	{
 	}

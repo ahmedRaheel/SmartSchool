@@ -13,8 +13,9 @@ public sealed class GeneratedDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<GeneratedDocumentEntity> builder)
 	{
 		builder.ToTable("generated_document", schema: "document");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.GeneratedDocumentId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class GeneratedDocumentEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("generated_document_id");
+		builder.Property(entity => entity.GeneratedDocumentId).HasColumnName("generated_document_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

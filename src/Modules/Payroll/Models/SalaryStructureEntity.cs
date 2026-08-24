@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Payroll.Models;
 /// </summary>
 public sealed class SalaryStructureEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid SalaryStructureId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private SalaryStructureEntity()
 	{
 	}

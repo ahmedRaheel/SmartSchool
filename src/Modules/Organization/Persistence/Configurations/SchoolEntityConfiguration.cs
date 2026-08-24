@@ -13,8 +13,9 @@ public sealed class SchoolEntityConfiguration
 	public void Configure(EntityTypeBuilder<SchoolEntity> builder)
 	{
 		builder.ToTable("School", schema: "org");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.SchoolId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class SchoolEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("school_id");
+		builder.Property(entity => entity.SchoolId).HasColumnName("school_id");
 	}
 }

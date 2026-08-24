@@ -13,8 +13,9 @@ public sealed class InquiryConversationEntityConfiguration
 	public void Configure(EntityTypeBuilder<InquiryConversationEntity> builder)
 	{
 		builder.ToTable("inquiry_conversation", schema: "ai_inquiry");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.InquiryConversationId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class InquiryConversationEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("inquiry_conversation_id");
+		builder.Property(entity => entity.InquiryConversationId).HasColumnName("inquiry_conversation_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

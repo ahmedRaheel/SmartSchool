@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Communication.Models;
 /// </summary>
 public sealed class ConversationEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid ConversationId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private ConversationEntity()
 	{
 	}

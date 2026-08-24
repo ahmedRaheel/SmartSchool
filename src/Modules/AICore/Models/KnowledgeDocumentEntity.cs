@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AICore.Models;
 /// </summary>
 public sealed class KnowledgeDocumentEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid KnowledgeDocumentId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private KnowledgeDocumentEntity()
 	{
 	}

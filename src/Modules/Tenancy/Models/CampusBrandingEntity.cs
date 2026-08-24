@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Tenancy.Models;
 /// </summary>
 public sealed class CampusBrandingEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid Id
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private CampusBrandingEntity()
 	{
 	}

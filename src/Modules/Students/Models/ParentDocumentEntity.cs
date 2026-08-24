@@ -9,6 +9,13 @@ namespace SmartSchool.Modules.Students.Models;
 /// </summary>
 public sealed class ParentDocumentEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid Id
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private ParentDocumentEntity()
 	{
 	}

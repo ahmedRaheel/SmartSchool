@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AITutor.Models;
 /// </summary>
 public sealed class TutorConversationEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid TutorConversationId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private TutorConversationEntity()
 	{
 	}

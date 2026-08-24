@@ -13,8 +13,9 @@ public sealed class TeacherAssignmentEntityConfiguration
 	public void Configure(EntityTypeBuilder<TeacherAssignmentEntity> builder)
 	{
 		builder.ToTable("teacher_course_assignment", schema: "academic");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.TeacherCourseAssignmentId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class TeacherAssignmentEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("teacher_course_assignment_id");
+		builder.Property(entity => entity.TeacherCourseAssignmentId).HasColumnName("teacher_course_assignment_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

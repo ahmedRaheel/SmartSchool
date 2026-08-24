@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Finance.Models;
 /// </summary>
 public sealed class PaymentEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid StudentPaymentId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private PaymentEntity()
 	{
 	}

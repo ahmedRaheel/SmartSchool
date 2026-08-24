@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Examinations.Models;
 /// </summary>
 public sealed class ExamSubjectEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid ExamSubjectId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private ExamSubjectEntity()
 	{
 	}

@@ -13,8 +13,9 @@ public sealed class ApplicantEntityConfiguration
 	public void Configure(EntityTypeBuilder<ApplicantEntity> builder)
 	{
 		builder.ToTable("Applicant", schema: "admission");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.ApplicantId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class ApplicantEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("applicant_id");
+		builder.Property(entity => entity.ApplicantId).HasColumnName("applicant_id");
 	}
 }

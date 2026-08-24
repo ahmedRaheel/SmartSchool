@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AIInquiry.Models;
 /// </summary>
 public sealed class HumanHandoffEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid HumanHandoffId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private HumanHandoffEntity()
 	{
 	}

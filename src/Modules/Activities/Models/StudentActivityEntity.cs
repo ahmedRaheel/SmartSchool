@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Activities.Models;
 /// </summary>
 public sealed class StudentActivityEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid Id
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private StudentActivityEntity()
 	{
 	}

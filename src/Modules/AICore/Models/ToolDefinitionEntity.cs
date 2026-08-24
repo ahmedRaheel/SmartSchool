@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AICore.Models;
 /// </summary>
 public sealed class ToolDefinitionEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid ToolDefinitionId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private ToolDefinitionEntity()
 	{
 	}

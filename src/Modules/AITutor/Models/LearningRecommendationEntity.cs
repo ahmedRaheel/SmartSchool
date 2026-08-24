@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AITutor.Models;
 /// </summary>
 public sealed class LearningRecommendationEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid LearningRecommendationId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private LearningRecommendationEntity()
 	{
 	}

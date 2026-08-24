@@ -13,8 +13,9 @@ public sealed class PredictionModelEntityConfiguration
 	public void Configure(EntityTypeBuilder<PredictionModelEntity> builder)
 	{
 		builder.ToTable("prediction_model", schema: "ai");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.PredictionModelId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class PredictionModelEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("prediction_model_id");
+		builder.Property(entity => entity.PredictionModelId).HasColumnName("prediction_model_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

@@ -13,8 +13,9 @@ public sealed class StopEntityConfiguration
 	public void Configure(EntityTypeBuilder<StopEntity> builder)
 	{
 		builder.ToTable("Stop", schema: "transport");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.StopId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class StopEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("stop_id");
+		builder.Property(entity => entity.StopId).HasColumnName("stop_id");
 	}
 }

@@ -13,6 +13,7 @@ public sealed class ConversationParticipantEntityConfiguration
 	public void Configure(EntityTypeBuilder<ConversationParticipantEntity> builder)
 	{
 		builder.ToTable("conversation_participant", schema: "communication");
+		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.Id);
 

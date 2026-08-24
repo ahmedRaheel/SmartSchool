@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class TimetableEntryEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid TimetableEntryId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private TimetableEntryEntity()
 	{
 	}

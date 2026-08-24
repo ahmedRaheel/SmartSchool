@@ -14,6 +14,7 @@ public sealed class SchoolDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<SchoolDocumentEntity> builder)
 	{
 		builder.ToTable("schooldocument", schema: "public");
+		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(document => document.Id);
 

@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Inventory.Models;
 /// </summary>
 public sealed class PurchaseOrderEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid PurchaseOrderId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private PurchaseOrderEntity()
 	{
 	}

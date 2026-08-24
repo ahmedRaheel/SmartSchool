@@ -13,8 +13,9 @@ public sealed class QuizAttemptEntityConfiguration
 	public void Configure(EntityTypeBuilder<QuizAttemptEntity> builder)
 	{
 		builder.ToTable("student_quiz_attempt", schema: "ai_tutor");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.StudentQuizAttemptId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class QuizAttemptEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("student_quiz_attempt_id");
+		builder.Property(entity => entity.StudentQuizAttemptId).HasColumnName("student_quiz_attempt_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

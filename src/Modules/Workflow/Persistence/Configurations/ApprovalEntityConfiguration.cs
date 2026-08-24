@@ -13,8 +13,9 @@ public sealed class ApprovalEntityConfiguration
 	public void Configure(EntityTypeBuilder<ApprovalEntity> builder)
 	{
 		builder.ToTable("Approval", schema: "workflow");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.ApprovalId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class ApprovalEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("approval_id");
+		builder.Property(entity => entity.ApprovalId).HasColumnName("approval_id");
 	}
 }

@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class LeaveRequestEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid LeaveRequestId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private LeaveRequestEntity()
 	{
 	}

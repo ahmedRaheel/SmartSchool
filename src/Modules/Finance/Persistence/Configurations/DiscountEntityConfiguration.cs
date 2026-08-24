@@ -13,8 +13,9 @@ public sealed class DiscountEntityConfiguration
 	public void Configure(EntityTypeBuilder<DiscountEntity> builder)
 	{
 		builder.ToTable("Discount", schema: "finance");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.DiscountId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class DiscountEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("discount_id");
+		builder.Property(entity => entity.DiscountId).HasColumnName("discount_id");
 	}
 }

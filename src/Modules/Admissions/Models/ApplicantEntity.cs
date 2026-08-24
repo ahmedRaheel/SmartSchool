@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Admissions.Models;
 /// </summary>
 public sealed class ApplicantEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid ApplicantId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private ApplicantEntity()
 	{
 	}

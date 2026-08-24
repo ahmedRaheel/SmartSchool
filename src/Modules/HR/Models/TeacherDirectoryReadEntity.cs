@@ -8,6 +8,13 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class TeacherDirectoryReadEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid Id
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private TeacherDirectoryReadEntity()
 	{
 	}

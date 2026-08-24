@@ -13,8 +13,9 @@ public sealed class StudentFeeEntityConfiguration
 	public void Configure(EntityTypeBuilder<StudentFeeEntity> builder)
 	{
 		builder.ToTable("StudentFee", schema: "finance");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.StudentFeeId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class StudentFeeEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("student_fee_id");
+		builder.Property(entity => entity.StudentFeeId).HasColumnName("student_fee_id");
 	}
 }

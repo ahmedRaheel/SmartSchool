@@ -6,6 +6,7 @@ public sealed class NotificationPreferenceEntityConfiguration:IEntityTypeConfigu
 {public void Configure(EntityTypeBuilder<NotificationPreferenceEntity> builder)
 	{
 		builder.ToTable("notification_preference", "communication");
+		builder.Ignore(entity => entity.Id);
 		builder.HasKey(x => x.Id);
 		builder.Property(x => x.NotificationType).HasConversion<string>().HasMaxLength(80);
 		builder.Property(x => x.RowVersion).IsConcurrencyToken();

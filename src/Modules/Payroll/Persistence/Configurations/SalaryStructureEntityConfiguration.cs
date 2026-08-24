@@ -13,8 +13,9 @@ public sealed class SalaryStructureEntityConfiguration
 	public void Configure(EntityTypeBuilder<SalaryStructureEntity> builder)
 	{
 		builder.ToTable("SalaryStructure", schema: "payroll");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.SalaryStructureId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class SalaryStructureEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("salary_structure_id");
+		builder.Property(entity => entity.SalaryStructureId).HasColumnName("salary_structure_id");
 	}
 }

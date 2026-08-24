@@ -9,6 +9,7 @@ public sealed class MlExamPredictionEntityConfiguration : IEntityTypeConfigurati
 	public void Configure(EntityTypeBuilder<MlExamPredictionEntity> builder)
 	{
 		builder.ToTable("prediction", schema: "ai");
+		builder.Ignore(entity => entity.Id);
 		builder.HasKey(x => x.Id);
 		builder.Property(x => x.Id).HasColumnName("ml_exam_prediction_id");
 		builder.Property(x => x.TenantId).HasColumnName("tenant_id").IsRequired();
@@ -55,7 +56,7 @@ public sealed class MlExamPredictionEntityConfiguration : IEntityTypeConfigurati
 		builder.Property(entity => entity.HistoricalResultCount).HasColumnName("historical_result_count");
 		builder.Property(entity => entity.UsedMachineLearning).HasColumnName("used_machine_learning");
 		builder.Property(entity => entity.GeneratedAt).HasColumnName("generated_at");
-		builder.Property(entity => entity.Id).HasColumnName("prediction_id");
+		builder.Property(entity => entity.PredictionId).HasColumnName("prediction_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

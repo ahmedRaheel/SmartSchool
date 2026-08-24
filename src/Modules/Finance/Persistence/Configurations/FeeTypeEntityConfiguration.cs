@@ -13,8 +13,9 @@ public sealed class FeeTypeEntityConfiguration
 	public void Configure(EntityTypeBuilder<FeeTypeEntity> builder)
 	{
 		builder.ToTable("fee_type", schema: "finance");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.FeeTypeId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class FeeTypeEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("fee_type_id");
+		builder.Property(entity => entity.FeeTypeId).HasColumnName("fee_type_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

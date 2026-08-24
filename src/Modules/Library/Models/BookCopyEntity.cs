@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Library.Models;
 /// </summary>
 public sealed class BookCopyEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid BookCopyId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private BookCopyEntity()
 	{
 	}

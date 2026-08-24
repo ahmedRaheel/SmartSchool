@@ -13,8 +13,9 @@ public sealed class IncrementEntityConfiguration
 	public void Configure(EntityTypeBuilder<IncrementEntity> builder)
 	{
 		builder.ToTable("Increment", schema: "payroll");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.IncrementId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class IncrementEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("increment_id");
+		builder.Property(entity => entity.IncrementId).HasColumnName("increment_id");
 	}
 }

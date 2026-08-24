@@ -13,8 +13,9 @@ public sealed class ParentMessageEntityConfiguration
 	public void Configure(EntityTypeBuilder<ParentMessageEntity> builder)
 	{
 		builder.ToTable("parent_message", schema: "ai_parent");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.ParentMessageId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class ParentMessageEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("parent_message_id");
+		builder.Property(entity => entity.ParentMessageId).HasColumnName("parent_message_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

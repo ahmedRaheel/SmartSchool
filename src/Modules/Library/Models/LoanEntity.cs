@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Library.Models;
 /// </summary>
 public sealed class LoanEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid BookLoanId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private LoanEntity()
 	{
 	}

@@ -13,8 +13,9 @@ public sealed class AiExecutionLogEntityConfiguration
 	public void Configure(EntityTypeBuilder<AiExecutionLogEntity> builder)
 	{
 		builder.ToTable("ai_execution_log", schema: "ai_core");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.AiExecutionLogId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -49,7 +50,7 @@ public sealed class AiExecutionLogEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("ai_execution_log_id");
+		builder.Property(entity => entity.AiExecutionLogId).HasColumnName("ai_execution_log_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class AcademicSystemEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid AcademicSystemId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private AcademicSystemEntity()
 	{
 	}

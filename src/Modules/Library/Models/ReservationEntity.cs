@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Library.Models;
 /// </summary>
 public sealed class ReservationEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid ReservationId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private ReservationEntity()
 	{
 	}

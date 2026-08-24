@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Finance.Models;
 /// </summary>
 public sealed class DiscountEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid DiscountId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private DiscountEntity()
 	{
 	}

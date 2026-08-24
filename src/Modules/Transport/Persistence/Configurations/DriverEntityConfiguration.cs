@@ -13,8 +13,9 @@ public sealed class DriverEntityConfiguration
 	public void Configure(EntityTypeBuilder<DriverEntity> builder)
 	{
 		builder.ToTable("driver", schema: "transport");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.DriverId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -46,7 +47,7 @@ public sealed class DriverEntityConfiguration
 		builder.Property(entity => entity.EmergencyContactName).HasColumnName("emergency_contact_name");
 		builder.Property(entity => entity.EmergencyContactPhone).HasColumnName("emergency_contact_phone");
 		builder.Property(entity => entity.AssignedVehicleId).HasColumnName("assigned_vehicle_id");
-		builder.Property(entity => entity.Id).HasColumnName("driver_id");
+		builder.Property(entity => entity.DriverId).HasColumnName("driver_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

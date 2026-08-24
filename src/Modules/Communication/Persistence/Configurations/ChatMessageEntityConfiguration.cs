@@ -7,6 +7,7 @@ public sealed class ChatMessageEntityConfiguration : IEntityTypeConfiguration<Ch
  public void Configure(EntityTypeBuilder<ChatMessageEntity> builder)
 	{
 		builder.ToTable("chat_message", schema: "communication");
+		builder.Ignore(entity => entity.Id);
 		builder.HasKey(x => x.Id);
 		builder.Property(x => x.MessageType).HasMaxLength(30).IsRequired();
 		builder.Property(x => x.Message).HasMaxLength(5000).IsRequired();

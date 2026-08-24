@@ -13,6 +13,7 @@ public sealed class DocumentTypeEntityConfiguration
 	public void Configure(EntityTypeBuilder<DocumentTypeEntity> builder)
 	{
 		builder.ToTable("documenttype", schema: "document");
+		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(documentType => documentType.Id);
 

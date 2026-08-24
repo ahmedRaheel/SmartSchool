@@ -10,9 +10,10 @@ public sealed class GuardianEntityConfiguration : IEntityTypeConfiguration<Guard
 	public void Configure(EntityTypeBuilder<GuardianEntity> builder)
 	{
 		builder.ToTable("guardian", schema: "student");
-		builder.HasKey(entity => entity.Id);
+		builder.Ignore(entity => entity.Id);
+		builder.HasKey(entity => entity.GuardianId);
 
-		builder.Property(entity => entity.Id).HasColumnName("guardian_id");
+		builder.Property(entity => entity.GuardianId).HasColumnName("guardian_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();
 		builder.Property(entity => entity.UserId).HasColumnName("user_id");
 		builder.Property(entity => entity.FullName).HasColumnName("full_name").HasMaxLength(200).IsRequired();
@@ -28,16 +29,5 @@ public sealed class GuardianEntityConfiguration : IEntityTypeConfiguration<Guard
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
 
 		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.UserId).HasColumnName("user_id");
-		builder.Property(entity => entity.FullName).HasColumnName("full_name");
-		builder.Property(entity => entity.CnicNumber).HasColumnName("cnic_number");
-		builder.Property(entity => entity.Email).HasColumnName("email");
-		builder.Property(entity => entity.Phone).HasColumnName("phone");
-		builder.Property(entity => entity.Id).HasColumnName("guardian_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
 }

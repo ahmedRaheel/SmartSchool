@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AIInquiry.Models;
 /// </summary>
 public sealed class InquiryMessageEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid InquiryMessageId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private InquiryMessageEntity()
 	{
 	}

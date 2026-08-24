@@ -13,8 +13,9 @@ public sealed class GradeScaleEntityConfiguration
 	public void Configure(EntityTypeBuilder<GradeScaleEntity> builder)
 	{
 		builder.ToTable("GradeScale", schema: "exam");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.GradeScaleId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -53,6 +54,6 @@ public sealed class GradeScaleEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.Id).HasColumnName("grade_scale_id");
+		builder.Property(entity => entity.GradeScaleId).HasColumnName("grade_scale_id");
 	}
 }

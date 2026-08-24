@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.Documents.Models;
 /// </summary>
 public sealed class SchoolLogoEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid SchoolLogoId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private SchoolLogoEntity()
 	{
 	}

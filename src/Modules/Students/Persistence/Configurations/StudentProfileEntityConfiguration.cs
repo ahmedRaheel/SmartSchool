@@ -13,8 +13,9 @@ public sealed class StudentProfileEntityConfiguration
 	public void Configure(EntityTypeBuilder<StudentProfileEntity> builder)
 	{
 		builder.ToTable("StudentProfile", schema: "student");
+		builder.Ignore(entity => entity.Id);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.StudentProfileId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -37,6 +38,6 @@ public sealed class StudentProfileEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
-		builder.Property(entity => entity.Id).HasColumnName("student_profile_id");
+		builder.Property(entity => entity.StudentProfileId).HasColumnName("student_profile_id");
 	}
 }

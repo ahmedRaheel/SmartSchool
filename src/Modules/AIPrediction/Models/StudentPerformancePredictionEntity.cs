@@ -7,6 +7,13 @@ namespace SmartSchool.Modules.AIPrediction.Models;
 /// </summary>
 public sealed class StudentPerformancePredictionEntity : Entity
 {
+	/// <summary>Gets the persisted entity identifier.</summary>
+	public Guid StudentPerformancePredictionId
+	{
+		get => Id;
+		private set => Id = value;
+	}
+
 	private StudentPerformancePredictionEntity()
 	{
 	}
