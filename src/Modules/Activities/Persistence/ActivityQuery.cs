@@ -49,7 +49,7 @@ public sealed class ActivityQuery(
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY activity_id
-			LIMITLIMIT @PageSize OFFSET @Offset;
+			LIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

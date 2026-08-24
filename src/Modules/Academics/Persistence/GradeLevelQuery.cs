@@ -49,7 +49,7 @@ public sealed class GradeLevelQuery(
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY grade_level_id
-			LIMITLIMIT @PageSize OFFSET @Offset;
+			LIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

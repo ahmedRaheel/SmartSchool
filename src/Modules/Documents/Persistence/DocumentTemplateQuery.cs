@@ -49,7 +49,7 @@ public sealed class DocumentTemplateQuery(
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY document_template_id
-			LIMITLIMIT @PageSize OFFSET @Offset;
+			LIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -49,7 +49,7 @@ public sealed class SchoolLogoQuery(
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY school_logo_id
-			LIMITLIMIT @PageSize OFFSET @Offset;
+			LIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

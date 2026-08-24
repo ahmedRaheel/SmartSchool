@@ -49,7 +49,7 @@ public sealed class SchoolQuery(
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY school_id
-			LIMITLIMIT @PageSize OFFSET @Offset;
+			LIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -49,7 +49,7 @@ public sealed class CampusQuery(
 			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND is_active = TRUE
 			ORDER BY campus_id
-			LIMITLIMIT @PageSize OFFSET @Offset;
+			LIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

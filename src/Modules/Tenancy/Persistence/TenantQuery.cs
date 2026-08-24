@@ -46,7 +46,7 @@ public sealed class TenantQuery(
 			FROM saas.tenant
 			WHERE is_active = TRUE
 			ORDER BY tenant_id
-			LIMITLIMIT @PageSize OFFSET @Offset;
+			LIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =
