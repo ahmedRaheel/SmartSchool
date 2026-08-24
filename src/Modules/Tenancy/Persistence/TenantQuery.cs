@@ -90,7 +90,7 @@ public sealed class TenantQuery(
 			.AnyAsync(
 				entity =>
 					EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
 				cancellationToken);
 	}
 }

@@ -315,6 +315,7 @@ app.MapAiAssistantEndpoints();
 app.MapRagChatbotEndpoints();
 app.MapWorkflowCatalogEndpoints();
 app.MapClientTelemetryEndpoints();
+app.MapApplicationLogEndpoints();
 app.MapActorProfileEndpoints();
 
 app.MapAICoreEndpoints();

@@ -121,8 +121,19 @@ public sealed class NotificationQuery(
 				cancellationToken);
 	}
 
-	public Task<IReadOnlyCollection<NotificationEntity>> GetUnreadAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken)
+	public async Task<IReadOnlyCollection<NotificationEntity>> GetUnreadAsync(
+		Guid tenantId,
+		Guid recipientUserId,
+		CancellationToken cancellationToken)
 	{
-		throw new NotImplementedException();
+		return await dbContext
+			.Set<NotificationEntity>()
+			.Where(entity =>
+				entity.TenantId == tenantId &&
+				entity.RecipientUserId == recipientUserId &&
+				!entity.IsRead &&
+				entity.IsActive)
+			.OrderByDescending(entity => entity.OccurredAt)
+			.ToListAsync(cancellationToken);
 	}
 }

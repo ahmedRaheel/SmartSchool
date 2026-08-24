@@ -61,8 +61,8 @@ public static class GetTenantPage
 					return result.ToHttpResult();
 				})
 			.WithName("GetTenantPage")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
+			.WithTags(ModuleConstants.Name).AllowAnonymous();
+			//.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 		return endpoints;
 	}
 
