@@ -7,6 +7,7 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class AcademicYearEntity : Entity
 {
+		get => Id;
 	private AcademicYearEntity()
 	{
 	}
