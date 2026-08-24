@@ -13,13 +13,7 @@ public sealed class TutorSessionEntityConfiguration
 	public void Configure(EntityTypeBuilder<TutorSessionEntity> builder)
 	{
 		builder.ToTable("tutor_session", schema: "ai_tutor");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.TutorSessionId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.TutorSessionId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

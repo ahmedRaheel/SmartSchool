@@ -13,13 +13,7 @@ public sealed class SalaryStructureEntityConfiguration
 	public void Configure(EntityTypeBuilder<SalaryStructureEntity> builder)
 	{
 		builder.ToTable("SalaryStructure", schema: "payroll");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.SalaryStructureId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.SalaryStructureId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

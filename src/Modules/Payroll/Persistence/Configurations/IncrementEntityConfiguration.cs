@@ -13,13 +13,7 @@ public sealed class IncrementEntityConfiguration
 	public void Configure(EntityTypeBuilder<IncrementEntity> builder)
 	{
 		builder.ToTable("Increment", schema: "payroll");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.IncrementId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.IncrementId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

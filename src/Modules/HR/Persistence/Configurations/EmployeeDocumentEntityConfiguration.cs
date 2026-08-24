@@ -14,13 +14,7 @@ public sealed class EmployeeDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<EmployeeDocumentEntity> builder)
 	{
 		builder.ToTable("employeedocument", schema: "document");
-<<<<<<< HEAD
 builder.HasKey(document => document.EmployeeDocumentId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(document => document.Id);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder.Property(document => document.TenantId).IsRequired();
 		builder.Property(document => document.EmployeeId).IsRequired();

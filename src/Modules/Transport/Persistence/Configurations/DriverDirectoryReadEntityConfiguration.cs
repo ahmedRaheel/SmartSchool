@@ -13,12 +13,7 @@ public sealed class DriverDirectoryReadEntityConfiguration
 	public void Configure(EntityTypeBuilder<DriverDirectoryReadEntity> builder)
 	{
 		builder.ToTable("driverdirectoryread", schema: "public");
-<<<<<<< HEAD
 builder.HasKey(readModel => readModel.DriverDirectoryReadId);
-=======
-		builder.Ignore(entity => entity.Id);
-		builder.HasKey(readModel => readModel.Id);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 		builder.Property(readModel => readModel.TenantId).IsRequired();
 		builder.Property(readModel => readModel.DriverId).IsRequired();
 		builder.HasIndex(readModel => new { readModel.TenantId, readModel.DriverId }).IsUnique();

@@ -13,13 +13,7 @@ public sealed class TermEntityConfiguration
 	public void Configure(EntityTypeBuilder<TermEntity> builder)
 	{
 		builder.ToTable("term", schema: "academic");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.TermId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.TermId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,13 +13,7 @@ public sealed class SchoolLogoEntityConfiguration
 	public void Configure(EntityTypeBuilder<SchoolLogoEntity> builder)
 	{
 		builder.ToTable("SchoolLogo", schema: "document");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.SchoolLogoId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.SchoolLogoId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -7,17 +7,8 @@ namespace SmartSchool.Modules.AIInquiry.Models;
 /// </summary>
 public sealed class HumanHandoffEntity : Entity
 {
-<<<<<<< HEAD
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid HumanHandoffId { get; private set; } = Guid.NewGuid();
-=======
-	/// <summary>Gets the persisted entity identifier.</summary>
-	public Guid HumanHandoffId
-	{
-		get => Id;
-		private set => Id = value;
-	}
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 	private HumanHandoffEntity()
 	{

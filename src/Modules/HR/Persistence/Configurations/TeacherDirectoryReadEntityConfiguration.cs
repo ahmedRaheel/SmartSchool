@@ -13,12 +13,7 @@ public sealed class TeacherDirectoryReadEntityConfiguration
 	public void Configure(EntityTypeBuilder<TeacherDirectoryReadEntity> builder)
 	{
 		builder.ToTable("teacherdirectoryread", schema: "public");
-<<<<<<< HEAD
 builder.HasKey(readModel => readModel.TeacherDirectoryReadId);
-=======
-		builder.Ignore(entity => entity.Id);
-		builder.HasKey(readModel => readModel.Id);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 		builder.Property(readModel => readModel.TenantId).IsRequired();
 		builder.Property(readModel => readModel.TeacherId).IsRequired();
 		builder.HasIndex(readModel => new { readModel.TenantId, readModel.TeacherId }).IsUnique();

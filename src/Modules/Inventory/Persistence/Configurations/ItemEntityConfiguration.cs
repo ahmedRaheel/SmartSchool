@@ -13,13 +13,7 @@ public sealed class ItemEntityConfiguration
 	public void Configure(EntityTypeBuilder<ItemEntity> builder)
 	{
 		builder.ToTable("item", schema: "inventory");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.ItemId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.ItemId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

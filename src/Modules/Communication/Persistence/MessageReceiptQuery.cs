@@ -44,11 +44,11 @@ public sealed class MessageReceiptQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				id AS "Id"
+				message_receipt_id AS "MessageReceiptId"
 			FROM communication.message_receipt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY id
+			ORDER BY message_receipt_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 

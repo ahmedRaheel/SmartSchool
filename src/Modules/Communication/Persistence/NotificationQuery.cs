@@ -29,7 +29,7 @@ public sealed class NotificationQuery(
 
 		const string pageSql = """
 			SELECT
-				notification_id AS "Id",
+				notification_id AS "NotificationId",
 				tenant_id AS "TenantId",
 				recipient_user_id AS "RecipientUserId",
 				type AS "Type",

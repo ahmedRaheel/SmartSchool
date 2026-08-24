@@ -13,13 +13,7 @@ public sealed class StockTransactionEntityConfiguration
 	public void Configure(EntityTypeBuilder<StockTransactionEntity> builder)
 	{
 		builder.ToTable("StockTransaction", schema: "inventory");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.StockTransactionId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.StockTransactionId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -44,11 +44,11 @@ public sealed class ConversationParticipantQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				id AS "Id"
+				conversation_participant_id AS "ConversationParticipantId"
 			FROM communication.conversation_participant
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY id
+			ORDER BY conversation_participant_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 

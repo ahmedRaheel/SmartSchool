@@ -7,27 +7,22 @@ public sealed class ChatParticipantEntityConfiguration : IEntityTypeConfiguratio
  public void Configure(EntityTypeBuilder<ChatParticipantEntity> builder)
 	{
 		builder.ToTable("chat_participant", schema: "communication");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.ChatParticipantId);
-=======
-		builder.Ignore(entity => entity.Id);
-		builder.HasKey(x => x.Id);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 		builder.Property(x => x.Role).HasMaxLength(50).IsRequired();
 		builder.Property(x => x.RowVersion).IsConcurrencyToken();
 		builder.HasIndex(x => new { x.TenantId, x.ConversationId, x.UserId }).IsUnique();
 		builder.Property(entity => entity.ConversationId).HasColumnName("conversation_id");
-		builder.Property(entity => entity.UserId).HasColumnName("UserId");
-		builder.Property(entity => entity.Role).HasColumnName("Role");
-		builder.Property(entity => entity.JoinedAt).HasColumnName("JoinedAt");
-		builder.Property(entity => entity.LastReadAt).HasColumnName("LastReadAt");
-		builder.Property(entity => entity.IsMuted).HasColumnName("IsMuted");
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.Role).HasColumnName("role");
+		builder.Property(entity => entity.JoinedAt).HasColumnName("joined_at");
+		builder.Property(entity => entity.LastReadAt).HasColumnName("last_read_at");
+		builder.Property(entity => entity.IsMuted).HasColumnName("is_muted");
 		builder.Property(entity => entity.ChatParticipantId).HasColumnName("chat_participant_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("TenantId");
-		builder.Property(entity => entity.IsActive).HasColumnName("IsActive");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("CreatedAt");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("UpdatedAt");
-		builder.Property(entity => entity.RowVersion).HasColumnName("RowVersion");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
 }
 	

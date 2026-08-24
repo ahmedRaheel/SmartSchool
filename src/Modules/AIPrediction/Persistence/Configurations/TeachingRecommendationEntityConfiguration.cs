@@ -13,13 +13,7 @@ public sealed class TeachingRecommendationEntityConfiguration
 	public void Configure(EntityTypeBuilder<TeachingRecommendationEntity> builder)
 	{
 		builder.ToTable("teaching_recommendation", schema: "ai");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.TeachingRecommendationId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.TeachingRecommendationId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

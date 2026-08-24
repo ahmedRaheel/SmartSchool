@@ -13,13 +13,7 @@ public sealed class InquiryMessageEntityConfiguration
 	public void Configure(EntityTypeBuilder<InquiryMessageEntity> builder)
 	{
 		builder.ToTable("inquiry_message", schema: "ai_inquiry");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.InquiryMessageId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.InquiryMessageId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,13 +13,7 @@ public sealed class RouteEntityConfiguration
 	public void Configure(EntityTypeBuilder<RouteEntity> builder)
 	{
 		builder.ToTable("route", schema: "transport");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.RouteId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.RouteId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

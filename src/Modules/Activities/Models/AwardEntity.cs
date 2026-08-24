@@ -7,19 +7,10 @@ namespace SmartSchool.Modules.Activities.Models;
 /// </summary>
 public sealed class AwardEntity : Entity
 {
-<<<<<<< HEAD
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid AwardId { get; private set; } = Guid.NewGuid();
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid StudentAwardId { get; private set; } = Guid.NewGuid();
-=======
-	/// <summary>Gets the persisted entity identifier.</summary>
-	public Guid StudentAwardId
-	{
-		get => Id;
-		private set => Id = value;
-	}
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 	private AwardEntity()
 	{

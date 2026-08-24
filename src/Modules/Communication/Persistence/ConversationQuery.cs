@@ -44,7 +44,7 @@ public sealed class ConversationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				conversation_id AS "Id"
+				conversation_id AS "ConversationId"
 			FROM communication.conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE

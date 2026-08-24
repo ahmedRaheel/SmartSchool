@@ -21,13 +21,7 @@ public sealed class NotificationEntityConfiguration
 		EntityTypeBuilder<NotificationEntity> builder)
 	{
 		builder.ToTable("notification", schema: "communication");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.NotificationId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.NotificationId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -123,7 +117,10 @@ builder.HasKey(entity => entity.NotificationId);
 
 		// Canonical database mapping generated from SmartSchoolComplete.sql.
 		builder.Property(entity => entity.RecipientUserId).HasColumnName("recipient_user_id");
-		builder.Property(entity => entity.Type).HasColumnName("type");
+		builder.Property(entity => entity.Type)
+			.HasConversion<string>()
+			.HasColumnName("type")
+			.HasMaxLength(80);
 		builder.Property(entity => entity.Title).HasColumnName("title");
 		builder.Property(entity => entity.Message).HasColumnName("message");
 		builder.Property(entity => entity.RelatedEntityId).HasColumnName("related_entity_id");
@@ -140,11 +137,5 @@ builder.HasKey(entity => entity.NotificationId);
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
-		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.UserId).HasColumnName("user_id");
-		builder.Property(entity => entity.Body).HasColumnName("body");
-		builder.Property(entity => entity.ChannelCode).HasColumnName("channel_code");
-		builder.Property(entity => entity.Status).HasColumnName("status");
-		builder.Property(entity => entity.SentAt).HasColumnName("sent_at");
 	}
 }
