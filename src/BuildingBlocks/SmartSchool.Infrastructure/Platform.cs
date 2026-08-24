@@ -12,11 +12,15 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Infrastructure.Persistence;
 using Serilog;
 using Serilog.Context;
+using Serilog.Events;
+using Serilog.Sinks.PostgreSQL.ColumnWriters;
+using NpgsqlTypes;
 using SmartSchool.Infrastructure.Errors;
 using SmartSchool.Infrastructure.Options;
 using SmartSchool.SharedKernel.Constants;
 using System.Text.Json;
 using SmartSchool.Infrastructure.DependencyInjection;
+using Serilog.Sinks.PostgreSQL;
 
 namespace SmartSchool.Infrastructure;
 
@@ -117,7 +121,39 @@ public static class PlatformRegistration
 					.Enrich.WithThreadId()
 					.Enrich.WithProperty(
 						"ApplicationEntity",
+						ApplicationConstants.ApplicationName)
+					.Enrich.WithProperty(
+						"Service",
 						ApplicationConstants.ApplicationName);
+
+				var connectionString =
+					context.Configuration.GetConnectionString("SmartSchool");
+
+				if (!string.IsNullOrWhiteSpace(connectionString))
+				{
+					IDictionary<string, ColumnWriterBase> columnWriters =
+						new Dictionary<string, ColumnWriterBase>
+						{
+							["timestamp_utc"] = new TimestampColumnWriter(NpgsqlDbType.TimestampTz),
+							["level"] = new LevelColumnWriter(true, NpgsqlDbType.Varchar),
+							["service"] = new SinglePropertyColumnWriter("Service", PropertyWriteMethod.ToString, NpgsqlDbType.Varchar, "l"),
+							["message"] = new RenderedMessageColumnWriter(NpgsqlDbType.Text),
+							["message_template"] = new MessageTemplateColumnWriter(NpgsqlDbType.Text),
+							["exception"] = new ExceptionColumnWriter(NpgsqlDbType.Text),
+							["trace_id"] = new SinglePropertyColumnWriter("TraceId", PropertyWriteMethod.ToString, NpgsqlDbType.Varchar, "l"),
+							["correlation_id"] = new SinglePropertyColumnWriter("CorrelationId", PropertyWriteMethod.ToString, NpgsqlDbType.Varchar, "l"),
+							["request_path"] = new SinglePropertyColumnWriter("RequestPath", PropertyWriteMethod.ToString, NpgsqlDbType.Varchar, "l"),
+							["properties"] = new PropertiesColumnWriter(NpgsqlDbType.Jsonb)
+						};
+
+					loggerConfiguration.WriteTo.PostgreSQL(
+						connectionString,
+						"application_log",
+						columnWriters,
+						restrictedToMinimumLevel: LogEventLevel.Information,
+						schemaName: "observability",
+						needAutoCreateTable: false);
+				}
 			});
 	}
 
