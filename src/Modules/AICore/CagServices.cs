@@ -135,7 +135,7 @@ public sealed class AiContextService(
     private async Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken)
     {
         var client = httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri((configuration["AI:Ollama:BaseUrl"] ?? "http://host.docker.internal:11434").TrimEnd('/') + "/");
+        client.BaseAddress = new Uri((configuration["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/') + "/");
         var response = await client.PostAsJsonAsync(
             "api/embeddings",
             new { model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text", prompt = text },

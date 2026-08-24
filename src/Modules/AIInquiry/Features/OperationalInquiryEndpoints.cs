@@ -35,7 +35,7 @@ public static class OperationalInquiryEndpoints
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var user=InquiryMessageEntity.Create(t.Value,$"MSG-{Guid.NewGuid():N}","Visitor",JsonSerializer.Serialize(new{r.ConversationId,role="user",content=r.Message,r.Language}));await cmd.AddAsync(user,ct);
-        var h=http.CreateClient();h.BaseAddress=new Uri((cfg["AI:Ollama:BaseUrl"]??"http://host.docker.internal:11434").TrimEnd('/')+"/");
+        var h=http.CreateClient();h.BaseAddress=new Uri((cfg["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/')+"/");
         var prompt=$"You are SmartSchool admissions inquiry assistant. Answer conservatively. Never invent eligibility, fee, policy, admission dates or school facts. If verified school knowledge is unavailable, explicitly request human handoff. Visitor message: {r.Message}";
         var resp=await h.PostAsJsonAsync("api/generate",new{model=cfg["AI:Ollama:ChatModel"]??"llama3.2",prompt,stream=false},ct);
         resp.EnsureSuccessStatusCode();

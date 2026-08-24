@@ -16,7 +16,7 @@ public sealed class DuendeConfigurationSeeder(
 	public async Task SeedAsync(CancellationToken cancellationToken = default)
 	{
 
-		var portalUrl = configuration["DuendeIdentityServer:PortalUrl"] ?? "https://localhost:5173";
+		var portalUrl = configuration["DuendeIdentityServer:PortalUrl"] ?? throw new InvalidOperationException("DuendeIdentityServer:PortalUrl configuration is required.");
 		var mobileRedirect = configuration["DuendeIdentityServer:MobileRedirectUri"] ?? "smartschool://oauth/callback";
 
 		var identityResources = new IdentityResource[]

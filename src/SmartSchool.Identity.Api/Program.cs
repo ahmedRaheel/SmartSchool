@@ -21,8 +21,13 @@ builder.Services.AddAuthorization(options =>
 		policy.RequireClaim("scope", "smartschool.identity.manage"));
 });
 
+var portalOrigins = builder.Configuration
+	.GetSection("Cors:PortalOrigins")
+	.Get<string[]>()
+	?? throw new InvalidOperationException("Cors:PortalOrigins configuration is required.");
+
 builder.Services.AddCors(options => options.AddPolicy("Portal", policy => policy
-    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+    .WithOrigins(portalOrigins)
     .AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithExposedHeaders("X-Correlation-ID", "X-Trace-Id")));
 
 var app = builder.Build();

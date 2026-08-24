@@ -48,7 +48,7 @@ public sealed class GeneratedQuizEntityConfiguration
 		// Canonical database mapping generated from SmartSchoolComplete.sql.
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
 		builder.Property(entity => entity.Id).HasColumnName("generated_quiz_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");

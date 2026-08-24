@@ -46,7 +46,7 @@ internal sealed class OllamaClient(IHttpClientFactory httpClientFactory, IConfig
     private HttpClient CreateClient()
     {
         var client = httpClientFactory.CreateClient();
-        client.BaseAddress = new Uri((configuration["AI:Ollama:BaseUrl"] ?? "http://host.docker.internal:11434").TrimEnd('/') + "/");
+        client.BaseAddress = new Uri((configuration["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/') + "/");
         return client;
     }
 }

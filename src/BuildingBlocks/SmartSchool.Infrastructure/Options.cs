@@ -21,6 +21,10 @@ public sealed class AuthenticationOptions
 	public string Audience { get; init; } = AuthenticationConstants.DefaultAudience;
 
 	public bool RequireHttpsMetadata { get; init; } = true;
+
+	public string MetadataAddress { get; init; } = string.Empty;
+
+	public string ValidIssuer { get; init; } = string.Empty;
 	public IdentityProvider Provider { get; init; } = IdentityProvider.IdentityServer;
 }
 
@@ -30,11 +34,11 @@ public sealed class KafkaOptions
 
 	public bool Enabled { get; init; } = true;
 
-	public string BootstrapServers { get; init; } = "localhost:9092";
+	public string BootstrapServers { get; init; } = string.Empty;
 
-	public string ClientId { get; init; } = "smartschool-api";
+	public string ClientId { get; init; } = string.Empty;
 
-	public string GroupId { get; init; } = "smartschool";
+	public string GroupId { get; init; } = string.Empty;
 }
 
 public sealed class HangfireOptions
@@ -65,7 +69,29 @@ public sealed class MachineLearningOptions
 {
 	public const string SectionName = ConfigurationSections.MachineLearning;
 
-	public string BaseUrl { get; init; } = "http://localhost:8000";
+	public string BaseUrl { get; init; } = string.Empty;
 
 	public int TimeoutSeconds { get; init; } = 15;
+}
+
+
+public sealed class LoggingOptions
+{
+	public const string SectionName = "LoggingOptions";
+
+	public bool ConsoleEnabled { get; init; } = true;
+	public bool FileEnabled { get; init; } = true;
+	public string LogDirectory { get; init; } = "logs";
+	public int RetainedFileCountLimit { get; init; } = 30;
+	public bool DatabaseEnabled { get; init; } = true;
+	public string DatabaseConnectionStringName { get; init; } = "SmartSchool";
+	public string DatabaseSchema { get; init; } = "observability";
+	public string DatabaseTable { get; init; } = "application_log";
+	public string DatabaseMinimumLevel { get; init; } = "Information";
+}
+
+public sealed class ErrorHandlingOptions
+{
+	public const string SectionName = "ErrorHandling";
+	public string InternalServerErrorTypeUri { get; init; } = string.Empty;
 }

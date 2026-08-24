@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using SmartSchool.SharedKernel.Constants;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -53,7 +54,7 @@ public static class ObservabilityExtensions
         return app.Use(async (context, next) =>
         {
             var requestCorrelationId =
-                context.Request.Headers["X-Correlation-ID"].FirstOrDefault();
+                context.Request.Headers[ApiRoutes.CorrelationHeader].FirstOrDefault();
 
             var correlationId = string.IsNullOrWhiteSpace(requestCorrelationId)
                 ? context.TraceIdentifier
@@ -64,11 +65,11 @@ public static class ObservabilityExtensions
             {
                 var traceId = Activity.Current?.TraceId.ToString();
 
-                context.Response.Headers["X-Correlation-ID"] = correlationId;
+                context.Response.Headers[ApiRoutes.CorrelationHeader] = correlationId;
 
                 if (!string.IsNullOrWhiteSpace(traceId))
                 {
-                    context.Response.Headers["X-Trace-Id"] = traceId;
+                    context.Response.Headers[ApiRoutes.TraceHeader] = traceId;
                 }
 
                 return Task.CompletedTask;

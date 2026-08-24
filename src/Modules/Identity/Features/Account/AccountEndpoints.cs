@@ -188,7 +188,7 @@ public static class AccountEndpoints
 		if (string.IsNullOrWhiteSpace(request.RefreshToken)) return Results.BadRequest(new { message = "Refresh token is required." });
 		var clientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api";
 		var clientSecret = configuration["LoginApiClient:ClientSecret"] ?? throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
-		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? "http://127.0.0.1:8080/connect/token";
+		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? throw new InvalidOperationException("LoginApiClient:TokenEndpoint configuration is required.");
 		using var message = new HttpRequestMessage(HttpMethod.Post, tokenUrl) { Content = new FormUrlEncodedContent(new Dictionary<string,string> {
 			["grant_type"]="refresh_token", ["client_id"]=clientId, ["client_secret"]=clientSecret, ["refresh_token"]=request.RefreshToken }) };
 		using var response = await factory.CreateClient("IdentityTokenClient").SendAsync(message, cancellationToken);

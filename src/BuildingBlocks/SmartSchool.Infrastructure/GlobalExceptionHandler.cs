@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SmartSchool.Infrastructure.Options;
 using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Infrastructure.Errors;
@@ -14,7 +16,8 @@ namespace SmartSchool.Infrastructure.Errors;
 /// </summary>
 public sealed class GlobalExceptionHandler(
     ILogger<GlobalExceptionHandler> logger,
-    IProblemDetailsService problemDetailsService)
+    IProblemDetailsService problemDetailsService,
+    IOptions<ErrorHandlingOptions> errorHandlingOptions)
     : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
@@ -34,6 +37,8 @@ public sealed class GlobalExceptionHandler(
             traceId,
             correlationId);
 
+        httpContext.Response.Headers[ApiRoutes.CorrelationHeader] = correlationId;
+        httpContext.Response.Headers[ApiRoutes.TraceHeader] = traceId;
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
         var problem = new ProblemDetails
@@ -41,7 +46,7 @@ public sealed class GlobalExceptionHandler(
             Status = StatusCodes.Status500InternalServerError,
             Title = ErrorMessages.UnexpectedError,
             Detail = ErrorMessages.RequestFailed,
-            Type = ProblemTypeUris.InternalServerError
+            Type = errorHandlingOptions.Value.InternalServerErrorTypeUri
         };
 
         problem.Extensions["traceId"] = traceId;

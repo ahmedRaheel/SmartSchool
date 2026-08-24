@@ -51,9 +51,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSmartSchoolPlatform();
 
-var portalUrl =
-	builder.Configuration.GetValue<string>("PortalUrl")
-	?? "http://localhost:5173";
+var portalUrl = builder.Configuration.GetValue<string>("PortalUrl")
+	?? throw new InvalidOperationException("PortalUrl configuration is required.");
+
+var identityOptions = builder.Configuration
+	.GetRequiredSection(AuthenticationOptions.SectionName)
+	.Get<AuthenticationOptions>()
+	?? throw new InvalidOperationException("Identity configuration is required.");
 
 //
 // Authentication
@@ -67,26 +71,23 @@ builder.Services.Configure<JwtBearerOptions>(
 	JwtBearerDefaults.AuthenticationScheme,
 	options =>
 	{
-		options.Authority = "http://localhost:7101";
-
-		options.MetadataAddress =
-			"http://host.docker.internal:7101/.well-known/openid-configuration";
-
-		options.Audience = "smartschool-api";
-		options.RequireHttpsMetadata = false;
+		options.Authority = identityOptions.Authority;
+		options.MetadataAddress = identityOptions.MetadataAddress;
+		options.Audience = identityOptions.Audience;
+		options.RequireHttpsMetadata = identityOptions.RequireHttpsMetadata;
 		options.MapInboundClaims = false;
 
 		options.TokenValidationParameters ??=
 			new TokenValidationParameters();
 
-		// Token is issued to browser/Postman using localhost:7101.
+		// Validate the issuer configured for the current environment.
 		options.TokenValidationParameters.ValidateIssuer = true;
 		options.TokenValidationParameters.ValidIssuer =
-			"http://localhost:7101";
+			identityOptions.ValidIssuer;
 
 		options.TokenValidationParameters.ValidateAudience = true;
 		options.TokenValidationParameters.ValidAudience =
-			"smartschool-api";
+			identityOptions.Audience;
 
 		options.TokenValidationParameters.ValidateLifetime = true;
 		options.TokenValidationParameters.ValidateIssuerSigningKey = true;
