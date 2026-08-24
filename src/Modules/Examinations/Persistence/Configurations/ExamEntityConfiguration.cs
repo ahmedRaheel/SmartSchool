@@ -55,5 +55,16 @@ public sealed class ExamEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
+		builder.Property(entity => entity.TermId).HasColumnName("term_id");
+		builder.Property(entity => entity.AcademicSystemId).HasColumnName("academic_system_id");
+		builder.Property(entity => entity.ExamTypeCode).HasColumnName("exam_type_code");
+		builder.Property(entity => entity.StartDate).HasColumnName("start_date");
+		builder.Property(entity => entity.EndDate).HasColumnName("end_date");
+		builder.Property(entity => entity.ResultPublishDate).HasColumnName("result_publish_date");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

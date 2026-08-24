@@ -55,5 +55,11 @@ public sealed class ToolDefinitionEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Description).HasColumnName("description");
+		builder.Property(entity => entity.HandlerKey).HasColumnName("handler_key");
+		builder.Property(entity => entity.RequiresUserAuthorization).HasColumnName("requires_user_authorization");
+		builder.Property(entity => entity.RequiresHumanApproval).HasColumnName("requires_human_approval");
 	}
 }

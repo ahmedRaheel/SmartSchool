@@ -11,6 +11,18 @@ public sealed class ToolDefinitionEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted description value.</summary>
+	public string? Description { get; private set; }
+
+	/// <summary>Gets the persisted handler key value.</summary>
+	public string HandlerKey { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted requires user authorization value.</summary>
+	public bool RequiresUserAuthorization { get; private set; }
+
+	/// <summary>Gets the persisted requires human approval value.</summary>
+	public bool RequiresHumanApproval { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

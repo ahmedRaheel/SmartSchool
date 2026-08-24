@@ -11,6 +11,9 @@ public sealed class GradeLevelEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted sort order value.</summary>
+	public int SortOrder { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

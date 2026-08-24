@@ -55,5 +55,14 @@ public sealed class AwardEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.AwardTypeCode).HasColumnName("award_type_code");
+		builder.Property(entity => entity.Title).HasColumnName("title");
+		builder.Property(entity => entity.Description).HasColumnName("description");
+		builder.Property(entity => entity.AwardDate).HasColumnName("award_date");
+		builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
+		builder.Property(entity => entity.GeneratedDocumentId).HasColumnName("generated_document_id");
 	}
 }

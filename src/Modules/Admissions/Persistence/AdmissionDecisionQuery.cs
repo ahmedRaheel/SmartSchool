@@ -36,7 +36,7 @@ public sealed class AdmissionDecisionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.AdmissionDecision
+			FROM admission.admissiondecision
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class AdmissionDecisionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				admissiondecision_id AS "Id"
-			FROM public.AdmissionDecision
+			FROM admission.admissiondecision
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY admissiondecision_id
@@ -95,7 +95,7 @@ public sealed class AdmissionDecisionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

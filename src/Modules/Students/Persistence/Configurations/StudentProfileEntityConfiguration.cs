@@ -30,5 +30,13 @@ public sealed class StudentProfileEntityConfiguration
 		builder.Property(entity => entity.UpdatedAt);
 		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
+
+		// Explicit PostgreSQL mappings for synchronized table.
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+		builder.Property(entity => entity.Id).HasColumnName("student_profile_id");
 	}
 }

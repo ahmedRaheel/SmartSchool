@@ -55,5 +55,14 @@ public sealed class LearningRecommendationEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
+		builder.Property(entity => entity.Topic).HasColumnName("topic");
+		builder.Property(entity => entity.RecommendationType).HasColumnName("recommendation_type");
+		builder.Property(entity => entity.RecommendationText).HasColumnName("recommendation_text");
+		builder.Property(entity => entity.Priority).HasColumnName("priority");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

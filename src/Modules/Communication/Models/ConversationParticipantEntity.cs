@@ -11,6 +11,18 @@ public sealed class ConversationParticipantEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted conversation id value.</summary>
+	public Guid ConversationId { get; private set; }
+
+	/// <summary>Gets the persisted user id value.</summary>
+	public Guid UserId { get; private set; }
+
+	/// <summary>Gets the persisted joined at value.</summary>
+	public DateTimeOffset JoinedAt { get; private set; }
+
+	/// <summary>Gets the persisted left at value.</summary>
+	public DateTimeOffset? LeftAt { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

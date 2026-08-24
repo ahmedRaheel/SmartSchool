@@ -55,5 +55,18 @@ public sealed class InterviewEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.JobApplicationId).HasColumnName("job_application_id");
+		builder.Property(entity => entity.InterviewTypeCode).HasColumnName("interview_type_code");
+		builder.Property(entity => entity.RoundNumber).HasColumnName("round_number");
+		builder.Property(entity => entity.ScheduledAt).HasColumnName("scheduled_at");
+		builder.Property(entity => entity.DurationMinutes).HasColumnName("duration_minutes");
+		builder.Property(entity => entity.Location).HasColumnName("location");
+		builder.Property(entity => entity.MeetingUrl).HasColumnName("meeting_url");
+		builder.Property(entity => entity.Status).HasColumnName("status");
+		builder.Property(entity => entity.OverallScore).HasColumnName("overall_score");
+		builder.Property(entity => entity.Recommendation).HasColumnName("recommendation");
+		builder.Property(entity => entity.Notes).HasColumnName("notes");
 	}
 }

@@ -55,5 +55,13 @@ public sealed class QuizAttemptEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.GeneratedQuizId).HasColumnName("generated_quiz_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.StartedAt).HasColumnName("started_at");
+		builder.Property(entity => entity.CompletedAt).HasColumnName("completed_at");
+		builder.Property(entity => entity.Score).HasColumnName("score");
+		builder.Property(entity => entity.Answers).HasColumnName("answers");
 	}
 }

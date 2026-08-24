@@ -55,5 +55,18 @@ public sealed class CandidateEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.FirstName).HasColumnName("first_name");
+		builder.Property(entity => entity.LastName).HasColumnName("last_name");
+		builder.Property(entity => entity.Email).HasColumnName("email");
+		builder.Property(entity => entity.Phone).HasColumnName("phone");
+		builder.Property(entity => entity.CurrentJobTitle).HasColumnName("current_job_title");
+		builder.Property(entity => entity.CurrentEmployer).HasColumnName("current_employer");
+		builder.Property(entity => entity.TotalExperienceYears).HasColumnName("total_experience_years");
+		builder.Property(entity => entity.HighestQualification).HasColumnName("highest_qualification");
+		builder.Property(entity => entity.ExpectedSalary).HasColumnName("expected_salary");
+		builder.Property(entity => entity.NoticePeriodDays).HasColumnName("notice_period_days");
+		builder.Property(entity => entity.StatusCode).HasColumnName("status_code");
 	}
 }

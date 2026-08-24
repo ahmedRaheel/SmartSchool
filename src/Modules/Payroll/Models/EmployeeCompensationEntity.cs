@@ -11,6 +11,30 @@ public sealed class EmployeeCompensationEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted employee id value.</summary>
+	public Guid EmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted job grade id value.</summary>
+	public Guid? JobGradeId { get; private set; }
+
+	/// <summary>Gets the persisted effective from value.</summary>
+	public DateOnly EffectiveFrom { get; private set; }
+
+	/// <summary>Gets the persisted effective to value.</summary>
+	public DateOnly? EffectiveTo { get; private set; }
+
+	/// <summary>Gets the persisted basic salary value.</summary>
+	public decimal BasicSalary { get; private set; }
+
+	/// <summary>Gets the persisted gross salary value.</summary>
+	public decimal? GrossSalary { get; private set; }
+
+	/// <summary>Gets the persisted currency code value.</summary>
+	public string CurrencyCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

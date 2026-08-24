@@ -11,6 +11,27 @@ public sealed class LearningRecommendationEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted subject id value.</summary>
+	public Guid? SubjectId { get; private set; }
+
+	/// <summary>Gets the persisted topic value.</summary>
+	public string? Topic { get; private set; }
+
+	/// <summary>Gets the persisted recommendation type value.</summary>
+	public string RecommendationType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted recommendation text value.</summary>
+	public string RecommendationText { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted priority value.</summary>
+	public int Priority { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

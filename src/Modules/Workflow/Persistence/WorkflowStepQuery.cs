@@ -36,7 +36,7 @@ public sealed class WorkflowStepQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.WorkflowStep
+			FROM workflow.workflowstep
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class WorkflowStepQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				workflowstep_id AS "Id"
-			FROM public.WorkflowStep
+			FROM workflow.workflowstep
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY workflowstep_id
@@ -95,7 +95,7 @@ public sealed class WorkflowStepQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

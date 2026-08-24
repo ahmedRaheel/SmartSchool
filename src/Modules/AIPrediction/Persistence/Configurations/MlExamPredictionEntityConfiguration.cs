@@ -61,5 +61,12 @@ public sealed class MlExamPredictionEntityConfiguration : IEntityTypeConfigurati
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.PredictionModelId).HasColumnName("prediction_model_id");
+		builder.Property(entity => entity.PredictionType).HasColumnName("prediction_type");
+		builder.Property(entity => entity.Score).HasColumnName("score");
+		builder.Property(entity => entity.Explanation).HasColumnName("explanation");
+		builder.Property(entity => entity.PredictedAt).HasColumnName("predicted_at");
 	}
 }

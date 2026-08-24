@@ -11,6 +11,24 @@ public sealed class ConversationEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid? CampusId { get; private set; }
+
+	/// <summary>Gets the persisted conversation type code value.</summary>
+	public string ConversationTypeCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid? StudentId { get; private set; }
+
+	/// <summary>Gets the persisted class section id value.</summary>
+	public Guid? ClassSectionId { get; private set; }
+
+	/// <summary>Gets the persisted subject id value.</summary>
+	public Guid? SubjectId { get; private set; }
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string? Title { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

@@ -11,6 +11,48 @@ public sealed class ClassPerformanceInsightEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted term id value.</summary>
+	public Guid? TermId { get; private set; }
+
+	/// <summary>Gets the persisted class section id value.</summary>
+	public Guid ClassSectionId { get; private set; }
+
+	/// <summary>Gets the persisted course offering id value.</summary>
+	public Guid CourseOfferingId { get; private set; }
+
+	/// <summary>Gets the persisted teacher employee id value.</summary>
+	public Guid? TeacherEmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted students count value.</summary>
+	public int StudentsCount { get; private set; }
+
+	/// <summary>Gets the persisted on track count value.</summary>
+	public int OnTrackCount { get; private set; }
+
+	/// <summary>Gets the persisted needs attention count value.</summary>
+	public int NeedsAttentionCount { get; private set; }
+
+	/// <summary>Gets the persisted high risk count value.</summary>
+	public int HighRiskCount { get; private set; }
+
+	/// <summary>Gets the persisted predicted class average value.</summary>
+	public decimal? PredictedClassAverage { get; private set; }
+
+	/// <summary>Gets the persisted current class average value.</summary>
+	public decimal? CurrentClassAverage { get; private set; }
+
+	/// <summary>Gets the persisted trend value.</summary>
+	public string? Trend { get; private set; }
+
+	/// <summary>Gets the persisted summary value.</summary>
+	public string? Summary { get; private set; }
+
+	/// <summary>Gets the persisted generated at value.</summary>
+	public DateTimeOffset GeneratedAt { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

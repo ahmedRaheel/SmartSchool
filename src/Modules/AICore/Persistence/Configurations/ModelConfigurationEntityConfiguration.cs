@@ -55,5 +55,10 @@ public sealed class ModelConfigurationEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Provider).HasColumnName("provider");
+		builder.Property(entity => entity.ModelName).HasColumnName("model_name");
+		builder.Property(entity => entity.Configuration).HasColumnName("configuration");
 	}
 }

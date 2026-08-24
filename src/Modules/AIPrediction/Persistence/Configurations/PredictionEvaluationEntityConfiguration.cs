@@ -55,5 +55,16 @@ public sealed class PredictionEvaluationEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentPerformancePredictionId).HasColumnName("student_performance_prediction_id");
+		builder.Property(entity => entity.StudentExamResultId).HasColumnName("student_exam_result_id");
+		builder.Property(entity => entity.PredictedPercentage).HasColumnName("predicted_percentage");
+		builder.Property(entity => entity.ActualPercentage).HasColumnName("actual_percentage");
+		builder.Property(entity => entity.AbsoluteError).HasColumnName("absolute_error");
+		builder.Property(entity => entity.PredictedGrade).HasColumnName("predicted_grade");
+		builder.Property(entity => entity.ActualGrade).HasColumnName("actual_grade");
+		builder.Property(entity => entity.GradeCorrect).HasColumnName("grade_correct");
+		builder.Property(entity => entity.EvaluatedAt).HasColumnName("evaluated_at");
 	}
 }

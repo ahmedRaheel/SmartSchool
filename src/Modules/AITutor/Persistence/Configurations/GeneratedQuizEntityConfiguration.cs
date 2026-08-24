@@ -55,5 +55,12 @@ public sealed class GeneratedQuizEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
+		builder.Property(entity => entity.TutorConversationId).HasColumnName("tutor_conversation_id");
+		builder.Property(entity => entity.Topic).HasColumnName("topic");
+		builder.Property(entity => entity.Difficulty).HasColumnName("difficulty");
 	}
 }

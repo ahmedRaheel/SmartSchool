@@ -11,6 +11,36 @@ public sealed class InquiryConversationEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid? CampusId { get; private set; }
+
+	/// <summary>Gets the persisted visitor session id value.</summary>
+	public string VisitorSessionId { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted user id value.</summary>
+	public Guid? UserId { get; private set; }
+
+	/// <summary>Gets the persisted visitor name value.</summary>
+	public string? VisitorName { get; private set; }
+
+	/// <summary>Gets the persisted phone value.</summary>
+	public string? Phone { get; private set; }
+
+	/// <summary>Gets the persisted email value.</summary>
+	public string? Email { get; private set; }
+
+	/// <summary>Gets the persisted interested program id value.</summary>
+	public Guid? InterestedProgramId { get; private set; }
+
+	/// <summary>Gets the persisted started at value.</summary>
+	public DateTimeOffset StartedAt { get; private set; }
+
+	/// <summary>Gets the persisted ended at value.</summary>
+	public DateTimeOffset? EndedAt { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

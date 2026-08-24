@@ -74,7 +74,7 @@ public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
 				codeProperty.GetValue(entity) as string,
 				normalizedCode,
 				StringComparison.OrdinalIgnoreCase)
-			&& (!excludingId.HasValue || entity.Id != excludingId.Value));
+			&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)));
 	}
 
 	public async Task AddAsync<TEntity>(

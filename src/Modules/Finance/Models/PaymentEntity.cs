@@ -11,6 +11,24 @@ public sealed class PaymentEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted payment number value.</summary>
+	public string PaymentNumber { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted payment date value.</summary>
+	public DateTimeOffset PaymentDate { get; private set; }
+
+	/// <summary>Gets the persisted amount value.</summary>
+	public decimal Amount { get; private set; }
+
+	/// <summary>Gets the persisted payment method value.</summary>
+	public string PaymentMethod { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted reference no value.</summary>
+	public string? ReferenceNo { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

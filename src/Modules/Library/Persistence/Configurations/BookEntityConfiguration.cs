@@ -55,5 +55,11 @@ public sealed class BookEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Isbn).HasColumnName("isbn");
+		builder.Property(entity => entity.Title).HasColumnName("title");
+		builder.Property(entity => entity.AuthorText).HasColumnName("author_text");
+		builder.Property(entity => entity.PublisherText).HasColumnName("publisher_text");
 	}
 }

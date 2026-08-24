@@ -55,5 +55,11 @@ public sealed class TenantEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StatusCode).HasColumnName("status_code");
+		builder.Property(entity => entity.DefaultLanguage).HasColumnName("default_language");
+		builder.Property(entity => entity.Timezone).HasColumnName("timezone");
+		builder.Property(entity => entity.CurrencyCode).HasColumnName("currency_code");
 	}
 }

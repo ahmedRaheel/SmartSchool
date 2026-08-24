@@ -101,7 +101,7 @@ public sealed class StudentQuery(
 			.AnyAsync(
 				entity =>
 					entity.TenantId == tenantId && entity.StudentNumber == studentNumber
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

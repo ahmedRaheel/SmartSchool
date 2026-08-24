@@ -11,6 +11,42 @@ public sealed class StudentInterventionEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted subject id value.</summary>
+	public Guid? SubjectId { get; private set; }
+
+	/// <summary>Gets the persisted course offering id value.</summary>
+	public Guid? CourseOfferingId { get; private set; }
+
+	/// <summary>Gets the persisted teacher employee id value.</summary>
+	public Guid? TeacherEmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted source prediction id value.</summary>
+	public Guid? SourcePredictionId { get; private set; }
+
+	/// <summary>Gets the persisted source recommendation id value.</summary>
+	public Guid? SourceRecommendationId { get; private set; }
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string Title { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted reason value.</summary>
+	public string? Reason { get; private set; }
+
+	/// <summary>Gets the persisted target outcome value.</summary>
+	public string? TargetOutcome { get; private set; }
+
+	/// <summary>Gets the persisted start date value.</summary>
+	public DateOnly? StartDate { get; private set; }
+
+	/// <summary>Gets the persisted target date value.</summary>
+	public DateOnly? TargetDate { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

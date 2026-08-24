@@ -55,5 +55,12 @@ public sealed class StudentActivityEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ActivityId).HasColumnName("activity_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.RoleName).HasColumnName("role_name");
+		builder.Property(entity => entity.JoinedAt).HasColumnName("joined_at");
+		builder.Property(entity => entity.LeftAt).HasColumnName("left_at");
 	}
 }

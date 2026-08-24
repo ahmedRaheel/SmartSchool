@@ -11,6 +11,24 @@ public sealed class ParentConversationEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted guardian id value.</summary>
+	public Guid GuardianId { get; private set; }
+
+	/// <summary>Gets the persisted selected student id value.</summary>
+	public Guid? SelectedStudentId { get; private set; }
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string? Title { get; private set; }
+
+	/// <summary>Gets the persisted started at value.</summary>
+	public DateTimeOffset StartedAt { get; private set; }
+
+	/// <summary>Gets the persisted ended at value.</summary>
+	public DateTimeOffset? EndedAt { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

@@ -11,6 +11,72 @@ public sealed class CampusBrandingEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted logo value.</summary>
+	public byte[]? Logo { get; private set; }
+
+	/// <summary>Gets the persisted logo content type value.</summary>
+	public string? LogoContentType { get; private set; }
+
+	/// <summary>Gets the persisted logo file name value.</summary>
+	public string? LogoFileName { get; private set; }
+
+	/// <summary>Gets the persisted small logo value.</summary>
+	public byte[]? SmallLogo { get; private set; }
+
+	/// <summary>Gets the persisted small logo content type value.</summary>
+	public string? SmallLogoContentType { get; private set; }
+
+	/// <summary>Gets the persisted small logo file name value.</summary>
+	public string? SmallLogoFileName { get; private set; }
+
+	/// <summary>Gets the persisted favicon value.</summary>
+	public byte[]? Favicon { get; private set; }
+
+	/// <summary>Gets the persisted favicon content type value.</summary>
+	public string? FaviconContentType { get; private set; }
+
+	/// <summary>Gets the persisted favicon file name value.</summary>
+	public string? FaviconFileName { get; private set; }
+
+	/// <summary>Gets the persisted certificate logo value.</summary>
+	public byte[]? CertificateLogo { get; private set; }
+
+	/// <summary>Gets the persisted certificate logo content type value.</summary>
+	public string? CertificateLogoContentType { get; private set; }
+
+	/// <summary>Gets the persisted certificate logo file name value.</summary>
+	public string? CertificateLogoFileName { get; private set; }
+
+	/// <summary>Gets the persisted letterhead value.</summary>
+	public byte[]? Letterhead { get; private set; }
+
+	/// <summary>Gets the persisted letterhead content type value.</summary>
+	public string? LetterheadContentType { get; private set; }
+
+	/// <summary>Gets the persisted letterhead file name value.</summary>
+	public string? LetterheadFileName { get; private set; }
+
+	/// <summary>Gets the persisted watermark value.</summary>
+	public byte[]? Watermark { get; private set; }
+
+	/// <summary>Gets the persisted watermark content type value.</summary>
+	public string? WatermarkContentType { get; private set; }
+
+	/// <summary>Gets the persisted watermark file name value.</summary>
+	public string? WatermarkFileName { get; private set; }
+
+	/// <summary>Gets the persisted primary color value.</summary>
+	public string? PrimaryColor { get; private set; }
+
+	/// <summary>Gets the persisted secondary color value.</summary>
+	public string? SecondaryColor { get; private set; }
+
+	/// <summary>Gets the persisted accent color value.</summary>
+	public string? AccentColor { get; private set; }
+
+	/// <summary>Gets the persisted footer text value.</summary>
+	public string? FooterText { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

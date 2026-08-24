@@ -55,5 +55,11 @@ public sealed class PromptTemplateEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.AssistantType).HasColumnName("assistant_type");
+		builder.Property(entity => entity.PromptType).HasColumnName("prompt_type");
+		builder.Property(entity => entity.PromptText).HasColumnName("prompt_text");
+		builder.Property(entity => entity.Version).HasColumnName("version");
 	}
 }

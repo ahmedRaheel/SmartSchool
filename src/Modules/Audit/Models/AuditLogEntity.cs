@@ -11,6 +11,33 @@ public sealed class AuditLogEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted user id value.</summary>
+	public Guid? UserId { get; private set; }
+
+	/// <summary>Gets the persisted action value.</summary>
+	public string Action { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted entity type value.</summary>
+	public string EntityType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted entity id value.</summary>
+	public string? EntityId { get; private set; }
+
+	/// <summary>Gets the persisted old values value.</summary>
+	public string? OldValues { get; private set; }
+
+	/// <summary>Gets the persisted new values value.</summary>
+	public string? NewValues { get; private set; }
+
+	/// <summary>Gets the persisted ip address value.</summary>
+	public string? IpAddress { get; private set; }
+
+	/// <summary>Gets the persisted correlation id value.</summary>
+	public string? CorrelationId { get; private set; }
+
+	/// <summary>Gets the persisted occurred at value.</summary>
+	public DateTimeOffset OccurredAt { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

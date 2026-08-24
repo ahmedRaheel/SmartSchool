@@ -103,7 +103,7 @@ public sealed class EmployeeQuery(
 			.AnyAsync(
 				entity =>
 					entity.TenantId == tenantId && entity.EmployeeNumber == employeeNumber
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

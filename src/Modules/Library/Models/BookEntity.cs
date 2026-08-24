@@ -11,6 +11,18 @@ public sealed class BookEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted isbn value.</summary>
+	public string? Isbn { get; private set; }
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string Title { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted author text value.</summary>
+	public string? AuthorText { get; private set; }
+
+	/// <summary>Gets the persisted publisher text value.</summary>
+	public string? PublisherText { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

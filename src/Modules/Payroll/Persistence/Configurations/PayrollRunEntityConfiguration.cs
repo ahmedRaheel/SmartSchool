@@ -55,5 +55,11 @@ public sealed class PayrollRunEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.PayrollPeriodId).HasColumnName("payroll_period_id");
+		builder.Property(entity => entity.StatusCode).HasColumnName("status_code");
+		builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
+		builder.Property(entity => entity.ApprovedAt).HasColumnName("approved_at");
 	}
 }

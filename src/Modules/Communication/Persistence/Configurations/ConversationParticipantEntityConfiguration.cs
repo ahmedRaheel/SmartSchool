@@ -55,5 +55,11 @@ public sealed class ConversationParticipantEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ConversationId).HasColumnName("conversation_id");
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.JoinedAt).HasColumnName("joined_at");
+		builder.Property(entity => entity.LeftAt).HasColumnName("left_at");
 	}
 }

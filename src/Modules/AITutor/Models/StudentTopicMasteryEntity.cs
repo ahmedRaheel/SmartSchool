@@ -11,6 +11,27 @@ public sealed class StudentTopicMasteryEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted subject id value.</summary>
+	public Guid SubjectId { get; private set; }
+
+	/// <summary>Gets the persisted topic value.</summary>
+	public string Topic { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted mastery score value.</summary>
+	public decimal? MasteryScore { get; private set; }
+
+	/// <summary>Gets the persisted confidence score value.</summary>
+	public decimal? ConfidenceScore { get; private set; }
+
+	/// <summary>Gets the persisted evidence count value.</summary>
+	public int EvidenceCount { get; private set; }
+
+	/// <summary>Gets the persisted last assessed at value.</summary>
+	public DateTimeOffset? LastAssessedAt { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

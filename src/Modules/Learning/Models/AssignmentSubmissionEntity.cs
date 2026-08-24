@@ -11,6 +11,33 @@ public sealed class AssignmentSubmissionEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted submission id value.</summary>
+	public Guid SubmissionId { get; private set; }
+
+	/// <summary>Gets the persisted academic assignment id value.</summary>
+	public Guid AcademicAssignmentId { get; private set; }
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted attempt no value.</summary>
+	public int AttemptNo { get; private set; }
+
+	/// <summary>Gets the persisted submitted at value.</summary>
+	public DateTimeOffset? SubmittedAt { get; private set; }
+
+	/// <summary>Gets the persisted submission text value.</summary>
+	public string? SubmissionText { get; private set; }
+
+	/// <summary>Gets the persisted marks obtained value.</summary>
+	public decimal? MarksObtained { get; private set; }
+
+	/// <summary>Gets the persisted teacher feedback value.</summary>
+	public string? TeacherFeedback { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

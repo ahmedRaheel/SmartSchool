@@ -55,5 +55,14 @@ public sealed class StudentGuardianEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.GuardianId).HasColumnName("guardian_id");
+		builder.Property(entity => entity.Relationship).HasColumnName("relationship");
+		builder.Property(entity => entity.IsPrimary).HasColumnName("is_primary");
+		builder.Property(entity => entity.CanViewAcademics).HasColumnName("can_view_academics");
+		builder.Property(entity => entity.CanViewFinance).HasColumnName("can_view_finance");
+		builder.Property(entity => entity.CanPickup).HasColumnName("can_pickup");
 	}
 }

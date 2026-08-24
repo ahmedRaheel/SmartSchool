@@ -11,6 +11,27 @@ public sealed class AwardEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted award type code value.</summary>
+	public string AwardTypeCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string Title { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted description value.</summary>
+	public string? Description { get; private set; }
+
+	/// <summary>Gets the persisted award date value.</summary>
+	public DateOnly AwardDate { get; private set; }
+
+	/// <summary>Gets the persisted approved by value.</summary>
+	public Guid? ApprovedBy { get; private set; }
+
+	/// <summary>Gets the persisted generated document id value.</summary>
+	public Guid? GeneratedDocumentId { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

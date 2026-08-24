@@ -11,6 +11,18 @@ public sealed class PromptTemplateEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted assistant type value.</summary>
+	public string AssistantType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted prompt type value.</summary>
+	public string PromptType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted prompt text value.</summary>
+	public string PromptText { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted version value.</summary>
+	public int Version { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

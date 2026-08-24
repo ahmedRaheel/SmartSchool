@@ -55,5 +55,10 @@ public sealed class ParentMessageEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ParentConversationId).HasColumnName("parent_conversation_id");
+		builder.Property(entity => entity.Role).HasColumnName("role");
+		builder.Property(entity => entity.Content).HasColumnName("content");
 	}
 }

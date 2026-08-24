@@ -11,6 +11,18 @@ public sealed class MessageReceiptEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted message id value.</summary>
+	public Guid MessageId { get; private set; }
+
+	/// <summary>Gets the persisted user id value.</summary>
+	public Guid UserId { get; private set; }
+
+	/// <summary>Gets the persisted delivered at value.</summary>
+	public DateTimeOffset? DeliveredAt { get; private set; }
+
+	/// <summary>Gets the persisted read at value.</summary>
+	public DateTimeOffset? ReadAt { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

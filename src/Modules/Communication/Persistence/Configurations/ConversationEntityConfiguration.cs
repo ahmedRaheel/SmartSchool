@@ -55,5 +55,13 @@ public sealed class ConversationEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.ConversationTypeCode).HasColumnName("conversation_type_code");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
+		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
+		builder.Property(entity => entity.Title).HasColumnName("title");
 	}
 }

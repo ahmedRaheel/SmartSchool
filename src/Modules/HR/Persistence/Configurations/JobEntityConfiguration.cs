@@ -55,5 +55,15 @@ public sealed class JobEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.DepartmentId).HasColumnName("department_id");
+		builder.Property(entity => entity.JobFamilyId).HasColumnName("job_family_id");
+		builder.Property(entity => entity.Title).HasColumnName("title");
+		builder.Property(entity => entity.Description).HasColumnName("description");
+		builder.Property(entity => entity.Responsibilities).HasColumnName("responsibilities");
+		builder.Property(entity => entity.MinimumQualification).HasColumnName("minimum_qualification");
+		builder.Property(entity => entity.MinimumExperienceYears).HasColumnName("minimum_experience_years");
+		builder.Property(entity => entity.IsTeachingPosition).HasColumnName("is_teaching_position");
 	}
 }

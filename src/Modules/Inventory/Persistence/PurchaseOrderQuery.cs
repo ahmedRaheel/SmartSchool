@@ -36,7 +36,7 @@ public sealed class PurchaseOrderQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PurchaseOrder
+			FROM inventory.purchaseorder
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class PurchaseOrderQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				purchaseorder_id AS "Id"
-			FROM public.PurchaseOrder
+			FROM inventory.purchaseorder
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY purchaseorder_id
@@ -95,7 +95,7 @@ public sealed class PurchaseOrderQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

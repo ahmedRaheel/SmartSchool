@@ -36,7 +36,7 @@ public sealed class FeeStructureQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.FeeStructure
+			FROM finance.feestructure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class FeeStructureQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				feestructure_id AS "Id"
-			FROM public.FeeStructure
+			FROM finance.feestructure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY feestructure_id
@@ -95,7 +95,7 @@ public sealed class FeeStructureQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

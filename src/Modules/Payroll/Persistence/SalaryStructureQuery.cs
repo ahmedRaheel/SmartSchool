@@ -36,7 +36,7 @@ public sealed class SalaryStructureQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.SalaryStructure
+			FROM payroll.salarystructure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class SalaryStructureQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				salarystructure_id AS "Id"
-			FROM public.SalaryStructure
+			FROM payroll.salarystructure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY salarystructure_id
@@ -95,7 +95,7 @@ public sealed class SalaryStructureQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

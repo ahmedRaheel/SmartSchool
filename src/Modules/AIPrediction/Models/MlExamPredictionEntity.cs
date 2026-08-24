@@ -68,4 +68,19 @@ public sealed class MlExamPredictionEntity : Entity
 			GeneratedAt = DateTimeOffset.UtcNow
 		};
 	}
+
+	/// <summary>Gets the persisted prediction model id value.</summary>
+	public Guid PredictionModelId { get; private set; }
+
+	/// <summary>Gets the persisted prediction type value.</summary>
+	public string PredictionType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted score value.</summary>
+	public decimal? Score { get; private set; }
+
+	/// <summary>Gets the persisted explanation value.</summary>
+	public string? Explanation { get; private set; }
+
+	/// <summary>Gets the persisted predicted at value.</summary>
+	public DateTimeOffset PredictedAt { get; private set; }
 }

@@ -11,6 +11,54 @@ public sealed class TeachingRecommendationEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted class performance insight id value.</summary>
+	public Guid? ClassPerformanceInsightId { get; private set; }
+
+	/// <summary>Gets the persisted class section id value.</summary>
+	public Guid ClassSectionId { get; private set; }
+
+	/// <summary>Gets the persisted course offering id value.</summary>
+	public Guid CourseOfferingId { get; private set; }
+
+	/// <summary>Gets the persisted teacher employee id value.</summary>
+	public Guid TeacherEmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted subject id value.</summary>
+	public Guid? SubjectId { get; private set; }
+
+	/// <summary>Gets the persisted topic value.</summary>
+	public string? Topic { get; private set; }
+
+	/// <summary>Gets the persisted recommendation type value.</summary>
+	public string RecommendationType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string Title { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted recommendation text value.</summary>
+	public string RecommendationText { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted rationale value.</summary>
+	public string? Rationale { get; private set; }
+
+	/// <summary>Gets the persisted priority value.</summary>
+	public string Priority { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted generated at value.</summary>
+	public DateTimeOffset GeneratedAt { get; private set; }
+
+	/// <summary>Gets the persisted reviewed at value.</summary>
+	public DateTimeOffset? ReviewedAt { get; private set; }
+
+	/// <summary>Gets the persisted reviewed by value.</summary>
+	public Guid? ReviewedBy { get; private set; }
+
+	/// <summary>Gets the persisted teacher comments value.</summary>
+	public string? TeacherComments { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

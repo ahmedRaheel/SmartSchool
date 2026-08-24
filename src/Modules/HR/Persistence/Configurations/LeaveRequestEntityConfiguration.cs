@@ -55,5 +55,16 @@ public sealed class LeaveRequestEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.EmployeeId).HasColumnName("employee_id");
+		builder.Property(entity => entity.LeaveType).HasColumnName("leave_type");
+		builder.Property(entity => entity.FromDate).HasColumnName("from_date");
+		builder.Property(entity => entity.ToDate).HasColumnName("to_date");
+		builder.Property(entity => entity.Reason).HasColumnName("reason");
+		builder.Property(entity => entity.Status).HasColumnName("status");
+		builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
+		builder.Property(entity => entity.DecisionAt).HasColumnName("decision_at");
+		builder.Property(entity => entity.DecisionNote).HasColumnName("decision_note");
 	}
 }

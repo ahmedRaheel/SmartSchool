@@ -55,5 +55,15 @@ public sealed class TopicPerformanceInsightEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ClassPerformanceInsightId).HasColumnName("class_performance_insight_id");
+		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
+		builder.Property(entity => entity.Topic).HasColumnName("topic");
+		builder.Property(entity => entity.AverageMasteryScore).HasColumnName("average_mastery_score");
+		builder.Property(entity => entity.StudentsStrugglingCount).HasColumnName("students_struggling_count");
+		builder.Property(entity => entity.StudentsMasteredCount).HasColumnName("students_mastered_count");
+		builder.Property(entity => entity.RiskLevel).HasColumnName("risk_level");
+		builder.Property(entity => entity.RecommendedFocus).HasColumnName("recommended_focus");
 	}
 }

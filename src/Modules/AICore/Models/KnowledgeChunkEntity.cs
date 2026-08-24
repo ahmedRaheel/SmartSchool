@@ -11,6 +11,24 @@ public sealed class KnowledgeChunkEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted knowledge document id value.</summary>
+	public Guid KnowledgeDocumentId { get; private set; }
+
+	/// <summary>Gets the persisted chunk index value.</summary>
+	public int ChunkIndex { get; private set; }
+
+	/// <summary>Gets the persisted content value.</summary>
+	public string Content { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted metadata value.</summary>
+	public string? Metadata { get; private set; }
+
+	/// <summary>Gets the persisted embedding reference value.</summary>
+	public string? EmbeddingReference { get; private set; }
+
+	/// <summary>Gets the persisted embedding value.</summary>
+	public float[]? Embedding { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

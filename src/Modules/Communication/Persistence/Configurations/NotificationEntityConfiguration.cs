@@ -134,5 +134,12 @@ public sealed class NotificationEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.Body).HasColumnName("body");
+		builder.Property(entity => entity.ChannelCode).HasColumnName("channel_code");
+		builder.Property(entity => entity.Status).HasColumnName("status");
+		builder.Property(entity => entity.SentAt).HasColumnName("sent_at");
 	}
 }

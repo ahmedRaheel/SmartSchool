@@ -55,5 +55,13 @@ public sealed class KnowledgeChunkEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.KnowledgeDocumentId).HasColumnName("knowledge_document_id");
+		builder.Property(entity => entity.ChunkIndex).HasColumnName("chunk_index");
+		builder.Property(entity => entity.Content).HasColumnName("content");
+		builder.Property(entity => entity.Metadata).HasColumnName("metadata");
+		builder.Property(entity => entity.EmbeddingReference).HasColumnName("embedding_reference");
+		builder.Property(entity => entity.Embedding).HasColumnName("embedding");
 	}
 }

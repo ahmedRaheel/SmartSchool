@@ -55,5 +55,17 @@ public sealed class DocumentTemplateEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.AcademicSystemId).HasColumnName("academic_system_id");
+		builder.Property(entity => entity.DocumentTypeCode).HasColumnName("document_type_code");
+		builder.Property(entity => entity.SubjectTemplate).HasColumnName("subject_template");
+		builder.Property(entity => entity.HeaderHtml).HasColumnName("header_html");
+		builder.Property(entity => entity.BodyHtml).HasColumnName("body_html");
+		builder.Property(entity => entity.FooterHtml).HasColumnName("footer_html");
+		builder.Property(entity => entity.LanguageCode).HasColumnName("language_code");
+		builder.Property(entity => entity.Version).HasColumnName("version");
+		builder.Property(entity => entity.RequiresApproval).HasColumnName("requires_approval");
 	}
 }

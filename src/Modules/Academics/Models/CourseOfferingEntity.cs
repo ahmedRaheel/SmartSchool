@@ -11,6 +11,24 @@ public sealed class CourseOfferingEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted term id value.</summary>
+	public Guid? TermId { get; private set; }
+
+	/// <summary>Gets the persisted program subject id value.</summary>
+	public Guid ProgramSubjectId { get; private set; }
+
+	/// <summary>Gets the persisted display name value.</summary>
+	public string? DisplayName { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

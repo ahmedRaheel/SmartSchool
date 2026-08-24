@@ -55,5 +55,15 @@ public sealed class EmployeeCompensationEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.EmployeeId).HasColumnName("employee_id");
+		builder.Property(entity => entity.JobGradeId).HasColumnName("job_grade_id");
+		builder.Property(entity => entity.EffectiveFrom).HasColumnName("effective_from");
+		builder.Property(entity => entity.EffectiveTo).HasColumnName("effective_to");
+		builder.Property(entity => entity.BasicSalary).HasColumnName("basic_salary");
+		builder.Property(entity => entity.GrossSalary).HasColumnName("gross_salary");
+		builder.Property(entity => entity.CurrencyCode).HasColumnName("currency_code");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

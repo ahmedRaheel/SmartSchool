@@ -11,6 +11,30 @@ public sealed class JobEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted department id value.</summary>
+	public Guid? DepartmentId { get; private set; }
+
+	/// <summary>Gets the persisted job family id value.</summary>
+	public Guid? JobFamilyId { get; private set; }
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string Title { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted description value.</summary>
+	public string? Description { get; private set; }
+
+	/// <summary>Gets the persisted responsibilities value.</summary>
+	public string? Responsibilities { get; private set; }
+
+	/// <summary>Gets the persisted minimum qualification value.</summary>
+	public string? MinimumQualification { get; private set; }
+
+	/// <summary>Gets the persisted minimum experience years value.</summary>
+	public decimal? MinimumExperienceYears { get; private set; }
+
+	/// <summary>Gets the persisted is teaching position value.</summary>
+	public bool IsTeachingPosition { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

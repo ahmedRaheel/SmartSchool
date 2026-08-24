@@ -36,7 +36,7 @@ public sealed class LearningResourceQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.LearningResource
+			FROM lms.learningresource
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class LearningResourceQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				learningresource_id AS "Id"
-			FROM public.LearningResource
+			FROM lms.learningresource
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY learningresource_id
@@ -95,7 +95,7 @@ public sealed class LearningResourceQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -11,6 +11,21 @@ public sealed class EnrollmentEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted class section id value.</summary>
+	public Guid ClassSectionId { get; private set; }
+
+	/// <summary>Gets the persisted enrollment date value.</summary>
+	public DateOnly EnrollmentDate { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

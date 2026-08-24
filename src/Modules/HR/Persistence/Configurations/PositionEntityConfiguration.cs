@@ -55,5 +55,15 @@ public sealed class PositionEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.DepartmentId).HasColumnName("department_id");
+		builder.Property(entity => entity.JobId).HasColumnName("job_id");
+		builder.Property(entity => entity.JobGradeId).HasColumnName("job_grade_id");
+		builder.Property(entity => entity.ReportsToPositionId).HasColumnName("reports_to_position_id");
+		builder.Property(entity => entity.PositionCode).HasColumnName("position_code");
+		builder.Property(entity => entity.Headcount).HasColumnName("headcount");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

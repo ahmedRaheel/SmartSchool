@@ -55,5 +55,16 @@ public sealed class TimetableEntryEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.TimetableId).HasColumnName("timetable_id");
+		builder.Property(entity => entity.DayOfWeek).HasColumnName("day_of_week");
+		builder.Property(entity => entity.TimetablePeriodId).HasColumnName("timetable_period_id");
+		builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
+		builder.Property(entity => entity.TeachingGroupId).HasColumnName("teaching_group_id");
+		builder.Property(entity => entity.CourseOfferingId).HasColumnName("course_offering_id");
+		builder.Property(entity => entity.TeacherCourseAssignmentId).HasColumnName("teacher_course_assignment_id");
+		builder.Property(entity => entity.RoomId).HasColumnName("room_id");
+		builder.Property(entity => entity.EntryType).HasColumnName("entry_type");
 	}
 }

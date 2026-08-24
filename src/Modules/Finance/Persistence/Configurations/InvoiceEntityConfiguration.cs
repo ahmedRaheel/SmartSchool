@@ -55,5 +55,15 @@ public sealed class InvoiceEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
+		builder.Property(entity => entity.InvoiceNumber).HasColumnName("invoice_number");
+		builder.Property(entity => entity.InvoiceDate).HasColumnName("invoice_date");
+		builder.Property(entity => entity.DueDate).HasColumnName("due_date");
+		builder.Property(entity => entity.Status).HasColumnName("status");
+		builder.Property(entity => entity.TotalAmount).HasColumnName("total_amount");
+		builder.Property(entity => entity.BalanceAmount).HasColumnName("balance_amount");
 	}
 }

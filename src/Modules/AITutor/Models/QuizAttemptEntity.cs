@@ -11,6 +11,24 @@ public sealed class QuizAttemptEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted generated quiz id value.</summary>
+	public Guid GeneratedQuizId { get; private set; }
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted started at value.</summary>
+	public DateTimeOffset StartedAt { get; private set; }
+
+	/// <summary>Gets the persisted completed at value.</summary>
+	public DateTimeOffset? CompletedAt { get; private set; }
+
+	/// <summary>Gets the persisted score value.</summary>
+	public decimal? Score { get; private set; }
+
+	/// <summary>Gets the persisted answers value.</summary>
+	public string? Answers { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

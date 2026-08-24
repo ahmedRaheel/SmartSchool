@@ -55,5 +55,16 @@ public sealed class StudentExamResultEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ExamSubjectId).HasColumnName("exam_subject_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.MarksObtained).HasColumnName("marks_obtained");
+		builder.Property(entity => entity.Percentage).HasColumnName("percentage");
+		builder.Property(entity => entity.Grade).HasColumnName("grade");
+		builder.Property(entity => entity.IsAbsent).HasColumnName("is_absent");
+		builder.Property(entity => entity.Remarks).HasColumnName("remarks");
+		builder.Property(entity => entity.EnteredBy).HasColumnName("entered_by");
+		builder.Property(entity => entity.VerifiedBy).HasColumnName("verified_by");
 	}
 }

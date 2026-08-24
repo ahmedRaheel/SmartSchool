@@ -11,6 +11,33 @@ public sealed class PredictionEvaluationEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted student performance prediction id value.</summary>
+	public Guid StudentPerformancePredictionId { get; private set; }
+
+	/// <summary>Gets the persisted student exam result id value.</summary>
+	public Guid StudentExamResultId { get; private set; }
+
+	/// <summary>Gets the persisted predicted percentage value.</summary>
+	public decimal? PredictedPercentage { get; private set; }
+
+	/// <summary>Gets the persisted actual percentage value.</summary>
+	public decimal? ActualPercentage { get; private set; }
+
+	/// <summary>Gets the persisted absolute error value.</summary>
+	public decimal? AbsoluteError { get; private set; }
+
+	/// <summary>Gets the persisted predicted grade value.</summary>
+	public string? PredictedGrade { get; private set; }
+
+	/// <summary>Gets the persisted actual grade value.</summary>
+	public string? ActualGrade { get; private set; }
+
+	/// <summary>Gets the persisted grade correct value.</summary>
+	public bool? GradeCorrect { get; private set; }
+
+	/// <summary>Gets the persisted evaluated at value.</summary>
+	public DateTimeOffset EvaluatedAt { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

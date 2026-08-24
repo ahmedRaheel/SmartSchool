@@ -55,5 +55,16 @@ public sealed class AuditLogEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.Action).HasColumnName("action");
+		builder.Property(entity => entity.EntityType).HasColumnName("entity_type");
+		builder.Property(entity => entity.EntityId).HasColumnName("entity_id");
+		builder.Property(entity => entity.OldValues).HasColumnName("old_values");
+		builder.Property(entity => entity.NewValues).HasColumnName("new_values");
+		builder.Property(entity => entity.IpAddress).HasColumnName("ip_address");
+		builder.Property(entity => entity.CorrelationId).HasColumnName("correlation_id");
+		builder.Property(entity => entity.OccurredAt).HasColumnName("occurred_at");
 	}
 }

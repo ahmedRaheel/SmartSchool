@@ -55,5 +55,11 @@ public sealed class AcademicYearEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.StartDate).HasColumnName("start_date");
+		builder.Property(entity => entity.EndDate).HasColumnName("end_date");
+		builder.Property(entity => entity.IsCurrent).HasColumnName("is_current");
 	}
 }

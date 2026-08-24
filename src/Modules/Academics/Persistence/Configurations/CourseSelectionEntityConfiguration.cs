@@ -55,5 +55,14 @@ public sealed class CourseSelectionEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentEnrollmentId).HasColumnName("student_enrollment_id");
+		builder.Property(entity => entity.CourseOfferingId).HasColumnName("course_offering_id");
+		builder.Property(entity => entity.EnrollmentTypeCode).HasColumnName("enrollment_type_code");
+		builder.Property(entity => entity.SelectedAt).HasColumnName("selected_at");
+		builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
+		builder.Property(entity => entity.ApprovedAt).HasColumnName("approved_at");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

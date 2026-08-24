@@ -11,6 +11,12 @@ public sealed class KnowledgeCollectionEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted description value.</summary>
+	public string? Description { get; private set; }
+
+	/// <summary>Gets the persisted access scope value.</summary>
+	public string AccessScope { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

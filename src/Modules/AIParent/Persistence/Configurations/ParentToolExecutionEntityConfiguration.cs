@@ -55,5 +55,14 @@ public sealed class ParentToolExecutionEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ParentConversationId).HasColumnName("parent_conversation_id");
+		builder.Property(entity => entity.ToolDefinitionId).HasColumnName("tool_definition_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.InputPayload).HasColumnName("input_payload");
+		builder.Property(entity => entity.OutputPayload).HasColumnName("output_payload");
+		builder.Property(entity => entity.Status).HasColumnName("status");
+		builder.Property(entity => entity.ExecutedAt).HasColumnName("executed_at");
 	}
 }

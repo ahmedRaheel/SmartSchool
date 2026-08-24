@@ -11,6 +11,15 @@ public sealed class CampusEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted address value.</summary>
+	public string? Address { get; private set; }
+
+	/// <summary>Gets the persisted phone value.</summary>
+	public string? Phone { get; private set; }
+
+	/// <summary>Gets the persisted email value.</summary>
+	public string? Email { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

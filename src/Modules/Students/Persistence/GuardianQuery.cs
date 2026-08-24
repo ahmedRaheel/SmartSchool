@@ -99,7 +99,7 @@ public sealed class GuardianQuery(
 			.AnyAsync(
 				entity =>
 					entity.TenantId == tenantId && entity.CnicNumber == cnicNumber
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

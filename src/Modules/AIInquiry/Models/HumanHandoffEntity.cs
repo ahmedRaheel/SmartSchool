@@ -11,6 +11,27 @@ public sealed class HumanHandoffEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted inquiry conversation id value.</summary>
+	public Guid InquiryConversationId { get; private set; }
+
+	/// <summary>Gets the persisted requested at value.</summary>
+	public DateTimeOffset RequestedAt { get; private set; }
+
+	/// <summary>Gets the persisted reason value.</summary>
+	public string? Reason { get; private set; }
+
+	/// <summary>Gets the persisted assigned to user id value.</summary>
+	public Guid? AssignedToUserId { get; private set; }
+
+	/// <summary>Gets the persisted accepted at value.</summary>
+	public DateTimeOffset? AcceptedAt { get; private set; }
+
+	/// <summary>Gets the persisted resolved at value.</summary>
+	public DateTimeOffset? ResolvedAt { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

@@ -55,5 +55,10 @@ public sealed class CampusEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Address).HasColumnName("address");
+		builder.Property(entity => entity.Phone).HasColumnName("phone");
+		builder.Property(entity => entity.Email).HasColumnName("email");
 	}
 }

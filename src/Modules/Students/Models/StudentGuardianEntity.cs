@@ -11,6 +11,27 @@ public sealed class StudentGuardianEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted guardian id value.</summary>
+	public Guid GuardianId { get; private set; }
+
+	/// <summary>Gets the persisted relationship value.</summary>
+	public string Relationship { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted is primary value.</summary>
+	public bool IsPrimary { get; private set; }
+
+	/// <summary>Gets the persisted can view academics value.</summary>
+	public bool CanViewAcademics { get; private set; }
+
+	/// <summary>Gets the persisted can view finance value.</summary>
+	public bool CanViewFinance { get; private set; }
+
+	/// <summary>Gets the persisted can pickup value.</summary>
+	public bool CanPickup { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

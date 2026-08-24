@@ -8,7 +8,7 @@ public sealed class MlPredictionResultEntityConfiguration : IEntityTypeConfigura
 {
 	public void Configure(EntityTypeBuilder<MlPredictionResultEntity> builder)
 	{
-		builder.ToTable("prediction_model", schema: "ai");
+		builder.ToTable("ml_prediction_result", schema: "ai");
 		builder.HasKey(x=>x.Id);
 		builder.Property(x=>x.Id).HasColumnName("ml_prediction_result_id");
 		builder.Property(x=>x.TenantId).HasColumnName("tenant_id").IsRequired();
@@ -30,26 +30,5 @@ public sealed class MlPredictionResultEntityConfiguration : IEntityTypeConfigura
 		builder.Property(x=>x.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(x=>x.RowVersion).HasColumnName("row_version").IsConcurrencyToken();
 		builder.HasIndex(x=>new{x.TenantId,x.PredictionType,x.StudentId});
-
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.PredictionType).HasColumnName("prediction_type");
-		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
-		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
-		builder.Property(entity => entity.RelatedEntityId).HasColumnName("related_entity_id");
-		builder.Property(entity => entity.Score).HasColumnName("score");
-		builder.Property(entity => entity.Probability).HasColumnName("probability");
-		builder.Property(entity => entity.RiskLevel).HasColumnName("risk_level");
-		builder.Property(entity => entity.Outcome).HasColumnName("outcome");
-		builder.Property(entity => entity.ConfidenceScore).HasColumnName("confidence_score");
-		builder.Property(entity => entity.ModelVersion).HasColumnName("model_version");
-		builder.Property(entity => entity.UsedMachineLearning).HasColumnName("used_machine_learning");
-		builder.Property(entity => entity.FactorsJson).HasColumnName("factors_json");
-		builder.Property(entity => entity.GeneratedAt).HasColumnName("generated_at");
-		builder.Property(entity => entity.Id).HasColumnName("prediction_model_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 	}
 }

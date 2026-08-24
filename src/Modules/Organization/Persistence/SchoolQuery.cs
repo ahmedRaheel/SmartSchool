@@ -36,7 +36,7 @@ public sealed class SchoolQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.School
+			FROM org.school
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class SchoolQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				school_id AS "Id"
-			FROM public.School
+			FROM org.school
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY school_id
@@ -95,7 +95,7 @@ public sealed class SchoolQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

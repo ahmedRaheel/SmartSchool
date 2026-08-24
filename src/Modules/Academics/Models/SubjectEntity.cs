@@ -11,6 +11,12 @@ public sealed class SubjectEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted short name value.</summary>
+	public string? ShortName { get; private set; }
+
+	/// <summary>Gets the persisted is practical value.</summary>
+	public bool IsPractical { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

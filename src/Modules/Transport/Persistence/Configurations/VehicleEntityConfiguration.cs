@@ -55,5 +55,11 @@ public sealed class VehicleEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.RegistrationNo).HasColumnName("registration_no");
+		builder.Property(entity => entity.Capacity).HasColumnName("capacity");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

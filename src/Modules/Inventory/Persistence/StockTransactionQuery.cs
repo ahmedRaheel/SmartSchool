@@ -36,7 +36,7 @@ public sealed class StockTransactionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StockTransaction
+			FROM inventory.stocktransaction
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class StockTransactionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				stocktransaction_id AS "Id"
-			FROM public.StockTransaction
+			FROM inventory.stocktransaction
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY stocktransaction_id
@@ -95,7 +95,7 @@ public sealed class StockTransactionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

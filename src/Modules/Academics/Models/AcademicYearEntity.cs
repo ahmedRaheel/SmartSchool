@@ -11,6 +11,18 @@ public sealed class AcademicYearEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted start date value.</summary>
+	public DateOnly StartDate { get; private set; }
+
+	/// <summary>Gets the persisted end date value.</summary>
+	public DateOnly EndDate { get; private set; }
+
+	/// <summary>Gets the persisted is current value.</summary>
+	public bool IsCurrent { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

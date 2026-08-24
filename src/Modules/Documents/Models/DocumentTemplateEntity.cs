@@ -11,6 +11,36 @@ public sealed class DocumentTemplateEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid? CampusId { get; private set; }
+
+	/// <summary>Gets the persisted academic system id value.</summary>
+	public Guid? AcademicSystemId { get; private set; }
+
+	/// <summary>Gets the persisted document type code value.</summary>
+	public string DocumentTypeCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted subject template value.</summary>
+	public string? SubjectTemplate { get; private set; }
+
+	/// <summary>Gets the persisted header html value.</summary>
+	public string? HeaderHtml { get; private set; }
+
+	/// <summary>Gets the persisted body html value.</summary>
+	public string BodyHtml { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted footer html value.</summary>
+	public string? FooterHtml { get; private set; }
+
+	/// <summary>Gets the persisted language code value.</summary>
+	public string LanguageCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted version value.</summary>
+	public int Version { get; private set; }
+
+	/// <summary>Gets the persisted requires approval value.</summary>
+	public bool RequiresApproval { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

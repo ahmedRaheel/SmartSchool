@@ -11,6 +11,9 @@ public sealed class PredictionModelEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted prediction type value.</summary>
+	public string PredictionType { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

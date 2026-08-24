@@ -36,7 +36,7 @@ public sealed class WorkflowDefinitionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.WorkflowDefinition
+			FROM workflow.workflowdefinition
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class WorkflowDefinitionQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				workflowdefinition_id AS "Id"
-			FROM public.WorkflowDefinition
+			FROM workflow.workflowdefinition
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY workflowdefinition_id
@@ -95,7 +95,7 @@ public sealed class WorkflowDefinitionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

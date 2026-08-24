@@ -36,7 +36,7 @@ public sealed class DiscountQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Discount
+			FROM finance.discount
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class DiscountQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				discount_id AS "Id"
-			FROM public.Discount
+			FROM finance.discount
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY discount_id
@@ -95,7 +95,7 @@ public sealed class DiscountQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

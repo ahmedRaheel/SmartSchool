@@ -55,5 +55,21 @@ public sealed class ClassPerformanceInsightEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
+		builder.Property(entity => entity.TermId).HasColumnName("term_id");
+		builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
+		builder.Property(entity => entity.CourseOfferingId).HasColumnName("course_offering_id");
+		builder.Property(entity => entity.TeacherEmployeeId).HasColumnName("teacher_employee_id");
+		builder.Property(entity => entity.StudentsCount).HasColumnName("students_count");
+		builder.Property(entity => entity.OnTrackCount).HasColumnName("on_track_count");
+		builder.Property(entity => entity.NeedsAttentionCount).HasColumnName("needs_attention_count");
+		builder.Property(entity => entity.HighRiskCount).HasColumnName("high_risk_count");
+		builder.Property(entity => entity.PredictedClassAverage).HasColumnName("predicted_class_average");
+		builder.Property(entity => entity.CurrentClassAverage).HasColumnName("current_class_average");
+		builder.Property(entity => entity.Trend).HasColumnName("trend");
+		builder.Property(entity => entity.Summary).HasColumnName("summary");
+		builder.Property(entity => entity.GeneratedAt).HasColumnName("generated_at");
 	}
 }

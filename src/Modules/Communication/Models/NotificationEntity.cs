@@ -67,6 +67,21 @@ public sealed class NotificationEntity : Entity
         };
     }
 
+	/// <summary>Gets the persisted user id value.</summary>
+	public Guid UserId { get; private set; }
+
+	/// <summary>Gets the persisted body value.</summary>
+	public string? Body { get; private set; }
+
+	/// <summary>Gets the persisted channel code value.</summary>
+	public string ChannelCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted sent at value.</summary>
+	public DateTimeOffset? SentAt { get; private set; }
+
 	/// <summary>
 	/// Updates the editable notification details.
 	/// </summary>

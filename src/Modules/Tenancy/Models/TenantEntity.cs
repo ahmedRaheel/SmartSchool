@@ -11,6 +11,18 @@ public sealed class TenantEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted status code value.</summary>
+	public string StatusCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted default language value.</summary>
+	public string DefaultLanguage { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted timezone value.</summary>
+	public string Timezone { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted currency code value.</summary>
+	public string CurrencyCode { get; private set; } = string.Empty;
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

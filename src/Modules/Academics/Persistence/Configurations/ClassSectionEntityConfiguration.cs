@@ -55,5 +55,15 @@ public sealed class ClassSectionEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
+		builder.Property(entity => entity.ProgramGradeId).HasColumnName("program_grade_id");
+		builder.Property(entity => entity.SectionId).HasColumnName("section_id");
+		builder.Property(entity => entity.ClassTeacherEmployeeId).HasColumnName("class_teacher_employee_id");
+		builder.Property(entity => entity.RoomId).HasColumnName("room_id");
+		builder.Property(entity => entity.Capacity).HasColumnName("capacity");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

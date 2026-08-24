@@ -11,6 +11,15 @@ public sealed class ActivityEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid? CampusId { get; private set; }
+
+	/// <summary>Gets the persisted category value.</summary>
+	public string? Category { get; private set; }
+
+	/// <summary>Gets the persisted coordinator employee id value.</summary>
+	public Guid? CoordinatorEmployeeId { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

@@ -55,5 +55,11 @@ public sealed class BookCopyEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.BookId).HasColumnName("book_id");
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.Barcode).HasColumnName("barcode");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

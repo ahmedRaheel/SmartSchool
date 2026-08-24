@@ -55,5 +55,14 @@ public sealed class StudentTopicMasteryEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
+		builder.Property(entity => entity.Topic).HasColumnName("topic");
+		builder.Property(entity => entity.MasteryScore).HasColumnName("mastery_score");
+		builder.Property(entity => entity.ConfidenceScore).HasColumnName("confidence_score");
+		builder.Property(entity => entity.EvidenceCount).HasColumnName("evidence_count");
+		builder.Property(entity => entity.LastAssessedAt).HasColumnName("last_assessed_at");
 	}
 }

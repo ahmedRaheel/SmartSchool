@@ -36,7 +36,7 @@ public sealed class SchoolLogoQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.SchoolLogo
+			FROM document.schoollogo
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class SchoolLogoQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				schoollogo_id AS "Id"
-			FROM public.SchoolLogo
+			FROM document.schoollogo
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY schoollogo_id
@@ -95,7 +95,7 @@ public sealed class SchoolLogoQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

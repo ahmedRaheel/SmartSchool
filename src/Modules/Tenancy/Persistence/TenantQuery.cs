@@ -35,7 +35,7 @@ public sealed class TenantQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM saas.Tenant
+			FROM saas.tenant
 			WHERE  is_active = TRUE;
 			""";
 
@@ -43,7 +43,7 @@ public sealed class TenantQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				tenant_id AS "Id"
-			FROM saas.Tenant
+			FROM saas.tenant
 			WHERE is_active = TRUE
 			ORDER BY tenant_id
 			LIMIT @PageSize OFFSET @Offset;
@@ -90,7 +90,7 @@ public sealed class TenantQuery(
 			.AnyAsync(
 				entity =>
 					EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

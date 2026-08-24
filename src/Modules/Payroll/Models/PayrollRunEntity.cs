@@ -11,6 +11,18 @@ public sealed class PayrollRunEntity : Entity
 	{
 	}
 
+	/// <summary>Gets the persisted payroll period id value.</summary>
+	public Guid PayrollPeriodId { get; private set; }
+
+	/// <summary>Gets the persisted status code value.</summary>
+	public string StatusCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted approved by value.</summary>
+	public Guid? ApprovedBy { get; private set; }
+
+	/// <summary>Gets the persisted approved at value.</summary>
+	public DateTimeOffset? ApprovedAt { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 

@@ -55,5 +55,16 @@ public sealed class AssignmentSubmissionEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.SubmissionId).HasColumnName("submission_id");
+		builder.Property(entity => entity.AcademicAssignmentId).HasColumnName("academic_assignment_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.AttemptNo).HasColumnName("attempt_no");
+		builder.Property(entity => entity.SubmittedAt).HasColumnName("submitted_at");
+		builder.Property(entity => entity.SubmissionText).HasColumnName("submission_text");
+		builder.Property(entity => entity.MarksObtained).HasColumnName("marks_obtained");
+		builder.Property(entity => entity.TeacherFeedback).HasColumnName("teacher_feedback");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

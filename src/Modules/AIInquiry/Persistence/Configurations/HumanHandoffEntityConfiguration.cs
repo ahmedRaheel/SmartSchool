@@ -55,5 +55,14 @@ public sealed class HumanHandoffEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.InquiryConversationId).HasColumnName("inquiry_conversation_id");
+		builder.Property(entity => entity.RequestedAt).HasColumnName("requested_at");
+		builder.Property(entity => entity.Reason).HasColumnName("reason");
+		builder.Property(entity => entity.AssignedToUserId).HasColumnName("assigned_to_user_id");
+		builder.Property(entity => entity.AcceptedAt).HasColumnName("accepted_at");
+		builder.Property(entity => entity.ResolvedAt).HasColumnName("resolved_at");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

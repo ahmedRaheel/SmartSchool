@@ -55,5 +55,17 @@ public sealed class PredictionEvidenceEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentPerformancePredictionId).HasColumnName("student_performance_prediction_id");
+		builder.Property(entity => entity.EvidenceType).HasColumnName("evidence_type");
+		builder.Property(entity => entity.SourceEntityType).HasColumnName("source_entity_type");
+		builder.Property(entity => entity.SourceEntityId).HasColumnName("source_entity_id");
+		builder.Property(entity => entity.NumericValue).HasColumnName("numeric_value");
+		builder.Property(entity => entity.TextValue).HasColumnName("text_value");
+		builder.Property(entity => entity.NormalizedValue).HasColumnName("normalized_value");
+		builder.Property(entity => entity.Weight).HasColumnName("weight");
+		builder.Property(entity => entity.OccurredAt).HasColumnName("occurred_at");
+		builder.Property(entity => entity.Explanation).HasColumnName("explanation");
 	}
 }

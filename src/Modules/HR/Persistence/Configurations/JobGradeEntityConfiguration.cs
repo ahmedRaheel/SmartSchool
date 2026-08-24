@@ -55,5 +55,12 @@ public sealed class JobGradeEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.GradeLevel).HasColumnName("grade_level");
+		builder.Property(entity => entity.MinimumSalary).HasColumnName("minimum_salary");
+		builder.Property(entity => entity.MidpointSalary).HasColumnName("midpoint_salary");
+		builder.Property(entity => entity.MaximumSalary).HasColumnName("maximum_salary");
+		builder.Property(entity => entity.CurrencyCode).HasColumnName("currency_code");
 	}
 }

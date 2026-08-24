@@ -55,5 +55,15 @@ public sealed class MessageEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ConversationId).HasColumnName("conversation_id");
+		builder.Property(entity => entity.SenderUserId).HasColumnName("sender_user_id");
+		builder.Property(entity => entity.ReplyToMessageId).HasColumnName("reply_to_message_id");
+		builder.Property(entity => entity.MessageTypeCode).HasColumnName("message_type_code");
+		builder.Property(entity => entity.Body).HasColumnName("body");
+		builder.Property(entity => entity.SentAt).HasColumnName("sent_at");
+		builder.Property(entity => entity.EditedAt).HasColumnName("edited_at");
+		builder.Property(entity => entity.DeletedAt).HasColumnName("deleted_at");
 	}
 }

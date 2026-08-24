@@ -36,7 +36,7 @@ public sealed class IncrementQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Increment
+			FROM payroll.increment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class IncrementQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				increment_id AS "Id"
-			FROM public.Increment
+			FROM payroll.increment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY increment_id
@@ -95,7 +95,7 @@ public sealed class IncrementQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
 				cancellationToken);
 	}
 }

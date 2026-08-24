@@ -55,5 +55,13 @@ public sealed class LoanEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.BookCopyId).HasColumnName("book_copy_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.EmployeeId).HasColumnName("employee_id");
+		builder.Property(entity => entity.IssuedAt).HasColumnName("issued_at");
+		builder.Property(entity => entity.DueAt).HasColumnName("due_at");
+		builder.Property(entity => entity.ReturnedAt).HasColumnName("returned_at");
 	}
 }
