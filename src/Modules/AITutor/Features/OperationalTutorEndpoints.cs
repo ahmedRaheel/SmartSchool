@@ -29,8 +29,8 @@ public static class OperationalTutorEndpoints
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var s=TutorSessionEntity.Create(t.Value,$"SESSION-{Guid.NewGuid():N}",$"{r.Subject}: {r.Topic}",JsonSerializer.Serialize(r));await sessions.AddAsync(s,ct);
-        var c=TutorConversationEntity.Create(t.Value,$"CONV-{Guid.NewGuid():N}",$"{r.Subject} tutoring",JsonSerializer.Serialize(new{sessionId=s.Id,r.StudentId,r.Subject,r.Topic}));await conversations.AddAsync(c,ct);
-        return Results.Created($"/api/aitutor/tutor-session/{s.Id}",new{sessionId=s.Id,conversationId=c.Id});
+        var c=TutorConversationEntity.Create(t.Value,$"CONV-{Guid.NewGuid():N}",$"{r.Subject} tutoring",JsonSerializer.Serialize(new{sessionId=s.TutorSessionId,r.StudentId,r.Subject,r.Topic}));await conversations.AddAsync(c,ct);
+        return Results.Created($"/api/aitutor/tutor-session/{s.TutorSessionId}",new{sessionId=s.TutorSessionId,conversationId=c.TutorConversationId});
     }
     private static async Task<IResult> Ask(AskRequest r,ITenantScope scope,ITutorMessageCommand messages,IHttpClientFactory clients,IConfiguration cfg,IIntegrationEventPublisher events,CancellationToken ct)
     {
@@ -46,7 +46,7 @@ Student: {r.Message}
         var answer=await Generate(prompt,clients,cfg,ct);
         var a=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}","AI Tutor",JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="assistant",content=answer}));await messages.AddAsync(a,ct);
         await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked,new{tenantId=t.Value,bot="student-tutor",r.StudentId,r.SessionId},ct);
-        return Results.Ok(new{messageId=a.Id,answer,model=cfg["AI:Ollama:ChatModel"]??"llama3.2"});
+        return Results.Ok(new{messageId=a.TutorMessageId,answer,model=cfg["AI:Ollama:ChatModel"]??"llama3.2"});
     }
     private static async Task<IResult> Quiz(QuizRequest r,ITenantScope scope,IGeneratedQuizCommand quizzes,IHttpClientFactory clients,IConfiguration cfg,IIntegrationEventPublisher events,CancellationToken ct)
     {
@@ -59,8 +59,8 @@ Return ONLY valid JSON array. Each object: question, options (4 strings), correc
 """;
         var raw=await Generate(prompt,clients,cfg,ct);
         var e=GeneratedQuizEntity.Create(t.Value,$"QUIZ-{Guid.NewGuid():N}",$"{r.Subject} - {r.Topic}",JsonSerializer.Serialize(new{r.StudentId,r.Subject,r.Topic,r.Difficulty,questionsJson=raw}));
-        await quizzes.AddAsync(e,ct);await events.PublishAsync("smartschool.aitutor.quiz-generated",new{tenantId=t.Value,quizId=e.Id,r.StudentId},ct);
-        return Results.Created($"/api/aitutor/generated-quiz/{e.Id}",new{quizId=e.Id,questions=TryJson(raw)});
+        await quizzes.AddAsync(e,ct);await events.PublishAsync("smartschool.aitutor.quiz-generated",new{tenantId=t.Value,quizId=e.GeneratedQuizId,r.StudentId},ct);
+        return Results.Created($"/api/aitutor/generated-quiz/{e.GeneratedQuizId}",new{quizId=e.GeneratedQuizId,questions=TryJson(raw)});
     }
     private static async Task<IResult> Recommend(RecommendationRequest r,ITenantScope scope,ILearningRecommendationCommand recommendations,IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct)
     {
@@ -68,7 +68,7 @@ Return ONLY valid JSON array. Each object: question, options (4 strings), correc
         var prompt=$"Create a concise learning plan for {r.Subject}/{r.Topic}. Current mastery is {r.MasteryScore:P0}. Include next concept, practice type, revision frequency and success criterion.";
         var answer=await Generate(prompt,clients,cfg,ct);
         var e=LearningRecommendationEntity.Create(t.Value,$"REC-{Guid.NewGuid():N}",$"{r.Subject} recommendation",JsonSerializer.Serialize(new{r.StudentId,r.Subject,r.Topic,r.MasteryScore,recommendation=answer}));
-        await recommendations.AddAsync(e,ct);return Results.Ok(new{recommendationId=e.Id,recommendation=answer});
+        await recommendations.AddAsync(e,ct);return Results.Ok(new{recommendationId=e.LearningRecommendationId,recommendation=answer});
     }
     private static async Task<string> Generate(string prompt,IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct){var h=clients.CreateClient();h.BaseAddress=new Uri((cfg["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/')+"/");var x=await h.PostAsJsonAsync("api/generate",new{model=cfg["AI:Ollama:ChatModel"]??"llama3.2",prompt,stream=false},ct);x.EnsureSuccessStatusCode();using var d=JsonDocument.Parse(await x.Content.ReadAsStringAsync(ct));return d.RootElement.GetProperty("response").GetString()??"";}
     private static object TryJson(string raw){try{return JsonSerializer.Deserialize<object>(raw)??raw;}catch{return raw;}}

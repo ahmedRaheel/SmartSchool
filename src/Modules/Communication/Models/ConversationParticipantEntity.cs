@@ -7,6 +7,11 @@ namespace SmartSchool.Modules.Communication.Models;
 /// </summary>
 public sealed class ConversationParticipantEntity : Entity
 {
+<<<<<<< HEAD
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ConversationParticipantId { get; private set; } = Guid.NewGuid();
+private ConversationParticipantEntity()
+=======
 	/// <summary>Gets the persisted entity identifier.</summary>
 	public Guid Id
 	{
@@ -15,6 +20,7 @@ public sealed class ConversationParticipantEntity : Entity
 	}
 
 	private ConversationParticipantEntity()
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 	{
 	}
 

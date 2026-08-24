@@ -24,7 +24,7 @@ public sealed class CourseOfferingQuery(
 			.Set<CourseOfferingEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.CourseOfferingId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class CourseOfferingQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.CourseOfferingId != excludingId.Value)),
 				cancellationToken);
 	}
 }

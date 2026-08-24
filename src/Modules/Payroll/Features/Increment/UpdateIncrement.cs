@@ -98,7 +98,7 @@ public static class UpdateIncrement
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.IncrementId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

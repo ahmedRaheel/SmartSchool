@@ -14,7 +14,7 @@ public sealed class TeacherProfileEntityConfiguration
 	{
 		builder.ToTable("TeacherProfile", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.TeacherProfileId);
 
 		builder
 			.Property(entity => entity.TenantId)

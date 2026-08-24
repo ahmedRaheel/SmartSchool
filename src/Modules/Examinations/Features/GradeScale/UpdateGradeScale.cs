@@ -98,7 +98,7 @@ public static class UpdateGradeScale
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GradeScaleId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

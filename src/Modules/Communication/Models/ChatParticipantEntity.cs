@@ -5,6 +5,13 @@ namespace SmartSchool.Modules.Communication.Models;
 /// <summary>Represents a user's membership in a chat conversation.</summary>
 public sealed class ChatParticipantEntity : Entity
 {
+<<<<<<< HEAD
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ChatParticipantId { get; private set; } = Guid.NewGuid();
+private ChatParticipantEntity()
+    {
+    }
+=======
 	/// <summary>Gets the persisted entity identifier.</summary>
 	public Guid Id
 	{
@@ -13,6 +20,7 @@ public sealed class ChatParticipantEntity : Entity
 	}
 
     private ChatParticipantEntity() { }
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
     /// <summary>Gets the conversation identifier.</summary>
     public Guid ConversationId { get; private set; }

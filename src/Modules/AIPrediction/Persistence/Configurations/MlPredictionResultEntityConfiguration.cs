@@ -9,8 +9,8 @@ public sealed class MlPredictionResultEntityConfiguration : IEntityTypeConfigura
 	public void Configure(EntityTypeBuilder<MlPredictionResultEntity> builder)
 	{
 		builder.ToTable("ml_prediction_result", schema: "ai");
-		builder.HasKey(x=>x.Id);
-		builder.Property(x=>x.Id).HasColumnName("ml_prediction_result_id");
+		builder.HasKey(x => x.MlPredictionResultId);
+		builder.Property(x => x.MlPredictionResultId).HasColumnName("ml_prediction_result_id");
 		builder.Property(x=>x.TenantId).HasColumnName("tenant_id").IsRequired();
 		builder.Property(x=>x.PredictionType).HasColumnName("prediction_type").HasMaxLength(80).IsRequired();
 		builder.Property(x=>x.StudentId).HasColumnName("student_id");

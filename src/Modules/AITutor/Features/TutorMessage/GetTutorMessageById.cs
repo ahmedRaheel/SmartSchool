@@ -68,7 +68,7 @@ public static class GetTutorMessageById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TutorMessageId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -13,9 +13,13 @@ public sealed class ApplicationEntityConfiguration
 	public void Configure(EntityTypeBuilder<ApplicationEntity> builder)
 	{
 		builder.ToTable("Application", schema: "admission");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.ApplicationId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.ApplicationId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

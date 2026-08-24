@@ -7,6 +7,8 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class EmploymentHistoryEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid EmploymentHistoryId { get; private set; } = Guid.NewGuid();
 	private EmploymentHistoryEntity()
 	{
 	}

@@ -89,7 +89,7 @@ public static class CreateGradeLevel
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GradeLevelId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

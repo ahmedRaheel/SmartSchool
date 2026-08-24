@@ -68,7 +68,7 @@ public static class GetKnowledgeChunkById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.KnowledgeChunkId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

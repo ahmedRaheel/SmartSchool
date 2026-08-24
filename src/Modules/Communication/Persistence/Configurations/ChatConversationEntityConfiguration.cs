@@ -7,8 +7,12 @@ public sealed class ChatConversationEntityConfiguration : IEntityTypeConfigurati
  public void Configure(EntityTypeBuilder<ChatConversationEntity> builder)
 	{
 		builder.ToTable("chat_conversation", schema: "communication");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.ChatConversationId);
+=======
 		builder.Ignore(entity => entity.Id);
 		builder.HasKey(x=>x.Id);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 		builder.Property(x=>x.Title).HasMaxLength(250).IsRequired();
 		builder.Property(x=>x.ConversationType).HasMaxLength(50).IsRequired();
 		builder.Property(x=>x.RelatedEntityType).HasMaxLength(100);
@@ -21,7 +25,7 @@ public sealed class ChatConversationEntityConfiguration : IEntityTypeConfigurati
 		builder.Property(entity => entity.RelatedEntityType).HasColumnName("RelatedEntityType");
 		builder.Property(entity => entity.IsClosed).HasColumnName("IsClosed");
 		builder.Property(entity => entity.ClosedAt).HasColumnName("ClosedAt");
-		builder.Property(entity => entity.Id).HasColumnName("Id");
+		builder.Property(entity => entity.ChatConversationId).HasColumnName("Id");
 		builder.Property(entity => entity.TenantId).HasColumnName("TenantId");
 		builder.Property(entity => entity.IsActive).HasColumnName("IsActive");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("CreatedAt");

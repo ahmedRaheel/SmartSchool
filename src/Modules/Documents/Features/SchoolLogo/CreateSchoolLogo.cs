@@ -89,7 +89,7 @@ public static class CreateSchoolLogo
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SchoolLogoId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

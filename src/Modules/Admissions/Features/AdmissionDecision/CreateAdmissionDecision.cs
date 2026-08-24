@@ -89,7 +89,7 @@ public static class CreateAdmissionDecision
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AdmissionDecisionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

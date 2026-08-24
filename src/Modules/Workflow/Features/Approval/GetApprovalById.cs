@@ -68,7 +68,7 @@ public static class GetApprovalById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ApprovalId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -5,8 +5,10 @@ namespace SmartSchool.Modules.Tenancy.Models;
 /// <summary>
 /// Represents the TenantEntity domain entity.
 /// </summary>
-public sealed class TenantEntity : Entity
+public sealed class TenantEntity : AggregateRootEntity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TenantId { get; private set; } = Guid.NewGuid();
 	private TenantEntity()
 	{
 	}

@@ -14,9 +14,13 @@ public sealed class EmployeeDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<EmployeeDocumentEntity> builder)
 	{
 		builder.ToTable("employeedocument", schema: "document");
+<<<<<<< HEAD
+builder.HasKey(document => document.EmployeeDocumentId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(document => document.Id);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder.Property(document => document.TenantId).IsRequired();
 		builder.Property(document => document.EmployeeId).IsRequired();
@@ -97,7 +101,7 @@ public sealed class EmployeeDocumentEntityConfiguration
 		builder.Property(entity => entity.VerifiedByUserId).HasColumnName("verifiedbyuserid");
 		builder.Property(entity => entity.VerifiedAt).HasColumnName("verifiedat");
 		builder.Property(entity => entity.Notes).HasColumnName("notes");
-		builder.Property(entity => entity.Id).HasColumnName("id");
+		builder.Property(entity => entity.EmployeeId).HasColumnName("id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenantid");
 		builder.Property(entity => entity.IsActive).HasColumnName("isactive");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");

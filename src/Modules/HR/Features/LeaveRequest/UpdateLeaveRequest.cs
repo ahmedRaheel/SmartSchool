@@ -98,7 +98,7 @@ public static class UpdateLeaveRequest
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LeaveRequestId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

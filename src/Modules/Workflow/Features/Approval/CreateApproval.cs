@@ -89,7 +89,7 @@ public static class CreateApproval
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ApprovalId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

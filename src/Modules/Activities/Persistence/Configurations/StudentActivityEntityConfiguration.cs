@@ -13,9 +13,13 @@ public sealed class StudentActivityEntityConfiguration
 	public void Configure(EntityTypeBuilder<StudentActivityEntity> builder)
 	{
 		builder.ToTable("student_activity", schema: "activity");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.ActivityId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.Id);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -50,7 +54,7 @@ public sealed class StudentActivityEntityConfiguration
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.Id).HasColumnName("id");
+		builder.Property(entity => entity.ActivityId).HasColumnName("id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

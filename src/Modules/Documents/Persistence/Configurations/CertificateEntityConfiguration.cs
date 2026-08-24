@@ -13,9 +13,13 @@ public sealed class CertificateEntityConfiguration
 	public void Configure(EntityTypeBuilder<CertificateEntity> builder)
 	{
 		builder.ToTable("Certificate", schema: "document");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.CertificateId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.CertificateId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -91,7 +91,7 @@ public static class CreatePromptTemplate
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PromptTemplateId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

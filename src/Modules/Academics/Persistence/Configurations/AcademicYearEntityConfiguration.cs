@@ -13,9 +13,13 @@ public sealed class AcademicYearEntityConfiguration
 	public void Configure(EntityTypeBuilder<AcademicYearEntity> builder)
 	{
 		builder.ToTable("academic_year", schema: "academic");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.AcademicYearId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.AcademicYearId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

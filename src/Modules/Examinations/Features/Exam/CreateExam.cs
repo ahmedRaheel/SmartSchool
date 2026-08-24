@@ -89,7 +89,7 @@ public static class CreateExam
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ExamId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -98,7 +98,7 @@ public static class UpdateInquiryConversation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.InquiryConversationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

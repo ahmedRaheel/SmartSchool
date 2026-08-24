@@ -68,7 +68,7 @@ public static class GetProgramById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ProgramId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

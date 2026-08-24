@@ -13,8 +13,12 @@ public sealed class TeacherDirectoryReadEntityConfiguration
 	public void Configure(EntityTypeBuilder<TeacherDirectoryReadEntity> builder)
 	{
 		builder.ToTable("teacherdirectoryread", schema: "public");
+<<<<<<< HEAD
+builder.HasKey(readModel => readModel.TeacherDirectoryReadId);
+=======
 		builder.Ignore(entity => entity.Id);
 		builder.HasKey(readModel => readModel.Id);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 		builder.Property(readModel => readModel.TenantId).IsRequired();
 		builder.Property(readModel => readModel.TeacherId).IsRequired();
 		builder.HasIndex(readModel => new { readModel.TenantId, readModel.TeacherId }).IsUnique();
@@ -31,7 +35,7 @@ public sealed class TeacherDirectoryReadEntityConfiguration
 		builder.Property(entity => entity.ActiveClassAssignments).HasColumnName("activeclassassignments");
 		builder.Property(entity => entity.DocumentCount).HasColumnName("documentcount");
 		builder.Property(entity => entity.VerifiedDocumentCount).HasColumnName("verifieddocumentcount");
-		builder.Property(entity => entity.Id).HasColumnName("id");
+		builder.Property(entity => entity.TeacherDirectoryReadId).HasColumnName("id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenantid");
 		builder.Property(entity => entity.IsActive).HasColumnName("isactive");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");

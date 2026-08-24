@@ -13,8 +13,12 @@ public sealed class StudentDirectoryReadEntityConfiguration
 	public void Configure(EntityTypeBuilder<StudentDirectoryReadEntity> builder)
 	{
 		builder.ToTable("studentdirectoryread", schema: "public");
+<<<<<<< HEAD
+builder.HasKey(readModel => readModel.StudentDirectoryReadId);
+=======
 		builder.Ignore(entity => entity.Id);
 		builder.HasKey(readModel => readModel.Id);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 		builder.Property(readModel => readModel.TenantId).IsRequired();
 		builder.Property(readModel => readModel.StudentId).IsRequired();
 		builder.HasIndex(readModel => new { readModel.TenantId, readModel.StudentId }).IsUnique();
@@ -34,7 +38,7 @@ public sealed class StudentDirectoryReadEntityConfiguration
 		builder.Property(entity => entity.OutstandingBalance).HasColumnName("outstandingbalance");
 		builder.Property(entity => entity.DocumentCount).HasColumnName("documentcount");
 		builder.Property(entity => entity.VerifiedDocumentCount).HasColumnName("verifieddocumentcount");
-		builder.Property(entity => entity.Id).HasColumnName("id");
+		builder.Property(entity => entity.StudentId).HasColumnName("id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenantid");
 		builder.Property(entity => entity.IsActive).HasColumnName("isactive");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");

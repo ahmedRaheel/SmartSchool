@@ -73,7 +73,7 @@ public static class GetPredictionModelPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PredictionModelId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

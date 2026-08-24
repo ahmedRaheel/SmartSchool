@@ -13,9 +13,13 @@ public sealed class ClassPerformanceInsightEntityConfiguration
 	public void Configure(EntityTypeBuilder<ClassPerformanceInsightEntity> builder)
 	{
 		builder.ToTable("class_performance_insight", schema: "ai");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.ClassPerformanceInsightId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.ClassPerformanceInsightId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

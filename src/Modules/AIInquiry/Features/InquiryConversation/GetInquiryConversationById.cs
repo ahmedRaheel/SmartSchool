@@ -68,7 +68,7 @@ public static class GetInquiryConversationById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.InquiryConversationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

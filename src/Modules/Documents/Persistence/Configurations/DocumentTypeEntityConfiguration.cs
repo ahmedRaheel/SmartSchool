@@ -13,9 +13,13 @@ public sealed class DocumentTypeEntityConfiguration
 	public void Configure(EntityTypeBuilder<DocumentTypeEntity> builder)
 	{
 		builder.ToTable("documenttype", schema: "document");
+<<<<<<< HEAD
+builder.HasKey(documentType => documentType.DocumentTypeId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(documentType => documentType.Id);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder.Property(documentType => documentType.Code)
 			.HasMaxLength(80)
@@ -45,7 +49,7 @@ public sealed class DocumentTypeEntityConfiguration
 		builder.Property(entity => entity.IsIdentityDocument).HasColumnName("isidentitydocument");
 		builder.Property(entity => entity.RequiresExpiryDate).HasColumnName("requiresexpirydate");
 		builder.Property(entity => entity.RequiresVerification).HasColumnName("requiresverification");
-		builder.Property(entity => entity.Id).HasColumnName("id");
+		builder.Property(entity => entity.DocumentTypeId).HasColumnName("id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenantid");
 		builder.Property(entity => entity.IsActive).HasColumnName("isactive");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");

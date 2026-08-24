@@ -68,7 +68,7 @@ public static class GetGeneratedDocumentById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GeneratedDocumentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

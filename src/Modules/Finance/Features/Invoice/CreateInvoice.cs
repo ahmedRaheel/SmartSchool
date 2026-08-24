@@ -89,7 +89,7 @@ public static class CreateInvoice
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentInvoiceId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

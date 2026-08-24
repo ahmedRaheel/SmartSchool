@@ -14,7 +14,7 @@ public sealed class EmploymentHistoryEntityConfiguration
 	{
 		builder.ToTable("EmploymentHistory", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.EmploymentHistoryId);
 
 		builder
 			.Property(entity => entity.TenantId)

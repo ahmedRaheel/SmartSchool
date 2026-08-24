@@ -14,7 +14,7 @@ public sealed class PayrollProfileEntityConfiguration
 	{
 		builder.ToTable("PayrollProfile", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.PayrollProfileId);
 
 		builder
 			.Property(entity => entity.TenantId)

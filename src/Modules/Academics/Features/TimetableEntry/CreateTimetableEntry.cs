@@ -89,7 +89,7 @@ public static class CreateTimetableEntry
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TimetableEntryId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

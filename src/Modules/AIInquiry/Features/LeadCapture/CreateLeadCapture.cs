@@ -91,7 +91,7 @@ public static class CreateLeadCapture
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LeadCaptureId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

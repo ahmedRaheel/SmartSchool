@@ -73,7 +73,7 @@ public static class GetKnowledgeDocumentPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.KnowledgeDocumentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

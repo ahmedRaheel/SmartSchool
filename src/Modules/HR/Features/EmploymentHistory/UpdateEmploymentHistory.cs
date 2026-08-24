@@ -98,7 +98,7 @@ public static class UpdateEmploymentHistory
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmploymentHistoryId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

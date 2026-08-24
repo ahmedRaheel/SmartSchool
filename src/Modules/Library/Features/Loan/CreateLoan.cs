@@ -89,7 +89,7 @@ public static class CreateLoan
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.BookLoanId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

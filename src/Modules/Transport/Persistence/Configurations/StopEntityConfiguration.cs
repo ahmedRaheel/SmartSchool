@@ -13,9 +13,13 @@ public sealed class StopEntityConfiguration
 	public void Configure(EntityTypeBuilder<StopEntity> builder)
 	{
 		builder.ToTable("Stop", schema: "transport");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.StopId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.StopId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,9 +13,13 @@ public sealed class JobGradeEntityConfiguration
 	public void Configure(EntityTypeBuilder<JobGradeEntity> builder)
 	{
 		builder.ToTable("job_grade", schema: "hr");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.JobGradeId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.JobGradeId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

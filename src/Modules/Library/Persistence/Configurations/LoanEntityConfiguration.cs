@@ -13,9 +13,13 @@ public sealed class LoanEntityConfiguration
 	public void Configure(EntityTypeBuilder<LoanEntity> builder)
 	{
 		builder.ToTable("book_loan", schema: "library");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.BookLoanId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.BookLoanId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

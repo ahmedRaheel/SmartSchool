@@ -98,7 +98,7 @@ public static class UpdateRoleAssignment
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.RoleAssignmentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

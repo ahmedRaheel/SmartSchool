@@ -24,7 +24,7 @@ public sealed class TimetableQuery(
 			.Set<TimetableEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.TimetableId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class TimetableQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.TimetableId != excludingId.Value)),
 				cancellationToken);
 	}
 }

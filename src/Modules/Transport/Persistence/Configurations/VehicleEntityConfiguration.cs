@@ -13,9 +13,13 @@ public sealed class VehicleEntityConfiguration
 	public void Configure(EntityTypeBuilder<VehicleEntity> builder)
 	{
 		builder.ToTable("vehicle", schema: "transport");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.VehicleId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.VehicleId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -73,7 +73,7 @@ public static class GetParentToolExecutionPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ParentToolExecutionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

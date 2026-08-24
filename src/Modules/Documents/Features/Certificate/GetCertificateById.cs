@@ -68,7 +68,7 @@ public static class GetCertificateById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.CertificateId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

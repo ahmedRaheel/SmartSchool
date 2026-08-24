@@ -91,7 +91,7 @@ public static class CreateInquiryMessage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.InquiryMessageId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

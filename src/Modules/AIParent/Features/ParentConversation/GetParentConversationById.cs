@@ -68,7 +68,7 @@ public static class GetParentConversationById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ParentConversationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

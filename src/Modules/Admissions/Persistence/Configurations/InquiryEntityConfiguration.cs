@@ -13,9 +13,13 @@ public sealed class InquiryEntityConfiguration
 	public void Configure(EntityTypeBuilder<InquiryEntity> builder)
 	{
 		builder.ToTable("Inquiry", schema: "admission");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.InquiryId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.InquiryId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

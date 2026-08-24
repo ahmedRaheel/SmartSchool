@@ -89,7 +89,7 @@ public static class CreatePredictionEvaluation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PredictionEvaluationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

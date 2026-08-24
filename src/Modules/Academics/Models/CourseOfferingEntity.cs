@@ -7,12 +7,17 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class CourseOfferingEntity : Entity
 {
+<<<<<<< HEAD
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid CourseOfferingId { get; private set; } = Guid.NewGuid();
+=======
 	/// <summary>Gets the persisted entity identifier.</summary>
 	public Guid CourseOfferingId
 	{
 		get => Id;
 		private set => Id = value;
 	}
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 	private CourseOfferingEntity()
 	{

@@ -58,7 +58,7 @@ public static class GetEmployeePage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmployeeId,
 			entity.EmployeeNumber,
 			entity.FirstName,
 			entity.LastName,

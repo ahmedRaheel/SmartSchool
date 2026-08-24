@@ -98,7 +98,7 @@ public static class UpdateKnowledgeDocument
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.KnowledgeDocumentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

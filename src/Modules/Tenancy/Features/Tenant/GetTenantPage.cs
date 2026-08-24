@@ -71,7 +71,7 @@ public static class GetTenantPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TenantId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

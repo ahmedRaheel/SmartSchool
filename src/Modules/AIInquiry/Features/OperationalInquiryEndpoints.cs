@@ -29,7 +29,7 @@ public static class OperationalInquiryEndpoints
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var e=InquiryConversationEntity.Create(t.Value,$"INQ-{Guid.NewGuid():N}",r.VisitorName,JsonSerializer.Serialize(r));await cmd.AddAsync(e,ct);
-        return Results.Created($"/api/aiinquiry/inquiry-conversation/{e.Id}",new{conversationId=e.Id,e.TenantId});
+        return Results.Created($"/api/aiinquiry/inquiry-conversation/{e.InquiryConversationId}",new{conversationId=e.InquiryConversationId,e.TenantId});
     }
     private static async Task<IResult> Message(MessageRequest r,ITenantScope scope,IInquiryMessageCommand cmd,IHttpClientFactory http,IConfiguration cfg,IIntegrationEventPublisher events,CancellationToken ct)
     {
@@ -43,18 +43,18 @@ public static class OperationalInquiryEndpoints
         var answer=doc.RootElement.TryGetProperty("response",out var value)?value.GetString()??"":"";
         var ai=InquiryMessageEntity.Create(t.Value,$"MSG-{Guid.NewGuid():N}","Assistant",JsonSerializer.Serialize(new{r.ConversationId,role="assistant",content=answer}));await cmd.AddAsync(ai,ct);
         await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked,new{tenantId=t.Value,bot="admissions",conversationId=r.ConversationId},ct);
-        return Results.Ok(new{messageId=ai.Id,answer});
+        return Results.Ok(new{messageId=ai.InquiryMessageId,answer});
     }
     private static async Task<IResult> Lead(LeadRequest r,ITenantScope scope,ILeadCaptureCommand cmd,IIntegrationEventPublisher events,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var e=LeadCaptureEntity.Create(t.Value,$"LEAD-{Guid.NewGuid():N}",r.Name,JsonSerializer.Serialize(r));await cmd.AddAsync(e,ct);
-        await events.PublishAsync("smartschool.aiinquiry.lead-captured",new{tenantId=t.Value,leadId=e.Id,r.ConversationId},ct);return Results.Ok(new{leadId=e.Id});
+        await events.PublishAsync("smartschool.aiinquiry.lead-captured",new{tenantId=t.Value,leadId=e.LeadCaptureId,r.ConversationId},ct);return Results.Ok(new{leadId=e.LeadCaptureId});
     }
     private static async Task<IResult> Handoff(HandoffRequest r,ITenantScope scope,IHumanHandoffCommand cmd,IIntegrationEventPublisher events,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var e=HumanHandoffEntity.Create(t.Value,$"HANDOFF-{Guid.NewGuid():N}","Counselor handoff",JsonSerializer.Serialize(r));await cmd.AddAsync(e,ct);
-        await events.PublishAsync("smartschool.aiinquiry.handoff-requested",new{tenantId=t.Value,handoffId=e.Id,r.ConversationId,r.Reason},ct);return Results.Accepted(value:new{handoffId=e.Id,status="Requested"});
+        await events.PublishAsync("smartschool.aiinquiry.handoff-requested",new{tenantId=t.Value,handoffId=e.HumanHandoffId,r.ConversationId,r.Reason},ct);return Results.Accepted(value:new{handoffId=e.HumanHandoffId,status="Requested"});
     }
 }

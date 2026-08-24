@@ -24,7 +24,7 @@ public sealed class LeadCaptureQuery(
 			.Set<LeadCaptureEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.LeadCaptureId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class LeadCaptureQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.LeadCaptureId != excludingId.Value)),
 				cancellationToken);
 	}
 }

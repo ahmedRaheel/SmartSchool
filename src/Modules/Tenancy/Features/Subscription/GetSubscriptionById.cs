@@ -68,7 +68,7 @@ public static class GetSubscriptionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SubscriptionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

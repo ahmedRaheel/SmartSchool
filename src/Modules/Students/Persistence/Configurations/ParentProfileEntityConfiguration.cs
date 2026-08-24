@@ -13,9 +13,13 @@ public sealed class ParentProfileEntityConfiguration
 	public void Configure(EntityTypeBuilder<ParentProfileEntity> builder)
 	{
 		builder.ToTable("ParentProfile", schema: "student");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.ParentProfileId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.ParentProfileId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -98,7 +98,7 @@ public static class UpdateStudentGuardian
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GuardianId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

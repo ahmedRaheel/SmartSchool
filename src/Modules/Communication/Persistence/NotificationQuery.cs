@@ -117,7 +117,7 @@ public sealed class NotificationQuery(
 			.SingleOrDefaultAsync(
 				entity =>
 					entity.TenantId == tenantId &&
-					entity.Id == id,
+					entity.NotificationId == id,
 				cancellationToken);
 	}
 

@@ -73,7 +73,7 @@ public static class GetModelConfigurationPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ModelConfigurationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

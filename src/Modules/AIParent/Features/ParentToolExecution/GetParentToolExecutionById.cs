@@ -68,7 +68,7 @@ public static class GetParentToolExecutionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ParentToolExecutionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

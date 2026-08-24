@@ -68,7 +68,7 @@ public static class GetBookCopyById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.BookCopyId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

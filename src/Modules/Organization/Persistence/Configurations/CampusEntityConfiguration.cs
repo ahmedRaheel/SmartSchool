@@ -13,9 +13,13 @@ public sealed class CampusEntityConfiguration
 	public void Configure(EntityTypeBuilder<CampusEntity> builder)
 	{
 		builder.ToTable("campus", schema: "org");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.CampusId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.CampusId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

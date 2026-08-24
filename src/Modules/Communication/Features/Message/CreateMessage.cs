@@ -89,7 +89,7 @@ public static class CreateMessage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.MessageId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

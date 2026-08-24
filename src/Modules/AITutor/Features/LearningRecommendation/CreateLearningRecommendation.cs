@@ -91,7 +91,7 @@ public static class CreateLearningRecommendation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LearningRecommendationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -108,7 +108,7 @@ public static class CreateEmployee
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmployeeId,
 			entity.UserId,
 			entity.EmployeeNumber,
 			entity.FirstName,

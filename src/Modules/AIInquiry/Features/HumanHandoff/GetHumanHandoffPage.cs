@@ -73,7 +73,7 @@ public static class GetHumanHandoffPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.HumanHandoffId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

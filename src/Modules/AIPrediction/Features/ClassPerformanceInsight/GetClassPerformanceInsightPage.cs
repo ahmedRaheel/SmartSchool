@@ -73,7 +73,7 @@ public static class GetClassPerformanceInsightPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ClassPerformanceInsightId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

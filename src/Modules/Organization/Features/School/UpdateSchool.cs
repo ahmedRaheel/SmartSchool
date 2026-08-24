@@ -98,7 +98,7 @@ public static class UpdateSchool
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SchoolId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

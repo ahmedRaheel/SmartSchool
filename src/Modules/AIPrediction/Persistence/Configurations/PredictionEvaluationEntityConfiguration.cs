@@ -13,9 +13,13 @@ public sealed class PredictionEvaluationEntityConfiguration
 	public void Configure(EntityTypeBuilder<PredictionEvaluationEntity> builder)
 	{
 		builder.ToTable("prediction_evaluation", schema: "ai");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.PredictionEvaluationId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.PredictionEvaluationId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

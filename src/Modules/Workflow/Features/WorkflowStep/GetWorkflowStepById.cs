@@ -68,7 +68,7 @@ public static class GetWorkflowStepById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.WorkflowStepId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

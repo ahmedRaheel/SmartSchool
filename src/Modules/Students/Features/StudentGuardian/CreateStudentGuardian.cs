@@ -89,7 +89,7 @@ public static class CreateStudentGuardian
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GuardianId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

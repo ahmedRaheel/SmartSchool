@@ -73,7 +73,7 @@ public static class GetJobGradePage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.JobGradeId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

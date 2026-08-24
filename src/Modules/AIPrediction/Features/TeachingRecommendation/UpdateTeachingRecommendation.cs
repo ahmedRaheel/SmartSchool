@@ -98,7 +98,7 @@ public static class UpdateTeachingRecommendation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TeachingRecommendationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

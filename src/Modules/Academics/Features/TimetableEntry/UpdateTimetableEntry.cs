@@ -98,7 +98,7 @@ public static class UpdateTimetableEntry
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TimetableEntryId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -73,7 +73,7 @@ public static class GetSubjectPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SubjectId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

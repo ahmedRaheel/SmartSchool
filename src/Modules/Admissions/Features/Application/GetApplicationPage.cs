@@ -73,7 +73,7 @@ public static class GetApplicationPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ApplicationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

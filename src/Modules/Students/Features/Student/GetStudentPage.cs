@@ -56,7 +56,7 @@ public static class GetStudentPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentId,
 			entity.StudentNumber,
 			entity.FirstName,
 			entity.LastName,

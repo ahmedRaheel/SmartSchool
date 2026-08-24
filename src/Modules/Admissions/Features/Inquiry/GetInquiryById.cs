@@ -68,7 +68,7 @@ public static class GetInquiryById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.InquiryId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -73,7 +73,7 @@ public static class GetTermPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TermId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

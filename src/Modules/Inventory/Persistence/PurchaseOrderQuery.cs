@@ -24,7 +24,7 @@ public sealed class PurchaseOrderQuery(
 			.Set<PurchaseOrderEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.PurchaseOrderId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class PurchaseOrderQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.PurchaseOrderId != excludingId.Value)),
 				cancellationToken);
 	}
 }

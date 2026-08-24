@@ -68,7 +68,7 @@ public static class GetGeneratedQuizById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GeneratedQuizId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

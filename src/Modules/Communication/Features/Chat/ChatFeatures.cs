@@ -40,7 +40,7 @@ public static class SendMessage
             if (string.IsNullOrWhiteSpace(request.Message))
                 return Result<Response>.Failure(Error.Validation("Message is required."));
             var entity=await command.SendMessageAsync(request.TenantId,request.ConversationId,request.SenderUserId,request.Message.Trim(),cancellationToken);
-            return Result<Response>.Success(new(entity.TenantId,entity.Id,entity.ConversationId,entity.Message,entity.SentAt));
+            return Result<Response>.Success(new(entity.TenantId,entity.ChatMessageId,entity.ConversationId,entity.Message,entity.SentAt));
         }
     }
 }

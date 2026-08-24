@@ -91,7 +91,7 @@ public static class CreateTutorSession
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TutorSessionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

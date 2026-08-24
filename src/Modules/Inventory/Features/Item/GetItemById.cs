@@ -68,7 +68,7 @@ public static class GetItemById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ItemId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

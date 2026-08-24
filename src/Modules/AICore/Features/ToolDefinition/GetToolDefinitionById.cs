@@ -68,7 +68,7 @@ public static class GetToolDefinitionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ToolDefinitionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

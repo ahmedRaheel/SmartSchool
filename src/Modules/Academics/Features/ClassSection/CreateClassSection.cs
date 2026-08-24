@@ -89,7 +89,7 @@ public static class CreateClassSection
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ClassSectionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

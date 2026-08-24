@@ -73,7 +73,7 @@ public static class GetConversationPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ConversationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

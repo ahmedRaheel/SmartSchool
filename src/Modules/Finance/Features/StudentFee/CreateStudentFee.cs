@@ -89,7 +89,7 @@ public static class CreateStudentFee
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentFeeId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

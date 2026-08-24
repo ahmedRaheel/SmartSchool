@@ -13,9 +13,13 @@ public sealed class AwardEntityConfiguration
 	public void Configure(EntityTypeBuilder<AwardEntity> builder)
 	{
 		builder.ToTable("student_award", schema: "activity");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.StudentAwardId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.StudentAwardId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

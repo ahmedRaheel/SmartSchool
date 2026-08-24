@@ -24,7 +24,7 @@ public sealed class CampusQuery(
 			.Set<CampusEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.Id == id,
+				entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class CampusQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.CampusId != excludingId.Value)),
 				cancellationToken);
 	}
 }

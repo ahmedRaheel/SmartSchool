@@ -13,9 +13,13 @@ public sealed class ModelConfigurationEntityConfiguration
 	public void Configure(EntityTypeBuilder<ModelConfigurationEntity> builder)
 	{
 		builder.ToTable("model_configuration", schema: "ai_core");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.ModelConfigurationId);
+=======
 		builder.Ignore(entity => entity.Id);
 
 		builder.HasKey(entity => entity.ModelConfigurationId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

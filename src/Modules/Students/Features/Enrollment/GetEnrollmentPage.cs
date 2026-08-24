@@ -73,7 +73,7 @@ public static class GetEnrollmentPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentEnrollmentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

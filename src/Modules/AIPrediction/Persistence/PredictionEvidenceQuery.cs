@@ -24,7 +24,7 @@ public sealed class PredictionEvidenceQuery(
 			.Set<PredictionEvidenceEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.PredictionEvidenceId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class PredictionEvidenceQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.PredictionEvidenceId != excludingId.Value)),
 				cancellationToken);
 	}
 }

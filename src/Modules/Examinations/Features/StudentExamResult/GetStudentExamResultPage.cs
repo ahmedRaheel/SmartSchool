@@ -73,7 +73,7 @@ public static class GetStudentExamResultPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentExamResultId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

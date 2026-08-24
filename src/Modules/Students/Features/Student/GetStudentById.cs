@@ -57,7 +57,7 @@ public static class GetStudentById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentId,
 			entity.UserId,
 			entity.StudentNumber,
 			entity.FirstName,

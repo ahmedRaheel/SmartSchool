@@ -68,7 +68,7 @@ public static class GetMessageById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.MessageId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

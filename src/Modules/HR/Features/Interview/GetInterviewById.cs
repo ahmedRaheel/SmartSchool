@@ -68,7 +68,7 @@ public static class GetInterviewById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.InterviewId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

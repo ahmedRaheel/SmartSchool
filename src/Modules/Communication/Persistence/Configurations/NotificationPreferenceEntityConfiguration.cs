@@ -6,8 +6,12 @@ public sealed class NotificationPreferenceEntityConfiguration:IEntityTypeConfigu
 {public void Configure(EntityTypeBuilder<NotificationPreferenceEntity> builder)
 	{
 		builder.ToTable("notification_preference", "communication");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.NotificationPreferenceId);
+=======
 		builder.Ignore(entity => entity.Id);
 		builder.HasKey(x => x.Id);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 		builder.Property(x => x.NotificationType).HasConversion<string>().HasMaxLength(80);
 		builder.Property(x => x.RowVersion).IsConcurrencyToken();
 		builder.HasIndex(x => new { x.TenantId, x.UserId, x.NotificationType }).IsUnique();
@@ -17,7 +21,7 @@ public sealed class NotificationPreferenceEntityConfiguration:IEntityTypeConfigu
 		builder.Property(entity => entity.PushEnabled).HasColumnName("PushEnabled");
 		builder.Property(entity => entity.EmailEnabled).HasColumnName("EmailEnabled");
 		builder.Property(entity => entity.SmsEnabled).HasColumnName("SmsEnabled");
-		builder.Property(entity => entity.Id).HasColumnName("Id");
+		builder.Property(entity => entity.NotificationPreferenceId).HasColumnName("notification_preference_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("TenantId");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");

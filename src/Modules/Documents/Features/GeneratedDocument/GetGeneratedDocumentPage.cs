@@ -73,7 +73,7 @@ public static class GetGeneratedDocumentPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GeneratedDocumentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

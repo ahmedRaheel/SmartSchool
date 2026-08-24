@@ -68,7 +68,7 @@ public static class GetCourseSelectionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentCourseEnrollmentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

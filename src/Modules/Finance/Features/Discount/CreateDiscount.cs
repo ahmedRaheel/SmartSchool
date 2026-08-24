@@ -89,7 +89,7 @@ public static class CreateDiscount
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.DiscountId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

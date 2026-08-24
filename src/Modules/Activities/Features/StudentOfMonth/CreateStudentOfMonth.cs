@@ -89,7 +89,7 @@ public static class CreateStudentOfMonth
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentOfMonthId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

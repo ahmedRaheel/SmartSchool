@@ -24,7 +24,7 @@ public sealed class EmployeeQuery(
 			.Set<EmployeeEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.EmployeeId == id,
 				cancellationToken);
 	}
 
@@ -103,7 +103,7 @@ public sealed class EmployeeQuery(
 			.AnyAsync(
 				entity =>
 					entity.TenantId == tenantId && entity.EmployeeNumber == employeeNumber
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.EmployeeId != excludingId.Value)),
 				cancellationToken);
 	}
 }

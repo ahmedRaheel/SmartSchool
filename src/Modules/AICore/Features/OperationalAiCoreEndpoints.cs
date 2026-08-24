@@ -44,7 +44,7 @@ public static class OperationalAiCoreEndpoints
         await command.AddAsync(entity,ct);
         const string sql="""
 			
-			INSERT INTO ai_core.rag_knowledge_chunk(id,
+			INSERT INTO ai_core.rag_knowledge_chunk(knowledge_chunk_id,
 			           tenant_id,
 					   collection,document_name,
 					   content,embedding,
@@ -58,13 +58,13 @@ public static class OperationalAiCoreEndpoints
 				 @Content,
 				 CAST(@Vector AS vector),
 				 CURRENT_TIMESTAMP,TRUE)
-				 ON CONFLICT (id) DO UPDATE SET content=EXCLUDED.content,embedding=EXCLUDED.embedding;
+				 ON CONFLICT (knowledge_chunk_id) DO UPDATE SET content=EXCLUDED.content,embedding=EXCLUDED.embedding;
 			
 			""";
         await using var cn=await db.OpenConnectionAsync(ct);
-        await cn.ExecuteAsync(new CommandDefinition(sql,new{entity.Id,Tenant=tenant.Value,Collection=r.CollectionId.ToString(),r.Name,r.Content,Vector=Literal(vector)},cancellationToken:ct));
-        await events.PublishAsync(KafkaTopics.RagDocumentIngestionRequested,new{tenantId=tenant.Value,chunkId=entity.Id,r.CollectionId,r.DocumentId},ct);
-        return Results.Created($"/api/aicore/knowledge-chunk/{entity.Id}",new{entity.Id,TenantId=tenant.Value,indexed=true});
+        await cn.ExecuteAsync(new CommandDefinition(sql,new{Id=entity.KnowledgeChunkId,Tenant=tenant.Value,Collection=r.CollectionId.ToString(),r.Name,r.Content,Vector=Literal(vector)},cancellationToken:ct));
+        await events.PublishAsync(KafkaTopics.RagDocumentIngestionRequested,new{tenantId=tenant.Value,chunkId=entity.KnowledgeChunkId,r.CollectionId,r.DocumentId},ct);
+        return Results.Created($"/api/aicore/knowledge-chunk/{entity.KnowledgeChunkId}",new{Id=entity.KnowledgeChunkId,TenantId=tenant.Value,indexed=true});
     }
 
     private static async Task<IResult> ExecuteAsync(ExecuteRequest r,ITenantScope scope,IDbConnectionFactory db,
@@ -91,8 +91,8 @@ public static class OperationalAiCoreEndpoints
         var log=AiExecutionLogEntity.Create(tenant.Value,$"AI-{DateTime.UtcNow:yyyyMMddHHmmssfff}",r.Assistant,
             JsonSerializer.Serialize(new{r.Prompt,answer,model,citations=hits.Select(x=>new{x.Id,x.DocumentName,x.Score})}));
         await logs.AddAsync(log,ct);
-        await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked,new{tenantId=tenant.Value,assistant=r.Assistant,executionId=log.Id},ct);
-        return Results.Ok(new{executionId=log.Id,answer,model,citations=hits.Select(x=>new{x.Id,x.DocumentName,x.Collection,x.Score})});
+        await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked,new{tenantId=tenant.Value,assistant=r.Assistant,executionId=log.AiExecutionLogId},ct);
+        return Results.Ok(new{executionId=log.AiExecutionLogId,answer,model,citations=hits.Select(x=>new{x.Id,x.DocumentName,x.Collection,x.Score})});
     }
 
     private static async Task<IResult> HealthAsync(IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct)

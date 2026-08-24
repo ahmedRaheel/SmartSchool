@@ -68,7 +68,7 @@ public static class GetUserProfileById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.UserProfileId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

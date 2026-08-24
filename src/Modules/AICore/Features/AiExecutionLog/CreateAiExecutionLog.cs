@@ -89,7 +89,7 @@ public static class CreateAiExecutionLog
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AiExecutionLogId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

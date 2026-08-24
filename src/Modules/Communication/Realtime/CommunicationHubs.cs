@@ -47,7 +47,7 @@ public sealed class ChatHub(IApplicationDbContext dbContext, IIntegrationEventPu
         await dbContext.Set<ChatMessageEntity>().AddAsync(entity, Context.ConnectionAborted);
         await dbContext.SaveChangesAsync(Context.ConnectionAborted);
 
-        var payload = new { entity.TenantId, entity.Id, entity.ConversationId, entity.SenderUserId, entity.Message, entity.SentAt };
+        var payload = new { entity.TenantId, entity.ChatMessageId, entity.ConversationId, entity.SenderUserId, entity.Message, entity.SentAt };
         await publisher.PublishAsync(KafkaTopics.ChatMessageSent, payload, Context.ConnectionAborted);
         await Clients.Group(CommunicationGroups.Conversation(tenantId, conversationId))
             .SendAsync("MessageReceived", payload, Context.ConnectionAborted);
@@ -64,7 +64,7 @@ public sealed class ChatHub(IApplicationDbContext dbContext, IIntegrationEventPu
         var userId = RequiredGuid(SmartSchoolClaims.UserId);
         var isSuperAdmin = Context.User?.IsInRole(SmartSchoolRoles.SuperAdmin) == true;
         var conversation = await dbContext.Set<ChatConversationEntity>().AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == conversationId && x.IsActive, ct)
+            .SingleOrDefaultAsync(x => x.ChatConversationId == conversationId && x.IsActive, ct)
             ?? throw new HubException("Conversation was not found.");
 
         if (!isSuperAdmin)

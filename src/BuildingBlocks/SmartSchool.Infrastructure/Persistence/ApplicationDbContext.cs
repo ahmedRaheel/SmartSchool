@@ -15,7 +15,7 @@ public sealed class ApplicationDbContext(
 {
 	/// <inheritdoc />
 	public new DbSet<TEntity> Set<TEntity>()
-		where TEntity : Entity
+		where TEntity : AggregateRootEntity
 	{
 		return base.Set<TEntity>();
 	}

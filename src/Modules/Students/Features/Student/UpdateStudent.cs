@@ -87,7 +87,7 @@ public static class UpdateStudent
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentId,
 			entity.UserId,
 			entity.StudentNumber,
 			entity.FirstName,

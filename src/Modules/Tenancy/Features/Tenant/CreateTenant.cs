@@ -84,7 +84,7 @@ public static class CreateTenant
 			{
 				var account = await identityAccountService.CreateAccountAsync(
 					tenantId,
-					tenant.Id,
+					tenant.TenantId,
 					"Admin",
 					request.AdminEmail,
 					request.AdminFirstName,
@@ -95,7 +95,7 @@ public static class CreateTenant
 				return Result<Response>.Success(
 					new Response(
 						tenantId,
-						tenant.Id,
+						tenant.TenantId,
 						tenant.Code,
 						tenant.Name,
 						new AdminAccountResponse(

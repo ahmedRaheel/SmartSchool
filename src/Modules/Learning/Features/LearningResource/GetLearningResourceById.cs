@@ -68,7 +68,7 @@ public static class GetLearningResourceById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LearningResourceId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

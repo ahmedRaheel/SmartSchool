@@ -29,7 +29,6 @@ public sealed class SmartSchoolDbContext(
 		{
 			var entityBuilder = modelBuilder.Entity(entityType);
 
-			entityBuilder.HasKey(nameof(Entity.Id));
 			entityBuilder.Property(nameof(Entity.TenantId)).IsRequired();
 			entityBuilder.Property(nameof(Entity.IsActive)).IsRequired();
 			entityBuilder.Property(nameof(Entity.RowVersion)).IsConcurrencyToken();

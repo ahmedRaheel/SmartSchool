@@ -98,7 +98,7 @@ public static class UpdateStockTransaction
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StockTransactionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

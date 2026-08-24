@@ -24,7 +24,7 @@ public sealed class LoanQuery(
 			.Set<LoanEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.BookLoanId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class LoanQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.BookLoanId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -5,6 +5,14 @@ namespace SmartSchool.Modules.Communication.Models;
 /// <summary>Represents a recipient-specific school notification.</summary>
 public sealed class NotificationEntity : Entity
 {
+<<<<<<< HEAD
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid NotificationId { get; private set; } = Guid.NewGuid();
+
+    private NotificationEntity()
+    {
+    }
+=======
 	/// <summary>Gets the persisted entity identifier.</summary>
 	public Guid NotificationId
 	{
@@ -13,6 +21,7 @@ public sealed class NotificationEntity : Entity
 	}
 
     private NotificationEntity() { }
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
     /// <summary>Gets the recipient user identifier.</summary>
     public Guid RecipientUserId { get; private set; }

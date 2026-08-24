@@ -73,7 +73,7 @@ public static class GetAwardPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentAwardId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

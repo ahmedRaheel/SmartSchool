@@ -68,7 +68,7 @@ public static class GetBookById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.BookId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -73,7 +73,7 @@ public static class GetPayslipPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PayslipId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

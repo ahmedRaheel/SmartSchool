@@ -51,7 +51,7 @@ public static class GetGuardianById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GuardianId,
 			entity.UserId,
 			entity.FullName,
 			entity.CnicNumber,

@@ -68,7 +68,7 @@ public static class GetStudentTransportById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentTransportId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -24,7 +24,7 @@ public sealed class LeaveRequestQuery(
 			.Set<LeaveRequestEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.LeaveRequestId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class LeaveRequestQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.LeaveRequestId != excludingId.Value)),
 				cancellationToken);
 	}
 }

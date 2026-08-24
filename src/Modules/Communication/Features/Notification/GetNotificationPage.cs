@@ -84,7 +84,7 @@ public static class GetNotificationPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.NotificationId,
 			entity.RecipientUserId,
 			entity.Type,
 			entity.Title,

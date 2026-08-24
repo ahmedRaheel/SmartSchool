@@ -98,7 +98,7 @@ public static class UpdateKnowledgeCollection
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.KnowledgeCollectionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

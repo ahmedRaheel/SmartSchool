@@ -14,8 +14,12 @@ public sealed class EmployeeEntityConfiguration : IEntityTypeConfiguration<Emplo
 	public void Configure(EntityTypeBuilder<EmployeeEntity> builder)
 	{
 		builder.ToTable("employee", schema: "hr");
+<<<<<<< HEAD
+builder.HasKey(entity => entity.EmployeeId);
+=======
 		builder.Ignore(entity => entity.Id);
 		builder.HasKey(entity => entity.EmployeeId);
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder.Property(entity => entity.EmployeeId).HasColumnName("employee_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();

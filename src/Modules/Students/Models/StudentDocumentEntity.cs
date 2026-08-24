@@ -9,6 +9,11 @@ namespace SmartSchool.Modules.Students.Models;
 /// </summary>
 public sealed class StudentDocumentEntity : Entity
 {
+<<<<<<< HEAD
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid StudentDocumentId { get; private set; } = Guid.NewGuid();
+private StudentDocumentEntity()
+=======
 	/// <summary>Gets the persisted entity identifier.</summary>
 	public Guid Id
 	{
@@ -17,6 +22,7 @@ public sealed class StudentDocumentEntity : Entity
 	}
 
 	private StudentDocumentEntity()
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 	{
 	}
 

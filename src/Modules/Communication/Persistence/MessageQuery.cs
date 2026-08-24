@@ -24,7 +24,7 @@ public sealed class MessageQuery(
 			.Set<MessageEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.MessageId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class MessageQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.MessageId != excludingId.Value)),
 				cancellationToken);
 	}
 }

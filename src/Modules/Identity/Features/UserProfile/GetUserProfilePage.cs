@@ -73,7 +73,7 @@ public static class GetUserProfilePage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.UserProfileId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

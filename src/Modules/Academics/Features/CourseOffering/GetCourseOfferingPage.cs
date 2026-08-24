@@ -73,7 +73,7 @@ public static class GetCourseOfferingPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.CourseOfferingId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

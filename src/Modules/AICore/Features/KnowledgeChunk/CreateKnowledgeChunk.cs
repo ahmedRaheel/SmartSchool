@@ -91,7 +91,7 @@ public static class CreateKnowledgeChunk
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.KnowledgeChunkId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

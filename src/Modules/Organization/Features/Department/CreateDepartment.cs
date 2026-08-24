@@ -89,7 +89,7 @@ public static class CreateDepartment
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.DepartmentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

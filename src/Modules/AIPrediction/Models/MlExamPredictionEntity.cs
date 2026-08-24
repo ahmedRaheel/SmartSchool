@@ -4,12 +4,19 @@ namespace SmartSchool.Modules.AIPrediction.Models;
 
 public sealed class MlExamPredictionEntity : Entity
 {
+<<<<<<< HEAD
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid MlExamPredictionId { get; private set; } = Guid.NewGuid();
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid PredictionId { get; private set; } = Guid.NewGuid();
+=======
 	/// <summary>Gets the persisted entity identifier.</summary>
 	public Guid PredictionId
 	{
 		get => Id;
 		private set => Id = value;
 	}
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 	private MlExamPredictionEntity() { }
 

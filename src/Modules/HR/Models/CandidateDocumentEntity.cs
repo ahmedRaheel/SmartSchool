@@ -9,6 +9,11 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class CandidateDocumentEntity : Entity
 {
+<<<<<<< HEAD
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid CandidateDocumentId { get; private set; } = Guid.NewGuid();
+private CandidateDocumentEntity()
+=======
 	/// <summary>Gets the persisted entity identifier.</summary>
 	public Guid Id
 	{
@@ -17,6 +22,7 @@ public sealed class CandidateDocumentEntity : Entity
 	}
 
 	private CandidateDocumentEntity()
+>>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 	{
 	}
 

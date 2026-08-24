@@ -68,7 +68,7 @@ public static class GetAcademicYearById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AcademicYearId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

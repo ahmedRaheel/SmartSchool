@@ -24,7 +24,7 @@ public sealed class LessonQuery(
 			.Set<LessonEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.LessonId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class LessonQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.LessonId != excludingId.Value)),
 				cancellationToken);
 	}
 }

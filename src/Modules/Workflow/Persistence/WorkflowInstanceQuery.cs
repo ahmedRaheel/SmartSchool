@@ -24,7 +24,7 @@ public sealed class WorkflowInstanceQuery(
 			.Set<WorkflowInstanceEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.WorkflowInstanceId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class WorkflowInstanceQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.WorkflowInstanceId != excludingId.Value)),
 				cancellationToken);
 	}
 }

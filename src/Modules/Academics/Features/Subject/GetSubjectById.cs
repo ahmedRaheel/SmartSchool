@@ -68,7 +68,7 @@ public static class GetSubjectById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SubjectId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

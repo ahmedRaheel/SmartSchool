@@ -68,7 +68,7 @@ public static class GetLearningRecommendationById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LearningRecommendationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

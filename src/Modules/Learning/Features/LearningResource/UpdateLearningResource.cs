@@ -98,7 +98,7 @@ public static class UpdateLearningResource
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LearningResourceId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

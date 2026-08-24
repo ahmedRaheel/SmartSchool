@@ -7,6 +7,8 @@ namespace SmartSchool.Modules.Learning.Models;
 /// </summary>
 public sealed class AssignmentSubmissionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid AssignmentSubmissionId { get; private set; } = Guid.NewGuid();
 	private AssignmentSubmissionEntity()
 	{
 	}

@@ -68,7 +68,7 @@ public static class GetReservationById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ReservationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

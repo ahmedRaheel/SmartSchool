@@ -89,7 +89,7 @@ public static class CreatePredictionEvidence
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PredictionEvidenceId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

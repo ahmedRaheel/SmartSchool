@@ -68,7 +68,7 @@ public static class GetPromptTemplateById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PromptTemplateId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -91,7 +91,7 @@ public static class CreateQuizAttempt
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentQuizAttemptId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

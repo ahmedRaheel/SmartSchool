@@ -68,7 +68,7 @@ public static class GetCampusBrandingById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.CampusBrandingId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

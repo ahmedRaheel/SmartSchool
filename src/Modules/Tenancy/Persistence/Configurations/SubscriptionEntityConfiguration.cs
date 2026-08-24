@@ -14,7 +14,7 @@ public sealed class SubscriptionEntityConfiguration
 	{
 		builder.ToTable("Subscription", ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.SubscriptionId);
 
 		builder
 			.Property(entity => entity.TenantId)

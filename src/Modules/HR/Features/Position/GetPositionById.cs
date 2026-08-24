@@ -68,7 +68,7 @@ public static class GetPositionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PositionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

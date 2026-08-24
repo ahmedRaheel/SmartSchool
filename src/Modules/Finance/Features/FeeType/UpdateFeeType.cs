@@ -98,7 +98,7 @@ public static class UpdateFeeType
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.FeeTypeId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

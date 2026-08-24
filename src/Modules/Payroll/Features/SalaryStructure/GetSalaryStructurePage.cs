@@ -73,7 +73,7 @@ public static class GetSalaryStructurePage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SalaryStructureId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

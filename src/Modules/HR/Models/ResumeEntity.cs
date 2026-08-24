@@ -7,6 +7,8 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class ResumeEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ResumeId { get; private set; } = Guid.NewGuid();
 	private ResumeEntity()
 	{
 	}

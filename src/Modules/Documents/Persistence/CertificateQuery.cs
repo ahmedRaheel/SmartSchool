@@ -24,7 +24,7 @@ public sealed class CertificateQuery(
 			.Set<CertificateEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.CertificateId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class CertificateQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.Id != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.CertificateId != excludingId.Value)),
 				cancellationToken);
 	}
 }

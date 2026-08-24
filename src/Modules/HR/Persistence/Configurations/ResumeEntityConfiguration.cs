@@ -14,7 +14,7 @@ public sealed class ResumeEntityConfiguration
 	{
 		builder.ToTable("Resume", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.ResumeId);
 
 		builder
 			.Property(entity => entity.TenantId)

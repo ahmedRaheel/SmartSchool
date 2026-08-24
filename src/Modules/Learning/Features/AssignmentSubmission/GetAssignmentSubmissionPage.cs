@@ -73,7 +73,7 @@ public static class GetAssignmentSubmissionPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AssignmentSubmissionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);
