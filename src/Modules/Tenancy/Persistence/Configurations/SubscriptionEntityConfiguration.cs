@@ -12,7 +12,7 @@ public sealed class SubscriptionEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<SubscriptionEntity> builder)
 	{
-		builder.ToTable("Subscription", SmartSchool.Modules.Tenancy.ModuleConstants.Schema);
+		builder.ToTable("Subscription", ModuleConstants.Schema);
 
 		builder.HasKey(entity => entity.Id);
 
