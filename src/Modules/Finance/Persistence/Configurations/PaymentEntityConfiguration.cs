@@ -13,7 +13,7 @@ public sealed class PaymentEntityConfiguration
 	public void Configure(EntityTypeBuilder<PaymentEntity> builder)
 	{
 		builder.ToTable("student_payment", schema: "finance");
-builder.HasKey(entity => entity.StudentPaymentId);
+		builder.HasKey(entity => entity.StudentPaymentId);
 
 		builder
 			.Property(entity => entity.TenantId)

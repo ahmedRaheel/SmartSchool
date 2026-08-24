@@ -10,7 +10,7 @@ public sealed class GuardianEntityConfiguration : IEntityTypeConfiguration<Guard
 	public void Configure(EntityTypeBuilder<GuardianEntity> builder)
 	{
 		builder.ToTable("guardian", schema: "student");
-builder.HasKey(entity => entity.GuardianId);
+		builder.HasKey(entity => entity.GuardianId);
 
 		builder.Property(entity => entity.GuardianId).HasColumnName("guardian_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();

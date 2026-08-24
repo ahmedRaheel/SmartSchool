@@ -13,7 +13,7 @@ public sealed class ProgramEntityConfiguration
 	public void Configure(EntityTypeBuilder<ProgramEntity> builder)
 	{
 		builder.ToTable("program", schema: "academic");
-builder.HasKey(entity => entity.ProgramId);
+		builder.HasKey(entity => entity.ProgramId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,7 +13,7 @@ public sealed class ParentToolExecutionEntityConfiguration
 	public void Configure(EntityTypeBuilder<ParentToolExecutionEntity> builder)
 	{
 		builder.ToTable("parent_tool_execution", schema: "ai_parent");
-builder.HasKey(entity => entity.ParentToolExecutionId);
+		builder.HasKey(entity => entity.ParentToolExecutionId);
 
 		builder
 			.Property(entity => entity.TenantId)

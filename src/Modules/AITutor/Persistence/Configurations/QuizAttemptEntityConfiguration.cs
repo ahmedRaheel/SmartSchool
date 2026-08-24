@@ -13,7 +13,7 @@ public sealed class QuizAttemptEntityConfiguration
 	public void Configure(EntityTypeBuilder<QuizAttemptEntity> builder)
 	{
 		builder.ToTable("student_quiz_attempt", schema: "ai_tutor");
-builder.HasKey(entity => entity.StudentQuizAttemptId);
+		builder.HasKey(entity => entity.StudentQuizAttemptId);
 
 		builder
 			.Property(entity => entity.TenantId)

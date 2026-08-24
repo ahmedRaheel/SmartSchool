@@ -13,7 +13,7 @@ public sealed class PayrollRunEntityConfiguration
 	public void Configure(EntityTypeBuilder<PayrollRunEntity> builder)
 	{
 		builder.ToTable("payroll_run", schema: "payroll");
-builder.HasKey(entity => entity.PayrollRunId);
+		builder.HasKey(entity => entity.PayrollRunId);
 
 		builder
 			.Property(entity => entity.TenantId)

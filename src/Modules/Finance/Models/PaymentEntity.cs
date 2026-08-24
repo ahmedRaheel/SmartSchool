@@ -8,8 +8,6 @@ namespace SmartSchool.Modules.Finance.Models;
 public sealed class PaymentEntity : Entity
 {
 	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid PaymentId { get; private set; } = Guid.NewGuid();
-	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid StudentPaymentId { get; private set; } = Guid.NewGuid();
 
 	private PaymentEntity()

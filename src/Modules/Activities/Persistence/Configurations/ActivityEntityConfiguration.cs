@@ -13,7 +13,7 @@ public sealed class ActivityEntityConfiguration
 	public void Configure(EntityTypeBuilder<ActivityEntity> builder)
 	{
 		builder.ToTable("activity", schema: "activity");
-builder.HasKey(entity => entity.ActivityId);
+		builder.HasKey(entity => entity.ActivityId);
 
 		builder
 			.Property(entity => entity.TenantId)

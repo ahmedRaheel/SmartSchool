@@ -13,7 +13,7 @@ public sealed class KnowledgeDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<KnowledgeDocumentEntity> builder)
 	{
 		builder.ToTable("knowledge_document", schema: "ai_core");
-builder.HasKey(entity => entity.KnowledgeDocumentId);
+		builder.HasKey(entity => entity.KnowledgeDocumentId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -8,8 +8,6 @@ namespace SmartSchool.Modules.Academics.Models;
 public sealed class CourseSelectionEntity : Entity
 {
 	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid CourseSelectionId { get; private set; } = Guid.NewGuid();
-	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid StudentCourseEnrollmentId { get; private set; } = Guid.NewGuid();
 
 	private CourseSelectionEntity()

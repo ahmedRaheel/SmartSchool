@@ -13,7 +13,7 @@ public sealed class ClassSectionEntityConfiguration
 	public void Configure(EntityTypeBuilder<ClassSectionEntity> builder)
 	{
 		builder.ToTable("class_section", schema: "academic");
-builder.HasKey(entity => entity.ClassSectionId);
+		builder.HasKey(entity => entity.ClassSectionId);
 
 		builder
 			.Property(entity => entity.TenantId)

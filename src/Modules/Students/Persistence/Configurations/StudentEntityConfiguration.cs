@@ -10,7 +10,7 @@ public sealed class StudentEntityConfiguration : IEntityTypeConfiguration<Studen
 	public void Configure(EntityTypeBuilder<StudentEntity> builder)
 	{
 		builder.ToTable("student", schema: "student");
-builder.HasKey(entity => entity.StudentId);
+		builder.HasKey(entity => entity.StudentId);
 
 		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();

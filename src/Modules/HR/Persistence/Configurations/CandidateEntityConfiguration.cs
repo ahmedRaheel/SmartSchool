@@ -13,7 +13,7 @@ public sealed class CandidateEntityConfiguration
 	public void Configure(EntityTypeBuilder<CandidateEntity> builder)
 	{
 		builder.ToTable("candidate", schema: "hr");
-builder.HasKey(entity => entity.CandidateId);
+		builder.HasKey(entity => entity.CandidateId);
 
 		builder
 			.Property(entity => entity.TenantId)

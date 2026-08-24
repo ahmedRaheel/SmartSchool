@@ -13,7 +13,7 @@ public sealed class DriverEntityConfiguration
 	public void Configure(EntityTypeBuilder<DriverEntity> builder)
 	{
 		builder.ToTable("driver", schema: "transport");
-builder.HasKey(entity => entity.DriverId);
+		builder.HasKey(entity => entity.DriverId);
 
 		builder
 			.Property(entity => entity.TenantId)

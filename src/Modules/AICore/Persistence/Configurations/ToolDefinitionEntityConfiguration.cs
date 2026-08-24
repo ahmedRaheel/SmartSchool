@@ -13,7 +13,7 @@ public sealed class ToolDefinitionEntityConfiguration
 	public void Configure(EntityTypeBuilder<ToolDefinitionEntity> builder)
 	{
 		builder.ToTable("tool_definition", schema: "ai_core");
-builder.HasKey(entity => entity.ToolDefinitionId);
+		builder.HasKey(entity => entity.ToolDefinitionId);
 
 		builder
 			.Property(entity => entity.TenantId)

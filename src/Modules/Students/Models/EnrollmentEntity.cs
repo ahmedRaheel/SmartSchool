@@ -8,8 +8,6 @@ namespace SmartSchool.Modules.Students.Models;
 public sealed class EnrollmentEntity : Entity
 {
 	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid EnrollmentId { get; private set; } = Guid.NewGuid();
-	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid StudentEnrollmentId { get; private set; } = Guid.NewGuid();
 
 	private EnrollmentEntity()

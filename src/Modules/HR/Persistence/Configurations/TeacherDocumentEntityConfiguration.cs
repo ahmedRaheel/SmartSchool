@@ -14,7 +14,7 @@ public sealed class TeacherDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<TeacherDocumentEntity> builder)
 	{
 		builder.ToTable("teacherdocument", schema: "document");
-builder.HasKey(document => document.TeacherDocumentId);
+		builder.HasKey(document => document.TeacherDocumentId);
 
 		builder.Property(document => document.TenantId).IsRequired();
 		builder.Property(document => document.TeacherId).IsRequired();

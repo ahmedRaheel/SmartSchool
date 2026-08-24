@@ -13,7 +13,7 @@ public sealed class DiscountEntityConfiguration
 	public void Configure(EntityTypeBuilder<DiscountEntity> builder)
 	{
 		builder.ToTable("Discount", schema: "finance");
-builder.HasKey(entity => entity.DiscountId);
+		builder.HasKey(entity => entity.DiscountId);
 
 		builder
 			.Property(entity => entity.TenantId)

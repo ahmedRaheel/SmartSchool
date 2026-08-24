@@ -13,7 +13,7 @@ public sealed class ParentMessageEntityConfiguration
 	public void Configure(EntityTypeBuilder<ParentMessageEntity> builder)
 	{
 		builder.ToTable("parent_message", schema: "ai_parent");
-builder.HasKey(entity => entity.ParentMessageId);
+		builder.HasKey(entity => entity.ParentMessageId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,7 +13,7 @@ public sealed class AiExecutionLogEntityConfiguration
 	public void Configure(EntityTypeBuilder<AiExecutionLogEntity> builder)
 	{
 		builder.ToTable("ai_execution_log", schema: "ai_core");
-builder.HasKey(entity => entity.AiExecutionLogId);
+		builder.HasKey(entity => entity.AiExecutionLogId);
 
 		builder
 			.Property(entity => entity.TenantId)

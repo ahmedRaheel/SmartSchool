@@ -13,7 +13,7 @@ public sealed class GeneratedQuizEntityConfiguration
 	public void Configure(EntityTypeBuilder<GeneratedQuizEntity> builder)
 	{
 		builder.ToTable("generated_quiz", schema: "ai_tutor");
-builder.HasKey(entity => entity.GeneratedQuizId);
+		builder.HasKey(entity => entity.GeneratedQuizId);
 
 		builder
 			.Property(entity => entity.TenantId)

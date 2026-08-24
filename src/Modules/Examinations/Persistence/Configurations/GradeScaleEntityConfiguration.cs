@@ -13,7 +13,7 @@ public sealed class GradeScaleEntityConfiguration
 	public void Configure(EntityTypeBuilder<GradeScaleEntity> builder)
 	{
 		builder.ToTable("GradeScale", schema: "exam");
-builder.HasKey(entity => entity.GradeScaleId);
+		builder.HasKey(entity => entity.GradeScaleId);
 
 		builder
 			.Property(entity => entity.TenantId)

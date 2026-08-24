@@ -13,7 +13,7 @@ public sealed class JobEntityConfiguration
 	public void Configure(EntityTypeBuilder<JobEntity> builder)
 	{
 		builder.ToTable("job", schema: "hr");
-builder.HasKey(entity => entity.JobId);
+		builder.HasKey(entity => entity.JobId);
 
 		builder
 			.Property(entity => entity.TenantId)

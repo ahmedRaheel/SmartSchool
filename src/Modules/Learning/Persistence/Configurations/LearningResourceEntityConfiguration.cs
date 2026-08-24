@@ -13,7 +13,7 @@ public sealed class LearningResourceEntityConfiguration
 	public void Configure(EntityTypeBuilder<LearningResourceEntity> builder)
 	{
 		builder.ToTable("LearningResource", schema: "lms");
-builder.HasKey(entity => entity.LearningResourceId);
+		builder.HasKey(entity => entity.LearningResourceId);
 
 		builder
 			.Property(entity => entity.TenantId)

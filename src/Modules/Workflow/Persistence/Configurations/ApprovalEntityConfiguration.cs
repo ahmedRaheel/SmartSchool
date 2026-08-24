@@ -13,7 +13,7 @@ public sealed class ApprovalEntityConfiguration
 	public void Configure(EntityTypeBuilder<ApprovalEntity> builder)
 	{
 		builder.ToTable("Approval", schema: "workflow");
-builder.HasKey(entity => entity.ApprovalId);
+		builder.HasKey(entity => entity.ApprovalId);
 
 		builder
 			.Property(entity => entity.TenantId)

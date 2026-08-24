@@ -8,7 +8,7 @@ public sealed class ChatAttachmentEntityConfiguration : IEntityTypeConfiguration
 	public void Configure(EntityTypeBuilder<ChatAttachmentEntity> builder)
 	{
 		builder.ToTable("chat_attachment", "communication");
-builder.HasKey(entity => entity.ChatAttachmentId);
+		builder.HasKey(entity => entity.ChatAttachmentId);
 		builder.Property(x => x.FileName).HasMaxLength(255).IsRequired();
 		builder.Property(x => x.ContentType).HasMaxLength(150).IsRequired();
 		builder.Property(x => x.StorageKey).HasMaxLength(500).IsRequired();

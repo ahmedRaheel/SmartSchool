@@ -13,7 +13,7 @@ public sealed class DocumentTemplateEntityConfiguration
 	public void Configure(EntityTypeBuilder<DocumentTemplateEntity> builder)
 	{
 		builder.ToTable("document_template", schema: "document");
-builder.HasKey(entity => entity.DocumentTemplateId);
+		builder.HasKey(entity => entity.DocumentTemplateId);
 
 		builder
 			.Property(entity => entity.TenantId)

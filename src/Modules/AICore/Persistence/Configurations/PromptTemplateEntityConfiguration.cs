@@ -13,7 +13,7 @@ public sealed class PromptTemplateEntityConfiguration
 	public void Configure(EntityTypeBuilder<PromptTemplateEntity> builder)
 	{
 		builder.ToTable("prompt_template", schema: "ai_core");
-builder.HasKey(entity => entity.PromptTemplateId);
+		builder.HasKey(entity => entity.PromptTemplateId);
 
 		builder
 			.Property(entity => entity.TenantId)

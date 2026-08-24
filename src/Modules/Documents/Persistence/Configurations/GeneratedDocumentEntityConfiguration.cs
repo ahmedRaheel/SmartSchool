@@ -13,7 +13,7 @@ public sealed class GeneratedDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<GeneratedDocumentEntity> builder)
 	{
 		builder.ToTable("generated_document", schema: "document");
-builder.HasKey(entity => entity.GeneratedDocumentId);
+		builder.HasKey(entity => entity.GeneratedDocumentId);
 
 		builder
 			.Property(entity => entity.TenantId)

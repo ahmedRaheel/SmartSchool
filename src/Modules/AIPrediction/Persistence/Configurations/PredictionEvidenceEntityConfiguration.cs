@@ -13,7 +13,7 @@ public sealed class PredictionEvidenceEntityConfiguration
 	public void Configure(EntityTypeBuilder<PredictionEvidenceEntity> builder)
 	{
 		builder.ToTable("prediction_evidence", schema: "ai");
-builder.HasKey(entity => entity.PredictionEvidenceId);
+		builder.HasKey(entity => entity.PredictionEvidenceId);
 
 		builder
 			.Property(entity => entity.TenantId)

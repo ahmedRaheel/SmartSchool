@@ -8,8 +8,6 @@ namespace SmartSchool.Modules.Library.Models;
 public sealed class LoanEntity : Entity
 {
 	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid LoanId { get; private set; } = Guid.NewGuid();
-	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid BookLoanId { get; private set; } = Guid.NewGuid();
 
 	private LoanEntity()

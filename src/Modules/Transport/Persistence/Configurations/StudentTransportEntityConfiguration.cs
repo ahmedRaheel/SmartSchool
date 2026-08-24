@@ -13,7 +13,7 @@ public sealed class StudentTransportEntityConfiguration
 	public void Configure(EntityTypeBuilder<StudentTransportEntity> builder)
 	{
 		builder.ToTable("StudentTransport", schema: "transport");
-builder.HasKey(entity => entity.StudentTransportId);
+		builder.HasKey(entity => entity.StudentTransportId);
 
 		builder
 			.Property(entity => entity.TenantId)

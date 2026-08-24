@@ -13,7 +13,7 @@ public sealed class DocumentTypeEntityConfiguration
 	public void Configure(EntityTypeBuilder<DocumentTypeEntity> builder)
 	{
 		builder.ToTable("documenttype", schema: "document");
-builder.HasKey(documentType => documentType.DocumentTypeId);
+		builder.HasKey(documentType => documentType.DocumentTypeId);
 
 		builder.Property(documentType => documentType.Code)
 			.HasMaxLength(80)

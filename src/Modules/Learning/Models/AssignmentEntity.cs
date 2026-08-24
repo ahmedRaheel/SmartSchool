@@ -8,8 +8,6 @@ namespace SmartSchool.Modules.Learning.Models;
 public sealed class AssignmentEntity : Entity
 {
 	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid AssignmentId { get; private set; } = Guid.NewGuid();
-	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid AcademicAssignmentId { get; private set; } = Guid.NewGuid();
 
 	private AssignmentEntity()

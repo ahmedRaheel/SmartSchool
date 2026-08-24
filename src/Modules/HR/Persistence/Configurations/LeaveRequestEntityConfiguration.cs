@@ -13,7 +13,7 @@ public sealed class LeaveRequestEntityConfiguration
 	public void Configure(EntityTypeBuilder<LeaveRequestEntity> builder)
 	{
 		builder.ToTable("leave_request", schema: "teacher");
-builder.HasKey(entity => entity.LeaveRequestId);
+		builder.HasKey(entity => entity.LeaveRequestId);
 
 		builder
 			.Property(entity => entity.TenantId)

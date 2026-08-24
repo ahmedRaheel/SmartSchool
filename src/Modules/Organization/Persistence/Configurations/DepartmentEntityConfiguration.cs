@@ -13,7 +13,7 @@ public sealed class DepartmentEntityConfiguration
 	public void Configure(EntityTypeBuilder<DepartmentEntity> builder)
 	{
 		builder.ToTable("department", schema: "org");
-builder.HasKey(entity => entity.DepartmentId);
+		builder.HasKey(entity => entity.DepartmentId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,7 +13,7 @@ public sealed class AuditLogEntityConfiguration
 	public void Configure(EntityTypeBuilder<AuditLogEntity> builder)
 	{
 		builder.ToTable("audit_log", schema: "audit");
-builder.HasKey(entity => entity.AuditLogId);
+		builder.HasKey(entity => entity.AuditLogId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,7 +13,7 @@ public sealed class ParentProfileEntityConfiguration
 	public void Configure(EntityTypeBuilder<ParentProfileEntity> builder)
 	{
 		builder.ToTable("ParentProfile", schema: "student");
-builder.HasKey(entity => entity.ParentProfileId);
+		builder.HasKey(entity => entity.ParentProfileId);
 
 		builder
 			.Property(entity => entity.TenantId)

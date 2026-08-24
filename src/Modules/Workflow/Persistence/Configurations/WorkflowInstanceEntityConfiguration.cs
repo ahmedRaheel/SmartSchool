@@ -13,7 +13,7 @@ public sealed class WorkflowInstanceEntityConfiguration
 	public void Configure(EntityTypeBuilder<WorkflowInstanceEntity> builder)
 	{
 		builder.ToTable("WorkflowInstance", schema: "workflow");
-builder.HasKey(entity => entity.WorkflowInstanceId);
+		builder.HasKey(entity => entity.WorkflowInstanceId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -73,7 +73,7 @@ public static class GetTeacherAssignmentPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.TeacherAssignmentId,
+			entity.TeacherCourseAssignmentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

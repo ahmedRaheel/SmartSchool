@@ -13,7 +13,7 @@ public sealed class ModelConfigurationEntityConfiguration
 	public void Configure(EntityTypeBuilder<ModelConfigurationEntity> builder)
 	{
 		builder.ToTable("model_configuration", schema: "ai_core");
-builder.HasKey(entity => entity.ModelConfigurationId);
+		builder.HasKey(entity => entity.ModelConfigurationId);
 
 		builder
 			.Property(entity => entity.TenantId)

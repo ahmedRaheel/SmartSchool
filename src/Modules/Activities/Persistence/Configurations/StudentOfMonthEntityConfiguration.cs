@@ -13,7 +13,7 @@ public sealed class StudentOfMonthEntityConfiguration
 	public void Configure(EntityTypeBuilder<StudentOfMonthEntity> builder)
 	{
 		builder.ToTable("StudentOfMonth", schema: "activity");
-builder.HasKey(entity => entity.StudentOfMonthId);
+		builder.HasKey(entity => entity.StudentOfMonthId);
 
 		builder
 			.Property(entity => entity.TenantId)

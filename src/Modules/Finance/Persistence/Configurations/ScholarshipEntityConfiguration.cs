@@ -13,7 +13,7 @@ public sealed class ScholarshipEntityConfiguration
 	public void Configure(EntityTypeBuilder<ScholarshipEntity> builder)
 	{
 		builder.ToTable("Scholarship", schema: "finance");
-builder.HasKey(entity => entity.ScholarshipId);
+		builder.HasKey(entity => entity.ScholarshipId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,7 +13,7 @@ public sealed class KnowledgeCollectionEntityConfiguration
 	public void Configure(EntityTypeBuilder<KnowledgeCollectionEntity> builder)
 	{
 		builder.ToTable("knowledge_collection", schema: "ai_core");
-builder.HasKey(entity => entity.KnowledgeCollectionId);
+		builder.HasKey(entity => entity.KnowledgeCollectionId);
 
 		builder
 			.Property(entity => entity.TenantId)

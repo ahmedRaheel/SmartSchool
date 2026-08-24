@@ -13,7 +13,7 @@ public sealed class TeacherAssignmentEntityConfiguration
 	public void Configure(EntityTypeBuilder<TeacherAssignmentEntity> builder)
 	{
 		builder.ToTable("teacher_course_assignment", schema: "academic");
-builder.HasKey(entity => entity.TeacherCourseAssignmentId);
+		builder.HasKey(entity => entity.TeacherCourseAssignmentId);
 
 		builder
 			.Property(entity => entity.TenantId)

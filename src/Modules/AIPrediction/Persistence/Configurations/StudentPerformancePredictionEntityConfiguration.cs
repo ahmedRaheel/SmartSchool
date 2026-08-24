@@ -13,7 +13,7 @@ public sealed class StudentPerformancePredictionEntityConfiguration
 	public void Configure(EntityTypeBuilder<StudentPerformancePredictionEntity> builder)
 	{
 		builder.ToTable("student_performance_prediction", schema: "ai");
-builder.HasKey(entity => entity.StudentPerformancePredictionId);
+		builder.HasKey(entity => entity.StudentPerformancePredictionId);
 
 		builder
 			.Property(entity => entity.TenantId)

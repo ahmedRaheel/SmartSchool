@@ -13,7 +13,7 @@ public sealed class ConversationEntityConfiguration
 	public void Configure(EntityTypeBuilder<ConversationEntity> builder)
 	{
 		builder.ToTable("conversation", schema: "communication");
-builder.HasKey(entity => entity.ConversationId);
+		builder.HasKey(entity => entity.ConversationId);
 
 		builder
 			.Property(entity => entity.TenantId)

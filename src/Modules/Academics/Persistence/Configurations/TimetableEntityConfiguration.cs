@@ -13,7 +13,7 @@ public sealed class TimetableEntityConfiguration
 	public void Configure(EntityTypeBuilder<TimetableEntity> builder)
 	{
 		builder.ToTable("timetable", schema: "academic");
-builder.HasKey(entity => entity.TimetableId);
+		builder.HasKey(entity => entity.TimetableId);
 
 		builder
 			.Property(entity => entity.TenantId)

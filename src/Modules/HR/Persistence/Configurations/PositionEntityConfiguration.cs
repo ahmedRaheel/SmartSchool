@@ -13,7 +13,7 @@ public sealed class PositionEntityConfiguration
 	public void Configure(EntityTypeBuilder<PositionEntity> builder)
 	{
 		builder.ToTable("position", schema: "hr");
-builder.HasKey(entity => entity.PositionId);
+		builder.HasKey(entity => entity.PositionId);
 
 		builder
 			.Property(entity => entity.TenantId)

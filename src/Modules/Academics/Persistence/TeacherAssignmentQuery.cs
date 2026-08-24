@@ -24,7 +24,7 @@ public sealed class TeacherAssignmentQuery(
 			.Set<TeacherAssignmentEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.TeacherAssignmentId == id,
+				entity => entity.TenantId == tenantId && entity.TeacherCourseAssignmentId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class TeacherAssignmentQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.TeacherAssignmentId != excludingId.Value)),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.TeacherCourseAssignmentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

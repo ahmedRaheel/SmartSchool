@@ -13,7 +13,7 @@ public sealed class CourseSelectionEntityConfiguration
 	public void Configure(EntityTypeBuilder<CourseSelectionEntity> builder)
 	{
 		builder.ToTable("student_course_enrollment", schema: "student");
-builder.HasKey(entity => entity.StudentCourseEnrollmentId);
+		builder.HasKey(entity => entity.StudentCourseEnrollmentId);
 
 		builder
 			.Property(entity => entity.TenantId)

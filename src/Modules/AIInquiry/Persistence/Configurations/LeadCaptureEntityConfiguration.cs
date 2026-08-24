@@ -13,7 +13,7 @@ public sealed class LeadCaptureEntityConfiguration
 	public void Configure(EntityTypeBuilder<LeadCaptureEntity> builder)
 	{
 		builder.ToTable("lead_capture", schema: "ai_inquiry");
-builder.HasKey(entity => entity.LeadCaptureId);
+		builder.HasKey(entity => entity.LeadCaptureId);
 
 		builder
 			.Property(entity => entity.TenantId)

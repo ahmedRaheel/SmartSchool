@@ -13,7 +13,7 @@ public sealed class KnowledgeChunkEntityConfiguration
 	public void Configure(EntityTypeBuilder<KnowledgeChunkEntity> builder)
 	{
 		builder.ToTable("knowledge_chunk", schema: "ai_core");
-builder.HasKey(entity => entity.KnowledgeChunkId);
+		builder.HasKey(entity => entity.KnowledgeChunkId);
 
 		builder
 			.Property(entity => entity.TenantId)

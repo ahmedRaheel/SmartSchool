@@ -13,7 +13,7 @@ public sealed class PayslipEntityConfiguration
 	public void Configure(EntityTypeBuilder<PayslipEntity> builder)
 	{
 		builder.ToTable("Payslip", schema: "payroll");
-builder.HasKey(entity => entity.PayslipId);
+		builder.HasKey(entity => entity.PayslipId);
 
 		builder
 			.Property(entity => entity.TenantId)

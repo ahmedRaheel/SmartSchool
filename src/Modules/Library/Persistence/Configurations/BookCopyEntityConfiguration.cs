@@ -13,7 +13,7 @@ public sealed class BookCopyEntityConfiguration
 	public void Configure(EntityTypeBuilder<BookCopyEntity> builder)
 	{
 		builder.ToTable("book_copy", schema: "library");
-builder.HasKey(entity => entity.BookCopyId);
+		builder.HasKey(entity => entity.BookCopyId);
 
 		builder
 			.Property(entity => entity.TenantId)

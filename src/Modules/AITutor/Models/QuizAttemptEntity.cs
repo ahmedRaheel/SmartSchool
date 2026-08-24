@@ -8,8 +8,6 @@ namespace SmartSchool.Modules.AITutor.Models;
 public sealed class QuizAttemptEntity : Entity
 {
 	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid QuizAttemptId { get; private set; } = Guid.NewGuid();
-	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid StudentQuizAttemptId { get; private set; } = Guid.NewGuid();
 
 	private QuizAttemptEntity()

@@ -13,7 +13,7 @@ public sealed class StudentTopicMasteryEntityConfiguration
 	public void Configure(EntityTypeBuilder<StudentTopicMasteryEntity> builder)
 	{
 		builder.ToTable("student_topic_mastery", schema: "ai_tutor");
-builder.HasKey(entity => entity.StudentTopicMasteryId);
+		builder.HasKey(entity => entity.StudentTopicMasteryId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,7 +13,7 @@ public sealed class HumanHandoffEntityConfiguration
 	public void Configure(EntityTypeBuilder<HumanHandoffEntity> builder)
 	{
 		builder.ToTable("human_handoff", schema: "ai_inquiry");
-builder.HasKey(entity => entity.HumanHandoffId);
+		builder.HasKey(entity => entity.HumanHandoffId);
 
 		builder
 			.Property(entity => entity.TenantId)

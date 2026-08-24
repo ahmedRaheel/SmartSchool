@@ -13,7 +13,7 @@ public sealed class InvoiceEntityConfiguration
 	public void Configure(EntityTypeBuilder<InvoiceEntity> builder)
 	{
 		builder.ToTable("student_invoice", schema: "finance");
-builder.HasKey(entity => entity.StudentInvoiceId);
+		builder.HasKey(entity => entity.StudentInvoiceId);
 
 		builder
 			.Property(entity => entity.TenantId)

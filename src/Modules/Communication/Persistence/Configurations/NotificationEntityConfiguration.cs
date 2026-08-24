@@ -21,7 +21,7 @@ public sealed class NotificationEntityConfiguration
 		EntityTypeBuilder<NotificationEntity> builder)
 	{
 		builder.ToTable("notification", schema: "communication");
-builder.HasKey(entity => entity.NotificationId);
+		builder.HasKey(entity => entity.NotificationId);
 
 		builder
 			.Property(entity => entity.TenantId)
