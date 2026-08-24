@@ -44,12 +44,12 @@ public sealed class SalaryStructureQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				salarystructure_id AS "Id"
+				salary_structure_id AS "Id"
 			FROM payroll.salarystructure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY salarystructure_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY salary_structure_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

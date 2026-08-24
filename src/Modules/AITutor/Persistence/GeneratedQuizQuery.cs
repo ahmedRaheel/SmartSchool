@@ -44,12 +44,12 @@ public sealed class GeneratedQuizQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				generatedquiz_id AS "Id"
+				generated_quiz_id AS "Id"
 			FROM ai_tutor.generated_quiz
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY generatedquiz_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY generated_quiz_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -98,8 +98,10 @@ public static class UserManagementEndpoints
 
     private static async Task<IResult> CreateAsync(
         CreateUserRequest request, ClaimsPrincipal principal,
-        UserManager<SmartSchoolUser> userManager)
+        UserManager<SmartSchoolUser> userManager,
+        ILoggerFactory loggerFactory)
     {
+        var logger = loggerFactory.CreateLogger("SmartSchool.Identity.UserManagement");
         var superAdmin = IsSuperAdmin(principal);
         var callerTenant = CurrentTenant(principal);
 
@@ -130,13 +132,31 @@ public static class UserManagementEndpoints
         };
 
         var result = await userManager.CreateAsync(user, password);
-        if (!result.Succeeded) return Results.ValidationProblem(ToErrors(result));
+        if (!result.Succeeded)
+        {
+            logger.LogWarning(
+                "Identity user creation failed for {Email} tenant {TenantId}. Errors: {Errors}",
+                request.Email, request.TenantId,
+                string.Join(", ", result.Errors.Select(error => $"{error.Code}: {error.Description}")));
+            return Results.ValidationProblem(ToErrors(result));
+        }
 
         if (requestedRoles.Length > 0)
         {
             var roleResult = await userManager.AddToRolesAsync(user, requestedRoles);
-            if (!roleResult.Succeeded) return Results.ValidationProblem(ToErrors(roleResult));
+            if (!roleResult.Succeeded)
+            {
+                logger.LogWarning(
+                    "Identity user {UserId} was created but role assignment failed. Roles: {Roles}. Errors: {Errors}",
+                    user.Id, requestedRoles,
+                    string.Join(", ", roleResult.Errors.Select(error => $"{error.Code}: {error.Description}")));
+                return Results.ValidationProblem(ToErrors(roleResult));
+            }
         }
+
+        logger.LogInformation(
+            "Identity user {UserId} created for tenant {TenantId}, school {SchoolId}, account type {AccountType}, roles {Roles}",
+            user.Id, user.TenantId, user.SchoolId, user.AccountType, requestedRoles);
 
         // Temporary password is returned exactly once. ASP.NET Identity stores only its hash.
         return Results.Created($"/api/identity/users/{user.Id}", new

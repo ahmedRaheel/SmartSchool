@@ -44,12 +44,12 @@ public sealed class InquiryMessageQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				inquirymessage_id AS "Id"
+				inquiry_message_id AS "Id"
 			FROM ai_inquiry.inquiry_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY inquirymessage_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY inquiry_message_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

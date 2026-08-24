@@ -44,12 +44,12 @@ public sealed class GeneratedDocumentQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				generateddocument_id AS "Id"
+				generated_document_id AS "Id"
 			FROM document.generated_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY generateddocument_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY generated_document_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

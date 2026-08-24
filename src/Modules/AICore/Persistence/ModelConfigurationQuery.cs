@@ -44,12 +44,12 @@ public sealed class ModelConfigurationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				modelconfiguration_id AS "Id"
+				model_configuration_id AS "Id"
 			FROM ai_core.model_configuration
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY modelconfiguration_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY model_configuration_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

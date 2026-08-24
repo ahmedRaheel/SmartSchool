@@ -44,12 +44,12 @@ public sealed class GradeLevelQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				gradelevel_id AS "Id"
+				grade_level_id AS "Id"
 			FROM academic.grade_level
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY gradelevel_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY grade_level_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

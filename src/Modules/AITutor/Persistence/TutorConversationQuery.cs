@@ -44,12 +44,12 @@ public sealed class TutorConversationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				tutorconversation_id AS "Id"
+				tutor_conversation_id AS "Id"
 			FROM ai_tutor.tutor_conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY tutorconversation_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY tutor_conversation_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

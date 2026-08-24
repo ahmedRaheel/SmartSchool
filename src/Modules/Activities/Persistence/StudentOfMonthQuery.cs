@@ -44,12 +44,12 @@ public sealed class StudentOfMonthQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentofmonth_id AS "Id"
+				student_of_month_id AS "Id"
 			FROM activity.studentofmonth
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentofmonth_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_of_month_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

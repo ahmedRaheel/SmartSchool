@@ -44,12 +44,12 @@ public sealed class TeachingRecommendationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				teachingrecommendation_id AS "Id"
+				teaching_recommendation_id AS "Id"
 			FROM ai.teaching_recommendation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY teachingrecommendation_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY teaching_recommendation_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

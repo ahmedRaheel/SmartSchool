@@ -102,6 +102,11 @@ public static class Module
 			identityServer.AddDeveloperSigningCredential();
 		}
 
+		services.AddOptions<Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions>()
+			.Bind(configuration.GetSection(Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions.SectionName))
+			.Validate(options => !string.IsNullOrWhiteSpace(options.TemporaryPassword), "AccountProvisioning:TemporaryPassword is required.")
+			.ValidateOnStart();
+
 		services.AddHttpClient("IdentityTokenClient");
 		services.AddTransient<Duende.IdentityServer.Validation.IExtensionGrantValidator, ImpersonationGrantValidator>();
 

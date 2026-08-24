@@ -44,12 +44,12 @@ public sealed class AcademicSystemQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				academicsystem_id AS "Id"
+				academic_system_id AS "Id"
 			FROM academic.academic_system
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY academicsystem_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY academic_system_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

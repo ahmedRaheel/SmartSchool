@@ -44,12 +44,12 @@ public sealed class PredictionEvaluationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				predictionevaluation_id AS "Id"
+				prediction_evaluation_id AS "Id"
 			FROM ai.prediction_evaluation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY predictionevaluation_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY prediction_evaluation_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -44,12 +44,12 @@ public sealed class DocumentTemplateQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				documenttemplate_id AS "Id"
+				document_template_id AS "Id"
 			FROM document.document_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY documenttemplate_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY document_template_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

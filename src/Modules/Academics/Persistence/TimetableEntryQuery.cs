@@ -44,12 +44,12 @@ public sealed class TimetableEntryQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				timetableentry_id AS "Id"
+				timetable_entry_id AS "Id"
 			FROM academic.timetable_entry
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY timetableentry_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY timetable_entry_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

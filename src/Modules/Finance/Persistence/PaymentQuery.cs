@@ -44,12 +44,12 @@ public sealed class PaymentQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				payment_id AS "Id"
+				student_payment_id AS "Id"
 			FROM finance.student_payment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY payment_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_payment_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

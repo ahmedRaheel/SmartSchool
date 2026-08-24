@@ -44,12 +44,12 @@ public sealed class LeadCaptureQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				leadcapture_id AS "Id"
+				lead_capture_id AS "Id"
 			FROM ai_inquiry.lead_capture
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY leadcapture_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY lead_capture_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -44,12 +44,12 @@ public sealed class AiExecutionLogQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				aiexecutionlog_id AS "Id"
+				ai_execution_log_id AS "Id"
 			FROM ai_core.ai_execution_log
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY aiexecutionlog_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY ai_execution_log_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -49,7 +49,7 @@ public sealed class SubjectQuery(
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY subject_id
-			LIMIT @PageSize OFFSET @Offset;
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

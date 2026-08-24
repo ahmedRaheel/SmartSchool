@@ -44,12 +44,12 @@ public sealed class BookCopyQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				bookcopy_id AS "Id"
+				book_copy_id AS "Id"
 			FROM library.book_copy
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY bookcopy_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY book_copy_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

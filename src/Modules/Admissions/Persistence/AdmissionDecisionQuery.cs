@@ -44,12 +44,12 @@ public sealed class AdmissionDecisionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				admissiondecision_id AS "Id"
+				admission_decision_id AS "Id"
 			FROM admission.admissiondecision
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY admissiondecision_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY admission_decision_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

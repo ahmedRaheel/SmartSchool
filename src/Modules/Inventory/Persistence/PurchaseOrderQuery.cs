@@ -44,12 +44,12 @@ public sealed class PurchaseOrderQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				purchaseorder_id AS "Id"
+				purchase_order_id AS "Id"
 			FROM inventory.purchaseorder
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY purchaseorder_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY purchase_order_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

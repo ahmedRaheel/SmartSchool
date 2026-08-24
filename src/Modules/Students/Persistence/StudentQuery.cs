@@ -56,7 +56,7 @@ public sealed class StudentQuery(
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY student_id
-			LIMIT @PageSize OFFSET @Offset;
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

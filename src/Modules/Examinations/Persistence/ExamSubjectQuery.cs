@@ -44,12 +44,12 @@ public sealed class ExamSubjectQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				examsubject_id AS "Id"
+				exam_subject_id AS "Id"
 			FROM exam.exam_subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY examsubject_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY exam_subject_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

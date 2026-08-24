@@ -44,12 +44,12 @@ public sealed class CourseOfferingQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				courseoffering_id AS "Id"
+				course_offering_id AS "Id"
 			FROM academic.course_offering
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY courseoffering_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY course_offering_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

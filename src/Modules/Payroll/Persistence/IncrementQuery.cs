@@ -49,7 +49,7 @@ public sealed class IncrementQuery(
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY increment_id
-			LIMIT @PageSize OFFSET @Offset;
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

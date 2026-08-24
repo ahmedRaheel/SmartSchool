@@ -44,12 +44,12 @@ public sealed class ClassSectionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				classsection_id AS "Id"
+				class_section_id AS "Id"
 			FROM academic.class_section
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY classsection_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY class_section_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

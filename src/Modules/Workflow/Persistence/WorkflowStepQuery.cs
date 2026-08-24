@@ -44,12 +44,12 @@ public sealed class WorkflowStepQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				workflowstep_id AS "Id"
+				workflow_step_id AS "Id"
 			FROM workflow.workflowstep
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY workflowstep_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY workflow_step_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -44,12 +44,12 @@ public sealed class AcademicYearQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				academicyear_id AS "Id"
+				academic_year_id AS "Id"
 			FROM academic.academic_year
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY academicyear_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY academic_year_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

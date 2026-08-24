@@ -44,12 +44,12 @@ public sealed class StudentExamResultQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentexamresult_id AS "Id"
+				student_exam_result_id AS "Id"
 			FROM exam.student_exam_result
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentexamresult_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_exam_result_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

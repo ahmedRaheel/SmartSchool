@@ -44,12 +44,12 @@ public sealed class ParentToolExecutionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				parenttoolexecution_id AS "Id"
+				parent_tool_execution_id AS "Id"
 			FROM ai_parent.parent_tool_execution
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY parenttoolexecution_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY parent_tool_execution_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

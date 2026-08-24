@@ -44,12 +44,12 @@ public sealed class EmployeeCompensationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				employeecompensation_id AS "Id"
+				employee_compensation_id AS "Id"
 			FROM hr.employee_compensation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY employeecompensation_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY employee_compensation_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

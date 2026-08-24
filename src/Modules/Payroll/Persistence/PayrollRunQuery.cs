@@ -44,12 +44,12 @@ public sealed class PayrollRunQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				payrollrun_id AS "Id"
+				payroll_run_id AS "Id"
 			FROM payroll.payroll_run
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY payrollrun_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY payroll_run_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

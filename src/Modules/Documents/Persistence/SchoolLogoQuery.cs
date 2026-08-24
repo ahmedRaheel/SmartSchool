@@ -44,12 +44,12 @@ public sealed class SchoolLogoQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				schoollogo_id AS "Id"
+				school_logo_id AS "Id"
 			FROM document.schoollogo
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY schoollogo_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY school_logo_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

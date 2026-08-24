@@ -44,12 +44,12 @@ public sealed class AwardQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				award_id AS "Id"
+				student_award_id AS "Id"
 			FROM activity.student_award
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY award_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_award_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

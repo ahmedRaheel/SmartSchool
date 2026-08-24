@@ -90,7 +90,7 @@ public sealed class DuendeConfigurationSeeder(
 
 		var allClients = clients.Append(new Client
 		{
-			ClientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api",
+			ClientId = configuration["LoginApiClient:ClientId"] ?? throw new InvalidOperationException("LoginApiClient:ClientId is required."),
 			ClientName = "SmartSchool Login API",
 			AllowedGrantTypes = [.. GrantTypes.ResourceOwnerPassword, ImpersonationGrantValidator.GrantTypeName],
 			ClientSecrets = { new Secret(loginClientSecret.Sha256()) },

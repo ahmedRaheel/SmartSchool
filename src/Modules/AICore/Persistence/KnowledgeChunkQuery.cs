@@ -44,12 +44,12 @@ public sealed class KnowledgeChunkQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				knowledgechunk_id AS "Id"
+				knowledge_chunk_id AS "Id"
 			FROM ai_core.knowledge_chunk
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY knowledgechunk_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY knowledge_chunk_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

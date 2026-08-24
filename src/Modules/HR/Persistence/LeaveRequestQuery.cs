@@ -44,12 +44,12 @@ public sealed class LeaveRequestQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				leaverequest_id AS "Id"
+				leave_request_id AS "Id"
 			FROM teacher.leave_request
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY leaverequest_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY leave_request_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

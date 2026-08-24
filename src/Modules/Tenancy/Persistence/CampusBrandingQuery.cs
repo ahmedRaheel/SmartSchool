@@ -44,12 +44,12 @@ public sealed class CampusBrandingQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				campusbranding_id AS "Id"
+				tenant_id AS "Id"
 			FROM saas.school_branding
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY campusbranding_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY tenant_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

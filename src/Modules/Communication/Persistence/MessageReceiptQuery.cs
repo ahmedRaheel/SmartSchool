@@ -44,12 +44,12 @@ public sealed class MessageReceiptQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				messagereceipt_id AS "Id"
+				id AS "Id"
 			FROM communication.message_receipt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY messagereceipt_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

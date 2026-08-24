@@ -44,12 +44,12 @@ public sealed class ParentMessageQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				parentmessage_id AS "Id"
+				parent_message_id AS "Id"
 			FROM ai_parent.parent_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY parentmessage_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY parent_message_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

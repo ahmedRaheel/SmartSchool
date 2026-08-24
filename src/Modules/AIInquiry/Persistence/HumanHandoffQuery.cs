@@ -44,12 +44,12 @@ public sealed class HumanHandoffQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				humanhandoff_id AS "Id"
+				human_handoff_id AS "Id"
 			FROM ai_inquiry.human_handoff
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY humanhandoff_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY human_handoff_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

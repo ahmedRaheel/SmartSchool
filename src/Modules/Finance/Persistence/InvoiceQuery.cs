@@ -44,12 +44,12 @@ public sealed class InvoiceQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				invoice_id AS "Id"
+				student_invoice_id AS "Id"
 			FROM finance.student_invoice
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY invoice_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_invoice_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -44,12 +44,12 @@ public sealed class FeeStructureQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				feestructure_id AS "Id"
+				fee_structure_id AS "Id"
 			FROM finance.feestructure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY feestructure_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY fee_structure_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

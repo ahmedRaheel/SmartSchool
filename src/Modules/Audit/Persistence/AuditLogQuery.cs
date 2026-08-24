@@ -44,12 +44,12 @@ public sealed class AuditLogQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				auditlog_id AS "Id"
+				audit_log_id AS "Id"
 			FROM audit.audit_log
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY auditlog_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY audit_log_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -44,12 +44,12 @@ public sealed class StudentFeeQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentfee_id AS "Id"
+				student_fee_id AS "Id"
 			FROM finance.studentfee
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentfee_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_fee_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

@@ -44,12 +44,12 @@ public sealed class PromptTemplateQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				prompttemplate_id AS "Id"
+				prompt_template_id AS "Id"
 			FROM ai_core.prompt_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY prompttemplate_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY prompt_template_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

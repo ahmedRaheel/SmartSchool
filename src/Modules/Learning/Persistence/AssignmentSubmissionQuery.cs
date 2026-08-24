@@ -44,12 +44,12 @@ public sealed class AssignmentSubmissionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				assignmentsubmission_id AS "Id"
+				submission_id AS "Id"
 			FROM lms.student_assignment_submission
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY assignmentsubmission_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY submission_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

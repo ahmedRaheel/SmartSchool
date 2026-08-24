@@ -44,12 +44,12 @@ public sealed class TopicPerformanceInsightQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				topicperformanceinsight_id AS "Id"
+				topic_performance_insight_id AS "Id"
 			FROM ai.topic_performance_insight
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY topicperformanceinsight_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY topic_performance_insight_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

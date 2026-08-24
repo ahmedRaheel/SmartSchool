@@ -10,15 +10,15 @@ namespace SmartSchool.Identity.Api.Observability;
 public sealed class LoggingOptions
 {
     public const string SectionName = "LoggingOptions";
-    public bool ConsoleEnabled { get; init; } = true;
-    public bool FileEnabled { get; init; } = true;
-    public string LogDirectory { get; init; } = "logs";
-    public int RetainedFileCountLimit { get; init; } = 30;
-    public bool DatabaseEnabled { get; init; } = true;
-    public string DatabaseConnectionStringName { get; init; } = "SmartSchool";
-    public string DatabaseSchema { get; init; } = "observability";
-    public string DatabaseTable { get; init; } = "application_log";
-    public string DatabaseMinimumLevel { get; init; } = "Information";
+    public bool ConsoleEnabled { get; init; }
+    public bool FileEnabled { get; init; }
+    public string LogDirectory { get; init; } = string.Empty;
+    public int RetainedFileCountLimit { get; init; }
+    public bool DatabaseEnabled { get; init; }
+    public string DatabaseConnectionStringName { get; init; } = string.Empty;
+    public string DatabaseSchema { get; init; } = string.Empty;
+    public string DatabaseTable { get; init; } = string.Empty;
+    public string DatabaseMinimumLevel { get; init; } = string.Empty;
 }
 
 public static class SerilogExtensions
@@ -30,6 +30,10 @@ public static class SerilogExtensions
         builder.Services
             .AddOptions<LoggingOptions>()
             .Bind(builder.Configuration.GetSection(LoggingOptions.SectionName))
+            .Validate(options => !options.FileEnabled || !string.IsNullOrWhiteSpace(options.LogDirectory), "LoggingOptions:LogDirectory is required when file logging is enabled.")
+            .Validate(options => !options.DatabaseEnabled || !string.IsNullOrWhiteSpace(options.DatabaseConnectionStringName), "LoggingOptions:DatabaseConnectionStringName is required when database logging is enabled.")
+            .Validate(options => !options.DatabaseEnabled || !string.IsNullOrWhiteSpace(options.DatabaseSchema), "LoggingOptions:DatabaseSchema is required when database logging is enabled.")
+            .Validate(options => !options.DatabaseEnabled || !string.IsNullOrWhiteSpace(options.DatabaseTable), "LoggingOptions:DatabaseTable is required when database logging is enabled.")
             .ValidateOnStart();
 
         builder.Host.UseSerilog((context, services, logger) =>

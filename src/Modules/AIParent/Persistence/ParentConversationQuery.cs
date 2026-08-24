@@ -44,12 +44,12 @@ public sealed class ParentConversationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				parentconversation_id AS "Id"
+				parent_conversation_id AS "Id"
 			FROM ai_parent.parent_conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY parentconversation_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY parent_conversation_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

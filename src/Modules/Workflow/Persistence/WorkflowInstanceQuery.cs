@@ -44,12 +44,12 @@ public sealed class WorkflowInstanceQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				workflowinstance_id AS "Id"
+				workflow_instance_id AS "Id"
 			FROM workflow.workflowinstance
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY workflowinstance_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY workflow_instance_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

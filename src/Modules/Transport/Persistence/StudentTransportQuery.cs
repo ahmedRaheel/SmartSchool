@@ -44,12 +44,12 @@ public sealed class StudentTransportQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studenttransport_id AS "Id"
+				student_transport_id AS "Id"
 			FROM transport.studenttransport
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studenttransport_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_transport_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

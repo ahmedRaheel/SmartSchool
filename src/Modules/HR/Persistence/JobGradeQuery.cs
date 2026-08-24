@@ -44,12 +44,12 @@ public sealed class JobGradeQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				jobgrade_id AS "Id"
+				job_grade_id AS "Id"
 			FROM hr.job_grade
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY jobgrade_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY job_grade_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

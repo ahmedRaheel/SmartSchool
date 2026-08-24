@@ -44,12 +44,12 @@ public sealed class StudentGuardianQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentguardian_id AS "Id"
+				id AS "Id"
 			FROM student.student_guardian
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentguardian_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

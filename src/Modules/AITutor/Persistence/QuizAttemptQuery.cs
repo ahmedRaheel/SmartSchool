@@ -44,12 +44,12 @@ public sealed class QuizAttemptQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				quizattempt_id AS "Id"
+				student_quiz_attempt_id AS "Id"
 			FROM ai_tutor.student_quiz_attempt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY quizattempt_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_quiz_attempt_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

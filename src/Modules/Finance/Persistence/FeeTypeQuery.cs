@@ -44,12 +44,12 @@ public sealed class FeeTypeQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				feetype_id AS "Id"
+				fee_type_id AS "Id"
 			FROM finance.fee_type
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY feetype_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY fee_type_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

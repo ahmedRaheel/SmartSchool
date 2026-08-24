@@ -44,12 +44,12 @@ public sealed class LoanQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				loan_id AS "Id"
+				book_loan_id AS "Id"
 			FROM library.book_loan
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY loan_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY book_loan_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

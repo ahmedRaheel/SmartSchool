@@ -44,12 +44,12 @@ public sealed class StudentInterventionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentintervention_id AS "Id"
+				student_intervention_id AS "Id"
 			FROM ai.student_intervention
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentintervention_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY student_intervention_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

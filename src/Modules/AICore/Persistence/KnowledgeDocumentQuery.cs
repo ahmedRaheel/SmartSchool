@@ -44,12 +44,12 @@ public sealed class KnowledgeDocumentQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				knowledgedocument_id AS "Id"
+				knowledge_document_id AS "Id"
 			FROM ai_core.knowledge_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY knowledgedocument_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY knowledge_document_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

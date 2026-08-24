@@ -44,12 +44,12 @@ public sealed class StockTransactionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				stocktransaction_id AS "Id"
+				stock_transaction_id AS "Id"
 			FROM inventory.stocktransaction
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY stocktransaction_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY stock_transaction_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

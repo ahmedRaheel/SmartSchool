@@ -44,12 +44,12 @@ public sealed class ClassPerformanceInsightQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				classperformanceinsight_id AS "Id"
+				class_performance_insight_id AS "Id"
 			FROM ai.class_performance_insight
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY classperformanceinsight_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY class_performance_insight_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

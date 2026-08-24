@@ -44,12 +44,12 @@ public sealed class LearningResourceQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				learningresource_id AS "Id"
+				learning_resource_id AS "Id"
 			FROM lms.learningresource
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY learningresource_id
-			LIMIT @PageSize OFFSET @Offset;
+			ORDER BY learning_resource_id
+			LIMITLIMIT @PageSize OFFSET @Offset;
 			""";
 
 		await using var connection =

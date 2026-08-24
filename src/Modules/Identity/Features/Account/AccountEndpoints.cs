@@ -72,14 +72,14 @@ public static class AccountEndpoints
 			return Results.Json(new { message = "Invalid email or password." }, statusCode: StatusCodes.Status401Unauthorized);
 		}
 
-		var clientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api";
+		var clientId = configuration["LoginApiClient:ClientId"] ?? throw new InvalidOperationException("LoginApiClient:ClientId is required.");
 		var clientSecret = configuration["LoginApiClient:ClientSecret"];
 		if (string.IsNullOrWhiteSpace(clientSecret))
 		{
 			throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
 		}
 
-		var tokenUrl = GetTokenEndpoint(configuration, httpContext);
+		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? throw new InvalidOperationException("LoginApiClient:TokenEndpoint is required.");
 		using var tokenRequest = new HttpRequestMessage(HttpMethod.Post, tokenUrl)
 		{
 			Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -186,7 +186,7 @@ public static class AccountEndpoints
 	private static async Task<IResult> RefreshAsync(RefreshTokenRequest request, IHttpClientFactory factory, IConfiguration configuration, CancellationToken cancellationToken)
 	{
 		if (string.IsNullOrWhiteSpace(request.RefreshToken)) return Results.BadRequest(new { message = "Refresh token is required." });
-		var clientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api";
+		var clientId = configuration["LoginApiClient:ClientId"] ?? throw new InvalidOperationException("LoginApiClient:ClientId is required.");
 		var clientSecret = configuration["LoginApiClient:ClientSecret"] ?? throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
 		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? throw new InvalidOperationException("LoginApiClient:TokenEndpoint configuration is required.");
 		using var message = new HttpRequestMessage(HttpMethod.Post, tokenUrl) { Content = new FormUrlEncodedContent(new Dictionary<string,string> {
@@ -200,16 +200,6 @@ public static class AccountEndpoints
 		var roles=(await manager.GetRolesAsync(user)).ToArray();
 		return Results.Ok(new UserSummary(user.Id,user.TenantId,user.Email??string.Empty,
 			user.FirstName,user.LastName,user.DisplayName??string.Empty,user.AccountType??string.Empty,roles));
-	}
-
-	private static string GetTokenEndpoint(IConfiguration configuration, HttpContext httpContext)
-	{
-		var configured = configuration["LoginApiClient:TokenEndpoint"];
-		if (!string.IsNullOrWhiteSpace(configured)) return configured;
-
-		// Docker exposes 7101 on the host, but IdentityServer listens on 8080 inside the container.
-		// Compose explicitly supplies 127.0.0.1:8080. This fallback is for normal local execution.
-		return $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/connect/token";
 	}
 
 	private static Dictionary<string, string[]> ToErrors(IdentityResult result) =>
