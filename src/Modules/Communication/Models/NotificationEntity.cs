@@ -5,23 +5,12 @@ namespace SmartSchool.Modules.Communication.Models;
 /// <summary>Represents a recipient-specific school notification.</summary>
 public sealed class NotificationEntity : Entity
 {
-<<<<<<< HEAD
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid NotificationId { get; private set; } = Guid.NewGuid();
 
     private NotificationEntity()
     {
     }
-=======
-	/// <summary>Gets the persisted entity identifier.</summary>
-	public Guid NotificationId
-	{
-		get => Id;
-		private set => Id = value;
-	}
-
-    private NotificationEntity() { }
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
     /// <summary>Gets the recipient user identifier.</summary>
     public Guid RecipientUserId { get; private set; }
@@ -82,21 +71,6 @@ public sealed class NotificationEntity : Entity
             OccurredAt = DateTimeOffset.UtcNow
         };
     }
-
-	/// <summary>Gets the persisted user id value.</summary>
-	public Guid UserId { get; private set; }
-
-	/// <summary>Gets the persisted body value.</summary>
-	public string? Body { get; private set; }
-
-	/// <summary>Gets the persisted channel code value.</summary>
-	public string ChannelCode { get; private set; } = string.Empty;
-
-	/// <summary>Gets the persisted status value.</summary>
-	public string Status { get; private set; } = string.Empty;
-
-	/// <summary>Gets the persisted sent at value.</summary>
-	public DateTimeOffset? SentAt { get; private set; }
 
 	/// <summary>
 	/// Updates the editable notification details.

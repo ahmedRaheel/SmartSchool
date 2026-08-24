@@ -13,13 +13,7 @@ public sealed class AcademicSystemEntityConfiguration
 	public void Configure(EntityTypeBuilder<AcademicSystemEntity> builder)
 	{
 		builder.ToTable("academic_system", schema: "academic");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.AcademicSystemId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.AcademicSystemId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -13,13 +13,7 @@ public sealed class FeeTypeEntityConfiguration
 	public void Configure(EntityTypeBuilder<FeeTypeEntity> builder)
 	{
 		builder.ToTable("fee_type", schema: "finance");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.FeeTypeId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.FeeTypeId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

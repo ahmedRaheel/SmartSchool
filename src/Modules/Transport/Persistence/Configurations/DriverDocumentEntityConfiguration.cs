@@ -14,13 +14,7 @@ public sealed class DriverDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<DriverDocumentEntity> builder)
 	{
 		builder.ToTable("driverdocument", schema: "document");
-<<<<<<< HEAD
 builder.HasKey(document => document.DriverDocumentId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(document => document.Id);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder.Property(document => document.TenantId).IsRequired();
 		builder.Property(document => document.DriverId).IsRequired();

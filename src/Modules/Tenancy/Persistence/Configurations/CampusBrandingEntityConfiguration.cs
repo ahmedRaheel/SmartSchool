@@ -13,13 +13,7 @@ public sealed class CampusBrandingEntityConfiguration
 	public void Configure(EntityTypeBuilder<CampusBrandingEntity> builder)
 	{
 		builder.ToTable("school_branding", schema: "saas");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.CampusBrandingId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.Id);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

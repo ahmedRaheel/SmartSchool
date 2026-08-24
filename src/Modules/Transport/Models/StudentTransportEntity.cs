@@ -7,17 +7,8 @@ namespace SmartSchool.Modules.Transport.Models;
 /// </summary>
 public sealed class StudentTransportEntity : Entity
 {
-<<<<<<< HEAD
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid StudentTransportId { get; private set; } = Guid.NewGuid();
-=======
-	/// <summary>Gets the persisted entity identifier.</summary>
-	public Guid StudentTransportId
-	{
-		get => Id;
-		private set => Id = value;
-	}
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 	private StudentTransportEntity()
 	{

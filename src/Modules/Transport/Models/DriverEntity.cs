@@ -7,17 +7,8 @@ namespace SmartSchool.Modules.Transport.Models;
 /// </summary>
 public sealed class DriverEntity : Entity
 {
-<<<<<<< HEAD
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid DriverId { get; private set; } = Guid.NewGuid();
-=======
-	/// <summary>Gets the persisted entity identifier.</summary>
-	public Guid DriverId
-	{
-		get => Id;
-		private set => Id = value;
-	}
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 	public string EmployeeNumber { get; private set; } = string.Empty;
 	public string FirstName { get; private set; } = string.Empty;

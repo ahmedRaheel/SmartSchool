@@ -14,13 +14,7 @@ public sealed class ParentDocumentEntityConfiguration
 	public void Configure(EntityTypeBuilder<ParentDocumentEntity> builder)
 	{
 		builder.ToTable("parentdocument", schema: "document");
-<<<<<<< HEAD
 builder.HasKey(document => document.ParentDocumentId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(document => document.Id);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder.Property(document => document.TenantId).IsRequired();
 		builder.Property(document => document.ParentId).IsRequired();

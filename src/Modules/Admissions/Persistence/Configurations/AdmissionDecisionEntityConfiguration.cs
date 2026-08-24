@@ -13,13 +13,7 @@ public sealed class AdmissionDecisionEntityConfiguration
 	public void Configure(EntityTypeBuilder<AdmissionDecisionEntity> builder)
 	{
 		builder.ToTable("AdmissionDecision", schema: "admission");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.AdmissionDecisionId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.AdmissionDecisionId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

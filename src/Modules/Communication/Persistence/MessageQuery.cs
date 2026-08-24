@@ -44,7 +44,7 @@ public sealed class MessageQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				message_id AS "Id"
+				message_id AS "MessageId"
 			FROM communication.message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE

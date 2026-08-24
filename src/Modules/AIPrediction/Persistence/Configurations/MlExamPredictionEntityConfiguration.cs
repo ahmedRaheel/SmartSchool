@@ -9,14 +9,8 @@ public sealed class MlExamPredictionEntityConfiguration : IEntityTypeConfigurati
 	public void Configure(EntityTypeBuilder<MlExamPredictionEntity> builder)
 	{
 		builder.ToTable("prediction", schema: "ai");
-<<<<<<< HEAD
 builder.HasKey(x => x.MlExamPredictionId);
 		builder.Property(x => x.MlExamPredictionId).HasColumnName("ml_exam_prediction_id");
-=======
-		builder.Ignore(entity => entity.Id);
-		builder.HasKey(x => x.Id);
-		builder.Property(x => x.Id).HasColumnName("ml_exam_prediction_id");
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 		builder.Property(x => x.TenantId).HasColumnName("tenant_id").IsRequired();
 		builder.Property(x => x.IsActive).HasColumnName("is_active").IsRequired();
 		builder.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();

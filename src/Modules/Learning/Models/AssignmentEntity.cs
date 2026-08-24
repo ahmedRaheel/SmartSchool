@@ -7,19 +7,10 @@ namespace SmartSchool.Modules.Learning.Models;
 /// </summary>
 public sealed class AssignmentEntity : Entity
 {
-<<<<<<< HEAD
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid AssignmentId { get; private set; } = Guid.NewGuid();
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid AcademicAssignmentId { get; private set; } = Guid.NewGuid();
-=======
-	/// <summary>Gets the persisted entity identifier.</summary>
-	public Guid AcademicAssignmentId
-	{
-		get => Id;
-		private set => Id = value;
-	}
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 	private AssignmentEntity()
 	{

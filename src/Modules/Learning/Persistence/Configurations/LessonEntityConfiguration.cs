@@ -13,13 +13,7 @@ public sealed class LessonEntityConfiguration
 	public void Configure(EntityTypeBuilder<LessonEntity> builder)
 	{
 		builder.ToTable("Lesson", schema: "lms");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.LessonId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.LessonId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

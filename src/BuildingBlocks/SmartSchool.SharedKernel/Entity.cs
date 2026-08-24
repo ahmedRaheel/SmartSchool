@@ -8,13 +8,8 @@ public abstract class AggregateRootEntity
     /// <summary>Gets a value indicating whether the entity is active.</summary>
     public bool IsActive { get; protected set; } = true;
 
-<<<<<<< HEAD
     /// <summary>Gets the UTC creation date and time.</summary>
     public DateTimeOffset CreatedAt { get; protected set; } = DateTimeOffset.UtcNow;
-=======
-	/// <summary>Gets the tenant that owns the entity.</summary>
-	public Guid TenantId { get; protected set; } 
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
     /// <summary>Gets the UTC last-updated date and time.</summary>
     public DateTimeOffset? UpdatedAt { get; protected set; }

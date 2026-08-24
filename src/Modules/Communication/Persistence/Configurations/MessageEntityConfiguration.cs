@@ -13,13 +13,7 @@ public sealed class MessageEntityConfiguration
 	public void Configure(EntityTypeBuilder<MessageEntity> builder)
 	{
 		builder.ToTable("message", schema: "communication");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.MessageId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.MessageId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)

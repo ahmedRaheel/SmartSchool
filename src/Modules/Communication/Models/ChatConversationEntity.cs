@@ -5,22 +5,11 @@ namespace SmartSchool.Modules.Communication.Models;
 /// <summary>Represents a tenant-scoped conversation between school users.</summary>
 public sealed class ChatConversationEntity : Entity
 {
-<<<<<<< HEAD
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid ChatConversationId { get; private set; } = Guid.NewGuid();
 private ChatConversationEntity()
     {
     }
-=======
-	/// <summary>Gets the persisted entity identifier.</summary>
-	public Guid Id
-	{
-		get => Id;
-		private set => Id = value;
-	}
-
-    private ChatConversationEntity() { }
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
     /// <summary>Gets the conversation title.</summary>
     public string Title { get; private set; } = string.Empty;

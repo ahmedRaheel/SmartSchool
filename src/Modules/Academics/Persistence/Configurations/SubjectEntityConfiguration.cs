@@ -13,13 +13,7 @@ public sealed class SubjectEntityConfiguration
 	public void Configure(EntityTypeBuilder<SubjectEntity> builder)
 	{
 		builder.ToTable("subject", schema: "academic");
-<<<<<<< HEAD
 builder.HasKey(entity => entity.SubjectId);
-=======
-		builder.Ignore(entity => entity.Id);
-
-		builder.HasKey(entity => entity.SubjectId);
->>>>>>> c40f31f829a59dcdb7fd9fe0046a26e6e366eca0
 
 		builder
 			.Property(entity => entity.TenantId)
