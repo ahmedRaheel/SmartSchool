@@ -16,6 +16,7 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
 
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <ProjectReference Include="../Modules/Identity/SmartSchool.Modules.Identity.csproj" />
   </ItemGroup>
