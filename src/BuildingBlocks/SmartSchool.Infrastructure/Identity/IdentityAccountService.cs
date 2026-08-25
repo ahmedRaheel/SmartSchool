@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog;
 using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Infrastructure.Identity;
@@ -64,7 +65,17 @@ public sealed class IdentityAccountService : IIdentityAccountService
         using var response = await _httpClient.SendAsync(
             request,
             cancellationToken);
-
+		if (!response.IsSuccessStatusCode)
+		{
+			_logger.LogError(
+				"Failed to create identity account for {Email} in tenant {TenantId} with roles {Roles}." +
+				" Status: {StatusCode}  response: {ResponseContent}",
+				email,
+				tenantId,
+				roles,
+				response.StatusCode,
+				await response.Content.ReadAsStringAsync(cancellationToken));
+		}
         await EnsureSuccessfulResponseAsync(
             response,
             "create identity account",
@@ -143,8 +154,10 @@ public sealed class IdentityAccountService : IIdentityAccountService
                 ["client_secret"] = _options.ClientSecret,
                 ["scope"] = _options.Scope
             });
+		Log.Information("Requesting access token from identity service for client_id: {ClientId}" +
+			" and scope: {Scope}  client_secret: {ClientSecret}", _options.ClientId, _options.Scope, _options.ClientSecret	);
 
-        using var response = await _httpClient.SendAsync(
+		using var response = await _httpClient.SendAsync(
             tokenRequest,
             cancellationToken);
 
