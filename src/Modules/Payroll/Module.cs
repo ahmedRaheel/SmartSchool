@@ -7,6 +7,9 @@ using SmartSchool.Modules.Payroll.Features.PayrollRun;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Payroll.Features.Increment;
+using SmartSchool.Modules.Payroll.Features.Payslip;
+using SmartSchool.Modules.Payroll.Features.SalaryStructure;
 namespace SmartSchool.Modules.Payroll;
 
 public static class Module
@@ -41,6 +44,22 @@ public static class Module
 		GetPayrollRunPage.MapEndpoint(endpoints);
 		UpdatePayrollRun.MapEndpoint(endpoints);
 		DeletePayrollRun.MapEndpoint(endpoints);
+
+		CreateIncrement.MapEndpoint(endpoints);
+		CreatePayslip.MapEndpoint(endpoints);
+		CreateSalaryStructure.MapEndpoint(endpoints);
+		DeleteIncrement.MapEndpoint(endpoints);
+		DeletePayslip.MapEndpoint(endpoints);
+		DeleteSalaryStructure.MapEndpoint(endpoints);
+		GetIncrementById.MapEndpoint(endpoints);
+		GetIncrementPage.MapEndpoint(endpoints);
+		GetPayslipById.MapEndpoint(endpoints);
+		GetPayslipPage.MapEndpoint(endpoints);
+		GetSalaryStructureById.MapEndpoint(endpoints);
+		GetSalaryStructurePage.MapEndpoint(endpoints);
+		UpdateIncrement.MapEndpoint(endpoints);
+		UpdatePayslip.MapEndpoint(endpoints);
+		UpdateSalaryStructure.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

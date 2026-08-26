@@ -82,20 +82,16 @@ public sealed class EnrollmentQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsForAcademicYearAsync(
 		Guid tenantId,
-		string code,
-		Guid? excludingId,
+		Guid studentId,
+		Guid academicYearId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<EnrollmentEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentEnrollmentId != excludingId.Value)),
-				cancellationToken);
+		return dbContext.Set<EnrollmentEntity>().AsNoTracking().AnyAsync(
+			entity => entity.TenantId == tenantId
+				&& entity.StudentId == studentId
+				&& entity.AcademicYearId == academicYearId,
+			cancellationToken);
 	}
 }

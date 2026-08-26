@@ -7,6 +7,8 @@ using SmartSchool.Modules.Learning.Features.AssignmentSubmission;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Learning.Features.LearningResource;
+using SmartSchool.Modules.Learning.Features.Lesson;
 namespace SmartSchool.Modules.Learning;
 
 public static class Module
@@ -40,6 +42,17 @@ public static class Module
 		GetAssignmentSubmissionPage.MapEndpoint(endpoints);
 		UpdateAssignmentSubmission.MapEndpoint(endpoints);
 		DeleteAssignmentSubmission.MapEndpoint(endpoints);
+
+		CreateLearningResource.MapEndpoint(endpoints);
+		CreateLesson.MapEndpoint(endpoints);
+		DeleteLearningResource.MapEndpoint(endpoints);
+		DeleteLesson.MapEndpoint(endpoints);
+		GetLearningResourceById.MapEndpoint(endpoints);
+		GetLearningResourcePage.MapEndpoint(endpoints);
+		GetLessonById.MapEndpoint(endpoints);
+		GetLessonPage.MapEndpoint(endpoints);
+		UpdateLearningResource.MapEndpoint(endpoints);
+		UpdateLesson.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

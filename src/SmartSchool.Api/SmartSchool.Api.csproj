@@ -41,6 +41,7 @@
     <ProjectReference Include="../Modules/AIParent/SmartSchool.Modules.AIParent.csproj" />
     <ProjectReference Include="../Modules/AIPrediction/SmartSchool.Modules.AIPrediction.csproj" />
     <ProjectReference Include="../Modules/Audit/SmartSchool.Modules.Audit.csproj" />
+    <ProjectReference Include="../Modules/Teachers/SmartSchool.Modules.Teachers.csproj" />
    
    
       <PackageReference Include="Serilog.Settings.Configuration" />

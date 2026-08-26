@@ -7,6 +7,7 @@ using SmartSchool.Modules.Tenancy.Features.Tenant;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Tenancy.Features.Subscription;
 namespace SmartSchool.Modules.Tenancy;
 
 public static class Module
@@ -37,6 +38,12 @@ public static class Module
 		GetTenantPage.MapEndpoint(endpoints);
 		UpdateTenant.MapEndpoint(endpoints);
 		DeleteTenant.MapEndpoint(endpoints);
+
+		CreateSubscription.MapEndpoint(endpoints);
+		DeleteSubscription.MapEndpoint(endpoints);
+		GetSubscriptionById.MapEndpoint(endpoints);
+		GetSubscriptionPage.MapEndpoint(endpoints);
+		UpdateSubscription.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

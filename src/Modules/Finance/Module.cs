@@ -8,6 +8,10 @@ using SmartSchool.Modules.Finance.Features.Payment;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Finance.Features.Discount;
+using SmartSchool.Modules.Finance.Features.FeeStructure;
+using SmartSchool.Modules.Finance.Features.Scholarship;
+using SmartSchool.Modules.Finance.Features.StudentFee;
 namespace SmartSchool.Modules.Finance;
 
 public static class Module
@@ -51,6 +55,27 @@ public static class Module
 		GetPaymentPage.MapEndpoint(endpoints);
 		UpdatePayment.MapEndpoint(endpoints);
 		DeletePayment.MapEndpoint(endpoints);
+
+		CreateDiscount.MapEndpoint(endpoints);
+		CreateFeeStructure.MapEndpoint(endpoints);
+		CreateScholarship.MapEndpoint(endpoints);
+		CreateStudentFee.MapEndpoint(endpoints);
+		DeleteDiscount.MapEndpoint(endpoints);
+		DeleteFeeStructure.MapEndpoint(endpoints);
+		DeleteScholarship.MapEndpoint(endpoints);
+		DeleteStudentFee.MapEndpoint(endpoints);
+		GetDiscountById.MapEndpoint(endpoints);
+		GetDiscountPage.MapEndpoint(endpoints);
+		GetFeeStructureById.MapEndpoint(endpoints);
+		GetFeeStructurePage.MapEndpoint(endpoints);
+		GetScholarshipById.MapEndpoint(endpoints);
+		GetScholarshipPage.MapEndpoint(endpoints);
+		GetStudentFeeById.MapEndpoint(endpoints);
+		GetStudentFeePage.MapEndpoint(endpoints);
+		UpdateDiscount.MapEndpoint(endpoints);
+		UpdateFeeStructure.MapEndpoint(endpoints);
+		UpdateScholarship.MapEndpoint(endpoints);
+		UpdateStudentFee.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

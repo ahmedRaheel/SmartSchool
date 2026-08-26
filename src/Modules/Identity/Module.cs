@@ -13,6 +13,8 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Identity.Features.RoleAssignment;
+using SmartSchool.Modules.Identity.Features.UserProfile;
 namespace SmartSchool.Modules.Identity;
 
 public static class Module
@@ -133,6 +135,17 @@ public static class Module
 	public static IEndpointRouteBuilder MapIdentityBusinessEndpoints(
 		this IEndpointRouteBuilder endpoints)
 	{
+
+		CreateRoleAssignment.MapEndpoint(endpoints);
+		CreateUserProfile.MapEndpoint(endpoints);
+		DeleteRoleAssignment.MapEndpoint(endpoints);
+		DeleteUserProfile.MapEndpoint(endpoints);
+		GetRoleAssignmentById.MapEndpoint(endpoints);
+		GetRoleAssignmentPage.MapEndpoint(endpoints);
+		GetUserProfileById.MapEndpoint(endpoints);
+		GetUserProfilePage.MapEndpoint(endpoints);
+		UpdateRoleAssignment.MapEndpoint(endpoints);
+		UpdateUserProfile.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

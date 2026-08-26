@@ -12,6 +12,8 @@ using SmartSchool.Modules.HR.Features.Position;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.HR.Features.EmploymentHistory;
+using SmartSchool.Modules.HR.Features.Resume;
 namespace SmartSchool.Modules.HR;
 
 public static class Module
@@ -79,6 +81,17 @@ public static class Module
 		GetPositionPage.MapEndpoint(endpoints);
 		UpdatePosition.MapEndpoint(endpoints);
 		DeletePosition.MapEndpoint(endpoints);
+
+		CreateEmploymentHistory.MapEndpoint(endpoints);
+		CreateResume.MapEndpoint(endpoints);
+		DeleteEmploymentHistory.MapEndpoint(endpoints);
+		DeleteResume.MapEndpoint(endpoints);
+		GetEmploymentHistoryById.MapEndpoint(endpoints);
+		GetEmploymentHistoryPage.MapEndpoint(endpoints);
+		GetResumeById.MapEndpoint(endpoints);
+		GetResumePage.MapEndpoint(endpoints);
+		UpdateEmploymentHistory.MapEndpoint(endpoints);
+		UpdateResume.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

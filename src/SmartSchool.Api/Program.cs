@@ -44,6 +44,7 @@ using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Reference;
 using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Tenancy;
+using SmartSchool.Modules.Teachers;
 using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Workflow;
 
@@ -223,6 +224,7 @@ builder.Services.AddPayrollModule();
 builder.Services.AddReferenceModule();
 builder.Services.AddStudentsModule();
 builder.Services.AddTenancyModule();
+builder.Services.AddTeachersModule();
 builder.Services.AddTransportModule();
 builder.Services.AddWorkflowModule();
 
@@ -359,6 +361,7 @@ app.MapPayrollEndpoints();
 app.MapReferenceEndpoints();
 app.MapStudentsEndpoints();
 app.MapTenancyEndpoints();
+app.MapTeachersEndpoints();
 app.MapTransportEndpoints();
 app.MapWorkflowEndpoints();
 

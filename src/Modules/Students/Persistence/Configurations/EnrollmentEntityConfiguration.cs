@@ -29,25 +29,9 @@ public sealed class EnrollmentEntityConfiguration
 		builder.Property(entity => entity.UpdatedAt);
 		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
-
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
-
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
 
 
 		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Code).HasColumnName("code");
-		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
 		builder.Property(entity => entity.StudentEnrollmentId).HasColumnName("student_enrollment_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");

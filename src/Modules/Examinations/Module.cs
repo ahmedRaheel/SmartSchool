@@ -8,6 +8,7 @@ using SmartSchool.Modules.Examinations.Features.StudentExamResult;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Examinations.Features.GradeScale;
 namespace SmartSchool.Modules.Examinations;
 
 public static class Module
@@ -46,6 +47,12 @@ public static class Module
 		GetStudentExamResultPage.MapEndpoint(endpoints);
 		UpdateStudentExamResult.MapEndpoint(endpoints);
 		DeleteStudentExamResult.MapEndpoint(endpoints);
+
+		CreateGradeScale.MapEndpoint(endpoints);
+		DeleteGradeScale.MapEndpoint(endpoints);
+		GetGradeScaleById.MapEndpoint(endpoints);
+		GetGradeScalePage.MapEndpoint(endpoints);
+		UpdateGradeScale.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

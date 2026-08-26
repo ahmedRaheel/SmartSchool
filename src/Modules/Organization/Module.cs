@@ -32,6 +32,13 @@ public static class Module
 		UpdateDepartment.MapEndpoint(endpoints);
 		DeleteDepartment.MapEndpoint(endpoints);
 
+		CreateSchool.MapEndpoint(endpoints);
+		DeleteSchool.MapEndpoint(endpoints);
+		GetSchoolById.MapEndpoint(endpoints);
+		GetSchoolPage.MapEndpoint(endpoints);
+		UpdateSchool.MapEndpoint(endpoints);
+
 		return endpoints;
 	}
-}
+}using SmartSchool.Modules.Organization.Features.School;
+

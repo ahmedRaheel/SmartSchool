@@ -7,6 +7,8 @@ using SmartSchool.Modules.Documents.Features.GeneratedDocument;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Documents.Features.Certificate;
+using SmartSchool.Modules.Documents.Features.SchoolLogo;
 namespace SmartSchool.Modules.Documents;
 
 public static class Module
@@ -39,6 +41,17 @@ public static class Module
 		GetGeneratedDocumentPage.MapEndpoint(endpoints);
 		UpdateGeneratedDocument.MapEndpoint(endpoints);
 		DeleteGeneratedDocument.MapEndpoint(endpoints);
+
+		CreateCertificate.MapEndpoint(endpoints);
+		CreateSchoolLogo.MapEndpoint(endpoints);
+		DeleteCertificate.MapEndpoint(endpoints);
+		DeleteSchoolLogo.MapEndpoint(endpoints);
+		GetCertificateById.MapEndpoint(endpoints);
+		GetCertificatePage.MapEndpoint(endpoints);
+		GetSchoolLogoById.MapEndpoint(endpoints);
+		GetSchoolLogoPage.MapEndpoint(endpoints);
+		UpdateCertificate.MapEndpoint(endpoints);
+		UpdateSchoolLogo.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

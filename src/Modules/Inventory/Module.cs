@@ -6,6 +6,8 @@ using SmartSchool.Modules.Inventory.Features.Item;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Inventory.Features.PurchaseOrder;
+using SmartSchool.Modules.Inventory.Features.StockTransaction;
 namespace SmartSchool.Modules.Inventory;
 
 public static class Module
@@ -32,6 +34,17 @@ public static class Module
 		GetItemPage.MapEndpoint(endpoints);
 		UpdateItem.MapEndpoint(endpoints);
 		DeleteItem.MapEndpoint(endpoints);
+
+		CreatePurchaseOrder.MapEndpoint(endpoints);
+		CreateStockTransaction.MapEndpoint(endpoints);
+		DeletePurchaseOrder.MapEndpoint(endpoints);
+		DeleteStockTransaction.MapEndpoint(endpoints);
+		GetPurchaseOrderById.MapEndpoint(endpoints);
+		GetPurchaseOrderPage.MapEndpoint(endpoints);
+		GetStockTransactionById.MapEndpoint(endpoints);
+		GetStockTransactionPage.MapEndpoint(endpoints);
+		UpdatePurchaseOrder.MapEndpoint(endpoints);
+		UpdateStockTransaction.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

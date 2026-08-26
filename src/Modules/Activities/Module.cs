@@ -8,6 +8,7 @@ using SmartSchool.Modules.Activities.Features.StudentActivity;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Activities.Features.StudentOfMonth;
 namespace SmartSchool.Modules.Activities;
 
 public static class Module
@@ -45,6 +46,12 @@ public static class Module
 		GetStudentActivityPage.MapEndpoint(endpoints);
 		UpdateStudentActivity.MapEndpoint(endpoints);
 		DeleteStudentActivity.MapEndpoint(endpoints);
+
+		CreateStudentOfMonth.MapEndpoint(endpoints);
+		DeleteStudentOfMonth.MapEndpoint(endpoints);
+		GetStudentOfMonthById.MapEndpoint(endpoints);
+		GetStudentOfMonthPage.MapEndpoint(endpoints);
+		UpdateStudentOfMonth.MapEndpoint(endpoints);
 
 		return endpoints;
 	}
