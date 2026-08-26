@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Modules.Organization.Features.Campus;
 using SmartSchool.Modules.Organization.Features.Department;
+using SmartSchool.Modules.Organization.Features.School;
 using SmartSchool.Modules.Organization.Persistence;
 
 
@@ -40,5 +41,4 @@ public static class Module
 
 		return endpoints;
 	}
-}using SmartSchool.Modules.Organization.Features.School;
-
+}

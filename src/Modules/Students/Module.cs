@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Features.Attendance;
 using SmartSchool.Modules.Students.Features.Enrollment;
