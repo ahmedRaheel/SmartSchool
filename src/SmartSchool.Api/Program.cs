@@ -72,26 +72,20 @@ builder.Services.Configure<JwtBearerOptions>(
 	JwtBearerDefaults.AuthenticationScheme,
 	options =>
 	{
-		options.Authority = "http://localhost:7101";
-
-		options.MetadataAddress =
-			"http://host.docker.internal:7101/.well-known/openid-configuration";
-
-		options.Audience = "smartschool-api";
-		options.RequireHttpsMetadata = false;
+		options.Authority = identityOptions.Authority;
+		options.MetadataAddress = identityOptions.MetadataAddress;
+		options.Audience = identityOptions.Audience;
+		options.RequireHttpsMetadata = identityOptions.RequireHttpsMetadata;
 		options.MapInboundClaims = false;
 
 		options.TokenValidationParameters ??=
 			new TokenValidationParameters();
 
-		// Token is issued to browser/Postman using localhost:7101.
 		options.TokenValidationParameters.ValidateIssuer = true;
-		options.TokenValidationParameters.ValidIssuer =
-			"http://localhost:7101";
+		options.TokenValidationParameters.ValidIssuer = identityOptions.ValidIssuer;
 
 		options.TokenValidationParameters.ValidateAudience = true;
-		options.TokenValidationParameters.ValidAudience =
-			"smartschool-api";
+		options.TokenValidationParameters.ValidAudience = identityOptions.Audience;
 
 		options.TokenValidationParameters.ValidateLifetime = true;
 		options.TokenValidationParameters.ValidateIssuerSigningKey = true;

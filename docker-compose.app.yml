@@ -15,7 +15,10 @@ services:
       LoginApiClient__ClientSecret: "${IDENTITY_LOGIN_SECRET}"
       LoginApiClient__TokenEndpoint: "http://127.0.0.1:8080/connect/token"
       BootstrapSuperAdmin__Password: "${SUPERADMIN_PASSWORD}"
-      DuendeIdentityServer__IssuerUri: "http://host.docker.internal:7101"
+      DuendeIdentityServer__IssuerUri: "${IDENTITY_PUBLIC_ISSUER}"
+      InternalApiAuthentication__Authority: "${IDENTITY_INTERNAL_URL}"
+      InternalApiAuthentication__RequiredScope: "${IDENTITY_MANAGEMENT_SCOPE}"
+      InternalApiAuthentication__RequireHttpsMetadata: "false"
     ports:
       - "7101:8080"
     extra_hosts:
@@ -41,9 +44,15 @@ services:
       AI__Ollama__ChatModel: "llama3.2"
       AI__Ollama__EmbeddingModel: "nomic-embed-text"
       AI__Ollama__TopK: "5"
-      Identity__Authority: "http://host.docker.internal:7101"
-      IdentityService__BaseUrl: "http://host.docker.internal:7101"
+      Identity__Authority: "${IDENTITY_INTERNAL_URL}"
+      Identity__MetadataAddress: "${IDENTITY_INTERNAL_URL}/.well-known/openid-configuration"
+      Identity__ValidIssuer: "${IDENTITY_PUBLIC_ISSUER}"
+      Identity__Audience: "smartschool-api"
+      Identity__RequireHttpsMetadata: "false"
+      IdentityService__BaseUrl: "${IDENTITY_INTERNAL_URL}"
+      IdentityService__ClientId: "${IDENTITY_CLIENT_ID}"
       IdentityService__ClientSecret: "${IDENTITY_CLIENT_SECRET}"
+      IdentityService__Scope: "${IDENTITY_MANAGEMENT_SCOPE}"
     ports:
       - "7001:8080"
     extra_hosts:
