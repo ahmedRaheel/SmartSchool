@@ -160,8 +160,18 @@ public sealed class IdentityAccountService : IIdentityAccountService
 		using var response = await _httpClient.SendAsync(
             tokenRequest,
             cancellationToken);
+		if (!response.IsSuccessStatusCode)
+		{
+			_logger.LogInformation(
+				"Failed to obtain access token from identity service for client_id: {ClientId} and scope: {Scope}. Status: {StatusCode}  response: {ResponseContent}",
+				_options.ClientId,
+				_options.Scope,
+				response.StatusCode,
+				await response.Content.ReadAsStringAsync(cancellationToken));
+		}
 
-        await EnsureSuccessfulResponseAsync(
+
+			await EnsureSuccessfulResponseAsync(
             response,
             "obtain identity service access token",
             cancellationToken);
