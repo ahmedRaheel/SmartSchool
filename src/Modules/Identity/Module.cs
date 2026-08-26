@@ -63,6 +63,12 @@ public static class Module
 				options.Events.RaiseFailureEvents = true;
 				options.Events.RaiseSuccessEvents = true;
 
+				var issuerUri = configuration["DuendeIdentityServer:IssuerUri"];
+				if (!string.IsNullOrWhiteSpace(issuerUri))
+				{
+					options.IssuerUri = issuerUri.TrimEnd('/');
+				}
+
 				var licenseKey = configuration["DuendeIdentityServer:LicenseKey"];
 				if (!string.IsNullOrWhiteSpace(licenseKey))
 				{

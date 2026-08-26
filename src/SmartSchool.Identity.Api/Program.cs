@@ -39,10 +39,39 @@ builder.Services
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
+                ValidIssuer = internalApiAuthentication.Authority.TrimEnd('/'),
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
                 ClockSkew = TimeSpan.FromMinutes(1)
+            };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnAuthenticationFailed = context =>
+                {
+                    var logger = context.HttpContext.RequestServices
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger(InternalApiAuthenticationOptions.SchemeName);
+
+                    logger.LogError(
+                        context.Exception,
+                        "Internal API bearer authentication failed.");
+
+                    return Task.CompletedTask;
+                },
+                OnTokenValidated = context =>
+                {
+                    var logger = context.HttpContext.RequestServices
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger(InternalApiAuthenticationOptions.SchemeName);
+
+                    logger.LogInformation(
+                        "Internal API bearer token validated for client {ClientId}.",
+                        context.Principal?.FindFirst("client_id")?.Value);
+
+                    return Task.CompletedTask;
+                }
             };
         });
 
