@@ -274,6 +274,9 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<
 	SmartSchool.Api.Middleware.ResultResponseMiddleware>();
 
+app.UseMiddleware<
+    SmartSchool.Api.Middleware.BusinessContactValidationMiddleware>();
+
 app.UseExceptionHandler();
 
 app.UseCors("Portal");
