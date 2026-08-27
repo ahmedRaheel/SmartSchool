@@ -1,5 +1,5 @@
 using SmartSchool.SharedKernel.Constants;
-using System.Security.Claims;
+using SmartSchool.Application.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Modules.Identity.Persistence.Identity;
@@ -59,21 +59,15 @@ public static class UserManagementEndpoints
             .RequireAuthorization(SmartSchoolPolicies.Impersonation);
     }
 
-    private static bool IsSuperAdmin(ClaimsPrincipal principal) =>
-        principal.IsInRole("SuperAdmin");
-
-    private static Guid? CurrentTenant(ClaimsPrincipal principal) =>
-        Guid.TryParse(principal.FindFirst("tenant_id")?.Value, out var id) ? id : null;
-
     private static async Task<IResult> GetPageAsync(
-        int page, int pageSize, Guid? tenantId, ClaimsPrincipal principal,
+        int page, int pageSize, Guid? tenantId, ICurrentUser currentUser,
         UserManager<SmartSchoolUser> userManager, CancellationToken cancellationToken)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize <= 0 ? 20 : pageSize, 1, 100);
 
-        var effectiveTenant = IsSuperAdmin(principal) ? tenantId : CurrentTenant(principal);
-        if (!IsSuperAdmin(principal) && effectiveTenant is null) return Results.Forbid();
+        var effectiveTenant = currentUser.IsSuperAdmin ? tenantId : currentUser.TenantId;
+        if (!currentUser.IsSuperAdmin && effectiveTenant is null) return Results.Forbid();
 
         var query = userManager.Users.AsNoTracking();
         if (effectiveTenant.HasValue) query = query.Where(x => x.TenantId == effectiveTenant.Value);
@@ -88,22 +82,22 @@ public static class UserManagementEndpoints
     }
 
     private static async Task<IResult> GetByIdAsync(
-        Guid id, ClaimsPrincipal principal, UserManager<SmartSchoolUser> userManager)
+        Guid id, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
     {
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return Results.NotFound();
-        if (!IsSuperAdmin(principal) && user.TenantId != CurrentTenant(principal)) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && user.TenantId != currentUser.TenantId) return Results.Forbid();
         return Results.Ok(await ToResponseAsync(user, userManager));
     }
 
     private static async Task<IResult> CreateAsync(
-        CreateUserRequest request, ClaimsPrincipal principal,
+        CreateUserRequest request, ICurrentUser currentUser,
         UserManager<SmartSchoolUser> userManager,
         ILoggerFactory loggerFactory)
     {
         var logger = loggerFactory.CreateLogger("SmartSchool.Identity.UserManagement");
-        var superAdmin = IsSuperAdmin(principal);
-        var callerTenant = CurrentTenant(principal);
+        var superAdmin = currentUser.IsSuperAdmin;
+        var callerTenant = currentUser.TenantId;
 
         if (!superAdmin && callerTenant != request.TenantId) return Results.Forbid();
 
@@ -167,12 +161,10 @@ public static class UserManagementEndpoints
     }
 
     private static async Task<IResult> ChangePasswordAsync(
-        ChangePasswordRequest request, ClaimsPrincipal principal,
+        ChangePasswordRequest request, ICurrentUser currentUser,
         UserManager<SmartSchoolUser> userManager)
     {
-        var id = principal.FindFirst("sub")?.Value ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrWhiteSpace(id)) return Results.Unauthorized();
-        var user = await userManager.FindByIdAsync(id);
+        var user = await userManager.FindByIdAsync(currentUser.UserId.ToString());
         if (user is null) return Results.Unauthorized();
 
         var result = await userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
@@ -220,21 +212,21 @@ public static class UserManagementEndpoints
     // This endpoint creates an audited support intent. Token exchange is intentionally handled by
     // IdentityServer, not by revealing or resetting the target user's password.
     private static async Task<IResult> StartImpersonationAsync(
-        ImpersonateRequest request, ClaimsPrincipal principal,
+        ImpersonateRequest request, ICurrentUser currentUser,
         UserManager<SmartSchoolUser> userManager, ILoggerFactory loggerFactory)
     {
         var target = await userManager.FindByIdAsync(request.TargetUserId.ToString());
         if (target is null || !target.IsActive) return Results.NotFound();
 
-        var isSuperAdmin = IsSuperAdmin(principal);
-        var callerTenant = CurrentTenant(principal);
+        var isSuperAdmin = currentUser.IsSuperAdmin;
+        var callerTenant = currentUser.TenantId;
         if (!isSuperAdmin && (!callerTenant.HasValue || target.TenantId != callerTenant.Value))
             return Results.Forbid();
 
         var roles = await userManager.GetRolesAsync(target);
         if (!isSuperAdmin && roles.Contains(SmartSchoolRoles.SuperAdmin, StringComparer.OrdinalIgnoreCase))
             return Results.Forbid();
-        var impersonatorId = principal.FindFirst("sub")?.Value;
+        var impersonatorId = currentUser.UserId;
         loggerFactory.CreateLogger("SmartSchool.Impersonation").LogWarning(
             "SuperAdmin {ImpersonatorId} started support impersonation for {TargetUserId} tenant {TenantId}. Reason: {Reason}",
             impersonatorId, target.Id, target.TenantId, request.Reason);
@@ -259,23 +251,23 @@ public static class UserManagementEndpoints
         });
     }
 
-    private static async Task<IResult> UpdateAsync(Guid id, UpdateUserRequest request, ClaimsPrincipal principal, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> UpdateAsync(Guid id, UpdateUserRequest request, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
     {
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return Results.NotFound();
-        if (!IsSuperAdmin(principal) && user.TenantId != CurrentTenant(principal)) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && user.TenantId != currentUser.TenantId) return Results.Forbid();
         user.FirstName=request.FirstName; user.LastName=request.LastName; user.DisplayName=request.DisplayName;
         user.PhoneNumber=request.PhoneNumber; user.IsActive=request.IsActive; user.UpdatedAt=DateTimeOffset.UtcNow;
         var result=await userManager.UpdateAsync(user);
         return result.Succeeded ? Results.Ok(await ToResponseAsync(user,userManager)) : Results.ValidationProblem(ToErrors(result));
     }
 
-    private static async Task<IResult> SetRolesAsync(Guid id, SetRolesRequest request, ClaimsPrincipal principal, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> SetRolesAsync(Guid id, SetRolesRequest request, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
-        if (!IsSuperAdmin(principal) && user.TenantId != CurrentTenant(principal)) return Results.Forbid();
-        if (!IsSuperAdmin(principal) && request.Roles.Any(r => !SchoolRoles.Contains(r) || r.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase))) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && user.TenantId != currentUser.TenantId) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && request.Roles.Any(r => !SchoolRoles.Contains(r) || r.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase))) return Results.Forbid();
         var current=await userManager.GetRolesAsync(user);
         var remove=await userManager.RemoveFromRolesAsync(user,current);
         if(!remove.Succeeded) return Results.ValidationProblem(ToErrors(remove));
@@ -283,11 +275,11 @@ public static class UserManagementEndpoints
         return add.Succeeded ? Results.Ok(await ToResponseAsync(user,userManager)) : Results.ValidationProblem(ToErrors(add));
     }
 
-    private static async Task<IResult> ResetPasswordAsync(Guid id, ResetPasswordRequest request, ClaimsPrincipal principal, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> ResetPasswordAsync(Guid id, ResetPasswordRequest request, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
-        if (!IsSuperAdmin(principal) && user.TenantId != CurrentTenant(principal)) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && user.TenantId != currentUser.TenantId) return Results.Forbid();
         var token=await userManager.GeneratePasswordResetTokenAsync(user);
         var result=await userManager.ResetPasswordAsync(user,token,request.NewPassword);
         if (result.Succeeded)
@@ -299,30 +291,30 @@ public static class UserManagementEndpoints
         return Results.ValidationProblem(ToErrors(result));
     }
 
-    private static async Task<IResult> LockAsync(Guid id, ClaimsPrincipal principal, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> LockAsync(Guid id, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
-        if (!IsSuperAdmin(principal) && user.TenantId != CurrentTenant(principal)) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && user.TenantId != currentUser.TenantId) return Results.Forbid();
         await userManager.SetLockoutEndDateAsync(user,DateTimeOffset.UtcNow.AddYears(100));
         return Results.NoContent();
     }
 
-    private static async Task<IResult> UnlockAsync(Guid id, ClaimsPrincipal principal, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> UnlockAsync(Guid id, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
-        if (!IsSuperAdmin(principal) && user.TenantId != CurrentTenant(principal)) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && user.TenantId != currentUser.TenantId) return Results.Forbid();
         await userManager.SetLockoutEndDateAsync(user,null);
         await userManager.ResetAccessFailedCountAsync(user);
         return Results.NoContent();
     }
 
-    private static async Task<IResult> DeactivateAsync(Guid id, ClaimsPrincipal principal, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> DeactivateAsync(Guid id, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
-        if (!IsSuperAdmin(principal) && user.TenantId != CurrentTenant(principal)) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && user.TenantId != currentUser.TenantId) return Results.Forbid();
         user.IsActive=false; user.UpdatedAt=DateTimeOffset.UtcNow;
         await userManager.UpdateAsync(user);
         return Results.NoContent();

@@ -8,7 +8,5 @@
     <PackageReference Include="Duende.IdentityServer" />
     <PackageReference Include="Duende.IdentityServer.AspNetIdentity" />
     <PackageReference Include="Duende.IdentityServer.EntityFramework" />
-    <ProjectReference Include="../../BuildingBlocks/SmartSchool.Application/SmartSchool.Application.csproj" />
-    <ProjectReference Include="../../BuildingBlocks/SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
   </ItemGroup>
 </Project>

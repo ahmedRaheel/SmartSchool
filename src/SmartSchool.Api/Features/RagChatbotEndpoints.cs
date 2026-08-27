@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AICore.Cag;
@@ -33,7 +32,7 @@ public static class RagChatbotEndpoints
 	private static async Task<IResult> AskAsync(
 		string bot,
 		AskRequest request,
-		ClaimsPrincipal principal,
+		ICurrentUser currentUser,
 		ITenantScope tenantScope,
 		IAiAssistantService assistantService,
 		IIntegrationEventPublisher eventPublisher,
@@ -41,7 +40,7 @@ public static class RagChatbotEndpoints
 	{
 		if (!Bots.TryGetValue(bot, out var definition))
 			return Results.NotFound(new { message = "Unknown chatbot." });
-		if (!definition.Roles.Any(principal.IsInRole))
+		if (!definition.Roles.Any(currentUser.IsInRole))
 			return Results.Forbid();
 		if (string.IsNullOrWhiteSpace(request.Question))
 			return Results.BadRequest(new { message = "Question is required." });
@@ -54,7 +53,7 @@ public static class RagChatbotEndpoints
 			new AiAssistantRequest(
 				tenantId.Value,
 				tenantScope.UserId,
-				request.SchoolId,
+				currentUser.IsSuperAdmin ? request.SchoolId : currentUser.SchoolId,
 				definition.Name,
 				request.Question.Trim(),
 				definition.Collections,
