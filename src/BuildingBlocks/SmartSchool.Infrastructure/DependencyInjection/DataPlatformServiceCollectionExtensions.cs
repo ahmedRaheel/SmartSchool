@@ -64,7 +64,8 @@ public static class DataPlatformServiceCollectionExtensions
                 identityServiceOptions.BaseUrl.TrimEnd('/') + "/",
                 UriKind.Absolute);
             client.Timeout = TimeSpan.FromSeconds(30);
-        });
+        })
+        .AddStandardResilienceHandler();
 
 
 		return services;

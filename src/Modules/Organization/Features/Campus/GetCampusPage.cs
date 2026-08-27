@@ -19,7 +19,7 @@ public static class GetCampusPage
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 		Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType,
-		        string? Address, string? City, string? Province, string? Phone, string? Fax,
+		        string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax,
 		        string? Mobile, string? Email, string? LogoUrl);
 
 	public sealed record Query(
@@ -72,7 +72,7 @@ public static class GetCampusPage
 	{
 		return new Response(
 			entity.TenantId, entity.CampusId, entity.SchoolId, entity.Code, entity.Name, entity.BranchType,
-			            entity.Address, entity.City, entity.Province, entity.Phone, entity.Fax, entity.Mobile,
+			            entity.Address, entity.City, entity.Province, entity.Country, entity.Phone, entity.Fax, entity.Mobile,
 			            entity.Email, entity.LogoUrl);
 	}
 }

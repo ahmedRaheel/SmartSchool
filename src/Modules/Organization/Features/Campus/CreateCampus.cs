@@ -16,12 +16,12 @@ public static class CreateCampus
 
     public sealed record Request(
         Guid TenantId, Guid SchoolId, string Name, string BranchType,
-        string? Address, string? City, string? Province, string? Phone, string? Fax,
+        string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax,
         string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
 
     public sealed record Response(
         Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType,
-        string? Address, string? City, string? Province, string? Phone, string? Fax,
+        string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax,
         string? Mobile, string? Email, string? LogoUrl);
 
     public sealed class Validator : AbstractValidator<Request>
@@ -51,7 +51,7 @@ public static class CreateCampus
 
             var campus = CampusEntity.Create(
                 request.TenantId, request.SchoolId, code, request.Name, request.BranchType,
-                request.Address, request.City, request.Province, request.Phone, request.Fax,
+                request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax,
                 request.Mobile, request.Email, request.LogoUrl);
 
             await command.AddAsync(campus, cancellationToken);
@@ -77,5 +77,5 @@ public static class CreateCampus
 
     private static Response Map(CampusEntity campus) => new(
         campus.TenantId, campus.CampusId, campus.SchoolId, campus.Code, campus.Name, campus.BranchType,
-        campus.Address, campus.City, campus.Province, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl);
+        campus.Address, campus.City, campus.Province, campus.Country, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl);
 }

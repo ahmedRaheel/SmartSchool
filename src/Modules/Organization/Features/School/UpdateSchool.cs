@@ -11,23 +11,22 @@ namespace SmartSchool.Modules.Organization.Features.School;
 public static class UpdateSchool
 {
     public sealed record Request(
-        Guid TenantId, Guid Id, string Code, string Name, string? RegistrationNumber,
+        Guid TenantId, Guid Id, string Name, string? RegistrationNumber,
         string? Email, string? Phone, string? Fax, string? Website, string? Address,
         string? City, string? Province, string? Country, string? LogoUrl) : IRequest<Result<Response>>;
 
     public sealed record Response(
-        Guid TenantId, Guid Id, string Code, string Name, string? RegistrationNumber,
+        Guid TenantId, Guid Id, string Name, string? RegistrationNumber,
         string? Email, string? Phone, string? Fax, string? Website, string? Address,
-        string? City, string? Province, string? Country, string? LogoUrl);
+		string? City, string? Province, string? Country, string? LogoUrl);
 
-    public sealed class Validator : AbstractValidator<Request>
+	public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
             RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.Code).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+                        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
         }
     }
@@ -42,12 +41,9 @@ public static class UpdateSchool
                 return Result<Response>.Failure(Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolEntity))));
             }
 
-            if (await query.ExistsByCodeAsync(request.TenantId, request.Code, request.Id, cancellationToken))
-            {
-                return Result<Response>.Failure(Error.Conflict(ErrorMessages.DuplicateCode(nameof(SchoolEntity), request.Code)));
-            }
 
-            school.UpdateDetails(request.Code, request.Name, request.RegistrationNumber, request.Email, request.Phone,
+
+            school.UpdateDetails(school.Code, request.Name, request.RegistrationNumber, request.Email, request.Phone,
                 request.Fax, request.Website, request.Address, request.City, request.Province, request.Country, request.LogoUrl);
             await command.UpdateAsync(school, cancellationToken);
             return Result<Response>.Success(Map(school));
@@ -64,8 +60,19 @@ public static class UpdateSchool
         return endpoints;
     }
 
-    private static Response Map(SchoolEntity school) => new(
-        school.TenantId, school.SchoolId, school.Code, school.Name, school.RegistrationNumber,
-        school.Email, school.Phone, school.Fax, school.Website, school.Address, school.City,
-        school.Province, school.Country, school.LogoUrl);
+	private static Response Map(SchoolEntity school) => new(
+		TenantId: school.TenantId,
+		Id: school.SchoolId,
+		Name: school.Name,
+		RegistrationNumber: school.RegistrationNumber,
+		Email: school.Email,
+		Phone: school.Phone,
+		Fax: school.Fax,
+		Website: school.Website,
+		Address: school.Address,
+		City: school.City,
+		Province: school.Province,
+		Country: school.Country,
+		LogoUrl: school.LogoUrl
+	);
 }

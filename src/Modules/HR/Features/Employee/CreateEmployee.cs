@@ -26,9 +26,13 @@ public static class CreateEmployee
 		string? PhotoFileName,
 		string? Email,
 		string? Phone,
+		string? AlternatePhone,
+		string? Address,
+		string? EmergencyContactName,
+		string? EmergencyContactPhone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
-		string Status,
+		string StaffType,
 		Guid? SourceCandidateId);
 
 	public sealed record Request(
@@ -44,9 +48,13 @@ public static class CreateEmployee
 		string? PhotoFileName,
 		string? Email,
 		string? Phone,
+		string? AlternatePhone,
+		string? Address,
+		string? EmergencyContactName,
+		string? EmergencyContactPhone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
-		string Status,
+		string StaffType,
 		Guid? SourceCandidateId) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -57,6 +65,7 @@ public static class CreateEmployee
 			RuleFor(x => x.BranchId).NotEmpty();
 			RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.EmploymentTypeCode).NotEmpty().MaximumLength(30);
+			RuleFor(x => x.StaffType).Must(value => new[] { "TEACHER", "DRIVER", "PRINCIPAL", "ADMIN_OFFICER", "ACCOUNTANT", "HR", "LIBRARIAN", "TRANSPORT", "OTHER" }.Contains(value)).WithMessage("A valid staff type is required.");
 		}
 	}
 
@@ -76,6 +85,7 @@ public static class CreateEmployee
 				null,
 				request.SchoolId,
 				request.BranchId,
+				request.StaffType,
 				null,
 				request.FirstName,
 				request.LastName,
@@ -85,9 +95,13 @@ public static class CreateEmployee
 				request.PhotoFileName,
 				request.Email,
 				request.Phone,
+				request.AlternatePhone,
+				request.Address,
+				request.EmergencyContactName,
+				request.EmergencyContactPhone,
 				request.HireDate,
 				request.EmploymentTypeCode,
-				"PENDING_APPROVAL",
+				"SUBMITTED",
 				request.SourceCandidateId);
 
 			await entityCommand.AddAsync(entity, cancellationToken);
@@ -126,9 +140,13 @@ public static class CreateEmployee
 			entity.PhotoFileName,
 			entity.Email,
 			entity.Phone,
+			entity.AlternatePhone,
+			entity.Address,
+			entity.EmergencyContactName,
+			entity.EmergencyContactPhone,
 			entity.HireDate,
 			entity.EmploymentTypeCode,
-			entity.Status,
+			entity.StaffType,
 			entity.SourceCandidateId);
 	}
 }

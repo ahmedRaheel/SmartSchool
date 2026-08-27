@@ -21,6 +21,7 @@ public sealed class EmployeeEntityConfiguration : IEntityTypeConfiguration<Emplo
 		builder.Property(entity => entity.UserId).HasColumnName("user_id");
 		builder.Property(entity => entity.SchoolId).HasColumnName("school_id").IsRequired();
 		builder.Property(entity => entity.BranchId).HasColumnName("branch_id").IsRequired();
+		builder.Property(entity => entity.StaffType).HasColumnName("staff_type").HasMaxLength(30).IsRequired();
 		builder.Property(entity => entity.EmployeeNumber).HasColumnName("employee_number").HasMaxLength(60);
 		builder.Property(entity => entity.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
 		builder.Property(entity => entity.LastName).HasColumnName("last_name").HasMaxLength(100);
@@ -30,6 +31,10 @@ public sealed class EmployeeEntityConfiguration : IEntityTypeConfiguration<Emplo
 		builder.Property(entity => entity.PhotoFileName).HasColumnName("photo_file_name").HasMaxLength(255);
 		builder.Property(entity => entity.Email).HasColumnName("email").HasMaxLength(250);
 		builder.Property(entity => entity.Phone).HasColumnName("phone").HasMaxLength(50);
+		builder.Property(entity => entity.AlternatePhone).HasColumnName("alternate_phone").HasMaxLength(50);
+		builder.Property(entity => entity.Address).HasColumnName("address").HasMaxLength(500);
+		builder.Property(entity => entity.EmergencyContactName).HasColumnName("emergency_contact_name").HasMaxLength(200);
+		builder.Property(entity => entity.EmergencyContactPhone).HasColumnName("emergency_contact_phone").HasMaxLength(50);
 		builder.Property(entity => entity.HireDate).HasColumnName("hire_date").IsRequired();
 		builder.Property(entity => entity.EmploymentTypeCode).HasColumnName("employment_type_code").HasMaxLength(30).IsRequired();
 		builder.Property(entity => entity.Status).HasColumnName("status").HasMaxLength(30).IsRequired();

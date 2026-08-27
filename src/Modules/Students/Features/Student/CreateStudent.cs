@@ -40,8 +40,7 @@ public static class CreateStudent
 		byte[]? Photo,
 		string? PhotoContentType,
 		string? PhotoFileName,
-		DateOnly? AdmissionDate,
-		string Status) : IRequest<Result<Response>>;
+		DateOnly? AdmissionDate) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{

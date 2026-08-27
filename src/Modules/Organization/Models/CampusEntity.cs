@@ -15,6 +15,7 @@ public sealed class CampusEntity : Entity
     public string? Address { get; private set; }
     public string? City { get; private set; }
     public string? Province { get; private set; }
+    public string? Country { get; private set; }
     public string? Phone { get; private set; }
     public string? Fax { get; private set; }
     public string? Mobile { get; private set; }
@@ -31,6 +32,7 @@ public sealed class CampusEntity : Entity
         string? address,
         string? city,
         string? province,
+        string? country,
         string? phone,
         string? fax,
         string? mobile,
@@ -52,6 +54,7 @@ public sealed class CampusEntity : Entity
             Address = Clean(address),
             City = Clean(city),
             Province = Clean(province),
+            Country = Clean(country),
             Phone = Clean(phone),
             Fax = Clean(fax),
             Mobile = Clean(mobile),
@@ -68,6 +71,7 @@ public sealed class CampusEntity : Entity
         string? address,
         string? city,
         string? province,
+        string? country,
         string? phone,
         string? fax,
         string? mobile,
@@ -90,6 +94,7 @@ public sealed class CampusEntity : Entity
         Address = Clean(address);
         City = Clean(city);
         Province = Clean(province);
+        Country = Clean(country);
         Phone = Clean(phone);
         Fax = Clean(fax);
         Mobile = Clean(mobile);
@@ -100,7 +105,7 @@ public sealed class CampusEntity : Entity
 
     public void UpdateDetails(string code, string name)
     {
-        UpdateDetails(SchoolId, code, name, BranchType, Address, City, Province, Phone, Fax, Mobile, Email, LogoUrl);
+        UpdateDetails(SchoolId, code, name, BranchType, Address, City, Province, Country, Phone, Fax, Mobile, Email, LogoUrl);
     }
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

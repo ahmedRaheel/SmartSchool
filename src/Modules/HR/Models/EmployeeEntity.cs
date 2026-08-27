@@ -19,6 +19,7 @@ public sealed class EmployeeEntity : Entity
 
 	public Guid SchoolId { get; private set; }
 	public Guid BranchId { get; private set; }
+	public string StaffType { get; private set; } = "OTHER";
 
 	/// <summary>Gets the tenant-unique employee number.</summary>
 	public string? EmployeeNumber { get; private set; }
@@ -46,6 +47,10 @@ public sealed class EmployeeEntity : Entity
 
 	/// <summary>Gets the employee phone number.</summary>
 	public string? Phone { get; private set; }
+	public string? AlternatePhone { get; private set; }
+	public string? Address { get; private set; }
+	public string? EmergencyContactName { get; private set; }
+	public string? EmergencyContactPhone { get; private set; }
 
 	/// <summary>Gets the employee hire date.</summary>
 	public DateOnly HireDate { get; private set; }
@@ -81,6 +86,7 @@ public sealed class EmployeeEntity : Entity
 		Guid? userId,
 		Guid schoolId,
 		Guid branchId,
+		string staffType,
 		string? employeeNumber,
 		string firstName,
 		string? lastName,
@@ -90,6 +96,10 @@ public sealed class EmployeeEntity : Entity
 		string? photoFileName,
 		string? email,
 		string? phone,
+		string? alternatePhone,
+		string? address,
+		string? emergencyContactName,
+		string? emergencyContactPhone,
 		DateOnly hireDate,
 		string employmentTypeCode,
 		string status,
@@ -105,6 +115,7 @@ public sealed class EmployeeEntity : Entity
 			UserId = userId,
 			SchoolId = schoolId,
 			BranchId = branchId,
+			StaffType = staffType.Trim(),
 			EmployeeNumber = employeeNumber?.Trim(),
 			FirstName = firstName.Trim(),
 			LastName = lastName?.Trim(),
@@ -114,6 +125,10 @@ public sealed class EmployeeEntity : Entity
 			PhotoFileName = photoFileName?.Trim(),
 			Email = email?.Trim(),
 			Phone = phone?.Trim(),
+			AlternatePhone = alternatePhone?.Trim(),
+			Address = address?.Trim(),
+			EmergencyContactName = emergencyContactName?.Trim(),
+			EmergencyContactPhone = emergencyContactPhone?.Trim(),
 			HireDate = hireDate,
 			EmploymentTypeCode = employmentTypeCode.Trim(),
 			Status = status.Trim(),
@@ -128,7 +143,15 @@ public sealed class EmployeeEntity : Entity
 		if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
 		UserId = userId;
 		EmployeeNumber = employeeNumber.Trim();
-		Status = "ACTIVE";
+		Status = "HIRED";
+		MarkAsUpdated();
+	}
+
+	public void SetRecruitmentStatus(string status)
+	{
+		if (status is not ("SUBMITTED" or "REJECTED" or "WAITING_LIST"))
+			throw new ArgumentException("Invalid recruitment status.", nameof(status));
+		Status = status;
 		MarkAsUpdated();
 	}
 
@@ -154,6 +177,7 @@ public sealed class EmployeeEntity : Entity
 		string? cnicNumber,
 		string? email,
 		string? phone,
+		
 		DateOnly hireDate,
 		string employmentTypeCode,
 		string status)

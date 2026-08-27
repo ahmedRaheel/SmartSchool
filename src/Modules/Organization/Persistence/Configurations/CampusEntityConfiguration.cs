@@ -20,6 +20,7 @@ public sealed class CampusEntityConfiguration : IEntityTypeConfiguration<CampusE
         builder.Property(x => x.Address).HasColumnName("address");
         builder.Property(x => x.City).HasColumnName("city").HasMaxLength(120);
         builder.Property(x => x.Province).HasColumnName("province").HasMaxLength(120);
+        builder.Property(x => x.Country).HasColumnName("country").HasMaxLength(120);
         builder.Property(x => x.Phone).HasColumnName("phone").HasMaxLength(50);
         builder.Property(x => x.Fax).HasColumnName("fax").HasMaxLength(50);
         builder.Property(x => x.Mobile).HasColumnName("mobile").HasMaxLength(50);

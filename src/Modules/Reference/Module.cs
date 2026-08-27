@@ -16,6 +16,7 @@ public static class Module
 		GetLookupTypes.MapEndpoint(endpoints);
 		GetLookupValues.MapEndpoint(endpoints);
 		GetAllLookups.MapEndpoint(endpoints);
+		GetGeography.MapEndpoint(endpoints);
 		return endpoints;
 	}
 }

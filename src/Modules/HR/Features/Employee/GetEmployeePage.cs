@@ -21,6 +21,7 @@ public static class GetEmployeePage
 		string? Phone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
+		string StaffType,
 		string Status);
 
 	public sealed record Query(Guid TenantId, int Page = 1, int PageSize = 25)
@@ -67,6 +68,7 @@ public static class GetEmployeePage
 			entity.Phone,
 			entity.HireDate,
 			entity.EmploymentTypeCode,
+			entity.StaffType,
 			entity.Status);
 	}
 }

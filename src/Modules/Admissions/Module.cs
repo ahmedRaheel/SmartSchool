@@ -7,6 +7,7 @@ using SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 using SmartSchool.Modules.Admissions.Features.Applicant;
 using SmartSchool.Modules.Admissions.Features.Application;
 using SmartSchool.Modules.Admissions.Features.Inquiry;
+using SmartSchool.Modules.Admissions.Features;
 namespace SmartSchool.Modules.Admissions;
 
 public static class Module
@@ -50,6 +51,8 @@ public static class Module
 		UpdateApplicant.MapEndpoint(endpoints);
 		UpdateApplication.MapEndpoint(endpoints);
 		UpdateInquiry.MapEndpoint(endpoints);
+		AdmissionWorkflowEndpoints.MapEndpoints(endpoints);
+		AdmissionWorkflowEndpoints.MapEndpoints(endpoints);
 
 		return endpoints;
 	}
