@@ -186,6 +186,37 @@ public static class CreateAdmissionApplication
                     Error.Validation("Selected branch does not belong to the selected school."));
             }
 
+            if (string.IsNullOrWhiteSpace(request.Gender))
+            {
+                return Result<Response>.Failure(Error.Validation("Applicant gender is required."));
+            }
+
+            var branchGenderPolicy = await query.GetBranchGenderPolicyAsync(
+                tenantId.Value,
+                request.BranchId,
+                cancellationToken);
+
+            if (!GenderIsAllowed(branchGenderPolicy, request.Gender))
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("Applicant gender is not eligible for the selected branch."));
+            }
+
+            if (request.ClassId.HasValue)
+            {
+                var classIsEligible = await query.ClassIsEligibleForBranchAsync(
+                    tenantId.Value,
+                    request.BranchId,
+                    request.ClassId.Value,
+                    cancellationToken);
+
+                if (!classIsEligible)
+                {
+                    return Result<Response>.Failure(
+                        Error.Validation("The selected class is not available for this branch education level."));
+                }
+            }
+
             if (request.AcademicYearId.HasValue)
             {
                 var academicYearIsValid = await query.AcademicYearBelongsToBranchAsync(
@@ -210,6 +241,28 @@ public static class CreateAdmissionApplication
                 new Response(
                     applicationId,
                     AdmissionApplicationStatus.SubmittedApplication.ToDatabaseValue()));
+        }
+
+        private static bool GenderIsAllowed(string? branchPolicy, string applicantGender)
+        {
+            if (string.Equals(branchPolicy, "CO_EDUCATION", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (string.Equals(branchPolicy, "BOYS_ONLY", StringComparison.OrdinalIgnoreCase))
+            {
+                return string.Equals(applicantGender, "MALE", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(applicantGender, "BOY", StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (string.Equals(branchPolicy, "GIRLS_ONLY", StringComparison.OrdinalIgnoreCase))
+            {
+                return string.Equals(applicantGender, "FEMALE", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(applicantGender, "GIRL", StringComparison.OrdinalIgnoreCase);
+            }
+
+            return false;
         }
     }
 }

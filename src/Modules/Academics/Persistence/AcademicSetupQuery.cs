@@ -40,15 +40,39 @@ public sealed class AcademicSetupQuery(
                 class_id AS Id,
                 name AS Name,
                 code AS Code,
-                branch_id AS BranchId
-            FROM academic.class
-            WHERE tenant_id = @TenantId
-              AND branch_id = @BranchId
-              AND is_active = TRUE
-            ORDER BY sort_order, name;
+                c.branch_id AS BranchId,
+                c.education_level_id AS EducationLevelId,
+                l.name AS EducationLevelName
+            FROM academic.class c
+            LEFT JOIN reference.education_level l ON l.education_level_id = c.education_level_id
+            WHERE c.tenant_id = @TenantId
+              AND c.branch_id = @BranchId
+              AND c.is_active = TRUE
+            ORDER BY c.sort_order, c.name;
             """;
 
         return QueryAsync(sql, tenantId, branchId, cancellationToken);
+    }
+
+    public async Task<bool> BranchAllowsEducationLevelAsync(
+        Guid tenantId,
+        Guid branchId,
+        Guid educationLevelId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM org.branch_education_level bel
+                INNER JOIN org.campus c ON c.campus_id = bel.branch_id
+                WHERE c.tenant_id = @TenantId
+                  AND bel.branch_id = @BranchId
+                  AND bel.education_level_id = @EducationLevelId
+                  AND c.is_active = TRUE
+            );
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { TenantId = tenantId, BranchId = branchId, EducationLevelId = educationLevelId }, cancellationToken: cancellationToken));
     }
 
     public Task<IReadOnlyCollection<AcademicSetupItem>> GetSectionsAsync(

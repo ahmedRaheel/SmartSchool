@@ -24,7 +24,9 @@ public static class AcademicSetup
         Guid? ParentId = null,
         DateOnly? StartDate = null,
         DateOnly? EndDate = null,
-        bool? IsCurrent = null);
+        bool? IsCurrent = null,
+        Guid? EducationLevelId = null,
+        string? EducationLevelName = null);
 
     public sealed record ListRequest(
         Guid? TenantId,
@@ -39,6 +41,7 @@ public static class AcademicSetup
         AcademicSetupType Type,
         string Name,
         Guid? ParentId,
+        Guid? EducationLevelId,
         DateOnly? StartDate,
         DateOnly? EndDate,
         bool IsCurrent = false)
@@ -51,6 +54,7 @@ public static class AcademicSetup
         string Kind,
         string Name,
         Guid? ParentId,
+        Guid? EducationLevelId,
         DateOnly? StartDate,
         DateOnly? EndDate,
         bool IsCurrent = false);
@@ -109,6 +113,7 @@ public static class AcademicSetup
     public sealed class CreateHandler(
         ITenantScope tenantScope,
         IAcademicSetupCommand academicSetupCommand,
+        IAcademicSetupQuery academicSetupQuery,
         IBusinessNumberGenerator businessNumberGenerator)
         : IRequestHandler<CreateRequest, Result<Response>>
     {
@@ -214,6 +219,24 @@ public static class AcademicSetup
             CreateRequest request,
             CancellationToken cancellationToken)
         {
+            if (!request.EducationLevelId.HasValue)
+            {
+                return Result<AcademicSetupItem>.Failure(
+                    Error.Validation("Education level is required for a class."));
+            }
+
+            var levelIsAllowed = await academicSetupQuery.BranchAllowsEducationLevelAsync(
+                tenantId,
+                request.BranchId,
+                request.EducationLevelId.Value,
+                cancellationToken);
+
+            if (!levelIsAllowed)
+            {
+                return Result<AcademicSetupItem>.Failure(
+                    Error.Validation("The selected education level is not enabled for this branch."));
+            }
+
             var code = await businessNumberGenerator.NextAsync(
                 $"CLASS:{request.BranchId}",
                 "CLS-",
@@ -227,6 +250,7 @@ public static class AcademicSetup
                 request.BranchId,
                 request.Name,
                 code,
+                request.EducationLevelId.Value,
                 cancellationToken);
 
             return Result<AcademicSetupItem>.Success(item);
@@ -316,6 +340,7 @@ public static class AcademicSetup
                         type,
                         apiRequest.Name,
                         apiRequest.ParentId,
+                        apiRequest.EducationLevelId,
                         apiRequest.StartDate,
                         apiRequest.EndDate,
                         apiRequest.IsCurrent);
@@ -358,6 +383,8 @@ public static class AcademicSetup
             item.ParentId,
             item.StartDate,
             item.EndDate,
-            item.IsCurrent);
+            item.IsCurrent,
+            item.EducationLevelId,
+            item.EducationLevelName);
     }
 }

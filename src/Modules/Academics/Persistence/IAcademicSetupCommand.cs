@@ -25,6 +25,7 @@ public interface IAcademicSetupCommand
         Guid branchId,
         string name,
         string code,
+        Guid educationLevelId,
         CancellationToken cancellationToken);
 
     Task<AcademicSetupItem> CreateSectionAsync(

@@ -140,6 +140,7 @@ public sealed class AcademicSetupCommand(
         Guid branchId,
         string name,
         string code,
+        Guid educationLevelId,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -150,7 +151,8 @@ public sealed class AcademicSetupCommand(
                 school_id,
                 branch_id,
                 code,
-                name
+                name,
+                education_level_id
             )
             VALUES
             (
@@ -159,7 +161,8 @@ public sealed class AcademicSetupCommand(
                 @SchoolId,
                 @BranchId,
                 @Code,
-                @Name
+                @Name,
+                @EducationLevelId
             );
             """;
 
@@ -174,11 +177,12 @@ public sealed class AcademicSetupCommand(
                 SchoolId = schoolId,
                 BranchId = branchId,
                 Code = code,
-                Name = name
+                Name = name,
+                EducationLevelId = educationLevelId
             },
             cancellationToken);
 
-        return new AcademicSetupItem(id, name, code, branchId);
+        return new AcademicSetupItem(id, name, code, branchId, EducationLevelId: educationLevelId);
     }
 
     public async Task<AcademicSetupItem> CreateSectionAsync(

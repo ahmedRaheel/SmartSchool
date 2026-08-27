@@ -23,6 +23,17 @@ public interface IAdmissionWorkflowQuery
         Guid branchId,
         CancellationToken cancellationToken);
 
+    Task<string?> GetBranchGenderPolicyAsync(
+        Guid tenantId,
+        Guid branchId,
+        CancellationToken cancellationToken);
+
+    Task<bool> ClassIsEligibleForBranchAsync(
+        Guid tenantId,
+        Guid branchId,
+        Guid classId,
+        CancellationToken cancellationToken);
+
     Task<bool> AcademicYearBelongsToBranchAsync(
         Guid tenantId,
         Guid branchId,

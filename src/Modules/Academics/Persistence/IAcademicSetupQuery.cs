@@ -8,7 +8,9 @@ public sealed record AcademicSetupItem(
     Guid? ParentId = null,
     DateOnly? StartDate = null,
     DateOnly? EndDate = null,
-    bool? IsCurrent = null);
+    bool? IsCurrent = null,
+    Guid? EducationLevelId = null,
+    string? EducationLevelName = null);
 
 public interface IAcademicSetupQuery
 {
@@ -20,6 +22,12 @@ public interface IAcademicSetupQuery
     Task<IReadOnlyCollection<AcademicSetupItem>> GetClassesAsync(
         Guid tenantId,
         Guid branchId,
+        CancellationToken cancellationToken);
+
+    Task<bool> BranchAllowsEducationLevelAsync(
+        Guid tenantId,
+        Guid branchId,
+        Guid educationLevelId,
         CancellationToken cancellationToken);
 
     Task<IReadOnlyCollection<AcademicSetupItem>> GetSectionsAsync(

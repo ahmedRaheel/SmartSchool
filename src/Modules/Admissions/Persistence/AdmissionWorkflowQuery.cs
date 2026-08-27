@@ -127,6 +127,46 @@ internal sealed class AdmissionWorkflowQuery(IDbConnectionFactory connectionFact
             new { TenantId = tenantId, SchoolId = schoolId, BranchId = branchId },
             cancellationToken);
 
+    public async Task<string?> GetBranchGenderPolicyAsync(
+        Guid tenantId,
+        Guid branchId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT g.code
+            FROM org.campus c
+            INNER JOIN reference.branch_gender_type g
+                ON g.branch_gender_type_id = c.branch_gender_type_id
+            WHERE c.tenant_id = @TenantId
+              AND c.campus_id = @BranchId
+              AND c.is_active = TRUE;
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<string?>(new CommandDefinition(sql, new { TenantId = tenantId, BranchId = branchId }, cancellationToken: cancellationToken));
+    }
+
+    public Task<bool> ClassIsEligibleForBranchAsync(
+        Guid tenantId,
+        Guid branchId,
+        Guid classId,
+        CancellationToken cancellationToken) =>
+        ExistsAsync(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM academic.class c
+                INNER JOIN org.branch_education_level bel
+                    ON bel.branch_id = c.branch_id
+                   AND bel.education_level_id = c.education_level_id
+                WHERE c.tenant_id = @TenantId
+                  AND c.branch_id = @BranchId
+                  AND c.class_id = @ClassId
+                  AND c.is_active = TRUE
+            );
+            """,
+            new { TenantId = tenantId, BranchId = branchId, ClassId = classId },
+            cancellationToken);
+
     public Task<bool> AcademicYearBelongsToBranchAsync(Guid tenantId, Guid branchId, Guid academicYearId, CancellationToken cancellationToken) =>
         ExistsAsync(
             """
@@ -154,6 +194,9 @@ internal sealed class AdmissionWorkflowQuery(IDbConnectionFactory connectionFact
                 INNER JOIN org.campus AS b
                     ON b.campus_id = c.branch_id
                    AND b.tenant_id = c.tenant_id
+                INNER JOIN org.branch_education_level AS bel
+                    ON bel.branch_id = c.branch_id
+                   AND bel.education_level_id = c.education_level_id
                 WHERE c.tenant_id = @TenantId
                   AND b.school_id = @SchoolId
                   AND c.branch_id = @BranchId

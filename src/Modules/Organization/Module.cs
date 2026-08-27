@@ -19,6 +19,8 @@ public static class Module
 		services.AddScoped<ISchoolCommand, SchoolCommand>();
 		services.AddScoped<ICampusQuery, CampusQuery>();
 		services.AddScoped<ICampusCommand, CampusCommand>();
+		services.AddScoped<IBranchPolicyQuery, BranchPolicyQuery>();
+		services.AddScoped<IBranchPolicyCommand, BranchPolicyCommand>();
 		services.AddScoped<IDepartmentQuery, DepartmentQuery>();
 		services.AddScoped<IDepartmentCommand, DepartmentCommand>();
 
@@ -29,6 +31,7 @@ public static class Module
 		this IEndpointRouteBuilder endpoints)
 	{
 		CreateCampus.MapEndpoint(endpoints);
+		BranchPolicyEndpoints.MapEndpoints(endpoints);
 		GetCampusById.MapEndpoint(endpoints);
 		GetCampusPage.MapEndpoint(endpoints);
 		UpdateCampus.MapEndpoint(endpoints);

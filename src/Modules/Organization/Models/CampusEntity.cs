@@ -12,6 +12,7 @@ public sealed class CampusEntity : Entity
     public string Code { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
     public string BranchType { get; private set; } = string.Empty;
+    public Guid BranchGenderTypeId { get; private set; }
     public string? Address { get; private set; }
     public string? City { get; private set; }
     public string? Province { get; private set; }
@@ -29,6 +30,7 @@ public sealed class CampusEntity : Entity
         string code,
         string name,
         string branchType,
+        Guid branchGenderTypeId,
         string? address,
         string? city,
         string? province,
@@ -42,6 +44,7 @@ public sealed class CampusEntity : Entity
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(branchType);
+        if (branchGenderTypeId == Guid.Empty) throw new ArgumentException("Branch gender type is required.", nameof(branchGenderTypeId));
         if (schoolId == Guid.Empty) throw new ArgumentException("School is required.", nameof(schoolId));
 
         return new CampusEntity
@@ -51,6 +54,7 @@ public sealed class CampusEntity : Entity
             Code = code.Trim(),
             Name = name.Trim(),
             BranchType = branchType.Trim(),
+            BranchGenderTypeId = branchGenderTypeId,
             Address = Clean(address),
             City = Clean(city),
             Province = Clean(province),
@@ -68,6 +72,7 @@ public sealed class CampusEntity : Entity
         string code,
         string name,
         string branchType,
+        Guid branchGenderTypeId,
         string? address,
         string? city,
         string? province,
@@ -86,11 +91,13 @@ public sealed class CampusEntity : Entity
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(branchType);
+        if (branchGenderTypeId == Guid.Empty) throw new ArgumentException("Branch gender type is required.", nameof(branchGenderTypeId));
 
         SchoolId = schoolId;
         Code = code.Trim();
         Name = name.Trim();
         BranchType = branchType.Trim();
+        BranchGenderTypeId = branchGenderTypeId;
         Address = Clean(address);
         City = Clean(city);
         Province = Clean(province);
@@ -105,7 +112,7 @@ public sealed class CampusEntity : Entity
 
     public void UpdateDetails(string code, string name)
     {
-        UpdateDetails(SchoolId, code, name, BranchType, Address, City, Province, Country, Phone, Fax, Mobile, Email, LogoUrl);
+        UpdateDetails(SchoolId, code, name, BranchType, BranchGenderTypeId, Address, City, Province, Country, Phone, Fax, Mobile, Email, LogoUrl);
     }
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
