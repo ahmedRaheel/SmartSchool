@@ -10,8 +10,8 @@ public static class AuthorizationRegistration
     public static IServiceCollection AddSmartSchoolAuthorization(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-        services.AddScoped<ICurrentUser, CurrentUser>();
-        services.AddScoped<ITenantScope, TenantScope>();
+        services.AddScoped<SmartSchool.Application.Identity.ICurrentUser, SmartSchool.Application.Identity.CurrentUser>();
+        services.AddScoped<SmartSchool.Application.Identity.ITenantScope, SmartSchool.Application.Identity.TenantScope>();
 
         services.AddAuthorization(options =>
         {

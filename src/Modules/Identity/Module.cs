@@ -117,8 +117,8 @@ public static class Module
 			.ValidateOnStart();
 
 		services.AddHttpContextAccessor();
-		services.AddScoped<ICurrentUser, CurrentUser>();
-		services.AddScoped<ITenantScope, TenantScope>();
+		services.AddScoped<SmartSchool.Application.Identity.ICurrentUser, SmartSchool.Application.Identity.CurrentUser>();
+		services.AddScoped<SmartSchool.Application.Identity.ITenantScope, SmartSchool.Application.Identity.TenantScope>();
 
 		services.AddHttpClient("IdentityTokenClient");
 		services.AddTransient<Duende.IdentityServer.Validation.IExtensionGrantValidator, ImpersonationGrantValidator>();
