@@ -24,7 +24,7 @@ public sealed class AdmissionDecisionQuery(
 			.Set<AdmissionDecisionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.AdmissionDecisionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class AdmissionDecisionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.AdmissionDecision
+			FROM admission.admissiondecision
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class AdmissionDecisionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				admissiondecision_id AS "Id"
-			FROM public.AdmissionDecision
+				admission_decision_id AS "Id"
+			FROM admission.admissiondecision
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY admissiondecision_id
+			ORDER BY admission_decision_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class AdmissionDecisionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.AdmissionDecisionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -24,7 +24,7 @@ public sealed class PayrollRunQuery(
 			.Set<PayrollRunEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.PayrollRunId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class PayrollRunQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PayrollRun
+			FROM payroll.payroll_run
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class PayrollRunQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				payrollrun_id AS "Id"
-			FROM public.PayrollRun
+				payroll_run_id AS "Id"
+			FROM payroll.payroll_run
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY payrollrun_id
+			ORDER BY payroll_run_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class PayrollRunQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.PayrollRunId != excludingId.Value)),
 				cancellationToken);
 	}
 }

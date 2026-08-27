@@ -24,7 +24,7 @@ public sealed class MessageReceiptQuery(
 			.Set<MessageReceiptEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.MessageReceiptId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class MessageReceiptQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.MessageReceipt
+			FROM communication.message_receipt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class MessageReceiptQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				messagereceipt_id AS "Id"
-			FROM public.MessageReceipt
+				message_receipt_id AS "MessageReceiptId"
+			FROM communication.message_receipt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY messagereceipt_id
+			ORDER BY message_receipt_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class MessageReceiptQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.MessageReceiptId != excludingId.Value)),
 				cancellationToken);
 	}
 }

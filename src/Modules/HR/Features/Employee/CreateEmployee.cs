@@ -1,3 +1,5 @@
+using Dapper;
+using SmartSchool.Application.Persistence;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -5,6 +7,7 @@ using SmartSchool.Modules.HR.Models;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.HR.Features.Employee;
 
@@ -14,7 +17,7 @@ public static class CreateEmployee
 		Guid TenantId,
 		Guid Id,
 		Guid? UserId,
-		string EmployeeNumber,
+		string? EmployeeNumber,
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,
@@ -23,15 +26,20 @@ public static class CreateEmployee
 		string? PhotoFileName,
 		string? Email,
 		string? Phone,
+		string? AlternatePhone,
+		string? Address,
+		string? EmergencyContactName,
+		string? EmergencyContactPhone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
-		string Status,
+		string StaffType,
 		Guid? SourceCandidateId);
 
 	public sealed record Request(
-		Guid TenantId,
+		Guid? TenantId,
+		Guid SchoolId,
+		Guid BranchId,
 		Guid? UserId,
-		string EmployeeNumber,
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,
@@ -40,39 +48,45 @@ public static class CreateEmployee
 		string? PhotoFileName,
 		string? Email,
 		string? Phone,
+		string? AlternatePhone,
+		string? Address,
+		string? EmergencyContactName,
+		string? EmergencyContactPhone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
-		string Status,
+		string StaffType,
 		Guid? SourceCandidateId) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
 		public Validator()
 		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.EmployeeNumber).NotEmpty();
+			RuleFor(x => x.SchoolId).NotEmpty();
+			RuleFor(x => x.BranchId).NotEmpty();
 			RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.EmploymentTypeCode).NotEmpty().MaximumLength(30);
+			RuleFor(x => x.StaffType).Must(value => new[] { "TEACHER", "DRIVER", "PRINCIPAL", "ADMIN_OFFICER", "ACCOUNTANT", "HR", "LIBRARIAN", "TRANSPORT", "OTHER" }.Contains(value)).WithMessage("A valid staff type is required.");
 		}
 	}
 
-	public sealed class Handler(IEmployeeQuery entityQuery, IEmployeeCommand entityCommand)
+	public sealed class Handler(IEmployeeCommand entityCommand, IDbConnectionFactory connectionFactory)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByEmployeeNumberAsync(
-				request.TenantId, request.EmployeeNumber, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict("Employee with the supplied EmployeeNumber already exists."));
-			}
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var validScope = await connection.ExecuteScalarAsync<bool>(new CommandDefinition(
+                "SELECT EXISTS(SELECT 1 FROM org.campus c WHERE c.tenant_id=@TenantId AND c.school_id=@SchoolId AND c.campus_id=@BranchId)",
+                new { TenantId = request.TenantId!.Value, request.SchoolId, request.BranchId }, cancellationToken: cancellationToken));
+            if (!validScope) return Result<Response>.Failure(Error.Validation("Selected branch does not belong to the selected school and tenant."));
 
 			var entity = EmployeeEntity.Create(
-				request.TenantId,
-				request.UserId,
-				request.EmployeeNumber,
+				request.TenantId!.Value,
+				null,
+				request.SchoolId,
+				request.BranchId,
+				request.StaffType,
+				null,
 				request.FirstName,
 				request.LastName,
 				request.CnicNumber,
@@ -81,9 +95,13 @@ public static class CreateEmployee
 				request.PhotoFileName,
 				request.Email,
 				request.Phone,
+				request.AlternatePhone,
+				request.Address,
+				request.EmergencyContactName,
+				request.EmergencyContactPhone,
 				request.HireDate,
 				request.EmploymentTypeCode,
-				request.Status,
+				"SUBMITTED",
 				request.SourceCandidateId);
 
 			await entityCommand.AddAsync(entity, cancellationToken);
@@ -95,8 +113,11 @@ public static class CreateEmployee
 	{
 		endpoints.MapPost(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "employee"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Request request, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
 				{
+                    var tenantId = tenantScope.Resolve(request.TenantId);
+                    if (!tenantId.HasValue) return Results.BadRequest(new { message = "Tenant is required for SuperAdmin." });
+                    request = request with { TenantId = tenantId.Value };
 					var result = await mediator.SendAsync<Request, Result<Response>>(request, cancellationToken);
 					return result.ToHttpResult();
 				})
@@ -108,7 +129,7 @@ public static class CreateEmployee
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmployeeId,
 			entity.UserId,
 			entity.EmployeeNumber,
 			entity.FirstName,
@@ -119,9 +140,13 @@ public static class CreateEmployee
 			entity.PhotoFileName,
 			entity.Email,
 			entity.Phone,
+			entity.AlternatePhone,
+			entity.Address,
+			entity.EmergencyContactName,
+			entity.EmergencyContactPhone,
 			entity.HireDate,
 			entity.EmploymentTypeCode,
-			entity.Status,
+			entity.StaffType,
 			entity.SourceCandidateId);
 	}
 }

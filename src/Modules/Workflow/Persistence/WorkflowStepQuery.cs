@@ -24,7 +24,7 @@ public sealed class WorkflowStepQuery(
 			.Set<WorkflowStepEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.WorkflowStepId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class WorkflowStepQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.WorkflowStep
+			FROM workflow.workflowstep
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class WorkflowStepQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				workflowstep_id AS "Id"
-			FROM public.WorkflowStep
+				workflow_step_id AS "Id"
+			FROM workflow.workflowstep
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY workflowstep_id
+			ORDER BY workflow_step_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class WorkflowStepQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.WorkflowStepId != excludingId.Value)),
 				cancellationToken);
 	}
 }

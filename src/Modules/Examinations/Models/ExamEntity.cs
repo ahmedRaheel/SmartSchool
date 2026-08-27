@@ -7,9 +7,39 @@ namespace SmartSchool.Modules.Examinations.Models;
 /// </summary>
 public sealed class ExamEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ExamId { get; private set; } = Guid.NewGuid();
+
 	private ExamEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted term id value.</summary>
+	public Guid? TermId { get; private set; }
+
+	/// <summary>Gets the persisted academic system id value.</summary>
+	public Guid AcademicSystemId { get; private set; }
+
+	/// <summary>Gets the persisted exam type code value.</summary>
+	public string ExamTypeCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted start date value.</summary>
+	public DateOnly? StartDate { get; private set; }
+
+	/// <summary>Gets the persisted end date value.</summary>
+	public DateOnly? EndDate { get; private set; }
+
+	/// <summary>Gets the persisted result publish date value.</summary>
+	public DateOnly? ResultPublishDate { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

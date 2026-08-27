@@ -7,9 +7,39 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class TimetableEntryEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TimetableEntryId { get; private set; } = Guid.NewGuid();
+
 	private TimetableEntryEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted timetable id value.</summary>
+	public Guid TimetableId { get; private set; }
+
+	/// <summary>Gets the persisted day of week value.</summary>
+	public int DayOfWeek { get; private set; }
+
+	/// <summary>Gets the persisted timetable period id value.</summary>
+	public Guid TimetablePeriodId { get; private set; }
+
+	/// <summary>Gets the persisted class section id value.</summary>
+	public Guid? ClassSectionId { get; private set; }
+
+	/// <summary>Gets the persisted teaching group id value.</summary>
+	public Guid? TeachingGroupId { get; private set; }
+
+	/// <summary>Gets the persisted course offering id value.</summary>
+	public Guid? CourseOfferingId { get; private set; }
+
+	/// <summary>Gets the persisted teacher course assignment id value.</summary>
+	public Guid? TeacherCourseAssignmentId { get; private set; }
+
+	/// <summary>Gets the persisted room id value.</summary>
+	public Guid? RoomId { get; private set; }
+
+	/// <summary>Gets the persisted entry type value.</summary>
+	public string EntryType { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

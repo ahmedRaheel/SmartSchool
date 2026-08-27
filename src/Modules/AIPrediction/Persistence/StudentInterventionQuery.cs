@@ -24,7 +24,7 @@ public sealed class StudentInterventionQuery(
 			.Set<StudentInterventionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentInterventionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StudentInterventionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentIntervention
+			FROM ai.student_intervention
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class StudentInterventionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentintervention_id AS "Id"
-			FROM public.StudentIntervention
+				student_intervention_id AS "Id"
+			FROM ai.student_intervention
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentintervention_id
+			ORDER BY student_intervention_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class StudentInterventionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentInterventionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using SmartSchool.Identity.Api;
 using SmartSchool.Identity.Api.Observability;
 using SmartSchool.Modules.Identity;
 
@@ -9,20 +12,99 @@ builder.Services.AddRazorPages();
 builder.Services.AddSmartSchoolObservability(builder.Configuration, "SmartSchool.Identity.Api");
 builder.Services.AddIdentityModule(builder.Configuration);
 
+builder.Services
+    .AddOptions<InternalApiAuthenticationOptions>()
+    .Bind(builder.Configuration.GetSection(InternalApiAuthenticationOptions.SectionName))
+    .Validate(options => !string.IsNullOrWhiteSpace(options.Authority),
+        "InternalApiAuthentication:Authority is required.")
+    .Validate(options => !string.IsNullOrWhiteSpace(options.RequiredScope),
+        "InternalApiAuthentication:RequiredScope is required.")
+    .ValidateOnStart();
+
+var internalApiAuthentication = builder.Configuration
+    .GetRequiredSection(InternalApiAuthenticationOptions.SectionName)
+    .Get<InternalApiAuthenticationOptions>()
+    ?? throw new InvalidOperationException(
+        "InternalApiAuthentication configuration is required.");
+
+builder.Services
+    .AddAuthentication()
+    .AddJwtBearer(
+        InternalApiAuthenticationOptions.SchemeName,
+        options =>
+        {
+            options.Authority = internalApiAuthentication.Authority;
+            options.RequireHttpsMetadata = internalApiAuthentication.RequireHttpsMetadata;
+            options.MapInboundClaims = false;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = internalApiAuthentication.Authority.TrimEnd('/'),
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ClockSkew = TimeSpan.FromMinutes(1)
+            };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnAuthenticationFailed = context =>
+                {
+                    var logger = context.HttpContext.RequestServices
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger(InternalApiAuthenticationOptions.SchemeName);
+
+                    logger.LogError(
+                        context.Exception,
+                        "Internal API bearer authentication failed.");
+
+                    return Task.CompletedTask;
+                },
+                OnTokenValidated = context =>
+                {
+                    var logger = context.HttpContext.RequestServices
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger(InternalApiAuthenticationOptions.SchemeName);
+
+                    logger.LogInformation(
+                        "Internal API bearer token validated for client {ClientId}.",
+                        context.Principal?.FindFirst("client_id")?.Value);
+
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
 builder.Services.AddAuthorization(options =>
 {
-	options.AddPolicy("AdminOnly", policy =>
-        policy.RequireRole("SuperAdmin", "SchoolAdmin", "Principal", "Admin"));
-    options.AddPolicy("SuperAdminOnly", policy =>
-        policy.RequireRole("SuperAdmin"));
+    options.AddPolicy("AdminOnly", policy =>
+    {
+        policy.RequireRole("SuperAdmin", "SchoolAdmin", "Principal", "Admin");
+    });
 
-	// SmartSchool.Api obtains a client-credentials token with this scope.
-	options.AddPolicy("SmartSchoolApi", policy =>
-		policy.RequireClaim("scope", "smartschool.identity.manage"));
+    options.AddPolicy("SuperAdminOnly", policy =>
+    {
+        policy.RequireRole("SuperAdmin");
+    });
+
+    options.AddPolicy("SmartSchoolApi", policy =>
+    {
+        policy.AddAuthenticationSchemes(
+            InternalApiAuthenticationOptions.SchemeName);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(
+            "scope",
+            internalApiAuthentication.RequiredScope);
+    });
 });
 
+var portalOrigins = builder.Configuration
+	.GetSection("Cors:PortalOrigins")
+	.Get<string[]>()
+	?? throw new InvalidOperationException("Cors:PortalOrigins configuration is required.");
+
 builder.Services.AddCors(options => options.AddPolicy("Portal", policy => policy
-    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+    .WithOrigins(portalOrigins)
     .AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithExposedHeaders("X-Correlation-ID", "X-Trace-Id")));
 
 var app = builder.Build();

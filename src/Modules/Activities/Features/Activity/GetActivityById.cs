@@ -68,7 +68,7 @@ public static class GetActivityById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ActivityId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -73,7 +73,7 @@ public static class GetCampusBrandingPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.CampusBrandingId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

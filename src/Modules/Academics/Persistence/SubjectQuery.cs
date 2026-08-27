@@ -24,7 +24,7 @@ public sealed class SubjectQuery(
 			.Set<SubjectEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.SubjectId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class SubjectQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Subject
+			FROM academic.subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class SubjectQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				subject_id AS "Id"
-			FROM public.Subject
+			FROM academic.subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY subject_id
@@ -95,7 +95,7 @@ public sealed class SubjectQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.SubjectId != excludingId.Value)),
 				cancellationToken);
 	}
 }

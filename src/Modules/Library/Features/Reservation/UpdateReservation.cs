@@ -98,7 +98,7 @@ public static class UpdateReservation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ReservationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

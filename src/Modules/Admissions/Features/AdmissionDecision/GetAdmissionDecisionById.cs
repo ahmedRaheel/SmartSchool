@@ -68,7 +68,7 @@ public static class GetAdmissionDecisionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AdmissionDecisionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

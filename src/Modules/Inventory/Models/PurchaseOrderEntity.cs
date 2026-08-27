@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Inventory.Models;
 /// </summary>
 public sealed class PurchaseOrderEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid PurchaseOrderId { get; private set; } = Guid.NewGuid();
+
 	private PurchaseOrderEntity()
 	{
 	}

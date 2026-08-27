@@ -24,7 +24,7 @@ public sealed class SalaryStructureQuery(
 			.Set<SalaryStructureEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.SalaryStructureId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class SalaryStructureQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.SalaryStructure
+			FROM payroll.salarystructure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class SalaryStructureQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				salarystructure_id AS "Id"
-			FROM public.SalaryStructure
+				salary_structure_id AS "Id"
+			FROM payroll.salarystructure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY salarystructure_id
+			ORDER BY salary_structure_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class SalaryStructureQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.SalaryStructureId != excludingId.Value)),
 				cancellationToken);
 	}
 }

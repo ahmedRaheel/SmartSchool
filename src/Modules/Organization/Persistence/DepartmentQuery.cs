@@ -24,7 +24,7 @@ public sealed class DepartmentQuery(
 			.Set<DepartmentEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.DepartmentId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class DepartmentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Department
+			FROM org.department
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class DepartmentQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				department_id AS "Id"
-			FROM public.Department
+			FROM org.department
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY department_id
@@ -95,7 +95,7 @@ public sealed class DepartmentQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.DepartmentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

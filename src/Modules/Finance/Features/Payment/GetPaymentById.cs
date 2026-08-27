@@ -68,7 +68,7 @@ public static class GetPaymentById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentPaymentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -68,7 +68,7 @@ public static class GetStudentPerformancePredictionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentPerformancePredictionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

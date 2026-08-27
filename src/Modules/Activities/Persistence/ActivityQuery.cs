@@ -24,7 +24,7 @@ public sealed class ActivityQuery(
 			.Set<ActivityEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ActivityId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ActivityQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Activity
+			FROM activity.activity
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ActivityQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				activity_id AS "Id"
-			FROM public.Activity
+			FROM activity.activity
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY activity_id
@@ -95,7 +95,7 @@ public sealed class ActivityQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ActivityId != excludingId.Value)),
 				cancellationToken);
 	}
 }

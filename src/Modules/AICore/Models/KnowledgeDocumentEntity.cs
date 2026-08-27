@@ -7,9 +7,36 @@ namespace SmartSchool.Modules.AICore.Models;
 /// </summary>
 public sealed class KnowledgeDocumentEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid KnowledgeDocumentId { get; private set; } = Guid.NewGuid();
+
 	private KnowledgeDocumentEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted knowledge collection id value.</summary>
+	public Guid KnowledgeCollectionId { get; private set; }
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid? CampusId { get; private set; }
+
+	/// <summary>Gets the persisted academic system id value.</summary>
+	public Guid? AcademicSystemId { get; private set; }
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string Title { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted document type value.</summary>
+	public string? DocumentType { get; private set; }
+
+	/// <summary>Gets the persisted source url value.</summary>
+	public string? SourceUrl { get; private set; }
+
+	/// <summary>Gets the persisted metadata value.</summary>
+	public string? Metadata { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

@@ -68,7 +68,7 @@ public static class GetGradeLevelById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GradeLevelId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

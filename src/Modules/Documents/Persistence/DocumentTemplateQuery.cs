@@ -24,7 +24,7 @@ public sealed class DocumentTemplateQuery(
 			.Set<DocumentTemplateEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.DocumentTemplateId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class DocumentTemplateQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.DocumentTemplate
+			FROM document.document_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class DocumentTemplateQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				documenttemplate_id AS "Id"
-			FROM public.DocumentTemplate
+				document_template_id AS "Id"
+			FROM document.document_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY documenttemplate_id
+			ORDER BY document_template_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class DocumentTemplateQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.DocumentTemplateId != excludingId.Value)),
 				cancellationToken);
 	}
 }

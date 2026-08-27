@@ -24,7 +24,7 @@ public sealed class ApplicantQuery(
 			.Set<ApplicantEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ApplicantId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ApplicantQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Applicant
+			FROM admission.applicant
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ApplicantQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				applicant_id AS "Id"
-			FROM public.Applicant
+			FROM admission.applicant
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY applicant_id
@@ -95,7 +95,7 @@ public sealed class ApplicantQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ApplicantId != excludingId.Value)),
 				cancellationToken);
 	}
 }

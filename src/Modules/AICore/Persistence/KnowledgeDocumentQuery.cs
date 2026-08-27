@@ -24,7 +24,7 @@ public sealed class KnowledgeDocumentQuery(
 			.Set<KnowledgeDocumentEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.KnowledgeDocumentId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class KnowledgeDocumentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.KnowledgeDocument
+			FROM ai_core.knowledge_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class KnowledgeDocumentQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				knowledgedocument_id AS "Id"
-			FROM public.KnowledgeDocument
+				knowledge_document_id AS "Id"
+			FROM ai_core.knowledge_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY knowledgedocument_id
+			ORDER BY knowledge_document_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class KnowledgeDocumentQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.KnowledgeDocumentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

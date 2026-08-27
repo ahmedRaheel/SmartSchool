@@ -12,9 +12,8 @@ public sealed class ExamSubjectEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<ExamSubjectEntity> builder)
 	{
-		builder.ToTable("ExamSubject", schema: "exam");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("exam_subject", schema: "exam");
+		builder.HasKey(entity => entity.ExamSubjectId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,26 @@ public sealed class ExamSubjectEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.ExamSubjectId).HasColumnName("exam_subject_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ExamId).HasColumnName("exam_id");
+		builder.Property(entity => entity.CourseOfferingId).HasColumnName("course_offering_id");
+		builder.Property(entity => entity.ExamDate).HasColumnName("exam_date");
+		builder.Property(entity => entity.StartTime).HasColumnName("start_time");
+		builder.Property(entity => entity.DurationMinutes).HasColumnName("duration_minutes");
+		builder.Property(entity => entity.TotalMarks).HasColumnName("total_marks");
+		builder.Property(entity => entity.PassingMarks).HasColumnName("passing_marks");
+		builder.Property(entity => entity.RoomId).HasColumnName("room_id");
 	}
 }

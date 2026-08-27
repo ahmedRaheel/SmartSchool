@@ -98,7 +98,7 @@ public static class UpdateDocumentTemplate
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.DocumentTemplateId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

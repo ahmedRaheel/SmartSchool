@@ -15,6 +15,8 @@ public interface IIdentityAccountService
 		string email,
 		string firstName,
 		string lastName,
+        Guid? schoolId,
+        Guid? branchId,
 		IReadOnlyCollection<string> roles,
 		CancellationToken cancellationToken);
 

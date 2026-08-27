@@ -73,7 +73,7 @@ public static class GetProgramPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ProgramId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

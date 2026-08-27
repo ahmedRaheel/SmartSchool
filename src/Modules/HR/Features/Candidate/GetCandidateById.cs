@@ -68,7 +68,7 @@ public static class GetCandidateById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.CandidateId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

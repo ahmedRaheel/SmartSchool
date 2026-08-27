@@ -24,7 +24,7 @@ public sealed class FeeTypeQuery(
 			.Set<FeeTypeEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.FeeTypeId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class FeeTypeQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.FeeType
+			FROM finance.fee_type
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class FeeTypeQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				feetype_id AS "Id"
-			FROM public.FeeType
+				fee_type_id AS "Id"
+			FROM finance.fee_type
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY feetype_id
+			ORDER BY fee_type_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class FeeTypeQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.FeeTypeId != excludingId.Value)),
 				cancellationToken);
 	}
 }

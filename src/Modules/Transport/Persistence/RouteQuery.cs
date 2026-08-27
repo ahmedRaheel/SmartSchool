@@ -24,7 +24,7 @@ public sealed class RouteQuery(
 			.Set<RouteEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.RouteId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class RouteQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Route
+			FROM transport.route
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class RouteQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				route_id AS "Id"
-			FROM public.Route
+			FROM transport.route
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY route_id
@@ -95,7 +95,7 @@ public sealed class RouteQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.RouteId != excludingId.Value)),
 				cancellationToken);
 	}
 }

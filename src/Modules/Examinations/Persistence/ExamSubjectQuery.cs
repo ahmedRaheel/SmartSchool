@@ -24,7 +24,7 @@ public sealed class ExamSubjectQuery(
 			.Set<ExamSubjectEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ExamSubjectId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ExamSubjectQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ExamSubject
+			FROM exam.exam_subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class ExamSubjectQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				examsubject_id AS "Id"
-			FROM public.ExamSubject
+				exam_subject_id AS "Id"
+			FROM exam.exam_subject
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY examsubject_id
+			ORDER BY exam_subject_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class ExamSubjectQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ExamSubjectId != excludingId.Value)),
 				cancellationToken);
 	}
 }

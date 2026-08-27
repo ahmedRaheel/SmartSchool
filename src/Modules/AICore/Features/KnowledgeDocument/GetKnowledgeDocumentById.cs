@@ -68,7 +68,7 @@ public static class GetKnowledgeDocumentById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.KnowledgeDocumentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

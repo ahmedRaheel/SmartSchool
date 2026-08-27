@@ -12,9 +12,8 @@ public sealed class BookEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<BookEntity> builder)
 	{
-		builder.ToTable("Book", schema: "library");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("book", schema: "library");
+		builder.HasKey(entity => entity.BookId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,22 @@ public sealed class BookEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.BookId).HasColumnName("book_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Isbn).HasColumnName("isbn");
+		builder.Property(entity => entity.Title).HasColumnName("title");
+		builder.Property(entity => entity.AuthorText).HasColumnName("author_text");
+		builder.Property(entity => entity.PublisherText).HasColumnName("publisher_text");
 	}
 }

@@ -13,9 +13,8 @@ public sealed class DriverDocumentEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<DriverDocumentEntity> builder)
 	{
-		builder.ToTable("DriverDocument", schema: "transport");
-
-		builder.HasKey(document => document.Id);
+		builder.ToTable("driverdocument", schema: "document");
+		builder.HasKey(document => document.DriverDocumentId);
 
 		builder.Property(document => document.TenantId).IsRequired();
 		builder.Property(document => document.DriverId).IsRequired();
@@ -79,5 +78,28 @@ public sealed class DriverDocumentEntityConfiguration
 				document.StorageKey
 			})
 			.IsUnique();
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.DriverId).HasColumnName("driverid");
+		builder.Property(entity => entity.DocumentTypeId).HasColumnName("documenttypeid");
+		builder.Property(entity => entity.OriginalFileName).HasColumnName("originalfilename");
+		builder.Property(entity => entity.ContentType).HasColumnName("contenttype");
+		builder.Property(entity => entity.FileSizeBytes).HasColumnName("filesizebytes");
+		builder.Property(entity => entity.StorageProvider).HasColumnName("storageprovider");
+		builder.Property(entity => entity.StorageKey).HasColumnName("storagekey");
+		builder.Property(entity => entity.Sha256Hash).HasColumnName("sha256hash");
+		builder.Property(entity => entity.DocumentNumber).HasColumnName("documentnumber");
+		builder.Property(entity => entity.IssuedOn).HasColumnName("issuedon");
+		builder.Property(entity => entity.ExpiresOn).HasColumnName("expireson");
+		builder.Property(entity => entity.IsVerified).HasColumnName("isverified");
+		builder.Property(entity => entity.VerifiedByUserId).HasColumnName("verifiedbyuserid");
+		builder.Property(entity => entity.VerifiedAt).HasColumnName("verifiedat");
+		builder.Property(entity => entity.Notes).HasColumnName("notes");
+		builder.Property(entity => entity.DriverId).HasColumnName("id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenantid");
+		builder.Property(entity => entity.IsActive).HasColumnName("isactive");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updatedat");
+		builder.Property(entity => entity.RowVersion).HasColumnName("rowversion");
 	}
 }

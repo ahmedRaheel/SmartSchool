@@ -89,7 +89,7 @@ public static class CreateStudentIntervention
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentInterventionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

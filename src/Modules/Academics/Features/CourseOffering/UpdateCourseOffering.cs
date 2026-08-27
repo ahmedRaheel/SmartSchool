@@ -98,7 +98,7 @@ public static class UpdateCourseOffering
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.CourseOfferingId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

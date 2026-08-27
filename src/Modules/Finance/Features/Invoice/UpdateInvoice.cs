@@ -98,7 +98,7 @@ public static class UpdateInvoice
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentInvoiceId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

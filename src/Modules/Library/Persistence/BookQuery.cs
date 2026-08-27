@@ -24,7 +24,7 @@ public sealed class BookQuery(
 			.Set<BookEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.BookId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class BookQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Book
+			FROM library.book
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class BookQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				book_id AS "Id"
-			FROM public.Book
+			FROM library.book
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY book_id
@@ -95,7 +95,7 @@ public sealed class BookQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.BookId != excludingId.Value)),
 				cancellationToken);
 	}
 }

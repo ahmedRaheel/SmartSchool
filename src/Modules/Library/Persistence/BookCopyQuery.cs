@@ -24,7 +24,7 @@ public sealed class BookCopyQuery(
 			.Set<BookCopyEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.BookCopyId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class BookCopyQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.BookCopy
+			FROM library.book_copy
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class BookCopyQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				bookcopy_id AS "Id"
-			FROM public.BookCopy
+				book_copy_id AS "Id"
+			FROM library.book_copy
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY bookcopy_id
+			ORDER BY book_copy_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class BookCopyQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.BookCopyId != excludingId.Value)),
 				cancellationToken);
 	}
 }

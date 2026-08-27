@@ -12,9 +12,8 @@ public sealed class PayrollRunEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<PayrollRunEntity> builder)
 	{
-		builder.ToTable("PayrollRun", schema: "payroll");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("payroll_run", schema: "payroll");
+		builder.HasKey(entity => entity.PayrollRunId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,22 @@ public sealed class PayrollRunEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.PayrollRunId).HasColumnName("payroll_run_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.PayrollPeriodId).HasColumnName("payroll_period_id");
+		builder.Property(entity => entity.StatusCode).HasColumnName("status_code");
+		builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
+		builder.Property(entity => entity.ApprovedAt).HasColumnName("approved_at");
 	}
 }

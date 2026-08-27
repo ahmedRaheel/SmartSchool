@@ -24,7 +24,7 @@ public sealed class StudentExamResultQuery(
 			.Set<StudentExamResultEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentExamResultId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StudentExamResultQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentExamResult
+			FROM exam.student_exam_result
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class StudentExamResultQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentexamresult_id AS "Id"
-			FROM public.StudentExamResult
+				student_exam_result_id AS "Id"
+			FROM exam.student_exam_result
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentexamresult_id
+			ORDER BY student_exam_result_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class StudentExamResultQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentExamResultId != excludingId.Value)),
 				cancellationToken);
 	}
 }

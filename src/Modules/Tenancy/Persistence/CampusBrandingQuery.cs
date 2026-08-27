@@ -24,7 +24,7 @@ public sealed class CampusBrandingQuery(
 			.Set<CampusBrandingEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.CampusBrandingId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class CampusBrandingQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.CampusBranding
+			FROM saas.school_branding
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class CampusBrandingQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				campusbranding_id AS "Id"
-			FROM public.CampusBranding
+				tenant_id AS "Id"
+			FROM saas.school_branding
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY campusbranding_id
+			ORDER BY tenant_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class CampusBrandingQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.CampusBrandingId != excludingId.Value)),
 				cancellationToken);
 	}
 }

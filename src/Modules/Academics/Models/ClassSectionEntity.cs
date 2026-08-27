@@ -7,9 +7,36 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class ClassSectionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ClassSectionId { get; private set; } = Guid.NewGuid();
+
 	private ClassSectionEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted program grade id value.</summary>
+	public Guid ProgramGradeId { get; private set; }
+
+	/// <summary>Gets the persisted section id value.</summary>
+	public Guid SectionId { get; private set; }
+
+	/// <summary>Gets the persisted class teacher employee id value.</summary>
+	public Guid? ClassTeacherEmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted room id value.</summary>
+	public Guid? RoomId { get; private set; }
+
+	/// <summary>Gets the persisted capacity value.</summary>
+	public int? Capacity { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

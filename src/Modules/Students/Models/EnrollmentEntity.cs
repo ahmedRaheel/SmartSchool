@@ -2,63 +2,46 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Students.Models;
 
-/// <summary>
-/// Represents the EnrollmentEntity domain entity.
-/// </summary>
+/// <summary>Represents a student's placement in a class section for an academic year.</summary>
 public sealed class EnrollmentEntity : Entity
 {
-	private EnrollmentEntity()
-	{
-	}
+	public Guid StudentEnrollmentId { get; private set; } = Guid.NewGuid();
+	public Guid StudentId { get; private set; }
+	public string EnrollmentNumber { get; private set; } = string.Empty;
+	public Guid AcademicYearId { get; private set; }
+	public Guid ClassSectionId { get; private set; }
+	public DateOnly EnrollmentDate { get; private set; }
+	public string Status { get; private set; } = string.Empty;
 
-	/// <summary>Gets the business code.</summary>
-	public string Code { get; private set; } = string.Empty;
+	private EnrollmentEntity() { }
 
-	/// <summary>Gets the display name.</summary>
-	public string Name { get; private set; } = string.Empty;
-
-	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
-	public string? MetadataJson { get; private set; }
-
-	/// <summary>Creates a new EnrollmentEntity.</summary>
-	/// <param name="tenantId">The owning tenant identifier.</param>
-	/// <param name="code">The business code.</param>
-	/// <param name="name">The display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	/// <returns>The newly created entity.</returns>
 	public static EnrollmentEntity Create(
 		Guid tenantId,
-		string code,
-		string name,
-		string? metadataJson = null)
+		Guid studentId,
+		string enrollmentNumber,
+		Guid academicYearId,
+		Guid classSectionId,
+		DateOnly enrollmentDate,
+		string status)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
+		ArgumentException.ThrowIfNullOrWhiteSpace(status);
 		return new EnrollmentEntity
 		{
 			TenantId = tenantId,
-			Code = code.Trim(),
-			Name = name.Trim(),
-			MetadataJson = metadataJson
+			StudentId = studentId,
+			EnrollmentNumber = enrollmentNumber,
+			AcademicYearId = academicYearId,
+			ClassSectionId = classSectionId,
+			EnrollmentDate = enrollmentDate,
+			Status = status.Trim().ToUpperInvariant()
 		};
 	}
 
-	/// <summary>Updates the business details.</summary>
-	/// <param name="code">The new business code.</param>
-	/// <param name="name">The new display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	public void UpdateDetails(
-		string code,
-		string name,
-		string? metadataJson = null)
+	public void ChangePlacement(Guid classSectionId, string status)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-		Code = code.Trim();
-		Name = name.Trim();
-		MetadataJson = metadataJson;
+		ArgumentException.ThrowIfNullOrWhiteSpace(status);
+		ClassSectionId = classSectionId;
+		Status = status.Trim().ToUpperInvariant();
 		MarkAsUpdated();
 	}
 }

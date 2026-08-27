@@ -68,7 +68,7 @@ public static class GetPayrollRunById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PayrollRunId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

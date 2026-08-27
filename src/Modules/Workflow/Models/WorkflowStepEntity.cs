@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Workflow.Models;
 /// </summary>
 public sealed class WorkflowStepEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid WorkflowStepId { get; private set; } = Guid.NewGuid();
+
 	private WorkflowStepEntity()
 	{
 	}

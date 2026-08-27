@@ -4,11 +4,11 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Features.Exam;
 using SmartSchool.Modules.Examinations.Features.ExamSubject;
-using SmartSchool.Modules.Examinations.Features.GradeScale;
 using SmartSchool.Modules.Examinations.Features.StudentExamResult;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Examinations.Features.GradeScale;
 namespace SmartSchool.Modules.Examinations;
 
 public static class Module
@@ -21,11 +21,11 @@ public static class Module
 		services.AddScoped<IExamCommand, ExamCommand>();
 		services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
 		services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
-		services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
-		services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
 		services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
 		services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
-
+		services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
+		services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
+		
 		return services;
 	}
 
@@ -42,16 +42,17 @@ public static class Module
 		GetExamSubjectPage.MapEndpoint(endpoints);
 		UpdateExamSubject.MapEndpoint(endpoints);
 		DeleteExamSubject.MapEndpoint(endpoints);
-		CreateGradeScale.MapEndpoint(endpoints);
-		GetGradeScaleById.MapEndpoint(endpoints);
-		GetGradeScalePage.MapEndpoint(endpoints);
-		UpdateGradeScale.MapEndpoint(endpoints);
-		DeleteGradeScale.MapEndpoint(endpoints);
 		CreateStudentExamResult.MapEndpoint(endpoints);
 		GetStudentExamResultById.MapEndpoint(endpoints);
 		GetStudentExamResultPage.MapEndpoint(endpoints);
 		UpdateStudentExamResult.MapEndpoint(endpoints);
 		DeleteStudentExamResult.MapEndpoint(endpoints);
+
+		CreateGradeScale.MapEndpoint(endpoints);
+		DeleteGradeScale.MapEndpoint(endpoints);
+		GetGradeScaleById.MapEndpoint(endpoints);
+		GetGradeScalePage.MapEndpoint(endpoints);
+		UpdateGradeScale.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

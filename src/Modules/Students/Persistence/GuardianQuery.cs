@@ -24,7 +24,7 @@ public sealed class GuardianQuery(
 			.Set<GuardianEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.GuardianId == id,
 				cancellationToken);
 	}
 
@@ -99,7 +99,7 @@ public sealed class GuardianQuery(
 			.AnyAsync(
 				entity =>
 					entity.TenantId == tenantId && entity.CnicNumber == cnicNumber
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.GuardianId != excludingId.Value)),
 				cancellationToken);
 	}
 }

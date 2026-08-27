@@ -7,9 +7,39 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class LeaveRequestEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid LeaveRequestId { get; private set; } = Guid.NewGuid();
+
 	private LeaveRequestEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted employee id value.</summary>
+	public Guid EmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted leave type value.</summary>
+	public string LeaveType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted from date value.</summary>
+	public DateOnly FromDate { get; private set; }
+
+	/// <summary>Gets the persisted to date value.</summary>
+	public DateOnly ToDate { get; private set; }
+
+	/// <summary>Gets the persisted reason value.</summary>
+	public string Reason { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted approved by value.</summary>
+	public Guid? ApprovedBy { get; private set; }
+
+	/// <summary>Gets the persisted decision at value.</summary>
+	public DateTimeOffset? DecisionAt { get; private set; }
+
+	/// <summary>Gets the persisted decision note value.</summary>
+	public string? DecisionNote { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

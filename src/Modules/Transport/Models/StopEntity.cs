@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Transport.Models;
 /// </summary>
 public sealed class StopEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid StopId { get; private set; } = Guid.NewGuid();
+
 	private StopEntity()
 	{
 	}

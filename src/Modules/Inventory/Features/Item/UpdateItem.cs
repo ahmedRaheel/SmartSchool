@@ -98,7 +98,7 @@ public static class UpdateItem
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ItemId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

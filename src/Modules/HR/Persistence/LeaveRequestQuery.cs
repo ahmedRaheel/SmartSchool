@@ -24,7 +24,7 @@ public sealed class LeaveRequestQuery(
 			.Set<LeaveRequestEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.LeaveRequestId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class LeaveRequestQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.LeaveRequest
+			FROM teacher.leave_request
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class LeaveRequestQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				leaverequest_id AS "Id"
-			FROM public.LeaveRequest
+				leave_request_id AS "Id"
+			FROM teacher.leave_request
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY leaverequest_id
+			ORDER BY leave_request_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class LeaveRequestQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.LeaveRequestId != excludingId.Value)),
 				cancellationToken);
 	}
 }

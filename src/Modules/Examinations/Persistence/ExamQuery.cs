@@ -24,7 +24,7 @@ public sealed class ExamQuery(
 			.Set<ExamEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ExamId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ExamQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Exam
+			FROM exam.exam
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ExamQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				exam_id AS "Id"
-			FROM public.Exam
+			FROM exam.exam
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY exam_id
@@ -95,7 +95,7 @@ public sealed class ExamQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ExamId != excludingId.Value)),
 				cancellationToken);
 	}
 }

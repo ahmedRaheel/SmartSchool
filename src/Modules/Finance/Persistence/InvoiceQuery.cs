@@ -24,7 +24,7 @@ public sealed class InvoiceQuery(
 			.Set<InvoiceEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentInvoiceId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class InvoiceQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Invoice
+			FROM finance.student_invoice
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class InvoiceQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				invoice_id AS "Id"
-			FROM public.Invoice
+				student_invoice_id AS "Id"
+			FROM finance.student_invoice
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY invoice_id
+			ORDER BY student_invoice_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class InvoiceQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentInvoiceId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -68,7 +68,7 @@ public static class GetScholarshipById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ScholarshipId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -10,12 +10,14 @@ public sealed class StudentEntityConfiguration : IEntityTypeConfiguration<Studen
 	public void Configure(EntityTypeBuilder<StudentEntity> builder)
 	{
 		builder.ToTable("student", schema: "student");
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.StudentId);
 
-		builder.Property(entity => entity.Id).HasColumnName("student_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();
 		builder.Property(entity => entity.UserId).HasColumnName("user_id");
-		builder.Property(entity => entity.StudentNumber).HasColumnName("student_number").HasMaxLength(60).IsRequired();
+		builder.Property(entity => entity.SchoolId).HasColumnName("school_id").IsRequired();
+		builder.Property(entity => entity.BranchId).HasColumnName("branch_id").IsRequired();
+		builder.Property(entity => entity.StudentNumber).HasColumnName("student_number").HasMaxLength(60);
 		builder.Property(entity => entity.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
 		builder.Property(entity => entity.LastName).HasColumnName("last_name").HasMaxLength(100);
 		builder.Property(entity => entity.DateOfBirth).HasColumnName("date_of_birth");
@@ -32,5 +34,7 @@ public sealed class StudentEntityConfiguration : IEntityTypeConfiguration<Studen
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at").IsRequired();
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
 	}
 }

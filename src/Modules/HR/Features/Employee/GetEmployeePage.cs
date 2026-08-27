@@ -13,7 +13,7 @@ public static class GetEmployeePage
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		string EmployeeNumber,
+		string? EmployeeNumber,
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,
@@ -21,6 +21,7 @@ public static class GetEmployeePage
 		string? Phone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
+		string StaffType,
 		string Status);
 
 	public sealed record Query(Guid TenantId, int Page = 1, int PageSize = 25)
@@ -58,7 +59,7 @@ public static class GetEmployeePage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmployeeId,
 			entity.EmployeeNumber,
 			entity.FirstName,
 			entity.LastName,
@@ -67,6 +68,7 @@ public static class GetEmployeePage
 			entity.Phone,
 			entity.HireDate,
 			entity.EmploymentTypeCode,
+			entity.StaffType,
 			entity.Status);
 	}
 }

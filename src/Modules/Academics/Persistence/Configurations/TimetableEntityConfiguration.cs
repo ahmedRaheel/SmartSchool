@@ -12,9 +12,8 @@ public sealed class TimetableEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<TimetableEntity> builder)
 	{
-		builder.ToTable("Timetable", schema: "academic");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("timetable", schema: "academic");
+		builder.HasKey(entity => entity.TimetableId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,24 @@ public sealed class TimetableEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.TimetableId).HasColumnName("timetable_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
+		builder.Property(entity => entity.TermId).HasColumnName("term_id");
+		builder.Property(entity => entity.EffectiveFrom).HasColumnName("effective_from");
+		builder.Property(entity => entity.EffectiveTo).HasColumnName("effective_to");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

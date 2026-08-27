@@ -7,9 +7,32 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class CourseOfferingEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid CourseOfferingId { get; private set; } = Guid.NewGuid();
+
+	public Guid BranchId { get; private set; }
+
 	private CourseOfferingEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted term id value.</summary>
+	public Guid? TermId { get; private set; }
+
+	/// <summary>Gets the persisted program subject id value.</summary>
+	public Guid ProgramSubjectId { get; private set; }
+
+	/// <summary>Gets the persisted display name value.</summary>
+	public string? DisplayName { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
@@ -28,6 +51,7 @@ public sealed class CourseOfferingEntity : Entity
 	/// <returns>The newly created entity.</returns>
 	public static CourseOfferingEntity Create(
 		Guid tenantId,
+        Guid branchId,
 		string code,
 		string name,
 		string? metadataJson = null)
@@ -38,6 +62,7 @@ public sealed class CourseOfferingEntity : Entity
 		return new CourseOfferingEntity
 		{
 			TenantId = tenantId,
+            BranchId = branchId,
 			Code = code.Trim(),
 			Name = name.Trim(),
 			MetadataJson = metadataJson

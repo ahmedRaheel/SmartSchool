@@ -7,9 +7,15 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class AcademicSystemEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid AcademicSystemId { get; private set; } = Guid.NewGuid();
+
 	private AcademicSystemEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted system type code value.</summary>
+	public string SystemTypeCode { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

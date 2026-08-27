@@ -7,6 +7,8 @@ namespace SmartSchool.Modules.Tenancy.Models;
 /// </summary>
 public sealed class SubscriptionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid SubscriptionId { get; private set; } = Guid.NewGuid();
 	private SubscriptionEntity()
 	{
 	}

@@ -68,7 +68,7 @@ public static class GetAssignmentSubmissionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AssignmentSubmissionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

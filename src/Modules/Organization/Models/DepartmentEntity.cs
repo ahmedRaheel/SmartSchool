@@ -7,9 +7,15 @@ namespace SmartSchool.Modules.Organization.Models;
 /// </summary>
 public sealed class DepartmentEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid DepartmentId { get; private set; } = Guid.NewGuid();
+
 	private DepartmentEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid? CampusId { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

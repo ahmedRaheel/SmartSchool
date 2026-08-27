@@ -20,9 +20,11 @@ public static class GetEnrollmentPage
 	public sealed record Response(
 	Guid TenantId,
 	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+	Guid StudentId,
+	Guid AcademicYearId,
+	Guid ClassSectionId,
+	DateOnly EnrollmentDate,
+	string Status);
 
 	public sealed record Query(
 		Guid TenantId,
@@ -73,9 +75,11 @@ public static class GetEnrollmentPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
+			entity.StudentEnrollmentId,
+			entity.StudentId,
+			entity.AcademicYearId,
+			entity.ClassSectionId,
+			entity.EnrollmentDate,
+			entity.Status);
 	}
 }

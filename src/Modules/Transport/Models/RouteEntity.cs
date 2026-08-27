@@ -7,9 +7,15 @@ namespace SmartSchool.Modules.Transport.Models;
 /// </summary>
 public sealed class RouteEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid RouteId { get; private set; } = Guid.NewGuid();
+
 	private RouteEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

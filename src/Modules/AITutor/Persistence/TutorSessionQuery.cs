@@ -24,7 +24,7 @@ public sealed class TutorSessionQuery(
 			.Set<TutorSessionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.TutorSessionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class TutorSessionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.TutorSession
+			FROM ai_tutor.tutor_session
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class TutorSessionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				tutorsession_id AS "Id"
-			FROM public.TutorSession
+				tutor_session_id AS "Id"
+			FROM ai_tutor.tutor_session
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY tutorsession_id
+			ORDER BY tutor_session_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class TutorSessionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.TutorSessionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

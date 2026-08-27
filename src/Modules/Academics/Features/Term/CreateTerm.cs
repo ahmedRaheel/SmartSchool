@@ -89,7 +89,7 @@ public static class CreateTerm
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TermId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -24,7 +24,7 @@ public sealed class InquiryQuery(
 			.Set<InquiryEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.InquiryId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class InquiryQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Inquiry
+			FROM admission.inquiry
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class InquiryQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				inquiry_id AS "Id"
-			FROM public.Inquiry
+			FROM admission.inquiry
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY inquiry_id
@@ -95,7 +95,7 @@ public sealed class InquiryQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.InquiryId != excludingId.Value)),
 				cancellationToken);
 	}
 }

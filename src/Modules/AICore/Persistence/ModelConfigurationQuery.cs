@@ -24,7 +24,7 @@ public sealed class ModelConfigurationQuery(
 			.Set<ModelConfigurationEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ModelConfigurationId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ModelConfigurationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ModelConfiguration
+			FROM ai_core.model_configuration
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class ModelConfigurationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				modelconfiguration_id AS "Id"
-			FROM public.ModelConfiguration
+				model_configuration_id AS "Id"
+			FROM ai_core.model_configuration
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY modelconfiguration_id
+			ORDER BY model_configuration_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class ModelConfigurationQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ModelConfigurationId != excludingId.Value)),
 				cancellationToken);
 	}
 }

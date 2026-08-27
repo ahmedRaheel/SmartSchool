@@ -73,7 +73,7 @@ public static class GetLessonPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LessonId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

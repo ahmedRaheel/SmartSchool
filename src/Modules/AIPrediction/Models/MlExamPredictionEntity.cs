@@ -4,6 +4,9 @@ namespace SmartSchool.Modules.AIPrediction.Models;
 
 public sealed class MlExamPredictionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid PredictionId { get; private set; } = Guid.NewGuid();
+
 	private MlExamPredictionEntity() { }
 
 	public Guid StudentId { get; private set; }
@@ -68,4 +71,19 @@ public sealed class MlExamPredictionEntity : Entity
 			GeneratedAt = DateTimeOffset.UtcNow
 		};
 	}
+
+	/// <summary>Gets the persisted prediction model id value.</summary>
+	public Guid PredictionModelId { get; private set; }
+
+	/// <summary>Gets the persisted prediction type value.</summary>
+	public string PredictionType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted score value.</summary>
+	public decimal? Score { get; private set; }
+
+	/// <summary>Gets the persisted explanation value.</summary>
+	public string? Explanation { get; private set; }
+
+	/// <summary>Gets the persisted predicted at value.</summary>
+	public DateTimeOffset PredictedAt { get; private set; }
 }

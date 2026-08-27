@@ -24,30 +24,27 @@ public sealed class TenantQuery(
 			.Set<TenantEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.TenantId == id,
 				cancellationToken);
 	}
 
-	public async Task<PagedResult<TenantEntity>> GetPageAsync(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		CancellationToken cancellationToken)
+	public async Task<PagedResult<TenantEntity>> GetPageAsync(		
+		int page = 1,
+		int pageSize = 25,
+		CancellationToken cancellationToken = default)
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Tenant
-			WHERE tenant_id = @TenantId
-			  AND is_active = TRUE;
+			FROM saas.tenant
+			WHERE  is_active = TRUE;
 			""";
 
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
 				tenant_id AS "Id"
-			FROM public.Tenant
-			WHERE tenant_id = @TenantId
-			  AND is_active = TRUE
+			FROM saas.tenant
+			WHERE is_active = TRUE
 			ORDER BY tenant_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
@@ -56,8 +53,7 @@ public sealed class TenantQuery(
 			await connectionFactory.OpenConnectionAsync(cancellationToken);
 
 		var parameters = new
-		{
-			TenantId = tenantId,
+		{			
 			PageSize = pageSize,
 			Offset = (page - 1) * pageSize
 		};
@@ -94,7 +90,7 @@ public sealed class TenantQuery(
 			.AnyAsync(
 				entity =>
 					EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.TenantId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Inventory.Models;
 /// </summary>
 public sealed class StockTransactionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid StockTransactionId { get; private set; } = Guid.NewGuid();
+
 	private StockTransactionEntity()
 	{
 	}

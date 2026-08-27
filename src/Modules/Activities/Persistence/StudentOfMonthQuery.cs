@@ -24,7 +24,7 @@ public sealed class StudentOfMonthQuery(
 			.Set<StudentOfMonthEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentOfMonthId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StudentOfMonthQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentOfMonth
+			FROM activity.studentofmonth
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class StudentOfMonthQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentofmonth_id AS "Id"
-			FROM public.StudentOfMonth
+				student_of_month_id AS "Id"
+			FROM activity.studentofmonth
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentofmonth_id
+			ORDER BY student_of_month_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class StudentOfMonthQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentOfMonthId != excludingId.Value)),
 				cancellationToken);
 	}
 }

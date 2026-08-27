@@ -7,9 +7,39 @@ namespace SmartSchool.Modules.Examinations.Models;
 /// </summary>
 public sealed class StudentExamResultEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid StudentExamResultId { get; private set; } = Guid.NewGuid();
+
 	private StudentExamResultEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted exam subject id value.</summary>
+	public Guid ExamSubjectId { get; private set; }
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted marks obtained value.</summary>
+	public decimal? MarksObtained { get; private set; }
+
+	/// <summary>Gets the persisted percentage value.</summary>
+	public decimal? Percentage { get; private set; }
+
+	/// <summary>Gets the persisted grade value.</summary>
+	public string? Grade { get; private set; }
+
+	/// <summary>Gets the persisted is absent value.</summary>
+	public bool IsAbsent { get; private set; }
+
+	/// <summary>Gets the persisted remarks value.</summary>
+	public string? Remarks { get; private set; }
+
+	/// <summary>Gets the persisted entered by value.</summary>
+	public Guid? EnteredBy { get; private set; }
+
+	/// <summary>Gets the persisted verified by value.</summary>
+	public Guid? VerifiedBy { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

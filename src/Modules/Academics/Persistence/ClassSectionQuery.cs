@@ -24,7 +24,7 @@ public sealed class ClassSectionQuery(
 			.Set<ClassSectionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ClassSectionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ClassSectionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ClassSection
+			FROM academic.class_section
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class ClassSectionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				classsection_id AS "Id"
-			FROM public.ClassSection
+				class_section_id AS "Id"
+			FROM academic.class_section
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY classsection_id
+			ORDER BY class_section_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class ClassSectionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ClassSectionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

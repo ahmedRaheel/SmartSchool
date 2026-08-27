@@ -7,9 +7,33 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class CourseSelectionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid StudentCourseEnrollmentId { get; private set; } = Guid.NewGuid();
+
 	private CourseSelectionEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted student enrollment id value.</summary>
+	public Guid StudentEnrollmentId { get; private set; }
+
+	/// <summary>Gets the persisted course offering id value.</summary>
+	public Guid CourseOfferingId { get; private set; }
+
+	/// <summary>Gets the persisted enrollment type code value.</summary>
+	public string EnrollmentTypeCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted selected at value.</summary>
+	public DateTimeOffset SelectedAt { get; private set; }
+
+	/// <summary>Gets the persisted approved by value.</summary>
+	public Guid? ApprovedBy { get; private set; }
+
+	/// <summary>Gets the persisted approved at value.</summary>
+	public DateTimeOffset? ApprovedAt { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

@@ -24,7 +24,7 @@ public sealed class EnrollmentQuery(
 			.Set<EnrollmentEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentEnrollmentId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class EnrollmentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Enrollment
+			FROM student.student_enrollment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class EnrollmentQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				enrollment_id AS "Id"
-			FROM public.Enrollment
+				student_enrollment_id AS "Id"
+			FROM student.student_enrollment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY enrollment_id
+			ORDER BY student_enrollment_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -82,20 +82,16 @@ public sealed class EnrollmentQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsForAcademicYearAsync(
 		Guid tenantId,
-		string code,
-		Guid? excludingId,
+		Guid studentId,
+		Guid academicYearId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<EnrollmentEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
-				cancellationToken);
+		return dbContext.Set<EnrollmentEntity>().AsNoTracking().AnyAsync(
+			entity => entity.TenantId == tenantId
+				&& entity.StudentId == studentId
+				&& entity.AcademicYearId == academicYearId,
+			cancellationToken);
 	}
 }

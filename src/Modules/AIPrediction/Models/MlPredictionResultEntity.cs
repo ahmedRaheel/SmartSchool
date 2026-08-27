@@ -4,6 +4,8 @@ namespace SmartSchool.Modules.AIPrediction.Models;
 
 public sealed class MlPredictionResultEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid MlPredictionResultId { get; private set; } = Guid.NewGuid();
 	private MlPredictionResultEntity() { }
 
 	public string PredictionType { get; private set; } = string.Empty;

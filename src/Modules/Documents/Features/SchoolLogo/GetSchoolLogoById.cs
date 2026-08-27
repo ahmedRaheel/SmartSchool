@@ -68,7 +68,7 @@ public static class GetSchoolLogoById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SchoolLogoId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

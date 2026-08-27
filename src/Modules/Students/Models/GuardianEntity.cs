@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Students.Models;
 /// </summary>
 public sealed class GuardianEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid GuardianId { get; private set; } = Guid.NewGuid();
+
 	private GuardianEntity()
 	{
 	}

@@ -68,7 +68,7 @@ public static class GetIncrementById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.IncrementId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -58,7 +58,8 @@ public static class CreateNotification
 
 	public sealed class Handler(
 		INotificationCommand entityCommand,
-		IHubContext<NotificationHub> notificationHub)
+		IHubContext<NotificationHub> notificationHub,
+        IIntegrationEventPublisher eventPublisher)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -78,7 +79,8 @@ public static class CreateNotification
 					request.Priority);
 			await entityCommand.AddAsync(entity, cancellationToken);
 			var response = MapResponse(entity);
-			await notificationHub.Clients
+			await eventPublisher.PublishAsync(KafkaTopics.NotificationCreated, response, cancellationToken);
+            await notificationHub.Clients
 				.Group(CommunicationGroups.User(entity.TenantId, entity.RecipientUserId))
 				.SendAsync("NotificationReceived", response, cancellationToken);
 			return Result<Response>.Success(response);
@@ -106,7 +108,7 @@ public static class CreateNotification
 	{
 		return new Response(
 		entity.TenantId,
-			entity.Id,
+			entity.NotificationId,
 			entity.RecipientUserId,
 			entity.Type,
 			entity.Title,

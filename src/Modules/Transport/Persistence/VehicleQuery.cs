@@ -24,7 +24,7 @@ public sealed class VehicleQuery(
 			.Set<VehicleEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.VehicleId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class VehicleQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Vehicle
+			FROM transport.vehicle
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class VehicleQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				vehicle_id AS "Id"
-			FROM public.Vehicle
+			FROM transport.vehicle
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY vehicle_id
@@ -95,7 +95,7 @@ public sealed class VehicleQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.VehicleId != excludingId.Value)),
 				cancellationToken);
 	}
 }

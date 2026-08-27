@@ -1,3 +1,0 @@
-# SmartSchool observability v48
-
-Both APIs now emit OpenTelemetry traces and metrics for ASP.NET Core and outbound HttpClient activity. Set `OTEL_EXPORTER_OTLP_ENDPOINT` (for example `http://host.docker.internal:4317`) when an OTLP collector/Aspire dashboard is available. API responses expose `X-Correlation-ID` and `X-Trace-Id` to the portal. The React Axios interceptor captures these IDs on failures and reports browser/API failures to `POST /api/telemetry/client-errors`; global `error` and `unhandledrejection` events are also captured. Serilog receives the client correlation/trace context so UI-reported failures can be matched to server traces/logs. Do not put passwords, tokens or request bodies into telemetry.

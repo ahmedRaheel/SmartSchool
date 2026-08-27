@@ -98,7 +98,7 @@ public static class UpdateTopicPerformanceInsight
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TopicPerformanceInsightId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -73,7 +73,7 @@ public static class GetQuizAttemptPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentQuizAttemptId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

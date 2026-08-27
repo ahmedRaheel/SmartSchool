@@ -24,7 +24,7 @@ public sealed class GeneratedQuizQuery(
 			.Set<GeneratedQuizEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.GeneratedQuizId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class GeneratedQuizQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.GeneratedQuiz
+			FROM ai_tutor.generated_quiz
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class GeneratedQuizQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				generatedquiz_id AS "Id"
-			FROM public.GeneratedQuiz
+				generated_quiz_id AS "Id"
+			FROM ai_tutor.generated_quiz
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY generatedquiz_id
+			ORDER BY generated_quiz_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class GeneratedQuizQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.GeneratedQuizId != excludingId.Value)),
 				cancellationToken);
 	}
 }

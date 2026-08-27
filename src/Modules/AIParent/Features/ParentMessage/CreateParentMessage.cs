@@ -89,7 +89,7 @@ public static class CreateParentMessage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ParentMessageId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

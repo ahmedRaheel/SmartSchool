@@ -7,9 +7,15 @@ namespace SmartSchool.Modules.AIPrediction.Models;
 /// </summary>
 public sealed class PredictionModelEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid PredictionModelId { get; private set; } = Guid.NewGuid();
+
 	private PredictionModelEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted prediction type value.</summary>
+	public string PredictionType { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

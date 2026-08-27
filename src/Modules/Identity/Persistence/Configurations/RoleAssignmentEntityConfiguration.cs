@@ -12,9 +12,9 @@ public sealed class RoleAssignmentEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<RoleAssignmentEntity> builder)
 	{
-		builder.ToTable("RoleAssignment");
+		builder.ToTable("RoleAssignment", SmartSchool.Modules.Identity.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.RoleAssignmentId);
 
 		builder
 			.Property(entity => entity.TenantId)

@@ -7,9 +7,18 @@ namespace SmartSchool.Modules.Inventory.Models;
 /// </summary>
 public sealed class ItemEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ItemId { get; private set; } = Guid.NewGuid();
+
 	private ItemEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted unit value.</summary>
+	public string? Unit { get; private set; }
+
+	/// <summary>Gets the persisted reorder level value.</summary>
+	public decimal? ReorderLevel { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

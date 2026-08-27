@@ -24,7 +24,7 @@ public sealed class UserProfileQuery(
 			.Set<UserProfileEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.UserProfileId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class UserProfileQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.UserProfileId != excludingId.Value)),
 				cancellationToken);
 	}
 }

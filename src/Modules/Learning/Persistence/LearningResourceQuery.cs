@@ -24,7 +24,7 @@ public sealed class LearningResourceQuery(
 			.Set<LearningResourceEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.LearningResourceId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class LearningResourceQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.LearningResource
+			FROM lms.learningresource
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class LearningResourceQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				learningresource_id AS "Id"
-			FROM public.LearningResource
+				learning_resource_id AS "Id"
+			FROM lms.learningresource
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY learningresource_id
+			ORDER BY learning_resource_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class LearningResourceQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.LearningResourceId != excludingId.Value)),
 				cancellationToken);
 	}
 }

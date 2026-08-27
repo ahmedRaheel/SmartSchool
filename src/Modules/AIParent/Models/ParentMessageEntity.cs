@@ -7,9 +7,21 @@ namespace SmartSchool.Modules.AIParent.Models;
 /// </summary>
 public sealed class ParentMessageEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ParentMessageId { get; private set; } = Guid.NewGuid();
+
 	private ParentMessageEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted parent conversation id value.</summary>
+	public Guid ParentConversationId { get; private set; }
+
+	/// <summary>Gets the persisted role value.</summary>
+	public string Role { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted content value.</summary>
+	public string? Content { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

@@ -89,7 +89,7 @@ public static class CreateSalaryStructure
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SalaryStructureId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

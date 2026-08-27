@@ -24,7 +24,7 @@ public sealed class LoanQuery(
 			.Set<LoanEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.BookLoanId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class LoanQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Loan
+			FROM library.book_loan
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class LoanQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				loan_id AS "Id"
-			FROM public.Loan
+				book_loan_id AS "Id"
+			FROM library.book_loan
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY loan_id
+			ORDER BY book_loan_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class LoanQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.BookLoanId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -12,9 +12,8 @@ public sealed class PredictionEvaluationEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<PredictionEvaluationEntity> builder)
 	{
-		builder.ToTable("PredictionEvaluation");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("prediction_evaluation", schema: "ai");
+		builder.HasKey(entity => entity.PredictionEvaluationId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,27 @@ public sealed class PredictionEvaluationEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.PredictionEvaluationId).HasColumnName("prediction_evaluation_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentPerformancePredictionId).HasColumnName("student_performance_prediction_id");
+		builder.Property(entity => entity.StudentExamResultId).HasColumnName("student_exam_result_id");
+		builder.Property(entity => entity.PredictedPercentage).HasColumnName("predicted_percentage");
+		builder.Property(entity => entity.ActualPercentage).HasColumnName("actual_percentage");
+		builder.Property(entity => entity.AbsoluteError).HasColumnName("absolute_error");
+		builder.Property(entity => entity.PredictedGrade).HasColumnName("predicted_grade");
+		builder.Property(entity => entity.ActualGrade).HasColumnName("actual_grade");
+		builder.Property(entity => entity.GradeCorrect).HasColumnName("grade_correct");
+		builder.Property(entity => entity.EvaluatedAt).HasColumnName("evaluated_at");
 	}
 }

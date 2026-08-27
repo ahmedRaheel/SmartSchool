@@ -24,7 +24,7 @@ public sealed class QuizAttemptQuery(
 			.Set<QuizAttemptEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentQuizAttemptId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class QuizAttemptQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.QuizAttempt
+			FROM ai_tutor.student_quiz_attempt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class QuizAttemptQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				quizattempt_id AS "Id"
-			FROM public.QuizAttempt
+				student_quiz_attempt_id AS "Id"
+			FROM ai_tutor.student_quiz_attempt
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY quizattempt_id
+			ORDER BY student_quiz_attempt_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class QuizAttemptQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentQuizAttemptId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -24,7 +24,7 @@ public sealed class AssignmentSubmissionQuery(
 			.Set<AssignmentSubmissionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.AcademicAssignmentId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class AssignmentSubmissionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.AssignmentSubmission
+			FROM lms.student_assignment_submission
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class AssignmentSubmissionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				assignmentsubmission_id AS "Id"
-			FROM public.AssignmentSubmission
+				submission_id AS "Id"
+			FROM lms.student_assignment_submission
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY assignmentsubmission_id
+			ORDER BY submission_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class AssignmentSubmissionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.AcademicAssignmentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

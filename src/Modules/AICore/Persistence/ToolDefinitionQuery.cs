@@ -24,7 +24,7 @@ public sealed class ToolDefinitionQuery(
 			.Set<ToolDefinitionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ToolDefinitionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ToolDefinitionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ToolDefinition
+			FROM ai_core.tool_definition
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class ToolDefinitionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				tooldefinition_id AS "Id"
-			FROM public.ToolDefinition
+				tool_definition_id AS "Id"
+			FROM ai_core.tool_definition
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY tooldefinition_id
+			ORDER BY tool_definition_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class ToolDefinitionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ToolDefinitionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

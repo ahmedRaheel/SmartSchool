@@ -73,7 +73,7 @@ public static class GetStudentGuardianPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GuardianId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

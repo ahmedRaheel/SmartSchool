@@ -21,7 +21,7 @@ public static class MarkNotificationAsRead
 				return Result<Response>.Failure(Error.NotFound(ErrorMessages.EntityNotFound("Notification")));
 			entity.MarkAsRead();
 			await command.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(new Response(entity.TenantId, entity.Id, entity.IsRead, entity.ReadAt));
+			return Result<Response>.Success(new Response(entity.TenantId, entity.NotificationId, entity.IsRead, entity.ReadAt));
 		}
 	}
 

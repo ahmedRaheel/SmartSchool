@@ -24,7 +24,7 @@ public sealed class StudentQuery(
 			.Set<StudentEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentId == id,
 				cancellationToken);
 	}
 
@@ -101,7 +101,7 @@ public sealed class StudentQuery(
 			.AnyAsync(
 				entity =>
 					entity.TenantId == tenantId && entity.StudentNumber == studentNumber
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

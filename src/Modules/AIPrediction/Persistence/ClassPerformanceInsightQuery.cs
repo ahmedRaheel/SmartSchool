@@ -24,7 +24,7 @@ public sealed class ClassPerformanceInsightQuery(
 			.Set<ClassPerformanceInsightEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ClassPerformanceInsightId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ClassPerformanceInsightQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ClassPerformanceInsight
+			FROM ai.class_performance_insight
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class ClassPerformanceInsightQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				classperformanceinsight_id AS "Id"
-			FROM public.ClassPerformanceInsight
+				class_performance_insight_id AS "Id"
+			FROM ai.class_performance_insight
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY classperformanceinsight_id
+			ORDER BY class_performance_insight_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class ClassPerformanceInsightQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ClassPerformanceInsightId != excludingId.Value)),
 				cancellationToken);
 	}
 }

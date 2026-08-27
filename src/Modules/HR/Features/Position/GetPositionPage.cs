@@ -73,7 +73,7 @@ public static class GetPositionPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PositionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

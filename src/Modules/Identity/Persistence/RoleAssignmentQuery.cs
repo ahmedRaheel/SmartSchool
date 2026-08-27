@@ -24,7 +24,7 @@ public sealed class RoleAssignmentQuery(
 			.Set<RoleAssignmentEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.RoleAssignmentId == id,
 				cancellationToken);
 	}
 
@@ -95,7 +95,7 @@ public sealed class RoleAssignmentQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.RoleAssignmentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

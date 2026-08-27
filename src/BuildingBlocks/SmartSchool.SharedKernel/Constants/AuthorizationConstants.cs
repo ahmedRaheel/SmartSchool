@@ -4,6 +4,7 @@ public static class SmartSchoolRoles
 {
     public const string SuperAdmin = "SuperAdmin";
     public const string SchoolAdmin = "SchoolAdmin";
+    public const string Admin = "Admin";
     public const string Principal = "Principal";
     public const string Teacher = "Teacher";
     public const string Student = "Student";
@@ -52,6 +53,17 @@ public static class SmartSchoolClaims
     public const string SchoolId = "school_id";
     public const string UserId = "sub";
     public const string Role = "role";
+    public const string BranchId = "branch_id";
+    public const string StudentId = "student_id";
+    public const string TeacherId = "teacher_id";
+    public const string DriverId = "driver_id";
+    public const string ExaminerId = "examiner_id";
+    public const string EmployeeId = "employee_id";
+    public const string FirstName = "given_name";
+    public const string LastName = "family_name";
+    public const string DisplayName = "name";
+    public const string Email = "email";
+    public const string AccountType = "account_type";
     public const string MustChangePassword = "must_change_password";
     public const string Impersonated = "impersonated";
     public const string ImpersonatorSubject = "impersonator_sub";

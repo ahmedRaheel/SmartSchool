@@ -10,11 +10,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Identity.Features.RoleAssignment;
-using SmartSchool.Modules.Identity.Features.UserProfile;
+using SmartSchool.Application.Identity;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Identity.Features.RoleAssignment;
+using SmartSchool.Modules.Identity.Features.UserProfile;
 namespace SmartSchool.Modules.Identity;
 
 public static class Module
@@ -63,6 +64,12 @@ public static class Module
 				options.Events.RaiseFailureEvents = true;
 				options.Events.RaiseSuccessEvents = true;
 
+				var issuerUri = configuration["DuendeIdentityServer:IssuerUri"];
+				if (!string.IsNullOrWhiteSpace(issuerUri))
+				{
+					options.IssuerUri = issuerUri.TrimEnd('/');
+				}
+
 				var licenseKey = configuration["DuendeIdentityServer:LicenseKey"];
 				if (!string.IsNullOrWhiteSpace(licenseKey))
 				{
@@ -104,7 +111,17 @@ public static class Module
 			identityServer.AddDeveloperSigningCredential();
 		}
 
+		services.AddOptions<Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions>()
+			.Bind(configuration.GetSection(Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions.SectionName))
+			.Validate(options => !string.IsNullOrWhiteSpace(options.TemporaryPassword), "AccountProvisioning:TemporaryPassword is required.")
+			.ValidateOnStart();
+
+		services.AddHttpContextAccessor();
+		services.AddScoped<SmartSchool.Application.Identity.ICurrentUser, SmartSchool.Application.Identity.CurrentUser>();
+		services.AddScoped<SmartSchool.Application.Identity.ITenantScope, SmartSchool.Application.Identity.TenantScope>();
+
 		services.AddHttpClient("IdentityTokenClient");
+		services.AddTransient<Duende.IdentityServer.Validation.IExtensionGrantValidator, ImpersonationGrantValidator>();
 
 		services.AddScoped<IdentityDataSeeder>();
 		services.AddScoped<DuendeConfigurationSeeder>();
@@ -129,16 +146,17 @@ public static class Module
 	public static IEndpointRouteBuilder MapIdentityBusinessEndpoints(
 		this IEndpointRouteBuilder endpoints)
 	{
+
 		CreateRoleAssignment.MapEndpoint(endpoints);
+		CreateUserProfile.MapEndpoint(endpoints);
+		DeleteRoleAssignment.MapEndpoint(endpoints);
+		DeleteUserProfile.MapEndpoint(endpoints);
 		GetRoleAssignmentById.MapEndpoint(endpoints);
 		GetRoleAssignmentPage.MapEndpoint(endpoints);
-		UpdateRoleAssignment.MapEndpoint(endpoints);
-		DeleteRoleAssignment.MapEndpoint(endpoints);
-		CreateUserProfile.MapEndpoint(endpoints);
 		GetUserProfileById.MapEndpoint(endpoints);
 		GetUserProfilePage.MapEndpoint(endpoints);
+		UpdateRoleAssignment.MapEndpoint(endpoints);
 		UpdateUserProfile.MapEndpoint(endpoints);
-		DeleteUserProfile.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

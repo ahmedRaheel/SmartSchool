@@ -89,7 +89,7 @@ public static class CreateStudentPerformancePrediction
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentPerformancePredictionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

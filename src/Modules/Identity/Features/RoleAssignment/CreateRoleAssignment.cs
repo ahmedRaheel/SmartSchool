@@ -89,7 +89,7 @@ public static class CreateRoleAssignment
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.RoleAssignmentId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

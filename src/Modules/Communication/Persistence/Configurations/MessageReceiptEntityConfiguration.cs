@@ -12,9 +12,8 @@ public sealed class MessageReceiptEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<MessageReceiptEntity> builder)
 	{
-		builder.ToTable("MessageReceipt", schema: "communication");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("message_receipt", schema: "communication");
+		builder.HasKey(entity => entity.MessageReceiptId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,22 @@ public sealed class MessageReceiptEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.MessageReceiptId).HasColumnName("message_receipt_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.MessageId).HasColumnName("message_id");
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.DeliveredAt).HasColumnName("delivered_at");
+		builder.Property(entity => entity.ReadAt).HasColumnName("read_at");
 	}
 }

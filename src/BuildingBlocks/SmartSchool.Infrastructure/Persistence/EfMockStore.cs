@@ -19,7 +19,7 @@ public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
 			.Set<TEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && EF.Property<Guid>(entity, GetPrimaryKeyName<TEntity>()) == id,
 				cancellationToken);
 	}
 
@@ -42,7 +42,7 @@ public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
 
 		var items = await query
 			.OrderBy(entity => entity.CreatedAt)
-			.ThenBy(entity => entity.Id)
+			.ThenBy(entity => EF.Property<Guid>(entity, GetPrimaryKeyName<TEntity>()))
 			.Skip((safePage - 1) * safePageSize)
 			.Take(safePageSize)
 			.ToListAsync(cancellationToken);
@@ -74,7 +74,7 @@ public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
 				codeProperty.GetValue(entity) as string,
 				normalizedCode,
 				StringComparison.OrdinalIgnoreCase)
-			&& (!excludingId.HasValue || entity.Id != excludingId.Value));
+			&& (!excludingId.HasValue || (excludingId.HasValue && GetPrimaryKeyValue(entity) != excludingId.Value)));
 	}
 
 	public async Task AddAsync<TEntity>(
@@ -103,4 +103,30 @@ public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
 		dbContext.Set<TEntity>().Remove(entity);
 		await dbContext.SaveChangesAsync(cancellationToken);
 	}
+	private string GetPrimaryKeyName<TEntity>() where TEntity : Entity
+	{
+		var entityType = dbContext.Model.FindEntityType(typeof(TEntity))
+			?? throw new InvalidOperationException($"{typeof(TEntity).Name} is not mapped by EF Core.");
+
+		var primaryKey = entityType.FindPrimaryKey()
+			?? throw new InvalidOperationException($"{typeof(TEntity).Name} does not define a primary key.");
+
+		if (primaryKey.Properties.Count != 1)
+		{
+			throw new InvalidOperationException($"{typeof(TEntity).Name} must have a single entity-specific primary key.");
+		}
+
+		return primaryKey.Properties[0].Name;
+	}
+
+	private Guid GetPrimaryKeyValue<TEntity>(TEntity entity) where TEntity : Entity
+	{
+		var keyName = GetPrimaryKeyName<TEntity>();
+		var property = typeof(TEntity).GetProperty(keyName)
+			?? throw new InvalidOperationException($"{typeof(TEntity).Name}.{keyName} was not found.");
+
+		return (Guid)(property.GetValue(entity)
+			?? throw new InvalidOperationException($"{typeof(TEntity).Name}.{keyName} has no value."));
+	}
+
 }

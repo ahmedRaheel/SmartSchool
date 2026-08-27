@@ -12,9 +12,8 @@ public sealed class LearningRecommendationEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<LearningRecommendationEntity> builder)
 	{
-		builder.ToTable("LearningRecommendation", schema: "ai_tutor");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("learning_recommendation", schema: "ai_tutor");
+		builder.HasKey(entity => entity.LearningRecommendationId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,25 @@ public sealed class LearningRecommendationEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.LearningRecommendationId).HasColumnName("learning_recommendation_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
+		builder.Property(entity => entity.Topic).HasColumnName("topic");
+		builder.Property(entity => entity.RecommendationType).HasColumnName("recommendation_type");
+		builder.Property(entity => entity.RecommendationText).HasColumnName("recommendation_text");
+		builder.Property(entity => entity.Priority).HasColumnName("priority");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

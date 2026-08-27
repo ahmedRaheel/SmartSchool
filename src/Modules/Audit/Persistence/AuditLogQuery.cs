@@ -24,7 +24,7 @@ public sealed class AuditLogQuery(
 			.Set<AuditLogEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.AuditLogId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class AuditLogQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.AuditLog
+			FROM audit.audit_log
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class AuditLogQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				auditlog_id AS "Id"
-			FROM public.AuditLog
+				audit_log_id AS "Id"
+			FROM audit.audit_log
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY auditlog_id
+			ORDER BY audit_log_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class AuditLogQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.AuditLogId != excludingId.Value)),
 				cancellationToken);
 	}
 }

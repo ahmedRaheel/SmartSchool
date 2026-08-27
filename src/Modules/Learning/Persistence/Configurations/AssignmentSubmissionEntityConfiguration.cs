@@ -12,9 +12,8 @@ public sealed class AssignmentSubmissionEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<AssignmentSubmissionEntity> builder)
 	{
-		builder.ToTable("AssignmentSubmission", schema: "lms");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("student_assignment_submission", schema: "lms");
+		builder.HasKey(entity => entity.SubmissionId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,27 @@ public sealed class AssignmentSubmissionEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.SubmissionId).HasColumnName("submission_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		
+		builder.Property(entity => entity.AcademicAssignmentId).HasColumnName("academic_assignment_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.AttemptNo).HasColumnName("attempt_no");
+		builder.Property(entity => entity.SubmittedAt).HasColumnName("submitted_at");
+		builder.Property(entity => entity.SubmissionText).HasColumnName("submission_text");
+		builder.Property(entity => entity.MarksObtained).HasColumnName("marks_obtained");
+		builder.Property(entity => entity.TeacherFeedback).HasColumnName("teacher_feedback");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

@@ -68,7 +68,7 @@ public static class GetLeadCaptureById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LeadCaptureId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

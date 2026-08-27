@@ -16,7 +16,7 @@ public sealed class CampusQuery(
 	IDbConnectionFactory connectionFactory) : ICampusQuery
 {
 	public Task<CampusEntity?> GetByIdAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
@@ -24,29 +24,47 @@ public sealed class CampusQuery(
 			.Set<CampusEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id,
 				cancellationToken);
 	}
 
 	public async Task<PagedResult<CampusEntity>> GetPageAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Campus
-			WHERE tenant_id = @TenantId
+			FROM org.campus
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND is_active = TRUE;
 			""";
 
 		const string pageSql = """
 			SELECT
+				campus_id AS "CampusId",
 				tenant_id AS "TenantId",
-				campus_id AS "Id"
-			FROM public.Campus
-			WHERE tenant_id = @TenantId
+				school_id AS "SchoolId",
+				code AS "Code",
+				name AS "Name",
+				branch_type AS "BranchType",
+				branch_gender_type_id AS "BranchGenderTypeId",
+				address AS "Address",
+				city AS "City",
+				province AS "Province",
+				country AS "Country",
+				phone AS "Phone",
+				fax AS "Fax",
+				mobile AS "Mobile",
+				email AS "Email",
+				logo_url AS "LogoUrl",
+				is_active AS "IsActive",
+				created_at AS "CreatedAt",
+				updated_at AS "UpdatedAt",
+				row_version AS "RowVersion"
+			FROM org.campus
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND is_active = TRUE
 			ORDER BY campus_id
 			LIMIT @PageSize OFFSET @Offset;
@@ -95,7 +113,7 @@ public sealed class CampusQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.CampusId != excludingId.Value)),
 				cancellationToken);
 	}
 }

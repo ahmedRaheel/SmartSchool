@@ -24,7 +24,7 @@ public sealed class PredictionModelQuery(
 			.Set<PredictionModelEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.PredictionModelId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class PredictionModelQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PredictionModel
+			FROM ai.prediction_model
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class PredictionModelQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				predictionmodel_id AS "Id"
-			FROM public.PredictionModel
+				prediction_model_id AS "Id"
+			FROM ai.prediction_model
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY predictionmodel_id
+			ORDER BY prediction_model_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class PredictionModelQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.PredictionModelId != excludingId.Value)),
 				cancellationToken);
 	}
 }

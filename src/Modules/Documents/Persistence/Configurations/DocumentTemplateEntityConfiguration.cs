@@ -12,9 +12,8 @@ public sealed class DocumentTemplateEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<DocumentTemplateEntity> builder)
 	{
-		builder.ToTable("DocumentTemplate", schema: "document");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("document_template", schema: "document");
+		builder.HasKey(entity => entity.DocumentTemplateId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,28 @@ public sealed class DocumentTemplateEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.DocumentTemplateId).HasColumnName("document_template_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.AcademicSystemId).HasColumnName("academic_system_id");
+		builder.Property(entity => entity.DocumentTypeCode).HasColumnName("document_type_code");
+		builder.Property(entity => entity.SubjectTemplate).HasColumnName("subject_template");
+		builder.Property(entity => entity.HeaderHtml).HasColumnName("header_html");
+		builder.Property(entity => entity.BodyHtml).HasColumnName("body_html");
+		builder.Property(entity => entity.FooterHtml).HasColumnName("footer_html");
+		builder.Property(entity => entity.LanguageCode).HasColumnName("language_code");
+		builder.Property(entity => entity.Version).HasColumnName("version");
+		builder.Property(entity => entity.RequiresApproval).HasColumnName("requires_approval");
 	}
 }

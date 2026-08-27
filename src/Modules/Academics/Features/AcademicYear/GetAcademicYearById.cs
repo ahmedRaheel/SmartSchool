@@ -64,11 +64,11 @@ public static class GetAcademicYearById
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.AcademicYearEntity entity)
+		AcademicYearEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AcademicYearId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -1,3 +1,4 @@
+using SmartSchool.Application.Identity;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
@@ -72,14 +73,14 @@ public static class AccountEndpoints
 			return Results.Json(new { message = "Invalid email or password." }, statusCode: StatusCodes.Status401Unauthorized);
 		}
 
-		var clientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api";
+		var clientId = configuration["LoginApiClient:ClientId"] ?? throw new InvalidOperationException("LoginApiClient:ClientId is required.");
 		var clientSecret = configuration["LoginApiClient:ClientSecret"];
 		if (string.IsNullOrWhiteSpace(clientSecret))
 		{
 			throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
 		}
 
-		var tokenUrl = GetTokenEndpoint(configuration, httpContext);
+		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? throw new InvalidOperationException("LoginApiClient:TokenEndpoint is required.");
 		using var tokenRequest = new HttpRequestMessage(HttpMethod.Post, tokenUrl)
 		{
 			Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -169,10 +170,10 @@ public static class AccountEndpoints
 
 	private static async Task<IResult> ChangePasswordAsync(
 		ChangePasswordRequest request,
-		System.Security.Claims.ClaimsPrincipal principal,
+		ICurrentUser currentUser,
 		UserManager<SmartSchoolUser> userManager)
 	{
-		var user = await userManager.GetUserAsync(principal);
+		var user = await userManager.FindByIdAsync(currentUser.UserId.ToString());
 		if (user is null) return Results.Unauthorized();
 
 		var result = await userManager.ChangePasswordAsync(
@@ -186,30 +187,21 @@ public static class AccountEndpoints
 	private static async Task<IResult> RefreshAsync(RefreshTokenRequest request, IHttpClientFactory factory, IConfiguration configuration, CancellationToken cancellationToken)
 	{
 		if (string.IsNullOrWhiteSpace(request.RefreshToken)) return Results.BadRequest(new { message = "Refresh token is required." });
-		var clientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api";
+		var clientId = configuration["LoginApiClient:ClientId"] ?? throw new InvalidOperationException("LoginApiClient:ClientId is required.");
 		var clientSecret = configuration["LoginApiClient:ClientSecret"] ?? throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
-		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? "http://127.0.0.1:8080/connect/token";
+		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? throw new InvalidOperationException("LoginApiClient:TokenEndpoint configuration is required.");
 		using var message = new HttpRequestMessage(HttpMethod.Post, tokenUrl) { Content = new FormUrlEncodedContent(new Dictionary<string,string> {
 			["grant_type"]="refresh_token", ["client_id"]=clientId, ["client_secret"]=clientSecret, ["refresh_token"]=request.RefreshToken }) };
 		using var response = await factory.CreateClient("IdentityTokenClient").SendAsync(message, cancellationToken);
 		return Results.Content(await response.Content.ReadAsStringAsync(cancellationToken), "application/json", statusCode:(int)response.StatusCode);
 	}
-	private static async Task<IResult> MeAsync(System.Security.Claims.ClaimsPrincipal principal, UserManager<SmartSchoolUser> manager)
+	private static async Task<IResult> MeAsync(ICurrentUser currentUser, UserManager<SmartSchoolUser> manager)
 	{
-		var user=await manager.GetUserAsync(principal); if(user is null)return Results.Unauthorized();
+		var user = await manager.FindByIdAsync(currentUser.UserId.ToString());
+		if (user is null) return Results.Unauthorized();
 		var roles=(await manager.GetRolesAsync(user)).ToArray();
 		return Results.Ok(new UserSummary(user.Id,user.TenantId,user.Email??string.Empty,
 			user.FirstName,user.LastName,user.DisplayName??string.Empty,user.AccountType??string.Empty,roles));
-	}
-
-	private static string GetTokenEndpoint(IConfiguration configuration, HttpContext httpContext)
-	{
-		var configured = configuration["LoginApiClient:TokenEndpoint"];
-		if (!string.IsNullOrWhiteSpace(configured)) return configured;
-
-		// Docker exposes 7101 on the host, but IdentityServer listens on 8080 inside the container.
-		// Compose explicitly supplies 127.0.0.1:8080. This fallback is for normal local execution.
-		return $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/connect/token";
 	}
 
 	private static Dictionary<string, string[]> ToErrors(IdentityResult result) =>

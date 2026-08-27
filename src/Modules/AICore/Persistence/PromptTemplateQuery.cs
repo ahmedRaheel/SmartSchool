@@ -24,7 +24,7 @@ public sealed class PromptTemplateQuery(
 			.Set<PromptTemplateEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.PromptTemplateId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class PromptTemplateQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PromptTemplate
+			FROM ai_core.prompt_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class PromptTemplateQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				prompttemplate_id AS "Id"
-			FROM public.PromptTemplate
+				prompt_template_id AS "Id"
+			FROM ai_core.prompt_template
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY prompttemplate_id
+			ORDER BY prompt_template_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class PromptTemplateQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.PromptTemplateId != excludingId.Value)),
 				cancellationToken);
 	}
 }

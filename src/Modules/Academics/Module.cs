@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Academics.Features;
 using SmartSchool.Modules.Academics.Features.AcademicSystem;
 using SmartSchool.Modules.Academics.Features.AcademicYear;
 using SmartSchool.Modules.Academics.Features.ClassSection;
@@ -25,6 +26,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAcademicSetupQuery, AcademicSetupQuery>();
+		services.AddScoped<IAcademicSetupCommand, AcademicSetupCommand>();
 		services.AddScoped<IAcademicSystemQuery, AcademicSystemQuery>();
 		services.AddScoped<IAcademicSystemCommand, AcademicSystemCommand>();
 		services.AddScoped<IAcademicYearQuery, AcademicYearQuery>();
@@ -117,6 +120,7 @@ public static class Module
 		UpdateTimetableEntry.MapEndpoint(endpoints);
 		DeleteTimetableEntry.MapEndpoint(endpoints);
 
+		AcademicSetup.MapEndpoints(endpoints);
 		return endpoints;
 	}
 }

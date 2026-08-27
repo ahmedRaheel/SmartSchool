@@ -24,7 +24,7 @@ public sealed class HumanHandoffQuery(
 			.Set<HumanHandoffEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.HumanHandoffId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class HumanHandoffQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.HumanHandoff
+			FROM ai_inquiry.human_handoff
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class HumanHandoffQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				humanhandoff_id AS "Id"
-			FROM public.HumanHandoff
+				human_handoff_id AS "Id"
+			FROM ai_inquiry.human_handoff
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY humanhandoff_id
+			ORDER BY human_handoff_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class HumanHandoffQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.HumanHandoffId != excludingId.Value)),
 				cancellationToken);
 	}
 }

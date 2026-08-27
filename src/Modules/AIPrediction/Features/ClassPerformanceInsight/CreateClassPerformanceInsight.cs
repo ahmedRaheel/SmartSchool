@@ -89,7 +89,7 @@ public static class CreateClassPerformanceInsight
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ClassPerformanceInsightId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

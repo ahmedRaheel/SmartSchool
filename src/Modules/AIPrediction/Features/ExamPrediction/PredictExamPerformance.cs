@@ -75,7 +75,7 @@ public static class PredictExamPerformance
 			await dbContext.SaveChangesAsync(cancellationToken);
 
 			return Result<Response>.Success(new Response(
-				entity.Id,
+				entity.PredictionId,
 				request.StudentId,
 				request.SubjectId,
 				prediction.TargetExamTypeCode,

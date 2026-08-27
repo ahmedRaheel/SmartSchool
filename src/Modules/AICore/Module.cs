@@ -1,3 +1,5 @@
+using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.Modules.AICore.Features;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.SharedKernel;
@@ -17,10 +19,16 @@ namespace SmartSchool.Modules.AICore;
 
 public static class Module
 {
+	/// <summary>Registers AICore vertical slices and the shared CAG-first AI services.</summary>
 	public static IServiceCollection AddAICoreModule(
-		this IServiceCollection services)
+		this IServiceCollection services,
+		IConfiguration configuration)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+
+		services.Configure<AiAssistantOptions>(configuration.GetSection(AiAssistantOptions.SectionName));
+		services.AddScoped<IOllamaClient, OllamaClient>();
+		services.AddScoped<IAiAssistantService, AiAssistantService>();
 
 		services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
 		services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
@@ -40,6 +48,7 @@ public static class Module
 		return services;
 	}
 
+	/// <summary>Maps AICore administrative and operational endpoints.</summary>
 	public static IEndpointRouteBuilder MapAICoreEndpoints(
 		this IEndpointRouteBuilder endpoints)
 	{
@@ -78,6 +87,8 @@ public static class Module
 		GetToolDefinitionPage.MapEndpoint(endpoints);
 		UpdateToolDefinition.MapEndpoint(endpoints);
 		DeleteToolDefinition.MapEndpoint(endpoints);
+
+		OperationalAiCoreEndpoints.MapOperationalAiCoreEndpoints(endpoints);
 
 		return endpoints;
 	}

@@ -12,9 +12,8 @@ public sealed class PositionEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<PositionEntity> builder)
 	{
-		builder.ToTable("Position");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("position", schema: "hr");
+		builder.HasKey(entity => entity.PositionId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,26 @@ public sealed class PositionEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.PositionId).HasColumnName("position_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.DepartmentId).HasColumnName("department_id");
+		builder.Property(entity => entity.JobId).HasColumnName("job_id");
+		builder.Property(entity => entity.JobGradeId).HasColumnName("job_grade_id");
+		builder.Property(entity => entity.ReportsToPositionId).HasColumnName("reports_to_position_id");
+		builder.Property(entity => entity.PositionCode).HasColumnName("position_code");
+		builder.Property(entity => entity.Headcount).HasColumnName("headcount");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

@@ -7,9 +7,24 @@ namespace SmartSchool.Modules.Transport.Models;
 /// </summary>
 public sealed class VehicleEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid VehicleId { get; private set; } = Guid.NewGuid();
+
 	private VehicleEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted registration no value.</summary>
+	public string RegistrationNo { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted capacity value.</summary>
+	public int? Capacity { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

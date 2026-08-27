@@ -1,14 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
-
-using SmartSchool.Application;
-using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Features.Campus;
 using SmartSchool.Modules.Organization.Features.Department;
 using SmartSchool.Modules.Organization.Features.School;
 using SmartSchool.Modules.Organization.Persistence;
-using SmartSchool.SharedKernel;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Application;
 
-namespace SmartSchool.Modules.Organization;
+
 
 public static class Module
 {
@@ -16,12 +14,15 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<ICampusQuery, CampusQuery>();
-		services.AddScoped<ICampusCommand, CampusCommand>();
-		services.AddScoped<IDepartmentQuery, DepartmentQuery>();
-		services.AddScoped<IDepartmentCommand, DepartmentCommand>();
+
 		services.AddScoped<ISchoolQuery, SchoolQuery>();
 		services.AddScoped<ISchoolCommand, SchoolCommand>();
+		services.AddScoped<ICampusQuery, CampusQuery>();
+		services.AddScoped<ICampusCommand, CampusCommand>();
+		services.AddScoped<IBranchPolicyQuery, BranchPolicyQuery>();
+		services.AddScoped<IBranchPolicyCommand, BranchPolicyCommand>();
+		services.AddScoped<IDepartmentQuery, DepartmentQuery>();
+		services.AddScoped<IDepartmentCommand, DepartmentCommand>();
 
 		return services;
 	}
@@ -30,6 +31,7 @@ public static class Module
 		this IEndpointRouteBuilder endpoints)
 	{
 		CreateCampus.MapEndpoint(endpoints);
+		BranchPolicyEndpoints.MapEndpoints(endpoints);
 		GetCampusById.MapEndpoint(endpoints);
 		GetCampusPage.MapEndpoint(endpoints);
 		UpdateCampus.MapEndpoint(endpoints);
@@ -39,12 +41,14 @@ public static class Module
 		GetDepartmentPage.MapEndpoint(endpoints);
 		UpdateDepartment.MapEndpoint(endpoints);
 		DeleteDepartment.MapEndpoint(endpoints);
+
 		CreateSchool.MapEndpoint(endpoints);
+		DeleteSchool.MapEndpoint(endpoints);
 		GetSchoolById.MapEndpoint(endpoints);
 		GetSchoolPage.MapEndpoint(endpoints);
 		UpdateSchool.MapEndpoint(endpoints);
-		DeleteSchool.MapEndpoint(endpoints);
 
 		return endpoints;
 	}
 }
+

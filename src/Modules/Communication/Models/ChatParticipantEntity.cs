@@ -5,7 +5,11 @@ namespace SmartSchool.Modules.Communication.Models;
 /// <summary>Represents a user's membership in a chat conversation.</summary>
 public sealed class ChatParticipantEntity : Entity
 {
-    private ChatParticipantEntity() { }
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ChatParticipantId { get; private set; } = Guid.NewGuid();
+private ChatParticipantEntity()
+	{
+	}
 
     /// <summary>Gets the conversation identifier.</summary>
     public Guid ConversationId { get; private set; }
@@ -43,8 +47,16 @@ public sealed class ChatParticipantEntity : Entity
     }
 
     /// <summary>Marks the conversation as read for this participant.</summary>
-    public void MarkRead() => LastReadAt = DateTimeOffset.UtcNow;
+    public void MarkRead()
+    {
+        LastReadAt = DateTimeOffset.UtcNow;
+        MarkAsUpdated();
+    }
 
     /// <summary>Changes notification mute state.</summary>
-    public void SetMuted(bool isMuted) => IsMuted = isMuted;
+    public void SetMuted(bool isMuted)
+    {
+        IsMuted = isMuted;
+        MarkAsUpdated();
+    }
 }

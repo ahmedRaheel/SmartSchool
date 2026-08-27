@@ -14,7 +14,7 @@ public sealed class NotificationQuery(
 	IDbConnectionFactory connectionFactory) : INotificationQuery
 {
 	public async Task<PagedResult<NotificationEntity>> GetPageAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		Guid recipientUserId,
 		int page,
 		int pageSize,
@@ -23,13 +23,13 @@ public sealed class NotificationQuery(
 		const string countSql = """
 			SELECT COUNT(*)
 			FROM communication.notification
-			WHERE tenant_id = @TenantId
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND recipient_user_id = @RecipientUserId;
 			""";
 
 		const string pageSql = """
 			SELECT
-				notification_id AS "Id",
+				notification_id AS "NotificationId",
 				tenant_id AS "TenantId",
 				recipient_user_id AS "RecipientUserId",
 				type AS "Type",
@@ -43,7 +43,7 @@ public sealed class NotificationQuery(
 				read_at AS "ReadAt",
 				occurred_at AS "OccurredAt"
 			FROM communication.notification
-			WHERE tenant_id = @TenantId
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND recipient_user_id = @RecipientUserId
 			ORDER BY occurred_at DESC
 			LIMIT @PageSize OFFSET @Offset;
@@ -117,12 +117,23 @@ public sealed class NotificationQuery(
 			.SingleOrDefaultAsync(
 				entity =>
 					entity.TenantId == tenantId &&
-					entity.Id == id,
+					entity.NotificationId == id,
 				cancellationToken);
 	}
 
-	public Task<IReadOnlyCollection<NotificationEntity>> GetUnreadAsync(Guid tenantId, Guid recipientUserId, CancellationToken cancellationToken)
+	public async Task<IReadOnlyCollection<NotificationEntity>> GetUnreadAsync(
+		Guid tenantId,
+		Guid recipientUserId,
+		CancellationToken cancellationToken)
 	{
-		throw new NotImplementedException();
+		return await dbContext
+			.Set<NotificationEntity>()
+			.Where(entity =>
+				entity.TenantId == tenantId &&
+				entity.RecipientUserId == recipientUserId &&
+				!entity.IsRead &&
+				entity.IsActive)
+			.OrderByDescending(entity => entity.OccurredAt)
+			.ToListAsync(cancellationToken);
 	}
 }

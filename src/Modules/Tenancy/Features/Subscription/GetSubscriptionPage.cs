@@ -73,7 +73,7 @@ public static class GetSubscriptionPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SubscriptionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

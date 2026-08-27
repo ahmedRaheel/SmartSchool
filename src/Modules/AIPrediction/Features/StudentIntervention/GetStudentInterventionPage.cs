@@ -73,7 +73,7 @@ public static class GetStudentInterventionPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentInterventionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

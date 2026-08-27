@@ -24,7 +24,7 @@ public sealed class CourseSelectionQuery(
 			.Set<CourseSelectionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentCourseEnrollmentId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class CourseSelectionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.CourseSelection
+			FROM student.student_course_enrollment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class CourseSelectionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				courseselection_id AS "Id"
-			FROM public.CourseSelection
+				student_course_enrollment_id AS "Id"
+			FROM student.student_course_enrollment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY courseselection_id
+			ORDER BY student_course_enrollment_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class CourseSelectionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentCourseEnrollmentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

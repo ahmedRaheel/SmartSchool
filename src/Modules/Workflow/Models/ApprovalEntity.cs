@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Workflow.Models;
 /// </summary>
 public sealed class ApprovalEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ApprovalId { get; private set; } = Guid.NewGuid();
+
 	private ApprovalEntity()
 	{
 	}

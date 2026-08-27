@@ -24,7 +24,7 @@ public sealed class JobQuery(
 			.Set<JobEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.JobId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class JobQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Job
+			FROM hr.job
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class JobQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				job_id AS "Id"
-			FROM public.Job
+			FROM hr.job
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY job_id
@@ -95,7 +95,7 @@ public sealed class JobQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.JobId != excludingId.Value)),
 				cancellationToken);
 	}
 }

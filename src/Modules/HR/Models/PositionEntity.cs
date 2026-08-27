@@ -7,9 +7,36 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class PositionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid PositionId { get; private set; } = Guid.NewGuid();
+
 	private PositionEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted department id value.</summary>
+	public Guid? DepartmentId { get; private set; }
+
+	/// <summary>Gets the persisted job id value.</summary>
+	public Guid JobId { get; private set; }
+
+	/// <summary>Gets the persisted job grade id value.</summary>
+	public Guid? JobGradeId { get; private set; }
+
+	/// <summary>Gets the persisted reports to position id value.</summary>
+	public Guid? ReportsToPositionId { get; private set; }
+
+	/// <summary>Gets the persisted position code value.</summary>
+	public string PositionCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted headcount value.</summary>
+	public int Headcount { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

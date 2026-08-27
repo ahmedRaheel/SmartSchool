@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Admissions.Models;
 /// </summary>
 public sealed class ApplicantEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ApplicantId { get; private set; } = Guid.NewGuid();
+
 	private ApplicantEntity()
 	{
 	}

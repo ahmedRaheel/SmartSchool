@@ -89,7 +89,7 @@ public static class CreateLesson
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LessonId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

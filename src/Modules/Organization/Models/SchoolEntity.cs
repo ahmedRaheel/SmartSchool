@@ -2,63 +2,99 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Organization.Models;
 
-/// <summary>
-/// Represents the SchoolEntity domain entity.
-/// </summary>
+/// <summary>Represents a school owned by a SaaS tenant.</summary>
 public sealed class SchoolEntity : Entity
 {
-	private SchoolEntity()
-	{
-	}
+    private SchoolEntity() { }
 
-	/// <summary>Gets the business code.</summary>
-	public string Code { get; private set; } = string.Empty;
+    public Guid SchoolId { get; private set; } = Guid.NewGuid();
+    public string Code { get; private set; } = string.Empty;
+    public string Name { get; private set; } = string.Empty;
+    public string? RegistrationNumber { get; private set; }
+    public string? Email { get; private set; }
+    public string? Phone { get; private set; }
+    public string? Fax { get; private set; }
+    public string? Website { get; private set; }
+    public string? Address { get; private set; }
+    public string? City { get; private set; }
+    public string? Province { get; private set; }
+    public string? Country { get; private set; }
+    public string? LogoUrl { get; private set; }
+    public string? MetadataJson => null;
 
-	/// <summary>Gets the display name.</summary>
-	public string Name { get; private set; } = string.Empty;
+    public static SchoolEntity Create(
+        Guid tenantId,
+        string code,
+        string name,
+        string? registrationNumber,
+        string? email,
+        string? phone,
+        string? fax,
+        string? website,
+        string? address,
+        string? city,
+        string? province,
+        string? country,
+        string? logoUrl)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
-	public string? MetadataJson { get; private set; }
+        return new SchoolEntity
+        {
+            TenantId = tenantId,
+            Code = code.Trim(),
+            Name = name.Trim(),
+            RegistrationNumber = Clean(registrationNumber),
+            Email = Clean(email),
+            Phone = Clean(phone),
+            Fax = Clean(fax),
+            Website = Clean(website),
+            Address = Clean(address),
+            City = Clean(city),
+            Province = Clean(province),
+            Country = Clean(country),
+            LogoUrl = Clean(logoUrl)
+        };
+    }
 
-	/// <summary>Creates a new SchoolEntity.</summary>
-	/// <param name="tenantId">The owning tenant identifier.</param>
-	/// <param name="code">The business code.</param>
-	/// <param name="name">The display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	/// <returns>The newly created entity.</returns>
-	public static SchoolEntity Create(
-		Guid tenantId,
-		string code,
-		string name,
-		string? metadataJson = null)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+    public void UpdateDetails(
+        string code,
+        string name,
+        string? registrationNumber,
+        string? email,
+        string? phone,
+        string? fax,
+        string? website,
+        string? address,
+        string? city,
+        string? province,
+        string? country,
+        string? logoUrl)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-		return new SchoolEntity
-		{
-			TenantId = tenantId,
-			Code = code.Trim(),
-			Name = name.Trim(),
-			MetadataJson = metadataJson
-		};
-	}
+        Code = code.Trim();
+        Name = name.Trim();
+        RegistrationNumber = Clean(registrationNumber);
+        Email = Clean(email);
+        Phone = Clean(phone);
+        Fax = Clean(fax);
+        Website = Clean(website);
+        Address = Clean(address);
+        City = Clean(city);
+        Province = Clean(province);
+        Country = Clean(country);
+        LogoUrl = Clean(logoUrl);
+        MarkAsUpdated();
+    }
 
-	/// <summary>Updates the business details.</summary>
-	/// <param name="code">The new business code.</param>
-	/// <param name="name">The new display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	public void UpdateDetails(
-		string code,
-		string name,
-		string? metadataJson = null)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+    public void UpdateDetails(string code, string name)
+    {
+        UpdateDetails(code, name, RegistrationNumber, Email, Phone, Fax, Website, Address, City, Province, Country, LogoUrl);
+    }
 
-		Code = code.Trim();
-		Name = name.Trim();
-		MetadataJson = metadataJson;
-		MarkAsUpdated();
-	}
+    private static string? Clean(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

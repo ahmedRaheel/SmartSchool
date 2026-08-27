@@ -24,7 +24,7 @@ public sealed class StudentGuardianQuery(
 			.Set<StudentGuardianEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.GuardianId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StudentGuardianQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentGuardian
+			FROM student.student_guardian
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class StudentGuardianQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentguardian_id AS "Id"
-			FROM public.StudentGuardian
+				id AS "Id"
+			FROM student.student_guardian
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentguardian_id
+			ORDER BY id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class StudentGuardianQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.GuardianId != excludingId.Value)),
 				cancellationToken);
 	}
 }

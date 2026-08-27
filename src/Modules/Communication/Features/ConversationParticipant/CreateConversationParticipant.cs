@@ -89,7 +89,7 @@ public static class CreateConversationParticipant
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ConversationParticipantId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -12,9 +12,8 @@ public sealed class ParentToolExecutionEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<ParentToolExecutionEntity> builder)
 	{
-		builder.ToTable("ParentToolExecution", schema: "ai_parent");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("parent_tool_execution", schema: "ai_parent");
+		builder.HasKey(entity => entity.ParentToolExecutionId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,25 @@ public sealed class ParentToolExecutionEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.ParentToolExecutionId).HasColumnName("parent_tool_execution_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.ParentConversationId).HasColumnName("parent_conversation_id");
+		builder.Property(entity => entity.ToolDefinitionId).HasColumnName("tool_definition_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.InputPayload).HasColumnName("input_payload");
+		builder.Property(entity => entity.OutputPayload).HasColumnName("output_payload");
+		builder.Property(entity => entity.Status).HasColumnName("status");
+		builder.Property(entity => entity.ExecutedAt).HasColumnName("executed_at");
 	}
 }

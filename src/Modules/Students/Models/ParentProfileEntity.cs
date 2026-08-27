@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Students.Models;
 /// </summary>
 public sealed class ParentProfileEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ParentProfileId { get; private set; } = Guid.NewGuid();
+
 	public string FirstName { get; private set; } = string.Empty;
 	public string LastName { get; private set; } = string.Empty;
 	public string Cnic { get; private set; } = string.Empty;

@@ -7,9 +7,21 @@ namespace SmartSchool.Modules.AICore.Models;
 /// </summary>
 public sealed class ModelConfigurationEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ModelConfigurationId { get; private set; } = Guid.NewGuid();
+
 	private ModelConfigurationEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted provider value.</summary>
+	public string Provider { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted model name value.</summary>
+	public string ModelName { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted configuration value.</summary>
+	public string? Configuration { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

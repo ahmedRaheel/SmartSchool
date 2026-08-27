@@ -7,9 +7,30 @@ namespace SmartSchool.Modules.Library.Models;
 /// </summary>
 public sealed class LoanEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid BookLoanId { get; private set; } = Guid.NewGuid();
+
 	private LoanEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted book copy id value.</summary>
+	public Guid BookCopyId { get; private set; }
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid? StudentId { get; private set; }
+
+	/// <summary>Gets the persisted employee id value.</summary>
+	public Guid? EmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted issued at value.</summary>
+	public DateTimeOffset IssuedAt { get; private set; }
+
+	/// <summary>Gets the persisted due at value.</summary>
+	public DateTimeOffset DueAt { get; private set; }
+
+	/// <summary>Gets the persisted returned at value.</summary>
+	public DateTimeOffset? ReturnedAt { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

@@ -24,7 +24,7 @@ public sealed class StockTransactionQuery(
 			.Set<StockTransactionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StockTransactionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StockTransactionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StockTransaction
+			FROM inventory.stocktransaction
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class StockTransactionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				stocktransaction_id AS "Id"
-			FROM public.StockTransaction
+				stock_transaction_id AS "Id"
+			FROM inventory.stocktransaction
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY stocktransaction_id
+			ORDER BY stock_transaction_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class StockTransactionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StockTransactionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

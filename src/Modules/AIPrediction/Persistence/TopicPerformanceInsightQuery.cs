@@ -24,7 +24,7 @@ public sealed class TopicPerformanceInsightQuery(
 			.Set<TopicPerformanceInsightEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.TopicPerformanceInsightId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class TopicPerformanceInsightQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.TopicPerformanceInsight
+			FROM ai.topic_performance_insight
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class TopicPerformanceInsightQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				topicperformanceinsight_id AS "Id"
-			FROM public.TopicPerformanceInsight
+				topic_performance_insight_id AS "Id"
+			FROM ai.topic_performance_insight
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY topicperformanceinsight_id
+			ORDER BY topic_performance_insight_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class TopicPerformanceInsightQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.TopicPerformanceInsightId != excludingId.Value)),
 				cancellationToken);
 	}
 }

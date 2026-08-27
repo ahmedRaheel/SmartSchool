@@ -7,7 +7,9 @@ namespace SmartSchool.Modules.Documents.Models;
 /// </summary>
 public sealed class DocumentTypeEntity : Entity
 {
-	private DocumentTypeEntity()
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid DocumentTypeId { get; private set; } = Guid.NewGuid();
+private DocumentTypeEntity()
 	{
 	}
 

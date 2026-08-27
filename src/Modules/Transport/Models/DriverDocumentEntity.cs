@@ -9,7 +9,9 @@ namespace SmartSchool.Modules.Transport.Models;
 /// </summary>
 public sealed class DriverDocumentEntity : Entity
 {
-	private DriverDocumentEntity()
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid DriverDocumentId { get; private set; } = Guid.NewGuid();
+private DriverDocumentEntity()
 	{
 	}
 

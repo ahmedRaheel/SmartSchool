@@ -20,8 +20,7 @@ public interface ITenantQuery
 	/// <summary>
 	/// Executes the persistence operation.
 	/// </summary>
-	Task<PagedResult<TenantEntity>> GetPageAsync(
-		Guid tenantId,
+	Task<PagedResult<TenantEntity>> GetPageAsync(		
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken);

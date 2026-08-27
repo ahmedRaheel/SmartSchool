@@ -28,7 +28,8 @@ public static class CreateLearningRecommendation
 	public sealed record Request(
 		Guid TenantId,
 		string Code,
-		string Name) : IRequest<Result<Response>>;
+		string Name,
+		string? MetadataJson = null) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -61,7 +62,8 @@ public static class CreateLearningRecommendation
 			var entity = LearningRecommendationEntity.Create(
 				request.TenantId,
 				request.Code,
-				request.Name);
+				request.Name,
+				request.MetadataJson);
 
 			await entityCommand.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
@@ -89,7 +91,7 @@ public static class CreateLearningRecommendation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LearningRecommendationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

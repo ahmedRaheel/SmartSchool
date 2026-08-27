@@ -7,9 +7,42 @@ namespace SmartSchool.Modules.AIPrediction.Models;
 /// </summary>
 public sealed class PredictionEvidenceEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid PredictionEvidenceId { get; private set; } = Guid.NewGuid();
+
 	private PredictionEvidenceEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted student performance prediction id value.</summary>
+	public Guid StudentPerformancePredictionId { get; private set; }
+
+	/// <summary>Gets the persisted evidence type value.</summary>
+	public string EvidenceType { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted source entity type value.</summary>
+	public string? SourceEntityType { get; private set; }
+
+	/// <summary>Gets the persisted source entity id value.</summary>
+	public Guid? SourceEntityId { get; private set; }
+
+	/// <summary>Gets the persisted numeric value value.</summary>
+	public decimal? NumericValue { get; private set; }
+
+	/// <summary>Gets the persisted text value value.</summary>
+	public string? TextValue { get; private set; }
+
+	/// <summary>Gets the persisted normalized value value.</summary>
+	public decimal? NormalizedValue { get; private set; }
+
+	/// <summary>Gets the persisted weight value.</summary>
+	public decimal? Weight { get; private set; }
+
+	/// <summary>Gets the persisted occurred at value.</summary>
+	public DateTimeOffset? OccurredAt { get; private set; }
+
+	/// <summary>Gets the persisted explanation value.</summary>
+	public string? Explanation { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

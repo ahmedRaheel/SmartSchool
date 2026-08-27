@@ -7,9 +7,39 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class TeacherAssignmentEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TeacherCourseAssignmentId { get; private set; } = Guid.NewGuid();
+
 	private TeacherAssignmentEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted course offering id value.</summary>
+	public Guid CourseOfferingId { get; private set; }
+
+	/// <summary>Gets the persisted employee id value.</summary>
+	public Guid EmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted class section id value.</summary>
+	public Guid? ClassSectionId { get; private set; }
+
+	/// <summary>Gets the persisted teaching group id value.</summary>
+	public Guid? TeachingGroupId { get; private set; }
+
+	/// <summary>Gets the persisted assignment role value.</summary>
+	public string AssignmentRole { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted periods per week value.</summary>
+	public int? PeriodsPerWeek { get; private set; }
+
+	/// <summary>Gets the persisted effective from value.</summary>
+	public DateOnly? EffectiveFrom { get; private set; }
+
+	/// <summary>Gets the persisted effective to value.</summary>
+	public DateOnly? EffectiveTo { get; private set; }
+
+	/// <summary>Gets the persisted is primary value.</summary>
+	public bool IsPrimary { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

@@ -24,7 +24,7 @@ public sealed class ParentConversationQuery(
 			.Set<ParentConversationEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ParentConversationId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ParentConversationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ParentConversation
+			FROM ai_parent.parent_conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class ParentConversationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				parentconversation_id AS "Id"
-			FROM public.ParentConversation
+				parent_conversation_id AS "Id"
+			FROM ai_parent.parent_conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY parentconversation_id
+			ORDER BY parent_conversation_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class ParentConversationQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ParentConversationId != excludingId.Value)),
 				cancellationToken);
 	}
 }

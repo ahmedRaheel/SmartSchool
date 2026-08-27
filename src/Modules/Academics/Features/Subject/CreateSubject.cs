@@ -1,3 +1,5 @@
+using Dapper;
+using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -27,7 +29,7 @@ public static class CreateSubject
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
+        Guid BranchId,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -35,32 +37,32 @@ public static class CreateSubject
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+			RuleFor(x => x.BranchId).NotEmpty();
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		ISubjectQuery entityQuery,
-		ISubjectCommand entityCommand)
+	public sealed class Handler(		
+		ISubjectCommand entityCommand,
+        IBusinessNumberGenerator numberGenerator,
+        IDbConnectionFactory connectionFactory)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(SubjectEntity), request.Code)));
-			}
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
+                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
+                new { request.TenantId, request.BranchId }, cancellationToken: cancellationToken));
+            if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("A valid branch is required."));
+            var code = await numberGenerator.NextAsync("SUBJECT:" + request.BranchId, $"{branchCode}-SB-", request.TenantId, 5, cancellationToken);
 
 			var entity = SubjectEntity.Create(
 				request.TenantId,
-				request.Code,
+                request.BranchId,
+				code,
 				request.Name);
 
 			await entityCommand.AddAsync(entity, cancellationToken);
@@ -85,11 +87,11 @@ public static class CreateSubject
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.SubjectEntity entity)
+		SubjectEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SubjectId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

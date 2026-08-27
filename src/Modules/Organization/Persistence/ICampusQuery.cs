@@ -13,7 +13,7 @@ public interface ICampusQuery
 	/// Executes the persistence operation.
 	/// </summary>
 	Task<CampusEntity?> GetByIdAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		Guid id,
 		CancellationToken cancellationToken);
 
@@ -21,7 +21,7 @@ public interface ICampusQuery
 	/// Executes the persistence operation.
 	/// </summary>
 	Task<PagedResult<CampusEntity>> GetPageAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken);

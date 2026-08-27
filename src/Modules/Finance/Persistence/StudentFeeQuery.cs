@@ -24,7 +24,7 @@ public sealed class StudentFeeQuery(
 			.Set<StudentFeeEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentFeeId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StudentFeeQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentFee
+			FROM finance.studentfee
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class StudentFeeQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentfee_id AS "Id"
-			FROM public.StudentFee
+				student_fee_id AS "Id"
+			FROM finance.studentfee
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentfee_id
+			ORDER BY student_fee_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class StudentFeeQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentFeeId != excludingId.Value)),
 				cancellationToken);
 	}
 }

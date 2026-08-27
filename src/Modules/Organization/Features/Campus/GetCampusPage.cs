@@ -18,14 +18,12 @@ public static class GetCampusPage
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+		Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType, Guid BranchGenderTypeId,
+		        string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax,
+		        string? Mobile, string? Email, string? LogoUrl);
 
 	public sealed record Query(
-		Guid TenantId,
+		Guid? TenantId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
@@ -55,9 +53,10 @@ public static class GetCampusPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "campus"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid? tenantId, int page, int pageSize, SmartSchool.Application.Identity.ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, page, pageSize);
+					var effectiveTenantId = tenantScope.Resolve(tenantId);
+                    var request = new Query(effectiveTenantId, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();
@@ -72,10 +71,8 @@ public static class GetCampusPage
 		SmartSchool.Modules.Organization.Models.CampusEntity entity)
 	{
 		return new Response(
-			entity.TenantId,
-			entity.Id,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
+			entity.TenantId, entity.CampusId, entity.SchoolId, entity.Code, entity.Name, entity.BranchType, entity.BranchGenderTypeId,
+			            entity.Address, entity.City, entity.Province, entity.Country, entity.Phone, entity.Fax, entity.Mobile,
+			            entity.Email, entity.LogoUrl);
 	}
 }

@@ -24,7 +24,7 @@ public sealed class JobGradeQuery(
 			.Set<JobGradeEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.JobGradeId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class JobGradeQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.JobGrade
+			FROM hr.job_grade
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class JobGradeQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				jobgrade_id AS "Id"
-			FROM public.JobGrade
+				job_grade_id AS "Id"
+			FROM hr.job_grade
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY jobgrade_id
+			ORDER BY job_grade_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class JobGradeQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.JobGradeId != excludingId.Value)),
 				cancellationToken);
 	}
 }

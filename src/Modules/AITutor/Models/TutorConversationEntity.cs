@@ -7,9 +7,36 @@ namespace SmartSchool.Modules.AITutor.Models;
 /// </summary>
 public sealed class TutorConversationEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TutorConversationId { get; private set; } = Guid.NewGuid();
+
 	private TutorConversationEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid? AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted course offering id value.</summary>
+	public Guid? CourseOfferingId { get; private set; }
+
+	/// <summary>Gets the persisted subject id value.</summary>
+	public Guid? SubjectId { get; private set; }
+
+	/// <summary>Gets the persisted title value.</summary>
+	public string? Title { get; private set; }
+
+	/// <summary>Gets the persisted started at value.</summary>
+	public DateTimeOffset StartedAt { get; private set; }
+
+	/// <summary>Gets the persisted ended at value.</summary>
+	public DateTimeOffset? EndedAt { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

@@ -98,7 +98,7 @@ public static class UpdateEmployeeCompensation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmployeeCompensationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

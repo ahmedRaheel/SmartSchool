@@ -98,7 +98,7 @@ public static class UpdateSubject
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SubjectId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

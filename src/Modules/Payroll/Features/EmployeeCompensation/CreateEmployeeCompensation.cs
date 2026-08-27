@@ -89,7 +89,7 @@ public static class CreateEmployeeCompensation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmployeeCompensationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

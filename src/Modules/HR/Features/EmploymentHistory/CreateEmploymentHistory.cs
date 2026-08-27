@@ -89,7 +89,7 @@ public static class CreateEmploymentHistory
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmploymentHistoryId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

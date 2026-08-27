@@ -24,7 +24,7 @@ public sealed class PaymentQuery(
 			.Set<PaymentEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentPaymentId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class PaymentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Payment
+			FROM finance.student_payment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class PaymentQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				payment_id AS "Id"
-			FROM public.Payment
+				student_payment_id AS "Id"
+			FROM finance.student_payment
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY payment_id
+			ORDER BY student_payment_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class PaymentQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentPaymentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

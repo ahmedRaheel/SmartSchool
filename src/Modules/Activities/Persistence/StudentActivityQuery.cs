@@ -24,7 +24,7 @@ public sealed class StudentActivityQuery(
 			.Set<StudentActivityEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ActivityId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StudentActivityQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentActivity
+			FROM activity.student_activity
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class StudentActivityQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studentactivity_id AS "Id"
-			FROM public.StudentActivity
+				id AS "Id"
+			FROM activity.student_activity
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studentactivity_id
+			ORDER BY id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class StudentActivityQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ActivityId != excludingId.Value)),
 				cancellationToken);
 	}
 }

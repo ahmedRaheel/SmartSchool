@@ -68,7 +68,7 @@ public static class GetStopById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StopId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -24,7 +24,7 @@ public sealed class ParentToolExecutionQuery(
 			.Set<ParentToolExecutionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ParentToolExecutionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ParentToolExecutionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.ParentToolExecution
+			FROM ai_parent.parent_tool_execution
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class ParentToolExecutionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				parenttoolexecution_id AS "Id"
-			FROM public.ParentToolExecution
+				parent_tool_execution_id AS "Id"
+			FROM ai_parent.parent_tool_execution
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY parenttoolexecution_id
+			ORDER BY parent_tool_execution_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class ParentToolExecutionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ParentToolExecutionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

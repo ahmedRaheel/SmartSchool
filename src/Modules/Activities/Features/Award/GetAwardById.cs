@@ -68,7 +68,7 @@ public static class GetAwardById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentAwardId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

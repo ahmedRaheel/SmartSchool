@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Finance.Models;
 /// </summary>
 public sealed class DiscountEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid DiscountId { get; private set; } = Guid.NewGuid();
+
 	private DiscountEntity()
 	{
 	}

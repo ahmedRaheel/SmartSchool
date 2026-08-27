@@ -7,9 +7,26 @@ namespace SmartSchool.Modules.Activities.Models;
 /// </summary>
 public sealed class StudentActivityEntity : Entity
 {
-	private StudentActivityEntity()
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid StudentActivityId { get; private set; } = Guid.NewGuid();
+private StudentActivityEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted activity id value.</summary>
+	public Guid ActivityId { get; private set; }
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted role name value.</summary>
+	public string? RoleName { get; private set; }
+
+	/// <summary>Gets the persisted joined at value.</summary>
+	public DateOnly? JoinedAt { get; private set; }
+
+	/// <summary>Gets the persisted left at value.</summary>
+	public DateOnly? LeftAt { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

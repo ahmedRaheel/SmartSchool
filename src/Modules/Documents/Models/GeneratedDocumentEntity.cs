@@ -7,9 +7,48 @@ namespace SmartSchool.Modules.Documents.Models;
 /// </summary>
 public sealed class GeneratedDocumentEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid GeneratedDocumentId { get; private set; } = Guid.NewGuid();
+
 	private GeneratedDocumentEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted document template id value.</summary>
+	public Guid DocumentTemplateId { get; private set; }
+
+	/// <summary>Gets the persisted template version value.</summary>
+	public int TemplateVersion { get; private set; }
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid? StudentId { get; private set; }
+
+	/// <summary>Gets the persisted employee id value.</summary>
+	public Guid? EmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted document number value.</summary>
+	public string DocumentNumber { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted rendered content snapshot value.</summary>
+	public string RenderedContentSnapshot { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted file url value.</summary>
+	public string? FileUrl { get; private set; }
+
+	/// <summary>Gets the persisted verification code value.</summary>
+	public string? VerificationCode { get; private set; }
+
+	/// <summary>Gets the persisted issued by value.</summary>
+	public Guid? IssuedBy { get; private set; }
+
+	/// <summary>Gets the persisted approved by value.</summary>
+	public Guid? ApprovedBy { get; private set; }
+
+	/// <summary>Gets the persisted issued at value.</summary>
+	public DateTimeOffset? IssuedAt { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

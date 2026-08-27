@@ -12,9 +12,9 @@ public sealed class TeacherProfileEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<TeacherProfileEntity> builder)
 	{
-		builder.ToTable("TeacherProfile");
+		builder.ToTable("TeacherProfile", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.Id);
+		builder.HasKey(entity => entity.TeacherProfileId);
 
 		builder
 			.Property(entity => entity.TenantId)

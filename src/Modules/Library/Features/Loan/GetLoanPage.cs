@@ -73,7 +73,7 @@ public static class GetLoanPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.BookLoanId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

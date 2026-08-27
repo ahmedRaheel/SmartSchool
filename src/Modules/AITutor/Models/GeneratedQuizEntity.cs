@@ -7,9 +7,27 @@ namespace SmartSchool.Modules.AITutor.Models;
 /// </summary>
 public sealed class GeneratedQuizEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid GeneratedQuizId { get; private set; } = Guid.NewGuid();
+
 	private GeneratedQuizEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid StudentId { get; private set; }
+
+	/// <summary>Gets the persisted subject id value.</summary>
+	public Guid SubjectId { get; private set; }
+
+	/// <summary>Gets the persisted tutor conversation id value.</summary>
+	public Guid? TutorConversationId { get; private set; }
+
+	/// <summary>Gets the persisted topic value.</summary>
+	public string? Topic { get; private set; }
+
+	/// <summary>Gets the persisted difficulty value.</summary>
+	public string? Difficulty { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

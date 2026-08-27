@@ -3,6 +3,7 @@ using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
@@ -16,7 +17,6 @@ namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 public static class CreateTenant
 {
 	public sealed record Request(
-		string Code,
 		string Name,
 		string AdminFirstName,
 		string AdminLastName,
@@ -40,7 +40,6 @@ public static class CreateTenant
 	{
 		public Validator()
 		{
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 			RuleFor(x => x.AdminFirstName).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.AdminLastName).NotEmpty().MaximumLength(100);
@@ -49,10 +48,10 @@ public static class CreateTenant
 		}
 	}
 
-	public sealed class Handler(
-		ITenantQuery tenantQuery,
+	public sealed class Handler(	
 		ITenantCommand tenantCommand,
-		IIdentityAccountService identityAccountService)
+		IIdentityAccountService identityAccountService,
+		IBusinessNumberGenerator numberGenerator)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -61,21 +60,12 @@ public static class CreateTenant
 		{
 			var tenantId = Guid.NewGuid();
 
-			var duplicateCode = await tenantQuery.ExistsByCodeAsync(
-				tenantId,
-				request.Code,
-				null,
-				cancellationToken);
-
-			if (duplicateCode)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict($"A tenant with code '{request.Code}' already exists."));
-			}
+			var code = await numberGenerator.NextAsync(
+				"TENANT", "TN", null, 4, cancellationToken);
 
 			var tenant = TenantEntity.Create(
 				tenantId,
-				request.Code,
+				code,
 				request.Name);
 
 			await tenantCommand.AddAsync(tenant, cancellationToken);
@@ -84,18 +74,20 @@ public static class CreateTenant
 			{
 				var account = await identityAccountService.CreateAccountAsync(
 					tenantId,
-					tenant.Id,
+					tenant.TenantId,
 					"Admin",
 					request.AdminEmail,
 					request.AdminFirstName,
 					request.AdminLastName,
+                    null,
+                    null,
 					["Admin"],
 					cancellationToken);
 
 				return Result<Response>.Success(
 					new Response(
 						tenantId,
-						tenant.Id,
+						tenant.TenantId,
 						tenant.Code,
 						tenant.Name,
 						new AdminAccountResponse(

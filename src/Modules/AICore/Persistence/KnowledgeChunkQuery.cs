@@ -24,7 +24,7 @@ public sealed class KnowledgeChunkQuery(
 			.Set<KnowledgeChunkEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.KnowledgeChunkId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class KnowledgeChunkQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.KnowledgeChunk
+			FROM ai_core.knowledge_chunk
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class KnowledgeChunkQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				knowledgechunk_id AS "Id"
-			FROM public.KnowledgeChunk
+				knowledge_chunk_id AS "Id"
+			FROM ai_core.knowledge_chunk
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY knowledgechunk_id
+			ORDER BY knowledge_chunk_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class KnowledgeChunkQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.KnowledgeChunkId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -24,7 +24,7 @@ public sealed class EmployeeCompensationQuery(
 			.Set<EmployeeCompensationEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.EmployeeCompensationId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class EmployeeCompensationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.EmployeeCompensation
+			FROM hr.employee_compensation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class EmployeeCompensationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				employeecompensation_id AS "Id"
-			FROM public.EmployeeCompensation
+				employee_compensation_id AS "Id"
+			FROM hr.employee_compensation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY employeecompensation_id
+			ORDER BY employee_compensation_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class EmployeeCompensationQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.EmployeeCompensationId != excludingId.Value)),
 				cancellationToken);
 	}
 }

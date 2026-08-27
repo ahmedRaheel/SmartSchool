@@ -39,20 +39,33 @@ public static class DataPlatformServiceCollectionExtensions
 		AddPersistence(services, configuration);
 		AddCaching(services, configuration);
 		AddAuthentication(services, configuration);
-		var identityServiceOptions = configuration
-			.GetSection(IdentityServiceOptions.SectionName)
-			.Get<IdentityServiceOptions>();
+        services
+            .AddOptions<IdentityServiceOptions>()
+            .Bind(configuration.GetSection(IdentityServiceOptions.SectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.BaseUrl),
+                "IdentityService:BaseUrl is required.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId),
+                "IdentityService:ClientId is required.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientSecret),
+                "IdentityService:ClientSecret is required.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.Scope),
+                "IdentityService:Scope is required.")
+            .ValidateOnStart();
 
-		if (identityServiceOptions is not null &&
-			!string.IsNullOrWhiteSpace(identityServiceOptions.BaseUrl))
-		{
-			services.AddSingleton(identityServiceOptions);
-			services.AddHttpClient<IIdentityAccountService, IdentityAccountService>(client =>
-			{
-				client.BaseAddress = new Uri(identityServiceOptions.BaseUrl.TrimEnd('/') + "/");
-				client.Timeout = TimeSpan.FromSeconds(30);
-			});
-		}
+        var identityServiceOptions = configuration
+            .GetRequiredSection(IdentityServiceOptions.SectionName)
+            .Get<IdentityServiceOptions>()
+            ?? throw new InvalidOperationException(
+                "IdentityService configuration is required.");
+
+        services.AddHttpClient<IIdentityAccountService, IdentityAccountService>(client =>
+        {
+            client.BaseAddress = new Uri(
+                identityServiceOptions.BaseUrl.TrimEnd('/') + "/",
+                UriKind.Absolute);
+            client.Timeout = TimeSpan.FromSeconds(30);
+        })
+        .AddStandardResilienceHandler();
 
 
 		return services;
@@ -115,6 +128,7 @@ public static class DataPlatformServiceCollectionExtensions
 		});
 
 		services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
+		services.AddScoped<IBusinessNumberGenerator, BusinessNumberGenerator>();
 		services.AddScoped<IApplicationDbContext>(
 			serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 		services.AddScoped<MockDatabaseSeeder>();

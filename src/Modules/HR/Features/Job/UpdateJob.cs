@@ -98,7 +98,7 @@ public static class UpdateJob
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.JobId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

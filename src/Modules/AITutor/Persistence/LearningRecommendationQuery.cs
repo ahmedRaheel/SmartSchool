@@ -24,7 +24,7 @@ public sealed class LearningRecommendationQuery(
 			.Set<LearningRecommendationEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.LearningRecommendationId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class LearningRecommendationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.LearningRecommendation
+			FROM ai_tutor.learning_recommendation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class LearningRecommendationQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				learningrecommendation_id AS "Id"
-			FROM public.LearningRecommendation
+				learning_recommendation_id AS "Id"
+			FROM ai_tutor.learning_recommendation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY learningrecommendation_id
+			ORDER BY learning_recommendation_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class LearningRecommendationQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.LearningRecommendationId != excludingId.Value)),
 				cancellationToken);
 	}
 }

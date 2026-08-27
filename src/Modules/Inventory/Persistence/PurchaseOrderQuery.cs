@@ -24,7 +24,7 @@ public sealed class PurchaseOrderQuery(
 			.Set<PurchaseOrderEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.PurchaseOrderId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class PurchaseOrderQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.PurchaseOrder
+			FROM inventory.purchaseorder
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class PurchaseOrderQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				purchaseorder_id AS "Id"
-			FROM public.PurchaseOrder
+				purchase_order_id AS "Id"
+			FROM inventory.purchaseorder
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY purchaseorder_id
+			ORDER BY purchase_order_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class PurchaseOrderQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.PurchaseOrderId != excludingId.Value)),
 				cancellationToken);
 	}
 }

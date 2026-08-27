@@ -8,7 +8,9 @@ namespace SmartSchool.Modules.Students.Models;
 /// </summary>
 public sealed class StudentDirectoryReadEntity : Entity
 {
-	private StudentDirectoryReadEntity()
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid StudentDirectoryReadId { get; private set; } = Guid.NewGuid();
+private StudentDirectoryReadEntity()
 	{
 	}
 

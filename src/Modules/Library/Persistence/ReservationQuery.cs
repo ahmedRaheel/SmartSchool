@@ -24,7 +24,7 @@ public sealed class ReservationQuery(
 			.Set<ReservationEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ReservationId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ReservationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Reservation
+			FROM library.reservation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ReservationQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				reservation_id AS "Id"
-			FROM public.Reservation
+			FROM library.reservation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY reservation_id
@@ -95,7 +95,7 @@ public sealed class ReservationQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ReservationId != excludingId.Value)),
 				cancellationToken);
 	}
 }

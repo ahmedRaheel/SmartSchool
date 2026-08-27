@@ -73,7 +73,7 @@ public static class GetAttendancePage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AttendanceId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

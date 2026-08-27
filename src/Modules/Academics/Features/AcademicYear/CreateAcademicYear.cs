@@ -89,7 +89,7 @@ public static class CreateAcademicYear
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AcademicYearId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

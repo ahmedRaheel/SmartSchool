@@ -24,7 +24,7 @@ public sealed class MessageQuery(
 			.Set<MessageEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.MessageId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class MessageQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Message
+			FROM communication.message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,8 +44,8 @@ public sealed class MessageQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				message_id AS "Id"
-			FROM public.Message
+				message_id AS "MessageId"
+			FROM communication.message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY message_id
@@ -95,7 +95,7 @@ public sealed class MessageQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.MessageId != excludingId.Value)),
 				cancellationToken);
 	}
 }

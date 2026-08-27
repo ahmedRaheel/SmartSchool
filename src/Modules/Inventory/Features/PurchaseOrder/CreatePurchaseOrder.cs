@@ -89,7 +89,7 @@ public static class CreatePurchaseOrder
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.PurchaseOrderId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

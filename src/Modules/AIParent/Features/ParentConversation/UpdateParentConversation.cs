@@ -98,7 +98,7 @@ public static class UpdateParentConversation
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ParentConversationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

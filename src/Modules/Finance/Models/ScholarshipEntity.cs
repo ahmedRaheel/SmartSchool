@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Finance.Models;
 /// </summary>
 public sealed class ScholarshipEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ScholarshipId { get; private set; } = Guid.NewGuid();
+
 	private ScholarshipEntity()
 	{
 	}

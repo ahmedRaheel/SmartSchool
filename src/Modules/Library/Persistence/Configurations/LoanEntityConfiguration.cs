@@ -12,9 +12,8 @@ public sealed class LoanEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<LoanEntity> builder)
 	{
-		builder.ToTable("Loan", schema: "library");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("book_loan", schema: "library");
+		builder.HasKey(entity => entity.BookLoanId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,24 @@ public sealed class LoanEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.BookLoanId).HasColumnName("book_loan_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.BookCopyId).HasColumnName("book_copy_id");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.EmployeeId).HasColumnName("employee_id");
+		builder.Property(entity => entity.IssuedAt).HasColumnName("issued_at");
+		builder.Property(entity => entity.DueAt).HasColumnName("due_at");
+		builder.Property(entity => entity.ReturnedAt).HasColumnName("returned_at");
 	}
 }

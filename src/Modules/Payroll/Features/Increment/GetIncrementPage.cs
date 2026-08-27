@@ -73,7 +73,7 @@ public static class GetIncrementPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.IncrementId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

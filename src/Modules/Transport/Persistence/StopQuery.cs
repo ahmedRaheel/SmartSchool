@@ -24,7 +24,7 @@ public sealed class StopQuery(
 			.Set<StopEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StopId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StopQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Stop
+			FROM transport.stop
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class StopQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				stop_id AS "Id"
-			FROM public.Stop
+			FROM transport.stop
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY stop_id
@@ -95,7 +95,7 @@ public sealed class StopQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StopId != excludingId.Value)),
 				cancellationToken);
 	}
 }

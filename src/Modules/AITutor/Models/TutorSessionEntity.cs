@@ -7,9 +7,30 @@ namespace SmartSchool.Modules.AITutor.Models;
 /// </summary>
 public sealed class TutorSessionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TutorSessionId { get; private set; } = Guid.NewGuid();
+
 	private TutorSessionEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted tutor conversation id value.</summary>
+	public Guid TutorConversationId { get; private set; }
+
+	/// <summary>Gets the persisted topic value.</summary>
+	public string? Topic { get; private set; }
+
+	/// <summary>Gets the persisted learning objective value.</summary>
+	public string? LearningObjective { get; private set; }
+
+	/// <summary>Gets the persisted started at value.</summary>
+	public DateTimeOffset StartedAt { get; private set; }
+
+	/// <summary>Gets the persisted ended at value.</summary>
+	public DateTimeOffset? EndedAt { get; private set; }
+
+	/// <summary>Gets the persisted session summary value.</summary>
+	public string? SessionSummary { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

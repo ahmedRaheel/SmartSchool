@@ -68,7 +68,7 @@ public static class GetKnowledgeCollectionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.KnowledgeCollectionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

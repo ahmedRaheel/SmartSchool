@@ -89,7 +89,7 @@ public static class CreateVehicle
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.VehicleId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

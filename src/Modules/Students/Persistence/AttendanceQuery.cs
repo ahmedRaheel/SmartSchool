@@ -24,7 +24,7 @@ public sealed class AttendanceQuery(
 			.Set<AttendanceEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.AttendanceId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class AttendanceQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Attendance
+			FROM student.attendance
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class AttendanceQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				attendance_id AS "Id"
-			FROM public.Attendance
+			FROM student.attendance
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY attendance_id
@@ -95,7 +95,7 @@ public sealed class AttendanceQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.AttendanceId != excludingId.Value)),
 				cancellationToken);
 	}
 }

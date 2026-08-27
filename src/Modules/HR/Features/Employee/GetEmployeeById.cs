@@ -13,7 +13,7 @@ public static class GetEmployeeById
 		Guid TenantId,
 		Guid Id,
 		Guid? UserId,
-		string EmployeeNumber,
+		string? EmployeeNumber,
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,
@@ -60,7 +60,7 @@ public static class GetEmployeeById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmployeeId,
 			entity.UserId,
 			entity.EmployeeNumber,
 			entity.FirstName,

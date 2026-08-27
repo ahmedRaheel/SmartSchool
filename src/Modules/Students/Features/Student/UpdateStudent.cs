@@ -13,8 +13,7 @@ public static class UpdateStudent
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		Guid? UserId,
-		string StudentNumber,
+		Guid? UserId,	
 		string FirstName,
 		string? LastName,
 		DateOnly? DateOfBirth,
@@ -87,9 +86,8 @@ public static class UpdateStudent
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
-			entity.UserId,
-			entity.StudentNumber,
+			entity.StudentId,
+			entity.UserId,			
 			entity.FirstName,
 			entity.LastName,
 			entity.DateOfBirth,

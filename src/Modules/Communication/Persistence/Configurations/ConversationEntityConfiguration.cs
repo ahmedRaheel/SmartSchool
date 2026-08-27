@@ -12,9 +12,8 @@ public sealed class ConversationEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<ConversationEntity> builder)
 	{
-		builder.ToTable("Conversation", schema: "communication");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("conversation", schema: "communication");
+		builder.HasKey(entity => entity.ConversationId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,24 @@ public sealed class ConversationEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.ConversationId).HasColumnName("conversation_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.ConversationTypeCode).HasColumnName("conversation_type_code");
+		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
+		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
+		builder.Property(entity => entity.Title).HasColumnName("title");
 	}
 }

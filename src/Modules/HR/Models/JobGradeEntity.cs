@@ -7,9 +7,27 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class JobGradeEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid JobGradeId { get; private set; } = Guid.NewGuid();
+
 	private JobGradeEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted grade level value.</summary>
+	public int? GradeLevel { get; private set; }
+
+	/// <summary>Gets the persisted minimum salary value.</summary>
+	public decimal? MinimumSalary { get; private set; }
+
+	/// <summary>Gets the persisted midpoint salary value.</summary>
+	public decimal? MidpointSalary { get; private set; }
+
+	/// <summary>Gets the persisted maximum salary value.</summary>
+	public decimal? MaximumSalary { get; private set; }
+
+	/// <summary>Gets the persisted currency code value.</summary>
+	public string CurrencyCode { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

@@ -89,7 +89,7 @@ public static class CreateAcademicSystem
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AcademicSystemId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -24,7 +24,7 @@ public sealed class AcademicYearQuery(
 			.Set<AcademicYearEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.AcademicYearId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class AcademicYearQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.AcademicYear
+			FROM academic.academic_year
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class AcademicYearQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				academicyear_id AS "Id"
-			FROM public.AcademicYear
+				academic_year_id AS "Id"
+			FROM academic.academic_year
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY academicyear_id
+			ORDER BY academic_year_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class AcademicYearQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.AcademicYearId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -89,7 +89,7 @@ public static class CreateJobGrade
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.JobGradeId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

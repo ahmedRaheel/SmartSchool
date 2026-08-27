@@ -24,7 +24,7 @@ public sealed class GeneratedDocumentQuery(
 			.Set<GeneratedDocumentEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.GeneratedDocumentId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class GeneratedDocumentQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.GeneratedDocument
+			FROM document.generated_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class GeneratedDocumentQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				generateddocument_id AS "Id"
-			FROM public.GeneratedDocument
+				generated_document_id AS "Id"
+			FROM document.generated_document
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY generateddocument_id
+			ORDER BY generated_document_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class GeneratedDocumentQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.GeneratedDocumentId != excludingId.Value)),
 				cancellationToken);
 	}
 }

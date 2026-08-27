@@ -24,7 +24,7 @@ public sealed class StudentTopicMasteryQuery(
 			.Set<StudentTopicMasteryEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentTopicMasteryId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class StudentTopicMasteryQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.StudentTopicMastery
+			FROM ai_tutor.student_topic_mastery
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class StudentTopicMasteryQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				studenttopicmastery_id AS "Id"
-			FROM public.StudentTopicMastery
+				student_topic_mastery_id AS "Id"
+			FROM ai_tutor.student_topic_mastery
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY studenttopicmastery_id
+			ORDER BY student_topic_mastery_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class StudentTopicMasteryQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentTopicMasteryId != excludingId.Value)),
 				cancellationToken);
 	}
 }

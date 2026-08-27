@@ -24,7 +24,7 @@ public sealed class LeadCaptureQuery(
 			.Set<LeadCaptureEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.LeadCaptureId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class LeadCaptureQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.LeadCapture
+			FROM ai_inquiry.lead_capture
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class LeadCaptureQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				leadcapture_id AS "Id"
-			FROM public.LeadCapture
+				lead_capture_id AS "Id"
+			FROM ai_inquiry.lead_capture
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY leadcapture_id
+			ORDER BY lead_capture_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class LeadCaptureQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.LeadCaptureId != excludingId.Value)),
 				cancellationToken);
 	}
 }

@@ -24,7 +24,7 @@ public sealed class ItemQuery(
 			.Set<ItemEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ItemId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ItemQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Item
+			FROM inventory.item
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ItemQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				item_id AS "Id"
-			FROM public.Item
+			FROM inventory.item
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY item_id
@@ -95,7 +95,7 @@ public sealed class ItemQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ItemId != excludingId.Value)),
 				cancellationToken);
 	}
 }

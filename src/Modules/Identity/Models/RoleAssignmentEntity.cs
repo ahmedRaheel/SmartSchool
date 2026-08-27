@@ -7,6 +7,8 @@ namespace SmartSchool.Modules.Identity.Models;
 /// </summary>
 public sealed class RoleAssignmentEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid RoleAssignmentId { get; private set; } = Guid.NewGuid();
 	private RoleAssignmentEntity()
 	{
 	}

@@ -24,8 +24,7 @@ public static class GetTenantPage
 	string Name,
 	string? MetadataJson);
 
-	public sealed record Query(
-		Guid TenantId,
+	public sealed record Query(		
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
@@ -37,8 +36,7 @@ public static class GetTenantPage
 			CancellationToken cancellationToken)
 		{
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
-			var page = await entityQuery.GetPageAsync(
-				request.TenantId,
+			var page = await entityQuery.GetPageAsync(				
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
@@ -55,9 +53,9 @@ public static class GetTenantPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "tenant"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, page, pageSize);
+					var request = new Query(page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();
@@ -69,11 +67,11 @@ public static class GetTenantPage
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Tenancy.Models.TenantEntity entity)
+		Models.TenantEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TenantId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

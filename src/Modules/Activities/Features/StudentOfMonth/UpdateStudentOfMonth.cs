@@ -98,7 +98,7 @@ public static class UpdateStudentOfMonth
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentOfMonthId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

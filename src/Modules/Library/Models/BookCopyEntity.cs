@@ -7,9 +7,24 @@ namespace SmartSchool.Modules.Library.Models;
 /// </summary>
 public sealed class BookCopyEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid BookCopyId { get; private set; } = Guid.NewGuid();
+
 	private BookCopyEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted book id value.</summary>
+	public Guid BookId { get; private set; }
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted barcode value.</summary>
+	public string Barcode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

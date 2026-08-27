@@ -73,7 +73,7 @@ public static class GetLearningResourcePage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.LearningResourceId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

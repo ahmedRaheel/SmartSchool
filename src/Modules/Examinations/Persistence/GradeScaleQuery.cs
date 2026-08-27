@@ -24,7 +24,7 @@ public sealed class GradeScaleQuery(
 			.Set<GradeScaleEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.GradeScaleId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class GradeScaleQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.GradeScale
+			FROM exam.gradescale
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class GradeScaleQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				gradescale_id AS "Id"
-			FROM public.GradeScale
+				grade_scale_id AS "Id"
+			FROM exam.gradescale
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY gradescale_id
+			ORDER BY grade_scale_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class GradeScaleQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.GradeScaleId != excludingId.Value)),
 				cancellationToken);
 	}
 }

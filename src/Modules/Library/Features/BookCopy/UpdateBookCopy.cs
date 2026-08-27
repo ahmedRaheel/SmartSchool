@@ -98,7 +98,7 @@ public static class UpdateBookCopy
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.BookCopyId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

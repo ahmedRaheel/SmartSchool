@@ -24,7 +24,7 @@ public sealed class SchoolLogoQuery(
 			.Set<SchoolLogoEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.SchoolLogoId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class SchoolLogoQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.SchoolLogo
+			FROM document.schoollogo
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class SchoolLogoQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				schoollogo_id AS "Id"
-			FROM public.SchoolLogo
+				school_logo_id AS "Id"
+			FROM document.schoollogo
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY schoollogo_id
+			ORDER BY school_logo_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class SchoolLogoQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.SchoolLogoId != excludingId.Value)),
 				cancellationToken);
 	}
 }

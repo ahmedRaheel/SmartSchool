@@ -7,9 +7,15 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class GradeLevelEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid GradeLevelId { get; private set; } = Guid.NewGuid();
+
 	private GradeLevelEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted sort order value.</summary>
+	public int SortOrder { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

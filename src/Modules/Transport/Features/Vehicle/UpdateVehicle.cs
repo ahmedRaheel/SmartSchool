@@ -98,7 +98,7 @@ public static class UpdateVehicle
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.VehicleId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

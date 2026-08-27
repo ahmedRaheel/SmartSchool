@@ -74,7 +74,7 @@ public static class GetNotificationById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.NotificationId,
 			entity.RecipientUserId,
 			entity.Type,
 			entity.Title,

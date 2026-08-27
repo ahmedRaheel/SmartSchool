@@ -10,6 +10,7 @@
 
     <ProjectReference Include="../BuildingBlocks/SmartSchool.BackgroundJobs/SmartSchool.BackgroundJobs.csproj" />
     <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Confluent.Kafka" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
@@ -40,6 +41,7 @@
     <ProjectReference Include="../Modules/AIParent/SmartSchool.Modules.AIParent.csproj" />
     <ProjectReference Include="../Modules/AIPrediction/SmartSchool.Modules.AIPrediction.csproj" />
     <ProjectReference Include="../Modules/Audit/SmartSchool.Modules.Audit.csproj" />
+    <ProjectReference Include="../Modules/Teachers/SmartSchool.Modules.Teachers.csproj" />
    
    
       <PackageReference Include="Serilog.Settings.Configuration" />

@@ -89,7 +89,7 @@ public static class CreateWorkflowStep
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.WorkflowStepId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

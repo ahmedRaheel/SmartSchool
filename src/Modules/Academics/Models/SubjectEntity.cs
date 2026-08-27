@@ -7,9 +7,20 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class SubjectEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid SubjectId { get; private set; } = Guid.NewGuid();
+
+	public Guid BranchId { get; private set; }
+
 	private SubjectEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted short name value.</summary>
+	public string? ShortName { get; private set; }
+
+	/// <summary>Gets the persisted is practical value.</summary>
+	public bool IsPractical { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
@@ -28,6 +39,7 @@ public sealed class SubjectEntity : Entity
 	/// <returns>The newly created entity.</returns>
 	public static SubjectEntity Create(
 		Guid tenantId,
+        Guid branchId,
 		string code,
 		string name,
 		string? metadataJson = null)
@@ -38,6 +50,7 @@ public sealed class SubjectEntity : Entity
 		return new SubjectEntity
 		{
 			TenantId = tenantId,
+            BranchId = branchId,
 			Code = code.Trim(),
 			Name = name.Trim(),
 			MetadataJson = metadataJson

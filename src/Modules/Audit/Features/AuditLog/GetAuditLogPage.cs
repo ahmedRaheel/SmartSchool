@@ -73,7 +73,7 @@ public static class GetAuditLogPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.AuditLogId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

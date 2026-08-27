@@ -24,7 +24,7 @@ public sealed class InquiryMessageQuery(
 			.Set<InquiryMessageEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.InquiryMessageId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class InquiryMessageQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.InquiryMessage
+			FROM ai_inquiry.inquiry_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class InquiryMessageQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				inquirymessage_id AS "Id"
-			FROM public.InquiryMessage
+				inquiry_message_id AS "Id"
+			FROM ai_inquiry.inquiry_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY inquirymessage_id
+			ORDER BY inquiry_message_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class InquiryMessageQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.InquiryMessageId != excludingId.Value)),
 				cancellationToken);
 	}
 }

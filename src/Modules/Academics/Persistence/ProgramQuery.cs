@@ -24,7 +24,7 @@ public sealed class ProgramQuery(
 			.Set<ProgramEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ProgramId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ProgramQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Program
+			FROM academic.program
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ProgramQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				program_id AS "Id"
-			FROM public.Program
+			FROM academic.program
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY program_id
@@ -95,7 +95,7 @@ public sealed class ProgramQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ProgramId != excludingId.Value)),
 				cancellationToken);
 	}
 }

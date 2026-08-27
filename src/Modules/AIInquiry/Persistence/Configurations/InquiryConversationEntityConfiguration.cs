@@ -12,9 +12,8 @@ public sealed class InquiryConversationEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<InquiryConversationEntity> builder)
 	{
-		builder.ToTable("InquiryConversation", schema: "ai_inquiry");
-
-		builder.HasKey(entity => entity.Id);
+		builder.ToTable("inquiry_conversation", schema: "ai_inquiry");
+		builder.HasKey(entity => entity.InquiryConversationId);
 
 		builder
 			.Property(entity => entity.TenantId)
@@ -44,5 +43,28 @@ public sealed class InquiryConversationEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+
+		// Canonical database mapping generated from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.Code).HasColumnName("code");
+		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(entity => entity.InquiryConversationId).HasColumnName("inquiry_conversation_id");
+		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+		// Database columns synchronized from SmartSchoolComplete.sql.
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+		builder.Property(entity => entity.VisitorSessionId).HasColumnName("visitor_session_id");
+		builder.Property(entity => entity.UserId).HasColumnName("user_id");
+		builder.Property(entity => entity.VisitorName).HasColumnName("visitor_name");
+		builder.Property(entity => entity.Phone).HasColumnName("phone");
+		builder.Property(entity => entity.Email).HasColumnName("email");
+		builder.Property(entity => entity.InterestedProgramId).HasColumnName("interested_program_id");
+		builder.Property(entity => entity.StartedAt).HasColumnName("started_at");
+		builder.Property(entity => entity.EndedAt).HasColumnName("ended_at");
+		builder.Property(entity => entity.Status).HasColumnName("status");
 	}
 }

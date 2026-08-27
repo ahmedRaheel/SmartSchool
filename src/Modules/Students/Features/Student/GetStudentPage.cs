@@ -13,7 +13,7 @@ public static class GetStudentPage
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		string StudentNumber,
+		string? StudentNumber,
 		string FirstName,
 		string? LastName,
 		DateOnly? DateOfBirth,
@@ -56,7 +56,7 @@ public static class GetStudentPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentId,
 			entity.StudentNumber,
 			entity.FirstName,
 			entity.LastName,

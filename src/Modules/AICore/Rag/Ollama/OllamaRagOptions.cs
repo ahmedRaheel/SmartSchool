@@ -7,7 +7,7 @@ public sealed class OllamaRagOptions
     public const string SectionName = "AI:Ollama";
 
     /// <summary>Gets or sets the local Ollama endpoint.</summary>
-    public string BaseUrl { get; set; } = "http://localhost:11434";
+    public string BaseUrl { get; set; } = string.Empty;
 
     /// <summary>Gets or sets the chat model.</summary>
     public string ChatModel { get; set; } = "llama3.2";

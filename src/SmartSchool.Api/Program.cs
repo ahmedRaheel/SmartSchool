@@ -44,6 +44,7 @@ using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Reference;
 using SmartSchool.Modules.Students;
 using SmartSchool.Modules.Tenancy;
+using SmartSchool.Modules.Teachers;
 using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Workflow;
 
@@ -51,9 +52,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSmartSchoolPlatform();
 
-var portalUrl =
-	builder.Configuration.GetValue<string>("PortalUrl")
-	?? "http://localhost:5173";
+var portalUrl = builder.Configuration.GetValue<string>("PortalUrl")
+	?? throw new InvalidOperationException("PortalUrl configuration is required.");
+
+var identityOptions = builder.Configuration
+	.GetRequiredSection(AuthenticationOptions.SectionName)
+	.Get<AuthenticationOptions>()
+	?? throw new InvalidOperationException("Identity configuration is required.");
 
 //
 // Authentication
@@ -67,26 +72,20 @@ builder.Services.Configure<JwtBearerOptions>(
 	JwtBearerDefaults.AuthenticationScheme,
 	options =>
 	{
-		options.Authority = "http://localhost:7101";
-
-		options.MetadataAddress =
-			"http://host.docker.internal:7101/.well-known/openid-configuration";
-
-		options.Audience = "smartschool-api";
-		options.RequireHttpsMetadata = false;
+		options.Authority = identityOptions.Authority;
+		options.MetadataAddress = identityOptions.MetadataAddress;
+		options.Audience = identityOptions.Audience;
+		options.RequireHttpsMetadata = identityOptions.RequireHttpsMetadata;
 		options.MapInboundClaims = false;
 
 		options.TokenValidationParameters ??=
 			new TokenValidationParameters();
 
-		// Token is issued to browser/Postman using localhost:7101.
 		options.TokenValidationParameters.ValidateIssuer = true;
-		options.TokenValidationParameters.ValidIssuer =
-			"http://localhost:7101";
+		options.TokenValidationParameters.ValidIssuer = identityOptions.ValidIssuer;
 
 		options.TokenValidationParameters.ValidateAudience = true;
-		options.TokenValidationParameters.ValidAudience =
-			"smartschool-api";
+		options.TokenValidationParameters.ValidAudience = identityOptions.Audience;
 
 		options.TokenValidationParameters.ValidateLifetime = true;
 		options.TokenValidationParameters.ValidateIssuerSigningKey = true;
@@ -145,6 +144,7 @@ builder.Services.Configure<JwtBearerOptions>(
 
 
 
+
 //
 // Authorization policies
 //
@@ -195,7 +195,7 @@ builder.Services
 //
 // Modules
 //
-builder.Services.AddAICoreModule();
+builder.Services.AddAICoreModule(builder.Configuration);
 builder.Services.AddAIInquiryModule();
 builder.Services.AddAIParentModule();
 builder.Services.AddAIPredictionModule();
@@ -218,8 +218,12 @@ builder.Services.AddPayrollModule();
 builder.Services.AddReferenceModule();
 builder.Services.AddStudentsModule();
 builder.Services.AddTenancyModule();
+builder.Services.AddTeachersModule();
 builder.Services.AddTransportModule();
 builder.Services.AddWorkflowModule();
+
+builder.Services.AddHostedService<KafkaCommunicationConsumer>();
+builder.Services.AddHostedService<KafkaCagInvalidationConsumer>();
 
 var app = builder.Build();
 
@@ -270,6 +274,9 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<
 	SmartSchool.Api.Middleware.ResultResponseMiddleware>();
 
+app.UseMiddleware<
+    SmartSchool.Api.Middleware.BusinessContactValidationMiddleware>();
+
 app.UseExceptionHandler();
 
 app.UseCors("Portal");
@@ -309,8 +316,10 @@ app.MapSmartSchoolHealth();
 app.MapDashboardEndpoints();
 app.MapPlatformFeatureEndpoints();
 app.MapAiAssistantEndpoints();
+app.MapRagChatbotEndpoints();
 app.MapWorkflowCatalogEndpoints();
 app.MapClientTelemetryEndpoints();
+app.MapApplicationLogEndpoints();
 app.MapActorProfileEndpoints();
 
 app.MapAICoreEndpoints();
@@ -349,61 +358,9 @@ app.MapPayrollEndpoints();
 app.MapReferenceEndpoints();
 app.MapStudentsEndpoints();
 app.MapTenancyEndpoints();
+app.MapTeachersEndpoints();
 app.MapTransportEndpoints();
 app.MapWorkflowEndpoints();
 
-//
-// Temporary authentication diagnostic endpoint.
-//
-// Remove after authentication has been verified.
-//
-app.MapGet(
-		"/api/debug/auth",
-		(HttpContext context) =>
-		{
-			var claims =
-				context.User.Claims
-					.Select(
-						claim =>
-							new
-							{
-								claim.Type,
-								claim.Value
-							})
-					.ToArray();
-
-			return Results.Ok(
-				new
-				{
-					isAuthenticated =
-						context.User.Identity?
-							.IsAuthenticated,
-
-					authenticationType =
-						context.User.Identity?
-							.AuthenticationType,
-
-					subject =
-						context.User
-							.FindFirstValue("sub"),
-
-					roles =
-						context.User
-							.FindAll("role")
-							.Select(
-								claim =>
-									claim.Value)
-							.ToArray(),
-
-					isSuperAdmin =
-						context.User
-							.IsInRole(
-								"SuperAdmin"),
-
-					Claims =
-						claims
-				});
-		})
-	.RequireAuthorization();
 
 app.Run();

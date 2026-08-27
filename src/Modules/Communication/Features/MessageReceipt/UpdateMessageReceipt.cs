@@ -98,7 +98,7 @@ public static class UpdateMessageReceipt
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.MessageReceiptId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

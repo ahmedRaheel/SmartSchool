@@ -24,7 +24,7 @@ public sealed class CertificateQuery(
 			.Set<CertificateEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.CertificateId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class CertificateQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Certificate
+			FROM document.certificate
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class CertificateQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				certificate_id AS "Id"
-			FROM public.Certificate
+			FROM document.certificate
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY certificate_id
@@ -95,7 +95,7 @@ public sealed class CertificateQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.CertificateId != excludingId.Value)),
 				cancellationToken);
 	}
 }

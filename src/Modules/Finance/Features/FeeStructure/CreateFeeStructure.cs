@@ -89,7 +89,7 @@ public static class CreateFeeStructure
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.FeeStructureId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

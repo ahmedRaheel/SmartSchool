@@ -4,16 +4,16 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Features.Candidate;
 using SmartSchool.Modules.HR.Features.Employee;
-using SmartSchool.Modules.HR.Features.EmploymentHistory;
 using SmartSchool.Modules.HR.Features.Interview;
 using SmartSchool.Modules.HR.Features.Job;
 using SmartSchool.Modules.HR.Features.JobGrade;
 using SmartSchool.Modules.HR.Features.LeaveRequest;
 using SmartSchool.Modules.HR.Features.Position;
-using SmartSchool.Modules.HR.Features.Resume;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.HR.Features.EmploymentHistory;
+using SmartSchool.Modules.HR.Features.Resume;
 namespace SmartSchool.Modules.HR;
 
 public static class Module
@@ -26,8 +26,6 @@ public static class Module
 		services.AddScoped<ICandidateCommand, CandidateCommand>();
 		services.AddScoped<IEmployeeQuery, EmployeeQuery>();
 		services.AddScoped<IEmployeeCommand, EmployeeCommand>();
-		services.AddScoped<IEmploymentHistoryQuery, EmploymentHistoryQuery>();
-		services.AddScoped<IEmploymentHistoryCommand, EmploymentHistoryCommand>();
 		services.AddScoped<IInterviewQuery, InterviewQuery>();
 		services.AddScoped<IInterviewCommand, InterviewCommand>();
 		services.AddScoped<IJobQuery, JobQuery>();
@@ -38,9 +36,10 @@ public static class Module
 		services.AddScoped<ILeaveRequestCommand, LeaveRequestCommand>();
 		services.AddScoped<IPositionQuery, PositionQuery>();
 		services.AddScoped<IPositionCommand, PositionCommand>();
-		services.AddScoped<IResumeQuery, ResumeQuery>();
-		services.AddScoped<IResumeCommand, ResumeCommand>();
-
+		services.AddScoped<IResumeCommand,  ResumeCommand>();
+		services.AddScoped<IResumeQuery, ResumeQuery>();	
+		services.AddScoped<IEmploymentHistoryCommand, EmploymentHistoryCommand>();
+		services.AddScoped<IEmploymentHistoryQuery, EmploymentHistoryQuery>();
 		return services;
 	}
 
@@ -57,11 +56,9 @@ public static class Module
 		GetEmployeePage.MapEndpoint(endpoints);
 		UpdateEmployee.MapEndpoint(endpoints);
 		DeleteEmployee.MapEndpoint(endpoints);
-		CreateEmploymentHistory.MapEndpoint(endpoints);
-		GetEmploymentHistoryById.MapEndpoint(endpoints);
-		GetEmploymentHistoryPage.MapEndpoint(endpoints);
-		UpdateEmploymentHistory.MapEndpoint(endpoints);
-		DeleteEmploymentHistory.MapEndpoint(endpoints);
+		ApproveEmployee.MapEndpoint(endpoints);
+        UpdateEmploymentStatus.MapEndpoint(endpoints);
+		TerminateEmployee.MapEndpoint(endpoints);
 		CreateInterview.MapEndpoint(endpoints);
 		GetInterviewById.MapEndpoint(endpoints);
 		GetInterviewPage.MapEndpoint(endpoints);
@@ -87,11 +84,17 @@ public static class Module
 		GetPositionPage.MapEndpoint(endpoints);
 		UpdatePosition.MapEndpoint(endpoints);
 		DeletePosition.MapEndpoint(endpoints);
+
+		CreateEmploymentHistory.MapEndpoint(endpoints);
 		CreateResume.MapEndpoint(endpoints);
+		DeleteEmploymentHistory.MapEndpoint(endpoints);
+		DeleteResume.MapEndpoint(endpoints);
+		GetEmploymentHistoryById.MapEndpoint(endpoints);
+		GetEmploymentHistoryPage.MapEndpoint(endpoints);
 		GetResumeById.MapEndpoint(endpoints);
 		GetResumePage.MapEndpoint(endpoints);
+		UpdateEmploymentHistory.MapEndpoint(endpoints);
 		UpdateResume.MapEndpoint(endpoints);
-		DeleteResume.MapEndpoint(endpoints);
 
 		return endpoints;
 	}

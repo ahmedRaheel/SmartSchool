@@ -24,7 +24,7 @@ public sealed class WorkflowDefinitionQuery(
 			.Set<WorkflowDefinitionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.WorkflowDefinitionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class WorkflowDefinitionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.WorkflowDefinition
+			FROM workflow.workflowdefinition
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class WorkflowDefinitionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				workflowdefinition_id AS "Id"
-			FROM public.WorkflowDefinition
+				workflow_definition_id AS "Id"
+			FROM workflow.workflowdefinition
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY workflowdefinition_id
+			ORDER BY workflow_definition_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class WorkflowDefinitionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.WorkflowDefinitionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

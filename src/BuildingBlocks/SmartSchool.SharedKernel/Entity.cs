@@ -1,46 +1,56 @@
 namespace SmartSchool.SharedKernel;
 
 /// <summary>
-/// Provides identity, tenancy, lifecycle, auditing, and optimistic concurrency
-/// state shared by SmartSchool domain entities.
+/// Provides lifecycle, auditing, and optimistic concurrency state shared by domain entities.
 /// </summary>
-public abstract class Entity
+public abstract class AggregateRootEntity
 {
-	/// <summary>Gets the entity identifier.</summary>
-	public Guid Id { get; protected set; } = Guid.NewGuid();
+    /// <summary>Gets a value indicating whether the entity is active.</summary>
+    public bool IsActive { get; protected set; } = true;
 
-	/// <summary>Gets the tenant that owns the entity.</summary>
-	public Guid TenantId { get; protected set; }
+    /// <summary>Gets the UTC creation date and time.</summary>
+    public DateTimeOffset CreatedAt { get; protected set; } = DateTimeOffset.UtcNow;
 
-	/// <summary>Gets a value indicating whether the entity is active.</summary>
-	public bool IsActive { get; protected set; } = true;
+    /// <summary>Gets the UTC last-updated date and time.</summary>
+    public DateTimeOffset? UpdatedAt { get; protected set; }
 
-	/// <summary>Gets the UTC creation date and time.</summary>
-	public DateTimeOffset CreatedAt { get; protected set; } = DateTimeOffset.UtcNow;
+    /// <summary>Gets the optimistic concurrency token.</summary>
+    public byte[] RowVersion { get; protected set; } = [];
 
-	/// <summary>Gets the UTC last-updated date and time.</summary>
-	public DateTimeOffset? UpdatedAt { get; protected set; }
+    /// <summary>Activates the entity.</summary>
+    public void Activate()
+    {
+        if (IsActive)
+        {
+            return;
+        }
 
-	/// <summary>Gets the optimistic concurrency token.</summary>
-	public byte[] RowVersion { get; protected set; } = [];
+        IsActive = true;
+        MarkAsUpdated();
+    }
 
-	/// <summary>Activates the entity.</summary>
-	public void Activate()
-	{
-		if (IsActive) return;
-		IsActive = true;
-		MarkAsUpdated();
-	}
+    /// <summary>Deactivates the entity.</summary>
+    public void Deactivate()
+    {
+        if (!IsActive)
+        {
+            return;
+        }
 
-	/// <summary>Deactivates the entity.</summary>
-	public void Deactivate()
-	{
-		if (!IsActive) return;
-		IsActive = false;
-		MarkAsUpdated();
-	}
+        IsActive = false;
+        MarkAsUpdated();
+    }
 
-	/// <summary>Marks the entity as updated.</summary>
-	protected void MarkAsUpdated() =>
-		UpdatedAt = DateTimeOffset.UtcNow;
+    /// <summary>Marks the entity as updated.</summary>
+    protected void MarkAsUpdated()
+    {
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+}
+
+/// <summary>Provides tenant ownership for tenant-scoped domain entities.</summary>
+public abstract class Entity : AggregateRootEntity
+{
+    /// <summary>Gets the tenant that owns the entity.</summary>
+    public Guid TenantId { get; protected set; }
 }

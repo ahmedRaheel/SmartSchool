@@ -7,9 +7,45 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class InterviewEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid InterviewId { get; private set; } = Guid.NewGuid();
+
 	private InterviewEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted job application id value.</summary>
+	public Guid JobApplicationId { get; private set; }
+
+	/// <summary>Gets the persisted interview type code value.</summary>
+	public string InterviewTypeCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted round number value.</summary>
+	public int RoundNumber { get; private set; }
+
+	/// <summary>Gets the persisted scheduled at value.</summary>
+	public DateTimeOffset? ScheduledAt { get; private set; }
+
+	/// <summary>Gets the persisted duration minutes value.</summary>
+	public int? DurationMinutes { get; private set; }
+
+	/// <summary>Gets the persisted location value.</summary>
+	public string? Location { get; private set; }
+
+	/// <summary>Gets the persisted meeting url value.</summary>
+	public string? MeetingUrl { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted overall score value.</summary>
+	public decimal? OverallScore { get; private set; }
+
+	/// <summary>Gets the persisted recommendation value.</summary>
+	public string? Recommendation { get; private set; }
+
+	/// <summary>Gets the persisted notes value.</summary>
+	public string? Notes { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

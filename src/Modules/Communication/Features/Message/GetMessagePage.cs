@@ -73,7 +73,7 @@ public static class GetMessagePage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.MessageId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -7,9 +7,21 @@ namespace SmartSchool.Modules.Academics.Models;
 /// </summary>
 public sealed class TermEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TermId { get; private set; } = Guid.NewGuid();
+
 	private TermEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted start date value.</summary>
+	public DateOnly StartDate { get; private set; }
+
+	/// <summary>Gets the persisted end date value.</summary>
+	public DateOnly EndDate { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

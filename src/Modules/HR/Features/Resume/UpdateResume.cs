@@ -98,7 +98,7 @@ public static class UpdateResume
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ResumeId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

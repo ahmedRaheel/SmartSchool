@@ -98,7 +98,7 @@ public static class UpdateSubscription
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.SubscriptionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

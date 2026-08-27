@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.Finance.Models;
 /// </summary>
 public sealed class FeeStructureEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid FeeStructureId { get; private set; } = Guid.NewGuid();
+
 	private FeeStructureEntity()
 	{
 	}

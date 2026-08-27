@@ -5,11 +5,25 @@ namespace SmartSchool.Modules.Tenancy.Models;
 /// <summary>
 /// Represents the TenantEntity domain entity.
 /// </summary>
-public sealed class TenantEntity : Entity
+public sealed class TenantEntity : AggregateRootEntity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TenantId { get; private set; } = Guid.NewGuid();
 	private TenantEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted status code value.</summary>
+	public string StatusCode { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted default language value.</summary>
+	public string DefaultLanguage { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted timezone value.</summary>
+	public string Timezone { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted currency code value.</summary>
+	public string CurrencyCode { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

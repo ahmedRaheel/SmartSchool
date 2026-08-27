@@ -24,7 +24,7 @@ public sealed class KnowledgeCollectionQuery(
 			.Set<KnowledgeCollectionEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.KnowledgeCollectionId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class KnowledgeCollectionQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.KnowledgeCollection
+			FROM ai_core.knowledge_collection
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class KnowledgeCollectionQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				knowledgecollection_id AS "Id"
-			FROM public.KnowledgeCollection
+				knowledge_collection_id AS "Id"
+			FROM ai_core.knowledge_collection
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY knowledgecollection_id
+			ORDER BY knowledge_collection_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class KnowledgeCollectionQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.KnowledgeCollectionId != excludingId.Value)),
 				cancellationToken);
 	}
 }

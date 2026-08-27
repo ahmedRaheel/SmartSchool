@@ -68,7 +68,7 @@ public static class GetExamById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ExamId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

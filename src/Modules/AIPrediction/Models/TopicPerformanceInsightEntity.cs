@@ -7,9 +7,36 @@ namespace SmartSchool.Modules.AIPrediction.Models;
 /// </summary>
 public sealed class TopicPerformanceInsightEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TopicPerformanceInsightId { get; private set; } = Guid.NewGuid();
+
 	private TopicPerformanceInsightEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted class performance insight id value.</summary>
+	public Guid ClassPerformanceInsightId { get; private set; }
+
+	/// <summary>Gets the persisted subject id value.</summary>
+	public Guid SubjectId { get; private set; }
+
+	/// <summary>Gets the persisted topic value.</summary>
+	public string Topic { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted average mastery score value.</summary>
+	public decimal? AverageMasteryScore { get; private set; }
+
+	/// <summary>Gets the persisted students struggling count value.</summary>
+	public int StudentsStrugglingCount { get; private set; }
+
+	/// <summary>Gets the persisted students mastered count value.</summary>
+	public int StudentsMasteredCount { get; private set; }
+
+	/// <summary>Gets the persisted risk level value.</summary>
+	public string? RiskLevel { get; private set; }
+
+	/// <summary>Gets the persisted recommended focus value.</summary>
+	public string? RecommendedFocus { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

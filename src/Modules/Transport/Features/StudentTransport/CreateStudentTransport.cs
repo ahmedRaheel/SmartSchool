@@ -89,7 +89,7 @@ public static class CreateStudentTransport
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.StudentTransportId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

@@ -73,7 +73,7 @@ public static class GetTeachingRecommendationPage
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.TeachingRecommendationId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

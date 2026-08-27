@@ -24,7 +24,7 @@ public sealed class TimetableEntryQuery(
 			.Set<TimetableEntryEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.TimetableEntryId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class TimetableEntryQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.TimetableEntry
+			FROM academic.timetable_entry
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class TimetableEntryQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				timetableentry_id AS "Id"
-			FROM public.TimetableEntry
+				timetable_entry_id AS "Id"
+			FROM academic.timetable_entry
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY timetableentry_id
+			ORDER BY timetable_entry_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class TimetableEntryQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.TimetableEntryId != excludingId.Value)),
 				cancellationToken);
 	}
 }

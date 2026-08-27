@@ -89,7 +89,7 @@ public static class CreateExamSubject
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.ExamSubjectId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

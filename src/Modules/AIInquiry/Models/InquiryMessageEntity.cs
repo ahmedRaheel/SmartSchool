@@ -7,9 +7,21 @@ namespace SmartSchool.Modules.AIInquiry.Models;
 /// </summary>
 public sealed class InquiryMessageEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid InquiryMessageId { get; private set; } = Guid.NewGuid();
+
 	private InquiryMessageEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted inquiry conversation id value.</summary>
+	public Guid InquiryConversationId { get; private set; }
+
+	/// <summary>Gets the persisted role value.</summary>
+	public string Role { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted content value.</summary>
+	public string? Content { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

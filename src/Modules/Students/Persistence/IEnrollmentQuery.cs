@@ -26,12 +26,9 @@ public interface IEnrollmentQuery
 		int pageSize,
 		CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<bool> ExistsByCodeAsync(
+	Task<bool> ExistsForAcademicYearAsync(
 		Guid tenantId,
-		string code,
-		Guid? excludingId,
+		Guid studentId,
+		Guid academicYearId,
 		CancellationToken cancellationToken);
 }

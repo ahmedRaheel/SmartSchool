@@ -68,7 +68,7 @@ public static class GetWorkflowDefinitionById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.WorkflowDefinitionId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

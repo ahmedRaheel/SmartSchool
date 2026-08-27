@@ -7,6 +7,9 @@ namespace SmartSchool.Modules.HR.Models;
 /// </summary>
 public sealed class EmployeeEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid EmployeeId { get; private set; } = Guid.NewGuid();
+
 	private EmployeeEntity()
 	{
 	}
@@ -14,8 +17,12 @@ public sealed class EmployeeEntity : Entity
 	/// <summary>Gets the optional authenticated user identifier.</summary>
 	public Guid? UserId { get; private set; }
 
+	public Guid SchoolId { get; private set; }
+	public Guid BranchId { get; private set; }
+	public string StaffType { get; private set; } = "OTHER";
+
 	/// <summary>Gets the tenant-unique employee number.</summary>
-	public string EmployeeNumber { get; private set; } = string.Empty;
+	public string? EmployeeNumber { get; private set; }
 
 	/// <summary>Gets the employee first name.</summary>
 	public string FirstName { get; private set; } = string.Empty;
@@ -40,6 +47,10 @@ public sealed class EmployeeEntity : Entity
 
 	/// <summary>Gets the employee phone number.</summary>
 	public string? Phone { get; private set; }
+	public string? AlternatePhone { get; private set; }
+	public string? Address { get; private set; }
+	public string? EmergencyContactName { get; private set; }
+	public string? EmergencyContactPhone { get; private set; }
 
 	/// <summary>Gets the employee hire date.</summary>
 	public DateOnly HireDate { get; private set; }
@@ -73,7 +84,10 @@ public sealed class EmployeeEntity : Entity
 	public static EmployeeEntity Create(
 		Guid tenantId,
 		Guid? userId,
-		string employeeNumber,
+		Guid schoolId,
+		Guid branchId,
+		string staffType,
+		string? employeeNumber,
 		string firstName,
 		string? lastName,
 		string? cnicNumber,
@@ -82,12 +96,15 @@ public sealed class EmployeeEntity : Entity
 		string? photoFileName,
 		string? email,
 		string? phone,
+		string? alternatePhone,
+		string? address,
+		string? emergencyContactName,
+		string? emergencyContactPhone,
 		DateOnly hireDate,
 		string employmentTypeCode,
 		string status,
 		Guid? sourceCandidateId)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(employeeNumber);
 		ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
 		ArgumentException.ThrowIfNullOrWhiteSpace(employmentTypeCode);
 		ArgumentException.ThrowIfNullOrWhiteSpace(status);
@@ -96,7 +113,10 @@ public sealed class EmployeeEntity : Entity
 		{
 			TenantId = tenantId,
 			UserId = userId,
-			EmployeeNumber = employeeNumber.Trim(),
+			SchoolId = schoolId,
+			BranchId = branchId,
+			StaffType = staffType.Trim(),
+			EmployeeNumber = employeeNumber?.Trim(),
 			FirstName = firstName.Trim(),
 			LastName = lastName?.Trim(),
 			CnicNumber = cnicNumber?.Trim(),
@@ -105,11 +125,41 @@ public sealed class EmployeeEntity : Entity
 			PhotoFileName = photoFileName?.Trim(),
 			Email = email?.Trim(),
 			Phone = phone?.Trim(),
+			AlternatePhone = alternatePhone?.Trim(),
+			Address = address?.Trim(),
+			EmergencyContactName = emergencyContactName?.Trim(),
+			EmergencyContactPhone = emergencyContactPhone?.Trim(),
 			HireDate = hireDate,
 			EmploymentTypeCode = employmentTypeCode.Trim(),
 			Status = status.Trim(),
 			SourceCandidateId = sourceCandidateId
 		};
+	}
+
+	/// <summary>Approves employment and links the provisioned Identity account.</summary>
+	public void ApproveEmployment(Guid userId, string employeeNumber)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(employeeNumber);
+		if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
+		UserId = userId;
+		EmployeeNumber = employeeNumber.Trim();
+		Status = "HIRED";
+		MarkAsUpdated();
+	}
+
+	public void SetRecruitmentStatus(string status)
+	{
+		if (status is not ("SUBMITTED" or "REJECTED" or "WAITING_LIST"))
+			throw new ArgumentException("Invalid recruitment status.", nameof(status));
+		Status = status;
+		MarkAsUpdated();
+	}
+
+	/// <summary>Terminates employment while preserving HR and payroll history.</summary>
+	public void Terminate()
+	{
+		Status = "TERMINATED";
+		MarkAsUpdated();
 	}
 
 	/// <summary>Updates editable employee business details.</summary>
@@ -127,6 +177,7 @@ public sealed class EmployeeEntity : Entity
 		string? cnicNumber,
 		string? email,
 		string? phone,
+		
 		DateOnly hireDate,
 		string employmentTypeCode,
 		string status)

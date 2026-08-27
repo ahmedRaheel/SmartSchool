@@ -7,9 +7,33 @@ namespace SmartSchool.Modules.AIParent.Models;
 /// </summary>
 public sealed class ParentToolExecutionEntity : Entity
 {
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ParentToolExecutionId { get; private set; } = Guid.NewGuid();
+
 	private ParentToolExecutionEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted parent conversation id value.</summary>
+	public Guid ParentConversationId { get; private set; }
+
+	/// <summary>Gets the persisted tool definition id value.</summary>
+	public Guid ToolDefinitionId { get; private set; }
+
+	/// <summary>Gets the persisted student id value.</summary>
+	public Guid? StudentId { get; private set; }
+
+	/// <summary>Gets the persisted input payload value.</summary>
+	public string? InputPayload { get; private set; }
+
+	/// <summary>Gets the persisted output payload value.</summary>
+	public string? OutputPayload { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
+
+	/// <summary>Gets the persisted executed at value.</summary>
+	public DateTimeOffset ExecutedAt { get; private set; }
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;

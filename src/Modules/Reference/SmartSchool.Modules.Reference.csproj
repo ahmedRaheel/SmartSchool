@@ -2,6 +2,5 @@
   <ItemGroup>
     <PackageReference Include="Dapper" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
-    <ProjectReference Include="../../BuildingBlocks/SmartSchool.Application/SmartSchool.Application.csproj" />
   </ItemGroup>
 </Project>

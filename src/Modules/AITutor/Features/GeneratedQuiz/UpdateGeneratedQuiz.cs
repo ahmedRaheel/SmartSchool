@@ -98,7 +98,7 @@ public static class UpdateGeneratedQuiz
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.GeneratedQuizId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

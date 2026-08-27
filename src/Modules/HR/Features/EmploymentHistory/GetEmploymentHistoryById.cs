@@ -68,7 +68,7 @@ public static class GetEmploymentHistoryById
 	{
 		return new Response(
 			entity.TenantId,
-			entity.Id,
+			entity.EmploymentHistoryId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

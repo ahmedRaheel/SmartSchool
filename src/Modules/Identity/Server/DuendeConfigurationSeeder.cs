@@ -16,7 +16,7 @@ public sealed class DuendeConfigurationSeeder(
 	public async Task SeedAsync(CancellationToken cancellationToken = default)
 	{
 
-		var portalUrl = configuration["DuendeIdentityServer:PortalUrl"] ?? "https://localhost:5173";
+		var portalUrl = configuration["DuendeIdentityServer:PortalUrl"] ?? throw new InvalidOperationException("DuendeIdentityServer:PortalUrl configuration is required.");
 		var mobileRedirect = configuration["DuendeIdentityServer:MobileRedirectUri"] ?? "smartschool://oauth/callback";
 
 		var identityResources = new IdentityResource[]
@@ -39,7 +39,12 @@ public sealed class DuendeConfigurationSeeder(
 			new ApiResource("smartschool-api", "SmartSchool API")
 			{
 				Scopes = { "smartschool.api" },
-				UserClaims = { "tenant_id", "role", "given_name", "family_name", "name", "email" }
+				UserClaims =
+				{
+					"tenant_id", "school_id", "branch_id", "student_id", "teacher_id",
+					"driver_id", "examiner_id", "employee_id", "role", "given_name",
+					"family_name", "name", "email", "account_type", "must_change_password"
+				}
 			}
 		};
 
@@ -90,9 +95,9 @@ public sealed class DuendeConfigurationSeeder(
 
 		var allClients = clients.Append(new Client
 		{
-			ClientId = configuration["LoginApiClient:ClientId"] ?? "smartschool-login-api",
+			ClientId = configuration["LoginApiClient:ClientId"] ?? throw new InvalidOperationException("LoginApiClient:ClientId is required."),
 			ClientName = "SmartSchool Login API",
-			AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+			AllowedGrantTypes = [.. GrantTypes.ResourceOwnerPassword, ImpersonationGrantValidator.GrantTypeName],
 			ClientSecrets = { new Secret(loginClientSecret.Sha256()) },
 			AllowOfflineAccess = true,
 			AllowedScopes = { "openid", "profile", "email", "smartschool.profile", "smartschool.api", "offline_access" },

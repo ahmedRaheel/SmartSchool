@@ -24,7 +24,7 @@ public sealed class ApprovalQuery(
 			.Set<ApprovalEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.ApprovalId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class ApprovalQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Approval
+			FROM workflow.approval
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +45,7 @@ public sealed class ApprovalQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				approval_id AS "Id"
-			FROM public.Approval
+			FROM workflow.approval
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY approval_id
@@ -95,7 +95,7 @@ public sealed class ApprovalQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ApprovalId != excludingId.Value)),
 				cancellationToken);
 	}
 }

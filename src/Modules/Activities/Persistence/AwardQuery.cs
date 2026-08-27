@@ -24,7 +24,7 @@ public sealed class AwardQuery(
 			.Set<AwardEntity>()
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.Id == id,
+				entity => entity.TenantId == tenantId && entity.StudentAwardId == id,
 				cancellationToken);
 	}
 
@@ -36,7 +36,7 @@ public sealed class AwardQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM public.Award
+			FROM activity.student_award
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -44,11 +44,11 @@ public sealed class AwardQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				award_id AS "Id"
-			FROM public.Award
+				student_award_id AS "Id"
+			FROM activity.student_award
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
-			ORDER BY award_id
+			ORDER BY student_award_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -95,7 +95,7 @@ public sealed class AwardQuery(
 				entity =>
 					entity.TenantId == tenantId
 					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || entity.Id != excludingId.Value),
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentAwardId != excludingId.Value)),
 				cancellationToken);
 	}
 }
