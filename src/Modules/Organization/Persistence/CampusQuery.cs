@@ -43,24 +43,24 @@ public sealed class CampusQuery(
 
 		const string pageSql = """
 			SELECT
-			campus_id AS "CampusId",
-			tenant_id AS "TenantId",
-			school_id AS "SchoolId",
-			code AS "Code",
-			name AS "Name",
-			branch_type AS "BranchType",
-			address AS "Address",
-			city AS "City",
-			province AS "Province",
-			phone AS "Phone",
-			fax AS "Fax",
-			mobile AS "Mobile",
-			email AS "Email",
-			logo_url AS "LogoUrl",
-			is_active AS "IsActive",
-			created_at AS "CreatedAt",
-			updated_at AS "UpdatedAt",
-			row_version AS "RowVersion"
+				campus_id AS "CampusId",
+				tenant_id AS "TenantId",
+				school_id AS "SchoolId",
+				code AS "Code",
+				name AS "Name",
+				branch_type AS "BranchType",
+				address AS "Address",
+				city AS "City",
+				province AS "Province",
+				phone AS "Phone",
+				fax AS "Fax",
+				mobile AS "Mobile",
+				email AS "Email",
+				logo_url AS "LogoUrl",
+				is_active AS "IsActive",
+				created_at AS "CreatedAt",
+				updated_at AS "UpdatedAt",
+				row_version AS "RowVersion"
 			FROM org.campus
 			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
 			  AND is_active = TRUE

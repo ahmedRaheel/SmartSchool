@@ -10,6 +10,8 @@ public sealed class CourseOfferingEntity : Entity
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid CourseOfferingId { get; private set; } = Guid.NewGuid();
 
+	public Guid BranchId { get; private set; }
+
 	private CourseOfferingEntity()
 	{
 	}
@@ -49,6 +51,7 @@ public sealed class CourseOfferingEntity : Entity
 	/// <returns>The newly created entity.</returns>
 	public static CourseOfferingEntity Create(
 		Guid tenantId,
+        Guid branchId,
 		string code,
 		string name,
 		string? metadataJson = null)
@@ -59,6 +62,7 @@ public sealed class CourseOfferingEntity : Entity
 		return new CourseOfferingEntity
 		{
 			TenantId = tenantId,
+            BranchId = branchId,
 			Code = code.Trim(),
 			Name = name.Trim(),
 			MetadataJson = metadataJson

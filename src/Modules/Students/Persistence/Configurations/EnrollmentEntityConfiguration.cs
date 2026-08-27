@@ -41,6 +41,7 @@ public sealed class EnrollmentEntityConfiguration
 
 		// Database columns synchronized from SmartSchoolComplete.sql.
 		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+		builder.Property(entity => entity.EnrollmentNumber).HasColumnName("enrollment_number").HasMaxLength(80).IsRequired();
 		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
 		builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
 		builder.Property(entity => entity.EnrollmentDate).HasColumnName("enrollment_date");

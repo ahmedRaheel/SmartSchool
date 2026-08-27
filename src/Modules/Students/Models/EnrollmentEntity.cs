@@ -7,6 +7,7 @@ public sealed class EnrollmentEntity : Entity
 {
 	public Guid StudentEnrollmentId { get; private set; } = Guid.NewGuid();
 	public Guid StudentId { get; private set; }
+	public string EnrollmentNumber { get; private set; } = string.Empty;
 	public Guid AcademicYearId { get; private set; }
 	public Guid ClassSectionId { get; private set; }
 	public DateOnly EnrollmentDate { get; private set; }
@@ -17,6 +18,7 @@ public sealed class EnrollmentEntity : Entity
 	public static EnrollmentEntity Create(
 		Guid tenantId,
 		Guid studentId,
+		string enrollmentNumber,
 		Guid academicYearId,
 		Guid classSectionId,
 		DateOnly enrollmentDate,
@@ -27,6 +29,7 @@ public sealed class EnrollmentEntity : Entity
 		{
 			TenantId = tenantId,
 			StudentId = studentId,
+			EnrollmentNumber = enrollmentNumber,
 			AcademicYearId = academicYearId,
 			ClassSectionId = classSectionId,
 			EnrollmentDate = enrollmentDate,

@@ -10,6 +10,8 @@ public sealed class AssignmentEntity : Entity
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid AcademicAssignmentId { get; private set; } = Guid.NewGuid();
 
+	public Guid BranchId { get; private set; }
+
 	private AssignmentEntity()
 	{
 	}
@@ -73,6 +75,7 @@ public sealed class AssignmentEntity : Entity
 	/// <returns>The newly created entity.</returns>
 	public static AssignmentEntity Create(
 		Guid tenantId,
+        Guid branchId,
 		string code,
 		string name,
 		string? metadataJson = null)
@@ -83,6 +86,7 @@ public sealed class AssignmentEntity : Entity
 		return new AssignmentEntity
 		{
 			TenantId = tenantId,
+            BranchId = branchId,
 			Code = code.Trim(),
 			Name = name.Trim(),
 			MetadataJson = metadataJson

@@ -42,7 +42,7 @@ public sealed class SchoolQuery(
 			""";
 
 		const string pageSql = """
-			SELECT 
+			SELECT
 				school_id AS "SchoolId", tenant_id AS "TenantId", code AS "Code", name AS "Name",
 				registration_number AS "RegistrationNumber", email AS "Email", phone AS "Phone", fax AS "Fax", website AS "Website",
 				address AS "Address", city AS "City", province AS "Province", country AS "Country", logo_url AS "LogoUrl",

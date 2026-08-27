@@ -13,8 +13,7 @@ public static class UpdateStudent
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		Guid? UserId,
-		
+		Guid? UserId,	
 		string FirstName,
 		string? LastName,
 		DateOnly? DateOfBirth,

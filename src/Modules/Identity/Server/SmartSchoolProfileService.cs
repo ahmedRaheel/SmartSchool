@@ -28,9 +28,22 @@ public sealed class SmartSchoolProfileService(
 			new("email", user.Email ?? string.Empty),
 			new("account_type", user.AccountType ?? string.Empty),
 			new("school_id", user.SchoolId?.ToString() ?? string.Empty),
+            new("branch_id", user.BranchId?.ToString() ?? string.Empty),
 			new("must_change_password", user.MustChangePassword ? "true" : "false")
 		};
-		claims.AddRange(roles.Select(role => new Claim("role", role)));
+		if (user.BusinessEntityId.HasValue)
+        {
+            var actorClaim = (user.AccountType ?? string.Empty).Trim().ToLowerInvariant() switch
+            {
+                "student" => "student_id",
+                "teacher" => "teacher_id",
+                "driver" => "driver_id",
+                "examiner" => "examiner_id",
+                _ => "employee_id"
+            };
+            claims.Add(new Claim(actorClaim, user.BusinessEntityId.Value.ToString()));
+        }
+        claims.AddRange(roles.Select(role => new Claim("role", role)));
 		context.IssuedClaims.AddRange(claims);
 	}
 

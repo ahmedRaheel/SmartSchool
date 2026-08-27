@@ -32,6 +32,8 @@ public sealed class IdentityAccountService : IIdentityAccountService
         string email,
         string firstName,
         string lastName,
+        Guid? schoolId,
+        Guid? branchId,
         IReadOnlyCollection<string> roles,
         CancellationToken cancellationToken)
     {
@@ -53,6 +55,8 @@ public sealed class IdentityAccountService : IIdentityAccountService
             email,
             firstName,
             lastName,
+            schoolId,
+            branchId,
             roles = roles.ToArray()
         });
 

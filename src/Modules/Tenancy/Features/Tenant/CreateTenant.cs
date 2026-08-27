@@ -48,7 +48,7 @@ public static class CreateTenant
 		}
 	}
 
-	public sealed class Handler(		
+	public sealed class Handler(	
 		ITenantCommand tenantCommand,
 		IIdentityAccountService identityAccountService,
 		IBusinessNumberGenerator numberGenerator)
@@ -79,6 +79,8 @@ public static class CreateTenant
 					request.AdminEmail,
 					request.AdminFirstName,
 					request.AdminLastName,
+                    null,
+                    null,
 					["Admin"],
 					cancellationToken);
 

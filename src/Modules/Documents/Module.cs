@@ -7,6 +7,7 @@ using SmartSchool.Modules.Documents.Features.GeneratedDocument;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 
+using SmartSchool.Modules.Documents.Features;
 using SmartSchool.Modules.Documents.Features.Certificate;
 using SmartSchool.Modules.Documents.Features.SchoolLogo;
 namespace SmartSchool.Modules.Documents;
@@ -52,6 +53,7 @@ public static class Module
 		GetSchoolLogoPage.MapEndpoint(endpoints);
 		UpdateCertificate.MapEndpoint(endpoints);
 		UpdateSchoolLogo.MapEndpoint(endpoints);
+		DocumentManagementEndpoints.MapDocumentManagement(endpoints);
 
 		return endpoints;
 	}

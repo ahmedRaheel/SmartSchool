@@ -1,6 +1,7 @@
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
@@ -17,7 +18,8 @@ public static class CreateEnrollment
 		Guid AcademicYearId,
 		Guid ClassSectionId,
 		DateOnly EnrollmentDate,
-		string Status);
+		string Status,
+        string EnrollmentNumber);
 
 	public sealed record Request(
 		Guid TenantId,
@@ -40,7 +42,7 @@ public static class CreateEnrollment
 		}
 	}
 
-	public sealed class Handler(IEnrollmentQuery query, IEnrollmentCommand command)
+	public sealed class Handler(IEnrollmentQuery query, IEnrollmentCommand command, IStudentQuery studentQuery, IBusinessNumberGenerator numberGenerator)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -50,9 +52,15 @@ public static class CreateEnrollment
 				return Result<Response>.Failure(Error.Conflict("The student is already enrolled for this academic year."));
 			}
 
-			var entity = EnrollmentEntity.Create(
+			var student = await studentQuery.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
+            if (student is null || string.IsNullOrWhiteSpace(student.StudentNumber))
+                return Result<Response>.Failure(Error.Validation("Student admission must be approved before enrollment."));
+            var enrollmentNumber = await numberGenerator.NextAsync($"ENROLLMENT:{request.StudentId}", $"{student.StudentNumber}-", request.TenantId, 3, cancellationToken);
+
+            var entity = EnrollmentEntity.Create(
 				request.TenantId,
 				request.StudentId,
+                enrollmentNumber,
 				request.AcademicYearId,
 				request.ClassSectionId,
 				request.EnrollmentDate,
@@ -85,5 +93,6 @@ public static class CreateEnrollment
 		entity.AcademicYearId,
 		entity.ClassSectionId,
 		entity.EnrollmentDate,
-		entity.Status);
+		entity.Status,
+        entity.EnrollmentNumber);
 }

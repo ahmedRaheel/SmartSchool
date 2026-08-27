@@ -1,3 +1,4 @@
+using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -24,7 +25,7 @@ public static class ApproveStudentAdmission
         }
     }
 
-    public sealed class Handler(IStudentQuery query, IStudentCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator)
+    public sealed class Handler(IStudentQuery query, IStudentCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator, IDbConnectionFactory connectionFactory)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -33,12 +34,17 @@ public static class ApproveStudentAdmission
             if (student is null) return Result<Response>.Failure(Error.NotFound("Student was not found."));
             if (student.UserId.HasValue) return Result<Response>.Failure(Error.Conflict("Student already has a login account."));
 
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
+                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
+                new { request.TenantId, student.BranchId }, cancellationToken: cancellationToken));
+            if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("The student's branch is invalid."));
             var studentNumber = await numberGenerator.NextAsync(
-                "STUDENT", "ST", request.TenantId, 6, cancellationToken);
+                $"STUDENT:{student.BranchId}", $"{branchCode}-", request.TenantId, 7, cancellationToken);
 
             var account = await accounts.CreateAccountAsync(
                 request.TenantId, student.StudentId, "Student", request.Email, student.FirstName, student.LastName ?? string.Empty,
-                new[] { "Student" }, cancellationToken);
+                student.SchoolId, student.BranchId, new[] { "Student" }, cancellationToken);
 
             student.ApproveAdmission(account.UserId, studentNumber);
             await command.UpdateAsync(student, cancellationToken);
@@ -48,9 +54,11 @@ public static class ApproveStudentAdmission
 
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/students/student/{studentId:guid}/approve", async (Guid studentId, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+        endpoints.MapPost("/api/students/student/{studentId:guid}/approve", async (Guid studentId, Request request, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var command = request with { StudentId = studentId };
+            var tenantId = tenantScope.Resolve(request.TenantId);
+            if (!tenantId.HasValue) return Results.BadRequest(new { message = "Tenant is required for SuperAdmin." });
+            var command = request with { TenantId = tenantId.Value, StudentId = studentId };
             return (await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken)).ToHttpResult();
         }).WithName("ApproveStudentAdmission").WithTags("Students").RequireAuthorization();
         return endpoints;

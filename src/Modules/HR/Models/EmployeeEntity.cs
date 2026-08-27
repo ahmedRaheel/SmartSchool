@@ -17,6 +17,9 @@ public sealed class EmployeeEntity : Entity
 	/// <summary>Gets the optional authenticated user identifier.</summary>
 	public Guid? UserId { get; private set; }
 
+	public Guid SchoolId { get; private set; }
+	public Guid BranchId { get; private set; }
+
 	/// <summary>Gets the tenant-unique employee number.</summary>
 	public string? EmployeeNumber { get; private set; }
 
@@ -76,6 +79,8 @@ public sealed class EmployeeEntity : Entity
 	public static EmployeeEntity Create(
 		Guid tenantId,
 		Guid? userId,
+		Guid schoolId,
+		Guid branchId,
 		string? employeeNumber,
 		string firstName,
 		string? lastName,
@@ -98,6 +103,8 @@ public sealed class EmployeeEntity : Entity
 		{
 			TenantId = tenantId,
 			UserId = userId,
+			SchoolId = schoolId,
+			BranchId = branchId,
 			EmployeeNumber = employeeNumber?.Trim(),
 			FirstName = firstName.Trim(),
 			LastName = lastName?.Trim(),

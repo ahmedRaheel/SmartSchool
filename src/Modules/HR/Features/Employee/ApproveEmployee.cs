@@ -1,3 +1,4 @@
+using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -23,7 +24,7 @@ public static class ApproveEmployee
         }
     }
 
-    public sealed class Handler(IEmployeeQuery query, IEmployeeCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator)
+    public sealed class Handler(IEmployeeQuery query, IEmployeeCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator, IDbConnectionFactory connectionFactory)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -33,12 +34,22 @@ public static class ApproveEmployee
             if (employee.UserId.HasValue) return Result<Response>.Failure(Error.Conflict("Employee already has a login account."));
             if (string.IsNullOrWhiteSpace(employee.Email)) return Result<Response>.Failure(Error.Validation("Employee email is required before approval."));
 
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
+                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
+                new { request.TenantId, employee.BranchId }, cancellationToken: cancellationToken));
+            if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("The employee's branch is invalid."));
+            var marker = request.Roles.Any(r => r.Equals("Teacher", StringComparison.OrdinalIgnoreCase)) ? "T"
+                : request.Roles.Any(r => r.Equals("Driver", StringComparison.OrdinalIgnoreCase)) ? "D" : "E";
             var employeeNumber = await numberGenerator.NextAsync(
-                "EMPLOYEE", "EMP", request.TenantId, 6, cancellationToken);
+                $"EMPLOYEE:{marker}:{employee.BranchId}", $"{branchCode}-{marker}-", request.TenantId, 7, cancellationToken);
 
+            var accountType = request.Roles.Any(r => r.Equals("Teacher", StringComparison.OrdinalIgnoreCase)) ? "Teacher"
+                : request.Roles.Any(r => r.Equals("Driver", StringComparison.OrdinalIgnoreCase)) ? "Driver"
+                : request.Roles.Any(r => r.Equals("Examiner", StringComparison.OrdinalIgnoreCase)) ? "Examiner" : "Employee";
             var account = await accounts.CreateAccountAsync(
-                request.TenantId, employee.EmployeeId, "Employee", employee.Email, employee.FirstName, employee.LastName ?? string.Empty,
-                request.Roles, cancellationToken);
+                request.TenantId, employee.EmployeeId, accountType, employee.Email, employee.FirstName, employee.LastName ?? string.Empty,
+                employee.SchoolId, employee.BranchId, request.Roles, cancellationToken);
 
             employee.ApproveEmployment(account.UserId, employeeNumber);
             await command.UpdateAsync(employee, cancellationToken);
@@ -48,9 +59,11 @@ public static class ApproveEmployee
 
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/hr/employee/{employeeId:guid}/approve", async (Guid employeeId, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+        endpoints.MapPost("/api/hr/employee/{employeeId:guid}/approve", async (Guid employeeId, Request request, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var command = request with { EmployeeId = employeeId };
+            var tenantId = tenantScope.Resolve(request.TenantId);
+            if (!tenantId.HasValue) return Results.BadRequest(new { message = "Tenant is required for SuperAdmin." });
+            var command = request with { TenantId = tenantId.Value, EmployeeId = employeeId };
             return (await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken)).ToHttpResult();
         }).WithName("ApproveEmployee").WithTags("HR").RequireAuthorization();
         return endpoints;

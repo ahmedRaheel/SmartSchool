@@ -13,7 +13,7 @@ public static class AccountProvisioningEndpoints
 		public string TemporaryPassword { get; init; } = string.Empty;
 	}
 	public sealed record ProvisionAccountRequest(
-		Guid TenantId, Guid BusinessEntityId, string AccountType,
+		Guid TenantId, Guid BusinessEntityId, string AccountType, Guid? SchoolId, Guid? BranchId,
 		string Email, string FirstName, string LastName, string[] Roles);
 
 	public static void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -42,7 +42,7 @@ public static class AccountProvisioningEndpoints
 			Id=Guid.NewGuid(), TenantId=request.TenantId, UserName=request.Email, Email=request.Email,
 			EmailConfirmed=false, FirstName=request.FirstName, LastName=request.LastName,
 			DisplayName=$"{request.FirstName} {request.LastName}".Trim(), IsActive=true,
-			BusinessEntityId=request.BusinessEntityId, AccountType=request.AccountType,
+			BusinessEntityId=request.BusinessEntityId, AccountType=request.AccountType, SchoolId=request.SchoolId, BranchId=request.BranchId,
 			 MustChangePassword=true
 		};
 
