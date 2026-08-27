@@ -18,7 +18,7 @@ public sealed class StudentEntity : Entity
 	public Guid? UserId { get; private set; }
 
 	/// <summary>Gets the tenant-unique student number.</summary>
-	public string StudentNumber { get; private set; } = string.Empty;
+	public string? StudentNumber { get; private set; }
 
 	/// <summary>Gets the student's first name.</summary>
 	public string FirstName { get; private set; } = string.Empty;
@@ -51,7 +51,7 @@ public sealed class StudentEntity : Entity
 	public static StudentEntity Create(
 		Guid tenantId,
 		Guid? userId,
-		string studentNumber,
+		string? studentNumber,
 		string firstName,
 		string? lastName,
 		DateOnly? dateOfBirth,
@@ -62,7 +62,6 @@ public sealed class StudentEntity : Entity
 		DateOnly? admissionDate,
 		string status)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(studentNumber);
 		ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
 		ArgumentException.ThrowIfNullOrWhiteSpace(status);
 
@@ -70,7 +69,7 @@ public sealed class StudentEntity : Entity
 		{
 			TenantId = tenantId,
 			UserId = userId,
-			StudentNumber = studentNumber.Trim(),
+			StudentNumber = studentNumber?.Trim(),
 			FirstName = firstName.Trim(),
 			LastName = lastName?.Trim(),
 			DateOfBirth = dateOfBirth,
@@ -81,6 +80,24 @@ public sealed class StudentEntity : Entity
 			AdmissionDate = admissionDate,
 			Status = status.Trim()
 		};
+	}
+
+	/// <summary>Approves the admission and links the provisioned Identity account.</summary>
+	public void ApproveAdmission(Guid userId, string studentNumber)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(studentNumber);
+		if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
+		UserId = userId;
+		StudentNumber = studentNumber.Trim();
+		Status = "ACTIVE";
+		MarkAsUpdated();
+	}
+
+	/// <summary>Marks the student as struck off while preserving the academic record.</summary>
+	public void StrikeOff()
+	{
+		Status = "STRUCK_OFF";
+		MarkAsUpdated();
 	}
 
 	/// <summary>Updates editable student details.</summary>

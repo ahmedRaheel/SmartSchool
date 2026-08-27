@@ -127,6 +127,7 @@ public static class DataPlatformServiceCollectionExtensions
 		});
 
 		services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
+		services.AddScoped<IBusinessNumberGenerator, BusinessNumberGenerator>();
 		services.AddScoped<IApplicationDbContext>(
 			serviceProvider => serviceProvider.GetRequiredService<ApplicationDbContext>());
 		services.AddScoped<MockDatabaseSeeder>();

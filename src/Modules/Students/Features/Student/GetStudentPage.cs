@@ -13,7 +13,7 @@ public static class GetStudentPage
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		string StudentNumber,
+		string? StudentNumber,
 		string FirstName,
 		string? LastName,
 		DateOnly? DateOfBirth,

@@ -18,11 +18,9 @@ public static class GetSchoolById
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+		Guid TenantId, Guid Id, string Code, string Name, string? RegistrationNumber,
+		        string? Email, string? Phone, string? Fax, string? Website, string? Address,
+		        string? City, string? Province, string? Country, string? LogoUrl);
 
 	public sealed record Query(
 		Guid TenantId,
@@ -67,10 +65,8 @@ public static class GetSchoolById
 		SmartSchool.Modules.Organization.Models.SchoolEntity entity)
 	{
 		return new Response(
-			entity.TenantId,
-			entity.SchoolId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
+			entity.TenantId, entity.SchoolId, entity.Code, entity.Name, entity.RegistrationNumber,
+			            entity.Email, entity.Phone, entity.Fax, entity.Website, entity.Address, entity.City,
+			            entity.Province, entity.Country, entity.LogoUrl);
 	}
 }

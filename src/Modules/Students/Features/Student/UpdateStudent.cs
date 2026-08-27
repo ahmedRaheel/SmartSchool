@@ -14,7 +14,7 @@ public static class UpdateStudent
 		Guid TenantId,
 		Guid Id,
 		Guid? UserId,
-		string StudentNumber,
+		
 		string FirstName,
 		string? LastName,
 		DateOnly? DateOfBirth,
@@ -88,8 +88,7 @@ public static class UpdateStudent
 		return new Response(
 			entity.TenantId,
 			entity.StudentId,
-			entity.UserId,
-			entity.StudentNumber,
+			entity.UserId,			
 			entity.FirstName,
 			entity.LastName,
 			entity.DateOfBirth,

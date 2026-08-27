@@ -2,75 +2,106 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Organization.Models;
 
-/// <summary>
-/// Represents the CampusEntity domain entity.
-/// </summary>
+/// <summary>Represents a physical branch/campus belonging to a school.</summary>
 public sealed class CampusEntity : Entity
 {
-	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid CampusId { get; private set; } = Guid.NewGuid();
+    private CampusEntity() { }
 
-	private CampusEntity()
-	{
-	}
+    public Guid CampusId { get; private set; } = Guid.NewGuid();
+    public Guid SchoolId { get; private set; }
+    public string Code { get; private set; } = string.Empty;
+    public string Name { get; private set; } = string.Empty;
+    public string BranchType { get; private set; } = string.Empty;
+    public string? Address { get; private set; }
+    public string? City { get; private set; }
+    public string? Province { get; private set; }
+    public string? Phone { get; private set; }
+    public string? Fax { get; private set; }
+    public string? Mobile { get; private set; }
+    public string? Email { get; private set; }
+    public string? LogoUrl { get; private set; }
+    public string? MetadataJson => null;
 
-	/// <summary>Gets the persisted address value.</summary>
-	public string? Address { get; private set; }
+    public static CampusEntity Create(
+        Guid tenantId,
+        Guid schoolId,
+        string code,
+        string name,
+        string branchType,
+        string? address,
+        string? city,
+        string? province,
+        string? phone,
+        string? fax,
+        string? mobile,
+        string? email,
+        string? logoUrl)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(branchType);
+        if (schoolId == Guid.Empty) throw new ArgumentException("School is required.", nameof(schoolId));
 
-	/// <summary>Gets the persisted phone value.</summary>
-	public string? Phone { get; private set; }
+        return new CampusEntity
+        {
+            TenantId = tenantId,
+            SchoolId = schoolId,
+            Code = code.Trim(),
+            Name = name.Trim(),
+            BranchType = branchType.Trim(),
+            Address = Clean(address),
+            City = Clean(city),
+            Province = Clean(province),
+            Phone = Clean(phone),
+            Fax = Clean(fax),
+            Mobile = Clean(mobile),
+            Email = Clean(email),
+            LogoUrl = Clean(logoUrl)
+        };
+    }
 
-	/// <summary>Gets the persisted email value.</summary>
-	public string? Email { get; private set; }
+    public void UpdateDetails(
+        Guid schoolId,
+        string code,
+        string name,
+        string branchType,
+        string? address,
+        string? city,
+        string? province,
+        string? phone,
+        string? fax,
+        string? mobile,
+        string? email,
+        string? logoUrl)
+    {
+        if (schoolId == Guid.Empty)
+        {
+            throw new ArgumentException("School is required.", nameof(schoolId));
+        }
 
-	/// <summary>Gets the business code.</summary>
-	public string Code { get; private set; } = string.Empty;
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(branchType);
 
-	/// <summary>Gets the display name.</summary>
-	public string Name { get; private set; } = string.Empty;
+        SchoolId = schoolId;
+        Code = code.Trim();
+        Name = name.Trim();
+        BranchType = branchType.Trim();
+        Address = Clean(address);
+        City = Clean(city);
+        Province = Clean(province);
+        Phone = Clean(phone);
+        Fax = Clean(fax);
+        Mobile = Clean(mobile);
+        Email = Clean(email);
+        LogoUrl = Clean(logoUrl);
+        MarkAsUpdated();
+    }
 
-	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
-	public string? MetadataJson { get; private set; }
+    public void UpdateDetails(string code, string name, string? metadataJson = null)
+    {
+        UpdateDetails(SchoolId, code, name, BranchType, Address, City, Province, Phone, Fax, Mobile, Email, LogoUrl);
+    }
 
-	/// <summary>Creates a new CampusEntity.</summary>
-	/// <param name="tenantId">The owning tenant identifier.</param>
-	/// <param name="code">The business code.</param>
-	/// <param name="name">The display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	/// <returns>The newly created entity.</returns>
-	public static CampusEntity Create(
-		Guid tenantId,
-		string code,
-		string name,
-		string? metadataJson = null)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-		return new CampusEntity
-		{
-			TenantId = tenantId,
-			Code = code.Trim(),
-			Name = name.Trim(),
-			MetadataJson = metadataJson
-		};
-	}
-
-	/// <summary>Updates the business details.</summary>
-	/// <param name="code">The new business code.</param>
-	/// <param name="name">The new display name.</param>
-	/// <param name="metadataJson">Optional domain metadata.</param>
-	public void UpdateDetails(
-		string code,
-		string name,
-		string? metadataJson = null)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-		Code = code.Trim();
-		Name = name.Trim();
-		MetadataJson = metadataJson;
-		MarkAsUpdated();
-	}
+    private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

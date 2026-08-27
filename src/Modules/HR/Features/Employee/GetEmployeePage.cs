@@ -13,7 +13,7 @@ public static class GetEmployeePage
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		string EmployeeNumber,
+		string? EmployeeNumber,
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,

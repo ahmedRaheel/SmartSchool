@@ -13,7 +13,7 @@ public static class GetEmployeeById
 		Guid TenantId,
 		Guid Id,
 		Guid? UserId,
-		string EmployeeNumber,
+		string? EmployeeNumber,
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,

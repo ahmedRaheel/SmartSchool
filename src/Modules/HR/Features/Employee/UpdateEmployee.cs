@@ -13,8 +13,7 @@ public static class UpdateEmployee
 	public sealed record Response(
 		Guid TenantId,
 		Guid Id,
-		Guid? UserId,
-		string EmployeeNumber,
+		Guid? UserId,		
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,
@@ -95,8 +94,7 @@ public static class UpdateEmployee
 		return new Response(
 			entity.TenantId,
 			entity.EmployeeId,
-			entity.UserId,
-			entity.EmployeeNumber,
+			entity.UserId,		
 			entity.FirstName,
 			entity.LastName,
 			entity.CnicNumber,

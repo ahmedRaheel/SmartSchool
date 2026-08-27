@@ -19,7 +19,7 @@ public sealed class EmployeeEntityConfiguration : IEntityTypeConfiguration<Emplo
 		builder.Property(entity => entity.EmployeeId).HasColumnName("employee_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();
 		builder.Property(entity => entity.UserId).HasColumnName("user_id");
-		builder.Property(entity => entity.EmployeeNumber).HasColumnName("employee_number").HasMaxLength(60).IsRequired();
+		builder.Property(entity => entity.EmployeeNumber).HasColumnName("employee_number").HasMaxLength(60);
 		builder.Property(entity => entity.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
 		builder.Property(entity => entity.LastName).HasColumnName("last_name").HasMaxLength(100);
 		builder.Property(entity => entity.CnicNumber).HasColumnName("cnic_number").HasMaxLength(20);

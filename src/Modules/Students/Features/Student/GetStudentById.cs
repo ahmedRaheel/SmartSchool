@@ -13,7 +13,7 @@ public static class GetStudentById
 		Guid TenantId,
 		Guid Id,
 		Guid? UserId,
-		string StudentNumber,
+		string? StudentNumber,
 		string FirstName,
 		string? LastName,
 		DateOnly? DateOfBirth,

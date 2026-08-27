@@ -14,7 +14,7 @@ public static class CreateEmployee
 		Guid TenantId,
 		Guid Id,
 		Guid? UserId,
-		string EmployeeNumber,
+		string? EmployeeNumber,
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,
@@ -31,7 +31,6 @@ public static class CreateEmployee
 	public sealed record Request(
 		Guid TenantId,
 		Guid? UserId,
-		string EmployeeNumber,
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,
@@ -50,29 +49,20 @@ public static class CreateEmployee
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.EmployeeNumber).NotEmpty();
 			RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.EmploymentTypeCode).NotEmpty().MaximumLength(30);
 		}
 	}
 
-	public sealed class Handler(IEmployeeQuery entityQuery, IEmployeeCommand entityCommand)
+	public sealed class Handler(IEmployeeCommand entityCommand)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByEmployeeNumberAsync(
-				request.TenantId, request.EmployeeNumber, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict("Employee with the supplied EmployeeNumber already exists."));
-			}
-
 			var entity = EmployeeEntity.Create(
 				request.TenantId,
-				request.UserId,
-				request.EmployeeNumber,
+				null,
+				null,
 				request.FirstName,
 				request.LastName,
 				request.CnicNumber,
@@ -83,7 +73,7 @@ public static class CreateEmployee
 				request.Phone,
 				request.HireDate,
 				request.EmploymentTypeCode,
-				request.Status,
+				"PENDING_APPROVAL",
 				request.SourceCandidateId);
 
 			await entityCommand.AddAsync(entity, cancellationToken);

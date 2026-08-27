@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
 using FluentValidation;
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.Modules.Organization.Persistence;
@@ -11,96 +10,71 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 
 public static class UpdateCampus
 {
-	/// <summary>
-	/// Represents the response returned by this CampusEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    private static readonly string[] BranchTypes = ["HEAD_OFFICE", "REGIONAL_HEAD_OFFICE", "REGIONAL_BRANCH"];
 
-	public sealed record Request(
-		Guid TenantId,
-		Guid Id,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+    public sealed record Request(
+        Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType,
+        string? Address, string? City, string? Province, string? Phone, string? Fax,
+        string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
+    public sealed record Response(
+        Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType,
+        string? Address, string? City, string? Province, string? Phone, string? Fax,
+        string? Mobile, string? Email, string? LogoUrl);
 
-	public sealed class Handler(
-		ICampusQuery entityQuery,
-		ICampusCommand entityCommand)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await entityQuery.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusEntity))));
-			}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.SchoolId).NotEmpty();
+            RuleFor(x => x.Code).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.BranchType).Must(value => BranchTypes.Contains(value));
+            RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
+        }
+    }
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(CampusEntity), request.Code)));
-			}
+    public sealed class Handler(ICampusQuery query, ICampusCommand command, ISchoolQuery schoolQuery)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        {
+            var campus = await query.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+            if (campus is null)
+            {
+                return Result<Response>.Failure(Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusEntity))));
+            }
 
-			entity.UpdateDetails(
-				request.Code,
-				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            if (await schoolQuery.GetByIdAsync(request.TenantId, request.SchoolId, cancellationToken) is null)
+            {
+                return Result<Response>.Failure(Error.NotFound("The selected school was not found in this tenant."));
+            }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPut(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "campus"),
-				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var command = request with { Id = id };
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						command, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("UpdateCampus")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
-		return endpoints;
-	}
+            if (await query.ExistsByCodeAsync(request.TenantId, request.Code, request.Id, cancellationToken))
+            {
+                return Result<Response>.Failure(Error.Conflict(ErrorMessages.DuplicateCode(nameof(CampusEntity), request.Code)));
+            }
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.CampusEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.CampusId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+            campus.UpdateDetails(request.SchoolId, request.Code, request.Name, request.BranchType, request.Address,
+                request.City, request.Province, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);
+            await command.UpdateAsync(campus, cancellationToken);
+            return Result<Response>.Success(Map(campus));
+        }
+    }
+
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPut(ApiRoutes.EntityById(ModuleConstants.RouteSegment, "campus"),
+            async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                (await mediator.SendAsync<Request, Result<Response>>(request with { Id = id }, cancellationToken)).ToHttpResult())
+            .WithName("UpdateCampus").WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
+        return endpoints;
+    }
+
+    private static Response Map(CampusEntity campus) => new(
+        campus.TenantId, campus.CampusId, campus.SchoolId, campus.Code, campus.Name, campus.BranchType,
+        campus.Address, campus.City, campus.Province, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl);
 }

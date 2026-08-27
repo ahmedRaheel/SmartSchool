@@ -18,7 +18,7 @@ public sealed class EmployeeEntity : Entity
 	public Guid? UserId { get; private set; }
 
 	/// <summary>Gets the tenant-unique employee number.</summary>
-	public string EmployeeNumber { get; private set; } = string.Empty;
+	public string? EmployeeNumber { get; private set; }
 
 	/// <summary>Gets the employee first name.</summary>
 	public string FirstName { get; private set; } = string.Empty;
@@ -76,7 +76,7 @@ public sealed class EmployeeEntity : Entity
 	public static EmployeeEntity Create(
 		Guid tenantId,
 		Guid? userId,
-		string employeeNumber,
+		string? employeeNumber,
 		string firstName,
 		string? lastName,
 		string? cnicNumber,
@@ -90,7 +90,6 @@ public sealed class EmployeeEntity : Entity
 		string status,
 		Guid? sourceCandidateId)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(employeeNumber);
 		ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
 		ArgumentException.ThrowIfNullOrWhiteSpace(employmentTypeCode);
 		ArgumentException.ThrowIfNullOrWhiteSpace(status);
@@ -99,7 +98,7 @@ public sealed class EmployeeEntity : Entity
 		{
 			TenantId = tenantId,
 			UserId = userId,
-			EmployeeNumber = employeeNumber.Trim(),
+			EmployeeNumber = employeeNumber?.Trim(),
 			FirstName = firstName.Trim(),
 			LastName = lastName?.Trim(),
 			CnicNumber = cnicNumber?.Trim(),
@@ -113,6 +112,24 @@ public sealed class EmployeeEntity : Entity
 			Status = status.Trim(),
 			SourceCandidateId = sourceCandidateId
 		};
+	}
+
+	/// <summary>Approves employment and links the provisioned Identity account.</summary>
+	public void ApproveEmployment(Guid userId, string employeeNumber)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(employeeNumber);
+		if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
+		UserId = userId;
+		EmployeeNumber = employeeNumber.Trim();
+		Status = "ACTIVE";
+		MarkAsUpdated();
+	}
+
+	/// <summary>Terminates employment while preserving HR and payroll history.</summary>
+	public void Terminate()
+	{
+		Status = "TERMINATED";
+		MarkAsUpdated();
 	}
 
 	/// <summary>Updates editable employee business details.</summary>

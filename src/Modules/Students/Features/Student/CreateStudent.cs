@@ -14,7 +14,7 @@ public static class CreateStudent
 		Guid TenantId,
 		Guid Id,
 		Guid? UserId,
-		string StudentNumber,
+		string? StudentNumber,
 		string FirstName,
 		string? LastName,
 		DateOnly? DateOfBirth,
@@ -28,7 +28,6 @@ public static class CreateStudent
 	public sealed record Request(
 		Guid TenantId,
 		Guid? UserId,
-		string StudentNumber,
 		string FirstName,
 		string? LastName,
 		DateOnly? DateOfBirth,
@@ -44,28 +43,19 @@ public static class CreateStudent
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.StudentNumber).NotEmpty();
 			RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
 		}
 	}
 
-	public sealed class Handler(IStudentQuery entityQuery, IStudentCommand entityCommand)
+	public sealed class Handler(IStudentCommand entityCommand)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByStudentNumberAsync(
-				request.TenantId, request.StudentNumber, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict("Student with the supplied StudentNumber already exists."));
-			}
-
 			var entity = StudentEntity.Create(
 				request.TenantId,
-				request.UserId,
-				request.StudentNumber,
+				null,
+				null,
 				request.FirstName,
 				request.LastName,
 				request.DateOfBirth,
@@ -74,7 +64,7 @@ public static class CreateStudent
 				request.PhotoContentType,
 				request.PhotoFileName,
 				request.AdmissionDate,
-				request.Status);
+				"PENDING_APPROVAL");
 
 			await entityCommand.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

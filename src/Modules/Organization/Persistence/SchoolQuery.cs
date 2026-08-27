@@ -29,7 +29,7 @@ public sealed class SchoolQuery(
 	}
 
 	public async Task<PagedResult<SchoolEntity>> GetPageAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
@@ -37,17 +37,19 @@ public sealed class SchoolQuery(
 		const string countSql = """
 			SELECT COUNT(*)
 			FROM org.school
-			WHERE tenant_id = @TenantId
-			  AND is_active = TRUE;
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
+			AND is_active = TRUE;
 			""";
 
 		const string pageSql = """
-			SELECT
-				tenant_id AS "TenantId",
-				school_id AS "Id"
+			SELECT 
+				school_id AS "SchoolId", tenant_id AS "TenantId", code AS "Code", name AS "Name",
+				registration_number AS "RegistrationNumber", email AS "Email", phone AS "Phone", fax AS "Fax", website AS "Website",
+				address AS "Address", city AS "City", province AS "Province", country AS "Country", logo_url AS "LogoUrl",
+				is_active AS "IsActive", created_at AS "CreatedAt", updated_at AS "UpdatedAt", row_version AS "RowVersion"
 			FROM org.school
-			WHERE tenant_id = @TenantId
-			  AND is_active = TRUE
+			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
+				AND is_active = TRUE
 			ORDER BY school_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";

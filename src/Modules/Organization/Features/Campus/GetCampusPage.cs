@@ -18,11 +18,9 @@ public static class GetCampusPage
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+		Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType,
+		        string? Address, string? City, string? Province, string? Phone, string? Fax,
+		        string? Mobile, string? Email, string? LogoUrl);
 
 	public sealed record Query(
 		Guid? TenantId,
@@ -58,7 +56,7 @@ public static class GetCampusPage
 				async (Guid? tenantId, int page, int pageSize, SmartSchool.Application.Identity.ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var effectiveTenantId = tenantScope.Resolve(tenantId);
-                    var request = new Query(effectiveTenantId ?? Guid.Empty, page, pageSize);
+                    var request = new Query(effectiveTenantId, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();
@@ -73,10 +71,8 @@ public static class GetCampusPage
 		SmartSchool.Modules.Organization.Models.CampusEntity entity)
 	{
 		return new Response(
-			entity.TenantId,
-			entity.CampusId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
+			entity.TenantId, entity.CampusId, entity.SchoolId, entity.Code, entity.Name, entity.BranchType,
+			            entity.Address, entity.City, entity.Province, entity.Phone, entity.Fax, entity.Mobile,
+			            entity.Email, entity.LogoUrl);
 	}
 }

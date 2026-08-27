@@ -15,7 +15,7 @@ public sealed class StudentEntityConfiguration : IEntityTypeConfiguration<Studen
 		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();
 		builder.Property(entity => entity.UserId).HasColumnName("user_id");
-		builder.Property(entity => entity.StudentNumber).HasColumnName("student_number").HasMaxLength(60).IsRequired();
+		builder.Property(entity => entity.StudentNumber).HasColumnName("student_number").HasMaxLength(60);
 		builder.Property(entity => entity.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
 		builder.Property(entity => entity.LastName).HasColumnName("last_name").HasMaxLength(100);
 		builder.Property(entity => entity.DateOfBirth).HasColumnName("date_of_birth");

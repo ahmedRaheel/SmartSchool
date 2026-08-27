@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Features.Attendance;
 using SmartSchool.Modules.Students.Features.Enrollment;
@@ -56,6 +57,8 @@ public static class Module
         GetStudentPage.MapEndpoint(endpoints);
         UpdateStudent.MapEndpoint(endpoints);
         DeleteStudent.MapEndpoint(endpoints);
+        ApproveStudentAdmission.MapEndpoint(endpoints);
+        StrikeOffStudent.MapEndpoint(endpoints);
 
         CreateStudentGuardian.MapEndpoint(endpoints);
         GetStudentGuardianById.MapEndpoint(endpoints);

@@ -1,7 +1,8 @@
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
 using FluentValidation;
+using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
@@ -11,87 +12,75 @@ namespace SmartSchool.Modules.Organization.Features.School;
 
 public static class CreateSchool
 {
-	/// <summary>
-	/// Represents the response returned by this SchoolEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    public sealed record Request(
+        Guid TenantId,
+        string Name,
+        string? RegistrationNumber,
+        string? Email,
+        string? Phone,
+        string? Fax,
+        string? Website,
+        string? Address,
+        string? City,
+        string? Province,
+        string? Country,
+        string? LogoUrl) : IRequest<Result<Response>>;
 
-	public sealed record Request(
-		Guid TenantId,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+    public sealed record Response(
+        Guid TenantId, Guid Id, string Code, string Name, string? RegistrationNumber,
+        string? Email, string? Phone, string? Fax, string? Website, string? Address,
+        string? City, string? Province, string? Country, string? LogoUrl);
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
+            RuleFor(x => x.Phone).MaximumLength(50);
+            RuleFor(x => x.Fax).MaximumLength(50);
+            RuleFor(x => x.City).MaximumLength(120);
+            RuleFor(x => x.Province).MaximumLength(120);
+            RuleFor(x => x.Website).MaximumLength(300);
+        }
+    }
 
-	public sealed class Handler(
-		ISchoolQuery entityQuery,
-		ISchoolCommand entityCommand)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(SchoolEntity), request.Code)));
-			}
+    public sealed class Handler(ISchoolQuery query, ISchoolCommand command, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        {
+            var code = await numberGenerator.NextAsync(
+                "SCHOOL", "SCH", request.TenantId, 3, cancellationToken);
 
-			var entity = SchoolEntity.Create(
-				request.TenantId,
-				request.Code,
-				request.Name);
+            var school = SchoolEntity.Create(
+                request.TenantId, code, request.Name, request.RegistrationNumber, request.Email,
+                request.Phone, request.Fax, request.Website, request.Address, request.City, request.Province,
+                request.Country, request.LogoUrl);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            await command.AddAsync(school, cancellationToken);
+            return Result<Response>.Success(Map(school));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPost(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("CreateSchool")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school"),
+            async (Request request, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var tenantId = tenantScope.Resolve(request.TenantId) ?? request.TenantId;
+                var command = request with { TenantId = tenantId };
+                return (await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken)).ToHttpResult();
+            })
+            .WithName("CreateSchool")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.SchoolEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.SchoolId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+        return endpoints;
+    }
+
+    private static Response Map(SchoolEntity school) => new(
+        school.TenantId, school.SchoolId, school.Code, school.Name, school.RegistrationNumber,
+        school.Email, school.Phone, school.Fax, school.Website, school.Address, school.City,
+        school.Province, school.Country, school.LogoUrl);
 }

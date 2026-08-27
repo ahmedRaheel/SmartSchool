@@ -4,60 +4,32 @@ using SmartSchool.Modules.Organization.Models;
 
 namespace SmartSchool.Modules.Organization.Persistence.Configurations;
 
-/// <summary>
-/// Defines relational persistence rules for <see cref="CampusEntity"/>.
-/// </summary>
-public sealed class CampusEntityConfiguration
-	: IEntityTypeConfiguration<CampusEntity>
+public sealed class CampusEntityConfiguration : IEntityTypeConfiguration<CampusEntity>
 {
-	public void Configure(EntityTypeBuilder<CampusEntity> builder)
-	{
-		builder.ToTable("campus", schema: "org");
-		builder.HasKey(entity => entity.CampusId);
-
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
-
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
-
-		builder.HasIndex(entity => entity.TenantId);
-
-		builder.Property(entity => entity.CreatedAt).IsRequired();
-		builder.Property(entity => entity.UpdatedAt);
-		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
-
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
-
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
-
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
-
-
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Code).HasColumnName("code");
-		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
-
-		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Address).HasColumnName("address");
-		builder.Property(entity => entity.Phone).HasColumnName("phone");
-		builder.Property(entity => entity.Email).HasColumnName("email");
-	}
+    public void Configure(EntityTypeBuilder<CampusEntity> builder)
+    {
+        builder.ToTable("campus", "org");
+        builder.Ignore(x => x.MetadataJson);
+        builder.HasKey(x => x.CampusId);
+        builder.Property(x => x.CampusId).HasColumnName("campus_id");
+        builder.Property(x => x.TenantId).HasColumnName("tenant_id").IsRequired();
+        builder.Property(x => x.SchoolId).HasColumnName("school_id").IsRequired();
+        builder.Property(x => x.Code).HasColumnName("code").HasMaxLength(50).IsRequired();
+        builder.Property(x => x.Name).HasColumnName("name").HasMaxLength(200).IsRequired();
+        builder.Property(x => x.BranchType).HasColumnName("branch_type").HasMaxLength(40).IsRequired();
+        builder.Property(x => x.Address).HasColumnName("address");
+        builder.Property(x => x.City).HasColumnName("city").HasMaxLength(120);
+        builder.Property(x => x.Province).HasColumnName("province").HasMaxLength(120);
+        builder.Property(x => x.Phone).HasColumnName("phone").HasMaxLength(50);
+        builder.Property(x => x.Fax).HasColumnName("fax").HasMaxLength(50);
+        builder.Property(x => x.Mobile).HasColumnName("mobile").HasMaxLength(50);
+        builder.Property(x => x.Email).HasColumnName("email").HasMaxLength(200);
+        builder.Property(x => x.LogoUrl).HasColumnName("logo_url").HasMaxLength(500);
+        builder.Property(x => x.IsActive).HasColumnName("is_active").IsRequired();
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(x => x.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
+        builder.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.SchoolId });
+    }
 }

@@ -13,9 +13,9 @@ public sealed class TenantScope(ICurrentUser currentUser) : ITenantScope
     {
         // SuperAdmin is platform-scoped. A tenant is a view/filter, never a security boundary.
         if (IsSuperAdmin) return null;
-        var tokenTenant = currentUser.TenantId;
-        if (requestedTenantId.HasValue && requestedTenantId.Value != tokenTenant)
-            throw new UnauthorizedAccessException("The requested tenant is outside the authenticated tenant scope.");
-        return tokenTenant;
+        // Tenant users are always constrained to the tenant carried by their authenticated token.
+        // A stale or manipulated tenantId supplied by the client is deliberately ignored instead
+        // of becoming an authorization failure or, more importantly, widening data access.
+        return currentUser.TenantId;
     }
 }

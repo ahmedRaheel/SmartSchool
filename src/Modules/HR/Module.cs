@@ -56,6 +56,8 @@ public static class Module
 		GetEmployeePage.MapEndpoint(endpoints);
 		UpdateEmployee.MapEndpoint(endpoints);
 		DeleteEmployee.MapEndpoint(endpoints);
+		ApproveEmployee.MapEndpoint(endpoints);
+		TerminateEmployee.MapEndpoint(endpoints);
 		CreateInterview.MapEndpoint(endpoints);
 		GetInterviewById.MapEndpoint(endpoints);
 		GetInterviewPage.MapEndpoint(endpoints);

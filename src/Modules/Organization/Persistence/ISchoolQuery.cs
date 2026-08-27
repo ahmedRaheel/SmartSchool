@@ -21,7 +21,7 @@ public interface ISchoolQuery
 	/// Executes the persistence operation.
 	/// </summary>
 	Task<PagedResult<SchoolEntity>> GetPageAsync(
-		Guid tenantId,
+		Guid? tenantId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken);
