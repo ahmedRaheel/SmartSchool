@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Identity;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 
@@ -114,6 +115,10 @@ public static class Module
 			.Bind(configuration.GetSection(Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions.SectionName))
 			.Validate(options => !string.IsNullOrWhiteSpace(options.TemporaryPassword), "AccountProvisioning:TemporaryPassword is required.")
 			.ValidateOnStart();
+
+		services.AddHttpContextAccessor();
+		services.AddScoped<ICurrentUser, CurrentUser>();
+		services.AddScoped<ITenantScope, TenantScope>();
 
 		services.AddHttpClient("IdentityTokenClient");
 		services.AddTransient<Duende.IdentityServer.Validation.IExtensionGrantValidator, ImpersonationGrantValidator>();

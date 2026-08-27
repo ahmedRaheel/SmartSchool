@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Application.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -60,8 +61,8 @@ public static class UserManagementEndpoints
     }
 
     private static async Task<IResult> GetPageAsync(
-        int page, int pageSize, Guid? tenantId, ICurrentUser currentUser,
-        UserManager<SmartSchoolUser> userManager, CancellationToken cancellationToken)
+        int page, int pageSize, Guid? tenantId, [FromServices] ICurrentUser currentUser,
+        [FromServices] UserManager<SmartSchoolUser> userManager, CancellationToken cancellationToken)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize <= 0 ? 20 : pageSize, 1, 100);
@@ -82,7 +83,7 @@ public static class UserManagementEndpoints
     }
 
     private static async Task<IResult> GetByIdAsync(
-        Guid id, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
+        Guid id, [FromServices] ICurrentUser currentUser, [FromServices] UserManager<SmartSchoolUser> userManager)
     {
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return Results.NotFound();
@@ -91,9 +92,9 @@ public static class UserManagementEndpoints
     }
 
     private static async Task<IResult> CreateAsync(
-        CreateUserRequest request, ICurrentUser currentUser,
-        UserManager<SmartSchoolUser> userManager,
-        ILoggerFactory loggerFactory)
+        CreateUserRequest request, [FromServices] ICurrentUser currentUser,
+        [FromServices] UserManager<SmartSchoolUser> userManager,
+        [FromServices] ILoggerFactory loggerFactory)
     {
         var logger = loggerFactory.CreateLogger("SmartSchool.Identity.UserManagement");
         var superAdmin = currentUser.IsSuperAdmin;
@@ -161,8 +162,8 @@ public static class UserManagementEndpoints
     }
 
     private static async Task<IResult> ChangePasswordAsync(
-        ChangePasswordRequest request, ICurrentUser currentUser,
-        UserManager<SmartSchoolUser> userManager)
+        ChangePasswordRequest request, [FromServices] ICurrentUser currentUser,
+        [FromServices] UserManager<SmartSchoolUser> userManager)
     {
         var user = await userManager.FindByIdAsync(currentUser.UserId.ToString());
         if (user is null) return Results.Unauthorized();
@@ -179,7 +180,7 @@ public static class UserManagementEndpoints
 
     private static async Task<IResult> SetTenantStatusAsync(
         Guid tenantId, TenantStatusRequest request,
-        UserManager<SmartSchoolUser> userManager, CancellationToken cancellationToken)
+        [FromServices] UserManager<SmartSchoolUser> userManager, CancellationToken cancellationToken)
     {
         var users = await userManager.Users.Where(x => x.TenantId == tenantId).ToListAsync(cancellationToken);
         foreach (var user in users)
@@ -198,7 +199,7 @@ public static class UserManagementEndpoints
     }
 
     private static async Task<IResult> DeleteTenantUsersAsync(
-        Guid tenantId, UserManager<SmartSchoolUser> userManager, CancellationToken cancellationToken)
+        Guid tenantId, [FromServices] UserManager<SmartSchoolUser> userManager, CancellationToken cancellationToken)
     {
         var users = await userManager.Users.Where(x => x.TenantId == tenantId).ToListAsync(cancellationToken);
         foreach (var user in users)
@@ -212,8 +213,8 @@ public static class UserManagementEndpoints
     // This endpoint creates an audited support intent. Token exchange is intentionally handled by
     // IdentityServer, not by revealing or resetting the target user's password.
     private static async Task<IResult> StartImpersonationAsync(
-        ImpersonateRequest request, ICurrentUser currentUser,
-        UserManager<SmartSchoolUser> userManager, ILoggerFactory loggerFactory)
+        ImpersonateRequest request, [FromServices] ICurrentUser currentUser,
+        [FromServices] UserManager<SmartSchoolUser> userManager, [FromServices] ILoggerFactory loggerFactory)
     {
         var target = await userManager.FindByIdAsync(request.TargetUserId.ToString());
         if (target is null || !target.IsActive) return Results.NotFound();
@@ -251,7 +252,7 @@ public static class UserManagementEndpoints
         });
     }
 
-    private static async Task<IResult> UpdateAsync(Guid id, UpdateUserRequest request, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> UpdateAsync(Guid id, UpdateUserRequest request, [FromServices] ICurrentUser currentUser, [FromServices] UserManager<SmartSchoolUser> userManager)
     {
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return Results.NotFound();
@@ -262,7 +263,7 @@ public static class UserManagementEndpoints
         return result.Succeeded ? Results.Ok(await ToResponseAsync(user,userManager)) : Results.ValidationProblem(ToErrors(result));
     }
 
-    private static async Task<IResult> SetRolesAsync(Guid id, SetRolesRequest request, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> SetRolesAsync(Guid id, SetRolesRequest request, [FromServices] ICurrentUser currentUser, [FromServices] UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
@@ -275,7 +276,7 @@ public static class UserManagementEndpoints
         return add.Succeeded ? Results.Ok(await ToResponseAsync(user,userManager)) : Results.ValidationProblem(ToErrors(add));
     }
 
-    private static async Task<IResult> ResetPasswordAsync(Guid id, ResetPasswordRequest request, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> ResetPasswordAsync(Guid id, ResetPasswordRequest request, [FromServices] ICurrentUser currentUser, [FromServices] UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
@@ -291,7 +292,7 @@ public static class UserManagementEndpoints
         return Results.ValidationProblem(ToErrors(result));
     }
 
-    private static async Task<IResult> LockAsync(Guid id, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> LockAsync(Guid id, [FromServices] ICurrentUser currentUser, [FromServices] UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
@@ -300,7 +301,7 @@ public static class UserManagementEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> UnlockAsync(Guid id, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> UnlockAsync(Guid id, [FromServices] ICurrentUser currentUser, [FromServices] UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
@@ -310,7 +311,7 @@ public static class UserManagementEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> DeactivateAsync(Guid id, ICurrentUser currentUser, UserManager<SmartSchoolUser> userManager)
+    private static async Task<IResult> DeactivateAsync(Guid id, [FromServices] ICurrentUser currentUser, [FromServices] UserManager<SmartSchoolUser> userManager)
     {
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();

@@ -5,7 +5,8 @@ using SmartSchool.SharedKernel.Constants;
 namespace SmartSchool.Application.Identity;
 
 /// <summary>
-/// Reads the authenticated SmartSchool business context from JWT claims.
+/// Reads the current SmartSchool user exclusively from the authenticated
+/// <see cref="HttpContext.User"/> claims principal.
 /// </summary>
 public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
@@ -36,8 +37,13 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
 
     public string? LastName => GetValue(SmartSchoolClaims.LastName);
 
-    public string? Email =>
-        GetValue(ClaimTypes.Email) ?? GetValue("email");
+    public string? DisplayName => GetValue(SmartSchoolClaims.DisplayName);
+
+    public string? Email => GetValue(SmartSchoolClaims.Email);
+
+    public string? AccountType => GetValue(SmartSchoolClaims.AccountType);
+
+    public bool MustChangePassword => GetBoolean(SmartSchoolClaims.MustChangePassword);
 
     public IReadOnlyCollection<string> Roles => Principal
         .FindAll(SmartSchoolClaims.Role)
@@ -49,11 +55,9 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
 
     public bool IsSuperAdmin => IsInRole(SmartSchoolRoles.SuperAdmin);
 
-    public bool IsImpersonated =>
-        string.Equals(
-            GetValue(SmartSchoolClaims.Impersonated),
-            "true",
-            StringComparison.OrdinalIgnoreCase);
+    public bool IsImpersonated => GetBoolean(SmartSchoolClaims.Impersonated);
+
+    public Guid? ImpersonatorUserId => GetOptionalGuid(SmartSchoolClaims.ImpersonatorSubject);
 
     public bool IsInRole(string role)
     {
@@ -64,22 +68,42 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
 
     private string? GetValue(string claimType)
     {
-        return Principal.FindFirstValue(claimType);
+        var value = Principal.FindFirstValue(claimType);
+
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : value;
     }
 
     private Guid GetRequiredGuid(string claimType)
     {
-        return GetOptionalGuid(claimType)
-            ?? throw new UnauthorizedAccessException(
+        var value = GetOptionalGuid(claimType);
+
+        if (!value.HasValue)
+        {
+            throw new UnauthorizedAccessException(
                 $"Required access-token claim '{claimType}' is missing or invalid.");
+        }
+
+        return value.Value;
     }
 
     private Guid? GetOptionalGuid(string claimType)
     {
         var value = GetValue(claimType);
 
-        return Guid.TryParse(value, out var id)
-            ? id
-            : null;
+        if (!Guid.TryParse(value, out var id))
+        {
+            return null;
+        }
+
+        return id;
+    }
+
+    private bool GetBoolean(string claimType)
+    {
+        var value = GetValue(claimType);
+
+        return bool.TryParse(value, out var result) && result;
     }
 }

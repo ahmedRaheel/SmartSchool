@@ -61,6 +61,9 @@ public static class SmartSchoolClaims
     public const string EmployeeId = "employee_id";
     public const string FirstName = "given_name";
     public const string LastName = "family_name";
+    public const string DisplayName = "name";
+    public const string Email = "email";
+    public const string AccountType = "account_type";
     public const string MustChangePassword = "must_change_password";
     public const string Impersonated = "impersonated";
     public const string ImpersonatorSubject = "impersonator_sub";

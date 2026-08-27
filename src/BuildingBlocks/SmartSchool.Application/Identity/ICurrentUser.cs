@@ -1,10 +1,12 @@
 namespace SmartSchool.Application.Identity;
 
 /// <summary>
-/// Provides the authenticated SmartSchool business context from access-token claims.
+/// Exposes the authenticated SmartSchool user context carried by the access token.
 /// </summary>
 public interface ICurrentUser
 {
+    bool IsAuthenticated { get; }
+
     Guid UserId { get; }
 
     Guid? TenantId { get; }
@@ -27,15 +29,21 @@ public interface ICurrentUser
 
     string? LastName { get; }
 
+    string? DisplayName { get; }
+
     string? Email { get; }
 
-    IReadOnlyCollection<string> Roles { get; }
+    string? AccountType { get; }
 
-    bool IsAuthenticated { get; }
+    bool MustChangePassword { get; }
+
+    IReadOnlyCollection<string> Roles { get; }
 
     bool IsSuperAdmin { get; }
 
     bool IsImpersonated { get; }
+
+    Guid? ImpersonatorUserId { get; }
 
     bool IsInRole(string role);
 }

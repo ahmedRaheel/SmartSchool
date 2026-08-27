@@ -39,7 +39,12 @@ public sealed class DuendeConfigurationSeeder(
 			new ApiResource("smartschool-api", "SmartSchool API")
 			{
 				Scopes = { "smartschool.api" },
-				UserClaims = { "tenant_id", "role", "given_name", "family_name", "name", "email" }
+				UserClaims =
+				{
+					"tenant_id", "school_id", "branch_id", "student_id", "teacher_id",
+					"driver_id", "examiner_id", "employee_id", "role", "given_name",
+					"family_name", "name", "email", "account_type", "must_change_password"
+				}
 			}
 		};
 

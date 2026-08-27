@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Communication.Models;
@@ -11,71 +11,164 @@ namespace SmartSchool.Modules.Communication.Realtime;
 
 public static class CommunicationGroups
 {
-    public static string User(Guid tenantId, Guid userId) => $"tenant:{tenantId}:user:{userId}";
-    public static string Conversation(Guid tenantId, Guid conversationId) => $"tenant:{tenantId}:conversation:{conversationId}";
+    public static string User(Guid tenantId, Guid userId)
+    {
+        return $"tenant:{tenantId}:user:{userId}";
+    }
+
+    public static string Conversation(Guid tenantId, Guid conversationId)
+    {
+        return $"tenant:{tenantId}:conversation:{conversationId}";
+    }
 }
 
 [Authorize]
-public sealed class NotificationHub : Hub
+public sealed class NotificationHub(ICurrentUser currentUser) : Hub
 {
     public override async Task OnConnectedAsync()
     {
-        var userId = RequiredGuid(SmartSchoolClaims.UserId);
-        var tenant = OptionalGuid(SmartSchoolClaims.TenantId);
-        if (tenant.HasValue)
-            await Groups.AddToGroupAsync(Context.ConnectionId, CommunicationGroups.User(tenant.Value, userId));
+        if (!currentUser.TenantId.HasValue)
+        {
+            await base.OnConnectedAsync();
+            return;
+        }
+
+        var groupName = CommunicationGroups.User(
+            currentUser.TenantId.Value,
+            currentUser.UserId);
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         await base.OnConnectedAsync();
     }
-    private Guid RequiredGuid(string type) => OptionalGuid(type) ?? throw new HubException($"Required claim '{type}' is missing.");
-    private Guid? OptionalGuid(string type) => Guid.TryParse(Context.User?.FindFirstValue(type), out var id) ? id : null;
 }
 
 [Authorize]
-public sealed class ChatHub(IApplicationDbContext dbContext, IIntegrationEventPublisher publisher) : Hub
+public sealed class ChatHub(
+    IApplicationDbContext dbContext,
+    IIntegrationEventPublisher publisher,
+    ICurrentUser currentUser) : Hub
 {
     public async Task JoinConversation(Guid conversationId)
     {
-        var (tenantId, _) = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
-        await Groups.AddToGroupAsync(Context.ConnectionId, CommunicationGroups.Conversation(tenantId, conversationId));
+        var (tenantId, _) = await ResolveMembershipAsync(
+            conversationId,
+            Context.ConnectionAborted);
+
+        var groupName = CommunicationGroups.Conversation(
+            tenantId,
+            conversationId);
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
     }
 
     public async Task SendMessage(Guid conversationId, string message)
     {
-        if (string.IsNullOrWhiteSpace(message)) throw new HubException("Message is required.");
-        var (tenantId, userId) = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
-        var entity = ChatMessageEntity.Create(tenantId, conversationId, userId, message.Trim());
-        await dbContext.Set<ChatMessageEntity>().AddAsync(entity, Context.ConnectionAborted);
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            throw new HubException("Message is required.");
+        }
+
+        var (tenantId, userId) = await ResolveMembershipAsync(
+            conversationId,
+            Context.ConnectionAborted);
+
+        var entity = ChatMessageEntity.Create(
+            tenantId,
+            conversationId,
+            userId,
+            message.Trim());
+
+        await dbContext.Set<ChatMessageEntity>().AddAsync(
+            entity,
+            Context.ConnectionAborted);
+
         await dbContext.SaveChangesAsync(Context.ConnectionAborted);
 
-        var payload = new { entity.TenantId, entity.ChatMessageId, entity.ConversationId, entity.SenderUserId, entity.Message, entity.SentAt };
-        await publisher.PublishAsync(KafkaTopics.ChatMessageSent, payload, Context.ConnectionAborted);
-        await Clients.Group(CommunicationGroups.Conversation(tenantId, conversationId))
-            .SendAsync("MessageReceived", payload, Context.ConnectionAborted);
+        var payload = new
+        {
+            entity.TenantId,
+            entity.ChatMessageId,
+            entity.ConversationId,
+            entity.SenderUserId,
+            entity.Message,
+            entity.SentAt
+        };
+
+        await publisher.PublishAsync(
+            KafkaTopics.ChatMessageSent,
+            payload,
+            Context.ConnectionAborted);
+
+        var groupName = CommunicationGroups.Conversation(
+            tenantId,
+            conversationId);
+
+        await Clients
+            .Group(groupName)
+            .SendAsync(
+                "MessageReceived",
+                payload,
+                Context.ConnectionAborted);
     }
 
     public async Task LeaveConversation(Guid conversationId)
     {
-        var (tenantId, _) = await ResolveMembershipAsync(conversationId, Context.ConnectionAborted);
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, CommunicationGroups.Conversation(tenantId, conversationId));
+        var (tenantId, _) = await ResolveMembershipAsync(
+            conversationId,
+            Context.ConnectionAborted);
+
+        var groupName = CommunicationGroups.Conversation(
+            tenantId,
+            conversationId);
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
     }
 
-    private async Task<(Guid TenantId, Guid UserId)> ResolveMembershipAsync(Guid conversationId, CancellationToken ct)
+    private async Task<(Guid TenantId, Guid UserId)> ResolveMembershipAsync(
+        Guid conversationId,
+        CancellationToken cancellationToken)
     {
-        var userId = RequiredGuid(SmartSchoolClaims.UserId);
-        var isSuperAdmin = Context.User?.IsInRole(SmartSchoolRoles.SuperAdmin) == true;
-        var conversation = await dbContext.Set<ChatConversationEntity>().AsNoTracking()
-            .SingleOrDefaultAsync(x => x.ChatConversationId == conversationId && x.IsActive, ct)
-            ?? throw new HubException("Conversation was not found.");
+        var conversation = await dbContext
+            .Set<ChatConversationEntity>()
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                item => item.ChatConversationId == conversationId && item.IsActive,
+                cancellationToken);
 
-        if (!isSuperAdmin)
+        if (conversation is null)
         {
-            var tokenTenant = RequiredGuid(SmartSchoolClaims.TenantId);
-            if (conversation.TenantId != tokenTenant) throw new HubException("Conversation is outside your tenant.");
-            var member = await dbContext.Set<ChatParticipantEntity>().AsNoTracking()
-                .AnyAsync(x => x.TenantId == tokenTenant && x.ConversationId == conversationId && x.UserId == userId && x.IsActive, ct);
-            if (!member) throw new HubException("You are not a participant in this conversation.");
+            throw new HubException("Conversation was not found.");
         }
-        return (conversation.TenantId, userId);
+
+        if (!currentUser.IsSuperAdmin)
+        {
+            if (!currentUser.TenantId.HasValue)
+            {
+                throw new HubException("Tenant context is missing from the access token.");
+            }
+
+            if (conversation.TenantId != currentUser.TenantId.Value)
+            {
+                throw new HubException("Conversation is outside your tenant.");
+            }
+
+            var isParticipant = await dbContext
+                .Set<ChatParticipantEntity>()
+                .AsNoTracking()
+                .AnyAsync(
+                    item =>
+                        item.TenantId == currentUser.TenantId.Value &&
+                        item.ConversationId == conversationId &&
+                        item.UserId == currentUser.UserId &&
+                        item.IsActive,
+                    cancellationToken);
+
+            if (!isParticipant)
+            {
+                throw new HubException("You are not a participant in this conversation.");
+            }
+        }
+
+        return (conversation.TenantId, currentUser.UserId);
     }
-    private Guid RequiredGuid(string type) => Guid.TryParse(Context.User?.FindFirstValue(type), out var id) ? id : throw new HubException($"Required claim '{type}' is missing.");
 }
