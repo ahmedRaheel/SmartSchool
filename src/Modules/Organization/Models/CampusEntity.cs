@@ -98,7 +98,7 @@ public sealed class CampusEntity : Entity
         MarkAsUpdated();
     }
 
-    public void UpdateDetails(string code, string name, string? metadataJson = null)
+    public void UpdateDetails(string code, string name)
     {
         UpdateDetails(SchoolId, code, name, BranchType, Address, City, Province, Phone, Fax, Mobile, Email, LogoUrl);
     }

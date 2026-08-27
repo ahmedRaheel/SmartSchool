@@ -90,7 +90,7 @@ public sealed class SchoolEntity : Entity
         MarkAsUpdated();
     }
 
-    public void UpdateDetails(string code, string name, string? metadataJson = null)
+    public void UpdateDetails(string code, string name)
     {
         UpdateDetails(code, name, RegistrationNumber, Email, Phone, Fax, Website, Address, City, Province, Country, LogoUrl);
     }
