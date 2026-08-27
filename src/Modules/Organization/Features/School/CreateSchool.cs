@@ -46,7 +46,7 @@ public static class CreateSchool
         }
     }
 
-    public sealed class Handler(ISchoolQuery query, ISchoolCommand command, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(ISchoolCommand command, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {

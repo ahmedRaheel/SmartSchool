@@ -36,7 +36,7 @@ public static class CreateCampus
         }
     }
 
-    public sealed class Handler(ICampusQuery query, ICampusCommand command, ISchoolQuery schoolQuery, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(ICampusCommand command, ISchoolQuery schoolQuery, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
