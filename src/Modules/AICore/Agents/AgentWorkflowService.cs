@@ -98,7 +98,7 @@ internal sealed class AgentWorkflowService(
         return new AgentRunResponse(
             request.Agent.Trim(),
             answer,
-			model,
+            model,
             toolsUsed);
     }
 

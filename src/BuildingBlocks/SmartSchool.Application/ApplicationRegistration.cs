@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SmartSchool.Application.Messaging;
 
 namespace SmartSchool.Application;
@@ -23,10 +24,15 @@ public static class ApplicationRegistration
 	{
 		ArgumentNullException.ThrowIfNull(services);
 
-		services.AddScoped<IMediator, Mediator>();
-		services.AddScoped(
-			typeof(IPipelineBehavior<,>),
-			typeof(ValidationBehavior<,>));
+        // Every module calls AddSmartSchoolMediator for its own feature assembly.
+        // Infrastructure registrations therefore MUST be idempotent; otherwise each
+        // module adds another ValidationBehavior and a single request traverses the
+        // same validation pipeline dozens of times.
+        services.TryAddScoped<IMediator, Mediator>();
+        services.TryAddEnumerable(
+            ServiceDescriptor.Scoped(
+                typeof(IPipelineBehavior<,>),
+                typeof(ValidationBehavior<,>)));
 
 		RegisterImplementations(
 			services,

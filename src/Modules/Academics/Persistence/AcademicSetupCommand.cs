@@ -124,26 +124,29 @@ public sealed class AcademicSetupCommand(
 
         await transaction.CommitAsync(cancellationToken);
 
-        return new AcademicSetupItem(
-            id,
-            name,
-            code,
-            branchId,
-            StartDate: startDate,
-            EndDate: endDate,
-            IsCurrent: isCurrent);
+		return new AcademicSetupItem 
+		{   
+			Id = id,
+			Name = name,
+			Code = code,
+			BranchId = branchId,
+			StartDate = startDate,
+			EndDate = endDate,
+			IsCurrent = isCurrent
+		};		  
+		
     }
 
-    public async Task<AcademicSetupItem> CreateClassAsync(
-        Guid tenantId,
-        Guid schoolId,
-        Guid branchId,
-        string name,
-        string code,
-        Guid educationLevelId,
-        CancellationToken cancellationToken)
-    {
-        const string sql = """
+	public async Task<AcademicSetupItem> CreateClassAsync(
+		Guid tenantId,
+		Guid schoolId,
+		Guid branchId,
+		string name,
+		string code,
+		Guid educationLevelId,
+		CancellationToken cancellationToken)
+	{
+		const string sql = """
             INSERT INTO academic.class
             (
                 class_id,
@@ -166,24 +169,32 @@ public sealed class AcademicSetupCommand(
             );
             """;
 
-        var id = Guid.NewGuid();
+		var id = Guid.NewGuid();
 
-        await ExecuteAsync(
-            sql,
-            new
-            {
-                Id = id,
-                TenantId = tenantId,
-                SchoolId = schoolId,
-                BranchId = branchId,
-                Code = code,
-                Name = name,
-                EducationLevelId = educationLevelId
-            },
-            cancellationToken);
+		await ExecuteAsync(
+			sql,
+			new
+			{
+				Id = id,
+				TenantId = tenantId,
+				SchoolId = schoolId,
+				BranchId = branchId,
+				Code = code,
+				Name = name,
+				EducationLevelId = educationLevelId
+			},
+			cancellationToken);
 
-        return new AcademicSetupItem(id, name, code, branchId, EducationLevelId: educationLevelId);
-    }
+		return new AcademicSetupItem
+		{
+			Id = id,
+			Name = name,
+			Code = code,
+			BranchId = branchId,
+			EducationLevelId = educationLevelId,
+
+		};
+	}			
 
     public async Task<AcademicSetupItem> CreateSectionAsync(
         Guid tenantId,
@@ -229,12 +240,15 @@ public sealed class AcademicSetupCommand(
             },
             cancellationToken);
 
-        return new AcademicSetupItem(
-            id,
-            name,
-            code,
-            branchId,
-            classId);
+		return new AcademicSetupItem
+		{
+			Id = id,
+			Name = name,
+			Code = code,
+			BranchId = branchId,
+			
+		};
+           
     }
 
     private async Task ExecuteAsync(

@@ -61,6 +61,7 @@ public sealed class DepartmentQuery(
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
+
 		await using var connection =
 			await connectionFactory.OpenConnectionAsync(cancellationToken);
 
