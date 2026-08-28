@@ -69,7 +69,7 @@ public static class GetAcademicYearPage
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.AcademicYearEntity entity)
+		Models.AcademicYearEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
