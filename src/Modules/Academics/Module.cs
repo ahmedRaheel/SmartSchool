@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Academics.Features;
-using SmartSchool.Modules.Academics.Features.AcademicSystem;
 using SmartSchool.Modules.Academics.Features.AcademicYear;
 using SmartSchool.Modules.Academics.Features.ClassSection;
 using SmartSchool.Modules.Academics.Features.CourseOffering;
@@ -59,11 +58,7 @@ public static class Module
 	public static IEndpointRouteBuilder MapAcademicsEndpoints(
 		this IEndpointRouteBuilder endpoints)
 	{
-		CreateAcademicSystem.MapEndpoint(endpoints);
-		GetAcademicSystemById.MapEndpoint(endpoints);
-		GetAcademicSystemPage.MapEndpoint(endpoints);
-		UpdateAcademicSystem.MapEndpoint(endpoints);
-		DeleteAcademicSystem.MapEndpoint(endpoints);
+		
 		CreateAcademicYear.MapEndpoint(endpoints);
 		GetAcademicYearById.MapEndpoint(endpoints);
 		GetAcademicYearPage.MapEndpoint(endpoints);
