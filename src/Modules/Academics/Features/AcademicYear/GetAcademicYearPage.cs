@@ -26,6 +26,7 @@ public static class GetAcademicYearPage
 
 	public sealed record Query(
 		Guid TenantId,
+		Guid CampusId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
@@ -39,6 +40,7 @@ public static class GetAcademicYearPage
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
 			var page = await entityQuery.GetPageAsync(
 				request.TenantId,
+				request.CampusId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
@@ -55,9 +57,9 @@ public static class GetAcademicYearPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "academic-year"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid tenantId, Guid campusId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, page, pageSize);
+					var request = new Query(tenantId, campusId, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();

@@ -22,6 +22,8 @@ public static class GetDepartmentPage
 	Guid Id,
 	string Code,
 	string Name,
+	string? Telephone,
+	string? Email,
 	Guid? CampusId,
 	Guid? HeadOfDepartmentEmployeeId,
 	string? MetadataJson);
@@ -82,6 +84,8 @@ public static class GetDepartmentPage
 			entity.DepartmentId,
 			entity.Code,
 			entity.Name,
+			entity.Telephone,
+			entity.Email,
 			entity.CampusId,
 			entity.HeadOfDepartmentEmployeeId,
 			entity.MetadataJson);

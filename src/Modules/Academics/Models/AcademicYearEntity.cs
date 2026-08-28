@@ -43,18 +43,36 @@ public sealed class AcademicYearEntity : Entity
 	/// <returns>The newly created entity.</returns>
 	public static AcademicYearEntity Create(
 		Guid tenantId,
+		Guid campusId,
 		string code,
 		string name,
+		DateOnly startDate,
+		DateOnly endDate,
+		bool isCurrent,
 		string? metadataJson = null)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
 		ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
+		if (campusId == Guid.Empty)
+		{
+			throw new ArgumentException("Campus is required.", nameof(campusId));
+		}
+
+		if (endDate < startDate)
+		{
+			throw new ArgumentException("Academic year end date cannot be before its start date.", nameof(endDate));
+		}
+
 		return new AcademicYearEntity
 		{
 			TenantId = tenantId,
+			CampusId = campusId,
 			Code = code.Trim(),
 			Name = name.Trim(),
+			StartDate = startDate,
+			EndDate = endDate,
+			IsCurrent = isCurrent,
 			MetadataJson = metadataJson
 		};
 	}
