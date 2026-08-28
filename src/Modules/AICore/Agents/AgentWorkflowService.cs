@@ -73,7 +73,7 @@ internal sealed class AgentWorkflowService(
         }
 
         var prompt = BuildPrompt(request, context.ToString());
-        var (answer, model) = await ollamaClient.GenerateAsync(prompt, cancellationToken).ConfigureAwait(false);
+        var (answer, model) = await ollamaClient.GenerateAsync(prompt, cancellationToken);
         var elapsed = Stopwatch.GetElapsedTime(startedAt);
 
         var executionId = Guid.NewGuid();

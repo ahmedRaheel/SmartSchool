@@ -1,4 +1,3 @@
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -24,7 +23,7 @@ public static class ApproveEmployee
         }
     }
 
-    public sealed class Handler(IEmployeeQuery query, IEmployeeCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator, IDbConnectionFactory connectionFactory)
+    public sealed class Handler(IEmployeeQuery query, IEmployeeCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -34,10 +33,10 @@ public static class ApproveEmployee
             if (employee.UserId.HasValue) return Result<Response>.Failure(Error.Conflict("Employee already has a login account."));
             if (string.IsNullOrWhiteSpace(employee.Email)) return Result<Response>.Failure(Error.Validation("Employee email is required before approval."));
 
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
-                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
-                new { request.TenantId, employee.BranchId }, cancellationToken: cancellationToken));
+            var branchCode = await query.GetBranchCodeAsync(
+                request.TenantId,
+                employee.BranchId,
+                cancellationToken);
             if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("The employee's branch is invalid."));
             var marker = request.Roles.Any(r => r.Equals("Teacher", StringComparison.OrdinalIgnoreCase)) ? "T"
                 : request.Roles.Any(r => r.Equals("Driver", StringComparison.OrdinalIgnoreCase)) ? "D" : "E";

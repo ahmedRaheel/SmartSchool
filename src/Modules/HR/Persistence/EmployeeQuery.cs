@@ -91,6 +91,24 @@ public sealed class EmployeeQuery(
 			totalCount);
 	}
 
+	public async Task<string?> GetBranchCodeAsync(
+		Guid tenantId,
+		Guid branchId,
+		CancellationToken cancellationToken)
+	{
+		const string sql = """
+			SELECT code
+			FROM org.campus
+			WHERE tenant_id = @TenantId
+			  AND campus_id = @BranchId
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+		return await connection.ExecuteScalarAsync<string?>(
+			new CommandDefinition(sql, new { TenantId = tenantId, BranchId = branchId }, cancellationToken: cancellationToken));
+	}
+
 	public Task<bool> ExistsByEmployeeNumberAsync(
 		Guid tenantId,
 		string employeeNumber,
