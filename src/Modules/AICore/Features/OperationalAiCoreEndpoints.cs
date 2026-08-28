@@ -68,8 +68,8 @@ public static class OperationalAiCoreEndpoints
     }
 
     private static async Task<IResult> ExecuteAsync(ExecuteRequest r,ITenantScope scope,IDbConnectionFactory db,
-        IHttpClientFactory clients,IConfiguration cfg,IAiExecutionLogCommand logs,IIntegrationEventPublisher events,CancellationToken ct)
-    {
+		IHttpClientFactory clients, IConfiguration cfg, IAiExecutionLogCommand logs, IIntegrationEventPublisher events, CancellationToken ct)
+	{
         var tenant = scope.IsSuperAdmin ? r.TenantId:scope.Resolve(r.TenantId);
         if(!tenant.HasValue)
 			return Results.BadRequest(new{message="A tenant is required."});
