@@ -1,8 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="Dapper" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+    <PackageReference Include="Microsoft.Extensions.AI" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" />
    
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Students/SmartSchool.Modules.Students.csproj" />
+    <ProjectReference Include="../Examinations/SmartSchool.Modules.Examinations.csproj" />
+    <ProjectReference Include="../AIPrediction/SmartSchool.Modules.AIPrediction.csproj" />
   </ItemGroup>
 </Project>

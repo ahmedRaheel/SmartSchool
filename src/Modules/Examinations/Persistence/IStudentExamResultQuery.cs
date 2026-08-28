@@ -29,6 +29,13 @@ public interface IStudentExamResultQuery
 	/// <summary>
 	/// Executes the persistence operation.
 	/// </summary>
+	/// <summary>Gets records for one student within the authenticated tenant.</summary>
+	Task<IReadOnlyCollection<StudentExamResultEntity>> GetByStudentIdAsync(
+		Guid tenantId,
+		Guid studentId,
+		int limit,
+		CancellationToken cancellationToken);
+
 	Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,

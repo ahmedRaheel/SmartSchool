@@ -82,6 +82,23 @@ public sealed class StudentExamResultQuery(
 			totalCount);
 	}
 
+	public async Task<IReadOnlyCollection<StudentExamResultEntity>> GetByStudentIdAsync(
+		Guid tenantId,
+		Guid studentId,
+		int limit,
+		CancellationToken cancellationToken)
+	{
+		var pageSize = Math.Clamp(limit, 1, 100);
+
+		return await dbContext
+			.Set<StudentExamResultEntity>()
+			.AsNoTracking()
+			.Where(entity => entity.TenantId == tenantId && entity.StudentId == studentId)
+			.OrderByDescending(entity => entity.CreatedAt)
+			.Take(pageSize)
+			.ToArrayAsync(cancellationToken);
+	}
+
 	public Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,

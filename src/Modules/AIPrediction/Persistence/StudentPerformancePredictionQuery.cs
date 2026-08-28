@@ -82,6 +82,23 @@ public sealed class StudentPerformancePredictionQuery(
 			totalCount);
 	}
 
+	public async Task<IReadOnlyCollection<StudentPerformancePredictionEntity>> GetByStudentIdAsync(
+		Guid tenantId,
+		Guid studentId,
+		int limit,
+		CancellationToken cancellationToken)
+	{
+		var pageSize = Math.Clamp(limit, 1, 100);
+
+		return await dbContext
+			.Set<StudentPerformancePredictionEntity>()
+			.AsNoTracking()
+			.Where(entity => entity.TenantId == tenantId && entity.StudentId == studentId)
+			.OrderByDescending(entity => entity.GeneratedAt)
+			.Take(pageSize)
+			.ToArrayAsync(cancellationToken);
+	}
+
 	public Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,

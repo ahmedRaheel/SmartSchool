@@ -1,4 +1,6 @@
 using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.Modules.AICore.Agents;
+using ModelContextProtocol.Server;
 using SmartSchool.Modules.AICore.Features;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,6 +31,13 @@ public static class Module
 		services.Configure<AiAssistantOptions>(configuration.GetSection(AiAssistantOptions.SectionName));
 		services.AddScoped<IOllamaClient, OllamaClient>();
 		services.AddScoped<IAiAssistantService, AiAssistantService>();
+        services.AddScoped<SmartSchoolAgentTools>();
+        services.AddScoped<IAgentWorkflowService, AgentWorkflowService>();
+
+        services
+            .AddMcpServer()
+            .WithHttpTransport()
+            .WithTools<SmartSchoolAgentTools>();
 
 		services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
 		services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
@@ -89,6 +98,7 @@ public static class Module
 		DeleteToolDefinition.MapEndpoint(endpoints);
 
 		OperationalAiCoreEndpoints.MapOperationalAiCoreEndpoints(endpoints);
+        endpoints.MapAgentEndpoints();
 
 		return endpoints;
 	}

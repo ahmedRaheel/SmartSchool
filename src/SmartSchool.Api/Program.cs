@@ -1,3 +1,4 @@
+using ModelContextProtocol.AspNetCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -323,6 +324,7 @@ app.MapApplicationLogEndpoints();
 app.MapActorProfileEndpoints();
 
 app.MapAICoreEndpoints();
+app.MapMcp("/mcp").RequireAuthorization();
 app.MapAIInquiryEndpoints();
 app.MapAIParentEndpoints();
 app.MapAIPredictionEndpoints();
