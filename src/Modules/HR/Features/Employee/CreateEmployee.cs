@@ -39,6 +39,7 @@ public static class CreateEmployee
 		Guid? TenantId,
 		Guid SchoolId,
 		Guid BranchId,
+		Guid? DepartmentId,
 		Guid? UserId,
 		string FirstName,
 		string? LastName,
@@ -80,11 +81,20 @@ public static class CreateEmployee
                 new { TenantId = request.TenantId!.Value, request.SchoolId, request.BranchId }, cancellationToken: cancellationToken));
             if (!validScope) return Result<Response>.Failure(Error.Validation("Selected branch does not belong to the selected school and tenant."));
 
+            if (request.DepartmentId.HasValue)
+            {
+                var validDepartment = await connection.ExecuteScalarAsync<bool>(new CommandDefinition(
+                    "SELECT EXISTS(SELECT 1 FROM org.department d WHERE d.tenant_id=@TenantId AND d.campus_id=@BranchId AND d.department_id=@DepartmentId AND d.is_active=TRUE)",
+                    new { TenantId = request.TenantId!.Value, request.BranchId, request.DepartmentId }, cancellationToken: cancellationToken));
+                if (!validDepartment) return Result<Response>.Failure(Error.Validation("Selected department does not belong to the selected branch."));
+            }
+
 			var entity = EmployeeEntity.Create(
 				request.TenantId!.Value,
 				null,
 				request.SchoolId,
 				request.BranchId,
+				request.DepartmentId,
 				request.StaffType,
 				null,
 				request.FirstName,

@@ -44,7 +44,16 @@ public sealed class DepartmentQuery(
 		const string pageSql = """
 			SELECT
 				tenant_id AS "TenantId",
-				department_id AS "Id"
+				department_id AS "DepartmentId",
+				campus_id AS "CampusId",
+				head_of_department_employee_id AS "HeadOfDepartmentEmployeeId",
+				code AS "Code",
+				name AS "Name",
+				metadata_json::text AS "MetadataJson",
+				is_active AS "IsActive",
+				created_at AS "CreatedAt",
+				updated_at AS "UpdatedAt",
+				row_version AS "RowVersion"
 			FROM org.department
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE

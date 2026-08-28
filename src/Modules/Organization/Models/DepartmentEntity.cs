@@ -17,6 +17,9 @@ public sealed class DepartmentEntity : Entity
 	/// <summary>Gets the persisted campus id value.</summary>
 	public Guid? CampusId { get; private set; }
 
+	/// <summary>Gets the employee assigned as head of department.</summary>
+	public Guid? HeadOfDepartmentEmployeeId { get; private set; }
+
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
 
@@ -34,6 +37,8 @@ public sealed class DepartmentEntity : Entity
 	/// <returns>The newly created entity.</returns>
 	public static DepartmentEntity Create(
 		Guid tenantId,
+		Guid campusId,
+		Guid? headOfDepartmentEmployeeId,
 		string code,
 		string name,
 		string? metadataJson = null)
@@ -44,6 +49,8 @@ public sealed class DepartmentEntity : Entity
 		return new DepartmentEntity
 		{
 			TenantId = tenantId,
+			CampusId = campusId,
+			HeadOfDepartmentEmployeeId = headOfDepartmentEmployeeId,
 			Code = code.Trim(),
 			Name = name.Trim(),
 			MetadataJson = metadataJson

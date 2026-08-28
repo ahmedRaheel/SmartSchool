@@ -15,14 +15,14 @@ public sealed class AcademicSetupQuery(
             SELECT
                 academic_year_id AS Id,
                 name AS Name,
-                code AS Code,
-                branch_id AS BranchId,
+                replace(name, '/', '-') AS Code,
+                campus_id AS BranchId,
                 start_date AS StartDate,
                 end_date AS EndDate,
                 is_current AS IsCurrent
             FROM academic.academic_year
             WHERE tenant_id = @TenantId
-              AND branch_id = @BranchId
+              AND campus_id = @BranchId
               AND is_active = TRUE
             ORDER BY start_date DESC;
             """;

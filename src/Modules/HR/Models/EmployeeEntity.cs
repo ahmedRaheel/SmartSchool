@@ -19,6 +19,7 @@ public sealed class EmployeeEntity : Entity
 
 	public Guid SchoolId { get; private set; }
 	public Guid BranchId { get; private set; }
+	public Guid? DepartmentId { get; private set; }
 	public string StaffType { get; private set; } = "OTHER";
 
 	/// <summary>Gets the tenant-unique employee number.</summary>
@@ -86,6 +87,7 @@ public sealed class EmployeeEntity : Entity
 		Guid? userId,
 		Guid schoolId,
 		Guid branchId,
+		Guid? departmentId,
 		string staffType,
 		string? employeeNumber,
 		string firstName,
@@ -115,6 +117,7 @@ public sealed class EmployeeEntity : Entity
 			UserId = userId,
 			SchoolId = schoolId,
 			BranchId = branchId,
+			DepartmentId = departmentId,
 			StaffType = staffType.Trim(),
 			EmployeeNumber = employeeNumber?.Trim(),
 			FirstName = firstName.Trim(),

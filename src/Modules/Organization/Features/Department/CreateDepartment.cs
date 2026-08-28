@@ -23,11 +23,15 @@ public static class CreateDepartment
 	Guid Id,
 	string Code,
 	string Name,
+	Guid? CampusId,
+	Guid? HeadOfDepartmentEmployeeId,
 	string? MetadataJson);
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
+		Guid CampusId,
+		Guid? HeadOfDepartmentEmployeeId,
+		string? Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -35,32 +39,40 @@ public static class CreateDepartment
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+			RuleFor(x => x.CampusId).NotEmpty();
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
 	public sealed class Handler(
 		IDepartmentQuery entityQuery,
-		IDepartmentCommand entityCommand)
+		IDepartmentCommand entityCommand,
+		SmartSchool.Application.Persistence.IBusinessNumberGenerator businessNumberGenerator)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
+			var code = string.IsNullOrWhiteSpace(request.Code)
+				? await businessNumberGenerator.NextAsync(
+					$"DEPARTMENT:{request.CampusId}", "DEP-", request.TenantId, 4, cancellationToken)
+				: request.Code.Trim();
+
 			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
+				request.TenantId, code, null, cancellationToken);
 			if (exists)
 			{
 				return Result<Response>.Failure(
 					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(DepartmentEntity), request.Code)));
+						ErrorMessages.DuplicateCode(nameof(DepartmentEntity), code)));
 			}
 
 			var entity = DepartmentEntity.Create(
 				request.TenantId,
-				request.Code,
+				request.CampusId,
+				request.HeadOfDepartmentEmployeeId,
+				code,
 				request.Name);
 
 			await entityCommand.AddAsync(entity, cancellationToken);
@@ -92,6 +104,8 @@ public static class CreateDepartment
 			entity.DepartmentId,
 			entity.Code,
 			entity.Name,
+			entity.CampusId,
+			entity.HeadOfDepartmentEmployeeId,
 			entity.MetadataJson);
 	}
 }

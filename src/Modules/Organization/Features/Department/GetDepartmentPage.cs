@@ -22,10 +22,13 @@ public static class GetDepartmentPage
 	Guid Id,
 	string Code,
 	string Name,
+	Guid? CampusId,
+	Guid? HeadOfDepartmentEmployeeId,
 	string? MetadataJson);
 
 	public sealed record Query(
 		Guid TenantId,
+		Guid? BranchId = null,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
@@ -42,8 +45,11 @@ public static class GetDepartmentPage
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
+			var pageItems = request.BranchId.HasValue
+				? page.Items.Where(x => x.CampusId == request.BranchId.Value)
+				: page.Items;
 			var response = new PagedResult<Response>(
-				page.Items.Select(MapResponse).ToArray(),
+				pageItems.Select(MapResponse).ToArray(),
 				page.Page,
 				page.PageSize,
 				page.TotalCount);
@@ -55,9 +61,9 @@ public static class GetDepartmentPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "department"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid tenantId, Guid? branchId, int? page, int? pageSize, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, page, pageSize);
+					var request = new Query(tenantId, branchId, page ?? 1, pageSize ?? 25);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();
@@ -76,6 +82,8 @@ public static class GetDepartmentPage
 			entity.DepartmentId,
 			entity.Code,
 			entity.Name,
+			entity.CampusId,
+			entity.HeadOfDepartmentEmployeeId,
 			entity.MetadataJson);
 	}
 }
