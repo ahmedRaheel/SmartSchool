@@ -23,6 +23,8 @@ public static class CreateDepartment
 	Guid Id,
 	string Code,
 	string Name,
+	string? Telephone,
+	string? Email,
 	Guid? CampusId,
 	Guid? HeadOfDepartmentEmployeeId,
 	string? MetadataJson);
@@ -32,7 +34,9 @@ public static class CreateDepartment
 		Guid CampusId,
 		Guid? HeadOfDepartmentEmployeeId,
 		string? Code,
-		string Name) : IRequest<Result<Response>>;
+		string Name,
+		string? Telephone,
+		string? Email) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -41,6 +45,8 @@ public static class CreateDepartment
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.CampusId).NotEmpty();
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Telephone).MaximumLength(50);
+			RuleFor(x => x.Email).EmailAddress().MaximumLength(250).When(x => !string.IsNullOrWhiteSpace(x.Email));
 		}
 	}
 
@@ -73,7 +79,9 @@ public static class CreateDepartment
 				request.CampusId,
 				request.HeadOfDepartmentEmployeeId,
 				code,
-				request.Name);
+				request.Name,
+				request.Telephone,
+				request.Email);
 
 			await entityCommand.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
@@ -104,6 +112,8 @@ public static class CreateDepartment
 			entity.DepartmentId,
 			entity.Code,
 			entity.Name,
+			entity.Telephone,
+			entity.Email,
 			entity.CampusId,
 			entity.HeadOfDepartmentEmployeeId,
 			entity.MetadataJson);

@@ -23,13 +23,17 @@ public static class UpdateDepartment
 	Guid Id,
 	string Code,
 	string Name,
+	string? Telephone,
+	string? Email,
 	string? MetadataJson);
 
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
 		string Code,
-		string Name) : IRequest<Result<Response>>;
+		string Name,
+		string? Telephone,
+		string? Email) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -39,6 +43,8 @@ public static class UpdateDepartment
 			RuleFor(x => x.Id).NotEmpty();
 			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Telephone).MaximumLength(50);
+			RuleFor(x => x.Email).EmailAddress().MaximumLength(250).When(x => !string.IsNullOrWhiteSpace(x.Email));
 		}
 	}
 
@@ -70,7 +76,9 @@ public static class UpdateDepartment
 
 			entity.UpdateDetails(
 				request.Code,
-				request.Name);
+				request.Name,
+				request.Telephone,
+				request.Email);
 			await entityCommand.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
@@ -101,6 +109,8 @@ public static class UpdateDepartment
 			entity.DepartmentId,
 			entity.Code,
 			entity.Name,
+			entity.Telephone,
+			entity.Email,
 			entity.MetadataJson);
 	}
 }
