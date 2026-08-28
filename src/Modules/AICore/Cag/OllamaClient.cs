@@ -12,23 +12,23 @@ internal interface IOllamaClient
 
 internal sealed class OllamaClient(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IOllamaClient
 {
-    private sealed record EmbeddingResponse(float[] Embedding);
+    private sealed record EmbeddingResponse(float[][] Embeddings);
     private sealed record GenerateResponse(string Response);
 
     /// <summary>Creates an embedding using the configured Ollama embedding model.</summary>
     public async Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken)
     {
         var client = CreateClient();
-        var response = await client.PostAsJsonAsync("api/embeddings", new
+        var response = await client.PostAsJsonAsync("api/embed", new
         {
             model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text",
-            prompt = text
+            input = text
         }, cancellationToken);
 
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<EmbeddingResponse>(cancellationToken: cancellationToken);
-        return result?.Embedding is { Length: > 0 } embedding
-            ? embedding
+        return result?.Embeddings is { Length: > 0 } && result.Embeddings[0].Length > 0
+            ? result.Embeddings[0]
             : throw new InvalidOperationException("Ollama returned an empty embedding.");
     }
 

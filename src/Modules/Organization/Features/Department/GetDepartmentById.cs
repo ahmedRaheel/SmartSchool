@@ -22,6 +22,8 @@ public static class GetDepartmentById
 	Guid Id,
 	string Code,
 	string Name,
+	string? Telephone,
+	string? Email,
 	string? MetadataJson);
 
 	public sealed record Query(
@@ -71,6 +73,8 @@ public static class GetDepartmentById
 			entity.DepartmentId,
 			entity.Code,
 			entity.Name,
+			entity.Telephone,
+			entity.Email,
 			entity.MetadataJson);
 	}
 }

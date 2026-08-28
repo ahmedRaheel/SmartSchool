@@ -22,6 +22,7 @@ public interface IAcademicYearQuery
 	/// </summary>
 	Task<PagedResult<AcademicYearEntity>> GetPageAsync(
 		Guid tenantId,
+		Guid campusId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken);
@@ -29,6 +30,11 @@ public interface IAcademicYearQuery
 	/// <summary>
 	/// Executes the persistence operation.
 	/// </summary>
+	Task<bool> CampusExistsAsync(
+		Guid tenantId,
+		Guid campusId,
+		CancellationToken cancellationToken);
+
 	Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,

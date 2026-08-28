@@ -21,7 +21,10 @@ public sealed class ClassSectionEntity : Entity
 	public Guid AcademicYearId { get; private set; }
 
 	/// <summary>Gets the persisted program grade id value.</summary>
-	public Guid ProgramGradeId { get; private set; }
+	public Guid? ProgramGradeId { get; private set; }
+
+	/// <summary>Gets the class/grade level for this section.</summary>
+	public Guid? GradeLevelId { get; private set; }
 
 	/// <summary>Gets the persisted section id value.</summary>
 	public Guid SectionId { get; private set; }
@@ -31,6 +34,9 @@ public sealed class ClassSectionEntity : Entity
 
 	/// <summary>Gets the persisted room id value.</summary>
 	public Guid? RoomId { get; private set; }
+
+	/// <summary>Gets the human-readable room number assigned to this section.</summary>
+	public string? RoomNo { get; private set; }
 
 	/// <summary>Gets the persisted capacity value.</summary>
 	public int? Capacity { get; private set; }

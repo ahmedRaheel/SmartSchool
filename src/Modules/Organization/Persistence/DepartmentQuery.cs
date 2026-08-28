@@ -49,6 +49,8 @@ public sealed class DepartmentQuery(
 				head_of_department_employee_id AS "HeadOfDepartmentEmployeeId",
 				code AS "Code",
 				name AS "Name",
+				telephone AS "Telephone",
+				email AS "Email",
 				metadata_json::text AS "MetadataJson",
 				is_active AS "IsActive",
 				created_at AS "CreatedAt",
