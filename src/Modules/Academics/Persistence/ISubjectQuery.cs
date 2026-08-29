@@ -26,6 +26,11 @@ public interface ISubjectQuery
 		int pageSize,
 		CancellationToken cancellationToken);
 
+	Task<string?> GetBranchCodeAsync(
+		Guid tenantId,
+		Guid branchId,
+		CancellationToken cancellationToken);
+
 	/// <summary>
 	/// Executes the persistence operation.
 	/// </summary>

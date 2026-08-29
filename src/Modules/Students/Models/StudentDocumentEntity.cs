@@ -11,7 +11,7 @@ public sealed class StudentDocumentEntity : Entity
 {
 	/// <summary>Gets the entity-specific identifier.</summary>
 	public Guid StudentDocumentId { get; private set; } = Guid.NewGuid();
-private StudentDocumentEntity()
+	private StudentDocumentEntity()
 	{
 	}
 

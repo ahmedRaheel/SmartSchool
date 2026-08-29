@@ -1,5 +1,3 @@
-using Dapper;
-using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -8,6 +6,7 @@ using SmartSchool.Modules.Academics.Models;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Academics.Features.Subject;
 
@@ -45,18 +44,23 @@ public static class CreateSubject
 	public sealed class Handler(		
 		ISubjectCommand entityCommand,
         IBusinessNumberGenerator numberGenerator,
-        IDbConnectionFactory connectionFactory)
+        ISubjectQuery subjectQuery)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
-                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
-                new { request.TenantId, request.BranchId }, cancellationToken: cancellationToken));
-            if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("A valid branch is required."));
+            var branchCode = await subjectQuery.GetBranchCodeAsync(
+                request.TenantId,
+                request.BranchId,
+                cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(branchCode))
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("A valid branch is required."));
+            }
             var code = await numberGenerator.NextAsync("SUBJECT:" + request.BranchId, $"{branchCode}-SB-", request.TenantId, 5, cancellationToken);
 
 			var entity = SubjectEntity.Create(
