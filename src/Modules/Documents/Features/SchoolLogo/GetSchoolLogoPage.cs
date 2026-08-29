@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 
@@ -68,8 +69,7 @@ public static class GetSchoolLogoPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.SchoolLogoEntity entity)
+	private static Response MapResponse(SchoolLogoEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

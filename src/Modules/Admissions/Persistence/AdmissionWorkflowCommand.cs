@@ -1,6 +1,7 @@
 using Dapper;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Admissions.Features;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Persistence;
 
@@ -284,7 +285,7 @@ internal sealed class AdmissionWorkflowCommand(IDbConnectionFactory connectionFa
         {
             StudentId = studentId,
             GuardianId = guardianId,
-            Relationship = relationship ?? "Parent"
+            Relationship = relationship ?? SmartSchoolRoles.Parent
         }, transaction, cancellationToken: cancellationToken));
     }
 

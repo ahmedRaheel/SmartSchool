@@ -63,8 +63,7 @@ public static class GetTenantById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Tenancy.Models.TenantEntity entity)
+	private static Response MapResponse(TenantEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

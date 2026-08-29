@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Features.Certificate;
 
@@ -68,8 +69,7 @@ public static class GetCertificatePage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.CertificateEntity entity)
+	private static Response MapResponse(CertificateEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

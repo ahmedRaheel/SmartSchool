@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Features.Book;
 
@@ -68,8 +69,7 @@ public static class GetBookPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Library.Models.BookEntity entity)
+	private static Response MapResponse(BookEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -61,8 +61,7 @@ public static class GetCampusById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.CampusEntity entity)
+	private static Response MapResponse(CampusEntity entity)
 	{
 		return new Response(
 			entity.TenantId, entity.CampusId, entity.SchoolId, entity.Code, entity.Name, entity.BranchType, entity.BranchGenderTypeId,

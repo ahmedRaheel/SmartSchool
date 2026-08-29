@@ -84,8 +84,7 @@ public static class CreateDocumentTemplate
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.DocumentTemplateEntity entity)
+	private static Response MapResponse(DocumentTemplateEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

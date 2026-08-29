@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AIParent.Models;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 
@@ -68,8 +69,7 @@ public static class GetParentToolExecutionPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIParent.Models.ParentToolExecutionEntity entity)
+	private static Response MapResponse(ParentToolExecutionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

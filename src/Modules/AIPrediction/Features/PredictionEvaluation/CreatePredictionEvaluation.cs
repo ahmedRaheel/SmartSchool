@@ -84,8 +84,7 @@ public static class CreatePredictionEvaluation
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.PredictionEvaluationEntity entity)
+	private static Response MapResponse(PredictionEvaluationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

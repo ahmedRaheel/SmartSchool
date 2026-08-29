@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AIInquiry.Models;
 
 namespace SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 
@@ -68,8 +69,7 @@ public static class GetInquiryConversationPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.InquiryConversationEntity entity)
+	private static Response MapResponse(InquiryConversationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

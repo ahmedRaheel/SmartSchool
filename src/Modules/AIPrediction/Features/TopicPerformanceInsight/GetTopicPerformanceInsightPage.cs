@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AIPrediction.Models;
 
 namespace SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
 
@@ -68,8 +69,7 @@ public static class GetTopicPerformanceInsightPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.TopicPerformanceInsightEntity entity)
+	private static Response MapResponse(TopicPerformanceInsightEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

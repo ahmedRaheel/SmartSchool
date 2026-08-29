@@ -84,8 +84,7 @@ public static class CreateFeeType
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.FeeTypeEntity entity)
+	private static Response MapResponse(FeeTypeEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -93,8 +93,7 @@ public static class UpdateDiscount
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.DiscountEntity entity)
+	private static Response MapResponse(DiscountEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

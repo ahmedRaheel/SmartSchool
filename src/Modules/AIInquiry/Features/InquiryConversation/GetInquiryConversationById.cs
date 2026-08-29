@@ -63,8 +63,7 @@ public static class GetInquiryConversationById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.InquiryConversationEntity entity)
+	private static Response MapResponse(InquiryConversationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

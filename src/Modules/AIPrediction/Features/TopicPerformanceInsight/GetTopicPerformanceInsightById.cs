@@ -63,8 +63,7 @@ public static class GetTopicPerformanceInsightById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.TopicPerformanceInsightEntity entity)
+	private static Response MapResponse(TopicPerformanceInsightEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

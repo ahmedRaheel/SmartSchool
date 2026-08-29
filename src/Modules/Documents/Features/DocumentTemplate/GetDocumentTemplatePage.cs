@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Features.DocumentTemplate;
 
@@ -68,8 +69,7 @@ public static class GetDocumentTemplatePage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.DocumentTemplateEntity entity)
+	private static Response MapResponse(DocumentTemplateEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

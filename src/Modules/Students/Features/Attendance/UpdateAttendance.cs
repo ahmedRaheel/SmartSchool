@@ -93,8 +93,7 @@ public static class UpdateAttendance
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.AttendanceEntity entity)
+	private static Response MapResponse(AttendanceEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

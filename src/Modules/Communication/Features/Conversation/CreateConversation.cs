@@ -84,8 +84,7 @@ public static class CreateConversation
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.ConversationEntity entity)
+	private static Response MapResponse(ConversationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

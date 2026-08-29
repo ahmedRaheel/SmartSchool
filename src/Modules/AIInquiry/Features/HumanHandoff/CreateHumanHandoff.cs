@@ -86,8 +86,7 @@ public static class CreateHumanHandoff
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.HumanHandoffEntity entity)
+	private static Response MapResponse(HumanHandoffEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

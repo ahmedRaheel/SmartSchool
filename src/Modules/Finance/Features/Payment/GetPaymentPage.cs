@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Features.Payment;
 
@@ -68,8 +69,7 @@ public static class GetPaymentPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.PaymentEntity entity)
+	private static Response MapResponse(PaymentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

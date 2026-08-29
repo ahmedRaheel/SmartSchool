@@ -93,8 +93,7 @@ public static class UpdateStudentTransport
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Transport.Models.StudentTransportEntity entity)
+	private static Response MapResponse(StudentTransportEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

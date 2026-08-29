@@ -93,8 +93,7 @@ public static class UpdateWorkflowDefinition
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Workflow.Models.WorkflowDefinitionEntity entity)
+	private static Response MapResponse(WorkflowDefinitionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

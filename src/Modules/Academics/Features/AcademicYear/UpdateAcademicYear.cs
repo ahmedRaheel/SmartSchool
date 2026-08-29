@@ -93,8 +93,7 @@ public static class UpdateAcademicYear
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.AcademicYearEntity entity)
+	private static Response MapResponse(AcademicYearEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

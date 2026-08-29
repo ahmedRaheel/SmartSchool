@@ -84,8 +84,7 @@ public static class CreatePayrollRun
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Payroll.Models.PayrollRunEntity entity)
+	private static Response MapResponse(PayrollRunEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

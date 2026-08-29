@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Admissions.Models;
 
 namespace SmartSchool.Modules.Admissions.Features.Application;
 
@@ -68,8 +69,7 @@ public static class GetApplicationPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Admissions.Models.ApplicationEntity entity)
+	private static Response MapResponse(ApplicationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

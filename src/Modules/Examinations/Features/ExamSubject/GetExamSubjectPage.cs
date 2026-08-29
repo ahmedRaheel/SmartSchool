@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Examinations.Models;
 
 namespace SmartSchool.Modules.Examinations.Features.ExamSubject;
 
@@ -68,8 +69,7 @@ public static class GetExamSubjectPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Examinations.Models.ExamSubjectEntity entity)
+	private static Response MapResponse(ExamSubjectEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

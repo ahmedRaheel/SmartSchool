@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Communication.Models;
 
 namespace SmartSchool.Modules.Communication.Features.ConversationParticipant;
 
@@ -68,8 +69,7 @@ public static class GetConversationParticipantPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.ConversationParticipantEntity entity)
+	private static Response MapResponse(ConversationParticipantEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

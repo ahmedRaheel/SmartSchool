@@ -84,8 +84,7 @@ public static class CreateExam
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Examinations.Models.ExamEntity entity)
+	private static Response MapResponse(ExamEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

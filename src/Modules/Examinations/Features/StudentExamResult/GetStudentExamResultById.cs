@@ -63,8 +63,7 @@ public static class GetStudentExamResultById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Examinations.Models.StudentExamResultEntity entity)
+	private static Response MapResponse(StudentExamResultEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

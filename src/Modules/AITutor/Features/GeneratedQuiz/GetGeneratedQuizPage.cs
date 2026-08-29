@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AITutor.Models;
 
 namespace SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 
@@ -68,8 +69,7 @@ public static class GetGeneratedQuizPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.GeneratedQuizEntity entity)
+	private static Response MapResponse(GeneratedQuizEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

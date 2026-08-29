@@ -84,8 +84,7 @@ public static class CreateInterview
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.InterviewEntity entity)
+	private static Response MapResponse(InterviewEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

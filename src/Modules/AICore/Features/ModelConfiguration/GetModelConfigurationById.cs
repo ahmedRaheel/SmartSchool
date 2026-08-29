@@ -63,8 +63,7 @@ public static class GetModelConfigurationById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AICore.Models.ModelConfigurationEntity entity)
+	private static Response MapResponse(ModelConfigurationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

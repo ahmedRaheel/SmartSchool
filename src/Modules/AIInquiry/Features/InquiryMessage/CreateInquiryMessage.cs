@@ -86,8 +86,7 @@ public static class CreateInquiryMessage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.InquiryMessageEntity entity)
+	private static Response MapResponse(InquiryMessageEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

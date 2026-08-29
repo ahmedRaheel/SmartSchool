@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Features.Term;
 
@@ -68,8 +69,7 @@ public static class GetTermPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.TermEntity entity)
+	private static Response MapResponse(TermEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

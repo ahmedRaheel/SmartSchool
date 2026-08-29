@@ -84,8 +84,7 @@ public static class CreateStudentIntervention
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.StudentInterventionEntity entity)
+	private static Response MapResponse(StudentInterventionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -84,8 +84,7 @@ public static class CreateApplication
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Admissions.Models.ApplicationEntity entity)
+	private static Response MapResponse(ApplicationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

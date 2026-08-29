@@ -101,13 +101,13 @@ public static class ApproveStudentAdmission
             var account = await accounts.CreateAccountAsync(
                 request.TenantId,
                 student.StudentId,
-                "Student",
+                SmartSchoolRoles.Student,
                 request.Email,
                 student.FirstName,
                 student.LastName ?? string.Empty,
                 student.SchoolId,
                 student.BranchId,
-                new[] { "Student" },
+                new[] { SmartSchoolRoles.Student },
                 cancellationToken);
 
             student.ApproveAdmission(account.UserId, studentNumber);
@@ -127,7 +127,7 @@ public static class ApproveStudentAdmission
                 placement.AcademicYearId,
                 placement.ClassSectionId,
                 DateOnly.FromDateTime(DateTime.UtcNow),
-                "ACTIVE");
+                LifecycleStatuses.Active);
 
             await onboardingCommand.AddEnrollmentAndApprovePlacementAsync(
                 enrollment,

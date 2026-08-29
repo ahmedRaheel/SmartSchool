@@ -93,8 +93,7 @@ public static class UpdateStudentGuardian
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.StudentGuardianEntity entity)
+	private static Response MapResponse(StudentGuardianEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

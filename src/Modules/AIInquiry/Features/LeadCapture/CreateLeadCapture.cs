@@ -86,8 +86,7 @@ public static class CreateLeadCapture
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.LeadCaptureEntity entity)
+	private static Response MapResponse(LeadCaptureEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

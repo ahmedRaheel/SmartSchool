@@ -63,8 +63,7 @@ public static class GetTeachingRecommendationById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.TeachingRecommendationEntity entity)
+	private static Response MapResponse(TeachingRecommendationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

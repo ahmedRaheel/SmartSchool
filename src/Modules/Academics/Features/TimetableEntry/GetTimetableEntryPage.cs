@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Features.TimetableEntry;
 
@@ -68,8 +69,7 @@ public static class GetTimetableEntryPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.TimetableEntryEntity entity)
+	private static Response MapResponse(TimetableEntryEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

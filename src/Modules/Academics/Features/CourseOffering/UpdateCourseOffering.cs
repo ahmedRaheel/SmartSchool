@@ -93,8 +93,7 @@ public static class UpdateCourseOffering
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.CourseOfferingEntity entity)
+	private static Response MapResponse(CourseOfferingEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

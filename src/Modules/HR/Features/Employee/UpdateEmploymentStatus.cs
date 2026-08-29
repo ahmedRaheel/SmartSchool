@@ -1,4 +1,5 @@
 using FluentValidation; using SmartSchool.Application.Http; using SmartSchool.Application.Identity; using SmartSchool.Application.Messaging; using SmartSchool.Modules.HR.Persistence; using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 namespace SmartSchool.Modules.HR.Features.Employee;
 
 public static class UpdateEmploymentStatus
@@ -8,7 +9,7 @@ public static class UpdateEmploymentStatus
 		public Validator()
 		{
 			RuleFor(x => x.EmployeeId).NotEmpty();
-			RuleFor(x => x.Status).Must(x => x is "SUBMITTED" or "REJECTED" or "WAITING_LIST");
+			RuleFor(x => x.Status).Must(x => x is LifecycleStatuses.Submitted or LifecycleStatuses.Rejected or LifecycleStatuses.WaitingList);
 		}
 	}
 	public sealed class Handler(IEmployeeQuery q, IEmployeeCommand c) : IRequestHandler<Request, Result<Response>>

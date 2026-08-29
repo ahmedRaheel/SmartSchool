@@ -93,8 +93,7 @@ public static class UpdatePayslip
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Payroll.Models.PayslipEntity entity)
+	private static Response MapResponse(PayslipEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

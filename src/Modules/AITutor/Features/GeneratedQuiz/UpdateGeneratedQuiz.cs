@@ -93,8 +93,7 @@ public static class UpdateGeneratedQuiz
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.GeneratedQuizEntity entity)
+	private static Response MapResponse(GeneratedQuizEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

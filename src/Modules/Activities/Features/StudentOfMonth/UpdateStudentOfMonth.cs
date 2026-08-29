@@ -93,8 +93,7 @@ public static class UpdateStudentOfMonth
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Activities.Models.StudentOfMonthEntity entity)
+	private static Response MapResponse(StudentOfMonthEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

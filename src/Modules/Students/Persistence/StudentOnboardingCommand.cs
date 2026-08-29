@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Students.Models;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Persistence;
 
@@ -15,7 +16,7 @@ public sealed class StudentOnboardingCommand(IApplicationDbContext dbContext) : 
     public async Task AddEnrollmentAndApprovePlacementAsync(EnrollmentEntity enrollment, Guid tenantId, Guid studentId, Guid academicYearId, CancellationToken cancellationToken)
     {
         var placement = await dbContext.Set<AdmissionPlacementEntity>()
-            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.StudentId == studentId && x.AcademicYearId == academicYearId && x.Status == "PENDING", cancellationToken);
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.StudentId == studentId && x.AcademicYearId == academicYearId && x.Status == LifecycleStatuses.Pending, cancellationToken);
         await dbContext.Set<EnrollmentEntity>().AddAsync(enrollment, cancellationToken);
         placement?.Approve();
         await dbContext.SaveChangesAsync(cancellationToken);

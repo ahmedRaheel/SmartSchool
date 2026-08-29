@@ -61,8 +61,7 @@ public static class GetSchoolById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.SchoolEntity entity)
+	private static Response MapResponse(SchoolEntity entity)
 	{
 		return new Response(
 			entity.TenantId, entity.SchoolId, entity.Code, entity.Name, entity.RegistrationNumber,

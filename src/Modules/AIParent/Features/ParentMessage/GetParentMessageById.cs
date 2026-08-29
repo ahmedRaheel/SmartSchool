@@ -63,8 +63,7 @@ public static class GetParentMessageById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIParent.Models.ParentMessageEntity entity)
+	private static Response MapResponse(ParentMessageEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

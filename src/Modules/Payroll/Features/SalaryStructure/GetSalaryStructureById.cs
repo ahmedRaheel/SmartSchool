@@ -63,8 +63,7 @@ public static class GetSalaryStructureById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Payroll.Models.SalaryStructureEntity entity)
+	private static Response MapResponse(SalaryStructureEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

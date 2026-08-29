@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Organization.Models;
 
 namespace SmartSchool.Modules.Organization.Features.Department;
 
@@ -76,8 +77,7 @@ public static class GetDepartmentPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.DepartmentEntity entity)
+	private static Response MapResponse(DepartmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

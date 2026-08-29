@@ -93,8 +93,7 @@ public static class UpdateParentToolExecution
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIParent.Models.ParentToolExecutionEntity entity)
+	private static Response MapResponse(ParentToolExecutionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

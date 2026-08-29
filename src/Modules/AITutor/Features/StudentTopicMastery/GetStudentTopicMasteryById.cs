@@ -63,8 +63,7 @@ public static class GetStudentTopicMasteryById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.StudentTopicMasteryEntity entity)
+	private static Response MapResponse(StudentTopicMasteryEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

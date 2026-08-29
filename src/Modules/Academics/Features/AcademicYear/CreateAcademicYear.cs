@@ -103,8 +103,7 @@ public static class CreateAcademicYear
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.AcademicYearEntity entity)
+	private static Response MapResponse(AcademicYearEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

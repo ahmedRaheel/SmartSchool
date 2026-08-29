@@ -84,8 +84,7 @@ public static class CreateAuditLog
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Audit.Models.AuditLogEntity entity)
+	private static Response MapResponse(AuditLogEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

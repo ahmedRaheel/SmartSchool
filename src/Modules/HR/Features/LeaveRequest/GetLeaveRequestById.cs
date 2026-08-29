@@ -63,8 +63,7 @@ public static class GetLeaveRequestById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.LeaveRequestEntity entity)
+	private static Response MapResponse(LeaveRequestEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

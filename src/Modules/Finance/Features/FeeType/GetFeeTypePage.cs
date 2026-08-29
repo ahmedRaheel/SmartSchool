@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Finance.Models;
 
 namespace SmartSchool.Modules.Finance.Features.FeeType;
 
@@ -68,8 +69,7 @@ public static class GetFeeTypePage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.FeeTypeEntity entity)
+	private static Response MapResponse(FeeTypeEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -86,8 +86,7 @@ public static class CreateKnowledgeDocument
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AICore.Models.KnowledgeDocumentEntity entity)
+	private static Response MapResponse(KnowledgeDocumentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

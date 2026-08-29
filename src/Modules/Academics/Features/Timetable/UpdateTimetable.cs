@@ -93,8 +93,7 @@ public static class UpdateTimetable
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.TimetableEntity entity)
+	private static Response MapResponse(TimetableEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

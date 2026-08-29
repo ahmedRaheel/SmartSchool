@@ -84,8 +84,7 @@ public static class CreateEmployeeCompensation
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Payroll.Models.EmployeeCompensationEntity entity)
+	private static Response MapResponse(EmployeeCompensationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

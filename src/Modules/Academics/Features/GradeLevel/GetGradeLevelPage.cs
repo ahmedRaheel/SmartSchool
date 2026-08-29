@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Features.GradeLevel;
 
@@ -68,8 +69,7 @@ public static class GetGradeLevelPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.GradeLevelEntity entity)
+	private static Response MapResponse(GradeLevelEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

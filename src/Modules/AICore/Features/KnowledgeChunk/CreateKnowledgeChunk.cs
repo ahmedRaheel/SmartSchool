@@ -86,8 +86,7 @@ public static class CreateKnowledgeChunk
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AICore.Models.KnowledgeChunkEntity entity)
+	private static Response MapResponse(KnowledgeChunkEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

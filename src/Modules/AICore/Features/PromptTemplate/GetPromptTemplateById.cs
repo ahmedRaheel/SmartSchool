@@ -63,8 +63,7 @@ public static class GetPromptTemplateById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AICore.Models.PromptTemplateEntity entity)
+	private static Response MapResponse(PromptTemplateEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

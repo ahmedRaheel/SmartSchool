@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Transport.Models;
 
 namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 
@@ -68,8 +69,7 @@ public static class GetStudentTransportPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Transport.Models.StudentTransportEntity entity)
+	private static Response MapResponse(StudentTransportEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

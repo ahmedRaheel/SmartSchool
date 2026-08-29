@@ -93,8 +93,7 @@ public static class UpdateClassPerformanceInsight
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.ClassPerformanceInsightEntity entity)
+	private static Response MapResponse(ClassPerformanceInsightEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

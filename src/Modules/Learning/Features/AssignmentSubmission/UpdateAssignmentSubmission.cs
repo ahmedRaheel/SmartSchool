@@ -93,8 +93,7 @@ public static class UpdateAssignmentSubmission
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Learning.Models.AssignmentSubmissionEntity entity)
+	private static Response MapResponse(AssignmentSubmissionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

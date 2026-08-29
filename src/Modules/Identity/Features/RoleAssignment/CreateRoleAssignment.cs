@@ -84,8 +84,7 @@ public static class CreateRoleAssignment
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Identity.Models.RoleAssignmentEntity entity)
+	private static Response MapResponse(RoleAssignmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

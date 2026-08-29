@@ -84,8 +84,7 @@ public static class CreateGradeLevel
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.GradeLevelEntity entity)
+	private static Response MapResponse(GradeLevelEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

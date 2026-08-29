@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AICore.Models;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 
@@ -68,8 +69,7 @@ public static class GetKnowledgeChunkPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AICore.Models.KnowledgeChunkEntity entity)
+	private static Response MapResponse(KnowledgeChunkEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

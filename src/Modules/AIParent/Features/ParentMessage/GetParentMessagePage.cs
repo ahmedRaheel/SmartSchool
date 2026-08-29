@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AIParent.Models;
 
 namespace SmartSchool.Modules.AIParent.Features.ParentMessage;
 
@@ -68,8 +69,7 @@ public static class GetParentMessagePage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIParent.Models.ParentMessageEntity entity)
+	private static Response MapResponse(ParentMessageEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

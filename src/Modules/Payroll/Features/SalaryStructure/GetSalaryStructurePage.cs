@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 
@@ -68,8 +69,7 @@ public static class GetSalaryStructurePage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Payroll.Models.SalaryStructureEntity entity)
+	private static Response MapResponse(SalaryStructureEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

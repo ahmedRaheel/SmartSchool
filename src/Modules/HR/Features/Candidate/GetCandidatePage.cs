@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Features.Candidate;
 
@@ -68,8 +69,7 @@ public static class GetCandidatePage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.CandidateEntity entity)
+	private static Response MapResponse(CandidateEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

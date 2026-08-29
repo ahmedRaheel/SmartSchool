@@ -93,8 +93,7 @@ public static class UpdateExamSubject
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Examinations.Models.ExamSubjectEntity entity)
+	private static Response MapResponse(ExamSubjectEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

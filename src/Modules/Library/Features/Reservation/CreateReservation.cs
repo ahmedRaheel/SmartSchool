@@ -84,8 +84,7 @@ public static class CreateReservation
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Library.Models.ReservationEntity entity)
+	private static Response MapResponse(ReservationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AITutor.Models;
 
 namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 
@@ -68,8 +69,7 @@ public static class GetLearningRecommendationPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.LearningRecommendationEntity entity)
+	private static Response MapResponse(LearningRecommendationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

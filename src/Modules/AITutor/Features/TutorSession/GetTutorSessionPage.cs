@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AITutor.Models;
 
 namespace SmartSchool.Modules.AITutor.Features.TutorSession;
 
@@ -68,8 +69,7 @@ public static class GetTutorSessionPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.TutorSessionEntity entity)
+	private static Response MapResponse(TutorSessionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -1,4 +1,5 @@
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Models;
 
@@ -60,7 +61,7 @@ public sealed class EmployeeEntity : Entity
 	public string EmploymentTypeCode { get; private set; } = string.Empty;
 
 	/// <summary>Gets the employee status.</summary>
-	public string Status { get; private set; } = "ACTIVE";
+	public string Status { get; private set; } = LifecycleStatuses.Active;
 
 	/// <summary>Gets the optional recruitment candidate identifier.</summary>
 	public Guid? SourceCandidateId { get; private set; }
@@ -146,13 +147,13 @@ public sealed class EmployeeEntity : Entity
 		if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
 		UserId = userId;
 		EmployeeNumber = employeeNumber.Trim();
-		Status = "HIRED";
+		Status = LifecycleStatuses.Hired;
 		MarkAsUpdated();
 	}
 
 	public void SetRecruitmentStatus(string status)
 	{
-		if (status is not ("SUBMITTED" or "REJECTED" or "WAITING_LIST"))
+		if (status is not (LifecycleStatuses.Submitted or LifecycleStatuses.Rejected or LifecycleStatuses.WaitingList))
 			throw new ArgumentException("Invalid recruitment status.", nameof(status));
 		Status = status;
 		MarkAsUpdated();

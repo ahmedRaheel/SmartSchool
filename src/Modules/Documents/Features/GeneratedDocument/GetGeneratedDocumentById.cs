@@ -63,8 +63,7 @@ public static class GetGeneratedDocumentById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.GeneratedDocumentEntity entity)
+	private static Response MapResponse(GeneratedDocumentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

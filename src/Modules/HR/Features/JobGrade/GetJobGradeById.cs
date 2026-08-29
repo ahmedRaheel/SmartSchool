@@ -63,8 +63,7 @@ public static class GetJobGradeById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.JobGradeEntity entity)
+	private static Response MapResponse(JobGradeEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

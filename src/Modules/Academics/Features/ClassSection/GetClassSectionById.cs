@@ -63,8 +63,7 @@ public static class GetClassSectionById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.ClassSectionEntity entity)
+	private static Response MapResponse(ClassSectionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

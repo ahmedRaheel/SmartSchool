@@ -63,8 +63,7 @@ public static class GetItemById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Inventory.Models.ItemEntity entity)
+	private static Response MapResponse(ItemEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

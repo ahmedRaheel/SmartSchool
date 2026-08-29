@@ -93,8 +93,7 @@ public static class UpdateCertificate
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.CertificateEntity entity)
+	private static Response MapResponse(CertificateEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

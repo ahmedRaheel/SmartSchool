@@ -63,8 +63,7 @@ public static class GetApplicantById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Admissions.Models.ApplicantEntity entity)
+	private static Response MapResponse(ApplicantEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

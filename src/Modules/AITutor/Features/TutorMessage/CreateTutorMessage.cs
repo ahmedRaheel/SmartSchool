@@ -86,8 +86,7 @@ public static class CreateTutorMessage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.TutorMessageEntity entity)
+	private static Response MapResponse(TutorMessageEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

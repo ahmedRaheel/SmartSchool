@@ -93,8 +93,7 @@ public static class UpdateTutorConversation
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.TutorConversationEntity entity)
+	private static Response MapResponse(TutorConversationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

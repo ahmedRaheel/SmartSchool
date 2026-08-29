@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Activities.Models;
 
 namespace SmartSchool.Modules.Activities.Features.StudentOfMonth;
 
@@ -68,8 +69,7 @@ public static class GetStudentOfMonthPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Activities.Models.StudentOfMonthEntity entity)
+	private static Response MapResponse(StudentOfMonthEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

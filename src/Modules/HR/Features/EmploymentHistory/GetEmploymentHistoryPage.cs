@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 
@@ -68,8 +69,7 @@ public static class GetEmploymentHistoryPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.EmploymentHistoryEntity entity)
+	private static Response MapResponse(EmploymentHistoryEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

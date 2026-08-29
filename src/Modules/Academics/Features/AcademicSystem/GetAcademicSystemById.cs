@@ -63,8 +63,7 @@ public static class GetAcademicSystemById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.AcademicSystemEntity entity)
+	private static Response MapResponse(AcademicSystemEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

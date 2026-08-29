@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Features.CampusBranding;
 
@@ -68,8 +69,7 @@ public static class GetCampusBrandingPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Tenancy.Models.CampusBrandingEntity entity)
+	private static Response MapResponse(CampusBrandingEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

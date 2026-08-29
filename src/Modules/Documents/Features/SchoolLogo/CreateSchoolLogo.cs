@@ -84,8 +84,7 @@ public static class CreateSchoolLogo
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.SchoolLogoEntity entity)
+	private static Response MapResponse(SchoolLogoEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

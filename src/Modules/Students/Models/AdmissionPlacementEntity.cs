@@ -1,4 +1,5 @@
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Models;
 
@@ -10,7 +11,7 @@ public sealed class AdmissionPlacementEntity : Entity
     public Guid AcademicYearId { get; private set; }
     public Guid ClassSectionId { get; private set; }
     public DateTimeOffset RequestedAt { get; private set; } = DateTimeOffset.UtcNow;
-    public string Status { get; private set; } = "PENDING";
+    public string Status { get; private set; } = LifecycleStatuses.Pending;
     public DateTimeOffset? ApprovedAt { get; private set; }
 
     public static AdmissionPlacementEntity Create(Guid tenantId, Guid studentId, Guid academicYearId, Guid classSectionId) => new()
@@ -23,7 +24,7 @@ public sealed class AdmissionPlacementEntity : Entity
 
     public void Approve()
     {
-        Status = "APPROVED";
+        Status = LifecycleStatuses.Approved;
         ApprovedAt = DateTimeOffset.UtcNow;
         MarkAsUpdated();
     }

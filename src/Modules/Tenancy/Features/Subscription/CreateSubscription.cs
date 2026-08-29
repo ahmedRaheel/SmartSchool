@@ -84,8 +84,7 @@ public static class CreateSubscription
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Tenancy.Models.SubscriptionEntity entity)
+	private static Response MapResponse(SubscriptionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

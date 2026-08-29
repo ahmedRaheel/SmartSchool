@@ -84,8 +84,7 @@ public static class CreatePayment
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.PaymentEntity entity)
+	private static Response MapResponse(PaymentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

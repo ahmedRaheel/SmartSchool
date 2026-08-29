@@ -84,8 +84,7 @@ public static class CreateRoute
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Transport.Models.RouteEntity entity)
+	private static Response MapResponse(RouteEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

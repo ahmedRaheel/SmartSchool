@@ -84,8 +84,7 @@ public static class CreateTimetableEntry
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.TimetableEntryEntity entity)
+	private static Response MapResponse(TimetableEntryEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

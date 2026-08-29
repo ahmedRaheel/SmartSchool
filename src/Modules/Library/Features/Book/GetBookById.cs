@@ -63,8 +63,7 @@ public static class GetBookById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Library.Models.BookEntity entity)
+	private static Response MapResponse(BookEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

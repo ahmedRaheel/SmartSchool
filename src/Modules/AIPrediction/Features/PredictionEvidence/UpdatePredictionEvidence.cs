@@ -93,8 +93,7 @@ public static class UpdatePredictionEvidence
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.PredictionEvidenceEntity entity)
+	private static Response MapResponse(PredictionEvidenceEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

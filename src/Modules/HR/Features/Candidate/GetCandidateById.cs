@@ -63,8 +63,7 @@ public static class GetCandidateById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.CandidateEntity entity)
+	private static Response MapResponse(CandidateEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

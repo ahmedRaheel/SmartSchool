@@ -63,8 +63,7 @@ public static class GetTermById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.TermEntity entity)
+	private static Response MapResponse(TermEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

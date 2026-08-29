@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Students.Models;
 
 namespace SmartSchool.Modules.Students.Features.Enrollment;
 
@@ -70,8 +71,7 @@ public static class GetEnrollmentPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.EnrollmentEntity entity)
+	private static Response MapResponse(EnrollmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -84,8 +84,7 @@ public static class CreateWorkflowStep
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Workflow.Models.WorkflowStepEntity entity)
+	private static Response MapResponse(WorkflowStepEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

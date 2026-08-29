@@ -84,8 +84,7 @@ public static class CreateInquiry
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Admissions.Models.InquiryEntity entity)
+	private static Response MapResponse(InquiryEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

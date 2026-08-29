@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Features.GeneratedDocument;
 
@@ -68,8 +69,7 @@ public static class GetGeneratedDocumentPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.GeneratedDocumentEntity entity)
+	private static Response MapResponse(GeneratedDocumentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

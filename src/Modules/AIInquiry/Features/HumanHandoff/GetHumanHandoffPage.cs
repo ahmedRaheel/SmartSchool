@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AIInquiry.Models;
 
 namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 
@@ -68,8 +69,7 @@ public static class GetHumanHandoffPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.HumanHandoffEntity entity)
+	private static Response MapResponse(HumanHandoffEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

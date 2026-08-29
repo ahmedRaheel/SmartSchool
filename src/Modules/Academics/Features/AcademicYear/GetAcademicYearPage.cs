@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Features.AcademicYear;
 
@@ -70,8 +71,7 @@ public static class GetAcademicYearPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.AcademicYearEntity entity)
+	private static Response MapResponse(AcademicYearEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

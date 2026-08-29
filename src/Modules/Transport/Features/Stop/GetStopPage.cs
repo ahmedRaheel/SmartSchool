@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Transport.Models;
 
 namespace SmartSchool.Modules.Transport.Features.Stop;
 
@@ -68,8 +69,7 @@ public static class GetStopPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Transport.Models.StopEntity entity)
+	private static Response MapResponse(StopEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

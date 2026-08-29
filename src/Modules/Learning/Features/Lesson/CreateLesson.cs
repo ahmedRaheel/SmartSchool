@@ -84,8 +84,7 @@ public static class CreateLesson
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Learning.Models.LessonEntity entity)
+	private static Response MapResponse(LessonEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

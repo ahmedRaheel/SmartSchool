@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Learning.Models;
 
 namespace SmartSchool.Modules.Learning.Features.Assignment;
 
@@ -68,8 +69,7 @@ public static class GetAssignmentPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Learning.Models.AssignmentEntity entity)
+	private static Response MapResponse(AssignmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -93,8 +93,7 @@ public static class UpdateBookCopy
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Library.Models.BookCopyEntity entity)
+	private static Response MapResponse(BookCopyEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

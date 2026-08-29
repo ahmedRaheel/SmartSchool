@@ -91,7 +91,7 @@ public static class CreateStudent
                 request.PhotoContentType,
                 request.PhotoFileName,
                 request.AdmissionDate,
-                "PENDING_APPROVAL");
+                LifecycleStatuses.PendingApproval);
 
             await entityCommand.AddAsync(entity, cancellationToken);
 

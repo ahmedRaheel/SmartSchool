@@ -93,8 +93,7 @@ public static class UpdateUserProfile
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Identity.Models.UserProfileEntity entity)
+	private static Response MapResponse(UserProfileEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

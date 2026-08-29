@@ -63,8 +63,7 @@ public static class GetCampusBrandingById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Tenancy.Models.CampusBrandingEntity entity)
+	private static Response MapResponse(CampusBrandingEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

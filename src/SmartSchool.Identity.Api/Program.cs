@@ -4,6 +4,7 @@ using Serilog;
 using SmartSchool.Identity.Api;
 using SmartSchool.Identity.Api.Observability;
 using SmartSchool.Modules.Identity;
+using SmartSchool.SharedKernel.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddSmartSchoolSerilog("SmartSchool.Identity.Api");
@@ -79,12 +80,12 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy =>
     {
-        policy.RequireRole("SuperAdmin", "SchoolAdmin", "Principal", "Admin");
+        policy.RequireRole(SmartSchoolRoles.SuperAdmin, "SchoolAdmin", "Principal", "Admin");
     });
 
     options.AddPolicy("SuperAdminOnly", policy =>
     {
-        policy.RequireRole("SuperAdmin");
+        policy.RequireRole(SmartSchoolRoles.SuperAdmin);
     });
 
     options.AddPolicy("SmartSchoolApi", policy =>

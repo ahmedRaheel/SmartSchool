@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Academics.Models;
 
 namespace SmartSchool.Modules.Academics.Features.CourseOffering;
 
@@ -68,8 +69,7 @@ public static class GetCourseOfferingPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.CourseOfferingEntity entity)
+	private static Response MapResponse(CourseOfferingEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

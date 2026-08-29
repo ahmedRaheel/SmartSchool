@@ -84,8 +84,7 @@ public static class CreateLoan
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Library.Models.LoanEntity entity)
+	private static Response MapResponse(LoanEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

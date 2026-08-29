@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Students.Models;
 
 namespace SmartSchool.Modules.Students.Features.StudentGuardian;
 
@@ -68,8 +69,7 @@ public static class GetStudentGuardianPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.StudentGuardianEntity entity)
+	private static Response MapResponse(StudentGuardianEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

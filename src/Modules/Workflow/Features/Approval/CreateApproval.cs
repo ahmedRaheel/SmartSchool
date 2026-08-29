@@ -84,8 +84,7 @@ public static class CreateApproval
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Workflow.Models.ApprovalEntity entity)
+	private static Response MapResponse(ApprovalEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

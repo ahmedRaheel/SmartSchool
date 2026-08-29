@@ -84,8 +84,7 @@ public static class CreateVehicle
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Transport.Models.VehicleEntity entity)
+	private static Response MapResponse(VehicleEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

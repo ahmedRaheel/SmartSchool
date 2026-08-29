@@ -84,8 +84,7 @@ public static class CreatePosition
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.PositionEntity entity)
+	private static Response MapResponse(PositionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -93,8 +93,7 @@ public static class UpdateProgram
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.ProgramEntity entity)
+	private static Response MapResponse(ProgramEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

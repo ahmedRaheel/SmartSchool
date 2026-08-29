@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Features.Increment;
 
@@ -68,8 +69,7 @@ public static class GetIncrementPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Payroll.Models.IncrementEntity entity)
+	private static Response MapResponse(IncrementEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

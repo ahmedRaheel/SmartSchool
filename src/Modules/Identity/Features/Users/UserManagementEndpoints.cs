@@ -32,7 +32,7 @@ public static class UserManagementEndpoints
 
     private static readonly HashSet<string> SchoolRoles =
         new(StringComparer.OrdinalIgnoreCase)
-        { "SchoolAdmin", "Admin", "Principal", "Teacher", "Parent", "Student", "Staff", "Driver" };
+        { "SchoolAdmin", "Admin", "Principal", SmartSchoolRoles.Teacher, SmartSchoolRoles.Parent, SmartSchoolRoles.Student, "Staff", SmartSchoolRoles.Driver };
 
     public static void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
@@ -103,7 +103,7 @@ public static class UserManagementEndpoints
         if (!superAdmin && callerTenant != request.TenantId) return Results.Forbid();
 
         var requestedRoles = request.Roles.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
-        if (!superAdmin && requestedRoles.Any(r => !SchoolRoles.Contains(r) || r.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase)))
+        if (!superAdmin && requestedRoles.Any(r => !SchoolRoles.Contains(r) || r.Equals(SmartSchoolRoles.SuperAdmin, StringComparison.OrdinalIgnoreCase)))
             return Results.Forbid();
 
         var password = string.IsNullOrWhiteSpace(request.Password)
@@ -268,7 +268,7 @@ public static class UserManagementEndpoints
         var user=await userManager.FindByIdAsync(id.ToString());
         if(user is null) return Results.NotFound();
         if (!currentUser.IsSuperAdmin && user.TenantId != currentUser.TenantId) return Results.Forbid();
-        if (!currentUser.IsSuperAdmin && request.Roles.Any(r => !SchoolRoles.Contains(r) || r.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase))) return Results.Forbid();
+        if (!currentUser.IsSuperAdmin && request.Roles.Any(r => !SchoolRoles.Contains(r) || r.Equals(SmartSchoolRoles.SuperAdmin, StringComparison.OrdinalIgnoreCase))) return Results.Forbid();
         var current=await userManager.GetRolesAsync(user);
         var remove=await userManager.RemoveFromRolesAsync(user,current);
         if(!remove.Succeeded) return Results.ValidationProblem(ToErrors(remove));

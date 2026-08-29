@@ -93,8 +93,7 @@ public static class UpdateAiExecutionLog
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AICore.Models.AiExecutionLogEntity entity)
+	private static Response MapResponse(AiExecutionLogEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

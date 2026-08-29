@@ -65,8 +65,7 @@ public static class GetEnrollmentById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.EnrollmentEntity entity)
+	private static Response MapResponse(EnrollmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

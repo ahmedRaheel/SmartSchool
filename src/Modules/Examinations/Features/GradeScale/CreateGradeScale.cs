@@ -84,8 +84,7 @@ public static class CreateGradeScale
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Examinations.Models.GradeScaleEntity entity)
+	private static Response MapResponse(GradeScaleEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

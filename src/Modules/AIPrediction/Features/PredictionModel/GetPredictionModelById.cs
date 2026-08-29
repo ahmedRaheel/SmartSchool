@@ -63,8 +63,7 @@ public static class GetPredictionModelById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.PredictionModelEntity entity)
+	private static Response MapResponse(PredictionModelEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -63,8 +63,7 @@ public static class GetLearningResourceById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Learning.Models.LearningResourceEntity entity)
+	private static Response MapResponse(LearningResourceEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -63,8 +63,7 @@ public static class GetQuizAttemptById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.QuizAttemptEntity entity)
+	private static Response MapResponse(QuizAttemptEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

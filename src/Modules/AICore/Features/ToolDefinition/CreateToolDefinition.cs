@@ -86,8 +86,7 @@ public static class CreateToolDefinition
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AICore.Models.ToolDefinitionEntity entity)
+	private static Response MapResponse(ToolDefinitionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

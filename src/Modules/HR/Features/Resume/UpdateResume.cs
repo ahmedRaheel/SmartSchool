@@ -93,8 +93,7 @@ public static class UpdateResume
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.ResumeEntity entity)
+	private static Response MapResponse(ResumeEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

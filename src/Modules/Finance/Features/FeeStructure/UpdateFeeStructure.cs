@@ -93,8 +93,7 @@ public static class UpdateFeeStructure
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.FeeStructureEntity entity)
+	private static Response MapResponse(FeeStructureEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

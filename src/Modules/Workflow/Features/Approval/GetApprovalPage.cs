@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Features.Approval;
 
@@ -68,8 +69,7 @@ public static class GetApprovalPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Workflow.Models.ApprovalEntity entity)
+	private static Response MapResponse(ApprovalEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

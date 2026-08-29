@@ -93,8 +93,7 @@ public static class UpdateIncrement
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Payroll.Models.IncrementEntity entity)
+	private static Response MapResponse(IncrementEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

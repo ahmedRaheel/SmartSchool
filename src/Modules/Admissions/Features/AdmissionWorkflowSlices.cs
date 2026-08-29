@@ -3,6 +3,7 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Admissions.Features;
 
@@ -25,7 +26,7 @@ public static class AdmissionApplicationStatusExtensions
             "SUBMITTED_APPLICATION" => AdmissionApplicationStatus.SubmittedApplication,
             "ADMISSION_ACCEPTED" => AdmissionApplicationStatus.AdmissionAccepted,
             "ADMISSION_REJECTED" => AdmissionApplicationStatus.AdmissionRejected,
-            "WAITING_LIST" => AdmissionApplicationStatus.WaitingList,
+            LifecycleStatuses.WaitingList => AdmissionApplicationStatus.WaitingList,
             _ => default
         };
 
@@ -33,7 +34,7 @@ public static class AdmissionApplicationStatusExtensions
             "SUBMITTED_APPLICATION" or
             "ADMISSION_ACCEPTED" or
             "ADMISSION_REJECTED" or
-            "WAITING_LIST";
+            LifecycleStatuses.WaitingList;
     }
 
     public static string ToDatabaseValue(this AdmissionApplicationStatus status) => status switch
@@ -41,7 +42,7 @@ public static class AdmissionApplicationStatusExtensions
         AdmissionApplicationStatus.SubmittedApplication => "SUBMITTED_APPLICATION",
         AdmissionApplicationStatus.AdmissionAccepted => "ADMISSION_ACCEPTED",
         AdmissionApplicationStatus.AdmissionRejected => "ADMISSION_REJECTED",
-        AdmissionApplicationStatus.WaitingList => "WAITING_LIST",
+        AdmissionApplicationStatus.WaitingList => LifecycleStatuses.WaitingList,
         _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
     };
 }
@@ -393,13 +394,13 @@ public static class ChangeAdmissionStatus
             var studentAccount = await accounts.CreateAccountAsync(
                 tenantId,
                 studentId,
-                "Student",
+                SmartSchoolRoles.Student,
                 application.Email,
                 application.FirstName,
                 application.LastName ?? string.Empty,
                 application.SchoolId,
                 application.BranchId,
-                ["Student"],
+                [SmartSchoolRoles.Student],
                 cancellationToken);
 
             ProvisionedAccount? parentAccount = null;
@@ -409,13 +410,13 @@ public static class ChangeAdmissionStatus
                 parentAccount = await accounts.CreateAccountAsync(
                     tenantId,
                     guardianId,
-                    "Parent",
+                    SmartSchoolRoles.Parent,
                     application.GuardianEmail,
                     application.GuardianName,
                     string.Empty,
                     application.SchoolId,
                     application.BranchId,
-                    ["Parent"],
+                    [SmartSchoolRoles.Parent],
                     cancellationToken);
 
                 await command.CompleteAdmissionAsync(

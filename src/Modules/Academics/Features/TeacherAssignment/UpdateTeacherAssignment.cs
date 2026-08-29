@@ -93,8 +93,7 @@ public static class UpdateTeacherAssignment
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.TeacherAssignmentEntity entity)
+	private static Response MapResponse(TeacherAssignmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -5,6 +5,7 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Employee;
 
@@ -63,13 +64,13 @@ public static class ApproveEmployee
                 employee.BranchId,
                 cancellationToken);
             if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("The employee's branch is invalid."));
-            var marker = request.Roles.Any(r => r.Equals("Teacher", StringComparison.OrdinalIgnoreCase)) ? "T"
-                : request.Roles.Any(r => r.Equals("Driver", StringComparison.OrdinalIgnoreCase)) ? "D" : "E";
+            var marker = request.Roles.Any(r => r.Equals(SmartSchoolRoles.Teacher, StringComparison.OrdinalIgnoreCase)) ? "T"
+                : request.Roles.Any(r => r.Equals(SmartSchoolRoles.Driver, StringComparison.OrdinalIgnoreCase)) ? "D" : "E";
             var employeeNumber = await numberGenerator.NextAsync(
                 $"EMPLOYEE:{marker}:{employee.BranchId}", $"{branchCode}-{marker}-", request.TenantId, 7, cancellationToken);
 
-            var accountType = request.Roles.Any(r => r.Equals("Teacher", StringComparison.OrdinalIgnoreCase)) ? "Teacher"
-                : request.Roles.Any(r => r.Equals("Driver", StringComparison.OrdinalIgnoreCase)) ? "Driver"
+            var accountType = request.Roles.Any(r => r.Equals(SmartSchoolRoles.Teacher, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Teacher
+                : request.Roles.Any(r => r.Equals(SmartSchoolRoles.Driver, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Driver
                 : request.Roles.Any(r => r.Equals("Examiner", StringComparison.OrdinalIgnoreCase)) ? "Examiner" : "Employee";
             var account = await accounts.CreateAccountAsync(
                 request.TenantId, employee.EmployeeId, accountType, employee.Email, employee.FirstName, employee.LastName ?? string.Empty,

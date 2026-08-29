@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Features.Loan;
 
@@ -68,8 +69,7 @@ public static class GetLoanPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Library.Models.LoanEntity entity)
+	private static Response MapResponse(LoanEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

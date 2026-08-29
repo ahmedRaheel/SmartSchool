@@ -63,8 +63,7 @@ public static class GetEmploymentHistoryById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.EmploymentHistoryEntity entity)
+	private static Response MapResponse(EmploymentHistoryEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

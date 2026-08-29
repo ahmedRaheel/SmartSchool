@@ -113,7 +113,7 @@ public static class CreateEmployee
 				request.EmergencyContactPhone,
 				request.HireDate,
 				request.EmploymentTypeCode,
-				"SUBMITTED",
+				LifecycleStatuses.Submitted,
 				request.SourceCandidateId);
 
 			await entityCommand.AddAsync(entity, cancellationToken);

@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Identity.Models;
 
 namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 
@@ -68,8 +69,7 @@ public static class GetRoleAssignmentPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Identity.Models.RoleAssignmentEntity entity)
+	private static Response MapResponse(RoleAssignmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

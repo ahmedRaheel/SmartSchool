@@ -63,8 +63,7 @@ public static class GetSubjectById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.SubjectEntity entity)
+	private static Response MapResponse(SubjectEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

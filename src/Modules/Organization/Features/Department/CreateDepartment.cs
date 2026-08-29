@@ -104,8 +104,7 @@ public static class CreateDepartment
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.DepartmentEntity entity)
+	private static Response MapResponse(DepartmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

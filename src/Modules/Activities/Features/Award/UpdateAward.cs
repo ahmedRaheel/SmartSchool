@@ -93,8 +93,7 @@ public static class UpdateAward
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Activities.Models.AwardEntity entity)
+	private static Response MapResponse(AwardEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

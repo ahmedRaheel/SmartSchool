@@ -63,8 +63,7 @@ public static class GetScholarshipById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.ScholarshipEntity entity)
+	private static Response MapResponse(ScholarshipEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

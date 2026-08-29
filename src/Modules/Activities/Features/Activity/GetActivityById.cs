@@ -63,8 +63,7 @@ public static class GetActivityById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Activities.Models.ActivityEntity entity)
+	private static Response MapResponse(ActivityEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

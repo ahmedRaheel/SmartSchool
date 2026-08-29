@@ -84,8 +84,7 @@ public static class CreateInvoice
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.InvoiceEntity entity)
+	private static Response MapResponse(InvoiceEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

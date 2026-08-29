@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Tenancy.Models;
 
 namespace SmartSchool.Modules.Tenancy.Features.Subscription;
 
@@ -68,8 +69,7 @@ public static class GetSubscriptionPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Tenancy.Models.SubscriptionEntity entity)
+	private static Response MapResponse(SubscriptionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

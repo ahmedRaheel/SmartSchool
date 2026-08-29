@@ -84,8 +84,7 @@ public static class CreateMessageReceipt
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Communication.Models.MessageReceiptEntity entity)
+	private static Response MapResponse(MessageReceiptEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

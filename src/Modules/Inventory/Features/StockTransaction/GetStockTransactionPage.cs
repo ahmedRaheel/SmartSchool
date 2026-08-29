@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Features.StockTransaction;
 
@@ -68,8 +69,7 @@ public static class GetStockTransactionPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Inventory.Models.StockTransactionEntity entity)
+	private static Response MapResponse(StockTransactionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

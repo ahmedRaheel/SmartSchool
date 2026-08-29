@@ -86,8 +86,7 @@ public static class CreateKnowledgeCollection
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AICore.Models.KnowledgeCollectionEntity entity)
+	private static Response MapResponse(KnowledgeCollectionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

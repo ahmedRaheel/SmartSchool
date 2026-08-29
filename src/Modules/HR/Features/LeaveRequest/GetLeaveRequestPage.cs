@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 
@@ -68,8 +69,7 @@ public static class GetLeaveRequestPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.LeaveRequestEntity entity)
+	private static Response MapResponse(LeaveRequestEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

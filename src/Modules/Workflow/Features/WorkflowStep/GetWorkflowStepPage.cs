@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 
@@ -68,8 +69,7 @@ public static class GetWorkflowStepPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Workflow.Models.WorkflowStepEntity entity)
+	private static Response MapResponse(WorkflowStepEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

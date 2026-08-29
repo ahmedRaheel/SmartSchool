@@ -93,8 +93,7 @@ public static class UpdateStockTransaction
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Inventory.Models.StockTransactionEntity entity)
+	private static Response MapResponse(StockTransactionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

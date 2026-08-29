@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Examinations.Models;
 
 namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
@@ -68,8 +69,7 @@ public static class GetGradeScalePage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Examinations.Models.GradeScaleEntity entity)
+	private static Response MapResponse(GradeScaleEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

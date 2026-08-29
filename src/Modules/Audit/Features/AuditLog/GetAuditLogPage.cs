@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Audit.Models;
 
 namespace SmartSchool.Modules.Audit.Features.AuditLog;
 
@@ -68,8 +69,7 @@ public static class GetAuditLogPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Audit.Models.AuditLogEntity entity)
+	private static Response MapResponse(AuditLogEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -5,6 +5,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Organization.Models;
 
 namespace SmartSchool.Modules.Organization.Features.Campus;
 
@@ -67,8 +68,7 @@ public static class GetCampusPage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.CampusEntity entity)
+	private static Response MapResponse(CampusEntity entity)
 	{
 		return new Response(
 			entity.TenantId, entity.CampusId, entity.SchoolId, entity.Code, entity.Name, entity.BranchType, entity.BranchGenderTypeId,

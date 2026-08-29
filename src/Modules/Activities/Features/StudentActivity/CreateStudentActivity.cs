@@ -84,8 +84,7 @@ public static class CreateStudentActivity
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Activities.Models.StudentActivityEntity entity)
+	private static Response MapResponse(StudentActivityEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

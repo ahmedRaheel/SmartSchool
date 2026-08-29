@@ -84,8 +84,7 @@ public static class CreateStop
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Transport.Models.StopEntity entity)
+	private static Response MapResponse(StopEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

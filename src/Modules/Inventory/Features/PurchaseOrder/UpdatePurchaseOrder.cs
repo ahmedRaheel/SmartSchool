@@ -93,8 +93,7 @@ public static class UpdatePurchaseOrder
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Inventory.Models.PurchaseOrderEntity entity)
+	private static Response MapResponse(PurchaseOrderEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
