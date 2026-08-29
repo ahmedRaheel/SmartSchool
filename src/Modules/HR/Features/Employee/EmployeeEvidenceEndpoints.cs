@@ -1,36 +1,53 @@
-using Dapper;
+using FluentValidation;
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.HR.Models;
+using SmartSchool.Modules.HR.Persistence;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.HR.Features.Employee;
 
-/// <summary>Structured qualification and experience facts. Certificates themselves are stored by the Documents aggregate.</summary>
 public static class EmployeeEvidenceEndpoints
 {
-    public sealed record EducationRequest(Guid? TenantId, string Qualification, string? Institute, string? FieldOfStudy, DateOnly? StartDate, DateOnly? EndDate, string? Grade, bool IsHighest);
-    public sealed record ExperienceRequest(Guid? TenantId, string Employer, string JobTitle, DateOnly StartDate, DateOnly? EndDate, string? Responsibilities);
-
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/hr/employee/{employeeId:guid}/education", AddEducationAsync).WithTags("HR").RequireAuthorization();
-        endpoints.MapPost("/api/hr/employee/{employeeId:guid}/experience", AddExperienceAsync).WithTags("HR").RequireAuthorization();
+        CreateEmployeeEducation.MapEndpoint(endpoints);
+        CreateEmployeeExperience.MapEndpoint(endpoints);
         return endpoints;
     }
+}
 
-    private static async Task<IResult> AddEducationAsync(Guid employeeId, EducationRequest request, ITenantScope scope, IDbConnectionFactory factory, CancellationToken ct)
+public static class CreateEmployeeEducation
+{
+    public sealed record Request(Guid? TenantId, Guid EmployeeId, string Qualification, string? Institute, string? FieldOfStudy, DateOnly? StartDate, DateOnly? EndDate, string? Grade, bool IsHighest) : IRequest<Result<Response>>;
+    public sealed record Response(Guid Id);
+    public sealed class Validator : AbstractValidator<Request> { public Validator() { RuleFor(x=>x.EmployeeId).NotEmpty(); RuleFor(x=>x.Qualification).NotEmpty().MaximumLength(150); } }
+    public sealed class Handler(IEmployeeEvidenceCommand command) : IRequestHandler<Request, Result<Response>>
     {
-        var tenantId=scope.Resolve(request.TenantId); if(!tenantId.HasValue)return Results.BadRequest(new{message="Tenant is required."});
-        if(string.IsNullOrWhiteSpace(request.Qualification))return Results.BadRequest(new{message="Qualification is required."});
-        await using var c=await factory.OpenConnectionAsync(ct); var id=Guid.NewGuid();
-        await c.ExecuteAsync(new CommandDefinition("INSERT INTO hr.employee_education(employee_education_id,tenant_id,employee_id,qualification,institute,field_of_study,start_date,end_date,grade,is_highest) VALUES(@Id,@TenantId,@EmployeeId,@Qualification,@Institute,@FieldOfStudy,@StartDate,@EndDate,@Grade,@IsHighest)",new{Id=id,TenantId=tenantId.Value,EmployeeId=employeeId,request.Qualification,request.Institute,request.FieldOfStudy,request.StartDate,request.EndDate,request.Grade,request.IsHighest},cancellationToken:ct));
-        return Results.Created($"/api/hr/employee/{employeeId}/education/{id}",new{id});
+        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        {
+            var entity = EmployeeEducationEntity.Create(request.TenantId!.Value, request.EmployeeId, request.Qualification, request.Institute, request.FieldOfStudy, request.StartDate, request.EndDate, request.Grade, request.IsHighest);
+            await command.AddEducationAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(entity.EmployeeEducationId));
+        }
     }
-    private static async Task<IResult> AddExperienceAsync(Guid employeeId, ExperienceRequest request, ITenantScope scope, IDbConnectionFactory factory, CancellationToken ct)
+    public static void MapEndpoint(IEndpointRouteBuilder endpoints) => endpoints.MapPost("/api/hr/employee/{employeeId:guid}/education", async (Guid employeeId, Request request, ITenantScope scope, IMediator mediator, CancellationToken ct) => { var tenantId=scope.Resolve(request.TenantId); if(!tenantId.HasValue)return Results.BadRequest(new{message="Tenant is required."}); return (await mediator.SendAsync<Request,Result<Response>>(request with { TenantId=tenantId.Value, EmployeeId=employeeId },ct)).ToHttpResult(); }).WithTags("HR").RequireAuthorization();
+}
+
+public static class CreateEmployeeExperience
+{
+    public sealed record Request(Guid? TenantId, Guid EmployeeId, string Employer, string JobTitle, DateOnly StartDate, DateOnly? EndDate, string? Responsibilities) : IRequest<Result<Response>>;
+    public sealed record Response(Guid Id);
+    public sealed class Validator : AbstractValidator<Request> { public Validator() { RuleFor(x=>x.EmployeeId).NotEmpty(); RuleFor(x=>x.Employer).NotEmpty().MaximumLength(200); RuleFor(x=>x.JobTitle).NotEmpty().MaximumLength(150); } }
+    public sealed class Handler(IEmployeeEvidenceCommand command) : IRequestHandler<Request, Result<Response>>
     {
-        var tenantId=scope.Resolve(request.TenantId); if(!tenantId.HasValue)return Results.BadRequest(new{message="Tenant is required."});
-        if(string.IsNullOrWhiteSpace(request.Employer)||string.IsNullOrWhiteSpace(request.JobTitle))return Results.BadRequest(new{message="Employer and job title are required."});
-        await using var c=await factory.OpenConnectionAsync(ct); var id=Guid.NewGuid();
-        await c.ExecuteAsync(new CommandDefinition("INSERT INTO hr.employee_experience(employee_experience_id,tenant_id,employee_id,employer,job_title,start_date,end_date,responsibilities) VALUES(@Id,@TenantId,@EmployeeId,@Employer,@JobTitle,@StartDate,@EndDate,@Responsibilities)",new{Id=id,TenantId=tenantId.Value,EmployeeId=employeeId,request.Employer,request.JobTitle,request.StartDate,request.EndDate,request.Responsibilities},cancellationToken:ct));
-        return Results.Created($"/api/hr/employee/{employeeId}/experience/{id}",new{id});
+        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        {
+            var entity = EmployeeExperienceEntity.Create(request.TenantId!.Value, request.EmployeeId, request.Employer, request.JobTitle, request.StartDate, request.EndDate, request.Responsibilities);
+            await command.AddExperienceAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(entity.EmployeeExperienceId));
+        }
     }
+    public static void MapEndpoint(IEndpointRouteBuilder endpoints) => endpoints.MapPost("/api/hr/employee/{employeeId:guid}/experience", async (Guid employeeId, Request request, ITenantScope scope, IMediator mediator, CancellationToken ct) => { var tenantId=scope.Resolve(request.TenantId); if(!tenantId.HasValue)return Results.BadRequest(new{message="Tenant is required."}); return (await mediator.SendAsync<Request,Result<Response>>(request with { TenantId=tenantId.Value, EmployeeId=employeeId },ct)).ToHttpResult(); }).WithTags("HR").RequireAuthorization();
 }

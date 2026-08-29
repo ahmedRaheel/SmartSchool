@@ -1,9 +1,9 @@
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Students.Models;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -25,75 +25,122 @@ public static class ApproveStudentAdmission
         }
     }
 
-    public sealed class Handler(IStudentQuery query, IStudentCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator, IDbConnectionFactory connectionFactory)
+    public sealed class Handler(
+        IStudentQuery query,
+        IStudentCommand command,
+        IStudentOnboardingQuery onboardingQuery,
+        IStudentOnboardingCommand onboardingCommand,
+        IIdentityAccountService accounts,
+        IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
         {
-            var student = await query.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
-            if (student is null) return Result<Response>.Failure(Error.NotFound("Student was not found."));
-            if (student.UserId.HasValue) return Result<Response>.Failure(Error.Conflict("Student already has a login account."));
+            var student = await query.GetByIdAsync(
+                request.TenantId,
+                request.StudentId,
+                cancellationToken);
 
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            if (student is null)
+            {
+                return Result<Response>.Failure(Error.NotFound("Student was not found."));
+            }
 
-            var guardianExists = await connection.ExecuteScalarAsync<bool>(new CommandDefinition(
-                "SELECT EXISTS(SELECT 1 FROM student.student_guardian WHERE student_id=@StudentId)",
-                new { request.StudentId }, cancellationToken:cancellationToken));
-            if (!guardianExists)
-                return Result<Response>.Failure(Error.Validation("A parent or guardian is required before student admission can be approved."));
+            if (student.UserId.HasValue)
+            {
+                return Result<Response>.Failure(Error.Conflict("Student already has a login account."));
+            }
 
-            var missingDocuments = (await connection.QueryAsync<string>(new CommandDefinition(
-                """
-                SELECT r.display_name
-                FROM document.required_document r
-                WHERE r.is_active=true AND r.is_required=true AND r.actor_type='STUDENT'
-                  AND (r.tenant_id IS NULL OR r.tenant_id=@TenantId)
-                  AND NOT EXISTS (
-                    SELECT 1 FROM document.document d
-                    JOIN document.document_link l ON l.document_id=d.document_id AND l.tenant_id=d.tenant_id
-                    WHERE d.tenant_id=@TenantId AND l.entity_type='STUDENT' AND l.entity_id=@StudentId
-                      AND d.document_type=r.document_type AND d.status='ACTIVE')
-                """, new { request.TenantId, request.StudentId }, cancellationToken:cancellationToken))).ToArray();
-            if (missingDocuments.Length > 0)
-                return Result<Response>.Failure(Error.Validation($"Required student documents are missing: {string.Join(", ", missingDocuments)}."));
+            if (!await onboardingQuery.HasGuardianAsync(request.TenantId, request.StudentId, cancellationToken))
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("A parent or guardian is required before student admission can be approved."));
+            }
 
-            var placement = await connection.QuerySingleOrDefaultAsync<PlacementRow>(new CommandDefinition(
-                """SELECT academic_year_id AS AcademicYearId,class_section_id AS ClassSectionId FROM student.admission_placement
-                    WHERE tenant_id=@TenantId AND student_id=@StudentId AND status='PENDING' ORDER BY requested_at DESC LIMIT 1""",
-                new { request.TenantId, request.StudentId }, cancellationToken:cancellationToken));
+            var missingDocuments = await onboardingQuery.GetMissingRequiredDocumentsAsync(
+                request.TenantId,
+                request.StudentId,
+                cancellationToken);
+
+            if (missingDocuments.Count > 0)
+            {
+                return Result<Response>.Failure(
+                    Error.Validation($"Required student documents are missing: {string.Join(", ", missingDocuments)}."));
+            }
+
+            var placement = await onboardingQuery.GetPendingPlacementAsync(
+                request.TenantId,
+                request.StudentId,
+                cancellationToken);
+
             if (placement is null)
-                return Result<Response>.Failure(Error.Validation("Academic year and class section placement are required before approval."));
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("Academic year and class section placement are required before approval."));
+            }
 
-            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
-                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
-                new { request.TenantId, student.BranchId }, cancellationToken: cancellationToken));
-            if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("The student's branch is invalid."));
+            var branchCode = await onboardingQuery.GetCampusCodeAsync(
+                request.TenantId,
+                student.BranchId,
+                cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(branchCode))
+            {
+                return Result<Response>.Failure(Error.Validation("The student's branch is invalid."));
+            }
+
             var studentNumber = await numberGenerator.NextAsync(
-                $"STUDENT:{student.BranchId}", $"{branchCode}-", request.TenantId, 7, cancellationToken);
+                $"STUDENT:{student.BranchId}",
+                $"{branchCode}-",
+                request.TenantId,
+                7,
+                cancellationToken);
 
             var account = await accounts.CreateAccountAsync(
-                request.TenantId, student.StudentId, "Student", request.Email, student.FirstName, student.LastName ?? string.Empty,
-                student.SchoolId, student.BranchId, new[] { "Student" }, cancellationToken);
+                request.TenantId,
+                student.StudentId,
+                "Student",
+                request.Email,
+                student.FirstName,
+                student.LastName ?? string.Empty,
+                student.SchoolId,
+                student.BranchId,
+                new[] { "Student" },
+                cancellationToken);
 
             student.ApproveAdmission(account.UserId, studentNumber);
             await command.UpdateAsync(student, cancellationToken);
 
             var enrollmentNumber = await numberGenerator.NextAsync(
-                $"ENROLLMENT:{student.BranchId}", string.Empty, request.TenantId, 3, cancellationToken);
-            await connection.ExecuteAsync(new CommandDefinition(
-                """
-                INSERT INTO student.student_enrollment(student_enrollment_id,tenant_id,student_id,enrollment_number,academic_year_id,class_section_id,class_id,enrollment_date,status,is_active,created_at,row_version)
-                SELECT gen_random_uuid(),@TenantId,@StudentId,@EnrollmentNumber,@AcademicYearId,@ClassSectionId,cs.class_id,CURRENT_DATE,'ACTIVE',true,now(),0
-                FROM academic.class_section cs WHERE cs.class_section_id=@ClassSectionId AND cs.tenant_id=@TenantId;
-                UPDATE student.admission_placement SET status='APPROVED',approved_at=now()
-                WHERE tenant_id=@TenantId AND student_id=@StudentId AND academic_year_id=@AcademicYearId AND status='PENDING';
-                """, new { request.TenantId, request.StudentId, EnrollmentNumber=enrollmentNumber, placement.AcademicYearId, placement.ClassSectionId }, cancellationToken:cancellationToken));
+                $"ENROLLMENT:{student.BranchId}",
+                string.Empty,
+                request.TenantId,
+                3,
+                cancellationToken);
 
-            return Result<Response>.Success(new Response(student.StudentId, account.UserId, student.StudentNumber!, student.Status));
+            var enrollment = EnrollmentEntity.Create(
+                request.TenantId,
+                student.StudentId,
+                enrollmentNumber,
+                placement.AcademicYearId,
+                placement.ClassSectionId,
+                DateOnly.FromDateTime(DateTime.UtcNow),
+                "ACTIVE");
+
+            await onboardingCommand.AddEnrollmentAndApprovePlacementAsync(
+                enrollment,
+                request.TenantId,
+                student.StudentId,
+                placement.AcademicYearId,
+                cancellationToken);
+
+            return Result<Response>.Success(
+                new Response(student.StudentId, account.UserId, student.StudentNumber!, student.Status));
         }
     }
 
-    private sealed record PlacementRow(Guid AcademicYearId, Guid ClassSectionId);
 
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {

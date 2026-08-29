@@ -1,13 +1,12 @@
-using Dapper;
 using SmartSchool.SharedKernel.Constants;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Tenancy.Models;
 using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
+using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 
@@ -61,7 +60,7 @@ public static class CreateTenant
 		ITenantCommand tenantCommand,
 		IIdentityAccountService identityAccountService,
 		IBusinessNumberGenerator numberGenerator,
-		IDbConnectionFactory connectionFactory)
+        ITenantContactCommand tenantContactCommand)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -80,15 +79,14 @@ public static class CreateTenant
 
 			await tenantCommand.AddAsync(tenant, cancellationToken);
 
-			await using (var connection = await connectionFactory.OpenConnectionAsync(cancellationToken))
-			{
-				const string contactSql = """
-					INSERT INTO saas.tenant_contact
-					(tenant_contact_id, tenant_id, contact_type, contact_name, email, phone, address, is_primary, created_at)
-					VALUES (@Id, @TenantId, 'PRIMARY', @ContactName, @ContactEmail, @ContactPhone, @ContactAddress, TRUE, now())
-					""";
-				await connection.ExecuteAsync(contactSql, new { Id = Guid.NewGuid(), TenantId = tenantId, request.ContactName, request.ContactEmail, request.ContactPhone, request.ContactAddress });
-			}
+            var contact = TenantContactEntity.CreatePrimary(
+                tenantId,
+                request.ContactName,
+                request.ContactEmail,
+                request.ContactPhone,
+                request.ContactAddress);
+
+            await tenantContactCommand.AddAsync(contact, cancellationToken);
 
 			try
 			{

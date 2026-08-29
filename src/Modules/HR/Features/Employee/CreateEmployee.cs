@@ -1,5 +1,3 @@
-using Dapper;
-using SmartSchool.Application.Persistence;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -70,23 +68,27 @@ public static class CreateEmployee
 		}
 	}
 
-	public sealed class Handler(IEmployeeCommand entityCommand, IDbConnectionFactory connectionFactory)
+	public sealed class Handler(
+        IEmployeeCommand entityCommand,
+        IEmployeeOnboardingQuery onboardingQuery)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var validScope = await connection.ExecuteScalarAsync<bool>(new CommandDefinition(
-                "SELECT EXISTS(SELECT 1 FROM org.campus c WHERE c.tenant_id=@TenantId AND c.school_id=@SchoolId AND c.campus_id=@BranchId)",
-                new { TenantId = request.TenantId!.Value, request.SchoolId, request.BranchId }, cancellationToken: cancellationToken));
-            if (!validScope) return Result<Response>.Failure(Error.Validation("Selected branch does not belong to the selected school and tenant."));
-
-            if (request.DepartmentId.HasValue)
+            var tenantId = request.TenantId!.Value;
+            var validScope = await onboardingQuery.CampusBelongsToSchoolAsync(
+                tenantId, request.SchoolId, request.BranchId, cancellationToken);
+            if (!validScope)
             {
-                var validDepartment = await connection.ExecuteScalarAsync<bool>(new CommandDefinition(
-                    "SELECT EXISTS(SELECT 1 FROM org.department d WHERE d.tenant_id=@TenantId AND d.campus_id=@BranchId AND d.department_id=@DepartmentId AND d.is_active=TRUE)",
-                    new { TenantId = request.TenantId!.Value, request.BranchId, request.DepartmentId }, cancellationToken: cancellationToken));
-                if (!validDepartment) return Result<Response>.Failure(Error.Validation("Selected department does not belong to the selected branch."));
+                return Result<Response>.Failure(
+                    Error.Validation("Selected branch does not belong to the selected school and tenant."));
+            }
+
+            if (request.DepartmentId.HasValue &&
+                !await onboardingQuery.DepartmentBelongsToCampusAsync(tenantId, request.BranchId, request.DepartmentId.Value, cancellationToken))
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("Selected department does not belong to the selected branch."));
             }
 
 			var entity = EmployeeEntity.Create(

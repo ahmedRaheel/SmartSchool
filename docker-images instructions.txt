@@ -46,11 +46,6 @@ docker run -d `
   --restart unless-stopped `
   ollama/ollama
 
-docker exec -it ollama ollama pull nomic-embed-text
-docker exec -it ollama ollama pull llama3.2
-
-
-
 
 push docker compose 
 

@@ -6,12 +6,12 @@ using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
-namespace SmartSchool.Modules.Academics.Features.AcademicYear;
+namespace SmartSchool.Modules.Academics.Features.AcademicSystem;
 
-public static class GetAcademicYearPage
+public static class GetAcademicSystemPage
 {
 	/// <summary>
-	/// Represents the response returned by this AcademicYearEntity feature.
+	/// Represents the response returned by this AcademicSystemEntity feature.
 	/// </summary>
 	/// <param name="TenantId">The owning tenant identifier.</param>
 	/// <param name="Id">The entity identifier.</param>
@@ -26,11 +26,10 @@ public static class GetAcademicYearPage
 
 	public sealed record Query(
 		Guid TenantId,
-		Guid CampusId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-	public sealed class Handler(IAcademicYearQuery entityQuery)
+	public sealed class Handler(IAcademicSystemQuery entityQuery)
 		: IRequestHandler<Query, Result<PagedResult<Response>>>
 	{
 		public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -40,7 +39,6 @@ public static class GetAcademicYearPage
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
 			var page = await entityQuery.GetPageAsync(
 				request.TenantId,
-				request.CampusId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
@@ -56,26 +54,26 @@ public static class GetAcademicYearPage
 	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
 	{
 		endpoints.MapGet(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "academic-year"),
-				async (Guid tenantId, Guid campusId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "academic-system"),
+				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, campusId, page, pageSize);
+					var request = new Query(tenantId, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();
 				})
-			.WithName("GetAcademicYearPage")
+			.WithName("GetAcademicSystemPage")
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
 		return endpoints;
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.Academics.Models.AcademicYearEntity entity)
+		SmartSchool.Modules.Academics.Models.AcademicSystemEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
-			entity.AcademicYearId,
+			entity.AcademicSystemId,
 			entity.Code,
 			entity.Name,
 			entity.MetadataJson);

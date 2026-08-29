@@ -26,6 +26,8 @@ public static class Module
 		services.AddScoped<ICandidateCommand, CandidateCommand>();
 		services.AddScoped<IEmployeeQuery, EmployeeQuery>();
 		services.AddScoped<IEmployeeCommand, EmployeeCommand>();
+		services.AddScoped<IEmployeeOnboardingQuery, EmployeeOnboardingQuery>();
+		services.AddScoped<IEmployeeEvidenceCommand, EmployeeEvidenceCommand>();
 		services.AddScoped<IInterviewQuery, InterviewQuery>();
 		services.AddScoped<IInterviewCommand, InterviewCommand>();
 		services.AddScoped<IJobQuery, JobQuery>();
