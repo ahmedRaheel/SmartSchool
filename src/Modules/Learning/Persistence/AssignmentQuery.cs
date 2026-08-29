@@ -31,8 +31,12 @@ public sealed class AssignmentQuery(IDbConnectionFactory connectionFactory) : IA
 		return await connection.QuerySingleOrDefaultAsync<AssignmentEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<AssignmentEntity>> GetPageAsync(
@@ -79,7 +83,7 @@ public sealed class AssignmentQuery(IDbConnectionFactory connectionFactory) : IA
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken))).ConfigureAwait(false)
+				cancellationToken: cancellationToken)).ConfigureAwait(false))
 			.AsList();
 
 		return new PagedResult<AssignmentEntity>(
@@ -111,7 +115,12 @@ public sealed class AssignmentQuery(IDbConnectionFactory connectionFactory) : IA
 		return await connection.ExecuteScalarAsync<bool>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Code = code,
+					ExcludingId = excludingId
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 }

@@ -31,8 +31,12 @@ public sealed class LessonQuery(IDbConnectionFactory connectionFactory) : ILesso
 		return await connection.QuerySingleOrDefaultAsync<LessonEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<LessonEntity>> GetPageAsync(
