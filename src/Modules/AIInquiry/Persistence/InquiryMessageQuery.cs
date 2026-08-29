@@ -32,7 +32,7 @@ public sealed class InquiryMessageQuery(IDbConnectionFactory connectionFactory) 
 			new CommandDefinition(
 				sql,
 				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<InquiryMessageEntity>> GetPageAsync(

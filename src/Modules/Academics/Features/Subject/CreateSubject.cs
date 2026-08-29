@@ -6,6 +6,7 @@ using SmartSchool.Modules.Academics.Models;
 using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Academics.Features.Subject;
 

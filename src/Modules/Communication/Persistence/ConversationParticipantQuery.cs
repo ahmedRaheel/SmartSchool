@@ -31,8 +31,12 @@ public sealed class ConversationParticipantQuery(IDbConnectionFactory connection
 		return await connection.QuerySingleOrDefaultAsync<ConversationParticipantEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<ConversationParticipantEntity>> GetPageAsync(
@@ -79,7 +83,7 @@ public sealed class ConversationParticipantQuery(IDbConnectionFactory connection
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken))).ConfigureAwait(false)
+				cancellationToken: cancellationToken)).ConfigureAwait(false))
 			.AsList();
 
 		return new PagedResult<ConversationParticipantEntity>(

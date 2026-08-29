@@ -31,8 +31,12 @@ public sealed class MessageQuery(IDbConnectionFactory connectionFactory) : IMess
 		return await connection.QuerySingleOrDefaultAsync<MessageEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<MessageEntity>> GetPageAsync(

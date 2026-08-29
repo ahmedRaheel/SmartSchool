@@ -31,8 +31,12 @@ public sealed class GeneratedQuizQuery(IDbConnectionFactory connectionFactory) :
 		return await connection.QuerySingleOrDefaultAsync<GeneratedQuizEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<GeneratedQuizEntity>> GetPageAsync(
@@ -79,7 +83,7 @@ public sealed class GeneratedQuizQuery(IDbConnectionFactory connectionFactory) :
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken))).ConfigureAwait(false)
+				cancellationToken: cancellationToken)).ConfigureAwait(false))
 			.AsList();
 
 		return new PagedResult<GeneratedQuizEntity>(
@@ -111,7 +115,12 @@ public sealed class GeneratedQuizQuery(IDbConnectionFactory connectionFactory) :
 		return await connection.ExecuteScalarAsync<bool>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Code = code,
+					ExcludingId = excludingId
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 }

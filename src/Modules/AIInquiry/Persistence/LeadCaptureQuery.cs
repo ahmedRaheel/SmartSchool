@@ -32,7 +32,7 @@ public sealed class LeadCaptureQuery(IDbConnectionFactory connectionFactory) : I
 			new CommandDefinition(
 				sql,
 				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<LeadCaptureEntity>> GetPageAsync(
@@ -79,7 +79,7 @@ public sealed class LeadCaptureQuery(IDbConnectionFactory connectionFactory) : I
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken))).ConfigureAwait(false)
+				cancellationToken: cancellationToken)).ConfigureAwait(false))
 			.AsList();
 
 		return new PagedResult<LeadCaptureEntity>(
@@ -112,6 +112,6 @@ public sealed class LeadCaptureQuery(IDbConnectionFactory connectionFactory) : I
 			new CommandDefinition(
 				sql,
 				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 }
