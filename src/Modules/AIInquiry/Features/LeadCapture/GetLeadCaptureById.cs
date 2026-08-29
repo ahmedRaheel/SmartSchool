@@ -104,14 +104,4 @@ public static class GetLeadCaptureById
 			.RequireAuthorization();
 		return endpoints;
 	}
-
-	private static Response MapResponse(LeadCaptureEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.LeadCaptureId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
 }

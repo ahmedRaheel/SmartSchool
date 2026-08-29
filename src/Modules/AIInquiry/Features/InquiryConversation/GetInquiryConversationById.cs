@@ -104,14 +104,4 @@ public static class GetInquiryConversationById
 			.RequireAuthorization();
 		return endpoints;
 	}
-
-	private static Response MapResponse(InquiryConversationEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.InquiryConversationId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
 }

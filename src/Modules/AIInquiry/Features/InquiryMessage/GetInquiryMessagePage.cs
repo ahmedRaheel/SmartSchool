@@ -139,15 +139,5 @@ public static class GetInquiryMessagePage
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(InquiryMessageEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.InquiryMessageId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+	}	
 }

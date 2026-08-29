@@ -109,13 +109,5 @@ public static class GetParentConversationById
 		return endpoints;
 	}
 
-	private static Response MapResponse(ParentConversationEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.ParentConversationId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+	
 }

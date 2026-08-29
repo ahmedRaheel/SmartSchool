@@ -49,15 +49,15 @@ public static class GetLeadCapturePage
 				int page,
 				int pageSize,
 				CancellationToken cancellationToken)
-			{
-				const string countSql = """
+		{
+			const string countSql = """
 					SELECT COUNT(*)
 					FROM ai_core.lead_capture
 					WHERE tenant_id = @TenantId
 					  AND is_active = TRUE;
 					""";
-		
-				const string pageSql = """
+
+			const string pageSql = """
 					SELECT
 					tenant_id AS "TenantId",
 					lead_capture_id AS "Id",
@@ -70,36 +70,36 @@ public static class GetLeadCapturePage
 					ORDER BY lead_capture_id
 					LIMIT @PageSize OFFSET @Offset;
 					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken);
-		
-				var parameters = new
-				{
-					TenantId = tenantId,
-					PageSize = pageSize,
-					Offset = (page - 1) * pageSize
-				};
-		
-				var totalCount = await connection.ExecuteScalarAsync<long>(
-					new CommandDefinition(
-						countSql,
-						parameters,
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-		
-				var items = (await connection.QueryAsync<Response>(
-					new CommandDefinition(
-						pageSql,
-						parameters,
-						cancellationToken: cancellationToken)).ConfigureAwait(false))
-					.AsList();
-		
-				return new PagedResult<Response>(
-					items,
-					page,
-					pageSize,
-					totalCount);
-			}
+
+			await using var connection =
+				await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+			var parameters = new
+			{
+				TenantId = tenantId,
+				PageSize = pageSize,
+				Offset = (page - 1) * pageSize
+			};
+
+			var totalCount = await connection.ExecuteScalarAsync<long>(
+				new CommandDefinition(
+					countSql,
+					parameters,
+					cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+			var items = (await connection.QueryAsync<Response>(
+				new CommandDefinition(
+					pageSql,
+					parameters,
+					cancellationToken: cancellationToken)).ConfigureAwait(false))
+				.AsList();
+
+			return new PagedResult<Response>(
+				items,
+				page,
+				pageSize,
+				totalCount);
+		}
 	}
 
 	public sealed class Handler(IGetLeadCapturePage dataAccess)
@@ -139,15 +139,5 @@ public static class GetLeadCapturePage
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(LeadCaptureEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.LeadCaptureId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
 	}
 }

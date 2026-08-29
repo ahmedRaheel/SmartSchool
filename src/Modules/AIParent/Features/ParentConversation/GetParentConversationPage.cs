@@ -139,15 +139,5 @@ public static class GetParentConversationPage
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(ParentConversationEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.ParentConversationId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+	}	
 }
