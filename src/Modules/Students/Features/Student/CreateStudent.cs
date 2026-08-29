@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Application.Identity;
@@ -54,10 +56,56 @@ public static class CreateStudent
 		}
 	}
 
-	public sealed class Handler(
-        IStudentCommand entityCommand,
-        IStudentOnboardingQuery onboardingQuery,
-        IStudentOnboardingCommand onboardingCommand)
+	public interface ICreateStudent
+	{
+		Task AddAsync(
+				StudentEntity entity,
+				CancellationToken cancellationToken);
+
+		Task AddPlacementAsync(AdmissionPlacementEntity placement, CancellationToken cancellationToken);
+
+		Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateStudentDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : ICreateStudent
+	{
+		public async Task AddAsync(
+				StudentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<StudentEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task AddPlacementAsync(AdmissionPlacementEntity placement, CancellationToken cancellationToken)
+		    {
+		        await dbContext.Set<AdmissionPlacementEntity>().AddAsync(placement, cancellationToken);
+		        await dbContext.SaveChangesAsync(cancellationToken);
+		    }
+
+		public async Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken)
+		    {
+		        const string sql = """
+		            SELECT EXISTS (
+		                SELECT 1
+		                FROM org.campus
+		                WHERE tenant_id = @TenantId
+		                  AND school_id = @SchoolId
+		                  AND campus_id = @CampusId
+		            );
+		            """;
+		        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+		        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { TenantId = tenantId, SchoolId = schoolId, CampusId = campusId }, cancellationToken: cancellationToken));
+		    }
+	}
+
+	public sealed class Handler(ICreateStudent dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
         public async Task<Result<Response>> HandleAsync(
@@ -65,7 +113,7 @@ public static class CreateStudent
             CancellationToken cancellationToken)
         {
             var tenantId = request.TenantId!.Value;
-            var validScope = await onboardingQuery.CampusBelongsToSchoolAsync(
+            var validScope = await dataAccess.CampusBelongsToSchoolAsync(
                 tenantId,
                 request.SchoolId,
                 request.BranchId,
@@ -93,7 +141,7 @@ public static class CreateStudent
                 request.AdmissionDate,
                 LifecycleStatuses.PendingApproval);
 
-            await entityCommand.AddAsync(entity, cancellationToken);
+            await dataAccess.AddAsync(entity, cancellationToken);
 
             var placement = AdmissionPlacementEntity.Create(
                 tenantId,
@@ -101,7 +149,7 @@ public static class CreateStudent
                 request.AcademicYearId,
                 request.ClassSectionId);
 
-            await onboardingCommand.AddPlacementAsync(placement, cancellationToken);
+            await dataAccess.AddPlacementAsync(placement, cancellationToken);
 
             return Result<Response>.Success(MapResponse(entity));
         }

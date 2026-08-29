@@ -5,7 +5,6 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Library.Features.Book;
 using SmartSchool.Modules.Library.Features.BookCopy;
 using SmartSchool.Modules.Library.Features.Loan;
-using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Library.Features.Reservation;
@@ -17,14 +16,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IBookQuery, BookQuery>();
-		services.AddScoped<IBookCommand, BookCommand>();
-		services.AddScoped<IBookCopyQuery, BookCopyQuery>();
-		services.AddScoped<IBookCopyCommand, BookCopyCommand>();
-		services.AddScoped<ILoanQuery, LoanQuery>();
-		services.AddScoped<ILoanCommand, LoanCommand>();
-		services.AddScoped<IReservationCommand, ReservationCommand>();
-		services.AddScoped<IReservationQuery, ReservationQuery>();
+
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

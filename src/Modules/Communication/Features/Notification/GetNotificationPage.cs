@@ -1,9 +1,11 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Communication.Models;
-using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -37,7 +39,89 @@ public static class GetNotificationPage
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-	public sealed class Handler(INotificationQuery entityQuery)
+	public interface IGetNotificationPage
+	{
+		Task<PagedResult<Response>> GetPageAsync(
+				Guid? tenantId,
+				Guid recipientUserId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetNotificationPageDataAccess(		
+		IDbConnectionFactory connectionFactory) : IGetNotificationPage
+	{
+		public async Task<PagedResult<Response>> GetPageAsync(
+				Guid? tenantId,
+				Guid recipientUserId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken)
+			{
+				const string countSql = """
+					SELECT COUNT(*)
+					FROM communication.notification
+					WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
+					  AND recipient_user_id = @RecipientUserId;
+					""";
+		
+				const string pageSql = """
+					SELECT
+					tenant_id AS "TenantId",
+					id AS "Id",
+					recipient_user_id AS "RecipientUserId",
+					type AS "Type",
+					title AS "Title",
+					message AS "Message",
+					related_entity_id AS "RelatedEntityId",
+					related_entity_type AS "RelatedEntityType",
+					action_url AS "ActionUrl",
+					priority AS "Priority",
+					is_read AS "IsRead",
+					read_at AS "ReadAt",
+					occurred_at AS "OccurredAt"
+					FROM communication.notification
+					WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
+					  AND recipient_user_id = @RecipientUserId
+					ORDER BY occurred_at DESC
+					LIMIT @PageSize OFFSET @Offset;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken);
+		
+				var parameters = new
+				{
+					TenantId = tenantId,
+					RecipientUserId = recipientUserId,
+					PageSize = pageSize,
+					Offset = (page - 1) * pageSize
+				};
+		
+				var totalCount = await connection.ExecuteScalarAsync<long>(
+					new CommandDefinition(
+						countSql,
+						parameters,
+						cancellationToken: cancellationToken));
+		
+				var items = (await connection.QueryAsync<Response>(
+					new CommandDefinition(
+						pageSql,
+						parameters,
+						cancellationToken: cancellationToken)))
+					.AsList();
+		
+				return new PagedResult<Response>(
+					items,
+					page,
+					pageSize,
+					totalCount);
+			}
+	}
+
+	public sealed class Handler(IGetNotificationPage dataAccess)
 		: IRequestHandler<Query, Result<PagedResult<Response>>>
 	{
 		public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -45,14 +129,14 @@ public static class GetNotificationPage
 			CancellationToken cancellationToken)
 		{
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
-			var page = await entityQuery.GetPageAsync(
+			var page = await dataAccess.GetPageAsync(
 				request.TenantId,
 				request.RecipientUserId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
 			var response = new PagedResult<Response>(
-				page.Items.Select(MapResponse).ToArray(),
+				page.Items,
 				page.Page,
 				page.PageSize,
 				page.TotalCount);
@@ -77,24 +161,5 @@ public static class GetNotificationPage
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-	    NotificationEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.NotificationId,
-			entity.RecipientUserId,
-			entity.Type,
-			entity.Title,
-			entity.Message,
-			entity.RelatedEntityId,
-			entity.RelatedEntityType,
-			entity.ActionUrl,
-			entity.Priority,
-			entity.IsRead,
-			entity.ReadAt,
-			entity.OccurredAt);
 	}
 }

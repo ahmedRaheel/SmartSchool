@@ -11,7 +11,6 @@ using SmartSchool.Modules.Communication.Features.ConversationParticipant;
 using SmartSchool.Modules.Communication.Features.Message;
 using SmartSchool.Modules.Communication.Features.MessageReceipt;
 using SmartSchool.Modules.Communication.Features.Notification;
-using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Realtime;
 using SmartSchool.SharedKernel;
 
@@ -23,18 +22,9 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddSignalR();
-		services.AddScoped<IConversationQuery, ConversationQuery>();
-		services.AddScoped<IConversationCommand, ConversationCommand>();
-		services.AddScoped<IConversationParticipantQuery, ConversationParticipantQuery>();
-		services.AddScoped<IConversationParticipantCommand, ConversationParticipantCommand>();
-		services.AddScoped<IMessageQuery, MessageQuery>();
-		services.AddScoped<IMessageCommand, MessageCommand>();
-		services.AddScoped<IMessageReceiptQuery, MessageReceiptQuery>();
-		services.AddScoped<IMessageReceiptCommand, MessageReceiptCommand>();
-		services.AddScoped<INotificationQuery, NotificationQuery>();
-		services.AddScoped<INotificationCommand, NotificationCommand>();
 
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
+		services.AddSignalR();
 		return services;
 	}
 

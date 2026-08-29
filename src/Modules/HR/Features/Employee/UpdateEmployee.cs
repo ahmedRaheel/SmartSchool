@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
-using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -48,12 +50,35 @@ public static class UpdateEmployee
 		}
 	}
 
-	public sealed class Handler(IEmployeeQuery entityQuery, IEmployeeCommand entityCommand)
+	public interface IUpdateEmployee
+	{
+		Task UpdateAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateEmployeeDataAccess(
+		IApplicationDbContext dbContext) : IUpdateEmployee
+	{
+		public async Task UpdateAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<EmployeeEntity>()
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateEmployee dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+			var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
@@ -70,7 +95,7 @@ public static class UpdateEmployee
 				request.EmploymentTypeCode,
 				request.Status);
 
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

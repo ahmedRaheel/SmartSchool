@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.SharedKernel;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AICore.Persistence;
 
 using SmartSchool.Modules.AICore.Features.AiExecutionLog;
 using SmartSchool.Modules.AICore.Features.KnowledgeChunk;
@@ -28,6 +27,8 @@ public static class Module
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
+
 		services.Configure<AiAssistantOptions>(configuration.GetSection(AiAssistantOptions.SectionName));
 		services.AddScoped<IOllamaClient, OllamaClient>();
 		services.AddScoped<IAiAssistantService, AiAssistantService>();
@@ -38,22 +39,6 @@ public static class Module
             .AddMcpServer()
             .WithHttpTransport()
             .WithTools<SmartSchoolAgentTools>();
-
-		services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
-		services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
-		services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();
-		services.AddScoped<IKnowledgeChunkCommand, KnowledgeChunkCommand>();
-		services.AddScoped<IKnowledgeCollectionQuery, KnowledgeCollectionQuery>();
-		services.AddScoped<IKnowledgeCollectionCommand, KnowledgeCollectionCommand>();
-		services.AddScoped<IKnowledgeDocumentQuery, KnowledgeDocumentQuery>();
-		services.AddScoped<IKnowledgeDocumentCommand, KnowledgeDocumentCommand>();
-		services.AddScoped<IModelConfigurationQuery, ModelConfigurationQuery>();
-		services.AddScoped<IModelConfigurationCommand, ModelConfigurationCommand>();
-		services.AddScoped<IPromptTemplateQuery, PromptTemplateQuery>();
-		services.AddScoped<IPromptTemplateCommand, PromptTemplateCommand>();
-		services.AddScoped<IToolDefinitionQuery, ToolDefinitionQuery>();
-		services.AddScoped<IToolDefinitionCommand, ToolDefinitionCommand>();
-
 		return services;
 	}
 

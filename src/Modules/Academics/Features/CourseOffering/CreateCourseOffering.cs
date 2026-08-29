@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Dapper;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
@@ -5,7 +6,6 @@ using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Academics.Models;
-using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -42,10 +42,32 @@ public static class CreateCourseOffering
 		}
 	}
 
-	public sealed class Handler(		
-		ICourseOfferingCommand entityCommand,
-        IBusinessNumberGenerator numberGenerator,
-        IDbConnectionFactory connectionFactory)
+	public interface ICreateCourseOffering
+	{
+		Task AddAsync(
+				CourseOfferingEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateCourseOfferingDataAccess(
+		IApplicationDbContext dbContext) : ICreateCourseOffering
+	{
+		public async Task AddAsync(
+				CourseOfferingEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<CourseOfferingEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
+		IDbConnectionFactory connectionFactory,
+		ICreateCourseOffering dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -65,7 +87,7 @@ public static class CreateCourseOffering
 				code,
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

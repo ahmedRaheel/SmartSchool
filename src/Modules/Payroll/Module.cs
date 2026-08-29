@@ -4,12 +4,12 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Payroll.Features.EmployeeCompensation;
 using SmartSchool.Modules.Payroll.Features.PayrollRun;
-using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Payroll.Features.Increment;
 using SmartSchool.Modules.Payroll.Features.Payslip;
 using SmartSchool.Modules.Payroll.Features.SalaryStructure;
+
 namespace SmartSchool.Modules.Payroll;
 
 public static class Module
@@ -18,16 +18,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IEmployeeCompensationQuery, EmployeeCompensationQuery>();
-		services.AddScoped<IEmployeeCompensationCommand, EmployeeCompensationCommand>();
-		services.AddScoped<IPayrollRunQuery, PayrollRunQuery>();
-		services.AddScoped<IPayrollRunCommand, PayrollRunCommand>();
-		services.AddScoped<IPayslipCommand, PayslipCommand>();
-		services.AddScoped<IPayslipQuery, PayslipQuery>();
-		services.AddScoped<ISalaryStructureCommand, SalaryStructureCommand>();
-		services.AddScoped<ISalaryStructureQuery, SalaryStructureQuery>();
-		services.AddScoped<IIncrementCommand, IncrementCommand>();
-		services.AddScoped<IIncrementQuery, IncrementQuery>();	
+
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

@@ -7,8 +7,8 @@ using SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 using SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 using SmartSchool.Modules.AIInquiry.Features.InquiryMessage;
 using SmartSchool.Modules.AIInquiry.Features.LeadCapture;
-using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
+
 
 namespace SmartSchool.Modules.AIInquiry;
 
@@ -18,15 +18,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IHumanHandoffQuery, HumanHandoffQuery>();
-		services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();
-		services.AddScoped<IInquiryConversationQuery, InquiryConversationQuery>();
-		services.AddScoped<IInquiryConversationCommand, InquiryConversationCommand>();
-		services.AddScoped<IInquiryMessageQuery, InquiryMessageQuery>();
-		services.AddScoped<IInquiryMessageCommand, InquiryMessageCommand>();
-		services.AddScoped<ILeadCaptureQuery, LeadCaptureQuery>();
-		services.AddScoped<ILeadCaptureCommand, LeadCaptureCommand>();
 
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

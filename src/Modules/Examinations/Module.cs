@@ -5,7 +5,6 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Features.Exam;
 using SmartSchool.Modules.Examinations.Features.ExamSubject;
 using SmartSchool.Modules.Examinations.Features.StudentExamResult;
-using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Examinations.Features.GradeScale;
@@ -17,15 +16,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IExamQuery, ExamQuery>();
-		services.AddScoped<IExamCommand, ExamCommand>();
-		services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
-		services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
-		services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
-		services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
-		services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
-		services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
-		
+
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

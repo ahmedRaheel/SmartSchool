@@ -1,9 +1,11 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIPrediction.Models;
-using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -42,16 +44,58 @@ public static class UpdateStudentPerformancePrediction
 		}
 	}
 
-	public sealed class Handler(
-		IStudentPerformancePredictionQuery entityQuery,
-		IStudentPerformancePredictionCommand entityCommand)
+	public interface IUpdateStudentPerformancePrediction
+	{
+		Task UpdateAsync(
+				StudentPerformancePredictionEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<StudentPerformancePredictionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+
+		Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateStudentPerformancePredictionDataAccess(
+		IApplicationDbContext dbContext) : IUpdateStudentPerformancePrediction
+	{
+		public async Task UpdateAsync(
+				StudentPerformancePredictionEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<StudentPerformancePredictionEntity>()
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	
+		public Task<StudentPerformancePredictionEntity?> GetByIdAsync(
+			Guid tenantId, Guid id, CancellationToken cancellationToken)
+		{
+			return dbContext.Set<StudentPerformancePredictionEntity>()
+				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentPerformancePredictionId == id, cancellationToken);
+		}
+
+		public Task<bool> ExistsByCodeAsync(
+			Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+		{
+			return dbContext.Set<StudentPerformancePredictionEntity>().AnyAsync(
+				x => x.TenantId == tenantId
+					&& x.Code == code
+					&& (!excludingId.HasValue || x.StudentPerformancePredictionId != excludingId.Value),
+				cancellationToken);
+		}
+}
+
+	public sealed class Handler(IUpdateStudentPerformancePrediction dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,7 +103,7 @@ public static class UpdateStudentPerformancePrediction
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentPerformancePredictionEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
+			var exists = await dataAccess.ExistsByCodeAsync(
 				request.TenantId, request.Code, request.Id, cancellationToken);
 			if (exists)
 			{
@@ -71,7 +115,7 @@ public static class UpdateStudentPerformancePrediction
 			entity.UpdateDetails(
 				request.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

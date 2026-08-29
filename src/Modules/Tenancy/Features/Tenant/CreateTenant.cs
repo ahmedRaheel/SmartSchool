@@ -1,10 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.SharedKernel.Constants;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Tenancy.Models;
-using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.Application.Persistence;
 
@@ -56,11 +56,55 @@ public static class CreateTenant
 		}
 	}
 
-	public sealed class Handler(	
-		ITenantCommand tenantCommand,
-		IIdentityAccountService identityAccountService,
+	public interface ICreateTenant
+	{
+		Task DeleteAsync(
+				TenantEntity entity,
+				CancellationToken cancellationToken);
+
+		Task AddAsync(
+				TenantEntity entity,
+				CancellationToken cancellationToken);
+
+
+		Task AddAsync(TenantContactEntity entity, CancellationToken cancellationToken);
+	}
+
+	internal sealed class CreateTenantDataAccess(
+		IApplicationDbContext dbContext) : ICreateTenant
+	{
+		public async Task DeleteAsync(
+				TenantEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<TenantEntity>()
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task AddAsync(
+				TenantEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<TenantEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	
+		public async Task AddAsync(TenantContactEntity entity, CancellationToken cancellationToken)
+		{
+			await dbContext.Set<TenantContactEntity>().AddAsync(entity, cancellationToken);
+			await dbContext.SaveChangesAsync(cancellationToken);
+		}
+}
+
+	public sealed class Handler(IIdentityAccountService identityAccountService,
 		IBusinessNumberGenerator numberGenerator,
-        ITenantContactCommand tenantContactCommand)
+		ICreateTenant dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -77,7 +121,7 @@ public static class CreateTenant
 				code,
 				request.Name);
 
-			await tenantCommand.AddAsync(tenant, cancellationToken);
+			await dataAccess.AddAsync(tenant, cancellationToken);
 
             var contact = TenantContactEntity.CreatePrimary(
                 tenantId,
@@ -86,7 +130,7 @@ public static class CreateTenant
                 request.ContactPhone,
                 request.ContactAddress);
 
-            await tenantContactCommand.AddAsync(contact, cancellationToken);
+            await dataAccess.AddAsync(contact, cancellationToken);
 
 			try
 			{
@@ -117,7 +161,7 @@ public static class CreateTenant
 			catch
 			{
 				// Do not leave a tenant without its master account.
-				await tenantCommand.DeleteAsync(tenant, cancellationToken);
+				await dataAccess.DeleteAsync(tenant, cancellationToken);
 				throw;
 			}
 		}

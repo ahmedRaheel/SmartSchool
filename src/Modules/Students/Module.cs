@@ -7,7 +7,7 @@ using SmartSchool.Modules.Students.Features.Enrollment;
 using SmartSchool.Modules.Students.Features.Guardian;
 using SmartSchool.Modules.Students.Features.Student;
 using SmartSchool.Modules.Students.Features.StudentGuardian;
-using SmartSchool.Modules.Students.Persistence;
+
 
 namespace SmartSchool.Modules.Students;
 
@@ -23,19 +23,7 @@ public static class Module
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
-        services.AddScoped<IStudentQuery, StudentQuery>();
-        services.AddScoped<IStudentCommand, StudentCommand>();
-        services.AddScoped<IStudentOnboardingQuery, StudentOnboardingQuery>();
-        services.AddScoped<IStudentOnboardingCommand, StudentOnboardingCommand>();
-        services.AddScoped<IGuardianQuery, GuardianQuery>();
-        services.AddScoped<IGuardianCommand, GuardianCommand>();
-        services.AddScoped<IStudentGuardianQuery, StudentGuardianQuery>();
-        services.AddScoped<IStudentGuardianCommand, StudentGuardianCommand>();
-        services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();
-        services.AddScoped<IEnrollmentCommand, EnrollmentCommand>();
-        services.AddScoped<IAttendanceQuery, AttendanceQuery>();
-        services.AddScoped<IAttendanceCommand, AttendanceCommand>();
-
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
         return services;
     }
 

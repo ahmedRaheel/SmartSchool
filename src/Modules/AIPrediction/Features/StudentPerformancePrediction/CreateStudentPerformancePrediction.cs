@@ -1,9 +1,11 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIPrediction.Models;
-using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -40,16 +42,49 @@ public static class CreateStudentPerformancePrediction
 		}
 	}
 
-	public sealed class Handler(
-		IStudentPerformancePredictionQuery entityQuery,
-		IStudentPerformancePredictionCommand entityCommand)
+	public interface ICreateStudentPerformancePrediction
+	{
+		Task AddAsync(
+				StudentPerformancePredictionEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateStudentPerformancePredictionDataAccess(
+		IApplicationDbContext dbContext) : ICreateStudentPerformancePrediction
+	{
+		public async Task AddAsync(
+				StudentPerformancePredictionEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<StudentPerformancePredictionEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	
+		public Task<bool> ExistsByCodeAsync(
+			Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
+		{
+			return dbContext.Set<StudentPerformancePredictionEntity>().AnyAsync(
+				x => x.TenantId == tenantId
+					&& x.Code == code
+					&& (!excludingId.HasValue || x.StudentPerformancePredictionId != excludingId.Value),
+				cancellationToken);
+		}
+}
+
+	public sealed class Handler(ICreateStudentPerformancePrediction dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
+			var exists = await dataAccess.ExistsByCodeAsync(
 				request.TenantId, request.Code, null, cancellationToken);
 			if (exists)
 			{
@@ -63,7 +98,7 @@ public static class CreateStudentPerformancePrediction
 				request.Code,
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

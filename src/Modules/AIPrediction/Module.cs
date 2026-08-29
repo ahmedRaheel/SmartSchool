@@ -13,7 +13,6 @@ using SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
 using SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction;
 using SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 using SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
-using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIPrediction;
@@ -24,25 +23,10 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
 		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
-		services.AddScoped<IClassPerformanceInsightQuery, ClassPerformanceInsightQuery>();
-		services.AddScoped<IClassPerformanceInsightCommand, ClassPerformanceInsightCommand>();
-		services.AddScoped<IPredictionEvaluationQuery, PredictionEvaluationQuery>();
-		services.AddScoped<IPredictionEvaluationCommand, PredictionEvaluationCommand>();
-		services.AddScoped<IPredictionEvidenceQuery, PredictionEvidenceQuery>();
-		services.AddScoped<IPredictionEvidenceCommand, PredictionEvidenceCommand>();
-		services.AddScoped<IPredictionModelQuery, PredictionModelQuery>();
-		services.AddScoped<IPredictionModelCommand, PredictionModelCommand>();
-		services.AddScoped<IStudentInterventionQuery, StudentInterventionQuery>();
-		services.AddScoped<IStudentInterventionCommand, StudentInterventionCommand>();
-		services.AddScoped<IStudentPerformancePredictionQuery, StudentPerformancePredictionQuery>();
-		services.AddScoped<IStudentPerformancePredictionCommand, StudentPerformancePredictionCommand>();
-		services.AddScoped<ITeachingRecommendationQuery, TeachingRecommendationQuery>();
-		services.AddScoped<ITeachingRecommendationCommand, TeachingRecommendationCommand>();
-		services.AddScoped<ITopicPerformanceInsightQuery, TopicPerformanceInsightQuery>();
-		services.AddScoped<ITopicPerformanceInsightCommand, TopicPerformanceInsightCommand>();
-
 		return services;
 	}
 
