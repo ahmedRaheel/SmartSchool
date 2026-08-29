@@ -85,7 +85,7 @@ public static class CreateParentConversation
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.AIParent.Models.ParentConversationEntity entity)
+		ParentConversationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
