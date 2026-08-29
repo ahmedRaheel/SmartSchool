@@ -129,7 +129,7 @@ public static class GetDepartmentPage
 				? page.Items.Where(x => x.CampusId == request.BranchId.Value)
 				: page.Items;
 			var response = new PagedResult<Response>(
-				pageItems.Select(MapResponse).ToArray(),
+				pageItems.ToArray(),
 				page.Page,
 				page.PageSize,
 				page.TotalCount);

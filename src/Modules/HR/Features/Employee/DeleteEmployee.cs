@@ -22,6 +22,11 @@ public static class DeleteEmployee
 
 	public interface IDeleteEmployee
 	{
+		Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
 		Task DeleteAsync(
 				EmployeeEntity entity,
 				CancellationToken cancellationToken);
@@ -31,6 +36,18 @@ public static class DeleteEmployee
 	internal sealed class DeleteEmployeeDataAccess(
 		IApplicationDbContext dbContext) : IDeleteEmployee
 	{
+		public Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext
+				.Set<EmployeeEntity>()
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.EmployeeId == id,
+					cancellationToken);
+		}
+
 		public async Task DeleteAsync(
 				EmployeeEntity entity,
 				CancellationToken cancellationToken)

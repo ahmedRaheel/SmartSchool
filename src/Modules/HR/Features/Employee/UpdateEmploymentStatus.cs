@@ -18,6 +18,11 @@ public static class UpdateEmploymentStatus
 	}
 	public interface IUpdateEmploymentStatus
 	{
+		Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
 		Task UpdateAsync(
 				EmployeeEntity entity,
 				CancellationToken cancellationToken);
@@ -27,6 +32,18 @@ public static class UpdateEmploymentStatus
 	internal sealed class UpdateEmploymentStatusDataAccess(
 		IApplicationDbContext dbContext) : IUpdateEmploymentStatus
 	{
+		public Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext
+				.Set<EmployeeEntity>()
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.EmployeeId == id,
+					cancellationToken);
+		}
+
 		public async Task UpdateAsync(
 				EmployeeEntity entity,
 				CancellationToken cancellationToken)

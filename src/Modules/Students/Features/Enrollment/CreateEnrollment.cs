@@ -97,9 +97,9 @@ public static class CreateEnrollment
 			}
 
 			var student = await dataAccess.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
-            if (student is null || string.IsNullOrWhiteSpace(student.StudentNumber))
+            if (student is null)
                 return Result<Response>.Failure(Error.Validation("Student admission must be approved before enrollment."));
-            var enrollmentNumber = await numberGenerator.NextAsync($"ENROLLMENT:{request.StudentId}", $"{student.StudentNumber}-", request.TenantId, 3, cancellationToken);
+            var enrollmentNumber = await numberGenerator.NextAsync($"ENROLLMENT:{request.StudentId}", $"{student.StudentId}-", request.TenantId, 3, cancellationToken);
 
             var entity = EnrollmentEntity.Create(
 				request.TenantId,

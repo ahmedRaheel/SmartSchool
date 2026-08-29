@@ -6,7 +6,7 @@ using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Finance.Features.Invoice;
 
-namespace SmartSchool.Modules.Finance.Features.DataAccess.nvoice;
+namespace SmartSchool.Modules.Finance.Features.DataAccess.Invoice;
 
 /// <summary>
 /// Executes database reads for <see cref="InvoiceEntity"/>.

@@ -22,6 +22,11 @@ public static class DeleteNotification
 
 	public interface IDeleteNotification
 	{
+		Task<NotificationEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
 		Task DeleteAsync(
 				NotificationEntity entity,
 				CancellationToken cancellationToken);
@@ -31,6 +36,18 @@ public static class DeleteNotification
 	internal sealed class DeleteNotificationDataAccess(
 		IApplicationDbContext dbContext) : IDeleteNotification
 	{
+		public Task<NotificationEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext
+				.Set<NotificationEntity>()
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.NotificationId == id,
+					cancellationToken);
+		}
+
 		public async Task DeleteAsync(
 				NotificationEntity entity,
 				CancellationToken cancellationToken)

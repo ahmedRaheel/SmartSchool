@@ -5,7 +5,7 @@ using SmartSchool.Modules.Inventory.Models;
 
 using SmartSchool.Modules.Inventory.Features.Item;
 
-namespace SmartSchool.Modules.Inventory.Features.DataAccess.tem;
+namespace SmartSchool.Modules.Inventory.Features.DataAccess.Item;
 
 /// <summary>
 /// Executes database writes for <see cref="ItemEntity"/>.

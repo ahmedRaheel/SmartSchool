@@ -6,7 +6,7 @@ using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Admissions.Features.Inquiry;
 
-namespace SmartSchool.Modules.Admissions.Features.DataAccess.nquiry;
+namespace SmartSchool.Modules.Admissions.Features.DataAccess.Inquiry;
 
 /// <summary>
 /// Executes database reads for <see cref="InquiryEntity"/>.

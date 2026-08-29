@@ -6,7 +6,7 @@ using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 
-namespace SmartSchool.Modules.AIInquiry.Features.DataAccess.nquiryConversation;
+namespace SmartSchool.Modules.AIInquiry.Features.DataAccess.InquiryConversation;
 
 /// <summary>
 /// Executes database reads for <see cref="InquiryConversationEntity"/>.

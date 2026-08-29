@@ -5,7 +5,7 @@ using SmartSchool.Modules.AIInquiry.Models;
 
 using SmartSchool.Modules.AIInquiry.Features.InquiryMessage;
 
-namespace SmartSchool.Modules.AIInquiry.Features.DataAccess.nquiryMessage;
+namespace SmartSchool.Modules.AIInquiry.Features.DataAccess.InquiryMessage;
 
 /// <summary>
 /// Executes database writes for <see cref="InquiryMessageEntity"/>.

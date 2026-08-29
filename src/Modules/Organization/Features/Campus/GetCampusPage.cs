@@ -41,7 +41,6 @@ public static class GetCampusPage
 	}
 
 	internal sealed class GetCampusPageDataAccess(
-		IApplicationDbContext dbContext,
 		IDbConnectionFactory connectionFactory) : IGetCampusPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

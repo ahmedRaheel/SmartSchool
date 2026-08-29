@@ -6,7 +6,7 @@ using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.HR.Features.Interview;
 
-namespace SmartSchool.Modules.HR.Features.DataAccess.nterview;
+namespace SmartSchool.Modules.HR.Features.DataAccess.Interview;
 
 /// <summary>
 /// Executes database reads for <see cref="InterviewEntity"/>.

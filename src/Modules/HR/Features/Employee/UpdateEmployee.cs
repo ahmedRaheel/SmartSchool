@@ -52,6 +52,11 @@ public static class UpdateEmployee
 
 	public interface IUpdateEmployee
 	{
+		Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
 		Task UpdateAsync(
 				EmployeeEntity entity,
 				CancellationToken cancellationToken);
@@ -61,6 +66,18 @@ public static class UpdateEmployee
 	internal sealed class UpdateEmployeeDataAccess(
 		IApplicationDbContext dbContext) : IUpdateEmployee
 	{
+		public Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext
+				.Set<EmployeeEntity>()
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.EmployeeId == id,
+					cancellationToken);
+		}
+
 		public async Task UpdateAsync(
 				EmployeeEntity entity,
 				CancellationToken cancellationToken)
@@ -96,7 +113,22 @@ public static class UpdateEmployee
 				request.Status);
 
 			await dataAccess.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
+			return Result<Response>.Success(new Response(
+				entity.TenantId,
+				entity.EmployeeId,
+				entity.UserId,
+				entity.FirstName,
+				entity.LastName,
+				entity.CnicNumber,
+				entity.Photo,
+				entity.PhotoContentType,
+				entity.PhotoFileName,
+				entity.Email,
+				entity.Phone,
+				entity.HireDate,
+				entity.EmploymentTypeCode,
+				entity.Status,
+				entity.SourceCandidateId));
 		}
 	}
 
@@ -112,25 +144,5 @@ public static class UpdateEmployee
 				})
 			.WithName("UpdateEmployee").WithTags(ModuleConstants.Name).RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(EmployeeEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.EmployeeId,
-			entity.UserId,			
-			entity.FirstName,
-			entity.LastName,
-			entity.CnicNumber,
-			entity.Photo,
-			entity.PhotoContentType,
-			entity.PhotoFileName,
-			entity.Email,
-			entity.Phone,
-			entity.HireDate,
-			entity.EmploymentTypeCode,
-			entity.Status,
-			entity.SourceCandidateId);
 	}
 }

@@ -59,6 +59,11 @@ public static class UpdateNotification
 
 	public interface IUpdateNotification
 	{
+		Task<NotificationEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
 		Task UpdateAsync(
 				NotificationEntity entity,
 				CancellationToken cancellationToken);
@@ -68,6 +73,18 @@ public static class UpdateNotification
 	internal sealed class UpdateNotificationDataAccess(
 		IApplicationDbContext dbContext) : IUpdateNotification
 	{
+		public Task<NotificationEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext
+				.Set<NotificationEntity>()
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.NotificationId == id,
+					cancellationToken);
+		}
+
 		public async Task UpdateAsync(
 				NotificationEntity entity,
 				CancellationToken cancellationToken)
@@ -105,7 +122,20 @@ public static class UpdateNotification
 				request.ActionUrl,
 				request.Priority);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
+			return Result<Response>.Success(new Response(
+				entity.TenantId,
+				entity.NotificationId,
+				entity.RecipientUserId,
+				entity.Type,
+				entity.Title,
+				entity.Message,
+				entity.RelatedEntityId,
+				entity.RelatedEntityType,
+				entity.ActionUrl,
+				entity.Priority,
+				entity.IsRead,
+				entity.ReadAt,
+				entity.OccurredAt));
 		}
 	}
 
@@ -124,24 +154,5 @@ public static class UpdateNotification
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		NotificationEntity entity)
-	{
-		return new Response(
-		entity.TenantId,
-			entity.NotificationId,
-			entity.RecipientUserId,
-			entity.Type,
-			entity.Title,
-			entity.Message,
-			entity.RelatedEntityId,
-			entity.RelatedEntityType,
-			entity.ActionUrl,
-			entity.Priority,
-			entity.IsRead,
-			entity.ReadAt,
-			entity.OccurredAt);
 	}
 }

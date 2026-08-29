@@ -6,7 +6,7 @@ using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Payroll.Features.Increment;
 
-namespace SmartSchool.Modules.Payroll.Features.DataAccess.ncrement;
+namespace SmartSchool.Modules.Payroll.Features.DataAccess.Increment;
 
 /// <summary>
 /// Executes database reads for <see cref="IncrementEntity"/>.

@@ -17,6 +17,11 @@ public static class MarkNotificationAsRead
 
 	public interface IMarkNotificationAsRead
 	{
+		Task<NotificationEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
 		Task UpdateAsync(
 				NotificationEntity entity,
 				CancellationToken cancellationToken);
@@ -26,6 +31,18 @@ public static class MarkNotificationAsRead
 	internal sealed class MarkNotificationAsReadDataAccess(
 		IApplicationDbContext dbContext) : IMarkNotificationAsRead
 	{
+		public Task<NotificationEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext
+				.Set<NotificationEntity>()
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.NotificationId == id,
+					cancellationToken);
+		}
+
 		public async Task UpdateAsync(
 				NotificationEntity entity,
 				CancellationToken cancellationToken)

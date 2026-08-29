@@ -6,7 +6,7 @@ using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Inventory.Features.Item;
 
-namespace SmartSchool.Modules.Inventory.Features.DataAccess.tem;
+namespace SmartSchool.Modules.Inventory.Features.DataAccess.Item;
 
 /// <summary>
 /// Executes database reads for <see cref="ItemEntity"/>.
