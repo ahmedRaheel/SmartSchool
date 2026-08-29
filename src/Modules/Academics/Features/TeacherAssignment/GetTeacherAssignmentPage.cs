@@ -1,8 +1,9 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Academics.Models;
@@ -30,7 +31,78 @@ public static class GetTeacherAssignmentPage
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-	public sealed class Handler(ITeacherAssignmentQuery entityQuery)
+	public interface IGetTeacherAssignmentPage
+	{
+		Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetTeacherAssignmentPageDataAccess(
+		IDbConnectionFactory connectionFactory) : IGetTeacherAssignmentPage
+	{
+		public async Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken)
+			{
+				const string countSql = """
+					SELECT COUNT(*)
+					FROM academic.teacher_course_assignment
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE;
+					""";
+		
+				const string pageSql = """
+					SELECT
+					tenant_id AS "TenantId",
+					teacher_course_assignment_id AS "Id",
+					code AS "Code",
+					name AS "Name",
+					metadata_json AS "MetadataJson"
+					FROM academic.teacher_course_assignment
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE
+					ORDER BY teacher_course_assignment_id
+					LIMIT @PageSize OFFSET @Offset;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken);
+		
+				var parameters = new
+				{
+					TenantId = tenantId,
+					PageSize = pageSize,
+					Offset = (page - 1) * pageSize
+				};
+		
+				var totalCount = await connection.ExecuteScalarAsync<long>(
+					new CommandDefinition(
+						countSql,
+						parameters,
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+		
+				var items = (await connection.QueryAsync<Response>(
+					new CommandDefinition(
+						pageSql,
+						parameters,
+						cancellationToken: cancellationToken)).ConfigureAwait(false))
+					.AsList();
+		
+				return new PagedResult<Response>(
+					items,
+					page,
+					pageSize,
+					totalCount);
+			}
+	}
+
+	public sealed class Handler(IGetTeacherAssignmentPage dataAccess)
 		: IRequestHandler<Query, Result<PagedResult<Response>>>
 	{
 		public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -38,13 +110,13 @@ public static class GetTeacherAssignmentPage
 			CancellationToken cancellationToken)
 		{
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
-			var page = await entityQuery.GetPageAsync(
+			var page = await dataAccess.GetPageAsync(
 				request.TenantId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
 			var response = new PagedResult<Response>(
-				page.Items.Select(MapResponse).ToArray(),
+				page.Items,
 				page.Page,
 				page.PageSize,
 				page.TotalCount);

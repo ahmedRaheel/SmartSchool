@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Documents.Models;
-using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,77 @@ public static class DeleteSchoolLogo
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		ISchoolLogoQuery entityQuery,
-		ISchoolLogoCommand entityCommand)
+	public interface IDeleteSchoolLogo
+	{
+		Task DeleteAsync(
+				SchoolLogoEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<SchoolLogoEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteSchoolLogoDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IDeleteSchoolLogo
+	{
+		public async Task DeleteAsync(
+				SchoolLogoEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<SchoolLogoEntity>()
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<SchoolLogoEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT *
+					FROM document.schoollogo
+					WHERE tenant_id = @TenantId
+					  AND school_logo_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<SchoolLogoEntity>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Id = id
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IDeleteSchoolLogo dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogoEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

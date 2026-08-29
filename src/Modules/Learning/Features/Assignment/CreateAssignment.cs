@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Dapper;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
@@ -5,7 +6,6 @@ using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Learning.Models;
-using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -42,10 +42,32 @@ public static class CreateAssignment
 		}
 	}
 
-	public sealed class Handler(		
-		IAssignmentCommand entityCommand,
-        IBusinessNumberGenerator numberGenerator,
-        IDbConnectionFactory connectionFactory)
+	public interface ICreateAssignment
+	{
+		Task AddAsync(
+				AssignmentEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateAssignmentDataAccess(
+		IApplicationDbContext dbContext) : ICreateAssignment
+	{
+		public async Task AddAsync(
+				AssignmentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<AssignmentEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
+		IDbConnectionFactory connectionFactory,
+		ICreateAssignment dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -65,7 +87,7 @@ public static class CreateAssignment
 				code,
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Workflow.Features.Approval;
@@ -17,14 +16,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IApprovalCommand, ApprovalCommand>();
-		services.AddScoped<IApprovalQuery, ApprovalQuery>();
-		services.AddScoped<IWorkflowDefinitionCommand, WorkflowDefinitionCommand>();
-		services.AddScoped<IWorkflowDefinitionQuery, WorkflowDefinitionQuery>();
-		services.AddScoped<IWorkflowInstanceCommand, WorkflowInstanceCommand>();	
-		services.AddScoped<IWorkflowInstanceQuery, WorkflowInstanceQuery>();
-		services.AddScoped<IWorkflowStepCommand, WorkflowStepCommand>();
-		services.AddScoped<IWorkflowStepQuery, WorkflowStepQuery>();
+
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

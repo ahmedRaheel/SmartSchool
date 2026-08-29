@@ -1,9 +1,11 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Models;
-using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -40,16 +42,38 @@ public static class CreateStudentExamResult
 		}
 	}
 
-	public sealed class Handler(
-		IStudentExamResultQuery entityQuery,
-		IStudentExamResultCommand entityCommand)
+	public interface ICreateStudentExamResult
+	{
+		Task AddAsync(
+				StudentExamResultEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateStudentExamResultDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : ICreateStudentExamResult
+	{
+		public async Task AddAsync(
+				StudentExamResultEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<StudentExamResultEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(ICreateStudentExamResult dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
+			var exists = await dataAccess.ExistsByCodeAsync(
 				request.TenantId, request.Code, null, cancellationToken);
 			if (exists)
 			{
@@ -63,7 +87,7 @@ public static class CreateStudentExamResult
 				request.Code,
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

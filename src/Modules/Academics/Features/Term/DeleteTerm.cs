@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Academics.Models;
-using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,77 @@ public static class DeleteTerm
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		ITermQuery entityQuery,
-		ITermCommand entityCommand)
+	public interface IDeleteTerm
+	{
+		Task DeleteAsync(
+				TermEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<TermEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteTermDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IDeleteTerm
+	{
+		public async Task DeleteAsync(
+				TermEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<TermEntity>()
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<TermEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT *
+					FROM academic.term
+					WHERE tenant_id = @TenantId
+					  AND term_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<TermEntity>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Id = id
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IDeleteTerm dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(TermEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

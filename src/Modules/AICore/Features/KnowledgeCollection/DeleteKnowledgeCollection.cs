@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AICore.Models;
-using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,77 @@ public static class DeleteKnowledgeCollection
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IKnowledgeCollectionQuery entityQuery,
-		IKnowledgeCollectionCommand entityCommand)
+	public interface IDeleteKnowledgeCollection
+	{
+		Task DeleteAsync(
+				KnowledgeCollectionEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<KnowledgeCollectionEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteKnowledgeCollectionDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IDeleteKnowledgeCollection
+	{
+		public async Task DeleteAsync(
+				KnowledgeCollectionEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<KnowledgeCollectionEntity>()
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<KnowledgeCollectionEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT *
+					FROM ai_core.knowledge_collection
+					WHERE tenant_id = @TenantId
+					  AND knowledge_collection_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<KnowledgeCollectionEntity>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Id = id
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IDeleteKnowledgeCollection dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeCollectionEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

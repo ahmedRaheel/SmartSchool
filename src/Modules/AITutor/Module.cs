@@ -10,7 +10,6 @@ using SmartSchool.Modules.AITutor.Features.StudentTopicMastery;
 using SmartSchool.Modules.AITutor.Features.TutorConversation;
 using SmartSchool.Modules.AITutor.Features.TutorMessage;
 using SmartSchool.Modules.AITutor.Features.TutorSession;
-using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AITutor;
@@ -21,21 +20,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IGeneratedQuizQuery, GeneratedQuizQuery>();
-		services.AddScoped<IGeneratedQuizCommand, GeneratedQuizCommand>();
-		services.AddScoped<ILearningRecommendationQuery, LearningRecommendationQuery>();
-		services.AddScoped<ILearningRecommendationCommand, LearningRecommendationCommand>();
-		services.AddScoped<IQuizAttemptQuery, QuizAttemptQuery>();
-		services.AddScoped<IQuizAttemptCommand, QuizAttemptCommand>();
-		services.AddScoped<IStudentTopicMasteryQuery, StudentTopicMasteryQuery>();
-		services.AddScoped<IStudentTopicMasteryCommand, StudentTopicMasteryCommand>();
-		services.AddScoped<ITutorConversationQuery, TutorConversationQuery>();
-		services.AddScoped<ITutorConversationCommand, TutorConversationCommand>();
-		services.AddScoped<ITutorMessageQuery, TutorMessageQuery>();
-		services.AddScoped<ITutorMessageCommand, TutorMessageCommand>();
-		services.AddScoped<ITutorSessionQuery, TutorSessionQuery>();
-		services.AddScoped<ITutorSessionCommand, TutorSessionCommand>();
 
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

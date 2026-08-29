@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Library.Models;
-using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,77 @@ public static class DeleteBookCopy
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IBookCopyQuery entityQuery,
-		IBookCopyCommand entityCommand)
+	public interface IDeleteBookCopy
+	{
+		Task DeleteAsync(
+				BookCopyEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<BookCopyEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteBookCopyDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IDeleteBookCopy
+	{
+		public async Task DeleteAsync(
+				BookCopyEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<BookCopyEntity>()
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<BookCopyEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT *
+					FROM library.book_copy
+					WHERE tenant_id = @TenantId
+					  AND book_copy_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<BookCopyEntity>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Id = id
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IDeleteBookCopy dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(BookCopyEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

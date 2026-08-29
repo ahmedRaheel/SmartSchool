@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -36,12 +38,36 @@ public static class UpdateGuardian
 		}
 	}
 
-	public sealed class Handler(IGuardianQuery entityQuery, IGuardianCommand entityCommand)
+	public interface IUpdateGuardian
+	{
+		Task UpdateAsync(
+				GuardianEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateGuardianDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IUpdateGuardian
+	{
+		public async Task UpdateAsync(
+				GuardianEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<GuardianEntity>()
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateGuardian dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+			var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
@@ -54,7 +80,7 @@ public static class UpdateGuardian
 				request.Email,
 				request.Phone);
 
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

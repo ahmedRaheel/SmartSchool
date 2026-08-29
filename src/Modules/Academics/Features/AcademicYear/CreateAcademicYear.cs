@@ -1,9 +1,11 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Academics.Models;
-using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -47,16 +49,105 @@ public static class CreateAcademicYear
 		}
 	}
 
-	public sealed class Handler(
-		IAcademicYearQuery entityQuery,
-		IAcademicYearCommand entityCommand)
+	public interface ICreateAcademicYear
+	{
+		Task AddAsync(
+				AcademicYearEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<bool> CampusExistsAsync(
+				Guid tenantId,
+				Guid campusId,
+				CancellationToken cancellationToken);
+
+		Task<bool> ExistsByCodeAsync(
+				Guid tenantId,
+				string code,
+				Guid? excludingId,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateAcademicYearDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : ICreateAcademicYear
+	{
+		public async Task AddAsync(
+				AcademicYearEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<AcademicYearEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<bool> CampusExistsAsync(
+				Guid tenantId,
+				Guid campusId,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT EXISTS (
+						SELECT 1
+						FROM org.campus
+						WHERE tenant_id = @TenantId
+						  AND campus_id = @CampusId
+						  AND is_active = TRUE
+					);
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken);
+		
+				return await connection.ExecuteScalarAsync<bool>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, CampusId = campusId },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+
+		public async Task<bool> ExistsByCodeAsync(
+				Guid tenantId,
+				string code,
+				Guid? excludingId,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT EXISTS (
+						SELECT 1
+						FROM academic.academic_year
+						WHERE tenant_id = @TenantId
+						  AND code = @Code
+						  AND (@ExcludingId IS NULL OR start_date <> @ExcludingId)
+					);
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.ExecuteScalarAsync<bool>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Code = code,
+							ExcludingId = excludingId
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(ICreateAcademicYear dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var campusExists = await entityQuery.CampusExistsAsync(
+			var campusExists = await dataAccess.CampusExistsAsync(
 				request.TenantId, request.CampusId, cancellationToken);
 			if (!campusExists)
 			{
@@ -64,7 +155,7 @@ public static class CreateAcademicYear
 					Error.NotFound("The selected campus does not exist or is outside the tenant scope."));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
+			var exists = await dataAccess.ExistsByCodeAsync(
 				request.TenantId, request.Code, null, cancellationToken);
 			if (exists)
 			{
@@ -82,7 +173,7 @@ public static class CreateAcademicYear
 				request.EndDate,
 				request.IsCurrent);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

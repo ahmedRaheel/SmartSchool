@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Models;
-using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -27,16 +29,95 @@ public static class GetEmployeePage
 	public sealed record Query(Guid TenantId, int Page = 1, int PageSize = 25)
 		: IRequest<Result<PagedResult<Response>>>;
 
-	public sealed class Handler(IEmployeeQuery entityQuery)
+	public interface IGetEmployeePage
+	{
+		Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetEmployeePageDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IGetEmployeePage
+	{
+		public async Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken)
+			{
+				const string countSql = """
+					SELECT COUNT(*)
+					FROM hr.employee
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE;
+					""";
+		
+				const string pageSql = """
+					SELECT
+					tenant_id AS "TenantId",
+					employee_id AS "Id",
+					employee_number AS "EmployeeNumber",
+					first_name AS "FirstName",
+					last_name AS "LastName",
+					cnic_number AS "CnicNumber",
+					email AS "Email",
+					phone AS "Phone",
+					hire_date AS "HireDate",
+					employment_type_code AS "EmploymentTypeCode",
+					staff_type AS "StaffType",
+					status AS "Status"
+					FROM hr.employee
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE
+					ORDER BY employee_id
+					LIMIT @PageSize OFFSET @Offset;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken);
+		
+				var parameters = new
+				{
+					TenantId = tenantId,
+					PageSize = pageSize,
+					Offset = (page - 1) * pageSize
+				};
+		
+				var totalCount = await connection.ExecuteScalarAsync<long>(
+					new CommandDefinition(
+						countSql,
+						parameters,
+						cancellationToken: cancellationToken));
+		
+				var items = (await connection.QueryAsync<Response>(
+					new CommandDefinition(
+						pageSql,
+						parameters,
+						cancellationToken: cancellationToken)))
+					.AsList();
+		
+				return new PagedResult<Response>(
+					items,
+					page,
+					pageSize,
+					totalCount);
+			}
+	}
+
+	public sealed class Handler(IGetEmployeePage dataAccess)
 		: IRequestHandler<Query, Result<PagedResult<Response>>>
 	{
 		public async Task<Result<PagedResult<Response>>> HandleAsync(Query request, CancellationToken cancellationToken)
 		{
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
-			var page = await entityQuery.GetPageAsync(
+			var page = await dataAccess.GetPageAsync(
 				request.TenantId, pageRequest.NormalizedPage, pageRequest.NormalizedPageSize, cancellationToken);
 			var response = new PagedResult<Response>(
-				page.Items.Select(MapResponse).ToArray(), page.Page, page.PageSize, page.TotalCount);
+				page.Items, page.Page, page.PageSize, page.TotalCount);
 			return Result<PagedResult<Response>>.Success(response);
 		}
 	}

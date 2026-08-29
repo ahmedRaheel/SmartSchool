@@ -4,10 +4,11 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Tenancy.Features.CampusBranding;
 using SmartSchool.Modules.Tenancy.Features.Tenant;
-using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Tenancy.Features.Subscription;
+using SmartSchool.Modules.Tenancy.Features.DataAccess.TenantContact;
+
 namespace SmartSchool.Modules.Tenancy;
 
 public static class Module
@@ -16,13 +17,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<ICampusBrandingQuery, CampusBrandingQuery>();
-		services.AddScoped<ICampusBrandingCommand, CampusBrandingCommand>();
-		services.AddScoped<ITenantQuery, TenantQuery>();
-		services.AddScoped<ITenantCommand, TenantCommand>();
-		services.AddScoped<ITenantContactCommand, TenantContactCommand>();
-		services.AddScoped<ISubscriptionCommand, SubscriptionCommand>();
-		services.AddScoped<ISubscriptionQuery, SubscriptionQuery>();
+
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

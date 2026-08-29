@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
-using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Application.Identity;
@@ -68,15 +70,55 @@ public static class CreateEmployee
 		}
 	}
 
-	public sealed class Handler(
-        IEmployeeCommand entityCommand,
-        IEmployeeOnboardingQuery onboardingQuery)
+	public interface ICreateEmployee
+	{
+		Task AddAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<bool> DepartmentBelongsToCampusAsync(Guid tenantId, Guid campusId, Guid departmentId, CancellationToken cancellationToken);
+
+		Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateEmployeeDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : ICreateEmployee
+	{
+		public async Task AddAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<EmployeeEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<bool> DepartmentBelongsToCampusAsync(Guid tenantId, Guid campusId, Guid departmentId, CancellationToken cancellationToken)
+		    {
+		        const string sql = "SELECT EXISTS(SELECT 1 FROM org.department WHERE tenant_id=@TenantId AND campus_id=@CampusId AND department_id=@DepartmentId AND is_active=true);";
+		        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+		        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { TenantId=tenantId, CampusId=campusId, DepartmentId=departmentId }, cancellationToken:cancellationToken));
+		    }
+
+		public async Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken)
+		    {
+		        const string sql = "SELECT EXISTS(SELECT 1 FROM org.campus WHERE tenant_id=@TenantId AND school_id=@SchoolId AND campus_id=@CampusId);";
+		        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+		        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { TenantId=tenantId, SchoolId=schoolId, CampusId=campusId }, cancellationToken:cancellationToken));
+		    }
+	}
+
+	public sealed class Handler(ICreateEmployee dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
             var tenantId = request.TenantId!.Value;
-            var validScope = await onboardingQuery.CampusBelongsToSchoolAsync(
+            var validScope = await dataAccess.CampusBelongsToSchoolAsync(
                 tenantId, request.SchoolId, request.BranchId, cancellationToken);
             if (!validScope)
             {
@@ -85,7 +127,7 @@ public static class CreateEmployee
             }
 
             if (request.DepartmentId.HasValue &&
-                !await onboardingQuery.DepartmentBelongsToCampusAsync(tenantId, request.BranchId, request.DepartmentId.Value, cancellationToken))
+                !await dataAccess.DepartmentBelongsToCampusAsync(tenantId, request.BranchId, request.DepartmentId.Value, cancellationToken))
             {
                 return Result<Response>.Failure(
                     Error.Validation("Selected department does not belong to the selected branch."));
@@ -116,7 +158,7 @@ public static class CreateEmployee
 				LifecycleStatuses.Submitted,
 				request.SourceCandidateId);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

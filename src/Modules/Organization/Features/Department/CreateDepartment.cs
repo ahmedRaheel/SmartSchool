@@ -1,9 +1,11 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
-using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -50,10 +52,69 @@ public static class CreateDepartment
 		}
 	}
 
-	public sealed class Handler(
-		IDepartmentQuery entityQuery,
-		IDepartmentCommand entityCommand,
-		SmartSchool.Application.Persistence.IBusinessNumberGenerator businessNumberGenerator)
+	public interface ICreateDepartment
+	{
+		Task AddAsync(
+				DepartmentEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<bool> ExistsByCodeAsync(
+				Guid tenantId,
+				string code,
+				Guid? excludingId,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateDepartmentDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : ICreateDepartment
+	{
+		public async Task AddAsync(
+				DepartmentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<DepartmentEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<bool> ExistsByCodeAsync(
+				Guid tenantId,
+				string code,
+				Guid? excludingId,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT EXISTS (
+						SELECT 1
+						FROM org.department
+						WHERE tenant_id = @TenantId
+						  AND code = @Code
+						  AND (@ExcludingId IS NULL OR department_id <> @ExcludingId)
+					);
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.ExecuteScalarAsync<bool>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Code = code,
+							ExcludingId = excludingId
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(SmartSchool.Application.Persistence.IBusinessNumberGenerator businessNumberGenerator,
+		ICreateDepartment dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -65,7 +126,7 @@ public static class CreateDepartment
 					$"DEPARTMENT:{request.CampusId}", "DEP-", request.TenantId, 4, cancellationToken)
 				: request.Code.Trim();
 
-			var exists = await entityQuery.ExistsByCodeAsync(
+			var exists = await dataAccess.ExistsByCodeAsync(
 				request.TenantId, code, null, cancellationToken);
 			if (exists)
 			{
@@ -83,7 +144,7 @@ public static class CreateDepartment
 				request.Telephone,
 				request.Email);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

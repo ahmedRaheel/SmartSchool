@@ -1,8 +1,9 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Workflow.Models;
-using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,21 +29,66 @@ public static class GetWorkflowDefinitionById
 		Guid TenantId,
 		Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(IWorkflowDefinitionQuery entityQuery)
+	public interface IGetWorkflowDefinitionById
+	{
+		Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetWorkflowDefinitionByIdDataAccess(
+		IDbConnectionFactory connectionFactory) : IGetWorkflowDefinitionById
+	{
+		public async Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT
+						tenant_id AS "TenantId",
+						workflow_definition_id AS "Id",
+						code AS "Code",
+						name AS "Name",
+						metadata_json AS "MetadataJson"
+					FROM workflow.workflowdefinition
+					WHERE tenant_id = @TenantId
+					  AND workflow_definition_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Id = id
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IGetWorkflowDefinitionById dataAccess)
 		: IRequestHandler<Query, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Query request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowDefinitionEntity))));
 			}
-			return Result<Response>.Success(MapResponse(entity));
+			return Result<Response>.Success(entity);
 		}
 	}
 

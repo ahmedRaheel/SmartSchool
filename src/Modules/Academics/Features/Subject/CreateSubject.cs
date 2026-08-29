@@ -1,9 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Academics.Models;
-using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Application.Persistence;
@@ -41,17 +42,67 @@ public static class CreateSubject
 		}
 	}
 
-	public sealed class Handler(		
-		ISubjectCommand entityCommand,
-        IBusinessNumberGenerator numberGenerator,
-        ISubjectQuery subjectQuery)
+	public interface ICreateSubject
+	{
+		Task AddAsync(
+				SubjectEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<string?> GetBranchCodeAsync(
+				Guid tenantId,
+				Guid branchId,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateSubjectDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : ICreateSubject
+	{
+		public async Task AddAsync(
+				SubjectEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<SubjectEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<string?> GetBranchCodeAsync(
+				Guid tenantId,
+				Guid branchId,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT code
+					FROM org.campus
+					WHERE tenant_id = @TenantId
+					  AND campus_id = @BranchId
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken);
+		
+				return await connection.ExecuteScalarAsync<string?>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, BranchId = branchId },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
+		ICreateSubject dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-            var branchCode = await subjectQuery.GetBranchCodeAsync(
+            var branchCode = await dataAccess.GetBranchCodeAsync(
                 request.TenantId,
                 request.BranchId,
                 cancellationToken);
@@ -69,7 +120,7 @@ public static class CreateSubject
 				code,
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

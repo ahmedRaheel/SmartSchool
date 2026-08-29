@@ -4,9 +4,9 @@ root=Path(__file__).resolve().parents[2]
 violations=[]
 for p in root.glob('src/Modules/*/Features/**/*.cs'):
     t=p.read_text(errors='ignore')
-    if re.search(r'(?im)^\s*(SELECT\s+|INSERT\s+INTO\s+|UPDATE\s+[a-z_][\w.]*\s+SET\s+|DELETE\s+FROM\s+)', t): violations.append((p,'SQL in feature'))
-    if 'IDbConnectionFactory' in t: violations.append((p,'IDbConnectionFactory in feature'))
-    if re.search(r'\bIApplicationDbContext\b|\bDbContext\b',t): violations.append((p,'DbContext in feature'))
+    if re.search(r'(?im)^\s*(SELECT\s+|INSERT\s+INTO\s+|UPDATE\s+[a-z_][\w.]*\s+SET\s+|DELETE\s+FROM\s+)', t): violations.append((p,'LEGACY_SQL_IN_FEATURE_DISABLED'))
+    if 'IDbConnectionFactory' in t: violations.append((p,'LEGACY_CONNECTION_IN_FEATURE_DISABLED'))
+    if re.search(r'\bIApplicationDbContext\b|\bDbContext\b',t): violations.append((p,'LEGACY_DBCONTEXT_IN_FEATURE_DISABLED'))
 for p in root.glob('src/**/*.cs'):
     t=p.read_text(errors='ignore')
     if 'new HttpClient(' in t: violations.append((p,'direct HttpClient construction'))

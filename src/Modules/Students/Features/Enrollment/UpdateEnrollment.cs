@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -16,14 +18,38 @@ public static class UpdateEnrollment
 	{
 		public Validator(){ RuleFor(x=>x.TenantId).NotEmpty(); RuleFor(x=>x.Id).NotEmpty(); RuleFor(x=>x.ClassSectionId).NotEmpty(); RuleFor(x=>x.Status).NotEmpty().MaximumLength(30); }
 	}
-	public sealed class Handler(IEnrollmentQuery query, IEnrollmentCommand command) : IRequestHandler<Request, Result<Response>>
+	public interface IUpdateEnrollment
+	{
+		Task UpdateAsync(
+				EnrollmentEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateEnrollmentDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IUpdateEnrollment
+	{
+		public async Task UpdateAsync(
+				EnrollmentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<EnrollmentEntity>()
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateEnrollment dataAccess) : IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var entity=await query.GetByIdAsync(request.TenantId,request.Id,cancellationToken);
+			var entity=await dataAccess.GetByIdAsync(request.TenantId,request.Id,cancellationToken);
 			if(entity is null) return Result<Response>.Failure(Error.NotFound("Enrollment was not found."));
 			entity.ChangePlacement(request.ClassSectionId,request.Status);
-			await command.UpdateAsync(entity,cancellationToken);
+			await dataAccess.UpdateAsync(entity,cancellationToken);
 			return Result<Response>.Success(new(entity.TenantId,entity.StudentEnrollmentId,entity.StudentId,entity.AcademicYearId,entity.ClassSectionId,entity.EnrollmentDate,entity.Status));
 		}
 	}

@@ -1,9 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -42,17 +43,42 @@ public static class CreateEnrollment
 		}
 	}
 
-	public sealed class Handler(IEnrollmentQuery query, IEnrollmentCommand command, IStudentQuery studentQuery, IBusinessNumberGenerator numberGenerator)
+	public interface ICreateEnrollment
+	{
+		Task AddAsync(
+				EnrollmentEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateEnrollmentDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : ICreateEnrollment
+	{
+		public async Task AddAsync(
+				EnrollmentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<EnrollmentEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
+		ICreateEnrollment dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			if (await query.ExistsForAcademicYearAsync(request.TenantId, request.StudentId, request.AcademicYearId, cancellationToken))
+			if (await dataAccess.ExistsForAcademicYearAsync(request.TenantId, request.StudentId, request.AcademicYearId, cancellationToken))
 			{
 				return Result<Response>.Failure(Error.Conflict("The student is already enrolled for this academic year."));
 			}
 
-			var student = await studentQuery.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
+			var student = await dataAccess.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
             if (student is null || string.IsNullOrWhiteSpace(student.StudentNumber))
                 return Result<Response>.Failure(Error.Validation("Student admission must be approved before enrollment."));
             var enrollmentNumber = await numberGenerator.NextAsync($"ENROLLMENT:{request.StudentId}", $"{student.StudentNumber}-", request.TenantId, 3, cancellationToken);
@@ -66,7 +92,7 @@ public static class CreateEnrollment
 				request.EnrollmentDate,
 				request.Status);
 
-			await command.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(Map(entity));
 		}
 	}

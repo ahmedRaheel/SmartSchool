@@ -1,9 +1,11 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AITutor.Models;
-using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -41,16 +43,75 @@ public static class CreateLearningRecommendation
 		}
 	}
 
-	public sealed class Handler(
-		ILearningRecommendationQuery entityQuery,
-		ILearningRecommendationCommand entityCommand)
+	public interface ICreateLearningRecommendation
+	{
+		Task AddAsync(
+				LearningRecommendationEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<bool> ExistsByCodeAsync(
+				Guid tenantId,
+				string code,
+				Guid? excludingId,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateLearningRecommendationDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : ICreateLearningRecommendation
+	{
+		public async Task AddAsync(
+				LearningRecommendationEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext
+					.Set<LearningRecommendationEntity>()
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<bool> ExistsByCodeAsync(
+				Guid tenantId,
+				string code,
+				Guid? excludingId,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT EXISTS (
+						SELECT 1
+						FROM ai_tutor.learning_recommendation
+						WHERE tenant_id = @TenantId
+						  AND code = @Code
+						  AND (@ExcludingId IS NULL OR learning_recommendation_id <> @ExcludingId)
+					);
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.ExecuteScalarAsync<bool>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Code = code,
+							ExcludingId = excludingId
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(ICreateLearningRecommendation dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
+			var exists = await dataAccess.ExistsByCodeAsync(
 				request.TenantId, request.Code, null, cancellationToken);
 			if (exists)
 			{
@@ -65,7 +126,7 @@ public static class CreateLearningRecommendation
 				request.Name,
 				request.MetadataJson);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

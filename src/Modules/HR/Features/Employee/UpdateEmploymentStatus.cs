@@ -1,3 +1,6 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using FluentValidation; using SmartSchool.Application.Http; using SmartSchool.Application.Identity; using SmartSchool.Application.Messaging; using SmartSchool.Modules.HR.Persistence; using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 namespace SmartSchool.Modules.HR.Features.Employee;
@@ -12,17 +15,41 @@ public static class UpdateEmploymentStatus
 			RuleFor(x => x.Status).Must(x => x is LifecycleStatuses.Submitted or LifecycleStatuses.Rejected or LifecycleStatuses.WaitingList);
 		}
 	}
-	public sealed class Handler(IEmployeeQuery q, IEmployeeCommand c) : IRequestHandler<Request, Result<Response>>
+	public interface IUpdateEmploymentStatus
+	{
+		Task UpdateAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateEmploymentStatusDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IUpdateEmploymentStatus
+	{
+		public async Task UpdateAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<EmployeeEntity>()
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateEmploymentStatus dataAccess) : IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request r, CancellationToken cancellationToken)
 		{
-			var e = await q.GetByIdAsync(r.TenantId!.Value, r.EmployeeId, cancellationToken);
+			var e = await dataAccess.GetByIdAsync(r.TenantId!.Value, r.EmployeeId, cancellationToken);
 			if (e is null)
 				return Result<Response>.Failure(Error.NotFound("Employee was not found."));
 			if (e.UserId.HasValue)
 				return Result<Response>.Failure(Error.Conflict("An active account already exists; use termination instead."));
 			e.SetRecruitmentStatus(r.Status);
-			await c.UpdateAsync(e, cancellationToken);
+			await dataAccess.UpdateAsync(e, cancellationToken);
 			return Result<Response>.Success(new(e.EmployeeId, e.Status));
 		}
 	}

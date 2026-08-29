@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
@@ -7,7 +8,11 @@ namespace SmartSchool.Modules.Teachers;
 
 public static class Module
 {
-    public static IServiceCollection AddTeachersModule(this IServiceCollection services) => services;
+    public static IServiceCollection AddTeachersModule(this IServiceCollection services)
+    {
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
+        return services;
+    }
 
     public static IEndpointRouteBuilder MapTeachersEndpoints(this IEndpointRouteBuilder endpoints)
     {

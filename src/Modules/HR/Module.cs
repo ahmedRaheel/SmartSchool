@@ -9,11 +9,14 @@ using SmartSchool.Modules.HR.Features.Job;
 using SmartSchool.Modules.HR.Features.JobGrade;
 using SmartSchool.Modules.HR.Features.LeaveRequest;
 using SmartSchool.Modules.HR.Features.Position;
-using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.HR.Features.EmploymentHistory;
 using SmartSchool.Modules.HR.Features.Resume;
+using SmartSchool.Modules.HR.Features.DataAccess.EmployeeEvidence;
+using SmartSchool.Modules.HR.Features.DataAccess.EmployeeOnboarding;
+using SmartSchool.Modules.HR.Features.DataAccess.nterview;
+
 namespace SmartSchool.Modules.HR;
 
 public static class Module
@@ -22,26 +25,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<ICandidateQuery, CandidateQuery>();
-		services.AddScoped<ICandidateCommand, CandidateCommand>();
-		services.AddScoped<IEmployeeQuery, EmployeeQuery>();
-		services.AddScoped<IEmployeeCommand, EmployeeCommand>();
-		services.AddScoped<IEmployeeOnboardingQuery, EmployeeOnboardingQuery>();
-		services.AddScoped<IEmployeeEvidenceCommand, EmployeeEvidenceCommand>();
-		services.AddScoped<IInterviewQuery, InterviewQuery>();
-		services.AddScoped<IInterviewCommand, InterviewCommand>();
-		services.AddScoped<IJobQuery, JobQuery>();
-		services.AddScoped<IJobCommand, JobCommand>();
-		services.AddScoped<IJobGradeQuery, JobGradeQuery>();
-		services.AddScoped<IJobGradeCommand, JobGradeCommand>();
-		services.AddScoped<ILeaveRequestQuery, LeaveRequestQuery>();
-		services.AddScoped<ILeaveRequestCommand, LeaveRequestCommand>();
-		services.AddScoped<IPositionQuery, PositionQuery>();
-		services.AddScoped<IPositionCommand, PositionCommand>();
-		services.AddScoped<IResumeCommand,  ResumeCommand>();
-		services.AddScoped<IResumeQuery, ResumeQuery>();	
-		services.AddScoped<IEmploymentHistoryCommand, EmploymentHistoryCommand>();
-		services.AddScoped<IEmploymentHistoryQuery, EmploymentHistoryQuery>();
+
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

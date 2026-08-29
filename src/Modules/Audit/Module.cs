@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Audit.Features.AuditLog;
-using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Audit;
@@ -14,9 +13,8 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IAuditLogQuery, AuditLogQuery>();
-		services.AddScoped<IAuditLogCommand, AuditLogCommand>();
 
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

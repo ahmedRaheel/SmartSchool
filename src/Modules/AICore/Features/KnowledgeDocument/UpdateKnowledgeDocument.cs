@@ -1,9 +1,11 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AICore.Models;
-using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -42,16 +44,107 @@ public static class UpdateKnowledgeDocument
 		}
 	}
 
-	public sealed class Handler(
-		IKnowledgeDocumentQuery entityQuery,
-		IKnowledgeDocumentCommand entityCommand)
+	public interface IUpdateKnowledgeDocument
+	{
+		Task UpdateAsync(
+				KnowledgeDocumentEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<bool> ExistsByCodeAsync(
+				Guid tenantId,
+				string code,
+				Guid? excludingId,
+				CancellationToken cancellationToken);
+
+		Task<KnowledgeDocumentEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateKnowledgeDocumentDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IUpdateKnowledgeDocument
+	{
+		public async Task UpdateAsync(
+				KnowledgeDocumentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<KnowledgeDocumentEntity>()
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<bool> ExistsByCodeAsync(
+				Guid tenantId,
+				string code,
+				Guid? excludingId,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT EXISTS (
+						SELECT 1
+						FROM ai_core.knowledge_document
+						WHERE tenant_id = @TenantId
+						  AND code = @Code
+						  AND (@ExcludingId IS NULL OR knowledge_document_id <> @ExcludingId)
+					);
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.ExecuteScalarAsync<bool>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Code = code,
+							ExcludingId = excludingId
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+
+		public async Task<KnowledgeDocumentEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT *
+					FROM ai_core.knowledge_document
+					WHERE tenant_id = @TenantId
+					  AND knowledge_document_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<KnowledgeDocumentEntity>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Id = id
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IUpdateKnowledgeDocument dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,7 +152,7 @@ public static class UpdateKnowledgeDocument
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeDocumentEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
+			var exists = await dataAccess.ExistsByCodeAsync(
 				request.TenantId, request.Code, request.Id, cancellationToken);
 			if (exists)
 			{
@@ -71,7 +164,7 @@ public static class UpdateKnowledgeDocument
 			entity.UpdateDetails(
 				request.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

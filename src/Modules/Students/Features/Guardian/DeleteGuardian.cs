@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,45 @@ public static class DeleteGuardian
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IGuardianQuery entityQuery,
-		IGuardianCommand entityCommand)
+	public interface IDeleteGuardian
+	{
+		Task DeleteAsync(
+				GuardianEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteGuardianDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IDeleteGuardian
+	{
+		public async Task DeleteAsync(
+				GuardianEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<GuardianEntity>()
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteGuardian dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(GuardianEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

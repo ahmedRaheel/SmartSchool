@@ -24,6 +24,8 @@ public static class Module
 		this IServiceCollection services,
 		IConfiguration configuration)
 	{
+		services.AddFeatureDataAccess(typeof(Module).Assembly);
+
 		var provider = configuration["Persistence:Provider"] ?? IdentityDatabaseProvider.PostgreSql;
 		var connectionStringName = configuration["Persistence:ConnectionStringName"] ?? "SmartSchool";
 		var connectionString = configuration.GetConnectionString(connectionStringName)

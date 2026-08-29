@@ -5,7 +5,9 @@ using SmartSchool.Modules.Admissions.Features.AdmissionDecision;
 using SmartSchool.Modules.Admissions.Features.Applicant;
 using SmartSchool.Modules.Admissions.Features.Application;
 using SmartSchool.Modules.Admissions.Features.Inquiry;
-using SmartSchool.Modules.Admissions.Persistence;
+
+using SmartSchool.Modules.Admissions.Features.DataAccess.AdmissionWorkflow;
+using SmartSchool.Modules.Admissions.Features.DataAccess.nquiry;
 
 namespace SmartSchool.Modules.Admissions;
 
@@ -16,17 +18,7 @@ public static class Module
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
-        services.AddScoped<IAdmissionDecisionCommand, AdmissionDecisionCommand>();
-        services.AddScoped<IAdmissionDecisionQuery, AdmissionDecisionQuery>();
-        services.AddScoped<IApplicantCommand, ApplicantCommand>();
-        services.AddScoped<IApplicantQuery, ApplicantQuery>();
-        services.AddScoped<IApplicationCommand, ApplicationCommand>();
-        services.AddScoped<IApplicationQuery, ApplicationQuery>();
-        services.AddScoped<IInquiryCommand, InquiryCommand>();
-        services.AddScoped<IInquiryQuery, InquiryQuery>();
-        services.AddScoped<IAdmissionWorkflowQuery, AdmissionWorkflowQuery>();
-        services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();
-
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
         return services;
     }
 

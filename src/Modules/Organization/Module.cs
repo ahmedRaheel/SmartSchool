@@ -2,11 +2,12 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Modules.Organization.Features.Campus;
 using SmartSchool.Modules.Organization.Features.Department;
 using SmartSchool.Modules.Organization.Features.School;
-using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application;
 
 
+
+using SmartSchool.Modules.Organization.Features.DataAccess.BranchPolicy;
 
 public static class Module
 {
@@ -15,15 +16,7 @@ public static class Module
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
-		services.AddScoped<ISchoolQuery, SchoolQuery>();
-		services.AddScoped<ISchoolCommand, SchoolCommand>();
-		services.AddScoped<ICampusQuery, CampusQuery>();
-		services.AddScoped<ICampusCommand, CampusCommand>();
-		services.AddScoped<IBranchPolicyQuery, BranchPolicyQuery>();
-		services.AddScoped<IBranchPolicyCommand, BranchPolicyCommand>();
-		services.AddScoped<IDepartmentQuery, DepartmentQuery>();
-		services.AddScoped<IDepartmentCommand, DepartmentCommand>();
-
+        services.AddFeatureDataAccess(typeof(Module).Assembly);
 		return services;
 	}
 

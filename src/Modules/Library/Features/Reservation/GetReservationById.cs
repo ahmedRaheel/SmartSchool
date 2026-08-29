@@ -1,8 +1,9 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Library.Models;
-using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,21 +29,66 @@ public static class GetReservationById
 		Guid TenantId,
 		Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(IReservationQuery entityQuery)
+	public interface IGetReservationById
+	{
+		Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetReservationByIdDataAccess(
+		IDbConnectionFactory connectionFactory) : IGetReservationById
+	{
+		public async Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT
+						tenant_id AS "TenantId",
+						reservation_id AS "Id",
+						code AS "Code",
+						name AS "Name",
+						metadata_json AS "MetadataJson"
+					FROM library.reservation
+					WHERE tenant_id = @TenantId
+					  AND reservation_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new
+						{
+							TenantId = tenantId,
+							Id = id
+						},
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IGetReservationById dataAccess)
 		: IRequestHandler<Query, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Query request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(ReservationEntity))));
 			}
-			return Result<Response>.Success(MapResponse(entity));
+			return Result<Response>.Success(entity);
 		}
 	}
 

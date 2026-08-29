@@ -1,8 +1,10 @@
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
-using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,45 @@ public static class DeleteCampus
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		ICampusQuery entityQuery,
-		ICampusCommand entityCommand)
+	public interface IDeleteCampus
+	{
+		Task DeleteAsync(
+				CampusEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteCampusDataAccess(
+		IApplicationDbContext dbContext,
+		IDbConnectionFactory connectionFactory) : IDeleteCampus
+	{
+		public async Task DeleteAsync(
+				CampusEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext
+					.Set<CampusEntity>()
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteCampus dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}
