@@ -32,6 +32,8 @@ public static class CreateStudent
 		Guid? TenantId,
 		Guid SchoolId,
 		Guid BranchId,
+		Guid AcademicYearId,
+		Guid ClassSectionId,
 		Guid? UserId,
 		string FirstName,
 		string? LastName,
@@ -48,6 +50,8 @@ public static class CreateStudent
 		{
 			RuleFor(x => x.SchoolId).NotEmpty();
 			RuleFor(x => x.BranchId).NotEmpty();
+			RuleFor(x => x.AcademicYearId).NotEmpty();
+			RuleFor(x => x.ClassSectionId).NotEmpty();
 			RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
 		}
 	}
@@ -80,6 +84,15 @@ public static class CreateStudent
 				"PENDING_APPROVAL");
 
 			await entityCommand.AddAsync(entity, cancellationToken);
+
+            await connection.ExecuteAsync(new CommandDefinition(
+                """
+                INSERT INTO student.admission_placement(admission_placement_id,tenant_id,student_id,academic_year_id,class_section_id,status)
+                VALUES(gen_random_uuid(),@TenantId,@StudentId,@AcademicYearId,@ClassSectionId,'PENDING')
+                """,
+                new { TenantId=request.TenantId.Value, StudentId=entity.StudentId, request.AcademicYearId, request.ClassSectionId },
+                cancellationToken:cancellationToken));
+
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

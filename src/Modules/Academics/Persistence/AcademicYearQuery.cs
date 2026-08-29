@@ -30,6 +30,7 @@ public sealed class AcademicYearQuery(
 
 	public async Task<PagedResult<AcademicYearEntity>> GetPageAsync(
 		Guid tenantId,
+		Guid campusId,
 		int page,
 		int pageSize,
 		CancellationToken cancellationToken)
@@ -38,17 +39,30 @@ public sealed class AcademicYearQuery(
 			SELECT COUNT(*)
 			FROM academic.academic_year
 			WHERE tenant_id = @TenantId
+			  AND campus_id = @CampusId
 			  AND is_active = TRUE;
 			""";
 
 		const string pageSql = """
 			SELECT
+				academic_year_id AS "AcademicYearId",
 				tenant_id AS "TenantId",
-				academic_year_id AS "Id"
+				campus_id AS "CampusId",
+				start_date AS "StartDate",
+				end_date AS "EndDate",
+				is_current AS "IsCurrent",
+				code AS "Code",
+				name AS "Name",
+				metadata_json::text AS "MetadataJson",
+				is_active AS "IsActive",
+				created_at AS "CreatedAt",
+				updated_at AS "UpdatedAt",
+				row_version AS "RowVersion"
 			FROM academic.academic_year
 			WHERE tenant_id = @TenantId
+			  AND campus_id = @CampusId
 			  AND is_active = TRUE
-			ORDER BY academic_year_id
+			ORDER BY start_date DESC, academic_year_id
 			LIMIT @PageSize OFFSET @Offset;
 			""";
 
@@ -58,6 +72,7 @@ public sealed class AcademicYearQuery(
 		var parameters = new
 		{
 			TenantId = tenantId,
+			CampusId = campusId,
 			PageSize = pageSize,
 			Offset = (page - 1) * pageSize
 		};
@@ -80,6 +95,31 @@ public sealed class AcademicYearQuery(
 			page,
 			pageSize,
 			totalCount);
+	}
+
+	public async Task<bool> CampusExistsAsync(
+		Guid tenantId,
+		Guid campusId,
+		CancellationToken cancellationToken)
+	{
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM org.campus
+				WHERE tenant_id = @TenantId
+				  AND campus_id = @CampusId
+				  AND is_active = TRUE
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, CampusId = campusId },
+				cancellationToken: cancellationToken));
 	}
 
 	public Task<bool> ExistsByCodeAsync(

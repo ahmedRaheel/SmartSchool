@@ -27,14 +27,21 @@ public static class CreateAcademicYear
 
 	public sealed record Request(
 		Guid TenantId,
+		Guid CampusId,
 		string Code,
-		string Name) : IRequest<Result<Response>>;
+		string Name,
+		DateOnly StartDate,
+		DateOnly EndDate,
+		bool IsCurrent) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
+			RuleFor(x => x.CampusId).NotEmpty();
+			RuleFor(x => x.StartDate).NotEmpty();
+			RuleFor(x => x.EndDate).NotEmpty().GreaterThan(x => x.StartDate);
 			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
@@ -49,6 +56,14 @@ public static class CreateAcademicYear
 			Request request,
 			CancellationToken cancellationToken)
 		{
+			var campusExists = await entityQuery.CampusExistsAsync(
+				request.TenantId, request.CampusId, cancellationToken);
+			if (!campusExists)
+			{
+				return Result<Response>.Failure(
+					Error.NotFound("The selected campus does not exist or is outside the tenant scope."));
+			}
+
 			var exists = await entityQuery.ExistsByCodeAsync(
 				request.TenantId, request.Code, null, cancellationToken);
 			if (exists)
@@ -60,8 +75,12 @@ public static class CreateAcademicYear
 
 			var entity = AcademicYearEntity.Create(
 				request.TenantId,
+				request.CampusId,
 				request.Code,
-				request.Name);
+				request.Name,
+				request.StartDate,
+				request.EndDate,
+				request.IsCurrent);
 
 			await entityCommand.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

@@ -7,10 +7,12 @@ using SmartSchool.Modules.Academics.Features.AcademicSystem;
 using SmartSchool.Modules.Academics.Features.AcademicYear;
 using SmartSchool.Modules.Academics.Features.ClassSection;
 using SmartSchool.Modules.Academics.Features.CourseOffering;
+using SmartSchool.Modules.Academics.Features.DepartmentSubjectTeacher;
 using SmartSchool.Modules.Academics.Features.CourseSelection;
 using SmartSchool.Modules.Academics.Features.GradeLevel;
 using SmartSchool.Modules.Academics.Features.Program;
 using SmartSchool.Modules.Academics.Features.Subject;
+using SmartSchool.Modules.Academics.Features.StudentTeacher;
 using SmartSchool.Modules.Academics.Features.TeacherAssignment;
 using SmartSchool.Modules.Academics.Features.Term;
 using SmartSchool.Modules.Academics.Features.Timetable;
@@ -26,8 +28,6 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IAcademicSetupQuery, AcademicSetupQuery>();
-		services.AddScoped<IAcademicSetupCommand, AcademicSetupCommand>();
 		services.AddScoped<IAcademicSystemQuery, AcademicSystemQuery>();
 		services.AddScoped<IAcademicSystemCommand, AcademicSystemCommand>();
 		services.AddScoped<IAcademicYearQuery, AcademicYearQuery>();
@@ -119,8 +119,11 @@ public static class Module
 		GetTimetableEntryPage.MapEndpoint(endpoints);
 		UpdateTimetableEntry.MapEndpoint(endpoints);
 		DeleteTimetableEntry.MapEndpoint(endpoints);
+		CreateDepartmentSubjectTeacher.MapEndpoint(endpoints);
+		GetDepartmentSubjectTeachers.MapEndpoint(endpoints);
+		CreateStudentTeacher.MapEndpoint(endpoints);
+		GetStudentTeachers.MapEndpoint(endpoints);
 
-		AcademicSetup.MapEndpoints(endpoints);
 		return endpoints;
 	}
 }

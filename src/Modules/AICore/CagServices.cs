@@ -30,7 +30,7 @@ public sealed class AiContextService(
     IConfiguration configuration) : IAiContextService
 {
     private sealed record ContextRow(Guid Id, string DocumentName, string Collection, string Content, double Score);
-    private sealed record OllamaEmbeddingResponse(float[] Embedding);
+    private sealed record OllamaEmbeddingResponse(float[][] Embeddings);
 
     public async Task<AiKnowledgeContext> GetAsync(AiKnowledgeRequest request, CancellationToken cancellationToken)
     {
@@ -134,16 +134,16 @@ public sealed class AiContextService(
 
     private async Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken)
     {
-        var client = httpClientFactory.CreateClient();
+        var client = httpClientFactory.CreateClient("Ollama");
         client.BaseAddress = new Uri((configuration["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/') + "/");
         var response = await client.PostAsJsonAsync(
-            "api/embeddings",
-            new { model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text", prompt = text },
+            "api/embed",
+            new { model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text", input = text },
             cancellationToken);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<OllamaEmbeddingResponse>(cancellationToken: cancellationToken);
-        return result?.Embedding is { Length: > 0 } vector
-            ? vector
+        return result?.Embeddings is { Length: > 0 } && result.Embeddings[0].Length > 0
+            ? result.Embeddings[0]
             : throw new InvalidOperationException("Ollama returned no embedding.");
     }
 

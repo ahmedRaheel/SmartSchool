@@ -1,3 +1,4 @@
+using Dapper;
 using SmartSchool.SharedKernel.Constants;
 using FluentValidation;
 using SmartSchool.Application.Http;
@@ -21,7 +22,11 @@ public static class CreateTenant
 		string AdminFirstName,
 		string AdminLastName,
 		string AdminEmail,
-		string? AdminPhoneNumber) : IRequest<Result<Response>>;
+		string? AdminPhoneNumber,
+		string ContactName,
+		string ContactEmail,
+		string ContactPhone,
+		string ContactAddress) : IRequest<Result<Response>>;
 
 	public sealed record AdminAccountResponse(
 		Guid UserId,
@@ -45,13 +50,18 @@ public static class CreateTenant
 			RuleFor(x => x.AdminLastName).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.AdminEmail).NotEmpty().EmailAddress().MaximumLength(256);
 			RuleFor(x => x.AdminPhoneNumber).MaximumLength(50);
+			RuleFor(x => x.ContactName).NotEmpty().MaximumLength(150);
+			RuleFor(x => x.ContactEmail).NotEmpty().EmailAddress().MaximumLength(200);
+			RuleFor(x => x.ContactPhone).NotEmpty().MaximumLength(50);
+			RuleFor(x => x.ContactAddress).NotEmpty().MaximumLength(1000);
 		}
 	}
 
 	public sealed class Handler(	
 		ITenantCommand tenantCommand,
 		IIdentityAccountService identityAccountService,
-		IBusinessNumberGenerator numberGenerator)
+		IBusinessNumberGenerator numberGenerator,
+		IDbConnectionFactory connectionFactory)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -69,6 +79,16 @@ public static class CreateTenant
 				request.Name);
 
 			await tenantCommand.AddAsync(tenant, cancellationToken);
+
+			await using (var connection = await connectionFactory.OpenConnectionAsync(cancellationToken))
+			{
+				const string contactSql = """
+					INSERT INTO saas.tenant_contact
+					(tenant_contact_id, tenant_id, contact_type, contact_name, email, phone, address, is_primary, created_at)
+					VALUES (@Id, @TenantId, 'PRIMARY', @ContactName, @ContactEmail, @ContactPhone, @ContactAddress, TRUE, now())
+					""";
+				await connection.ExecuteAsync(contactSql, new { Id = Guid.NewGuid(), TenantId = tenantId, request.ContactName, request.ContactEmail, request.ContactPhone, request.ContactAddress });
+			}
 
 			try
 			{

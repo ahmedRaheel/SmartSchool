@@ -59,9 +59,11 @@ public sealed class ClassSectionEntityConfiguration
 		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
 		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
 		builder.Property(entity => entity.ProgramGradeId).HasColumnName("program_grade_id");
+		builder.Property(entity => entity.GradeLevelId).HasColumnName("grade_level_id");
 		builder.Property(entity => entity.SectionId).HasColumnName("section_id");
 		builder.Property(entity => entity.ClassTeacherEmployeeId).HasColumnName("class_teacher_employee_id");
 		builder.Property(entity => entity.RoomId).HasColumnName("room_id");
+		builder.Property(entity => entity.RoomNo).HasColumnName("room_no").HasMaxLength(50);
 		builder.Property(entity => entity.Capacity).HasColumnName("capacity");
 		builder.Property(entity => entity.Status).HasColumnName("status");
 	}

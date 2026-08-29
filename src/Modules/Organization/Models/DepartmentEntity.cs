@@ -26,6 +26,12 @@ public sealed class DepartmentEntity : Entity
 	/// <summary>Gets the display name.</summary>
 	public string Name { get; private set; } = string.Empty;
 
+	/// <summary>Gets the department telephone number.</summary>
+	public string? Telephone { get; private set; }
+
+	/// <summary>Gets the department email address.</summary>
+	public string? Email { get; private set; }
+
 	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
 	public string? MetadataJson { get; private set; }
 
@@ -41,6 +47,8 @@ public sealed class DepartmentEntity : Entity
 		Guid? headOfDepartmentEmployeeId,
 		string code,
 		string name,
+		string? telephone,
+		string? email,
 		string? metadataJson = null)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
@@ -53,6 +61,8 @@ public sealed class DepartmentEntity : Entity
 			HeadOfDepartmentEmployeeId = headOfDepartmentEmployeeId,
 			Code = code.Trim(),
 			Name = name.Trim(),
+			Telephone = string.IsNullOrWhiteSpace(telephone) ? null : telephone.Trim(),
+			Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
 			MetadataJson = metadataJson
 		};
 	}
@@ -64,6 +74,8 @@ public sealed class DepartmentEntity : Entity
 	public void UpdateDetails(
 		string code,
 		string name,
+		string? telephone,
+		string? email,
 		string? metadataJson = null)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
@@ -71,6 +83,8 @@ public sealed class DepartmentEntity : Entity
 
 		Code = code.Trim();
 		Name = name.Trim();
+		Telephone = string.IsNullOrWhiteSpace(telephone) ? null : telephone.Trim();
+		Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
 		MetadataJson = metadataJson;
 		MarkAsUpdated();
 	}

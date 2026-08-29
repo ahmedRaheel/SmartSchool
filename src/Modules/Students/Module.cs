@@ -61,6 +61,7 @@ public static class Module
         StrikeOffStudent.MapEndpoint(endpoints);
 
         CreateStudentGuardian.MapEndpoint(endpoints);
+        LinkStudentGuardian.MapEndpoint(endpoints);
         GetStudentGuardianById.MapEndpoint(endpoints);
         GetStudentGuardianPage.MapEndpoint(endpoints);
         UpdateStudentGuardian.MapEndpoint(endpoints);

@@ -173,6 +173,17 @@ builder.Services.AddCors(
 
 builder.Services.AddScoped<SampleActorSeeder>();
 
+builder.Services.AddHttpClient("Ollama", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["AI:Ollama:BaseUrl"]
+        ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.");
+    var timeoutSeconds = configuration.GetValue("AI:Ollama:TimeoutSeconds", 180);
+
+    client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+    client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+});
+
 builder.Services
 	.AddHttpClient(
 		ApplicationConstants.MachineLearningHttpClient,
