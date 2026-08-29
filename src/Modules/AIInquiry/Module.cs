@@ -47,8 +47,7 @@ public static class Module
 		UpdateLeadCapture.MapEndpoint(endpoints);
 		DeleteLeadCapture.MapEndpoint(endpoints);
 
-		OperationalInquiryEndpoints.MapOperationalInquiryEndpoints(endpoints);
-
+		
 		return endpoints;
 	}
 }
