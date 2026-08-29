@@ -90,14 +90,4 @@ public static class CreateSubject
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SubjectEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.SubjectId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
 }

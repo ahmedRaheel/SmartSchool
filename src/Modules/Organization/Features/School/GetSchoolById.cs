@@ -72,11 +72,9 @@ public static class GetSchoolById
 				return await connection.QuerySingleOrDefaultAsync<Response>(
 					new CommandDefinition(
 						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						}
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
 	}
 
 	public sealed class Handler(IGetSchoolById dataAccess)

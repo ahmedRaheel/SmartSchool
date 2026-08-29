@@ -54,7 +54,7 @@ public static class DeleteQuizAttempt
 					.Set<QuizAttemptEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.QuizAttemptId == id,
+							&& x.GeneratedQuizId == id,
 						cancellationToken);
 			}
 	}

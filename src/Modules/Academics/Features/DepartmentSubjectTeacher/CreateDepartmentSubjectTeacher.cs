@@ -57,7 +57,7 @@ public static class CreateDepartmentSubjectTeacher
             var id = Guid.NewGuid();
             await dbContext.Database.ExecuteSqlRawAsync(
                 "INSERT INTO academic.department_subject_teacher (department_subject_teacher_id, tenant_id, department_id, subject_id, teacher_id, is_primary, effective_from, effective_to) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7})",
-                new object?[] { id, request.TenantId, request.DepartmentId, request.SubjectId, request.TeacherId, request.IsPrimary, request.EffectiveFrom, request.EffectiveTo },
+                new { id, request.TenantId, request.DepartmentId, request.SubjectId, request.TeacherId, request.IsPrimary, request.EffectiveFrom, request.EffectiveTo },
                 cancellationToken);
             return Result<Response>.Success(new Response(id, request.TenantId, request.DepartmentId, request.SubjectId, request.TeacherId, request.IsPrimary, request.EffectiveFrom, request.EffectiveTo));
         }

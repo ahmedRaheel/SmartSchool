@@ -75,7 +75,7 @@ Task<AssignmentEntity?> GetByIdAsync(
 					.Set<AssignmentEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.AssignmentId == id,
+							&& x.AcademicAssignmentId == id,
 						cancellationToken);
 			}
 	}

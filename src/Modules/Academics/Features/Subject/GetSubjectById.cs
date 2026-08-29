@@ -45,8 +45,8 @@ public static class GetSubjectById
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
-		{
-			const string sql = """
+			{
+				const string sql = """
 					SELECT
 						tenant_id AS "TenantId",
 						subject_id AS "Id",
@@ -58,19 +58,16 @@ public static class GetSubjectById
 					  AND subject_id = @Id
 					  AND is_active = TRUE;
 					""";
-
-			await using var connection =
-				await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-			return await connection.QuerySingleOrDefaultAsync<Response>(
-				new CommandDefinition(
-					sql,
-					new
-					{
-						TenantId = tenantId,
-						Id = id
-					}));
-		}
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
 	}
 
 	public sealed class Handler(IGetSubjectById dataAccess)

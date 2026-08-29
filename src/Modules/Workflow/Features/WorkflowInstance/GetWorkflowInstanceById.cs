@@ -65,11 +65,9 @@ public static class GetWorkflowInstanceById
 				return await connection.QuerySingleOrDefaultAsync<Response>(
 					new CommandDefinition(
 						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						}
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
 	}
 
 	public sealed class Handler(IGetWorkflowInstanceById dataAccess)

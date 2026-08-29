@@ -94,6 +94,11 @@ public static class CreateEmployee
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
 
+		public Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task<bool> DepartmentBelongsToCampusAsync(Guid tenantId, Guid campusId, Guid departmentId, CancellationToken cancellationToken)
 		{
 			return await dbContext.Database.SqlQueryRaw<bool>(
@@ -118,28 +123,5 @@ public static class CreateEmployee
 		return endpoints;
 	}
 
-	private static Response MapResponse(EmployeeEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.EmployeeId,
-			entity.UserId,
-			entity.EmployeeNumber,
-			entity.FirstName,
-			entity.LastName,
-			entity.CnicNumber,
-			entity.Photo,
-			entity.PhotoContentType,
-			entity.PhotoFileName,
-			entity.Email,
-			entity.Phone,
-			entity.AlternatePhone,
-			entity.Address,
-			entity.EmergencyContactName,
-			entity.EmergencyContactPhone,
-			entity.HireDate,
-			entity.EmploymentTypeCode,
-			entity.StaffType,
-			entity.SourceCandidateId);
-	}
+	
 }

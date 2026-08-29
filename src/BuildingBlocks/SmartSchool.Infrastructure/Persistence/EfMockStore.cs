@@ -91,15 +91,6 @@ public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
 
 		return primaryKey.Properties[0].Name;
 	}
-
-	private Guid GetPrimaryKeyValue<TEntity>(TEntity entity) where TEntity : Entity
-	{
-		var keyName = GetPrimaryKeyName<TEntity>();
-		var property = typeof(TEntity).GetProperty(keyName)
-			?? throw new InvalidOperationException($"{typeof(TEntity).Name}.{keyName} was not found.");
-
-		return (Guid)(property.GetValue(entity)
-			?? throw new InvalidOperationException($"{typeof(TEntity).Name}.{keyName} has no value."));
-	}
+	
 
 }

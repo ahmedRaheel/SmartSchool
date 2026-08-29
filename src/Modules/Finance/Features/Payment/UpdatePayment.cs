@@ -75,7 +75,7 @@ Task<PaymentEntity?> GetByIdAsync(
 					.Set<PaymentEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.PaymentId == id,
+							&& x.StudentPaymentId == id,
 						cancellationToken);
 			}
 	}

@@ -75,7 +75,7 @@ Task<LoanEntity?> GetByIdAsync(
 					.Set<LoanEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.LoanId == id,
+							&& x.BookLoanId == id,
 						cancellationToken);
 			}
 	}

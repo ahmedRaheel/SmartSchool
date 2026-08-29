@@ -54,7 +54,7 @@ public static class DeleteInvoice
 					.Set<InvoiceEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.InvoiceId == id,
+							&& x.StudentInvoiceId == id,
 						cancellationToken);
 			}
 	}

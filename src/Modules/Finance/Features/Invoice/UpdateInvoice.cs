@@ -75,7 +75,7 @@ Task<InvoiceEntity?> GetByIdAsync(
 					.Set<InvoiceEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.InvoiceId == id,
+							&& x.StudentInvoiceId == id,
 						cancellationToken);
 			}
 	}

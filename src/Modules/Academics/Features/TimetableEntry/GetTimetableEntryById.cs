@@ -45,8 +45,8 @@ public static class GetTimetableEntryById
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
-		{
-			const string sql = """
+			{
+				const string sql = """
 					SELECT
 						tenant_id AS "TenantId",
 						timetable_entry_id AS "Id",
@@ -58,19 +58,16 @@ public static class GetTimetableEntryById
 					  AND timetable_entry_id = @Id
 					  AND is_active = TRUE;
 					""";
-
-			await using var connection =
-				await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-			return await connection.QuerySingleOrDefaultAsync<Response>(
-				new CommandDefinition(
-					sql,
-					new
-					{
-						TenantId = tenantId,
-						Id = id
-					}));
-		}
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
 	}
 
 	public sealed class Handler(IGetTimetableEntryById dataAccess)

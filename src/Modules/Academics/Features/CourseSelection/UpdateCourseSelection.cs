@@ -75,7 +75,7 @@ Task<CourseSelectionEntity?> GetByIdAsync(
 					.Set<CourseSelectionEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.CourseSelectionId == id,
+							&& x.CourseOfferingId == id,
 						cancellationToken);
 			}
 	}

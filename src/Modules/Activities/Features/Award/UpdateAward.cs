@@ -75,7 +75,7 @@ Task<AwardEntity?> GetByIdAsync(
 					.Set<AwardEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.AwardId == id,
+							&& x.StudentAwardId == id,
 						cancellationToken);
 			}
 	}

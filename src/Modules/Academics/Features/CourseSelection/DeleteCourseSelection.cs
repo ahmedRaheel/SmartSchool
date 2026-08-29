@@ -54,7 +54,7 @@ public static class DeleteCourseSelection
 					.Set<CourseSelectionEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.CourseSelectionId == id,
+							&& x.CourseOfferingId == id,
 						cancellationToken);
 			}
 	}

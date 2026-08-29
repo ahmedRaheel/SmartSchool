@@ -45,8 +45,8 @@ public static class GetTutorConversationById
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
-		{
-			const string sql = """
+			{
+				const string sql = """
 					SELECT
 						tenant_id AS "TenantId",
 						tutor_conversation_id AS "Id",
@@ -58,19 +58,16 @@ public static class GetTutorConversationById
 					  AND tutor_conversation_id = @Id
 					  AND is_active = TRUE;
 					""";
-
-			await using var connection =
-				await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-			return await connection.QuerySingleOrDefaultAsync<Response>(
-				new CommandDefinition(
-					sql,
-					new
-					{
-						TenantId = tenantId,
-						Id = id
-					}));
-		}
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
 	}
 
 	public sealed class Handler(IGetTutorConversationById dataAccess)

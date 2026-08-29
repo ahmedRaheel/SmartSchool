@@ -45,8 +45,8 @@ public static class GetCourseOfferingById
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
-		{
-			const string sql = """
+			{
+				const string sql = """
 					SELECT
 						tenant_id AS "TenantId",
 						course_offering_id AS "Id",
@@ -58,19 +58,16 @@ public static class GetCourseOfferingById
 					  AND course_offering_id = @Id
 					  AND is_active = TRUE;
 					""";
-
-			await using var connection =
-				await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-			return await connection.QuerySingleOrDefaultAsync<Response>(
-				new CommandDefinition(
-					sql,
-					new
-					{
-						TenantId = tenantId,
-						Id = id
-					}));
-		}
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
 	}
 
 	public sealed class Handler(IGetCourseOfferingById dataAccess)

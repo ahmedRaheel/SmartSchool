@@ -75,7 +75,7 @@ Task<QuizAttemptEntity?> GetByIdAsync(
 					.Set<QuizAttemptEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.QuizAttemptId == id,
+							&& x.GeneratedQuizId == id,
 						cancellationToken);
 			}
 	}

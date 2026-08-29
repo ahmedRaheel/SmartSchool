@@ -54,7 +54,7 @@ public static class DeleteAssignment
 					.Set<AssignmentEntity>()
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
-							&& x.AssignmentId == id,
+							&& x.AcademicAssignmentId == id,
 						cancellationToken);
 			}
 	}

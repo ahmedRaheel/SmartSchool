@@ -65,11 +65,9 @@ public static class GetPaymentById
 				return await connection.QuerySingleOrDefaultAsync<Response>(
 					new CommandDefinition(
 						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						}
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
 	}
 
 	public sealed class Handler(IGetPaymentById dataAccess)
