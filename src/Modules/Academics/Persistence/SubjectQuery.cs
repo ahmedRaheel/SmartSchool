@@ -31,8 +31,12 @@ public sealed class SubjectQuery(IDbConnectionFactory connectionFactory) : ISubj
 		return await connection.QuerySingleOrDefaultAsync<SubjectEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<SubjectEntity>> GetPageAsync(
@@ -79,7 +83,7 @@ public sealed class SubjectQuery(IDbConnectionFactory connectionFactory) : ISubj
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken))).ConfigureAwait(false)
+				cancellationToken: cancellationToken)).ConfigureAwait(false))
 			.AsList();
 
 		return new PagedResult<SubjectEntity>(
@@ -134,7 +138,12 @@ public sealed class SubjectQuery(IDbConnectionFactory connectionFactory) : ISubj
 		return await connection.ExecuteScalarAsync<bool>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Code = code,
+					ExcludingId = excludingId
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 }
