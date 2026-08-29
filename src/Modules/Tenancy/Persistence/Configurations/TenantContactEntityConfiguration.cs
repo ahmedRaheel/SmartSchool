@@ -4,8 +4,21 @@ using SmartSchool.Modules.Tenancy.Models;
 namespace SmartSchool.Modules.Tenancy.Persistence.Configurations;
 public sealed class TenantContactEntityConfiguration : IEntityTypeConfiguration<TenantContactEntity>
 {
-    public void Configure(EntityTypeBuilder<TenantContactEntity> b)
-    {
-        b.ToTable("tenant_contact","saas"); b.HasKey(x=>x.TenantContactId); b.Property(x=>x.TenantContactId).HasColumnName("tenant_contact_id"); b.Property(x=>x.TenantId).HasColumnName("tenant_id"); b.Property(x=>x.ContactType).HasColumnName("contact_type"); b.Property(x=>x.ContactName).HasColumnName("contact_name"); b.Property(x=>x.Email).HasColumnName("email"); b.Property(x=>x.Phone).HasColumnName("phone"); b.Property(x=>x.AddressLine1).HasColumnName("address_line1"); b.Property(x=>x.IsPrimary).HasColumnName("is_primary"); b.Property(x=>x.IsActive).HasColumnName("is_active"); b.Property(x=>x.CreatedAt).HasColumnName("created_at"); b.Ignore(x=>x.UpdatedAt); b.Ignore(x=>x.RowVersion);
-    }
+	public void Configure(EntityTypeBuilder<TenantContactEntity> builder)
+	{
+		builder.ToTable("tenant_contact", "saas");
+		builder.HasKey(x => x.TenantContactId);
+		builder.Property(x => x.TenantContactId).HasColumnName("tenant_contact_id");
+		builder.Property(x => x.TenantId).HasColumnName("tenant_id");
+		builder.Property(x => x.ContactType).HasColumnName("contact_type");
+		builder.Property(x => x.ContactName).HasColumnName("contact_name");
+		builder.Property(x => x.Email).HasColumnName("email");
+		builder.Property(x => x.Phone).HasColumnName("phone");
+		builder.Property(x => x.AddressLine1).HasColumnName("address_line1");
+		builder.Property(x => x.IsPrimary).HasColumnName("is_primary");
+		builder.Property(x => x.IsActive).HasColumnName("is_active");
+		builder.Property(x => x.CreatedAt).HasColumnName("created_at");
+		builder.Ignore(x => x.UpdatedAt);
+		builder.Ignore(x => x.RowVersion);
+	}
 }
