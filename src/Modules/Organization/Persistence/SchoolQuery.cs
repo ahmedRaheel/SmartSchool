@@ -31,8 +31,12 @@ public sealed class SchoolQuery(IDbConnectionFactory connectionFactory) : ISchoo
 		return await connection.QuerySingleOrDefaultAsync<SchoolEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<SchoolEntity>> GetPageAsync(
@@ -81,7 +85,7 @@ public sealed class SchoolQuery(IDbConnectionFactory connectionFactory) : ISchoo
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken))).ConfigureAwait(false)
+				cancellationToken: cancellationToken)).ConfigureAwait(false))
 			.AsList();
 
 		return new PagedResult<SchoolEntity>(
@@ -113,7 +117,12 @@ public sealed class SchoolQuery(IDbConnectionFactory connectionFactory) : ISchoo
 		return await connection.ExecuteScalarAsync<bool>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Code = code,
+					ExcludingId = excludingId
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 }

@@ -31,8 +31,12 @@ public sealed class DepartmentQuery(IDbConnectionFactory connectionFactory) : ID
 		return await connection.QuerySingleOrDefaultAsync<DepartmentEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<DepartmentEntity>> GetPageAsync(

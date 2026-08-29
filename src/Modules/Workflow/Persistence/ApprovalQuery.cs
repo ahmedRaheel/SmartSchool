@@ -31,8 +31,12 @@ public sealed class ApprovalQuery(IDbConnectionFactory connectionFactory) : IApp
 		return await connection.QuerySingleOrDefaultAsync<ApprovalEntity>(
 			new CommandDefinition(
 				sql,
-				new { TenantId = tenantId, Id = id },
-				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
+				new
+				{
+					TenantId = tenantId,
+					Id = id
+				},
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<ApprovalEntity>> GetPageAsync(
