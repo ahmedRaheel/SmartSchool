@@ -1,6 +1,5 @@
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AITutor.Models;
 using SmartSchool.SharedKernel;
@@ -11,21 +10,29 @@ namespace SmartSchool.Modules.AITutor.Persistence;
 /// Executes database reads for <see cref="QuizAttemptEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class QuizAttemptQuery(
-	IApplicationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : IQuizAttemptQuery
+public sealed class QuizAttemptQuery(IDbConnectionFactory connectionFactory) : IQuizAttemptQuery
 {
-	public Task<QuizAttemptEntity?> GetByIdAsync(
+	public async Task<QuizAttemptEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<QuizAttemptEntity>()
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.StudentQuizAttemptId == id,
-				cancellationToken);
+		const string sql = """
+			SELECT *
+			FROM ai_tutor.student_quiz_attempt
+			WHERE tenant_id = @TenantId
+			  AND student_quiz_attempt_id = @Id
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.QuerySingleOrDefaultAsync<QuizAttemptEntity>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Id = id },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<QuizAttemptEntity>> GetPageAsync(
@@ -66,13 +73,13 @@ public sealed class QuizAttemptQuery(
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken));
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 
 		var items = (await connection.QueryAsync<QuizAttemptEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)))
+				cancellationToken: cancellationToken))).ConfigureAwait(false)
 			.AsList();
 
 		return new PagedResult<QuizAttemptEntity>(
@@ -82,20 +89,29 @@ public sealed class QuizAttemptQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public async Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<QuizAttemptEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentQuizAttemptId != excludingId.Value)),
-				cancellationToken);
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM ai_tutor.student_quiz_attempt
+				WHERE tenant_id = @TenantId
+				  AND code = @Code
+				  AND (@ExcludingId IS NULL OR student_quiz_attempt_id <> @ExcludingId)
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 }

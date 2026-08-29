@@ -1,6 +1,5 @@
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 using SmartSchool.SharedKernel;
@@ -11,21 +10,29 @@ namespace SmartSchool.Modules.Payroll.Persistence;
 /// Executes database reads for <see cref="SalaryStructureEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class SalaryStructureQuery(
-	IApplicationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : ISalaryStructureQuery
+public sealed class SalaryStructureQuery(IDbConnectionFactory connectionFactory) : ISalaryStructureQuery
 {
-	public Task<SalaryStructureEntity?> GetByIdAsync(
+	public async Task<SalaryStructureEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<SalaryStructureEntity>()
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.SalaryStructureId == id,
-				cancellationToken);
+		const string sql = """
+			SELECT *
+			FROM payroll.salarystructure
+			WHERE tenant_id = @TenantId
+			  AND salary_structure_id = @Id
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.QuerySingleOrDefaultAsync<SalaryStructureEntity>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Id = id },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<SalaryStructureEntity>> GetPageAsync(
@@ -66,13 +73,13 @@ public sealed class SalaryStructureQuery(
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken));
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 
 		var items = (await connection.QueryAsync<SalaryStructureEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)))
+				cancellationToken: cancellationToken))).ConfigureAwait(false)
 			.AsList();
 
 		return new PagedResult<SalaryStructureEntity>(
@@ -82,20 +89,29 @@ public sealed class SalaryStructureQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public async Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<SalaryStructureEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.SalaryStructureId != excludingId.Value)),
-				cancellationToken);
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM payroll.salarystructure
+				WHERE tenant_id = @TenantId
+				  AND code = @Code
+				  AND (@ExcludingId IS NULL OR salary_structure_id <> @ExcludingId)
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 }

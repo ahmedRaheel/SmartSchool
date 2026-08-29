@@ -12,7 +12,7 @@ public sealed class InquiryConversationEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<InquiryConversationEntity> builder)
 	{
-		builder.ToTable("inquiry_conversation", schema: "ai_inquiry");
+		builder.ToTable("inquiry_conversation", schema: "ai_core");
 		builder.HasKey(entity => entity.InquiryConversationId);
 
 		builder

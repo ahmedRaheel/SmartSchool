@@ -1,6 +1,5 @@
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 using SmartSchool.SharedKernel;
@@ -11,21 +10,29 @@ namespace SmartSchool.Modules.Inventory.Persistence;
 /// Executes database reads for <see cref="ItemEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ItemQuery(
-	IApplicationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : IItemQuery
+public sealed class ItemQuery(IDbConnectionFactory connectionFactory) : IItemQuery
 {
-	public Task<ItemEntity?> GetByIdAsync(
+	public async Task<ItemEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<ItemEntity>()
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.ItemId == id,
-				cancellationToken);
+		const string sql = """
+			SELECT *
+			FROM inventory.item
+			WHERE tenant_id = @TenantId
+			  AND item_id = @Id
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.QuerySingleOrDefaultAsync<ItemEntity>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Id = id },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<ItemEntity>> GetPageAsync(
@@ -66,13 +73,13 @@ public sealed class ItemQuery(
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken));
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 
 		var items = (await connection.QueryAsync<ItemEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)))
+				cancellationToken: cancellationToken))).ConfigureAwait(false)
 			.AsList();
 
 		return new PagedResult<ItemEntity>(
@@ -82,20 +89,29 @@ public sealed class ItemQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public async Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<ItemEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ItemId != excludingId.Value)),
-				cancellationToken);
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM inventory.item
+				WHERE tenant_id = @TenantId
+				  AND code = @Code
+				  AND (@ExcludingId IS NULL OR item_id <> @ExcludingId)
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 }

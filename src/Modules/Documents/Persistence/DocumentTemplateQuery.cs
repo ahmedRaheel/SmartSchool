@@ -1,6 +1,5 @@
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Documents.Models;
 using SmartSchool.SharedKernel;
@@ -11,21 +10,29 @@ namespace SmartSchool.Modules.Documents.Persistence;
 /// Executes database reads for <see cref="DocumentTemplateEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class DocumentTemplateQuery(
-	IApplicationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : IDocumentTemplateQuery
+public sealed class DocumentTemplateQuery(IDbConnectionFactory connectionFactory) : IDocumentTemplateQuery
 {
-	public Task<DocumentTemplateEntity?> GetByIdAsync(
+	public async Task<DocumentTemplateEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<DocumentTemplateEntity>()
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.DocumentTemplateId == id,
-				cancellationToken);
+		const string sql = """
+			SELECT *
+			FROM document.document_template
+			WHERE tenant_id = @TenantId
+			  AND document_template_id = @Id
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.QuerySingleOrDefaultAsync<DocumentTemplateEntity>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Id = id },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<DocumentTemplateEntity>> GetPageAsync(
@@ -66,13 +73,13 @@ public sealed class DocumentTemplateQuery(
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken));
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 
 		var items = (await connection.QueryAsync<DocumentTemplateEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)))
+				cancellationToken: cancellationToken))).ConfigureAwait(false)
 			.AsList();
 
 		return new PagedResult<DocumentTemplateEntity>(
@@ -82,20 +89,29 @@ public sealed class DocumentTemplateQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public async Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<DocumentTemplateEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.DocumentTemplateId != excludingId.Value)),
-				cancellationToken);
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM document.document_template
+				WHERE tenant_id = @TenantId
+				  AND code = @Code
+				  AND (@ExcludingId IS NULL OR document_template_id <> @ExcludingId)
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 }

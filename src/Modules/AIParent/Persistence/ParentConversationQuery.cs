@@ -1,6 +1,5 @@
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 using SmartSchool.SharedKernel;
@@ -11,21 +10,29 @@ namespace SmartSchool.Modules.AIParent.Persistence;
 /// Executes database reads for <see cref="ParentConversationEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class ParentConversationQuery(
-	IApplicationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : IParentConversationQuery
+public sealed class ParentConversationQuery(IDbConnectionFactory connectionFactory) : IParentConversationQuery
 {
-	public Task<ParentConversationEntity?> GetByIdAsync(
+	public async Task<ParentConversationEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<ParentConversationEntity>()
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.ParentConversationId == id,
-				cancellationToken);
+		const string sql = """
+			SELECT *
+			FROM ai_core.parent_conversation
+			WHERE tenant_id = @TenantId
+			  AND parent_conversation_id = @Id
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.QuerySingleOrDefaultAsync<ParentConversationEntity>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Id = id },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<ParentConversationEntity>> GetPageAsync(
@@ -36,7 +43,7 @@ public sealed class ParentConversationQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM ai_parent.parent_conversation
+			FROM ai_core.parent_conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +52,7 @@ public sealed class ParentConversationQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				parent_conversation_id AS "Id"
-			FROM ai_parent.parent_conversation
+			FROM ai_core.parent_conversation
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY parent_conversation_id
@@ -66,13 +73,13 @@ public sealed class ParentConversationQuery(
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken));
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 
 		var items = (await connection.QueryAsync<ParentConversationEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)))
+				cancellationToken: cancellationToken))).ConfigureAwait(false)
 			.AsList();
 
 		return new PagedResult<ParentConversationEntity>(
@@ -82,20 +89,29 @@ public sealed class ParentConversationQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public async Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<ParentConversationEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.ParentConversationId != excludingId.Value)),
-				cancellationToken);
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM ai_core.parent_conversation
+				WHERE tenant_id = @TenantId
+				  AND code = @Code
+				  AND (@ExcludingId IS NULL OR parent_conversation_id <> @ExcludingId)
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 }

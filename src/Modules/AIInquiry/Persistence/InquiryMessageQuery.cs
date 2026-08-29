@@ -1,6 +1,5 @@
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
@@ -11,21 +10,29 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// Executes database reads for <see cref="InquiryMessageEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class InquiryMessageQuery(
-	IApplicationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : IInquiryMessageQuery
+public sealed class InquiryMessageQuery(IDbConnectionFactory connectionFactory) : IInquiryMessageQuery
 {
-	public Task<InquiryMessageEntity?> GetByIdAsync(
+	public async Task<InquiryMessageEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<InquiryMessageEntity>()
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.InquiryMessageId == id,
-				cancellationToken);
+		const string sql = """
+			SELECT *
+			FROM ai_core.inquiry_message
+			WHERE tenant_id = @TenantId
+			  AND inquiry_message_id = @Id
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.QuerySingleOrDefaultAsync<InquiryMessageEntity>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Id = id },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<InquiryMessageEntity>> GetPageAsync(
@@ -36,7 +43,7 @@ public sealed class InquiryMessageQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM ai_inquiry.inquiry_message
+			FROM ai_core.inquiry_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +52,7 @@ public sealed class InquiryMessageQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				inquiry_message_id AS "Id"
-			FROM ai_inquiry.inquiry_message
+			FROM ai_core.inquiry_message
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY inquiry_message_id
@@ -66,13 +73,13 @@ public sealed class InquiryMessageQuery(
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken));
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 
 		var items = (await connection.QueryAsync<InquiryMessageEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)))
+				cancellationToken: cancellationToken))).ConfigureAwait(false)
 			.AsList();
 
 		return new PagedResult<InquiryMessageEntity>(
@@ -82,20 +89,29 @@ public sealed class InquiryMessageQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public async Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<InquiryMessageEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.InquiryMessageId != excludingId.Value)),
-				cancellationToken);
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM ai_core.inquiry_message
+				WHERE tenant_id = @TenantId
+				  AND code = @Code
+				  AND (@ExcludingId IS NULL OR inquiry_message_id <> @ExcludingId)
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 }

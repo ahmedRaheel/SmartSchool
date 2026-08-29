@@ -1,6 +1,5 @@
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
@@ -11,21 +10,29 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// Executes database reads for <see cref="LeadCaptureEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class LeadCaptureQuery(
-	IApplicationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : ILeadCaptureQuery
+public sealed class LeadCaptureQuery(IDbConnectionFactory connectionFactory) : ILeadCaptureQuery
 {
-	public Task<LeadCaptureEntity?> GetByIdAsync(
+	public async Task<LeadCaptureEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<LeadCaptureEntity>()
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.LeadCaptureId == id,
-				cancellationToken);
+		const string sql = """
+			SELECT *
+			FROM ai_core.lead_capture
+			WHERE tenant_id = @TenantId
+			  AND lead_capture_id = @Id
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.QuerySingleOrDefaultAsync<LeadCaptureEntity>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Id = id },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<LeadCaptureEntity>> GetPageAsync(
@@ -36,7 +43,7 @@ public sealed class LeadCaptureQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM ai_inquiry.lead_capture
+			FROM ai_core.lead_capture
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +52,7 @@ public sealed class LeadCaptureQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				lead_capture_id AS "Id"
-			FROM ai_inquiry.lead_capture
+			FROM ai_core.lead_capture
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY lead_capture_id
@@ -66,13 +73,13 @@ public sealed class LeadCaptureQuery(
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken));
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 
 		var items = (await connection.QueryAsync<LeadCaptureEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)))
+				cancellationToken: cancellationToken))).ConfigureAwait(false)
 			.AsList();
 
 		return new PagedResult<LeadCaptureEntity>(
@@ -82,20 +89,29 @@ public sealed class LeadCaptureQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public async Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<LeadCaptureEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.LeadCaptureId != excludingId.Value)),
-				cancellationToken);
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM ai_core.lead_capture
+				WHERE tenant_id = @TenantId
+				  AND code = @Code
+				  AND (@ExcludingId IS NULL OR lead_capture_id <> @ExcludingId)
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 }

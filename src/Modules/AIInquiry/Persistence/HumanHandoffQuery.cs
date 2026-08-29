@@ -1,6 +1,5 @@
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 using SmartSchool.SharedKernel;
@@ -11,21 +10,29 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// Executes database reads for <see cref="HumanHandoffEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class HumanHandoffQuery(
-	IApplicationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : IHumanHandoffQuery
+public sealed class HumanHandoffQuery(IDbConnectionFactory connectionFactory) : IHumanHandoffQuery
 {
-	public Task<HumanHandoffEntity?> GetByIdAsync(
+	public async Task<HumanHandoffEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<HumanHandoffEntity>()
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.HumanHandoffId == id,
-				cancellationToken);
+		const string sql = """
+			SELECT *
+			FROM ai_core.human_handoff
+			WHERE tenant_id = @TenantId
+			  AND human_handoff_id = @Id
+			  AND is_active = TRUE;
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.QuerySingleOrDefaultAsync<HumanHandoffEntity>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Id = id },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 
 	public async Task<PagedResult<HumanHandoffEntity>> GetPageAsync(
@@ -36,7 +43,7 @@ public sealed class HumanHandoffQuery(
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM ai_inquiry.human_handoff
+			FROM ai_core.human_handoff
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -45,7 +52,7 @@ public sealed class HumanHandoffQuery(
 			SELECT
 				tenant_id AS "TenantId",
 				human_handoff_id AS "Id"
-			FROM ai_inquiry.human_handoff
+			FROM ai_core.human_handoff
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY human_handoff_id
@@ -66,13 +73,13 @@ public sealed class HumanHandoffQuery(
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken));
+				cancellationToken: cancellationToken)).ConfigureAwait(false);
 
 		var items = (await connection.QueryAsync<HumanHandoffEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)))
+				cancellationToken: cancellationToken))).ConfigureAwait(false)
 			.AsList();
 
 		return new PagedResult<HumanHandoffEntity>(
@@ -82,20 +89,29 @@ public sealed class HumanHandoffQuery(
 			totalCount);
 	}
 
-	public Task<bool> ExistsByCodeAsync(
+	public async Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<HumanHandoffEntity>()
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.HumanHandoffId != excludingId.Value)),
-				cancellationToken);
+		const string sql = """
+			SELECT EXISTS (
+				SELECT 1
+				FROM ai_core.human_handoff
+				WHERE tenant_id = @TenantId
+				  AND code = @Code
+				  AND (@ExcludingId IS NULL OR human_handoff_id <> @ExcludingId)
+			);
+			""";
+
+		await using var connection =
+			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+		return await connection.ExecuteScalarAsync<bool>(
+			new CommandDefinition(
+				sql,
+				new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
+				cancellationToken: cancellationToken)).ConfigureAwait(false).ConfigureAwait(false);
 	}
 }
