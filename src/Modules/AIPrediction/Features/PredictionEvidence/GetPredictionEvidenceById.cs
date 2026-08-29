@@ -45,8 +45,8 @@ public static class GetPredictionEvidenceById
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
-			{
-				const string sql = """
+		{
+			const string sql = """
 					SELECT
 						tenant_id AS "TenantId",
 						prediction_evidence_id AS "Id",
@@ -58,18 +58,19 @@ public static class GetPredictionEvidenceById
 					  AND prediction_evidence_id = @Id
 					  AND is_active = TRUE;
 					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<Response>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						}
+
+			await using var connection =
+				await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+			return await connection.QuerySingleOrDefaultAsync<Response>(
+				new CommandDefinition(
+					sql,
+					new
+					{
+						TenantId = tenantId,
+						Id = id
+					}));
+		}
 	}
 
 	public sealed class Handler(IGetPredictionEvidenceById dataAccess)
