@@ -41,7 +41,7 @@ public static class GetModelConfigurationPage
 
 	}
 
-	internal sealed class GetModelConfigurationPageDataAccess(
+	internal sealed class GetModelConfigurationPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetModelConfigurationPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

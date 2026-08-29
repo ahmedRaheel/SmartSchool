@@ -38,7 +38,7 @@ public static class GetPayslipById
 
 	}
 
-	internal sealed class GetPayslipByIdDataAccess(
+	internal sealed class GetPayslipByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetPayslipById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetPayslipById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetPayslipById dataAccess)

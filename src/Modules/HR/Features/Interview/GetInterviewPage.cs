@@ -41,7 +41,7 @@ public static class GetInterviewPage
 
 	}
 
-	internal sealed class GetInterviewPageDataAccess(
+	internal sealed class GetInterviewPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetInterviewPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

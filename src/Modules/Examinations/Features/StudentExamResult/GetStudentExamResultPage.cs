@@ -42,7 +42,7 @@ public static class GetStudentExamResultPage
 
 	}
 
-	internal sealed class GetStudentExamResultPageDataAccess(		
+	internal sealed class GetStudentExamResultPagePersistence(		
 		IDbConnectionFactory connectionFactory) : IGetStudentExamResultPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteAcademicSystem
 
 	}
 
-	internal sealed class DeleteAcademicSystemDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteAcademicSystem
+	internal sealed class DeleteAcademicSystemPersistence(IApplicationDbContext dbContext) : IDeleteAcademicSystem
 	{
 		public async Task DeleteAsync(
 				AcademicSystemEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteAcademicSystem
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM academic.academic_system
-					WHERE tenant_id = @TenantId
-					  AND academic_system_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<AcademicSystemEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<AcademicSystemEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.AcademicSystemId == id,
+						cancellationToken);
 			}
 	}
 

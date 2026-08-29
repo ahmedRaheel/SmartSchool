@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -30,7 +29,6 @@ public static class UpdateGeneratedDocument
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -39,7 +37,6 @@ public static class UpdateGeneratedDocument
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -49,23 +46,14 @@ public static class UpdateGeneratedDocument
 		Task UpdateAsync(
 				GeneratedDocumentEntity entity,
 				CancellationToken cancellationToken);
-
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-		Task<GeneratedDocumentEntity?> GetByIdAsync(
+Task<GeneratedDocumentEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken);
 
 	}
 
-	internal sealed class UpdateGeneratedDocumentDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IUpdateGeneratedDocument
+	internal sealed class UpdateGeneratedDocumentPersistence(IApplicationDbContext dbContext) : IUpdateGeneratedDocument
 	{
 		public async Task UpdateAsync(
 				GeneratedDocumentEntity entity,
@@ -78,62 +66,17 @@ public static class UpdateGeneratedDocument
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
 
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM document.generated_document
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR generated_document_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
-
 		public async Task<GeneratedDocumentEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM document.generated_document
-					WHERE tenant_id = @TenantId
-					  AND generated_document_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<GeneratedDocumentEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<GeneratedDocumentEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.GeneratedDocumentId == id,
+						cancellationToken);
 			}
 	}
 
@@ -152,17 +95,9 @@ public static class UpdateGeneratedDocument
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(GeneratedDocumentEntity))));
 			}
 
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(GeneratedDocumentEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

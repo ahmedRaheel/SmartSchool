@@ -24,7 +24,7 @@ public static class Module
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
-        services.AddFeatureDataAccess(typeof(Module).Assembly);
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
 		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
 		return services;

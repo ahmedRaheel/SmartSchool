@@ -34,7 +34,7 @@ public static class GetGuardianPage
 
 	}
 
-	internal sealed class GetGuardianPageDataAccess(
+	internal sealed class GetGuardianPagePersistence(
 		
 		IDbConnectionFactory connectionFactory) : IGetGuardianPage
 	{

@@ -38,7 +38,7 @@ public static class GetTeachingRecommendationById
 
 	}
 
-	internal sealed class GetTeachingRecommendationByIdDataAccess(
+	internal sealed class GetTeachingRecommendationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetTeachingRecommendationById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetTeachingRecommendationById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetTeachingRecommendationById dataAccess)

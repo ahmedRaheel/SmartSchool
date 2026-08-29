@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,7 +32,7 @@ public static class DeleteNotification
 
 	}
 
-	internal sealed class DeleteNotificationDataAccess(
+	internal sealed class DeleteNotificationPersistence(
 		IApplicationDbContext dbContext) : IDeleteNotification
 	{
 		public Task<NotificationEntity?> GetByIdAsync(

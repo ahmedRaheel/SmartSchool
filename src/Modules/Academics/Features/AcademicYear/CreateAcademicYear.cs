@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -30,7 +29,6 @@ public static class CreateAcademicYear
 	public sealed record Request(
 		Guid TenantId,
 		Guid CampusId,
-		string Code,
 		string Name,
 		DateOnly StartDate,
 		DateOnly EndDate,
@@ -44,7 +42,6 @@ public static class CreateAcademicYear
 			RuleFor(x => x.CampusId).NotEmpty();
 			RuleFor(x => x.StartDate).NotEmpty();
 			RuleFor(x => x.EndDate).NotEmpty().GreaterThan(x => x.StartDate);
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -59,85 +56,22 @@ public static class CreateAcademicYear
 				Guid tenantId,
 				Guid campusId,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateAcademicYearDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : ICreateAcademicYear
+	internal sealed class CreateAcademicYearPersistence(IApplicationDbContext dbContext) : ICreateAcademicYear
 	{
-		public async Task AddAsync(
-				AcademicYearEntity entity,
-				CancellationToken cancellationToken)
-			{
-				await dbContext
-					.Set<AcademicYearEntity>()
-					.AddAsync(entity, cancellationToken);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+		public async Task AddAsync(AcademicYearEntity entity, CancellationToken cancellationToken)
+		{
+			await dbContext.Set<AcademicYearEntity>().AddAsync(entity, cancellationToken);
+			await dbContext.SaveChangesAsync(cancellationToken);
+		}
 
-		public async Task<bool> CampusExistsAsync(
-				Guid tenantId,
-				Guid campusId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM org.campus
-						WHERE tenant_id = @TenantId
-						  AND campus_id = @CampusId
-						  AND is_active = TRUE
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new { TenantId = tenantId, CampusId = campusId },
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
-
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM academic.academic_year
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR start_date <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+		public async Task<bool> CampusExistsAsync(Guid tenantId, Guid campusId, CancellationToken cancellationToken)
+		{
+			return await dbContext.Database.SqlQueryRaw<bool>(
+				"SELECT EXISTS (SELECT 1 FROM org.campus WHERE tenant_id = {0} AND campus_id = {1} AND is_active = TRUE) AS \"Value\"",
+				tenantId, campusId).SingleAsync(cancellationToken);
+		}
 	}
 
 	public sealed class Handler(ICreateAcademicYear dataAccess)
@@ -155,19 +89,11 @@ public static class CreateAcademicYear
 					Error.NotFound("The selected campus does not exist or is outside the tenant scope."));
 			}
 
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(AcademicYearEntity), request.Code)));
-			}
 
 			var entity = AcademicYearEntity.Create(
 				request.TenantId,
 				request.CampusId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name,
 				request.StartDate,
 				request.EndDate,

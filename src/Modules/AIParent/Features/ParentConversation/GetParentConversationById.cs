@@ -38,15 +38,15 @@ public static class GetParentConversationById
 
 	}
 
-	internal sealed class GetParentConversationByIdDataAccess(
+	internal sealed class GetParentConversationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetParentConversationById
 	{
 		public async Task<Response?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
-			{
-				const string sql = """
+		{
+			const string sql = """
 					SELECT
 						tenant_id AS "TenantId",
 						parent_conversation_id AS "Id",
@@ -58,54 +58,53 @@ public static class GetParentConversationById
 					  AND parent_conversation_id = @Id
 					  AND is_active = TRUE;
 					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<Response>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
-	}
 
-	public sealed class Handler(IGetParentConversationById dataAccess)
-		: IRequestHandler<Query, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Query request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentConversationEntity))));
-			}
-			return Result<Response>.Success(entity);
+			await using var connection =
+				await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+			return await connection.QuerySingleOrDefaultAsync<Response>(
+				new CommandDefinition(
+					sql,
+					new
+					{
+						TenantId = tenantId,
+						Id = id
+					}));
 		}
-	}
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapGet(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "parent-conversation"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+		public sealed class Handler(IGetParentConversationById dataAccess)
+			: IRequestHandler<Query, Result<Response>>
+		{
+			public async Task<Result<Response>> HandleAsync(
+				Query request,
+				CancellationToken cancellationToken)
+			{
+				var entity = await dataAccess.GetByIdAsync(
+					request.TenantId, request.Id, cancellationToken);
+				if (entity is null)
 				{
-					var request = new Query(tenantId, id);
-					var result = await mediator.SendAsync<Query, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("GetParentConversationById")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
+					return Result<Response>.Failure(
+						Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentConversationEntity))));
+				}
+				return Result<Response>.Success(entity);
+			}
+		}
+
+		public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+		{
+			endpoints.MapGet(
+					ApiRoutes.EntityById(ModuleConstants.RouteSegment, "parent-conversation"),
+					async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+					{
+						var request = new Query(tenantId, id);
+						var result = await mediator.SendAsync<Query, Result<Response>>(
+							request, cancellationToken);
+						return result.ToHttpResult();
+					})
+				.WithName("GetParentConversationById")
+				.WithTags(ModuleConstants.Name)
+				.RequireAuthorization();
+			return endpoints;
+		}
 	}
 }

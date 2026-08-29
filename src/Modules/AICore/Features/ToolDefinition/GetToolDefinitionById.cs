@@ -38,7 +38,7 @@ public static class GetToolDefinitionById
 
 	}
 
-	internal sealed class GetToolDefinitionByIdDataAccess(
+	internal sealed class GetToolDefinitionByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetToolDefinitionById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetToolDefinitionById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetToolDefinitionById dataAccess)

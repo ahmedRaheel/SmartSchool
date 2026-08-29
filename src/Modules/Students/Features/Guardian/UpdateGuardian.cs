@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -50,7 +49,7 @@ public static class UpdateGuardian
 
 	}
 
-	internal sealed class UpdateGuardianDataAccess(
+	internal sealed class UpdateGuardianPersistence(
 		IApplicationDbContext dbContext) : IUpdateGuardian
 	{
 		public async Task UpdateAsync(

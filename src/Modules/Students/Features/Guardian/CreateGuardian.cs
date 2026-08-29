@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -49,7 +48,7 @@ public static class CreateGuardian
 
 	}
 
-	internal sealed class CreateGuardianDataAccess(
+	internal sealed class CreateGuardianPersistence(
 		IApplicationDbContext dbContext) : ICreateGuardian
 	{
 		public async Task AddAsync(

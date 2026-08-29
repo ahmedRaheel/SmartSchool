@@ -41,7 +41,7 @@ public static class GetResumePage
 
 	}
 
-	internal sealed class GetResumePageDataAccess(
+	internal sealed class GetResumePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetResumePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

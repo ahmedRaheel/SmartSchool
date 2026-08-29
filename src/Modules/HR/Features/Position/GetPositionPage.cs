@@ -41,7 +41,7 @@ public static class GetPositionPage
 
 	}
 
-	internal sealed class GetPositionPageDataAccess(
+	internal sealed class GetPositionPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetPositionPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

@@ -38,7 +38,7 @@ public static class GetReservationById
 
 	}
 
-	internal sealed class GetReservationByIdDataAccess(
+	internal sealed class GetReservationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetReservationById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetReservationById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetReservationById dataAccess)

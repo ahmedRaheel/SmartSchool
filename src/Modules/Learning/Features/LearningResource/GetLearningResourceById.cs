@@ -38,7 +38,7 @@ public static class GetLearningResourceById
 
 	}
 
-	internal sealed class GetLearningResourceByIdDataAccess(
+	internal sealed class GetLearningResourceByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetLearningResourceById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetLearningResourceById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetLearningResourceById dataAccess)

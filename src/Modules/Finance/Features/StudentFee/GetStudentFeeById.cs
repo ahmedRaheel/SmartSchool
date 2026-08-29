@@ -38,7 +38,7 @@ public static class GetStudentFeeById
 
 	}
 
-	internal sealed class GetStudentFeeByIdDataAccess(
+	internal sealed class GetStudentFeeByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetStudentFeeById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetStudentFeeById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetStudentFeeById dataAccess)

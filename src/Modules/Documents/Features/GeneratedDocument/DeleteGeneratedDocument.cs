@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteGeneratedDocument
 
 	}
 
-	internal sealed class DeleteGeneratedDocumentDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteGeneratedDocument
+	internal sealed class DeleteGeneratedDocumentPersistence(IApplicationDbContext dbContext) : IDeleteGeneratedDocument
 	{
 		public async Task DeleteAsync(
 				GeneratedDocumentEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteGeneratedDocument
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM document.generated_document
-					WHERE tenant_id = @TenantId
-					  AND generated_document_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<GeneratedDocumentEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<GeneratedDocumentEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.GeneratedDocumentId == id,
+						cancellationToken);
 			}
 	}
 

@@ -41,7 +41,7 @@ public static class GetRoutePage
 
 	}
 
-	internal sealed class GetRoutePageDataAccess(
+	internal sealed class GetRoutePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetRoutePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

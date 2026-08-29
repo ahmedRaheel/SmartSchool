@@ -38,7 +38,7 @@ public static class GetAuditLogById
 
 	}
 
-	internal sealed class GetAuditLogByIdDataAccess(
+	internal sealed class GetAuditLogByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetAuditLogById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetAuditLogById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetAuditLogById dataAccess)

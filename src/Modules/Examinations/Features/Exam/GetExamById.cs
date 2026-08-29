@@ -38,7 +38,7 @@ public static class GetExamById
 
 	}
 
-	internal sealed class GetExamByIdDataAccess(
+	internal sealed class GetExamByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetExamById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetExamById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetExamById dataAccess)

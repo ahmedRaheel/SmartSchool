@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeletePredictionEvaluation
 
 	}
 
-	internal sealed class DeletePredictionEvaluationDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeletePredictionEvaluation
+	internal sealed class DeletePredictionEvaluationPersistence(IApplicationDbContext dbContext) : IDeletePredictionEvaluation
 	{
 		public async Task DeleteAsync(
 				PredictionEvaluationEntity entity,
@@ -53,26 +50,12 @@ public static class DeletePredictionEvaluation
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai.prediction_evaluation
-					WHERE tenant_id = @TenantId
-					  AND prediction_evaluation_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<PredictionEvaluationEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<PredictionEvaluationEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.PredictionEvaluationId == id,
+						cancellationToken);
 			}
 	}
 

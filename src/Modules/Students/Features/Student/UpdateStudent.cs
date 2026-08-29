@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -55,7 +54,7 @@ public static class UpdateStudent
 
 	}
 
-	internal sealed class UpdateStudentDataAccess(
+	internal sealed class UpdateStudentPersistence(
 		IApplicationDbContext dbContext) : IUpdateStudent
 	{
 		public async Task UpdateAsync(

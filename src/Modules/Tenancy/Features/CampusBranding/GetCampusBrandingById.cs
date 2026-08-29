@@ -38,7 +38,7 @@ public static class GetCampusBrandingById
 
 	}
 
-	internal sealed class GetCampusBrandingByIdDataAccess(
+	internal sealed class GetCampusBrandingByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetCampusBrandingById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetCampusBrandingById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetCampusBrandingById dataAccess)

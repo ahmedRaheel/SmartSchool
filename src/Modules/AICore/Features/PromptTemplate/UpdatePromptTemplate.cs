@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -30,7 +29,6 @@ public static class UpdatePromptTemplate
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -39,7 +37,6 @@ public static class UpdatePromptTemplate
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -49,23 +46,14 @@ public static class UpdatePromptTemplate
 		Task UpdateAsync(
 				PromptTemplateEntity entity,
 				CancellationToken cancellationToken);
-
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-		Task<PromptTemplateEntity?> GetByIdAsync(
+Task<PromptTemplateEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken);
 
 	}
 
-	internal sealed class UpdatePromptTemplateDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IUpdatePromptTemplate
+	internal sealed class UpdatePromptTemplatePersistence(IApplicationDbContext dbContext) : IUpdatePromptTemplate
 	{
 		public async Task UpdateAsync(
 				PromptTemplateEntity entity,
@@ -78,62 +66,17 @@ public static class UpdatePromptTemplate
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
 
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM ai_core.prompt_template
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR prompt_template_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
-
 		public async Task<PromptTemplateEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai_core.prompt_template
-					WHERE tenant_id = @TenantId
-					  AND prompt_template_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<PromptTemplateEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<PromptTemplateEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.PromptTemplateId == id,
+						cancellationToken);
 			}
 	}
 
@@ -152,17 +95,9 @@ public static class UpdatePromptTemplate
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(PromptTemplateEntity))));
 			}
 
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(PromptTemplateEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

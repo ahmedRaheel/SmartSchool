@@ -38,7 +38,7 @@ public static class GetTutorMessageById
 
 	}
 
-	internal sealed class GetTutorMessageByIdDataAccess(
+	internal sealed class GetTutorMessageByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetTutorMessageById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetTutorMessageById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetTutorMessageById dataAccess)

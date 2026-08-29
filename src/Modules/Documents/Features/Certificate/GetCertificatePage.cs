@@ -41,7 +41,7 @@ public static class GetCertificatePage
 
 	}
 
-	internal sealed class GetCertificatePageDataAccess(
+	internal sealed class GetCertificatePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetCertificatePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

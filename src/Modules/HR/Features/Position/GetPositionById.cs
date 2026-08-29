@@ -38,7 +38,7 @@ public static class GetPositionById
 
 	}
 
-	internal sealed class GetPositionByIdDataAccess(
+	internal sealed class GetPositionByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetPositionById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetPositionById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetPositionById dataAccess)

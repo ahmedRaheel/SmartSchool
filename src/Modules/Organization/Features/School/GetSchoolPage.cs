@@ -39,7 +39,7 @@ public static class GetSchoolPage
 
 	}
 
-	internal sealed class GetSchoolPageDataAccess(
+	internal sealed class GetSchoolPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetSchoolPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteBookCopy
 
 	}
 
-	internal sealed class DeleteBookCopyDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteBookCopy
+	internal sealed class DeleteBookCopyPersistence(IApplicationDbContext dbContext) : IDeleteBookCopy
 	{
 		public async Task DeleteAsync(
 				BookCopyEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteBookCopy
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM library.book_copy
-					WHERE tenant_id = @TenantId
-					  AND book_copy_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<BookCopyEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<BookCopyEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.BookCopyId == id,
+						cancellationToken);
 			}
 	}
 

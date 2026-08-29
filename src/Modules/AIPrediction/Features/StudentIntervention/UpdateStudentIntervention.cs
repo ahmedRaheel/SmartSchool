@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -30,7 +29,6 @@ public static class UpdateStudentIntervention
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -39,7 +37,6 @@ public static class UpdateStudentIntervention
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -49,23 +46,14 @@ public static class UpdateStudentIntervention
 		Task UpdateAsync(
 				StudentInterventionEntity entity,
 				CancellationToken cancellationToken);
-
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-		Task<StudentInterventionEntity?> GetByIdAsync(
+Task<StudentInterventionEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken);
 
 	}
 
-	internal sealed class UpdateStudentInterventionDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IUpdateStudentIntervention
+	internal sealed class UpdateStudentInterventionPersistence(IApplicationDbContext dbContext) : IUpdateStudentIntervention
 	{
 		public async Task UpdateAsync(
 				StudentInterventionEntity entity,
@@ -78,62 +66,17 @@ public static class UpdateStudentIntervention
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
 
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM ai.student_intervention
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR student_intervention_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
-
 		public async Task<StudentInterventionEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai.student_intervention
-					WHERE tenant_id = @TenantId
-					  AND student_intervention_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<StudentInterventionEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<StudentInterventionEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.StudentInterventionId == id,
+						cancellationToken);
 			}
 	}
 
@@ -152,17 +95,9 @@ public static class UpdateStudentIntervention
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentInterventionEntity))));
 			}
 
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(StudentInterventionEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

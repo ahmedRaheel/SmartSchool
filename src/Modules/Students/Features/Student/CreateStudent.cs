@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -68,9 +67,7 @@ public static class CreateStudent
 
 	}
 
-	internal sealed class CreateStudentDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : ICreateStudent
+	internal sealed class CreateStudentPersistence(IApplicationDbContext dbContext) : ICreateStudent
 	{
 		public async Task AddAsync(
 				StudentEntity entity,
@@ -90,19 +87,12 @@ public static class CreateStudent
 		    }
 
 		public async Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken)
-		    {
-		        const string sql = """
-		            SELECT EXISTS (
-		                SELECT 1
-		                FROM org.campus
-		                WHERE tenant_id = @TenantId
-		                  AND school_id = @SchoolId
-		                  AND campus_id = @CampusId
-		            );
-		            """;
-		        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-		        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { TenantId = tenantId, SchoolId = schoolId, CampusId = campusId }, cancellationToken: cancellationToken));
-		    }
+		{
+			return await dbContext.Database.SqlQueryRaw<bool>(
+				"SELECT EXISTS (SELECT 1 FROM org.campus WHERE tenant_id = {0} AND school_id = {1} AND campus_id = {2} AND is_active = TRUE) AS \"Value\"",
+				tenantId, schoolId, campusId).SingleAsync(cancellationToken);
+		}
+
 	}
 
 	public sealed class Handler(ICreateStudent dataAccess)

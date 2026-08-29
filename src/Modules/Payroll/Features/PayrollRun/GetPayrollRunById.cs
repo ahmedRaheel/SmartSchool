@@ -38,7 +38,7 @@ public static class GetPayrollRunById
 
 	}
 
-	internal sealed class GetPayrollRunByIdDataAccess(
+	internal sealed class GetPayrollRunByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetPayrollRunById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetPayrollRunById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetPayrollRunById dataAccess)

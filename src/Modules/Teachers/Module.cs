@@ -10,7 +10,7 @@ public static class Module
 {
     public static IServiceCollection AddTeachersModule(this IServiceCollection services)
     {
-        services.AddFeatureDataAccess(typeof(Module).Assembly);
+        services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;
     }
 

@@ -38,7 +38,7 @@ public static class GetIncrementById
 
 	}
 
-	internal sealed class GetIncrementByIdDataAccess(
+	internal sealed class GetIncrementByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetIncrementById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetIncrementById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetIncrementById dataAccess)

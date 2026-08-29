@@ -38,7 +38,7 @@ public static class GetVehicleById
 
 	}
 
-	internal sealed class GetVehicleByIdDataAccess(
+	internal sealed class GetVehicleByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetVehicleById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetVehicleById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetVehicleById dataAccess)

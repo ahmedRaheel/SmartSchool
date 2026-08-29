@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteLearningRecommendation
 
 	}
 
-	internal sealed class DeleteLearningRecommendationDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteLearningRecommendation
+	internal sealed class DeleteLearningRecommendationPersistence(IApplicationDbContext dbContext) : IDeleteLearningRecommendation
 	{
 		public async Task DeleteAsync(
 				LearningRecommendationEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteLearningRecommendation
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai_tutor.learning_recommendation
-					WHERE tenant_id = @TenantId
-					  AND learning_recommendation_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<LearningRecommendationEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<LearningRecommendationEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.LearningRecommendationId == id,
+						cancellationToken);
 			}
 	}
 

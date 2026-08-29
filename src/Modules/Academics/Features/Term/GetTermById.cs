@@ -38,7 +38,7 @@ public static class GetTermById
 
 	}
 
-	internal sealed class GetTermByIdDataAccess(
+	internal sealed class GetTermByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetTermById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetTermById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetTermById dataAccess)

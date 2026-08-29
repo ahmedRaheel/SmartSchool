@@ -10,9 +10,9 @@ namespace SmartSchool.Application.Messaging;
 /// independent from individual entities and allows slices to evolve without
 /// editing Module.cs for every data-access type.
 /// </summary>
-public static class FeatureDataAccessRegistrationExtensions
+public static class FeaturePersistenceRegistrationExtensions
 {
-    public static IServiceCollection AddFeatureDataAccess(
+    public static IServiceCollection AddFeaturePersistence(
         this IServiceCollection services,
         Assembly assembly)
     {

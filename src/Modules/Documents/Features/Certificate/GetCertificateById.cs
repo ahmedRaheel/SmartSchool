@@ -38,7 +38,7 @@ public static class GetCertificateById
 
 	}
 
-	internal sealed class GetCertificateByIdDataAccess(
+	internal sealed class GetCertificateByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetCertificateById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetCertificateById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetCertificateById dataAccess)

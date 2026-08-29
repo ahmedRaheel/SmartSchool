@@ -19,7 +19,7 @@ public static class Module
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
-        services.AddFeatureDataAccess(typeof(Module).Assembly);
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 		return services;
 	}
 

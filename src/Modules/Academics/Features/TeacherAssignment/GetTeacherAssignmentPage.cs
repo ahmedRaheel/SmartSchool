@@ -41,7 +41,7 @@ public static class GetTeacherAssignmentPage
 
 	}
 
-	internal sealed class GetTeacherAssignmentPageDataAccess(
+	internal sealed class GetTeacherAssignmentPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetTeacherAssignmentPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

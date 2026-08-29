@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -30,7 +29,6 @@ public static class UpdateConversation
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -39,7 +37,6 @@ public static class UpdateConversation
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -49,23 +46,14 @@ public static class UpdateConversation
 		Task UpdateAsync(
 				ConversationEntity entity,
 				CancellationToken cancellationToken);
-
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-		Task<ConversationEntity?> GetByIdAsync(
+Task<ConversationEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken);
 
 	}
 
-	internal sealed class UpdateConversationDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IUpdateConversation
+	internal sealed class UpdateConversationPersistence(IApplicationDbContext dbContext) : IUpdateConversation
 	{
 		public async Task UpdateAsync(
 				ConversationEntity entity,
@@ -78,62 +66,17 @@ public static class UpdateConversation
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
 
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM communication.conversation
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR conversation_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
-
 		public async Task<ConversationEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM communication.conversation
-					WHERE tenant_id = @TenantId
-					  AND conversation_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<ConversationEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<ConversationEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.ConversationId == id,
+						cancellationToken);
 			}
 	}
 
@@ -152,17 +95,9 @@ public static class UpdateConversation
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(ConversationEntity))));
 			}
 
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(ConversationEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

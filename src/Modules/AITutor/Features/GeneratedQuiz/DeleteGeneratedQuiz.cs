@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteGeneratedQuiz
 
 	}
 
-	internal sealed class DeleteGeneratedQuizDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteGeneratedQuiz
+	internal sealed class DeleteGeneratedQuizPersistence(IApplicationDbContext dbContext) : IDeleteGeneratedQuiz
 	{
 		public async Task DeleteAsync(
 				GeneratedQuizEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteGeneratedQuiz
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai_tutor.generated_quiz
-					WHERE tenant_id = @TenantId
-					  AND generated_quiz_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<GeneratedQuizEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<GeneratedQuizEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.GeneratedQuizId == id,
+						cancellationToken);
 			}
 	}
 

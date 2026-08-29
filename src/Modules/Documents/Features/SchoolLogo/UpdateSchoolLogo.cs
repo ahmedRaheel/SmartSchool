@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -30,7 +29,6 @@ public static class UpdateSchoolLogo
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -39,7 +37,6 @@ public static class UpdateSchoolLogo
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -49,23 +46,14 @@ public static class UpdateSchoolLogo
 		Task UpdateAsync(
 				SchoolLogoEntity entity,
 				CancellationToken cancellationToken);
-
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-		Task<SchoolLogoEntity?> GetByIdAsync(
+Task<SchoolLogoEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken);
 
 	}
 
-	internal sealed class UpdateSchoolLogoDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IUpdateSchoolLogo
+	internal sealed class UpdateSchoolLogoPersistence(IApplicationDbContext dbContext) : IUpdateSchoolLogo
 	{
 		public async Task UpdateAsync(
 				SchoolLogoEntity entity,
@@ -78,62 +66,17 @@ public static class UpdateSchoolLogo
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
 
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM document.schoollogo
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR school_logo_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
-
 		public async Task<SchoolLogoEntity?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM document.schoollogo
-					WHERE tenant_id = @TenantId
-					  AND school_logo_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<SchoolLogoEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<SchoolLogoEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.SchoolLogoId == id,
+						cancellationToken);
 			}
 	}
 
@@ -152,17 +95,9 @@ public static class UpdateSchoolLogo
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogoEntity))));
 			}
 
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(SchoolLogoEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

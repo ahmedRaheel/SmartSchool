@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteEmployeeCompensation
 
 	}
 
-	internal sealed class DeleteEmployeeCompensationDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteEmployeeCompensation
+	internal sealed class DeleteEmployeeCompensationPersistence(IApplicationDbContext dbContext) : IDeleteEmployeeCompensation
 	{
 		public async Task DeleteAsync(
 				EmployeeCompensationEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteEmployeeCompensation
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM hr.employee_compensation
-					WHERE tenant_id = @TenantId
-					  AND employee_compensation_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<EmployeeCompensationEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<EmployeeCompensationEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.EmployeeCompensationId == id,
+						cancellationToken);
 			}
 	}
 

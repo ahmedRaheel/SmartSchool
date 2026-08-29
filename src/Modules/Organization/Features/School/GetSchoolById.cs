@@ -36,7 +36,7 @@ public static class GetSchoolById
 
 	}
 
-	internal sealed class GetSchoolByIdDataAccess(
+	internal sealed class GetSchoolByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetSchoolById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -76,9 +76,7 @@ public static class GetSchoolById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetSchoolById dataAccess)

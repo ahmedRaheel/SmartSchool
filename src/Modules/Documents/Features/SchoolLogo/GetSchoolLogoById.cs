@@ -38,7 +38,7 @@ public static class GetSchoolLogoById
 
 	}
 
-	internal sealed class GetSchoolLogoByIdDataAccess(
+	internal sealed class GetSchoolLogoByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetSchoolLogoById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetSchoolLogoById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetSchoolLogoById dataAccess)

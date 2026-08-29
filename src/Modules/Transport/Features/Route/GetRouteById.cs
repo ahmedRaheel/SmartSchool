@@ -38,7 +38,7 @@ public static class GetRouteById
 
 	}
 
-	internal sealed class GetRouteByIdDataAccess(
+	internal sealed class GetRouteByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetRouteById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetRouteById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetRouteById dataAccess)

@@ -38,7 +38,7 @@ public static class GetPurchaseOrderById
 
 	}
 
-	internal sealed class GetPurchaseOrderByIdDataAccess(
+	internal sealed class GetPurchaseOrderByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetPurchaseOrderById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetPurchaseOrderById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetPurchaseOrderById dataAccess)

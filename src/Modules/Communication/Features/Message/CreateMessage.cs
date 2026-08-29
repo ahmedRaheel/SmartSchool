@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -29,7 +28,6 @@ public static class CreateMessage
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,7 +35,6 @@ public static class CreateMessage
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -47,18 +44,9 @@ public static class CreateMessage
 		Task AddAsync(
 				MessageEntity entity,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateMessageDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : ICreateMessage
+	internal sealed class CreateMessagePersistence(IApplicationDbContext dbContext) : ICreateMessage
 	{
 		public async Task AddAsync(
 				MessageEntity entity,
@@ -70,37 +58,6 @@ public static class CreateMessage
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
-
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM communication.message
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR message_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
 	}
 
 	public sealed class Handler(ICreateMessage dataAccess)
@@ -110,18 +67,11 @@ public static class CreateMessage
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(MessageEntity), request.Code)));
-			}
+
 
 			var entity = MessageEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
 			await dataAccess.AddAsync(entity, cancellationToken);

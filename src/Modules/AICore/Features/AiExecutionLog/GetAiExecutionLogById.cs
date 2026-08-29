@@ -38,7 +38,7 @@ public static class GetAiExecutionLogById
 
 	}
 
-	internal sealed class GetAiExecutionLogByIdDataAccess(
+	internal sealed class GetAiExecutionLogByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetAiExecutionLogById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetAiExecutionLogById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetAiExecutionLogById dataAccess)

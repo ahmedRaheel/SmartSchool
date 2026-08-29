@@ -41,7 +41,7 @@ public static class GetStudentOfMonthPage
 
 	}
 
-	internal sealed class GetStudentOfMonthPageDataAccess(
+	internal sealed class GetStudentOfMonthPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetStudentOfMonthPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

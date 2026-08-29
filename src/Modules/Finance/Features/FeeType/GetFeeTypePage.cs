@@ -41,7 +41,7 @@ public static class GetFeeTypePage
 
 	}
 
-	internal sealed class GetFeeTypePageDataAccess(
+	internal sealed class GetFeeTypePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetFeeTypePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

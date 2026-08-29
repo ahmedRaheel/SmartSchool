@@ -38,7 +38,7 @@ public static class GetResumeById
 
 	}
 
-	internal sealed class GetResumeByIdDataAccess(
+	internal sealed class GetResumeByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetResumeById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetResumeById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetResumeById dataAccess)

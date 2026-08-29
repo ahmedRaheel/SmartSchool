@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeletePromptTemplate
 
 	}
 
-	internal sealed class DeletePromptTemplateDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeletePromptTemplate
+	internal sealed class DeletePromptTemplatePersistence(IApplicationDbContext dbContext) : IDeletePromptTemplate
 	{
 		public async Task DeleteAsync(
 				PromptTemplateEntity entity,
@@ -53,26 +50,12 @@ public static class DeletePromptTemplate
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai_core.prompt_template
-					WHERE tenant_id = @TenantId
-					  AND prompt_template_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<PromptTemplateEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<PromptTemplateEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.PromptTemplateId == id,
+						cancellationToken);
 			}
 	}
 

@@ -38,7 +38,7 @@ public static class GetTimetableById
 
 	}
 
-	internal sealed class GetTimetableByIdDataAccess(
+	internal sealed class GetTimetableByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetTimetableById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetTimetableById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetTimetableById dataAccess)

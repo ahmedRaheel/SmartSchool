@@ -38,7 +38,7 @@ public static class GetAcademicSystemById
 
 	}
 
-	internal sealed class GetAcademicSystemByIdDataAccess(
+	internal sealed class GetAcademicSystemByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetAcademicSystemById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetAcademicSystemById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetAcademicSystemById dataAccess)

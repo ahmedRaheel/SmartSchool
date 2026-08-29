@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -29,7 +28,6 @@ public static class CreateKnowledgeCollection
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name,
 		string? MetadataJson = null) : IRequest<Result<Response>>;
 
@@ -38,7 +36,6 @@ public static class CreateKnowledgeCollection
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -48,18 +45,9 @@ public static class CreateKnowledgeCollection
 		Task AddAsync(
 				KnowledgeCollectionEntity entity,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateKnowledgeCollectionDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : ICreateKnowledgeCollection
+	internal sealed class CreateKnowledgeCollectionPersistence(IApplicationDbContext dbContext) : ICreateKnowledgeCollection
 	{
 		public async Task AddAsync(
 				KnowledgeCollectionEntity entity,
@@ -71,37 +59,6 @@ public static class CreateKnowledgeCollection
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
-
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM ai_core.knowledge_collection
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR knowledge_collection_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
 	}
 
 	public sealed class Handler(ICreateKnowledgeCollection dataAccess)
@@ -111,18 +68,11 @@ public static class CreateKnowledgeCollection
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(KnowledgeCollectionEntity), request.Code)));
-			}
+
 
 			var entity = KnowledgeCollectionEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name,
 				request.MetadataJson);
 

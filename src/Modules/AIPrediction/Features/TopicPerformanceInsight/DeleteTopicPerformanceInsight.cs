@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteTopicPerformanceInsight
 
 	}
 
-	internal sealed class DeleteTopicPerformanceInsightDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteTopicPerformanceInsight
+	internal sealed class DeleteTopicPerformanceInsightPersistence(IApplicationDbContext dbContext) : IDeleteTopicPerformanceInsight
 	{
 		public async Task DeleteAsync(
 				TopicPerformanceInsightEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteTopicPerformanceInsight
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai.topic_performance_insight
-					WHERE tenant_id = @TenantId
-					  AND topic_performance_insight_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<TopicPerformanceInsightEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<TopicPerformanceInsightEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.TopicPerformanceInsightId == id,
+						cancellationToken);
 			}
 	}
 

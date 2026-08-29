@@ -41,7 +41,7 @@ public static class GetCampusBrandingPage
 
 	}
 
-	internal sealed class GetCampusBrandingPageDataAccess(
+	internal sealed class GetCampusBrandingPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetCampusBrandingPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

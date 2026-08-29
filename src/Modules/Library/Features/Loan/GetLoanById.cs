@@ -38,7 +38,7 @@ public static class GetLoanById
 
 	}
 
-	internal sealed class GetLoanByIdDataAccess(
+	internal sealed class GetLoanByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetLoanById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetLoanById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetLoanById dataAccess)

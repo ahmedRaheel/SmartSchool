@@ -8,7 +8,7 @@ public static class Module
 {
 	public static IServiceCollection AddReferenceModule(this IServiceCollection services)
 	{
-		services.AddFeatureDataAccess(typeof(Module).Assembly);
+		services.AddFeaturePersistence(typeof(Module).Assembly);
 		return services;
 	}
 

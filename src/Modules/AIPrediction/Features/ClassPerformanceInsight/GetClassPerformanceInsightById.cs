@@ -38,15 +38,15 @@ public static class GetClassPerformanceInsightById
 
 	}
 
-	internal sealed class GetClassPerformanceInsightByIdDataAccess(
+	internal sealed class GetClassPerformanceInsightByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetClassPerformanceInsightById
 	{
 		public async Task<Response?> GetByIdAsync(
 				Guid tenantId,
 				Guid id,
 				CancellationToken cancellationToken)
-			{
-				const string sql = """
+		{
+			const string sql = """
 					SELECT
 						tenant_id AS "TenantId",
 						class_performance_insight_id AS "Id",
@@ -58,20 +58,19 @@ public static class GetClassPerformanceInsightById
 					  AND class_performance_insight_id = @Id
 					  AND is_active = TRUE;
 					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<Response>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+
+			await using var connection =
+				await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+			return await connection.QuerySingleOrDefaultAsync<Response>(
+				new CommandDefinition(
+					sql,
+					new
+					{
+						TenantId = tenantId,
+						Id = id
+					}));
+		}
 	}
 
 	public sealed class Handler(IGetClassPerformanceInsightById dataAccess)

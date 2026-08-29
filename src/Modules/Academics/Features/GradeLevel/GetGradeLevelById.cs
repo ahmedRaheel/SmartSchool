@@ -38,7 +38,7 @@ public static class GetGradeLevelById
 
 	}
 
-	internal sealed class GetGradeLevelByIdDataAccess(
+	internal sealed class GetGradeLevelByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetGradeLevelById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetGradeLevelById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetGradeLevelById dataAccess)

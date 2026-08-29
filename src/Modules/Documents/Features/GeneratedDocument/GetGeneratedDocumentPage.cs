@@ -41,7 +41,7 @@ public static class GetGeneratedDocumentPage
 
 	}
 
-	internal sealed class GetGeneratedDocumentPageDataAccess(
+	internal sealed class GetGeneratedDocumentPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetGeneratedDocumentPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

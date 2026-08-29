@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -29,7 +28,6 @@ public static class CreateAuditLog
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,7 +35,6 @@ public static class CreateAuditLog
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -47,18 +44,9 @@ public static class CreateAuditLog
 		Task AddAsync(
 				AuditLogEntity entity,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateAuditLogDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : ICreateAuditLog
+	internal sealed class CreateAuditLogPersistence(IApplicationDbContext dbContext) : ICreateAuditLog
 	{
 		public async Task AddAsync(
 				AuditLogEntity entity,
@@ -70,37 +58,6 @@ public static class CreateAuditLog
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
-
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM audit.audit_log
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR audit_log_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
 	}
 
 	public sealed class Handler(ICreateAuditLog dataAccess)
@@ -110,18 +67,11 @@ public static class CreateAuditLog
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(AuditLogEntity), request.Code)));
-			}
+
 
 			var entity = AuditLogEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
 			await dataAccess.AddAsync(entity, cancellationToken);

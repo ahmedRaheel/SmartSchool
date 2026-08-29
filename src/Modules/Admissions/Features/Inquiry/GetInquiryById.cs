@@ -38,7 +38,7 @@ public static class GetInquiryById
 
 	}
 
-	internal sealed class GetInquiryByIdDataAccess(
+	internal sealed class GetInquiryByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetInquiryById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetInquiryById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetInquiryById dataAccess)

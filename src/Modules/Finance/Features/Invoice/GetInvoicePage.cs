@@ -41,7 +41,7 @@ public static class GetInvoicePage
 
 	}
 
-	internal sealed class GetInvoicePageDataAccess(
+	internal sealed class GetInvoicePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetInvoicePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

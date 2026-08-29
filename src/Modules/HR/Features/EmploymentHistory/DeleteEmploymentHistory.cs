@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteEmploymentHistory
 
 	}
 
-	internal sealed class DeleteEmploymentHistoryDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteEmploymentHistory
+	internal sealed class DeleteEmploymentHistoryPersistence(IApplicationDbContext dbContext) : IDeleteEmploymentHistory
 	{
 		public async Task DeleteAsync(
 				EmploymentHistoryEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteEmploymentHistory
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM public.EmploymentHistory
-					WHERE tenant_id = @TenantId
-					  AND employmenthistory_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<EmploymentHistoryEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<EmploymentHistoryEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.EmploymentHistoryId == id,
+						cancellationToken);
 			}
 	}
 

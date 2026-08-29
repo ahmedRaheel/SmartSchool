@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -70,7 +69,7 @@ public static class UpdateNotification
 
 	}
 
-	internal sealed class UpdateNotificationDataAccess(
+	internal sealed class UpdateNotificationPersistence(
 		IApplicationDbContext dbContext) : IUpdateNotification
 	{
 		public Task<NotificationEntity?> GetByIdAsync(

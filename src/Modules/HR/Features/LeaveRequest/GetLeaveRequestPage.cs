@@ -41,7 +41,7 @@ public static class GetLeaveRequestPage
 
 	}
 
-	internal sealed class GetLeaveRequestPageDataAccess(
+	internal sealed class GetLeaveRequestPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetLeaveRequestPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -50,7 +49,7 @@ public static class CreateCourseOffering
 
 	}
 
-	internal sealed class CreateCourseOfferingDataAccess(
+	internal sealed class CreateCourseOfferingPersistence(
 		IApplicationDbContext dbContext) : ICreateCourseOffering
 	{
 		public async Task AddAsync(
@@ -66,7 +65,7 @@ public static class CreateCourseOffering
 	}
 
 	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
-		IDbConnectionFactory connectionFactory,
+		IApplicationDbContext dbContext,
 		ICreateCourseOffering dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
@@ -74,10 +73,12 @@ public static class CreateCourseOffering
 			Request request,
 			CancellationToken cancellationToken)
 		{
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
-                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
-                new { request.TenantId, request.BranchId }, cancellationToken: cancellationToken));
+            var branchCode = await dbContext.Database
+                .SqlQueryRaw<string>(
+                    "SELECT code AS \"Value\" FROM org.campus WHERE tenant_id = {0} AND campus_id = {1} AND is_active = TRUE",
+                    request.TenantId,
+                    request.BranchId)
+                .SingleOrDefaultAsync(cancellationToken);
             if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("A valid branch is required."));
             var code = await numberGenerator.NextAsync("COURSE:" + request.BranchId, $"{branchCode}-CR-", request.TenantId, 5, cancellationToken);
 

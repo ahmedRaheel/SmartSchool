@@ -38,7 +38,7 @@ public static class GetPredictionEvaluationById
 
 	}
 
-	internal sealed class GetPredictionEvaluationByIdDataAccess(
+	internal sealed class GetPredictionEvaluationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetPredictionEvaluationById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetPredictionEvaluationById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetPredictionEvaluationById dataAccess)

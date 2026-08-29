@@ -41,7 +41,7 @@ public static class GetExamSubjectPage
 
 	}
 
-	internal sealed class GetExamSubjectPageDataAccess(
+	internal sealed class GetExamSubjectPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetExamSubjectPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

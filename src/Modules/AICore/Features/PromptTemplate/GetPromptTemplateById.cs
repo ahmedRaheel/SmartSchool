@@ -38,7 +38,7 @@ public static class GetPromptTemplateById
 
 	}
 
-	internal sealed class GetPromptTemplateByIdDataAccess(
+	internal sealed class GetPromptTemplateByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetPromptTemplateById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetPromptTemplateById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetPromptTemplateById dataAccess)

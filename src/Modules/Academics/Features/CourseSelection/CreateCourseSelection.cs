@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -29,7 +28,6 @@ public static class CreateCourseSelection
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,7 +35,6 @@ public static class CreateCourseSelection
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -47,18 +44,9 @@ public static class CreateCourseSelection
 		Task AddAsync(
 				CourseSelectionEntity entity,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateCourseSelectionDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : ICreateCourseSelection
+	internal sealed class CreateCourseSelectionPersistence(IApplicationDbContext dbContext) : ICreateCourseSelection
 	{
 		public async Task AddAsync(
 				CourseSelectionEntity entity,
@@ -70,37 +58,6 @@ public static class CreateCourseSelection
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
-
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM student.student_course_enrollment
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR student_course_enrollment_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
 	}
 
 	public sealed class Handler(ICreateCourseSelection dataAccess)
@@ -110,18 +67,11 @@ public static class CreateCourseSelection
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(CourseSelectionEntity), request.Code)));
-			}
+
 
 			var entity = CourseSelectionEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
 			await dataAccess.AddAsync(entity, cancellationToken);

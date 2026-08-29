@@ -70,7 +70,7 @@ public static class CreateTenant
 		Task AddAsync(TenantContactEntity entity, CancellationToken cancellationToken);
 	}
 
-	internal sealed class CreateTenantDataAccess(
+	internal sealed class CreateTenantPersistence(
 		IApplicationDbContext dbContext) : ICreateTenant
 	{
 		public async Task DeleteAsync(

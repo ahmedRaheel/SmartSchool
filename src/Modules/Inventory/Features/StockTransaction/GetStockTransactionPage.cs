@@ -41,7 +41,7 @@ public static class GetStockTransactionPage
 
 	}
 
-	internal sealed class GetStockTransactionPageDataAccess(
+	internal sealed class GetStockTransactionPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetStockTransactionPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

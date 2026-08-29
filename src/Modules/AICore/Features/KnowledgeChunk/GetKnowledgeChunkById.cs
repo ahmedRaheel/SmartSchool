@@ -38,7 +38,7 @@ public static class GetKnowledgeChunkById
 
 	}
 
-	internal sealed class GetKnowledgeChunkByIdDataAccess(
+	internal sealed class GetKnowledgeChunkByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetKnowledgeChunkById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetKnowledgeChunkById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetKnowledgeChunkById dataAccess)

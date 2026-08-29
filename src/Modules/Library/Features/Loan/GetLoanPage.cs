@@ -41,7 +41,7 @@ public static class GetLoanPage
 
 	}
 
-	internal sealed class GetLoanPageDataAccess(
+	internal sealed class GetLoanPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetLoanPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

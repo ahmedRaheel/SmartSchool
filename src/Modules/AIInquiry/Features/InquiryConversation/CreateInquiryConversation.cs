@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -29,7 +28,6 @@ public static class CreateInquiryConversation
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name,
 		string? MetadataJson = null) : IRequest<Result<Response>>;
 
@@ -38,7 +36,6 @@ public static class CreateInquiryConversation
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -48,18 +45,9 @@ public static class CreateInquiryConversation
 		Task AddAsync(
 				InquiryConversationEntity entity,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateInquiryConversationDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : ICreateInquiryConversation
+	internal sealed class CreateInquiryConversationPersistence(IApplicationDbContext dbContext) : ICreateInquiryConversation
 	{
 		public async Task AddAsync(
 				InquiryConversationEntity entity,
@@ -71,32 +59,6 @@ public static class CreateInquiryConversation
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
-
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM ai_core.inquiry_conversation
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR inquiry_conversation_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new { TenantId = tenantId, Code = code, ExcludingId = excludingId },
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
 	}
 
 	public sealed class Handler(ICreateInquiryConversation dataAccess)
@@ -106,18 +68,11 @@ public static class CreateInquiryConversation
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(InquiryConversationEntity), request.Code)));
-			}
+
 
 			var entity = InquiryConversationEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name,
 				request.MetadataJson);
 

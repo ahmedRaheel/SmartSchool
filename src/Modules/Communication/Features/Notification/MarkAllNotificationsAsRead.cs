@@ -27,7 +27,7 @@ public static class MarkAllNotificationsAsRead
 
 	}
 
-	internal sealed class MarkAllNotificationsAsReadDataAccess(
+	internal sealed class MarkAllNotificationsAsReadPersistence(
 		IApplicationDbContext dbContext) : IMarkAllNotificationsAsRead
 	{
 		public async Task UpdateAsync(

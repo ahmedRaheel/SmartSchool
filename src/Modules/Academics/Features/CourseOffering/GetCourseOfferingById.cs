@@ -38,7 +38,7 @@ public static class GetCourseOfferingById
 
 	}
 
-	internal sealed class GetCourseOfferingByIdDataAccess(
+	internal sealed class GetCourseOfferingByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetCourseOfferingById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetCourseOfferingById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetCourseOfferingById dataAccess)

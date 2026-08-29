@@ -41,7 +41,7 @@ public static class GetPredictionEvaluationPage
 
 	}
 
-	internal sealed class GetPredictionEvaluationPageDataAccess(
+	internal sealed class GetPredictionEvaluationPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetPredictionEvaluationPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

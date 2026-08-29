@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteGradeScale
 
 	}
 
-	internal sealed class DeleteGradeScaleDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteGradeScale
+	internal sealed class DeleteGradeScalePersistence(IApplicationDbContext dbContext) : IDeleteGradeScale
 	{
 		public async Task DeleteAsync(
 				GradeScaleEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteGradeScale
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM exam.gradescale
-					WHERE tenant_id = @TenantId
-					  AND grade_scale_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<GradeScaleEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<GradeScaleEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.GradeScaleId == id,
+						cancellationToken);
 			}
 	}
 

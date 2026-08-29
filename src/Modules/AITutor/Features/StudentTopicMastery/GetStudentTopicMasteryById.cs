@@ -38,7 +38,7 @@ public static class GetStudentTopicMasteryById
 
 	}
 
-	internal sealed class GetStudentTopicMasteryByIdDataAccess(
+	internal sealed class GetStudentTopicMasteryByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetStudentTopicMasteryById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetStudentTopicMasteryById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetStudentTopicMasteryById dataAccess)

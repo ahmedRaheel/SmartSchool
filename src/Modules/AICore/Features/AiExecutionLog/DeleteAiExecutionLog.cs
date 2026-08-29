@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteAiExecutionLog
 
 	}
 
-	internal sealed class DeleteAiExecutionLogDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteAiExecutionLog
+	internal sealed class DeleteAiExecutionLogPersistence(IApplicationDbContext dbContext) : IDeleteAiExecutionLog
 	{
 		public async Task DeleteAsync(
 				AiExecutionLogEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteAiExecutionLog
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai_core.ai_execution_log
-					WHERE tenant_id = @TenantId
-					  AND ai_execution_log_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<AiExecutionLogEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<AiExecutionLogEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.AiExecutionLogId == id,
+						cancellationToken);
 			}
 	}
 

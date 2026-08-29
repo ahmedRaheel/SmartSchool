@@ -38,7 +38,7 @@ public static class GetGeneratedDocumentById
 
 	}
 
-	internal sealed class GetGeneratedDocumentByIdDataAccess(
+	internal sealed class GetGeneratedDocumentByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetGeneratedDocumentById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetGeneratedDocumentById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetGeneratedDocumentById dataAccess)

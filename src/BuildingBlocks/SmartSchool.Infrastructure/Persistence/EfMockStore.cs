@@ -50,33 +50,6 @@ public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
 		return new PagedResult<TEntity>(items, safePage, safePageSize, totalCount);
 	}
 
-	public async Task<bool> ExistsByCodeAsync<TEntity>(
-		Guid tenantId,
-		string code,
-		Guid? excludingId,
-		CancellationToken cancellationToken)
-		where TEntity : Entity
-	{
-		var codeProperty = typeof(TEntity).GetProperty("Code")
-			?? throw new InvalidOperationException(
-				$"{typeof(TEntity).Name} does not expose Code.");
-
-		var normalizedCode = code.Trim();
-
-		var entities = await dbContext
-			.Set<TEntity>()
-			.AsNoTracking()
-			.Where(entity => entity.TenantId == tenantId)
-			.ToListAsync(cancellationToken);
-
-		return entities.Any(entity =>
-			string.Equals(
-				codeProperty.GetValue(entity) as string,
-				normalizedCode,
-				StringComparison.OrdinalIgnoreCase)
-			&& (!excludingId.HasValue || (excludingId.HasValue && GetPrimaryKeyValue(entity) != excludingId.Value)));
-	}
-
 	public async Task AddAsync<TEntity>(
 		TEntity entity,
 		CancellationToken cancellationToken)

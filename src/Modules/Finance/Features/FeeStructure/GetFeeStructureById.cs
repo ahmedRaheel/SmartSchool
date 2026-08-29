@@ -38,7 +38,7 @@ public static class GetFeeStructureById
 
 	}
 
-	internal sealed class GetFeeStructureByIdDataAccess(
+	internal sealed class GetFeeStructureByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetFeeStructureById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetFeeStructureById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetFeeStructureById dataAccess)

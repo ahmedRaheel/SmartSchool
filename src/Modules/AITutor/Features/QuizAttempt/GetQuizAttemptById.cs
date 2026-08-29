@@ -38,7 +38,7 @@ public static class GetQuizAttemptById
 
 	}
 
-	internal sealed class GetQuizAttemptByIdDataAccess(
+	internal sealed class GetQuizAttemptByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetQuizAttemptById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetQuizAttemptById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetQuizAttemptById dataAccess)

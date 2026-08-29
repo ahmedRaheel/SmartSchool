@@ -65,7 +65,7 @@ public static class CreateNotification
 
 	}
 
-	internal sealed class CreateNotificationDataAccess(
+	internal sealed class CreateNotificationPersistence(
 		IApplicationDbContext dbContext) : ICreateNotification
 	{
 		public async Task AddAsync(

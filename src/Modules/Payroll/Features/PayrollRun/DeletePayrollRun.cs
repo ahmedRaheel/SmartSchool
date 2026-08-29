@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeletePayrollRun
 
 	}
 
-	internal sealed class DeletePayrollRunDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeletePayrollRun
+	internal sealed class DeletePayrollRunPersistence(IApplicationDbContext dbContext) : IDeletePayrollRun
 	{
 		public async Task DeleteAsync(
 				PayrollRunEntity entity,
@@ -53,26 +50,12 @@ public static class DeletePayrollRun
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM payroll.payroll_run
-					WHERE tenant_id = @TenantId
-					  AND payroll_run_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<PayrollRunEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<PayrollRunEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.PayrollRunId == id,
+						cancellationToken);
 			}
 	}
 

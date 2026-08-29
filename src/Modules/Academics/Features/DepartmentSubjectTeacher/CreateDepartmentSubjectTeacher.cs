@@ -1,4 +1,4 @@
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -42,40 +42,24 @@ public static class CreateDepartmentSubjectTeacher
         }
     }
 
-    public sealed class Handler(IDbConnectionFactory connectionFactory)
+    public sealed class Handler(IApplicationDbContext dbContext)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            const string validateSql = """
-                SELECT
-                    EXISTS(SELECT 1 FROM org.department WHERE tenant_id=@TenantId AND department_id=@DepartmentId AND is_active=TRUE) AS "DepartmentExists",
-                    EXISTS(SELECT 1 FROM academic.subject WHERE tenant_id=@TenantId AND subject_id=@SubjectId AND is_active=TRUE) AS "SubjectExists",
-                    EXISTS(SELECT 1 FROM hr.employee WHERE tenant_id=@TenantId AND employee_id=@TeacherId AND is_active=TRUE) AS "TeacherExists";
-                """;
-            const string insertSql = """
-                INSERT INTO academic.department_subject_teacher
-                    (tenant_id, department_id, subject_id, teacher_id, is_primary, effective_from, effective_to)
-                VALUES
-                    (@TenantId, @DepartmentId, @SubjectId, @TeacherId, @IsPrimary, @EffectiveFrom, @EffectiveTo)
-                RETURNING department_subject_teacher_id;
-                """;
-
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var validity = await connection.QuerySingleAsync<Validity>(new CommandDefinition(validateSql, request, cancellationToken: cancellationToken));
+            var validity = await dbContext.Database.SqlQueryRaw<Validity>(
+                "SELECT EXISTS(SELECT 1 FROM org.department WHERE tenant_id={0} AND department_id={1} AND is_active=TRUE) AS \"DepartmentExists\", EXISTS(SELECT 1 FROM academic.subject WHERE tenant_id={0} AND subject_id={2} AND is_active=TRUE) AS \"SubjectExists\", EXISTS(SELECT 1 FROM hr.employee WHERE tenant_id={0} AND employee_id={3} AND is_active=TRUE) AS \"TeacherExists\"",
+                request.TenantId, request.DepartmentId, request.SubjectId, request.TeacherId).SingleAsync(cancellationToken);
             if (!validity.DepartmentExists) return Result<Response>.Failure(Error.Validation("Department does not belong to the tenant."));
             if (!validity.SubjectExists) return Result<Response>.Failure(Error.Validation("Subject does not belong to the tenant."));
             if (!validity.TeacherExists) return Result<Response>.Failure(Error.Validation("Teacher does not belong to the tenant."));
 
-            try
-            {
-                var id = await connection.ExecuteScalarAsync<Guid>(new CommandDefinition(insertSql, request, cancellationToken: cancellationToken));
-                return Result<Response>.Success(new Response(id, request.TenantId, request.DepartmentId, request.SubjectId, request.TeacherId, request.IsPrimary, request.EffectiveFrom, request.EffectiveTo));
-            }
-            catch (Exception ex) when (ex.Message.Contains("unique", StringComparison.OrdinalIgnoreCase))
-            {
-                return Result<Response>.Failure(Error.Conflict("This teacher is already assigned to the department and subject for the effective period."));
-            }
+            var id = Guid.NewGuid();
+            await dbContext.Database.ExecuteSqlRawAsync(
+                "INSERT INTO academic.department_subject_teacher (department_subject_teacher_id, tenant_id, department_id, subject_id, teacher_id, is_primary, effective_from, effective_to) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7})",
+                new object?[] { id, request.TenantId, request.DepartmentId, request.SubjectId, request.TeacherId, request.IsPrimary, request.EffectiveFrom, request.EffectiveTo },
+                cancellationToken);
+            return Result<Response>.Success(new Response(id, request.TenantId, request.DepartmentId, request.SubjectId, request.TeacherId, request.IsPrimary, request.EffectiveFrom, request.EffectiveTo));
         }
 
         private sealed record Validity(bool DepartmentExists, bool SubjectExists, bool TeacherExists);

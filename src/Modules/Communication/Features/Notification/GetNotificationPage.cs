@@ -50,7 +50,7 @@ public static class GetNotificationPage
 
 	}
 
-	internal sealed class GetNotificationPageDataAccess(		
+	internal sealed class GetNotificationPagePersistence(		
 		IDbConnectionFactory connectionFactory) : IGetNotificationPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

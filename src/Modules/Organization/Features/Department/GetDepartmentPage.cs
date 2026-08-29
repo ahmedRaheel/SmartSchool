@@ -46,7 +46,7 @@ public static class GetDepartmentPage
 
 	}
 
-	internal sealed class GetDepartmentPageDataAccess(
+	internal sealed class GetDepartmentPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetDepartmentPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

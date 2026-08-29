@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteSubscription
 
 	}
 
-	internal sealed class DeleteSubscriptionDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteSubscription
+	internal sealed class DeleteSubscriptionPersistence(IApplicationDbContext dbContext) : IDeleteSubscription
 	{
 		public async Task DeleteAsync(
 				SubscriptionEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteSubscription
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM public.Subscription
-					WHERE tenant_id = @TenantId
-					  AND subscription_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<SubscriptionEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<SubscriptionEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.SubscriptionId == id,
+						cancellationToken);
 			}
 	}
 

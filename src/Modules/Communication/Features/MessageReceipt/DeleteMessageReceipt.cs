@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteMessageReceipt
 
 	}
 
-	internal sealed class DeleteMessageReceiptDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteMessageReceipt
+	internal sealed class DeleteMessageReceiptPersistence(IApplicationDbContext dbContext) : IDeleteMessageReceipt
 	{
 		public async Task DeleteAsync(
 				MessageReceiptEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteMessageReceipt
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM communication.message_receipt
-					WHERE tenant_id = @TenantId
-					  AND message_receipt_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<MessageReceiptEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<MessageReceiptEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.MessageReceiptId == id,
+						cancellationToken);
 			}
 	}
 

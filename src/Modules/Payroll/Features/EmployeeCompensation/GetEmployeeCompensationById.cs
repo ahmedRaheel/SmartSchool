@@ -38,7 +38,7 @@ public static class GetEmployeeCompensationById
 
 	}
 
-	internal sealed class GetEmployeeCompensationByIdDataAccess(
+	internal sealed class GetEmployeeCompensationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetEmployeeCompensationById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetEmployeeCompensationById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetEmployeeCompensationById dataAccess)

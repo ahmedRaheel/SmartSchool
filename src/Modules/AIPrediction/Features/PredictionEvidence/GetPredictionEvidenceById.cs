@@ -38,7 +38,7 @@ public static class GetPredictionEvidenceById
 
 	}
 
-	internal sealed class GetPredictionEvidenceByIdDataAccess(
+	internal sealed class GetPredictionEvidenceByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetPredictionEvidenceById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetPredictionEvidenceById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetPredictionEvidenceById dataAccess)

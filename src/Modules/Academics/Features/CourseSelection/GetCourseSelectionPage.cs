@@ -41,7 +41,7 @@ public static class GetCourseSelectionPage
 
 	}
 
-	internal sealed class GetCourseSelectionPageDataAccess(
+	internal sealed class GetCourseSelectionPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetCourseSelectionPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

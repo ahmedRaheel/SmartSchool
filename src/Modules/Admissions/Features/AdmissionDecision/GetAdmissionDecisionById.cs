@@ -38,7 +38,7 @@ public static class GetAdmissionDecisionById
 
 	}
 
-	internal sealed class GetAdmissionDecisionByIdDataAccess(
+	internal sealed class GetAdmissionDecisionByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetAdmissionDecisionById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetAdmissionDecisionById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetAdmissionDecisionById dataAccess)

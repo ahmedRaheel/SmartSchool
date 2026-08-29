@@ -38,7 +38,7 @@ public static class GetLearningRecommendationById
 
 	}
 
-	internal sealed class GetLearningRecommendationByIdDataAccess(
+	internal sealed class GetLearningRecommendationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetLearningRecommendationById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetLearningRecommendationById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetLearningRecommendationById dataAccess)

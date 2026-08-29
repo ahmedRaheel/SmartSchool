@@ -38,7 +38,7 @@ public static class GetModelConfigurationById
 
 	}
 
-	internal sealed class GetModelConfigurationByIdDataAccess(
+	internal sealed class GetModelConfigurationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetModelConfigurationById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetModelConfigurationById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetModelConfigurationById dataAccess)

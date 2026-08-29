@@ -38,7 +38,7 @@ public static class GetKnowledgeDocumentById
 
 	}
 
-	internal sealed class GetKnowledgeDocumentByIdDataAccess(
+	internal sealed class GetKnowledgeDocumentByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetKnowledgeDocumentById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetKnowledgeDocumentById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetKnowledgeDocumentById dataAccess)

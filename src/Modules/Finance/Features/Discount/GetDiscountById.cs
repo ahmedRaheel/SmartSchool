@@ -38,7 +38,7 @@ public static class GetDiscountById
 
 	}
 
-	internal sealed class GetDiscountByIdDataAccess(
+	internal sealed class GetDiscountByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetDiscountById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetDiscountById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetDiscountById dataAccess)

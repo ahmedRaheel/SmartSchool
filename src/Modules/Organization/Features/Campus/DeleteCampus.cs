@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -30,7 +29,7 @@ public static class DeleteCampus
 
 	}
 
-	internal sealed class DeleteCampusDataAccess(
+	internal sealed class DeleteCampusPersistence(
 		IApplicationDbContext dbContext) : IDeleteCampus
 	{
 		public async Task DeleteAsync(

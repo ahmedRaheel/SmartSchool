@@ -38,7 +38,7 @@ public static class GetEmploymentHistoryById
 
 	}
 
-	internal sealed class GetEmploymentHistoryByIdDataAccess(
+	internal sealed class GetEmploymentHistoryByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetEmploymentHistoryById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetEmploymentHistoryById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetEmploymentHistoryById dataAccess)

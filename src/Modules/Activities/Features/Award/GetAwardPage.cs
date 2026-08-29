@@ -41,7 +41,7 @@ public static class GetAwardPage
 
 	}
 
-	internal sealed class GetAwardPageDataAccess(
+	internal sealed class GetAwardPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetAwardPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

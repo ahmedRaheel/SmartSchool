@@ -41,7 +41,7 @@ public static class GetActivityPage
 
 	}
 
-	internal sealed class GetActivityPageDataAccess(
+	internal sealed class GetActivityPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetActivityPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

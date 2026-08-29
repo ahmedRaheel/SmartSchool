@@ -41,7 +41,7 @@ public static class GetToolDefinitionPage
 
 	}
 
-	internal sealed class GetToolDefinitionPageDataAccess(
+	internal sealed class GetToolDefinitionPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetToolDefinitionPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -30,7 +29,6 @@ public static class UpdateStudentPerformancePrediction
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -39,7 +37,6 @@ public static class UpdateStudentPerformancePrediction
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -51,12 +48,9 @@ public static class UpdateStudentPerformancePrediction
 				CancellationToken cancellationToken);
 
 		Task<StudentPerformancePredictionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class UpdateStudentPerformancePredictionDataAccess(
+	internal sealed class UpdateStudentPerformancePredictionPersistence(
 		IApplicationDbContext dbContext) : IUpdateStudentPerformancePrediction
 	{
 		public async Task UpdateAsync(
@@ -76,16 +70,6 @@ public static class UpdateStudentPerformancePrediction
 			return dbContext.Set<StudentPerformancePredictionEntity>()
 				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentPerformancePredictionId == id, cancellationToken);
 		}
-
-		public Task<bool> ExistsByCodeAsync(
-			Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
-		{
-			return dbContext.Set<StudentPerformancePredictionEntity>().AnyAsync(
-				x => x.TenantId == tenantId
-					&& x.Code == code
-					&& (!excludingId.HasValue || x.StudentPerformancePredictionId != excludingId.Value),
-				cancellationToken);
-		}
 }
 
 	public sealed class Handler(IUpdateStudentPerformancePrediction dataAccess)
@@ -103,17 +87,9 @@ public static class UpdateStudentPerformancePrediction
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentPerformancePredictionEntity))));
 			}
 
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(StudentPerformancePredictionEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));

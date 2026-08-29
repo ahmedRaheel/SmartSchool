@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,7 +32,7 @@ public static class DeleteEmployee
 
 	}
 
-	internal sealed class DeleteEmployeeDataAccess(
+	internal sealed class DeleteEmployeePersistence(
 		IApplicationDbContext dbContext) : IDeleteEmployee
 	{
 		public Task<EmployeeEntity?> GetByIdAsync(

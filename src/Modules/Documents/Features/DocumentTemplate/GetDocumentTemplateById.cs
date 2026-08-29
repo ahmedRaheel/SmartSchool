@@ -38,7 +38,7 @@ public static class GetDocumentTemplateById
 
 	}
 
-	internal sealed class GetDocumentTemplateByIdDataAccess(
+	internal sealed class GetDocumentTemplateByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetDocumentTemplateById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetDocumentTemplateById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetDocumentTemplateById dataAccess)

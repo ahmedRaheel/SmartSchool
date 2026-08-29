@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteFeeStructure
 
 	}
 
-	internal sealed class DeleteFeeStructureDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteFeeStructure
+	internal sealed class DeleteFeeStructurePersistence(IApplicationDbContext dbContext) : IDeleteFeeStructure
 	{
 		public async Task DeleteAsync(
 				FeeStructureEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteFeeStructure
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM finance.feestructure
-					WHERE tenant_id = @TenantId
-					  AND fee_structure_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<FeeStructureEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<FeeStructureEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.FeeStructureId == id,
+						cancellationToken);
 			}
 	}
 

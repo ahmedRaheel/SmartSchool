@@ -38,7 +38,7 @@ public static class GetWorkflowInstanceById
 
 	}
 
-	internal sealed class GetWorkflowInstanceByIdDataAccess(
+	internal sealed class GetWorkflowInstanceByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetWorkflowInstanceById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetWorkflowInstanceById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetWorkflowInstanceById dataAccess)

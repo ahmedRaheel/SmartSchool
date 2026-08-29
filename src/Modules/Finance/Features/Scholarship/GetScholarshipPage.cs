@@ -41,7 +41,7 @@ public static class GetScholarshipPage
 
 	}
 
-	internal sealed class GetScholarshipPageDataAccess(
+	internal sealed class GetScholarshipPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetScholarshipPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

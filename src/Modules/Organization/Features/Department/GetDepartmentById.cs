@@ -40,7 +40,7 @@ public static class GetDepartmentById
 
 	}
 
-	internal sealed class GetDepartmentByIdDataAccess(
+	internal sealed class GetDepartmentByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetDepartmentById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -73,9 +73,7 @@ public static class GetDepartmentById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetDepartmentById dataAccess)

@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteCertificate
 
 	}
 
-	internal sealed class DeleteCertificateDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteCertificate
+	internal sealed class DeleteCertificatePersistence(IApplicationDbContext dbContext) : IDeleteCertificate
 	{
 		public async Task DeleteAsync(
 				CertificateEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteCertificate
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM document.certificate
-					WHERE tenant_id = @TenantId
-					  AND certificate_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<CertificateEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<CertificateEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.CertificateId == id,
+						cancellationToken);
 			}
 	}
 

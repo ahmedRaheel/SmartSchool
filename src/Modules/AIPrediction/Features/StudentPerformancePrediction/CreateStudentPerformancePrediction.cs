@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -29,7 +28,6 @@ public static class CreateStudentPerformancePrediction
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,7 +35,6 @@ public static class CreateStudentPerformancePrediction
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -47,12 +44,9 @@ public static class CreateStudentPerformancePrediction
 		Task AddAsync(
 				StudentPerformancePredictionEntity entity,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateStudentPerformancePredictionDataAccess(
+	internal sealed class CreateStudentPerformancePredictionPersistence(
 		IApplicationDbContext dbContext) : ICreateStudentPerformancePrediction
 	{
 		public async Task AddAsync(
@@ -65,16 +59,6 @@ public static class CreateStudentPerformancePrediction
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
-	
-		public Task<bool> ExistsByCodeAsync(
-			Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
-		{
-			return dbContext.Set<StudentPerformancePredictionEntity>().AnyAsync(
-				x => x.TenantId == tenantId
-					&& x.Code == code
-					&& (!excludingId.HasValue || x.StudentPerformancePredictionId != excludingId.Value),
-				cancellationToken);
-		}
 }
 
 	public sealed class Handler(ICreateStudentPerformancePrediction dataAccess)
@@ -84,18 +68,11 @@ public static class CreateStudentPerformancePrediction
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(StudentPerformancePredictionEntity), request.Code)));
-			}
+
 
 			var entity = StudentPerformancePredictionEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
 			await dataAccess.AddAsync(entity, cancellationToken);

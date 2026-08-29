@@ -38,7 +38,7 @@ public static class GetMessageReceiptById
 
 	}
 
-	internal sealed class GetMessageReceiptByIdDataAccess(
+	internal sealed class GetMessageReceiptByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetMessageReceiptById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetMessageReceiptById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetMessageReceiptById dataAccess)

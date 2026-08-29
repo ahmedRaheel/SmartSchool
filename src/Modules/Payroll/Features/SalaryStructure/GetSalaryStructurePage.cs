@@ -41,7 +41,7 @@ public static class GetSalaryStructurePage
 
 	}
 
-	internal sealed class GetSalaryStructurePageDataAccess(
+	internal sealed class GetSalaryStructurePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetSalaryStructurePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

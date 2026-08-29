@@ -38,7 +38,7 @@ public static class GetPaymentById
 
 	}
 
-	internal sealed class GetPaymentByIdDataAccess(
+	internal sealed class GetPaymentByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetPaymentById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetPaymentById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetPaymentById dataAccess)

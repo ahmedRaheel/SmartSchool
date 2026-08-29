@@ -38,7 +38,7 @@ public static class GetSalaryStructureById
 
 	}
 
-	internal sealed class GetSalaryStructureByIdDataAccess(
+	internal sealed class GetSalaryStructureByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetSalaryStructureById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetSalaryStructureById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetSalaryStructureById dataAccess)

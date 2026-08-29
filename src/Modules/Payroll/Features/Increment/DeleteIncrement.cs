@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteIncrement
 
 	}
 
-	internal sealed class DeleteIncrementDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteIncrement
+	internal sealed class DeleteIncrementPersistence(IApplicationDbContext dbContext) : IDeleteIncrement
 	{
 		public async Task DeleteAsync(
 				IncrementEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteIncrement
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM payroll.increment
-					WHERE tenant_id = @TenantId
-					  AND increment_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<IncrementEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<IncrementEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.IncrementId == id,
+						cancellationToken);
 			}
 	}
 

@@ -38,7 +38,7 @@ public static class GetLeaveRequestById
 
 	}
 
-	internal sealed class GetLeaveRequestByIdDataAccess(
+	internal sealed class GetLeaveRequestByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetLeaveRequestById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetLeaveRequestById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetLeaveRequestById dataAccess)

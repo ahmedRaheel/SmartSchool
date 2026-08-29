@@ -41,7 +41,7 @@ public static class GetTeachingRecommendationPage
 
 	}
 
-	internal sealed class GetTeachingRecommendationPageDataAccess(
+	internal sealed class GetTeachingRecommendationPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetTeachingRecommendationPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

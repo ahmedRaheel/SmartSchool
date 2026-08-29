@@ -38,7 +38,7 @@ public static class GetScholarshipById
 
 	}
 
-	internal sealed class GetScholarshipByIdDataAccess(
+	internal sealed class GetScholarshipByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetScholarshipById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetScholarshipById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetScholarshipById dataAccess)

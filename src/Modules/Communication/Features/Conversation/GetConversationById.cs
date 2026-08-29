@@ -38,7 +38,7 @@ public static class GetConversationById
 
 	}
 
-	internal sealed class GetConversationByIdDataAccess(
+	internal sealed class GetConversationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetConversationById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetConversationById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetConversationById dataAccess)

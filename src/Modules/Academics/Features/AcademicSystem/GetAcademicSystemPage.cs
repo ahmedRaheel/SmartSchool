@@ -41,7 +41,7 @@ public static class GetAcademicSystemPage
 
 	}
 
-	internal sealed class GetAcademicSystemPageDataAccess(
+	internal sealed class GetAcademicSystemPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetAcademicSystemPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

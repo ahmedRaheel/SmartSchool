@@ -38,7 +38,7 @@ public static class GetApplicationById
 
 	}
 
-	internal sealed class GetApplicationByIdDataAccess(
+	internal sealed class GetApplicationByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetApplicationById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetApplicationById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetApplicationById dataAccess)

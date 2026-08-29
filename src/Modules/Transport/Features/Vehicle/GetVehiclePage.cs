@@ -41,7 +41,7 @@ public static class GetVehiclePage
 
 	}
 
-	internal sealed class GetVehiclePageDataAccess(
+	internal sealed class GetVehiclePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetVehiclePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

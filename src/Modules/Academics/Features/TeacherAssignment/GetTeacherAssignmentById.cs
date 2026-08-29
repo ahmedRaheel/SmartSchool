@@ -38,7 +38,7 @@ public static class GetTeacherAssignmentById
 
 	}
 
-	internal sealed class GetTeacherAssignmentByIdDataAccess(
+	internal sealed class GetTeacherAssignmentByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetTeacherAssignmentById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetTeacherAssignmentById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetTeacherAssignmentById dataAccess)

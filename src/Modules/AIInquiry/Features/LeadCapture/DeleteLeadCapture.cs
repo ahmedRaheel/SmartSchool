@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteLeadCapture
 
 	}
 
-	internal sealed class DeleteLeadCaptureDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteLeadCapture
+	internal sealed class DeleteLeadCapturePersistence(IApplicationDbContext dbContext) : IDeleteLeadCapture
 	{
 		public async Task DeleteAsync(
 				LeadCaptureEntity entity,
@@ -53,22 +50,12 @@ public static class DeleteLeadCapture
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai_core.lead_capture
-					WHERE tenant_id = @TenantId
-					  AND lead_capture_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<LeadCaptureEntity>(
-					new CommandDefinition(
-						sql,
-						new { TenantId = tenantId, Id = id },
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<LeadCaptureEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.LeadCaptureId == id,
+						cancellationToken);
 			}
 	}
 

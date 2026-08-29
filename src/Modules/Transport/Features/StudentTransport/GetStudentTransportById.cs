@@ -38,7 +38,7 @@ public static class GetStudentTransportById
 
 	}
 
-	internal sealed class GetStudentTransportByIdDataAccess(
+	internal sealed class GetStudentTransportByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetStudentTransportById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetStudentTransportById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetStudentTransportById dataAccess)

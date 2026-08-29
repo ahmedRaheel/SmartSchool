@@ -38,7 +38,7 @@ public static class GetApprovalById
 
 	}
 
-	internal sealed class GetApprovalByIdDataAccess(
+	internal sealed class GetApprovalByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetApprovalById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetApprovalById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetApprovalById dataAccess)

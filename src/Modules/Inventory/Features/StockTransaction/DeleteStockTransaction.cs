@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteStockTransaction
 
 	}
 
-	internal sealed class DeleteStockTransactionDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteStockTransaction
+	internal sealed class DeleteStockTransactionPersistence(IApplicationDbContext dbContext) : IDeleteStockTransaction
 	{
 		public async Task DeleteAsync(
 				StockTransactionEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteStockTransaction
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM inventory.stocktransaction
-					WHERE tenant_id = @TenantId
-					  AND stock_transaction_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<StockTransactionEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<StockTransactionEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.StockTransactionId == id,
+						cancellationToken);
 			}
 	}
 

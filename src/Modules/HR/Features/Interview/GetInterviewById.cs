@@ -38,7 +38,7 @@ public static class GetInterviewById
 
 	}
 
-	internal sealed class GetInterviewByIdDataAccess(
+	internal sealed class GetInterviewByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetInterviewById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetInterviewById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetInterviewById dataAccess)

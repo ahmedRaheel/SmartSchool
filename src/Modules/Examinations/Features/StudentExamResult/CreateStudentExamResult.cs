@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -29,7 +28,6 @@ public static class CreateStudentExamResult
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,7 +35,6 @@ public static class CreateStudentExamResult
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
@@ -47,12 +44,9 @@ public static class CreateStudentExamResult
 		Task AddAsync(
 				StudentExamResultEntity entity,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateStudentExamResultDataAccess(
+	internal sealed class CreateStudentExamResultPersistence(
 		IApplicationDbContext dbContext) : ICreateStudentExamResult
 	{
 		public async Task AddAsync(
@@ -65,16 +59,6 @@ public static class CreateStudentExamResult
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
-	
-		public Task<bool> ExistsByCodeAsync(
-			Guid tenantId, string code, Guid? excludingId, CancellationToken cancellationToken)
-		{
-			return dbContext.Set<StudentExamResultEntity>().AnyAsync(
-				x => x.TenantId == tenantId
-					&& x.Code == code
-					&& (!excludingId.HasValue || x.StudentExamResultId != excludingId.Value),
-				cancellationToken);
-		}
 }
 
 	public sealed class Handler(ICreateStudentExamResult dataAccess)
@@ -84,18 +68,11 @@ public static class CreateStudentExamResult
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(StudentExamResultEntity), request.Code)));
-			}
+
 
 			var entity = StudentExamResultEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
 			await dataAccess.AddAsync(entity, cancellationToken);

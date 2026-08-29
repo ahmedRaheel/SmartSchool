@@ -41,7 +41,7 @@ public static class GetPayslipPage
 
 	}
 
-	internal sealed class GetPayslipPageDataAccess(
+	internal sealed class GetPayslipPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetPayslipPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

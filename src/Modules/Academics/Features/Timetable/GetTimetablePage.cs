@@ -41,7 +41,7 @@ public static class GetTimetablePage
 
 	}
 
-	internal sealed class GetTimetablePageDataAccess(
+	internal sealed class GetTimetablePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetTimetablePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

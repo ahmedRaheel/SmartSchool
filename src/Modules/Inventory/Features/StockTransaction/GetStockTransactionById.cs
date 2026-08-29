@@ -38,7 +38,7 @@ public static class GetStockTransactionById
 
 	}
 
-	internal sealed class GetStockTransactionByIdDataAccess(
+	internal sealed class GetStockTransactionByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetStockTransactionById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetStockTransactionById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetStockTransactionById dataAccess)

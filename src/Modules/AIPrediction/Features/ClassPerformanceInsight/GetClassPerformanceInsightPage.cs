@@ -41,7 +41,7 @@ public static class GetClassPerformanceInsightPage
 
 	}
 
-	internal sealed class GetClassPerformanceInsightPageDataAccess(
+	internal sealed class GetClassPerformanceInsightPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetClassPerformanceInsightPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

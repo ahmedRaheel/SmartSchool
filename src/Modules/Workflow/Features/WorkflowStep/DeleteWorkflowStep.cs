@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteWorkflowStep
 
 	}
 
-	internal sealed class DeleteWorkflowStepDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteWorkflowStep
+	internal sealed class DeleteWorkflowStepPersistence(IApplicationDbContext dbContext) : IDeleteWorkflowStep
 	{
 		public async Task DeleteAsync(
 				WorkflowStepEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteWorkflowStep
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM workflow.workflowstep
-					WHERE tenant_id = @TenantId
-					  AND workflow_step_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<WorkflowStepEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<WorkflowStepEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.WorkflowStepId == id,
+						cancellationToken);
 			}
 	}
 

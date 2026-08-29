@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteKnowledgeCollection
 
 	}
 
-	internal sealed class DeleteKnowledgeCollectionDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteKnowledgeCollection
+	internal sealed class DeleteKnowledgeCollectionPersistence(IApplicationDbContext dbContext) : IDeleteKnowledgeCollection
 	{
 		public async Task DeleteAsync(
 				KnowledgeCollectionEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteKnowledgeCollection
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM ai_core.knowledge_collection
-					WHERE tenant_id = @TenantId
-					  AND knowledge_collection_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<KnowledgeCollectionEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<KnowledgeCollectionEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.KnowledgeCollectionId == id,
+						cancellationToken);
 			}
 	}
 

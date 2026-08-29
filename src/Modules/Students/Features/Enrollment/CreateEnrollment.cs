@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -55,7 +54,7 @@ public static class CreateEnrollment
 
 	}
 
-	internal sealed class CreateEnrollmentDataAccess(
+	internal sealed class CreateEnrollmentPersistence(
 		IApplicationDbContext dbContext) : ICreateEnrollment
 	{
 		public async Task AddAsync(

@@ -38,7 +38,7 @@ public static class GetActivityById
 
 	}
 
-	internal sealed class GetActivityByIdDataAccess(
+	internal sealed class GetActivityByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetActivityById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetActivityById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetActivityById dataAccess)

@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -35,7 +34,6 @@ public static class CreateDepartment
 		Guid TenantId,
 		Guid CampusId,
 		Guid? HeadOfDepartmentEmployeeId,
-		string? Code,
 		string Name,
 		string? Telephone,
 		string? Email) : IRequest<Result<Response>>;
@@ -57,18 +55,9 @@ public static class CreateDepartment
 		Task AddAsync(
 				DepartmentEntity entity,
 				CancellationToken cancellationToken);
+}
 
-		Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class CreateDepartmentDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : ICreateDepartment
+	internal sealed class CreateDepartmentPersistence(IApplicationDbContext dbContext) : ICreateDepartment
 	{
 		public async Task AddAsync(
 				DepartmentEntity entity,
@@ -80,37 +69,6 @@ public static class CreateDepartment
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
 			}
-
-		public async Task<bool> ExistsByCodeAsync(
-				Guid tenantId,
-				string code,
-				Guid? excludingId,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT EXISTS (
-						SELECT 1
-						FROM org.department
-						WHERE tenant_id = @TenantId
-						  AND code = @Code
-						  AND (@ExcludingId IS NULL OR department_id <> @ExcludingId)
-					);
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.ExecuteScalarAsync<bool>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Code = code,
-							ExcludingId = excludingId
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
 	}
 
 	public sealed class Handler(SmartSchool.Application.Persistence.IBusinessNumberGenerator businessNumberGenerator,
@@ -121,19 +79,9 @@ public static class CreateDepartment
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var code = string.IsNullOrWhiteSpace(request.Code)
-				? await businessNumberGenerator.NextAsync(
-					$"DEPARTMENT:{request.CampusId}", "DEP-", request.TenantId, 4, cancellationToken)
-				: request.Code.Trim();
+			var code = await businessNumberGenerator.NextAsync(
+				$"DEPARTMENT:{request.CampusId}", "DEP-", request.TenantId, 4, cancellationToken);
 
-			var exists = await dataAccess.ExistsByCodeAsync(
-				request.TenantId, code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(DepartmentEntity), code)));
-			}
 
 			var entity = DepartmentEntity.Create(
 				request.TenantId,

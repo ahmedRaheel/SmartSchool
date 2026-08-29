@@ -41,7 +41,7 @@ public static class GetMessagePage
 
 	}
 
-	internal sealed class GetMessagePageDataAccess(
+	internal sealed class GetMessagePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetMessagePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

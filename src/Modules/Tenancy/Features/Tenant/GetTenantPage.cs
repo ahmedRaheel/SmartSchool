@@ -38,7 +38,7 @@ public static class GetTenantPage
 
 	}
 
-	internal sealed class GetTenantPageDataAccess(
+	internal sealed class GetTenantPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetTenantPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(		

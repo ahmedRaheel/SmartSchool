@@ -38,7 +38,7 @@ public static class GetStopById
 
 	}
 
-	internal sealed class GetStopByIdDataAccess(
+	internal sealed class GetStopByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetStopById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetStopById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetStopById dataAccess)

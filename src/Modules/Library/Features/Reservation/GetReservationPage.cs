@@ -41,7 +41,7 @@ public static class GetReservationPage
 
 	}
 
-	internal sealed class GetReservationPageDataAccess(
+	internal sealed class GetReservationPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetReservationPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

@@ -38,7 +38,7 @@ public static class GetInvoiceById
 
 	}
 
-	internal sealed class GetInvoiceByIdDataAccess(
+	internal sealed class GetInvoiceByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetInvoiceById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetInvoiceById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetInvoiceById dataAccess)

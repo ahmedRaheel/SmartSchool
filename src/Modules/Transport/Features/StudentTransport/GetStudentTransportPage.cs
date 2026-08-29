@@ -41,7 +41,7 @@ public static class GetStudentTransportPage
 
 	}
 
-	internal sealed class GetStudentTransportPageDataAccess(
+	internal sealed class GetStudentTransportPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetStudentTransportPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

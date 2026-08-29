@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteTimetableEntry
 
 	}
 
-	internal sealed class DeleteTimetableEntryDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteTimetableEntry
+	internal sealed class DeleteTimetableEntryPersistence(IApplicationDbContext dbContext) : IDeleteTimetableEntry
 	{
 		public async Task DeleteAsync(
 				TimetableEntryEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteTimetableEntry
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM academic.timetable_entry
-					WHERE tenant_id = @TenantId
-					  AND timetable_entry_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<TimetableEntryEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<TimetableEntryEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.TimetableEntryId == id,
+						cancellationToken);
 			}
 	}
 

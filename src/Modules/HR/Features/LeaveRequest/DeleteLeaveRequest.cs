@@ -1,6 +1,5 @@
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,9 +32,7 @@ public static class DeleteLeaveRequest
 
 	}
 
-	internal sealed class DeleteLeaveRequestDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteLeaveRequest
+	internal sealed class DeleteLeaveRequestPersistence(IApplicationDbContext dbContext) : IDeleteLeaveRequest
 	{
 		public async Task DeleteAsync(
 				LeaveRequestEntity entity,
@@ -53,26 +50,12 @@ public static class DeleteLeaveRequest
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				const string sql = """
-					SELECT *
-					FROM teacher.leave_request
-					WHERE tenant_id = @TenantId
-					  AND leave_request_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<LeaveRequestEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
+				return await dbContext
+					.Set<LeaveRequestEntity>()
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.LeaveRequestId == id,
+						cancellationToken);
 			}
 	}
 

@@ -41,7 +41,7 @@ public static class GetSchoolLogoPage
 
 	}
 
-	internal sealed class GetSchoolLogoPageDataAccess(
+	internal sealed class GetSchoolLogoPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetSchoolLogoPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

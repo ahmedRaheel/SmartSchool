@@ -41,7 +41,7 @@ public static class GetProgramPage
 
 	}
 
-	internal sealed class GetProgramPageDataAccess(
+	internal sealed class GetProgramPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetProgramPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

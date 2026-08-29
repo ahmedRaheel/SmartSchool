@@ -41,7 +41,7 @@ public static class GetWorkflowInstancePage
 
 	}
 
-	internal sealed class GetWorkflowInstancePageDataAccess(
+	internal sealed class GetWorkflowInstancePagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetWorkflowInstancePage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

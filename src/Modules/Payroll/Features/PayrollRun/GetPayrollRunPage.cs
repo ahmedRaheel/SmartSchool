@@ -41,7 +41,7 @@ public static class GetPayrollRunPage
 
 	}
 
-	internal sealed class GetPayrollRunPageDataAccess(
+	internal sealed class GetPayrollRunPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetPayrollRunPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

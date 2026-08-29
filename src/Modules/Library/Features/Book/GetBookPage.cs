@@ -41,7 +41,7 @@ public static class GetBookPage
 
 	}
 
-	internal sealed class GetBookPageDataAccess(
+	internal sealed class GetBookPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetBookPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

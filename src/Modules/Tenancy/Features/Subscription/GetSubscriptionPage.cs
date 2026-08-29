@@ -41,7 +41,7 @@ public static class GetSubscriptionPage
 
 	}
 
-	internal sealed class GetSubscriptionPageDataAccess(
+	internal sealed class GetSubscriptionPagePersistence(
 		IDbConnectionFactory connectionFactory) : IGetSubscriptionPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(

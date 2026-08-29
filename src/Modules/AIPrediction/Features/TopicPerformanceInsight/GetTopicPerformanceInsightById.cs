@@ -38,7 +38,7 @@ public static class GetTopicPerformanceInsightById
 
 	}
 
-	internal sealed class GetTopicPerformanceInsightByIdDataAccess(
+	internal sealed class GetTopicPerformanceInsightByIdPersistence(
 		IDbConnectionFactory connectionFactory) : IGetTopicPerformanceInsightById
 	{
 		public async Task<Response?> GetByIdAsync(
@@ -69,9 +69,7 @@ public static class GetTopicPerformanceInsightById
 						{
 							TenantId = tenantId,
 							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
+						}
 	}
 
 	public sealed class Handler(IGetTopicPerformanceInsightById dataAccess)
