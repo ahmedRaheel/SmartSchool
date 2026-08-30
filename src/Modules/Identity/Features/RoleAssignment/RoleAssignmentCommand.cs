@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Identity.Models;
 
-namespace SmartSchool.Modules.Identity.Persistence;
+namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 
 /// <summary>
 /// Executes database writes for <see cref="RoleAssignmentEntity"/>.

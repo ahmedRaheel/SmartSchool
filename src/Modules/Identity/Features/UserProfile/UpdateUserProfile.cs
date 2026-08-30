@@ -74,6 +74,15 @@ public static class UpdateUserProfile
 			await entityCommand.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
+		private static Response MapResponse(UserProfileEntity entity)
+		{
+			return new Response(
+				entity.TenantId,
+				entity.UserProfileId,
+				entity.Code,
+				entity.Name,
+				entity.MetadataJson);
+		}
 	}
 
 	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)

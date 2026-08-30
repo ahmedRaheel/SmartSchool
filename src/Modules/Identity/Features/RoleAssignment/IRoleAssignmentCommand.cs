@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using SmartSchool.Modules.Identity.Models;
 
-namespace SmartSchool.Modules.Identity.Persistence;
+namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 
 /// <summary>
 /// Defines command persistence operations for RoleAssignmentEntity.
