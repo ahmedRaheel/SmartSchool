@@ -4,9 +4,18 @@ wsl --install
 installing ubuntu
 wsl --install -d Ubuntu
 
+
+cd /home/dell
 installing docker 
 curl -fsSL https://get.docker.com -o get-docker.sh
+ls -lh get-docker.sh
 sudo sh get-docker.sh
+sudo usermod -aG docker dell
+exit 
+wsl --shutdown
+wsl
+docker --version
+
 
 
 allow user without sudo
@@ -15,6 +24,15 @@ docker --version
 docker run hello-world
 
 installing postgres with pg vector 
+
+for ubunto
+docker run --name postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres123 \
+  -p 5432:5432 \
+  -v postgres-data:/var/lib/postgresql \
+  --restart unless-stopped \
+  -d pgvector/pgvector:pg18
 
 docker run --name postgres `
   -e POSTGRES_USER=postgres `
@@ -31,7 +49,23 @@ docker run -d `
   -p 9092:9092 `
   apache/kafka:4.1.1
 
+for ubuntu
+docker run -d \
+  --name kafka \
+  -p 9092:9092 \
+  apache/kafka:4.1.1
+
+
 installing redis  on docker 
+for ubuntu 
+
+docker run --name redis \
+  -p 6379:6379 \
+  -v redis-data:/data \
+  --restart unless-stopped \
+  -d redis:8
+
+
 docker run --name redis `
   -p 6379:6379 `
   -v redis-data:/data `
@@ -39,6 +73,15 @@ docker run --name redis `
   -d redis:8
 
 installing ollama
+for ubantu 
+
+docker run -d \
+  --name ollama \
+  -p 11434:11434 \
+  -v ollama-data:/root/.ollama \
+  --restart unless-stopped \
+  ollama/ollama
+
 docker run -d `
   --name ollama `
   -p 11434:11434 `
