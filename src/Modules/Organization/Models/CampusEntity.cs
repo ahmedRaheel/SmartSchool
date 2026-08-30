@@ -13,6 +13,7 @@ public sealed class CampusEntity : Entity
     public string Name { get; private set; } = string.Empty;
     public string BranchType { get; private set; } = string.Empty;
     public Guid BranchGenderTypeId { get; private set; }
+    public Guid? AcademicSystemId { get; private set; }
     public string? Address { get; private set; }
     public string? City { get; private set; }
     public string? Province { get; private set; }
@@ -31,6 +32,7 @@ public sealed class CampusEntity : Entity
         string name,
         string branchType,
         Guid branchGenderTypeId,
+        Guid? academicSystemId,
         string? address,
         string? city,
         string? province,
@@ -55,6 +57,7 @@ public sealed class CampusEntity : Entity
             Name = name.Trim(),
             BranchType = branchType.Trim(),
             BranchGenderTypeId = branchGenderTypeId,
+            AcademicSystemId = academicSystemId,
             Address = Clean(address),
             City = Clean(city),
             Province = Clean(province),
@@ -73,6 +76,7 @@ public sealed class CampusEntity : Entity
         string name,
         string branchType,
         Guid branchGenderTypeId,
+        Guid? academicSystemId,
         string? address,
         string? city,
         string? province,
@@ -98,6 +102,7 @@ public sealed class CampusEntity : Entity
         Name = name.Trim();
         BranchType = branchType.Trim();
         BranchGenderTypeId = branchGenderTypeId;
+        AcademicSystemId = academicSystemId;
         Address = Clean(address);
         City = Clean(city);
         Province = Clean(province);
@@ -112,7 +117,7 @@ public sealed class CampusEntity : Entity
 
     public void UpdateDetails(string code, string name)
     {
-        UpdateDetails(SchoolId, code, name, BranchType, BranchGenderTypeId, Address, City, Province, Country, Phone, Fax, Mobile, Email, LogoUrl);
+        UpdateDetails(SchoolId, code, name, BranchType, BranchGenderTypeId, AcademicSystemId, Address, City, Province, Country, Phone, Fax, Mobile, Email, LogoUrl);
     }
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

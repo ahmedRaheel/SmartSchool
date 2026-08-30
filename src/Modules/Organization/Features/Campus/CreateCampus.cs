@@ -14,8 +14,8 @@ public static class CreateCampus
 {
     private static readonly string[] BranchTypes = ["HEAD_OFFICE", "REGIONAL_HEAD_OFFICE", "REGIONAL_BRANCH"];
 
-    public sealed record Request(Guid? TenantId, Guid SchoolId, string Name, string BranchType, Guid BranchGenderTypeId, IReadOnlyCollection<Guid> EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
-    public sealed record Response(Guid Id, Guid SchoolId, string Code, string Name, string BranchType, Guid BranchGenderTypeId, IReadOnlyCollection<Guid> EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl);
+    public sealed record Request(Guid? TenantId, Guid SchoolId, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
+    public sealed record Response(Guid Id, Guid SchoolId, string Code, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl);
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -25,7 +25,7 @@ public static class CreateCampus
             RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
             RuleFor(x => x.BranchType).Must(BranchTypes.Contains).WithMessage("A valid branch type is required.");
             RuleFor(x => x.BranchGenderTypeId).NotEmpty();
-            RuleFor(x => x.EducationLevelIds).NotEmpty().WithMessage("Select at least one education level.");
+            
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
         }
     }
@@ -38,13 +38,14 @@ public static class CreateCampus
             if (!tenantId.HasValue) return Result<Response>.Failure(Error.Validation("Tenant context is required."));
             if (await schoolQuery.GetByIdAsync(tenantId.Value, request.SchoolId, cancellationToken) is null) return Result<Response>.Failure(Error.NotFound("The selected school was not found in this tenant."));
             if (!await policyCommand.GenderTypeExistsAsync(request.BranchGenderTypeId, cancellationToken)) return Result<Response>.Failure(Error.Validation("Select a valid branch gender type."));
-            if (!await policyCommand.EducationLevelsExistAsync(request.EducationLevelIds, cancellationToken)) return Result<Response>.Failure(Error.Validation("One or more education levels are invalid."));
+            var educationLevelIds = request.EducationLevelIds ?? Array.Empty<Guid>();
+            if (educationLevelIds.Count > 0 && !await policyCommand.EducationLevelsExistAsync(educationLevelIds, cancellationToken)) return Result<Response>.Failure(Error.Validation("One or more education levels are invalid."));
 
             var code = await numberGenerator.NextAsync("BRANCH", "BR", tenantId.Value, 3, cancellationToken);
-            var campus = CampusEntity.Create(tenantId.Value, request.SchoolId, code, request.Name, request.BranchType, request.BranchGenderTypeId, request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);
+            var campus = CampusEntity.Create(tenantId.Value, request.SchoolId, code, request.Name, request.BranchType, request.BranchGenderTypeId, request.AcademicSystemId, request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);
             await command.AddAsync(campus, cancellationToken);
-            await policyCommand.SetEducationLevelsAsync(campus.CampusId, request.EducationLevelIds, cancellationToken);
-            return Result<Response>.Success(Map(campus, request.EducationLevelIds));
+            await policyCommand.SetEducationLevelsAsync(campus.CampusId, educationLevelIds, cancellationToken);
+            return Result<Response>.Success(Map(campus, educationLevelIds));
         }
     }
 
@@ -55,5 +56,5 @@ public static class CreateCampus
         return endpoints;
     }
 
-    private static Response Map(CampusEntity campus, IReadOnlyCollection<Guid> levels) => new(campus.CampusId, campus.SchoolId, campus.Code, campus.Name, campus.BranchType, campus.BranchGenderTypeId, levels, campus.Address, campus.City, campus.Province, campus.Country, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl);
+    private static Response Map(CampusEntity campus, IReadOnlyCollection<Guid> levels) => new(campus.CampusId, campus.SchoolId, campus.Code, campus.Name, campus.BranchType, campus.BranchGenderTypeId, campus.AcademicSystemId, levels, campus.Address, campus.City, campus.Province, campus.Country, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl);
 }

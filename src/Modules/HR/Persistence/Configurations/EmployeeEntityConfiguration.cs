@@ -27,6 +27,9 @@ public sealed class EmployeeEntityConfiguration : IEntityTypeConfiguration<Emplo
 		builder.Property(entity => entity.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
 		builder.Property(entity => entity.LastName).HasColumnName("last_name").HasMaxLength(100);
 		builder.Property(entity => entity.CnicNumber).HasColumnName("cnic_number").HasMaxLength(20);
+		builder.Property(entity => entity.DateOfBirth).HasColumnName("date_of_birth");
+		builder.Property(entity => entity.Gender).HasColumnName("gender").HasMaxLength(30);
+		builder.Property(entity => entity.JobTitle).HasColumnName("job_title").HasMaxLength(150);
 		builder.Property(entity => entity.Photo).HasColumnName("photo");
 		builder.Property(entity => entity.PhotoContentType).HasColumnName("photo_content_type").HasMaxLength(150);
 		builder.Property(entity => entity.PhotoFileName).HasColumnName("photo_file_name").HasMaxLength(255);

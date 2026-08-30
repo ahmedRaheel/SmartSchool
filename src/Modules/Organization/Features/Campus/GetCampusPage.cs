@@ -21,7 +21,7 @@ public static class GetCampusPage
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-		Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType, Guid BranchGenderTypeId,
+		Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId,
 		        string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax,
 		        string? Mobile, string? Email, string? LogoUrl);
 
@@ -59,12 +59,13 @@ public static class GetCampusPage
 				const string pageSql = """
 					SELECT
 					tenant_id AS "TenantId",
-					id AS "Id",
+					campus_id AS "Id",
 					school_id AS "SchoolId",
 					code AS "Code",
 					name AS "Name",
 					branch_type AS "BranchType",
 					branch_gender_type_id AS "BranchGenderTypeId",
+					academic_system_id AS "AcademicSystemId",
 					address AS "Address",
 					city AS "City",
 					province AS "Province",

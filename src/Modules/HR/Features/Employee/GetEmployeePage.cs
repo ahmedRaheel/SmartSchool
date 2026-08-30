@@ -19,8 +19,17 @@ public static class GetEmployeePage
 		string FirstName,
 		string? LastName,
 		string? CnicNumber,
+		DateOnly? DateOfBirth,
+		string? Gender,
+		string? JobTitle,
+		string? Department,
+		string? Qualification,
 		string? Email,
 		string? Phone,
+		string? AlternatePhone,
+		string? Address,
+		string? EmergencyContactName,
+		string? EmergencyContactPhone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
 		string StaffType,
@@ -50,29 +59,39 @@ public static class GetEmployeePage
 			{
 				const string countSql = """
 					SELECT COUNT(*)
-					FROM hr.employee
-					WHERE tenant_id = @TenantId
-					  AND is_active = TRUE;
+					FROM hr.employee e
+					WHERE e.tenant_id = @TenantId
+					  AND e.is_active = TRUE;
 					""";
 		
 				const string pageSql = """
 					SELECT
-					tenant_id AS "TenantId",
-					employee_id AS "Id",
-					employee_number AS "EmployeeNumber",
-					first_name AS "FirstName",
-					last_name AS "LastName",
-					cnic_number AS "CnicNumber",
-					email AS "Email",
-					phone AS "Phone",
-					hire_date AS "HireDate",
-					employment_type_code AS "EmploymentTypeCode",
-					staff_type AS "StaffType",
-					status AS "Status"
-					FROM hr.employee
-					WHERE tenant_id = @TenantId
-					  AND is_active = TRUE
-					ORDER BY employee_id
+					e.tenant_id AS "TenantId",
+					e.employee_id AS "Id",
+					e.employee_number AS "EmployeeNumber",
+					e.first_name AS "FirstName",
+					e.last_name AS "LastName",
+					e.cnic_number AS "CnicNumber",
+					e.date_of_birth AS "DateOfBirth",
+					e.gender AS "Gender",
+					e.job_title AS "JobTitle",
+					d.name AS "Department",
+					(SELECT ee.qualification FROM hr.employee_education ee WHERE ee.tenant_id = e.tenant_id AND ee.employee_id = e.employee_id AND ee.is_active = TRUE ORDER BY ee.is_highest DESC, ee.end_date DESC NULLS LAST LIMIT 1) AS "Qualification",
+					e.email AS "Email",
+					e.phone AS "Phone",
+					e.alternate_phone AS "AlternatePhone",
+					e.address AS "Address",
+					e.emergency_contact_name AS "EmergencyContactName",
+					e.emergency_contact_phone AS "EmergencyContactPhone",
+					e.hire_date AS "HireDate",
+					e.employment_type_code AS "EmploymentTypeCode",
+					e.staff_type AS "StaffType",
+					e.status AS "Status"
+					FROM hr.employee e
+					LEFT JOIN org.department d ON d.tenant_id = e.tenant_id AND d.department_id = e.department_id AND d.is_active = TRUE
+					WHERE e.tenant_id = @TenantId
+					  AND e.is_active = TRUE
+					ORDER BY e.employee_id
 					LIMIT @PageSize OFFSET @Offset;
 					""";
 		

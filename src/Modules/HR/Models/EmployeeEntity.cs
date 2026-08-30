@@ -35,6 +35,10 @@ public sealed class EmployeeEntity : Entity
 	/// <summary>Gets the employee CNIC number.</summary>
 	public string? CnicNumber { get; private set; }
 
+	public DateOnly? DateOfBirth { get; private set; }
+	public string? Gender { get; private set; }
+	public string? JobTitle { get; private set; }
+
 	/// <summary>Gets the employee photograph bytes.</summary>
 	public byte[]? Photo { get; private set; }
 
@@ -94,6 +98,9 @@ public sealed class EmployeeEntity : Entity
 		string firstName,
 		string? lastName,
 		string? cnicNumber,
+		DateOnly? dateOfBirth,
+		string? gender,
+		string? jobTitle,
 		byte[]? photo,
 		string? photoContentType,
 		string? photoFileName,
@@ -124,6 +131,9 @@ public sealed class EmployeeEntity : Entity
 			FirstName = firstName.Trim(),
 			LastName = lastName?.Trim(),
 			CnicNumber = cnicNumber?.Trim(),
+			DateOfBirth = dateOfBirth,
+			Gender = gender?.Trim(),
+			JobTitle = jobTitle?.Trim(),
 			Photo = photo,
 			PhotoContentType = photoContentType?.Trim(),
 			PhotoFileName = photoFileName?.Trim(),
