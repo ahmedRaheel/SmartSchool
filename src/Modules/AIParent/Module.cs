@@ -17,6 +17,13 @@ public static class Module
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
+		services.AddScoped<IParentConversationCommand, ParentConversationCommand>();
+		services.AddScoped<IParentConversationQuery, ParentConversationQuery>();
+		services.AddScoped<IParentMessageCommand, ParentMessageCommand>();
+		services.AddScoped<IParentMessageQuery, ParentMessageQuery>();
+		services.AddScoped<IParentToolExecutionCommand, ParentToolExecutionCommand>();
+		services.AddScoped<IParentToolExecutionQuery, ParentToolExecutionQuery>();
+		
 		return services;
 	}
 

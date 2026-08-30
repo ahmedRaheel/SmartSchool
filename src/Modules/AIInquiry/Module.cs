@@ -20,6 +20,11 @@ public static class Module
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
+		services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();	
+		
+		services.AddScoped<ILeadCaptureCommand, LeadCaptureCommand>();
+		
+
 		return services;
 	}
 

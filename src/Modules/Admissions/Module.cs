@@ -3,6 +3,7 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Admissions.Features;
 using SmartSchool.Modules.Admissions.Features.AdmissionDecision;
+using SmartSchool.Modules.Admissions.Features.AdmissionWorkflow;
 using SmartSchool.Modules.Admissions.Features.Applicant;
 using SmartSchool.Modules.Admissions.Features.Application;
 using SmartSchool.Modules.Admissions.Features.Inquiry;
@@ -18,7 +19,9 @@ public static class Module
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        return services;
+		services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();
+		services.AddScoped<IAdmissionWorkflowQuery, AdmissionWorkflowQuery>();
+		return services;
     }
 
     public static IEndpointRouteBuilder MapAdmissionsEndpoints(

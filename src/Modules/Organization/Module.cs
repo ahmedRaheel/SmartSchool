@@ -16,6 +16,15 @@ public static class Module
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
+		services.AddScoped<ICampusCommand, CampusCommand>();
+		services.AddScoped<ICampusQuery, CampusQuery>();
+		services.AddScoped<IDepartmentCommand, DepartmentCommand>();
+		services.AddScoped<IDepartmentQuery, DepartmentQuery>();
+		services.AddScoped<ISchoolCommand, SchoolCommand>();
+		services.AddScoped<ISchoolQuery, SchoolQuery>();
+		services.AddScoped<IBranchPolicyCommand, BranchPolicyCommand>();
+		services.AddScoped<IBranchPolicyQuery, BranchPolicyQuery>();
+		
 		return services;
 	}
 

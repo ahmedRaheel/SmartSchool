@@ -1,18 +1,17 @@
 using Microsoft.Extensions.DependencyInjection;
-
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Features.Candidate;
+using SmartSchool.Modules.HR.Features.DataAccess.Interview;
 using SmartSchool.Modules.HR.Features.Employee;
+using SmartSchool.Modules.HR.Features.EmploymentHistory;
 using SmartSchool.Modules.HR.Features.Interview;
 using SmartSchool.Modules.HR.Features.Job;
 using SmartSchool.Modules.HR.Features.JobGrade;
 using SmartSchool.Modules.HR.Features.LeaveRequest;
 using SmartSchool.Modules.HR.Features.Position;
-using SmartSchool.SharedKernel;
-
-using SmartSchool.Modules.HR.Features.EmploymentHistory;
 using SmartSchool.Modules.HR.Features.Resume;
+using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.HR;
 
@@ -24,6 +23,27 @@ public static class Module
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
+		services.AddScoped<ICandidateQuery, CandidateQuery>();
+		services.AddScoped<ICandidateCommand, CandidateCommand>();
+		services.AddScoped<IEmployeeQuery, EmployeeQuery>();
+		services.AddScoped<IEmployeeCommand, EmployeeCommand>();
+		services.AddScoped<IInterviewQuery, InterviewQuery>();
+		services.AddScoped<IInterviewCommand, InterviewCommand>();
+		services.AddScoped<IJobQuery, JobQuery>();
+		services.AddScoped<IJobCommand, JobCommand>();
+		services.AddScoped<IJobGradeQuery, JobGradeQuery>();
+		services.AddScoped<IJobGradeCommand, JobGradeCommand>();
+		services.AddScoped<ILeaveRequestQuery, LeaveRequestQuery>();
+		services.AddScoped<ILeaveRequestCommand, LeaveRequestCommand>();
+		services.AddScoped<IPositionQuery, PositionQuery>();
+		services.AddScoped<IPositionCommand, PositionCommand>();
+		services.AddScoped<IResumeCommand, ResumeCommand>();
+		services.AddScoped<IResumeQuery, ResumeQuery>();
+		services.AddScoped<IEmploymentHistoryCommand, EmploymentHistoryCommand>();
+		services.AddScoped<IEmploymentHistoryQuery, EmploymentHistoryQuery>();
+		services.AddScoped<IEmployeeEvidenceCommand, EmployeeEvidenceCommand>();
+		services.AddScoped<IEmployeeOnboardingQuery, EmployeeOnboardingQuery>();
+		
 		return services;
 	}
 

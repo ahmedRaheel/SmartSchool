@@ -22,6 +22,21 @@ public static class Module
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
+		services.AddScoped<IGeneratedQuizCommand, GeneratedQuizCommand>();
+		services.AddScoped<ILearningRecommendationCommand, LearningRecommendationCommand>();
+		services.AddScoped<IQuizAttemptCommand, QuizAttemptCommand>();
+		services.AddScoped<IStudentTopicMasteryCommand, StudentTopicMasteryCommand>();
+		services.AddScoped<ITutorConversationCommand, TutorConversationCommand>();
+		services.AddScoped<ITutorMessageCommand, TutorMessageCommand>();
+		services.AddScoped<ITutorSessionCommand, TutorSessionCommand>();
+		services.AddScoped<IGeneratedQuizQuery, GeneratedQuizQuery>();
+		services.AddScoped<ILearningRecommendationQuery, LearningRecommendationQuery>();
+		services.AddScoped<IQuizAttemptQuery, QuizAttemptQuery>();
+		services.AddScoped<IStudentTopicMasteryQuery, StudentTopicMasteryQuery>();
+		services.AddScoped<ITutorConversationQuery, TutorConversationQuery>();
+		services.AddScoped<ITutorMessageQuery, TutorMessageQuery>();
+		services.AddScoped<ITutorSessionQuery, TutorSessionQuery>();
+
 		return services;
 	}
 

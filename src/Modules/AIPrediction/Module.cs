@@ -27,6 +27,26 @@ public static class Module
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
 		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
+		services.AddScoped<IClassPerformanceInsightCommand, ClassPerformanceInsightCommand>();
+		services.AddScoped<IClassPerformanceInsightQuery, ClassPerformanceInsightQuery>();
+		services.AddScoped<IPredictionEvaluationCommand, PredictionEvaluationCommand>();
+		services.AddScoped<IPredictionEvaluationQuery, PredictionEvaluationQuery>();
+		services.AddScoped<IPredictionEvidenceCommand, PredictionEvidenceCommand>();
+		services.AddScoped<IPredictionEvidenceQuery, PredictionEvidenceQuery>();
+		services.AddScoped<IPredictionModelCommand, PredictionModelCommand>();
+		services.AddScoped<IPredictionModelQuery, PredictionModelQuery>();
+		services.AddScoped<IStudentInterventionCommand, StudentInterventionCommand>();
+		services.AddScoped<IStudentInterventionQuery, StudentInterventionQuery>();
+		services.AddScoped<IStudentPerformancePredictionCommand, StudentPerformancePredictionCommand>();
+		services.AddScoped<IStudentPerformancePredictionQuery, StudentPerformancePredictionQuery>();
+		services.AddScoped<ITeachingRecommendationCommand, TeachingRecommendationCommand>();
+		services.AddScoped<ITeachingRecommendationQuery, TeachingRecommendationQuery>();
+		services.AddScoped<ITopicPerformanceInsightCommand, TopicPerformanceInsightCommand>();
+		services.AddScoped<ITopicPerformanceInsightQuery, TopicPerformanceInsightQuery>();
+		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
+		services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
+		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
+	
 		return services;
 	}
 

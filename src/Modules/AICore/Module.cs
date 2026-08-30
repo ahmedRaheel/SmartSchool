@@ -34,8 +34,22 @@ public static class Module
 		services.AddScoped<IAiAssistantService, AiAssistantService>();
         services.AddScoped<SmartSchoolAgentTools>();
         services.AddScoped<IAgentWorkflowService, AgentWorkflowService>();
+		services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
+		services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
+		services.AddScoped<IKnowledgeChunkCommand, KnowledgeChunkCommand>();
+		services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();
+		services.AddScoped<IKnowledgeCollectionCommand, KnowledgeCollectionCommand>();
+		services.AddScoped<IKnowledgeCollectionQuery, KnowledgeCollectionQuery>();
+		services.AddScoped<IKnowledgeDocumentCommand, KnowledgeDocumentCommand>();
+		services.AddScoped<IKnowledgeDocumentQuery, KnowledgeDocumentQuery>();
+		services.AddScoped<IModelConfigurationCommand, ModelConfigurationCommand>();
+		services.AddScoped<IModelConfigurationQuery, ModelConfigurationQuery>();
+		services.AddScoped<IPromptTemplateCommand, PromptTemplateCommand>();
+		services.AddScoped<IPromptTemplateQuery, PromptTemplateQuery>();
+		services.AddScoped<IToolDefinitionCommand, ToolDefinitionCommand>();
+		services.AddScoped<IToolDefinitionQuery, ToolDefinitionQuery>();
 
-        services
+		services
             .AddMcpServer()
             .WithHttpTransport()
             .WithTools<SmartSchoolAgentTools>();
