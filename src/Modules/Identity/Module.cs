@@ -1,21 +1,20 @@
-using SmartSchool.Modules.Identity.Features.ServiceAccounts;
-using SmartSchool.Modules.Identity.Features.Account;
-using SmartSchool.Modules.Identity.Features.Roles;
-using SmartSchool.Modules.Identity.Features.Users;
-using SmartSchool.Modules.Identity.Server;
-using SmartSchool.Modules.Identity.Infrastructure.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
 using SmartSchool.Application;
-using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Identity;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Modules.Identity.Features.Account;
+using SmartSchool.Modules.Identity.Features.RoleAssignment;
+using SmartSchool.Modules.Identity.Features.Roles;
+using SmartSchool.Modules.Identity.Features.ServiceAccounts;
+using SmartSchool.Modules.Identity.Features.UserProfile;
+using SmartSchool.Modules.Identity.Features.Users;
 using SmartSchool.Modules.Identity.Infrastructure;
+using SmartSchool.Modules.Identity.Infrastructure.Identity;
+using SmartSchool.Modules.Identity.Server;
 using SmartSchool.SharedKernel;
 
-using SmartSchool.Modules.Identity.Features.RoleAssignment;
-using SmartSchool.Modules.Identity.Features.UserProfile;
 namespace SmartSchool.Modules.Identity;
 
 public static class Module
@@ -24,7 +23,7 @@ public static class Module
 		this IServiceCollection services,
 		IConfiguration configuration)
 	{
-		services.AddFeaturePersistence(typeof(Module).Assembly);
+		
 
 		var provider = configuration["Persistence:Provider"] ?? IdentityDatabaseProvider.PostgreSql;
 		var connectionStringName = configuration["Persistence:ConnectionStringName"] ?? "SmartSchool";
@@ -113,14 +112,17 @@ public static class Module
 			identityServer.AddDeveloperSigningCredential();
 		}
 
-		services.AddOptions<Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions>()
-			.Bind(configuration.GetSection(Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions.SectionName))
+		services.AddOptions<AccountProvisioningEndpoints.AccountProvisioningOptions>()
+			.Bind(configuration.GetSection(AccountProvisioningEndpoints.AccountProvisioningOptions.SectionName))
 			.Validate(options => !string.IsNullOrWhiteSpace(options.TemporaryPassword), "AccountProvisioning:TemporaryPassword is required.")
 			.ValidateOnStart();
 
 		services.AddHttpContextAccessor();
-		services.AddScoped<SmartSchool.Application.Identity.ICurrentUser, SmartSchool.Application.Identity.CurrentUser>();
-		services.AddScoped<SmartSchool.Application.Identity.ITenantScope, SmartSchool.Application.Identity.TenantScope>();
+		
+		services.AddScoped<ICurrentUser, CurrentUser>();
+		services.AddScoped<ITenantScope, TenantScope>();
+
+	
 
 		services.AddHttpClient("IdentityTokenClient");
 		services.AddTransient<Duende.IdentityServer.Validation.IExtensionGrantValidator, ImpersonationGrantValidator>();

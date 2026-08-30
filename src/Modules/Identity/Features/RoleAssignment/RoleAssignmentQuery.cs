@@ -1,5 +1,6 @@
 using Dapper;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
@@ -10,33 +11,21 @@ namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 /// Executes database reads for <see cref="RoleAssignmentEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class RoleAssignmentQuery(IDbConnectionFactory connectionFactory) : IRoleAssignmentQuery
+public sealed class RoleAssignmentQuery(
+	IApplicationDbContext dbContext,
+	IDbConnectionFactory connectionFactory) : IRoleAssignmentQuery
 {
-	public async Task<RoleAssignmentEntity?> GetByIdAsync(
+	public Task<RoleAssignmentEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		const string sql = """
-			SELECT *
-			FROM public.RoleAssignment
-			WHERE tenant_id = @TenantId
-			  AND roleassignment_id = @Id
-			  AND is_active = TRUE;
-			""";
-
-		await using var connection =
-			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-		return await connection.QuerySingleOrDefaultAsync<RoleAssignmentEntity>(
-			new CommandDefinition(
-				sql,
-				new
-				{
-					TenantId = tenantId,
-					Id = id
-				},
-				cancellationToken: cancellationToken)).ConfigureAwait(false);
+		return dbContext
+			.Set<RoleAssignmentEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.RoleAssignmentId == id,
+				cancellationToken);
 	}
 
 	public async Task<PagedResult<RoleAssignmentEntity>> GetPageAsync(
@@ -77,13 +66,13 @@ public sealed class RoleAssignmentQuery(IDbConnectionFactory connectionFactory) 
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken)).ConfigureAwait(false);
+				cancellationToken: cancellationToken));
 
 		var items = (await connection.QueryAsync<RoleAssignmentEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)).ConfigureAwait(false))
+				cancellationToken: cancellationToken)))
 			.AsList();
 
 		return new PagedResult<RoleAssignmentEntity>(
@@ -93,34 +82,20 @@ public sealed class RoleAssignmentQuery(IDbConnectionFactory connectionFactory) 
 			totalCount);
 	}
 
-	public async Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		const string sql = """
-			SELECT EXISTS (
-				SELECT 1
-				FROM public.RoleAssignment
-				WHERE tenant_id = @TenantId
-				  AND code = @Code
-				  AND (@ExcludingId IS NULL OR roleassignment_id <> @ExcludingId)
-			);
-			""";
-
-		await using var connection =
-			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-		return await connection.ExecuteScalarAsync<bool>(
-			new CommandDefinition(
-				sql,
-				new
-				{
-					TenantId = tenantId,
-					Code = code,
-					ExcludingId = excludingId
-				},
-				cancellationToken: cancellationToken)).ConfigureAwait(false);
+		return dbContext
+			.Set<RoleAssignmentEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.RoleAssignmentId != excludingId.Value)),
+				cancellationToken);
 	}
 }

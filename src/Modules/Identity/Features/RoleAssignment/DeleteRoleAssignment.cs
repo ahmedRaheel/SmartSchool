@@ -1,10 +1,8 @@
-using SmartSchool.Application.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Identity.Models;
+using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -20,77 +18,23 @@ public static class DeleteRoleAssignment
 		Guid TenantId,
 		Guid Id);
 
-	public interface IDeleteRoleAssignment
-	{
-		Task DeleteAsync(
-				RoleAssignmentEntity entity,
-				CancellationToken cancellationToken);
-
-		Task<RoleAssignmentEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken);
-
-	}
-
-	internal sealed class DeleteRoleAssignmentDataAccess(
-		IApplicationDbContext dbContext,
-		IDbConnectionFactory connectionFactory) : IDeleteRoleAssignment
-	{
-		public async Task DeleteAsync(
-				RoleAssignmentEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext
-					.Set<RoleAssignmentEntity>()
-					.Remove(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-
-		public async Task<RoleAssignmentEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken)
-			{
-				const string sql = """
-					SELECT *
-					FROM public.RoleAssignment
-					WHERE tenant_id = @TenantId
-					  AND roleassignment_id = @Id
-					  AND is_active = TRUE;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-		
-				return await connection.QuerySingleOrDefaultAsync<RoleAssignmentEntity>(
-					new CommandDefinition(
-						sql,
-						new
-						{
-							TenantId = tenantId,
-							Id = id
-						},
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-			}
-	}
-
-	public sealed class Handler(IDeleteRoleAssignment dataAccess)
+	public sealed class Handler(
+		IRoleAssignmentQuery entityQuery,
+		IRoleAssignmentCommand entityCommand)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await dataAccess.GetByIdAsync(
+			var entity = await entityQuery.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(RoleAssignmentEntity))));
 			}
-			await dataAccess.DeleteAsync(entity, cancellationToken);
+			await entityCommand.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}
