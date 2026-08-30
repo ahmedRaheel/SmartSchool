@@ -1,57 +1,29 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartSchool.Modules.Finance.Models;
-
 namespace SmartSchool.Modules.Finance.Persistence.Configurations;
-
-/// <summary>
-/// Defines relational persistence rules for <see cref="FeeStructureEntity"/>.
-/// </summary>
-public sealed class FeeStructureEntityConfiguration
-	: IEntityTypeConfiguration<FeeStructureEntity>
+public sealed class FeeStructureEntityConfiguration : IEntityTypeConfiguration<FeeStructureEntity>
 {
 	public void Configure(EntityTypeBuilder<FeeStructureEntity> builder)
 	{
-		builder.ToTable("FeeStructure", schema: "finance");
-		builder.HasKey(entity => entity.FeeStructureId);
-
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
-
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
-
-		builder.HasIndex(entity => entity.TenantId);
-
-		builder.Property(entity => entity.CreatedAt).IsRequired();
-		builder.Property(entity => entity.UpdatedAt);
-		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
-
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
-
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
-
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
-
-
-		// Explicit PostgreSQL mappings for synchronized table.
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
-		builder.Property(entity => entity.Code).HasColumnName("code");
-		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.FeeStructureId).HasColumnName("fee_structure_id");
+		builder.ToTable("fee_structure", "finance");
+		builder.HasKey(x => x.FeeStructureId);
+		builder.Property(x => x.FeeStructureId).HasColumnName("fee_structure_id");
+		builder.Property(x => x.TenantId).HasColumnName("tenant_id");
+		builder.Property(x => x.GradeLevelId).HasColumnName("grade_level_id");
+		builder.Property(x => x.FeeTypeId).HasColumnName("fee_type_id");
+		builder.Property(x => x.AcademicYearId).HasColumnName("academic_year_id");
+		builder.Property(x => x.Amount).HasColumnName("amount").HasPrecision(18, 2);
+		builder.Property(x => x.Frequency).HasColumnName("frequency").HasMaxLength(30);
+		builder.Property(x => x.EffectiveFrom).HasColumnName("effective_from");
+		builder.Property(x => x.EffectiveTo).HasColumnName("effective_to");
+		builder.Property(x => x.Code).HasColumnName("code").HasMaxLength(100);
+		builder.Property(x => x.Name).HasColumnName("name").HasMaxLength(250);
+		builder.Property(x => x.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+		builder.Property(x => x.IsActive).HasColumnName("is_active");
+		builder.Property(x => x.CreatedAt).HasColumnName("created_at");
+		builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+		builder.Property(x => x.RowVersion).HasColumnName("row_version").IsConcurrencyToken();
+		builder.HasIndex(x => new { x.TenantId, x.GradeLevelId, x.FeeTypeId, x.AcademicYearId });
 	}
 }

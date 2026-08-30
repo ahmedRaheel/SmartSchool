@@ -29,7 +29,11 @@ public static class UpdateFeeStructure
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Name) : IRequest<Result<Response>>;
+		decimal Amount,
+		string Frequency = "Monthly",
+		DateOnly? EffectiveFrom = null,
+		DateOnly? EffectiveTo = null,
+		bool IsActive = true) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -37,7 +41,7 @@ public static class UpdateFeeStructure
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Amount).GreaterThanOrEqualTo(0);
 		}
 	}
 
@@ -96,9 +100,7 @@ Task<FeeStructureEntity?> GetByIdAsync(
 			}
 
 
-			entity.UpdateDetails(
-				entity.Code,
-				request.Name);
+			entity.Update(request.Amount, request.Frequency, request.EffectiveFrom, request.EffectiveTo, request.IsActive);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}

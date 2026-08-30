@@ -24,12 +24,17 @@ public static class UpdateFeeType
 	Guid Id,
 	string Code,
 	string Name,
-	string? MetadataJson);
+	string Frequency,
+	bool IsActive,
+	string? Description);
 
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Name) : IRequest<Result<Response>>;
+		string Name,
+		string Frequency = "Monthly",
+		bool IsActive = true,
+		string? Description = null) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -96,9 +101,7 @@ Task<FeeTypeEntity?> GetByIdAsync(
 			}
 
 
-			entity.UpdateDetails(
-				entity.Code,
-				request.Name);
+			entity.UpdateDetails(request.Name, request.Frequency, request.IsActive, request.Description);
 			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
@@ -128,6 +131,8 @@ Task<FeeTypeEntity?> GetByIdAsync(
 			entity.FeeTypeId,
 			entity.Code,
 			entity.Name,
-			entity.MetadataJson);
+			entity.Frequency,
+			entity.IsActive,
+			entity.Description);
 	}
 }

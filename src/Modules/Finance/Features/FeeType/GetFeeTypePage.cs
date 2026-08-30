@@ -24,7 +24,9 @@ public static class GetFeeTypePage
 	Guid Id,
 	string Code,
 	string Name,
-	string? MetadataJson);
+	string Frequency,
+	bool IsActive,
+	string? Description);
 
 	public sealed record Query(
 		Guid TenantId,
@@ -54,7 +56,7 @@ public static class GetFeeTypePage
 					SELECT COUNT(*)
 					FROM finance.fee_type
 					WHERE tenant_id = @TenantId
-					  AND is_active = TRUE;
+					  ;
 					""";
 		
 				const string pageSql = """
@@ -63,10 +65,12 @@ public static class GetFeeTypePage
 					fee_type_id AS "Id",
 					code AS "Code",
 					name AS "Name",
-					metadata_json AS "MetadataJson"
+					frequency AS "Frequency",
+					is_active AS "IsActive",
+					description AS "Description"
 					FROM finance.fee_type
 					WHERE tenant_id = @TenantId
-					  AND is_active = TRUE
+					  
 					ORDER BY fee_type_id
 					LIMIT @PageSize OFFSET @Offset;
 					""";

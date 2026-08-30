@@ -47,6 +47,8 @@ public sealed class FeeTypeEntityConfiguration
 		// Canonical database mapping generated from SmartSchoolComplete.sql.
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.Frequency).HasColumnName("frequency").HasMaxLength(30).IsRequired();
+		builder.Property(entity => entity.Description).HasColumnName("description").HasMaxLength(500);
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
 		builder.Property(entity => entity.FeeTypeId).HasColumnName("fee_type_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");

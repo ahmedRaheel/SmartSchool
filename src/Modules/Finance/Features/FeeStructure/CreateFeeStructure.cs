@@ -1,107 +1,72 @@
-using SmartSchool.Application.Persistence;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
 using FluentValidation;
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-
 namespace SmartSchool.Modules.Finance.Features.FeeStructure;
 
 public static class CreateFeeStructure
 {
-	/// <summary>
-	/// Represents the response returned by this FeeStructureEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
-
-	public sealed record Request(
-		Guid TenantId,
-		string Name) : IRequest<Result<Response>>;
-
+	public sealed record Response(Guid TenantId, Guid Id, Guid GradeLevelId, Guid FeeTypeId, Guid? AcademicYearId, decimal Amount, string Frequency, DateOnly? EffectiveFrom, DateOnly? EffectiveTo, bool IsActive);
+	public sealed record Request(Guid TenantId, Guid GradeLevelId, Guid FeeTypeId, decimal Amount, string Frequency = "Monthly", Guid? AcademicYearId = null, DateOnly? EffectiveFrom = null, DateOnly? EffectiveTo = null) : IRequest<Result<Response>>;
 	public sealed class Validator : AbstractValidator<Request>
 	{
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.GradeLevelId).NotEmpty();
+			RuleFor(x => x.FeeTypeId).NotEmpty();
+			RuleFor(x => x.Amount).GreaterThanOrEqualTo(0);
 		}
 	}
-
 	public interface ICreateFeeStructure
 	{
-		Task AddAsync(
-				FeeStructureEntity entity,
-				CancellationToken cancellationToken);
-}
-
-	internal sealed class CreateFeeStructurePersistence(IApplicationDbContext dbContext) : ICreateFeeStructure
-	{
-		public async Task AddAsync(
-				FeeStructureEntity entity,
-				CancellationToken cancellationToken)
-			{
-				await dbContext
-					.Set<FeeStructureEntity>()
-					.AddAsync(entity, cancellationToken);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+		Task AddAsync(FeeStructureEntity entity, CancellationToken cancellationToken);
 	}
-
-	public sealed class Handler(ICreateFeeStructure dataAccess)
-		: IRequestHandler<Request, Result<Response>>
+	internal sealed class CreateFeeStructurePersistence(IApplicationDbContext db) : ICreateFeeStructure
 	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
+		public async Task AddAsync(FeeStructureEntity entity, CancellationToken ct)
 		{
-
-
-			var entity = FeeStructureEntity.Create(
-				request.TenantId,
-				Guid.NewGuid().ToString("N").ToUpperInvariant(),
-				request.Name);
-
-			await dataAccess.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
+			await db.Set<FeeStructureEntity>().AddAsync(entity, ct);
+			await db.SaveChangesAsync(ct);
 		}
 	}
-
+	public sealed class Handler(ICreateFeeStructure persistence) : IRequestHandler<Request, Result<Response>>
+	{
+		public async Task<Result<Response>> HandleAsync(Request x, CancellationToken  cancellationToken)
+		{
+			var feeStructure = FeeStructureEntity.Create(x.TenantId, 
+				x.GradeLevelId, 
+				x.FeeTypeId,
+				x.Amount, 
+				x.Frequency, 
+				x.AcademicYearId, 
+				x.EffectiveFrom, 
+				x.EffectiveTo);
+			await persistence.AddAsync(feeStructure, cancellationToken);
+			return Result<Response>.Success(new(feeStructure.TenantId,
+				feeStructure.FeeStructureId,
+				feeStructure.GradeLevelId,
+				feeStructure.FeeTypeId,
+				feeStructure.AcademicYearId, 
+				feeStructure.Amount, 
+				feeStructure.Frequency, 
+				feeStructure.EffectiveFrom,
+				feeStructure.EffectiveTo, 
+				feeStructure.IsActive));
+		}
+	}
 	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
 	{
-		endpoints.MapPost(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "fee-structure"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
+		endpoints.MapPost(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, 
+			"fee-structure"), 
+			async (Request request, IMediator mediator, CancellationToken ct) 
+				=> (await mediator.SendAsync<Request, Result<Response>>(request, ct)).ToHttpResult())
 			.WithName("CreateFeeStructure")
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(FeeStructureEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.FeeStructureId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
 	}
 }
