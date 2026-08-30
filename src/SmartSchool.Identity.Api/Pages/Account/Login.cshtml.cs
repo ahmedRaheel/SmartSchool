@@ -2,7 +2,7 @@ using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using SmartSchool.Modules.Identity.Persistence.Identity;
+using SmartSchool.Modules.Identity.Infrastructure.Identity;
 
 namespace SmartSchool.Identity.Api.Pages.Account;
 

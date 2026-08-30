@@ -3,7 +3,7 @@ using SmartSchool.Modules.Identity.Features.Account;
 using SmartSchool.Modules.Identity.Features.Roles;
 using SmartSchool.Modules.Identity.Features.Users;
 using SmartSchool.Modules.Identity.Server;
-using SmartSchool.Modules.Identity.Persistence.Identity;
+using SmartSchool.Modules.Identity.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Identity;
-using SmartSchool.Modules.Identity.Persistence;
+using SmartSchool.Modules.Identity.Infrastructure;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Identity.Features.RoleAssignment;

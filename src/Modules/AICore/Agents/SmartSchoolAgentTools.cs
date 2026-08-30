@@ -2,9 +2,9 @@ using System.ComponentModel;
 using System.Text.Json;
 using ModelContextProtocol.Server;
 using SmartSchool.Application.Identity;
-using SmartSchool.Modules.AIPrediction.Persistence;
-using SmartSchool.Modules.Examinations.Persistence;
-using SmartSchool.Modules.Students.Persistence;
+using SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction;
+using SmartSchool.Modules.Examinations.Features.StudentExamResult;
+using SmartSchool.Modules.Students.Features.Student;
 
 namespace SmartSchool.Modules.AICore.Agents;
 

@@ -3,7 +3,7 @@ using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
-using SmartSchool.Modules.HR.Persistence;
+
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.HR.Features.Employee;

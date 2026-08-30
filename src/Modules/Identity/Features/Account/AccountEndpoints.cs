@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http.Extensions;
-using SmartSchool.Modules.Identity.Persistence.Identity;
+using SmartSchool.Modules.Identity.Infrastructure.Identity;
 
 namespace SmartSchool.Modules.Identity.Features.Account;
 

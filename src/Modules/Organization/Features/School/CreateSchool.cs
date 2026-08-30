@@ -4,7 +4,7 @@ using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Models;
-using SmartSchool.Modules.Organization.Persistence;
+
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 

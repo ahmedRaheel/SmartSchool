@@ -1,7 +1,7 @@
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
-using SmartSchool.Modules.Admissions.Persistence;
+using SmartSchool.Modules.Admissions.Features.AdmissionWorkflow;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 

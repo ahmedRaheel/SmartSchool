@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using SmartSchool.Modules.AICore.Models;
-using SmartSchool.Modules.AICore.Persistence;
+using SmartSchool.Modules.AICore.Features.AiExecutionLog;
 using SmartSchool.Application.Identity;
 using SmartSchool.Modules.AICore.Cag;
 

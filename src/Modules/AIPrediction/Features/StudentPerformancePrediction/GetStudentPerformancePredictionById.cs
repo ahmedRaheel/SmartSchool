@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIPrediction.Models;
-using SmartSchool.Modules.AIPrediction.Persistence;
+
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 

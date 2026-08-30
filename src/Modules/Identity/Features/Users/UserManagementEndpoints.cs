@@ -3,7 +3,7 @@ using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Application.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SmartSchool.Modules.Identity.Persistence.Identity;
+using SmartSchool.Modules.Identity.Infrastructure.Identity;
 using SmartSchool.Modules.Identity.Server;
 
 namespace SmartSchool.Modules.Identity.Features.Users;

@@ -7,7 +7,8 @@ using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
-using SmartSchool.Modules.AICore.Persistence;
+using SmartSchool.Modules.AICore.Features.AiExecutionLog;
+using SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features;

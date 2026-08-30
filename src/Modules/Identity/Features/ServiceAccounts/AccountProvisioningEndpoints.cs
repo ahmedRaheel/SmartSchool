@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using SmartSchool.Modules.Identity.Persistence.Identity;
+using SmartSchool.Modules.Identity.Infrastructure.Identity;
 using Microsoft.Extensions.Options;
 
 namespace SmartSchool.Modules.Identity.Features.ServiceAccounts;

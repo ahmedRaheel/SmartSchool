@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Models;
-using SmartSchool.Modules.Examinations.Persistence;
+
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 

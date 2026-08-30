@@ -1,7 +1,7 @@
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using FluentValidation; using SmartSchool.Application.Http; using SmartSchool.Application.Identity; using SmartSchool.Application.Messaging; using SmartSchool.Modules.HR.Persistence; using SmartSchool.SharedKernel;
+using FluentValidation; using SmartSchool.Application.Http; using SmartSchool.Application.Identity; using SmartSchool.Application.Messaging;  using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 namespace SmartSchool.Modules.HR.Features.Employee;
 

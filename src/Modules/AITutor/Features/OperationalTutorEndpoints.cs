@@ -3,7 +3,11 @@ using System.Text.Json;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AITutor.Models;
-using SmartSchool.Modules.AITutor.Persistence;
+using SmartSchool.Modules.AITutor.Features.TutorSession;
+using SmartSchool.Modules.AITutor.Features.TutorConversation;
+using SmartSchool.Modules.AITutor.Features.TutorMessage;
+using SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
+using SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features;

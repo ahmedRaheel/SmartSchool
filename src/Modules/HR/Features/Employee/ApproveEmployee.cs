@@ -3,7 +3,7 @@ using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
-using SmartSchool.Modules.HR.Persistence;
+
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
