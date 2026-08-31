@@ -33,8 +33,7 @@ public sealed class StudentProfileEntity : Entity
 	public string? EmergencyContactPhone { get; private set; }
 	public string? MedicalNotes { get; private set; }
 	public string? Allergies { get; private set; }
-	public DateOnly AdmissionDate { get; private set; }
-	public Guid? CurrentProgramId { get; private set; }
+	public DateOnly AdmissionDate { get; private set; }	
 	public Guid? CurrentClassId { get; private set; }
 	public Guid? CurrentSectionId { get; private set; }
 
