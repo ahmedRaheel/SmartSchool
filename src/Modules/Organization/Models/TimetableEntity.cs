@@ -3,13 +3,34 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Organization.Models;
 
 /// <summary>
-/// Represents the School domain entity.
+/// Represents the TimetableEntity domain entity.
 /// </summary>
-public sealed class School : Entity
+public sealed class TimetableEntity : Entity
 {
-	private School()
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid TimetableId { get; private set; } = Guid.NewGuid();
+
+	private TimetableEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted term id value.</summary>
+	public Guid? TermId { get; private set; }
+
+	/// <summary>Gets the persisted effective from value.</summary>
+	public DateOnly? EffectiveFrom { get; private set; }
+
+	/// <summary>Gets the persisted effective to value.</summary>
+	public DateOnly? EffectiveTo { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
@@ -20,13 +41,13 @@ public sealed class School : Entity
 	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
 	public string? MetadataJson { get; private set; }
 
-	/// <summary>Creates a new School.</summary>
+	/// <summary>Creates a new TimetableEntity.</summary>
 	/// <param name="tenantId">The owning tenant identifier.</param>
 	/// <param name="code">The business code.</param>
 	/// <param name="name">The display name.</param>
 	/// <param name="metadataJson">Optional domain metadata.</param>
 	/// <returns>The newly created entity.</returns>
-	public static School Create(
+	public static TimetableEntity Create(
 		Guid tenantId,
 		string code,
 		string name,
@@ -35,7 +56,7 @@ public sealed class School : Entity
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
 		ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-		return new School
+		return new TimetableEntity
 		{
 			TenantId = tenantId,
 			Code = code.Trim(),

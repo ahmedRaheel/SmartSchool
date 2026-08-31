@@ -13,8 +13,11 @@ namespace SmartSchool.Modules.Organization.Features.School;
 public static class CreateSchool
 {
     public sealed record Request(
-        Guid TenantId,
-        string Name,
+	    string Name,
+		string AdminFirstName,
+		string AdminLastName,
+		string AdminEmail,
+		string SchoolName,
         string? RegistrationNumber,
         string? Email,
         string? Phone,
@@ -35,8 +38,11 @@ public static class CreateSchool
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId).NotEmpty();
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.AdminFirstName).NotEmpty().MaximumLength(100);
+			RuleFor(x => x.AdminLastName).NotEmpty().MaximumLength(100);
+			RuleFor(x => x.AdminEmail).NotEmpty().EmailAddress().MaximumLength(256);
+			RuleFor(x => x.SchoolName).NotEmpty().MaximumLength(200);
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
             RuleFor(x => x.Phone).MaximumLength(50);
             RuleFor(x => x.Fax).MaximumLength(50);
@@ -63,7 +69,14 @@ public static class CreateSchool
         }
     }
 
-    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+	public interface ITenantSchoolCommand
+	{		
+		Task AddAsync(
+				TenantEntity entity,
+				CancellationToken cancellationToken);
+		
+	}
+	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school"),
             async (Request request, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>

@@ -12,7 +12,7 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 public static class UpdateCampus
 {
     private static readonly string[] BranchTypes = ["HEAD_OFFICE", "REGIONAL_HEAD_OFFICE", "REGIONAL_BRANCH"];
-    public sealed record Request(Guid? TenantId, Guid Id, Guid SchoolId, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
+    public sealed record Request(Guid? TenantId,  Guid SchoolId, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
     public sealed record Response(Guid Id, Guid SchoolId, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl);
 
     public sealed class Validator : AbstractValidator<Request>
@@ -41,12 +41,12 @@ public static class UpdateCampus
             if (!await policyCommand.GenderTypeExistsAsync(request.BranchGenderTypeId, cancellationToken)) return Result<Response>.Failure(Error.Validation("Select a valid branch gender type."));
             var educationLevelIds = request.EducationLevelIds ?? Array.Empty<Guid>();
             if (educationLevelIds.Count > 0 && !await policyCommand.EducationLevelsExistAsync(educationLevelIds, cancellationToken)) return Result<Response>.Failure(Error.Validation("One or more education levels are invalid."));
-            campus.UpdateDetails(request.SchoolId, campus.Code, request.Name, request.BranchType, request.BranchGenderTypeId, request.AcademicSystemId, request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);
+            campus.UpdateDetails(request., campus.Code, request.Name, request.BranchType, request.BranchGenderTypeId, request.AcademicSystemId, request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);
             await command.UpdateAsync(campus, cancellationToken);
             await policyCommand.SetEducationLevelsAsync(campus.CampusId, educationLevelIds, cancellationToken);
             return Result<Response>.Success(new Response(campus.CampusId, campus.SchoolId, campus.Name, campus.BranchType, campus.BranchGenderTypeId, campus.AcademicSystemId, educationLevelIds, campus.Address, campus.City, campus.Province, campus.Country, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl));
         }
-    }
+	}
 
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {

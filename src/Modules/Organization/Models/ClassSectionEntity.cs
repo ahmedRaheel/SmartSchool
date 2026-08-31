@@ -3,13 +3,46 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Organization.Models;
 
 /// <summary>
-/// Represents the Department domain entity.
+/// Represents the ClassSectionEntity domain entity.
 /// </summary>
-public sealed class Department : Entity
+public sealed class ClassSectionEntity : Entity
 {
-	private Department()
+	/// <summary>Gets the entity-specific identifier.</summary>
+	public Guid ClassSectionId { get; private set; } = Guid.NewGuid();
+
+	private ClassSectionEntity()
 	{
 	}
+
+	/// <summary>Gets the persisted campus id value.</summary>
+	public Guid CampusId { get; private set; }
+
+	/// <summary>Gets the persisted academic year id value.</summary>
+	public Guid AcademicYearId { get; private set; }
+
+	/// <summary>Gets the persisted program grade id value.</summary>
+	public Guid? ProgramGradeId { get; private set; }
+
+	/// <summary>Gets the class/grade level for this section.</summary>
+	public Guid? GradeLevelId { get; private set; }
+
+	/// <summary>Gets the persisted section id value.</summary>
+	public Guid SectionId { get; private set; }
+
+	/// <summary>Gets the persisted class teacher employee id value.</summary>
+	public Guid? ClassTeacherEmployeeId { get; private set; }
+
+	/// <summary>Gets the persisted room id value.</summary>
+	public Guid? RoomId { get; private set; }
+
+	/// <summary>Gets the human-readable room number assigned to this section.</summary>
+	public string? RoomNo { get; private set; }
+
+	/// <summary>Gets the persisted capacity value.</summary>
+	public int? Capacity { get; private set; }
+
+	/// <summary>Gets the persisted status value.</summary>
+	public string Status { get; private set; } = string.Empty;
 
 	/// <summary>Gets the business code.</summary>
 	public string Code { get; private set; } = string.Empty;
@@ -20,13 +53,13 @@ public sealed class Department : Entity
 	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
 	public string? MetadataJson { get; private set; }
 
-	/// <summary>Creates a new Department.</summary>
+	/// <summary>Creates a new ClassSectionEntity.</summary>
 	/// <param name="tenantId">The owning tenant identifier.</param>
 	/// <param name="code">The business code.</param>
 	/// <param name="name">The display name.</param>
 	/// <param name="metadataJson">Optional domain metadata.</param>
 	/// <returns>The newly created entity.</returns>
-	public static Department Create(
+	public static ClassSectionEntity Create(
 		Guid tenantId,
 		string code,
 		string name,
@@ -35,7 +68,7 @@ public sealed class Department : Entity
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
 		ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-		return new Department
+		return new ClassSectionEntity
 		{
 			TenantId = tenantId,
 			Code = code.Trim(),
