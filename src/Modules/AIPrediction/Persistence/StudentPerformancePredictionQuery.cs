@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.AIPrediction.Persistence;
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
 public sealed class StudentPerformancePredictionQuery(
-	IApplicationDbContext dbContext,
+	IAIPredictionDbContext dbContext,
 	IDbConnectionFactory connectionFactory) : IStudentPerformancePredictionQuery
 {
 	public Task<StudentPerformancePredictionEntity?> GetByIdAsync(
@@ -20,8 +21,7 @@ public sealed class StudentPerformancePredictionQuery(
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<StudentPerformancePredictionEntity>()
+		return dbContext.StudentPerformancePredictions
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
 				entity => entity.TenantId == tenantId && entity.StudentPerformancePredictionId == id,
@@ -90,8 +90,7 @@ public sealed class StudentPerformancePredictionQuery(
 	{
 		var pageSize = Math.Clamp(limit, 1, 100);
 
-		return await dbContext
-			.Set<StudentPerformancePredictionEntity>()
+		return await dbContext.StudentPerformancePredictions
 			.AsNoTracking()
 			.Where(entity => entity.TenantId == tenantId && entity.StudentId == studentId)
 			.OrderByDescending(entity => entity.GeneratedAt)
@@ -105,8 +104,7 @@ public sealed class StudentPerformancePredictionQuery(
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<StudentPerformancePredictionEntity>()
+		return dbContext.StudentPerformancePredictions
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>

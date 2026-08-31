@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateInterview
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateInterviewPersistence(IApplicationDbContext dbContext) : ICreateInterview
+	internal sealed class CreateInterviewPersistence(IHRDbContext dbContext) : ICreateInterview
 	{
 		public async Task AddAsync(
 				InterviewEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<InterviewEntity>()
+				await dbContext.Interviews
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

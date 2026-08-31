@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
 /// Executes database writes for <see cref="StudentInterventionEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class StudentInterventionCommand(IApplicationDbContext dbContext) : IStudentInterventionCommand
+public sealed class StudentInterventionCommand(IAIPredictionDbContext dbContext) : IStudentInterventionCommand
 {
 	public async Task AddAsync(
 		StudentInterventionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<StudentInterventionEntity>()
+		await dbContext.StudentInterventions
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class StudentInterventionCommand(IApplicationDbContext dbContext) 
 		StudentInterventionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<StudentInterventionEntity>()
+		dbContext.StudentInterventions
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class StudentInterventionCommand(IApplicationDbContext dbContext) 
 		StudentInterventionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<StudentInterventionEntity>()
+		dbContext.StudentInterventions
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

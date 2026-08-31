@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Communication.Features.ConversationParticipant;
 /// Executes database writes for <see cref="ConversationParticipantEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ConversationParticipantCommand(IApplicationDbContext dbContext) : IConversationParticipantCommand
+public sealed class ConversationParticipantCommand(ICommunicationDbContext dbContext) : IConversationParticipantCommand
 {
 	public async Task AddAsync(
 		ConversationParticipantEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ConversationParticipantEntity>()
+		await dbContext.ConversationParticipants
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ConversationParticipantCommand(IApplicationDbContext dbConte
 		ConversationParticipantEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ConversationParticipantEntity>()
+		dbContext.ConversationParticipants
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ConversationParticipantCommand(IApplicationDbContext dbConte
 		ConversationParticipantEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ConversationParticipantEntity>()
+		dbContext.ConversationParticipants
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

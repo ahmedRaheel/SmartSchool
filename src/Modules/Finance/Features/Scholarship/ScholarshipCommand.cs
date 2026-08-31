@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Finance.Features.Scholarship;
 /// Executes database writes for <see cref="ScholarshipEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ScholarshipCommand(IApplicationDbContext dbContext) : IScholarshipCommand
+public sealed class ScholarshipCommand(IFinanceDbContext dbContext) : IScholarshipCommand
 {
 	public async Task AddAsync(
 		ScholarshipEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ScholarshipEntity>()
+		await dbContext.Scholarships
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ScholarshipCommand(IApplicationDbContext dbContext) : ISchol
 		ScholarshipEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ScholarshipEntity>()
+		dbContext.Scholarships
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ScholarshipCommand(IApplicationDbContext dbContext) : ISchol
 		ScholarshipEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ScholarshipEntity>()
+		dbContext.Scholarships
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

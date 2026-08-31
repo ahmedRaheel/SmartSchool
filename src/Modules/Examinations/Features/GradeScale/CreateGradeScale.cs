@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateGradeScale
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateGradeScalePersistence(IApplicationDbContext dbContext) : ICreateGradeScale
+	internal sealed class CreateGradeScalePersistence(IExaminationsDbContext dbContext) : ICreateGradeScale
 	{
 		public async Task AddAsync(
 				GradeScaleEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<GradeScaleEntity>()
+				await dbContext.GradeScales
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

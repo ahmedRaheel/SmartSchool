@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteCertificate
 
 	}
 
-	internal sealed class DeleteCertificatePersistence(IApplicationDbContext dbContext) : IDeleteCertificate
+	internal sealed class DeleteCertificatePersistence(IDocumentsDbContext dbContext) : IDeleteCertificate
 	{
 		public async Task DeleteAsync(
 				CertificateEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<CertificateEntity>()
+				dbContext.Certificates
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteCertificate
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<CertificateEntity>()
+				return await dbContext.Certificates
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.CertificateId == id,

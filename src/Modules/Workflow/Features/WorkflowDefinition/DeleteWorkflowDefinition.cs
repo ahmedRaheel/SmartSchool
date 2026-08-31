@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteWorkflowDefinition
 
 	}
 
-	internal sealed class DeleteWorkflowDefinitionPersistence(IApplicationDbContext dbContext) : IDeleteWorkflowDefinition
+	internal sealed class DeleteWorkflowDefinitionPersistence(IWorkflowDbContext dbContext) : IDeleteWorkflowDefinition
 	{
 		public async Task DeleteAsync(
 				WorkflowDefinitionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<WorkflowDefinitionEntity>()
+				dbContext.WorkflowDefinitions
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteWorkflowDefinition
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<WorkflowDefinitionEntity>()
+				return await dbContext.WorkflowDefinitions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.WorkflowDefinitionId == id,

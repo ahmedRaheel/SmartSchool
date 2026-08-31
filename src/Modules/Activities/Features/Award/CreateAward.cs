@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateAward
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateAwardPersistence(IApplicationDbContext dbContext) : ICreateAward
+	internal sealed class CreateAwardPersistence(IActivitiesDbContext dbContext) : ICreateAward
 	{
 		public async Task AddAsync(
 				AwardEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<AwardEntity>()
+				await dbContext.Awards
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

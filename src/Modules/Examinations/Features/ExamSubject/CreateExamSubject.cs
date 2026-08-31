@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateExamSubject
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateExamSubjectPersistence(IApplicationDbContext dbContext) : ICreateExamSubject
+	internal sealed class CreateExamSubjectPersistence(IExaminationsDbContext dbContext) : ICreateExamSubject
 	{
 		public async Task AddAsync(
 				ExamSubjectEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<ExamSubjectEntity>()
+				await dbContext.ExamSubjects
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

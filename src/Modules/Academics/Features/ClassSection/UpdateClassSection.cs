@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<ClassSectionEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateClassSectionPersistence(IApplicationDbContext dbContext) : IUpdateClassSection
+	internal sealed class UpdateClassSectionPersistence(IAcademicsDbContext dbContext) : IUpdateClassSection
 	{
 		public async Task UpdateAsync(
 				ClassSectionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ClassSectionEntity>()
+				dbContext.ClassSections
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<ClassSectionEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ClassSectionEntity>()
+				return await dbContext.ClassSections
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ClassSectionId == id,

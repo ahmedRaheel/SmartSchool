@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<LeadCaptureEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateLeadCapturePersistence(IApplicationDbContext dbContext) : IUpdateLeadCapture
+	internal sealed class UpdateLeadCapturePersistence(IAIInquiryDbContext dbContext) : IUpdateLeadCapture
 	{
 		public async Task UpdateAsync(
 				LeadCaptureEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<LeadCaptureEntity>()
+				dbContext.LeadCaptures
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<LeadCaptureEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<LeadCaptureEntity>()
+				return await dbContext.LeadCaptures
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.LeadCaptureId == id,

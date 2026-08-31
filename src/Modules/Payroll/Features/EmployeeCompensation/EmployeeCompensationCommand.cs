@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Payroll.Features.EmployeeCompensation;
 /// Executes database writes for <see cref="EmployeeCompensationEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class EmployeeCompensationCommand(IApplicationDbContext dbContext) : IEmployeeCompensationCommand
+public sealed class EmployeeCompensationCommand(IPayrollDbContext dbContext) : IEmployeeCompensationCommand
 {
 	public async Task AddAsync(
 		EmployeeCompensationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<EmployeeCompensationEntity>()
+		await dbContext.EmployeeCompensations
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class EmployeeCompensationCommand(IApplicationDbContext dbContext)
 		EmployeeCompensationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<EmployeeCompensationEntity>()
+		dbContext.EmployeeCompensations
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class EmployeeCompensationCommand(IApplicationDbContext dbContext)
 		EmployeeCompensationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<EmployeeCompensationEntity>()
+		dbContext.EmployeeCompensations
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

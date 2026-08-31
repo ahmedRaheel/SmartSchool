@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Tenancy.Features.CampusBranding;
 /// Executes database writes for <see cref="CampusBrandingEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class CampusBrandingCommand(IApplicationDbContext dbContext) : ICampusBrandingCommand
+public sealed class CampusBrandingCommand(ITenancyDbContext dbContext) : ICampusBrandingCommand
 {
 	public async Task AddAsync(
 		CampusBrandingEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<CampusBrandingEntity>()
+		await dbContext.CampusBrandings
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class CampusBrandingCommand(IApplicationDbContext dbContext) : ICa
 		CampusBrandingEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<CampusBrandingEntity>()
+		dbContext.CampusBrandings
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class CampusBrandingCommand(IApplicationDbContext dbContext) : ICa
 		CampusBrandingEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<CampusBrandingEntity>()
+		dbContext.CampusBrandings
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

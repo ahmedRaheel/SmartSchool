@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 /// Executes database writes for <see cref="GeneratedQuizEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class GeneratedQuizCommand(IApplicationDbContext dbContext) : IGeneratedQuizCommand
+public sealed class GeneratedQuizCommand(IAITutorDbContext dbContext) : IGeneratedQuizCommand
 {
 	public async Task AddAsync(
 		GeneratedQuizEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<GeneratedQuizEntity>()
+		await dbContext.GeneratedQuizs
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class GeneratedQuizCommand(IApplicationDbContext dbContext) : IGen
 		GeneratedQuizEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<GeneratedQuizEntity>()
+		dbContext.GeneratedQuizs
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class GeneratedQuizCommand(IApplicationDbContext dbContext) : IGen
 		GeneratedQuizEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<GeneratedQuizEntity>()
+		dbContext.GeneratedQuizs
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateInquiryMessage
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateInquiryMessagePersistence(IApplicationDbContext dbContext) : ICreateInquiryMessage
+	internal sealed class CreateInquiryMessagePersistence(IAIInquiryDbContext dbContext) : ICreateInquiryMessage
 	{
 		public async Task AddAsync(
 				InquiryMessageEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<InquiryMessageEntity>()
+				await dbContext.InquiryMessages
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

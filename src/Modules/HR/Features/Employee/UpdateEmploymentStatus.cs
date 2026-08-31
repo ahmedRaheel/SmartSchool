@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -29,15 +30,14 @@ public static class UpdateEmploymentStatus
 	}
 
 	internal sealed class UpdateEmploymentStatusPersistence(
-		IApplicationDbContext dbContext) : IUpdateEmploymentStatus
+		IHRDbContext dbContext) : IUpdateEmploymentStatus
 	{
 		public Task<EmployeeEntity?> GetByIdAsync(
 			Guid tenantId,
 			Guid id,
 			CancellationToken cancellationToken)
 		{
-			return dbContext
-				.Set<EmployeeEntity>()
+			return dbContext.Employees
 				.SingleOrDefaultAsync(
 					entity => entity.TenantId == tenantId && entity.EmployeeId == id,
 					cancellationToken);
@@ -47,8 +47,7 @@ public static class UpdateEmploymentStatus
 				EmployeeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<EmployeeEntity>()
+				dbContext.Employees
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

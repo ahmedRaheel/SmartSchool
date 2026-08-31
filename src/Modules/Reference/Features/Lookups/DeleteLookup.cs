@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Reference.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Http;
@@ -13,10 +14,10 @@ public static class DeleteLookup
     public sealed record Command(long Id) : IRequest<Result<Response>>;
     public sealed record Response(long Id);
     public interface IDeleteLookup { Task<LookupValueEntity?> GetByIdAsync(long id, CancellationToken cancellationToken); Task DeleteAsync(LookupValueEntity entity, CancellationToken cancellationToken); }
-    internal sealed class DeleteLookupPersistence(IApplicationDbContext dbContext) : IDeleteLookup
+    internal sealed class DeleteLookupPersistence(IReferenceDbContext dbContext) : IDeleteLookup
     {
-        public Task<LookupValueEntity?> GetByIdAsync(long id, CancellationToken cancellationToken) => dbContext.Set<LookupValueEntity>().SingleOrDefaultAsync(x => x.LookupValueId == id, cancellationToken);
-        public async Task DeleteAsync(LookupValueEntity entity, CancellationToken cancellationToken) { dbContext.Set<LookupValueEntity>().Remove(entity); await dbContext.SaveChangesAsync(cancellationToken); }
+        public Task<LookupValueEntity?> GetByIdAsync(long id, CancellationToken cancellationToken) => dbContext.LookupValues.SingleOrDefaultAsync(x => x.LookupValueId == id, cancellationToken);
+        public async Task DeleteAsync(LookupValueEntity entity, CancellationToken cancellationToken) { dbContext.LookupValues.Remove(entity); await dbContext.SaveChangesAsync(cancellationToken); }
     }
     public sealed class Handler(IDeleteLookup persistence) : IRequestHandler<Command, Result<Response>>
     {

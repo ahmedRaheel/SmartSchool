@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<SchoolLogoEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateSchoolLogoPersistence(IApplicationDbContext dbContext) : IUpdateSchoolLogo
+	internal sealed class UpdateSchoolLogoPersistence(IDocumentsDbContext dbContext) : IUpdateSchoolLogo
 	{
 		public async Task UpdateAsync(
 				SchoolLogoEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<SchoolLogoEntity>()
+				dbContext.SchoolLogos
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<SchoolLogoEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<SchoolLogoEntity>()
+				return await dbContext.SchoolLogos
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.SchoolLogoId == id,

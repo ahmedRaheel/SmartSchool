@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIPrediction.Persistence;
 /// Executes database writes for <see cref="TeachingRecommendationEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class TeachingRecommendationCommand(IApplicationDbContext dbContext) : ITeachingRecommendationCommand
+public sealed class TeachingRecommendationCommand(IAIPredictionDbContext dbContext) : ITeachingRecommendationCommand
 {
 	public async Task AddAsync(
 		TeachingRecommendationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<TeachingRecommendationEntity>()
+		await dbContext.TeachingRecommendations
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class TeachingRecommendationCommand(IApplicationDbContext dbContex
 		TeachingRecommendationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<TeachingRecommendationEntity>()
+		dbContext.TeachingRecommendations
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class TeachingRecommendationCommand(IApplicationDbContext dbContex
 		TeachingRecommendationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<TeachingRecommendationEntity>()
+		dbContext.TeachingRecommendations
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

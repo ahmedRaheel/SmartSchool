@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteAcademicYear
 
 	}
 
-	internal sealed class DeleteAcademicYearPersistence(IApplicationDbContext dbContext) : IDeleteAcademicYear
+	internal sealed class DeleteAcademicYearPersistence(IAcademicsDbContext dbContext) : IDeleteAcademicYear
 	{
 		public async Task DeleteAsync(
 				AcademicYearEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<AcademicYearEntity>()
+				dbContext.AcademicYears
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteAcademicYear
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<AcademicYearEntity>()
+				return await dbContext.AcademicYears
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.AcademicYearId == id,

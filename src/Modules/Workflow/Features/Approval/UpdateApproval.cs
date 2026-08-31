@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<ApprovalEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateApprovalPersistence(IApplicationDbContext dbContext) : IUpdateApproval
+	internal sealed class UpdateApprovalPersistence(IWorkflowDbContext dbContext) : IUpdateApproval
 	{
 		public async Task UpdateAsync(
 				ApprovalEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ApprovalEntity>()
+				dbContext.Approvals
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<ApprovalEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ApprovalEntity>()
+				return await dbContext.Approvals
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ApprovalId == id,

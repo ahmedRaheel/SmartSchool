@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<ScholarshipEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateScholarshipPersistence(IApplicationDbContext dbContext) : IUpdateScholarship
+	internal sealed class UpdateScholarshipPersistence(IFinanceDbContext dbContext) : IUpdateScholarship
 	{
 		public async Task UpdateAsync(
 				ScholarshipEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ScholarshipEntity>()
+				dbContext.Scholarships
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<ScholarshipEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ScholarshipEntity>()
+				return await dbContext.Scholarships
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ScholarshipId == id,

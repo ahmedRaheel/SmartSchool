@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteEmploymentHistory
 
 	}
 
-	internal sealed class DeleteEmploymentHistoryPersistence(IApplicationDbContext dbContext) : IDeleteEmploymentHistory
+	internal sealed class DeleteEmploymentHistoryPersistence(IHRDbContext dbContext) : IDeleteEmploymentHistory
 	{
 		public async Task DeleteAsync(
 				EmploymentHistoryEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<EmploymentHistoryEntity>()
+				dbContext.EmploymentHistories
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteEmploymentHistory
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<EmploymentHistoryEntity>()
+				return await dbContext.EmploymentHistories
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.EmploymentHistoryId == id,

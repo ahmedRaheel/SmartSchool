@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Examinations.Persistence;
 using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Examinations.Features.StudentExamResult;
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
 public sealed class StudentExamResultQuery(
-	IApplicationDbContext dbContext,
+	IExaminationsDbContext dbContext,
 	IDbConnectionFactory connectionFactory) : IStudentExamResultQuery
 {
 	public Task<StudentExamResultEntity?> GetByIdAsync(
@@ -20,8 +21,7 @@ public sealed class StudentExamResultQuery(
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<StudentExamResultEntity>()
+		return dbContext.StudentExamResults
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
 				entity => entity.TenantId == tenantId && entity.StudentExamResultId == id,
@@ -90,8 +90,7 @@ public sealed class StudentExamResultQuery(
 	{
 		var pageSize = Math.Clamp(limit, 1, 100);
 
-		return await dbContext
-			.Set<StudentExamResultEntity>()
+		return await dbContext.StudentExamResults
 			.AsNoTracking()
 			.Where(entity => entity.TenantId == tenantId && entity.StudentId == studentId)
 			.OrderByDescending(entity => entity.CreatedAt)
@@ -105,8 +104,7 @@ public sealed class StudentExamResultQuery(
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<StudentExamResultEntity>()
+		return dbContext.StudentExamResults
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>

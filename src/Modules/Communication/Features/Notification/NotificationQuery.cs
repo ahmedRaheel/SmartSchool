@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -10,7 +11,7 @@ namespace SmartSchool.Modules.Communication.Features.Notification;
 /// Provides optimized notification reads and command-side aggregate loading.
 /// </summary>
 public sealed class NotificationQuery(
-	IApplicationDbContext dbContext,
+	ICommunicationDbContext dbContext,
 	IDbConnectionFactory connectionFactory) : INotificationQuery
 {
 	public async Task<PagedResult<NotificationEntity>> GetPageAsync(
@@ -112,8 +113,7 @@ public sealed class NotificationQuery(
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<NotificationEntity>()
+		return dbContext.Notifications
 			.SingleOrDefaultAsync(
 				entity =>
 					entity.TenantId == tenantId &&
@@ -126,8 +126,7 @@ public sealed class NotificationQuery(
 		Guid recipientUserId,
 		CancellationToken cancellationToken)
 	{
-		return await dbContext
-			.Set<NotificationEntity>()
+		return await dbContext.Notifications
 			.Where(entity =>
 				entity.TenantId == tenantId &&
 				entity.RecipientUserId == recipientUserId &&

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateIncrement
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateIncrementPersistence(IApplicationDbContext dbContext) : ICreateIncrement
+	internal sealed class CreateIncrementPersistence(IPayrollDbContext dbContext) : ICreateIncrement
 	{
 		public async Task AddAsync(
 				IncrementEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<IncrementEntity>()
+				await dbContext.Increments
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

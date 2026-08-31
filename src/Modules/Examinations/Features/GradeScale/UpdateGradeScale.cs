@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<GradeScaleEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateGradeScalePersistence(IApplicationDbContext dbContext) : IUpdateGradeScale
+	internal sealed class UpdateGradeScalePersistence(IExaminationsDbContext dbContext) : IUpdateGradeScale
 	{
 		public async Task UpdateAsync(
 				GradeScaleEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<GradeScaleEntity>()
+				dbContext.GradeScales
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<GradeScaleEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<GradeScaleEntity>()
+				return await dbContext.GradeScales
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.GradeScaleId == id,

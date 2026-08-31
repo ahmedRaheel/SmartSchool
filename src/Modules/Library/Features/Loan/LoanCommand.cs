@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Library.Features.Loan;
 /// Executes database writes for <see cref="LoanEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class LoanCommand(IApplicationDbContext dbContext) : ILoanCommand
+public sealed class LoanCommand(ILibraryDbContext dbContext) : ILoanCommand
 {
 	public async Task AddAsync(
 		LoanEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<LoanEntity>()
+		await dbContext.Loans
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class LoanCommand(IApplicationDbContext dbContext) : ILoanCommand
 		LoanEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LoanEntity>()
+		dbContext.Loans
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class LoanCommand(IApplicationDbContext dbContext) : ILoanCommand
 		LoanEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LoanEntity>()
+		dbContext.Loans
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

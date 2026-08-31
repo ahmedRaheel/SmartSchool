@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -57,14 +58,13 @@ Task<FeeStructureEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateFeeStructurePersistence(IApplicationDbContext dbContext) : IUpdateFeeStructure
+	internal sealed class UpdateFeeStructurePersistence(IFinanceDbContext dbContext) : IUpdateFeeStructure
 	{
 		public async Task UpdateAsync(
 				FeeStructureEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<FeeStructureEntity>()
+				dbContext.FeeStructures
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -75,8 +75,7 @@ Task<FeeStructureEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<FeeStructureEntity>()
+				return await dbContext.FeeStructures
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.FeeStructureId == id,

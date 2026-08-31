@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -20,6 +21,7 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IFinanceDbContext, FinanceDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		return services;

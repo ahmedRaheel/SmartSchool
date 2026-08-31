@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<TutorConversationEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateTutorConversationPersistence(IApplicationDbContext dbContext) : IUpdateTutorConversation
+	internal sealed class UpdateTutorConversationPersistence(IAITutorDbContext dbContext) : IUpdateTutorConversation
 	{
 		public async Task UpdateAsync(
 				TutorConversationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<TutorConversationEntity>()
+				dbContext.TutorConversations
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<TutorConversationEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<TutorConversationEntity>()
+				return await dbContext.TutorConversations
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.TutorConversationId == id,

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.HR.Features.Employee;
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
 public sealed class EmployeeQuery(
-	IApplicationDbContext dbContext,
+	IHRDbContext dbContext,
 	IDbConnectionFactory connectionFactory) : IEmployeeQuery
 {
 	public Task<EmployeeEntity?> GetByIdAsync(
@@ -20,8 +21,7 @@ public sealed class EmployeeQuery(
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<EmployeeEntity>()
+		return dbContext.Employees
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
 				entity => entity.TenantId == tenantId && entity.EmployeeId == id,
@@ -115,8 +115,7 @@ public sealed class EmployeeQuery(
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<EmployeeEntity>()
+		return dbContext.Employees
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>

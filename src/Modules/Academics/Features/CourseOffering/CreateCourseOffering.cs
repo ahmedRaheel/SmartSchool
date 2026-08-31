@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
@@ -50,14 +51,13 @@ public static class CreateCourseOffering
 	}
 
 	internal sealed class CreateCourseOfferingPersistence(
-		IApplicationDbContext dbContext) : ICreateCourseOffering
+		IAcademicsDbContext dbContext) : ICreateCourseOffering
 	{
 		public async Task AddAsync(
 				CourseOfferingEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<CourseOfferingEntity>()
+				await dbContext.CourseOfferings
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -65,7 +65,7 @@ public static class CreateCourseOffering
 	}
 
 	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
-		IApplicationDbContext dbContext,
+		IAcademicsDbContext dbContext,
 		ICreateCourseOffering dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{

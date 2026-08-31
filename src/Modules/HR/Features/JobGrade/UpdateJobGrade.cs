@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<JobGradeEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateJobGradePersistence(IApplicationDbContext dbContext) : IUpdateJobGrade
+	internal sealed class UpdateJobGradePersistence(IHRDbContext dbContext) : IUpdateJobGrade
 	{
 		public async Task UpdateAsync(
 				JobGradeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<JobGradeEntity>()
+				dbContext.JobGrades
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<JobGradeEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<JobGradeEntity>()
+				return await dbContext.JobGrades
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.JobGradeId == id,

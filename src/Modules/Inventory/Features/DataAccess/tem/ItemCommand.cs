@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Inventory.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -11,14 +12,13 @@ namespace SmartSchool.Modules.Inventory.Features.DataAccess.Item;
 /// Executes database writes for <see cref="ItemEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ItemCommand(IApplicationDbContext dbContext) : IItemCommand
+public sealed class ItemCommand(IInventoryDbContext dbContext) : IItemCommand
 {
 	public async Task AddAsync(
 		ItemEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ItemEntity>()
+		await dbContext.Items
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -28,8 +28,7 @@ public sealed class ItemCommand(IApplicationDbContext dbContext) : IItemCommand
 		ItemEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ItemEntity>()
+		dbContext.Items
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -39,8 +38,7 @@ public sealed class ItemCommand(IApplicationDbContext dbContext) : IItemCommand
 		ItemEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ItemEntity>()
+		dbContext.Items
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

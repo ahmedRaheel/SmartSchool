@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateConversation
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateConversationPersistence(IApplicationDbContext dbContext) : ICreateConversation
+	internal sealed class CreateConversationPersistence(ICommunicationDbContext dbContext) : ICreateConversation
 	{
 		public async Task AddAsync(
 				ConversationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<ConversationEntity>()
+				await dbContext.Conversations
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

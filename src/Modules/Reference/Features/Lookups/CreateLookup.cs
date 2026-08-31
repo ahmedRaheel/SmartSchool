@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Reference.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Http;
@@ -14,10 +15,10 @@ public static class CreateLookup
     public sealed record Response(long Id, long LookupTypeId, string TypeCode, string Code, string Name, int SortOrder, bool IsActive);
     public sealed class Validator : AbstractValidator<Request> { public Validator() { RuleFor(x => x.TypeCode).NotEmpty(); RuleFor(x => x.Code).NotEmpty(); RuleFor(x => x.Name).NotEmpty(); } }
     public interface ICreateLookup { Task<long?> GetTypeIdAsync(string typeCode, CancellationToken cancellationToken); Task AddAsync(LookupValueEntity entity, CancellationToken cancellationToken); }
-    internal sealed class CreateLookupPersistence(IApplicationDbContext dbContext) : ICreateLookup
+    internal sealed class CreateLookupPersistence(IReferenceDbContext dbContext) : ICreateLookup
     {
         public Task<long?> GetTypeIdAsync(string typeCode, CancellationToken cancellationToken) => dbContext.Database.SqlQueryRaw<long?>("SELECT lookup_type_id AS \"Value\" FROM saas.lookup_type WHERE code = {0}", typeCode.Trim().ToUpperInvariant()).SingleOrDefaultAsync(cancellationToken);
-        public async Task AddAsync(LookupValueEntity entity, CancellationToken cancellationToken) { await dbContext.Set<LookupValueEntity>().AddAsync(entity, cancellationToken); await dbContext.SaveChangesAsync(cancellationToken); }
+        public async Task AddAsync(LookupValueEntity entity, CancellationToken cancellationToken) { await dbContext.LookupValues.AddAsync(entity, cancellationToken); await dbContext.SaveChangesAsync(cancellationToken); }
     }
     public sealed class Handler(ICreateLookup persistence) : IRequestHandler<Request, Result<Response>>
     {

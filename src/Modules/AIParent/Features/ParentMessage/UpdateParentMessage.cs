@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<ParentMessageEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateParentMessagePersistence(IApplicationDbContext dbContext) : IUpdateParentMessage
+	internal sealed class UpdateParentMessagePersistence(IAIParentDbContext dbContext) : IUpdateParentMessage
 	{
 		public async Task UpdateAsync(
 				ParentMessageEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ParentMessageEntity>()
+				dbContext.ParentMessages
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<ParentMessageEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ParentMessageEntity>()
+				return await dbContext.ParentMessages
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ParentMessageId == id,

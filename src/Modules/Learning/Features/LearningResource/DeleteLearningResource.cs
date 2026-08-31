@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteLearningResource
 
 	}
 
-	internal sealed class DeleteLearningResourcePersistence(IApplicationDbContext dbContext) : IDeleteLearningResource
+	internal sealed class DeleteLearningResourcePersistence(ILearningDbContext dbContext) : IDeleteLearningResource
 	{
 		public async Task DeleteAsync(
 				LearningResourceEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<LearningResourceEntity>()
+				dbContext.LearningResources
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteLearningResource
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<LearningResourceEntity>()
+				return await dbContext.LearningResources
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.LearningResourceId == id,

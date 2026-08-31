@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
@@ -28,14 +29,13 @@ public static class UpdateEnrollment
 	}
 
 	internal sealed class UpdateEnrollmentPersistence(
-		IApplicationDbContext dbContext) : IUpdateEnrollment
+		IStudentsDbContext dbContext) : IUpdateEnrollment
 	{
 		public async Task UpdateAsync(
 				EnrollmentEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<EnrollmentEntity>()
+				dbContext.Enrollments
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -44,7 +44,7 @@ public static class UpdateEnrollment
 		public Task<EnrollmentEntity?> GetByIdAsync(
 			Guid tenantId, Guid id, CancellationToken cancellationToken)
 		{
-			return dbContext.Set<EnrollmentEntity>()
+			return dbContext.Enrollments
 				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentEnrollmentId == id, cancellationToken);
 		}
 }

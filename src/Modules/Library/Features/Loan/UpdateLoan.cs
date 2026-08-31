@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<LoanEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateLoanPersistence(IApplicationDbContext dbContext) : IUpdateLoan
+	internal sealed class UpdateLoanPersistence(ILibraryDbContext dbContext) : IUpdateLoan
 	{
 		public async Task UpdateAsync(
 				LoanEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<LoanEntity>()
+				dbContext.Loans
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<LoanEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<LoanEntity>()
+				return await dbContext.Loans
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.BookLoanId == id,

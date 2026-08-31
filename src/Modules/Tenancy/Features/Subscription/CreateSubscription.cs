@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateSubscription
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateSubscriptionPersistence(IApplicationDbContext dbContext) : ICreateSubscription
+	internal sealed class CreateSubscriptionPersistence(ITenancyDbContext dbContext) : ICreateSubscription
 	{
 		public async Task AddAsync(
 				SubscriptionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<SubscriptionEntity>()
+				await dbContext.Subscriptions
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

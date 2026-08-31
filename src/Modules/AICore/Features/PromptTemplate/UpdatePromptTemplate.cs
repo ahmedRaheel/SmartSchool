@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<PromptTemplateEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdatePromptTemplatePersistence(IApplicationDbContext dbContext) : IUpdatePromptTemplate
+	internal sealed class UpdatePromptTemplatePersistence(IAICoreDbContext dbContext) : IUpdatePromptTemplate
 	{
 		public async Task UpdateAsync(
 				PromptTemplateEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<PromptTemplateEntity>()
+				dbContext.PromptTemplates
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<PromptTemplateEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<PromptTemplateEntity>()
+				return await dbContext.PromptTemplates
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.PromptTemplateId == id,

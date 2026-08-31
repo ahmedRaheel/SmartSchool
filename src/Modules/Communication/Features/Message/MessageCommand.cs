@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Communication.Features.Message;
 /// Executes database writes for <see cref="MessageEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class MessageCommand(IApplicationDbContext dbContext) : IMessageCommand
+public sealed class MessageCommand(ICommunicationDbContext dbContext) : IMessageCommand
 {
 	public async Task AddAsync(
 		MessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<MessageEntity>()
+		await dbContext.Messages
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class MessageCommand(IApplicationDbContext dbContext) : IMessageCo
 		MessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<MessageEntity>()
+		dbContext.Messages
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class MessageCommand(IApplicationDbContext dbContext) : IMessageCo
 		MessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<MessageEntity>()
+		dbContext.Messages
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

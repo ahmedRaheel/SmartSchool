@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AICore.Features.PromptTemplate;
 /// Executes database writes for <see cref="PromptTemplateEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PromptTemplateCommand(IApplicationDbContext dbContext) : IPromptTemplateCommand
+public sealed class PromptTemplateCommand(IAICoreDbContext dbContext) : IPromptTemplateCommand
 {
 	public async Task AddAsync(
 		PromptTemplateEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<PromptTemplateEntity>()
+		await dbContext.PromptTemplates
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class PromptTemplateCommand(IApplicationDbContext dbContext) : IPr
 		PromptTemplateEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PromptTemplateEntity>()
+		dbContext.PromptTemplates
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class PromptTemplateCommand(IApplicationDbContext dbContext) : IPr
 		PromptTemplateEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PromptTemplateEntity>()
+		dbContext.PromptTemplates
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

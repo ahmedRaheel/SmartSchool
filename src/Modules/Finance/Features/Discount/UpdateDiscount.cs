@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<DiscountEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateDiscountPersistence(IApplicationDbContext dbContext) : IUpdateDiscount
+	internal sealed class UpdateDiscountPersistence(IFinanceDbContext dbContext) : IUpdateDiscount
 	{
 		public async Task UpdateAsync(
 				DiscountEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<DiscountEntity>()
+				dbContext.Discounts
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<DiscountEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<DiscountEntity>()
+				return await dbContext.Discounts
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.DiscountId == id,

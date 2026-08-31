@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<KnowledgeChunkEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateKnowledgeChunkPersistence(IApplicationDbContext dbContext) : IUpdateKnowledgeChunk
+	internal sealed class UpdateKnowledgeChunkPersistence(IAICoreDbContext dbContext) : IUpdateKnowledgeChunk
 	{
 		public async Task UpdateAsync(
 				KnowledgeChunkEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<KnowledgeChunkEntity>()
+				dbContext.KnowledgeChunks
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<KnowledgeChunkEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<KnowledgeChunkEntity>()
+				return await dbContext.KnowledgeChunks
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.KnowledgeChunkId == id,

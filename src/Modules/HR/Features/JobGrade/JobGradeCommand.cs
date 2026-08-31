@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.HR.Features.JobGrade;
 /// Executes database writes for <see cref="JobGradeEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class JobGradeCommand(IApplicationDbContext dbContext) : IJobGradeCommand
+public sealed class JobGradeCommand(IHRDbContext dbContext) : IJobGradeCommand
 {
 	public async Task AddAsync(
 		JobGradeEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<JobGradeEntity>()
+		await dbContext.JobGrades
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class JobGradeCommand(IApplicationDbContext dbContext) : IJobGrade
 		JobGradeEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<JobGradeEntity>()
+		dbContext.JobGrades
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class JobGradeCommand(IApplicationDbContext dbContext) : IJobGrade
 		JobGradeEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<JobGradeEntity>()
+		dbContext.JobGrades
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

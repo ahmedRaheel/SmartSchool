@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -33,15 +34,14 @@ public static class DeleteNotification
 	}
 
 	internal sealed class DeleteNotificationPersistence(
-		IApplicationDbContext dbContext) : IDeleteNotification
+		ICommunicationDbContext dbContext) : IDeleteNotification
 	{
 		public Task<NotificationEntity?> GetByIdAsync(
 			Guid tenantId,
 			Guid id,
 			CancellationToken cancellationToken)
 		{
-			return dbContext
-				.Set<NotificationEntity>()
+			return dbContext.Notifications
 				.SingleOrDefaultAsync(
 					entity => entity.TenantId == tenantId && entity.NotificationId == id,
 					cancellationToken);
@@ -51,8 +51,7 @@ public static class DeleteNotification
 				NotificationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<NotificationEntity>()
+				dbContext.Notifications
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

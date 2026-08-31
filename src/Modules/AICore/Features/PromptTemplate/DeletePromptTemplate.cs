@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeletePromptTemplate
 
 	}
 
-	internal sealed class DeletePromptTemplatePersistence(IApplicationDbContext dbContext) : IDeletePromptTemplate
+	internal sealed class DeletePromptTemplatePersistence(IAICoreDbContext dbContext) : IDeletePromptTemplate
 	{
 		public async Task DeleteAsync(
 				PromptTemplateEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<PromptTemplateEntity>()
+				dbContext.PromptTemplates
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeletePromptTemplate
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<PromptTemplateEntity>()
+				return await dbContext.PromptTemplates
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.PromptTemplateId == id,

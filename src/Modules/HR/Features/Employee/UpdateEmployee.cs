@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
@@ -63,15 +64,14 @@ public static class UpdateEmployee
 	}
 
 	internal sealed class UpdateEmployeePersistence(
-		IApplicationDbContext dbContext) : IUpdateEmployee
+		IHRDbContext dbContext) : IUpdateEmployee
 	{
 		public Task<EmployeeEntity?> GetByIdAsync(
 			Guid tenantId,
 			Guid id,
 			CancellationToken cancellationToken)
 		{
-			return dbContext
-				.Set<EmployeeEntity>()
+			return dbContext.Employees
 				.SingleOrDefaultAsync(
 					entity => entity.TenantId == tenantId && entity.EmployeeId == id,
 					cancellationToken);
@@ -81,8 +81,7 @@ public static class UpdateEmployee
 				EmployeeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<EmployeeEntity>()
+				dbContext.Employees
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

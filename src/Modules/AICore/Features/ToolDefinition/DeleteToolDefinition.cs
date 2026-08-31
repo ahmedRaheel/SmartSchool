@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteToolDefinition
 
 	}
 
-	internal sealed class DeleteToolDefinitionPersistence(IApplicationDbContext dbContext) : IDeleteToolDefinition
+	internal sealed class DeleteToolDefinitionPersistence(IAICoreDbContext dbContext) : IDeleteToolDefinition
 	{
 		public async Task DeleteAsync(
 				ToolDefinitionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ToolDefinitionEntity>()
+				dbContext.ToolDefinitions
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteToolDefinition
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ToolDefinitionEntity>()
+				return await dbContext.ToolDefinitions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ToolDefinitionId == id,

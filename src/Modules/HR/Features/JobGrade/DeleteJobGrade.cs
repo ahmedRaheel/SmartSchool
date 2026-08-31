@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteJobGrade
 
 	}
 
-	internal sealed class DeleteJobGradePersistence(IApplicationDbContext dbContext) : IDeleteJobGrade
+	internal sealed class DeleteJobGradePersistence(IHRDbContext dbContext) : IDeleteJobGrade
 	{
 		public async Task DeleteAsync(
 				JobGradeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<JobGradeEntity>()
+				dbContext.JobGrades
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteJobGrade
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<JobGradeEntity>()
+				return await dbContext.JobGrades
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.JobGradeId == id,

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateDocumentTemplate
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateDocumentTemplatePersistence(IApplicationDbContext dbContext) : ICreateDocumentTemplate
+	internal sealed class CreateDocumentTemplatePersistence(IDocumentsDbContext dbContext) : ICreateDocumentTemplate
 	{
 		public async Task AddAsync(
 				DocumentTemplateEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<DocumentTemplateEntity>()
+				await dbContext.DocumentTemplates
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

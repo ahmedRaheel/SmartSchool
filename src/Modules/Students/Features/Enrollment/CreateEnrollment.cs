@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using SmartSchool.Application.Http;
@@ -55,14 +56,13 @@ public static class CreateEnrollment
 	}
 
 	internal sealed class CreateEnrollmentPersistence(
-		IApplicationDbContext dbContext) : ICreateEnrollment
+		IStudentsDbContext dbContext) : ICreateEnrollment
 	{
 		public async Task AddAsync(
 				EnrollmentEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<EnrollmentEntity>()
+				await dbContext.Enrollments
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,14 +71,14 @@ public static class CreateEnrollment
 		public Task<EnrollmentEntity?> GetByIdAsync(
 			Guid tenantId, Guid id, CancellationToken cancellationToken)
 		{
-			return dbContext.Set<EnrollmentEntity>()
+			return dbContext.Enrollments
 				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentEnrollmentId == id, cancellationToken);
 		}
 
 		public Task<bool> ExistsForAcademicYearAsync(
 			Guid tenantId, Guid studentId, Guid academicYearId, CancellationToken cancellationToken)
 		{
-			return dbContext.Set<EnrollmentEntity>().AnyAsync(
+			return dbContext.Enrollments.AnyAsync(
 				x => x.TenantId == tenantId && x.StudentId == studentId && x.AcademicYearId == academicYearId,
 				cancellationToken);
 		}

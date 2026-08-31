@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 /// Executes database writes for <see cref="KnowledgeChunkEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class KnowledgeChunkCommand(IApplicationDbContext dbContext) : IKnowledgeChunkCommand
+public sealed class KnowledgeChunkCommand(IAICoreDbContext dbContext) : IKnowledgeChunkCommand
 {
 	public async Task AddAsync(
 		KnowledgeChunkEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<KnowledgeChunkEntity>()
+		await dbContext.KnowledgeChunks
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class KnowledgeChunkCommand(IApplicationDbContext dbContext) : IKn
 		KnowledgeChunkEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<KnowledgeChunkEntity>()
+		dbContext.KnowledgeChunks
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class KnowledgeChunkCommand(IApplicationDbContext dbContext) : IKn
 		KnowledgeChunkEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<KnowledgeChunkEntity>()
+		dbContext.KnowledgeChunks
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

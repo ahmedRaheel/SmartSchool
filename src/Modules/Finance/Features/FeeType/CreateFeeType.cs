@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -17,9 +18,9 @@ public static class CreateFeeType
         public Validator() { RuleFor(x=>x.TenantId).NotEmpty(); RuleFor(x=>x.Name).NotEmpty().MaximumLength(120); RuleFor(x=>x.Frequency).NotEmpty().Must(x=>new[]{"Monthly","Term","Annual","OneTime"}.Contains(x)); }
     }
     public interface ICreateFeeType { Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken); }
-    internal sealed class CreateFeeTypePersistence(IApplicationDbContext dbContext) : ICreateFeeType
+    internal sealed class CreateFeeTypePersistence(IFinanceDbContext dbContext) : ICreateFeeType
     {
-        public async Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken) { await dbContext.Set<FeeTypeEntity>().AddAsync(entity,cancellationToken); await dbContext.SaveChangesAsync(cancellationToken); }
+        public async Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken) { await dbContext.FeeTypes.AddAsync(entity,cancellationToken); await dbContext.SaveChangesAsync(cancellationToken); }
     }
     public sealed class Handler(ICreateFeeType persistence) : IRequestHandler<Request,Result<Response>>
     {

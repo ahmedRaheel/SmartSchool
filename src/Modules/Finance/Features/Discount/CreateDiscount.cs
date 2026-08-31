@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateDiscount
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateDiscountPersistence(IApplicationDbContext dbContext) : ICreateDiscount
+	internal sealed class CreateDiscountPersistence(IFinanceDbContext dbContext) : ICreateDiscount
 	{
 		public async Task AddAsync(
 				DiscountEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<DiscountEntity>()
+				await dbContext.Discounts
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

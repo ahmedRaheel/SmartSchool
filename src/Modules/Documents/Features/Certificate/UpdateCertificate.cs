@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<CertificateEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateCertificatePersistence(IApplicationDbContext dbContext) : IUpdateCertificate
+	internal sealed class UpdateCertificatePersistence(IDocumentsDbContext dbContext) : IUpdateCertificate
 	{
 		public async Task UpdateAsync(
 				CertificateEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<CertificateEntity>()
+				dbContext.Certificates
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<CertificateEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<CertificateEntity>()
+				return await dbContext.Certificates
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.CertificateId == id,

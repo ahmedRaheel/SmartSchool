@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeletePurchaseOrder
 
 	}
 
-	internal sealed class DeletePurchaseOrderPersistence(IApplicationDbContext dbContext) : IDeletePurchaseOrder
+	internal sealed class DeletePurchaseOrderPersistence(IInventoryDbContext dbContext) : IDeletePurchaseOrder
 	{
 		public async Task DeleteAsync(
 				PurchaseOrderEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<PurchaseOrderEntity>()
+				dbContext.PurchaseOrders
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeletePurchaseOrder
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<PurchaseOrderEntity>()
+				return await dbContext.PurchaseOrders
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.PurchaseOrderId == id,

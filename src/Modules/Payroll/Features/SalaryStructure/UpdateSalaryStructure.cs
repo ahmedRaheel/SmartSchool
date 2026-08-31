@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<SalaryStructureEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateSalaryStructurePersistence(IApplicationDbContext dbContext) : IUpdateSalaryStructure
+	internal sealed class UpdateSalaryStructurePersistence(IPayrollDbContext dbContext) : IUpdateSalaryStructure
 	{
 		public async Task UpdateAsync(
 				SalaryStructureEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<SalaryStructureEntity>()
+				dbContext.SalaryStructures
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<SalaryStructureEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<SalaryStructureEntity>()
+				return await dbContext.SalaryStructures
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.SalaryStructureId == id,

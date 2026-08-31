@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateStop
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateStopPersistence(IApplicationDbContext dbContext) : ICreateStop
+	internal sealed class CreateStopPersistence(ITransportDbContext dbContext) : ICreateStop
 	{
 		public async Task AddAsync(
 				StopEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<StopEntity>()
+				await dbContext.Stops
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

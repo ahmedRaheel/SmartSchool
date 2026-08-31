@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteInvoice
 
 	}
 
-	internal sealed class DeleteInvoicePersistence(IApplicationDbContext dbContext) : IDeleteInvoice
+	internal sealed class DeleteInvoicePersistence(IFinanceDbContext dbContext) : IDeleteInvoice
 	{
 		public async Task DeleteAsync(
 				InvoiceEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<InvoiceEntity>()
+				dbContext.Invoices
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteInvoice
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<InvoiceEntity>()
+				return await dbContext.Invoices
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.StudentInvoiceId == id,

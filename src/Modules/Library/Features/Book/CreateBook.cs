@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateBook
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateBookPersistence(IApplicationDbContext dbContext) : ICreateBook
+	internal sealed class CreateBookPersistence(ILibraryDbContext dbContext) : ICreateBook
 	{
 		public async Task AddAsync(
 				BookEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<BookEntity>()
+				await dbContext.Books
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

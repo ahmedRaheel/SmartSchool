@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.SharedKernel.Constants;
 using FluentValidation;
@@ -71,14 +72,13 @@ public static class CreateTenant
 	}
 
 	internal sealed class CreateTenantPersistence(
-		IApplicationDbContext dbContext) : ICreateTenant
+		ITenancyDbContext dbContext) : ICreateTenant
 	{
 		public async Task DeleteAsync(
 				TenantEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<TenantEntity>()
+				dbContext.Tenants
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -88,8 +88,7 @@ public static class CreateTenant
 				TenantEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<TenantEntity>()
+				await dbContext.Tenants
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -97,7 +96,7 @@ public static class CreateTenant
 	
 		public async Task AddAsync(TenantContactEntity entity, CancellationToken cancellationToken)
 		{
-			await dbContext.Set<TenantContactEntity>().AddAsync(entity, cancellationToken);
+			await dbContext.TenantContacts.AddAsync(entity, cancellationToken);
 			await dbContext.SaveChangesAsync(cancellationToken);
 		}
 }

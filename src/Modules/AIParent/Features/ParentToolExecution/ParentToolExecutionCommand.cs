@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 /// Executes database writes for <see cref="ParentToolExecutionEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ParentToolExecutionCommand(IApplicationDbContext dbContext) : IParentToolExecutionCommand
+public sealed class ParentToolExecutionCommand(IAIParentDbContext dbContext) : IParentToolExecutionCommand
 {
 	public async Task AddAsync(
 		ParentToolExecutionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ParentToolExecutionEntity>()
+		await dbContext.ParentToolExecutions
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ParentToolExecutionCommand(IApplicationDbContext dbContext) 
 		ParentToolExecutionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ParentToolExecutionEntity>()
+		dbContext.ParentToolExecutions
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ParentToolExecutionCommand(IApplicationDbContext dbContext) 
 		ParentToolExecutionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ParentToolExecutionEntity>()
+		dbContext.ParentToolExecutions
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

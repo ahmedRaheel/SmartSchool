@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<AiExecutionLogEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateAiExecutionLogPersistence(IApplicationDbContext dbContext) : IUpdateAiExecutionLog
+	internal sealed class UpdateAiExecutionLogPersistence(IAICoreDbContext dbContext) : IUpdateAiExecutionLog
 	{
 		public async Task UpdateAsync(
 				AiExecutionLogEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<AiExecutionLogEntity>()
+				dbContext.AiExecutionLogs
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<AiExecutionLogEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<AiExecutionLogEntity>()
+				return await dbContext.AiExecutionLogs
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.AiExecutionLogId == id,

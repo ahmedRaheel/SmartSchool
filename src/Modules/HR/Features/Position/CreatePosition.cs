@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreatePosition
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreatePositionPersistence(IApplicationDbContext dbContext) : ICreatePosition
+	internal sealed class CreatePositionPersistence(IHRDbContext dbContext) : ICreatePosition
 	{
 		public async Task AddAsync(
 				PositionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<PositionEntity>()
+				await dbContext.Positions
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

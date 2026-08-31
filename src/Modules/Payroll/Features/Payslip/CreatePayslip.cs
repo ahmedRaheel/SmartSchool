@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreatePayslip
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreatePayslipPersistence(IApplicationDbContext dbContext) : ICreatePayslip
+	internal sealed class CreatePayslipPersistence(IPayrollDbContext dbContext) : ICreatePayslip
 	{
 		public async Task AddAsync(
 				PayslipEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<PayslipEntity>()
+				await dbContext.Payslips
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

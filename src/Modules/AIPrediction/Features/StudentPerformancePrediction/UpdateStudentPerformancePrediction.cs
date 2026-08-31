@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -51,14 +52,13 @@ public static class UpdateStudentPerformancePrediction
 }
 
 	internal sealed class UpdateStudentPerformancePredictionPersistence(
-		IApplicationDbContext dbContext) : IUpdateStudentPerformancePrediction
+		IAIPredictionDbContext dbContext) : IUpdateStudentPerformancePrediction
 	{
 		public async Task UpdateAsync(
 				StudentPerformancePredictionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<StudentPerformancePredictionEntity>()
+				dbContext.StudentPerformancePredictions
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -67,7 +67,7 @@ public static class UpdateStudentPerformancePrediction
 		public Task<StudentPerformancePredictionEntity?> GetByIdAsync(
 			Guid tenantId, Guid id, CancellationToken cancellationToken)
 		{
-			return dbContext.Set<StudentPerformancePredictionEntity>()
+			return dbContext.StudentPerformancePredictions
 				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentPerformancePredictionId == id, cancellationToken);
 		}
 }

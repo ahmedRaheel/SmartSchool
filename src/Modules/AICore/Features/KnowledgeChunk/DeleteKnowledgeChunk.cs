@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteKnowledgeChunk
 
 	}
 
-	internal sealed class DeleteKnowledgeChunkPersistence(IApplicationDbContext dbContext) : IDeleteKnowledgeChunk
+	internal sealed class DeleteKnowledgeChunkPersistence(IAICoreDbContext dbContext) : IDeleteKnowledgeChunk
 	{
 		public async Task DeleteAsync(
 				KnowledgeChunkEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<KnowledgeChunkEntity>()
+				dbContext.KnowledgeChunks
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteKnowledgeChunk
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<KnowledgeChunkEntity>()
+				return await dbContext.KnowledgeChunks
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.KnowledgeChunkId == id,

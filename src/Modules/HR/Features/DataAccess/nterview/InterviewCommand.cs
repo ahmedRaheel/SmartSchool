@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -11,14 +12,13 @@ namespace SmartSchool.Modules.HR.Features.DataAccess.Interview;
 /// Executes database writes for <see cref="InterviewEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class InterviewCommand(IApplicationDbContext dbContext) : IInterviewCommand
+public sealed class InterviewCommand(IHRDbContext dbContext) : IInterviewCommand
 {
 	public async Task AddAsync(
 		InterviewEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<InterviewEntity>()
+		await dbContext.Interviews
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -28,8 +28,7 @@ public sealed class InterviewCommand(IApplicationDbContext dbContext) : IIntervi
 		InterviewEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<InterviewEntity>()
+		dbContext.Interviews
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -39,8 +38,7 @@ public sealed class InterviewCommand(IApplicationDbContext dbContext) : IIntervi
 		InterviewEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<InterviewEntity>()
+		dbContext.Interviews
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateKnowledgeCollection
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateKnowledgeCollectionPersistence(IApplicationDbContext dbContext) : ICreateKnowledgeCollection
+	internal sealed class CreateKnowledgeCollectionPersistence(IAICoreDbContext dbContext) : ICreateKnowledgeCollection
 	{
 		public async Task AddAsync(
 				KnowledgeCollectionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<KnowledgeCollectionEntity>()
+				await dbContext.KnowledgeCollections
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateHumanHandoff
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateHumanHandoffPersistence(IApplicationDbContext dbContext) : ICreateHumanHandoff
+	internal sealed class CreateHumanHandoffPersistence(IAIInquiryDbContext dbContext) : ICreateHumanHandoff
 	{
 		public async Task AddAsync(
 				HumanHandoffEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<HumanHandoffEntity>()
+				await dbContext.HumanHandoffs
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

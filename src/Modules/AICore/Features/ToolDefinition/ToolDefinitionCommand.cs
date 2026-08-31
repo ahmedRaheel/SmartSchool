@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 /// Executes database writes for <see cref="ToolDefinitionEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ToolDefinitionCommand(IApplicationDbContext dbContext) : IToolDefinitionCommand
+public sealed class ToolDefinitionCommand(IAICoreDbContext dbContext) : IToolDefinitionCommand
 {
 	public async Task AddAsync(
 		ToolDefinitionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ToolDefinitionEntity>()
+		await dbContext.ToolDefinitions
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ToolDefinitionCommand(IApplicationDbContext dbContext) : ITo
 		ToolDefinitionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ToolDefinitionEntity>()
+		dbContext.ToolDefinitions
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ToolDefinitionCommand(IApplicationDbContext dbContext) : ITo
 		ToolDefinitionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ToolDefinitionEntity>()
+		dbContext.ToolDefinitions
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

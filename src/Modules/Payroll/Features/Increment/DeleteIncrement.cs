@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteIncrement
 
 	}
 
-	internal sealed class DeleteIncrementPersistence(IApplicationDbContext dbContext) : IDeleteIncrement
+	internal sealed class DeleteIncrementPersistence(IPayrollDbContext dbContext) : IDeleteIncrement
 	{
 		public async Task DeleteAsync(
 				IncrementEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<IncrementEntity>()
+				dbContext.Increments
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteIncrement
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<IncrementEntity>()
+				return await dbContext.Increments
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.IncrementId == id,

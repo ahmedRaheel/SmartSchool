@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -25,11 +26,11 @@ public static class CreateFeeStructure
 	{
 		Task AddAsync(FeeStructureEntity entity, CancellationToken cancellationToken);
 	}
-	internal sealed class CreateFeeStructurePersistence(IApplicationDbContext db) : ICreateFeeStructure
+	internal sealed class CreateFeeStructurePersistence(IFinanceDbContext db) : ICreateFeeStructure
 	{
 		public async Task AddAsync(FeeStructureEntity entity, CancellationToken ct)
 		{
-			await db.Set<FeeStructureEntity>().AddAsync(entity, ct);
+			await db.FeeStructures.AddAsync(entity, ct);
 			await db.SaveChangesAsync(ct);
 		}
 	}

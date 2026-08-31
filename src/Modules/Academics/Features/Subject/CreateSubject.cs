@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -54,14 +55,13 @@ public static class CreateSubject
 
 	}
 
-	internal sealed class CreateSubjectPersistence(IApplicationDbContext dbContext) : ICreateSubject
+	internal sealed class CreateSubjectPersistence(IAcademicsDbContext dbContext) : ICreateSubject
 	{
 		public async Task AddAsync(
 				SubjectEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<SubjectEntity>()
+				await dbContext.Subjects
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

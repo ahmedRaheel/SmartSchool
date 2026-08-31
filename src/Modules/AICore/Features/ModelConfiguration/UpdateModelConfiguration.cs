@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<ModelConfigurationEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateModelConfigurationPersistence(IApplicationDbContext dbContext) : IUpdateModelConfiguration
+	internal sealed class UpdateModelConfigurationPersistence(IAICoreDbContext dbContext) : IUpdateModelConfiguration
 	{
 		public async Task UpdateAsync(
 				ModelConfigurationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ModelConfigurationEntity>()
+				dbContext.ModelConfigurations
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<ModelConfigurationEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ModelConfigurationEntity>()
+				return await dbContext.ModelConfigurations
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ModelConfigurationId == id,

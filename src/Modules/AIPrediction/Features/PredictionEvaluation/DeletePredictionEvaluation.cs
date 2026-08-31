@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeletePredictionEvaluation
 
 	}
 
-	internal sealed class DeletePredictionEvaluationPersistence(IApplicationDbContext dbContext) : IDeletePredictionEvaluation
+	internal sealed class DeletePredictionEvaluationPersistence(IAIPredictionDbContext dbContext) : IDeletePredictionEvaluation
 	{
 		public async Task DeleteAsync(
 				PredictionEvaluationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<PredictionEvaluationEntity>()
+				dbContext.PredictionEvaluations
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeletePredictionEvaluation
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<PredictionEvaluationEntity>()
+				return await dbContext.PredictionEvaluations
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.PredictionEvaluationId == id,

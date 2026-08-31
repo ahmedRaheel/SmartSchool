@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteKnowledgeCollection
 
 	}
 
-	internal sealed class DeleteKnowledgeCollectionPersistence(IApplicationDbContext dbContext) : IDeleteKnowledgeCollection
+	internal sealed class DeleteKnowledgeCollectionPersistence(IAICoreDbContext dbContext) : IDeleteKnowledgeCollection
 	{
 		public async Task DeleteAsync(
 				KnowledgeCollectionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<KnowledgeCollectionEntity>()
+				dbContext.KnowledgeCollections
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteKnowledgeCollection
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<KnowledgeCollectionEntity>()
+				return await dbContext.KnowledgeCollections
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.KnowledgeCollectionId == id,

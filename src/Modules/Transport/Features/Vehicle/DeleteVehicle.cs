@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteVehicle
 
 	}
 
-	internal sealed class DeleteVehiclePersistence(IApplicationDbContext dbContext) : IDeleteVehicle
+	internal sealed class DeleteVehiclePersistence(ITransportDbContext dbContext) : IDeleteVehicle
 	{
 		public async Task DeleteAsync(
 				VehicleEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<VehicleEntity>()
+				dbContext.Vehicles
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteVehicle
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<VehicleEntity>()
+				return await dbContext.Vehicles
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.VehicleId == id,

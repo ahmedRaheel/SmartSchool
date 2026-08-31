@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<PayrollRunEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdatePayrollRunPersistence(IApplicationDbContext dbContext) : IUpdatePayrollRun
+	internal sealed class UpdatePayrollRunPersistence(IPayrollDbContext dbContext) : IUpdatePayrollRun
 	{
 		public async Task UpdateAsync(
 				PayrollRunEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<PayrollRunEntity>()
+				dbContext.PayrollRuns
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<PayrollRunEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<PayrollRunEntity>()
+				return await dbContext.PayrollRuns
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.PayrollRunId == id,

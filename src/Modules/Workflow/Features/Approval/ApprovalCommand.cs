@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Workflow.Features.Approval;
 /// Executes database writes for <see cref="ApprovalEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ApprovalCommand(IApplicationDbContext dbContext) : IApprovalCommand
+public sealed class ApprovalCommand(IWorkflowDbContext dbContext) : IApprovalCommand
 {
 	public async Task AddAsync(
 		ApprovalEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ApprovalEntity>()
+		await dbContext.Approvals
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ApprovalCommand(IApplicationDbContext dbContext) : IApproval
 		ApprovalEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ApprovalEntity>()
+		dbContext.Approvals
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ApprovalCommand(IApplicationDbContext dbContext) : IApproval
 		ApprovalEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ApprovalEntity>()
+		dbContext.Approvals
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

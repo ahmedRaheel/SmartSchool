@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -14,7 +15,7 @@ public static class PredictionSuiteEndpoints
 
 		group.MapPost("/student/{predictionKind}", async (
 			PredictionKind predictionKind, StudentPredictionRequest request,
-			IPredictionSuiteService service, IApplicationDbContext db, CancellationToken ct) =>
+			IPredictionSuiteService service, IAIPredictionDbContext db, CancellationToken ct) =>
 		{
 			var result=await service.PredictStudentAsync(predictionKind,request,ct);
 			await PersistAsync(db,request.TenantId,result,ct,request.StudentId,request.SubjectId);
@@ -27,7 +28,7 @@ public static class PredictionSuiteEndpoints
 
 		group.MapPost("/admission/{predictionKind}", async (
 			PredictionKind predictionKind, AdmissionPredictionRequest request,
-			IPredictionSuiteService service, IApplicationDbContext db, CancellationToken ct) =>
+			IPredictionSuiteService service, IAIPredictionDbContext db, CancellationToken ct) =>
 		{
 			var result=await service.PredictAdmissionAsync(predictionKind,request,ct);
 			await PersistAsync(db,request.TenantId,result,ct,relatedEntityId:request.ApplicantId);
@@ -36,7 +37,7 @@ public static class PredictionSuiteEndpoints
 
 		group.MapPost("/teacher/{predictionKind}", async (
 			PredictionKind predictionKind, TeacherPredictionRequest request,
-			IPredictionSuiteService service, IApplicationDbContext db, CancellationToken ct) =>
+			IPredictionSuiteService service, IAIPredictionDbContext db, CancellationToken ct) =>
 		{
 			var result=await service.PredictTeacherAsync(predictionKind,request,ct);
 			await PersistAsync(db,request.TenantId,result,ct,relatedEntityId:request.TeacherEmployeeId);
@@ -45,7 +46,7 @@ public static class PredictionSuiteEndpoints
 
 		group.MapPost("/payroll/anomaly", async (
 			PayrollPredictionRequest request, IPredictionSuiteService service,
-			IApplicationDbContext db, CancellationToken ct) =>
+			IAIPredictionDbContext db, CancellationToken ct) =>
 		{
 			var result=await service.PredictPayrollAsync(request,ct);
 			await PersistAsync(db,request.TenantId,result,ct,relatedEntityId:request.EmployeeId);
@@ -54,7 +55,7 @@ public static class PredictionSuiteEndpoints
 
 		group.MapPost("/transport/delay", async (
 			TransportPredictionRequest request, IPredictionSuiteService service,
-			IApplicationDbContext db, CancellationToken ct) =>
+			IAIPredictionDbContext db, CancellationToken ct) =>
 		{
 			var result=await service.PredictTransportAsync(request,ct);
 			await PersistAsync(db,request.TenantId,result,ct,relatedEntityId:request.RouteId);
@@ -63,7 +64,7 @@ public static class PredictionSuiteEndpoints
 
 		group.MapPost("/library/overdue", async (
 			LibraryPredictionRequest request, IPredictionSuiteService service,
-			IApplicationDbContext db, CancellationToken ct) =>
+			IAIPredictionDbContext db, CancellationToken ct) =>
 		{
 			var result=await service.PredictLibraryAsync(request,ct);
 			await PersistAsync(db,request.TenantId,result,ct,studentId:request.StudentId);
@@ -77,14 +78,14 @@ public static class PredictionSuiteEndpoints
 	}
 
 	private static async Task PersistAsync(
-		IApplicationDbContext db, Guid tenantId, PredictionResult result,
+		IAIPredictionDbContext db, Guid tenantId, PredictionResult result,
 		CancellationToken ct, Guid? studentId=null, Guid? subjectId=null, Guid? relatedEntityId=null)
 	{
 		var entity=MlPredictionResultEntity.Create(
 			tenantId,result.Kind.ToString(),result.Score,result.Probability,result.RiskLevel,
 			result.Outcome,result.Confidence,result.ModelVersion,result.UsedMachineLearning,
 			JsonSerializer.Serialize(result.Factors),studentId,subjectId,relatedEntityId);
-		await db.Set<MlPredictionResultEntity>().AddAsync(entity,ct);
+		await db.MlPredictionResults.AddAsync(entity,ct);
 		await db.SaveChangesAsync(ct);
 	}
 }

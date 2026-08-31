@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 /// Executes database writes for <see cref="TenantEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class TenantCommand(IApplicationDbContext dbContext) : ITenantCommand
+public sealed class TenantCommand(ITenancyDbContext dbContext) : ITenantCommand
 {
 	public async Task AddAsync(
 		TenantEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<TenantEntity>()
+		await dbContext.Tenants
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class TenantCommand(IApplicationDbContext dbContext) : ITenantComm
 		TenantEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<TenantEntity>()
+		dbContext.Tenants
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class TenantCommand(IApplicationDbContext dbContext) : ITenantComm
 		TenantEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<TenantEntity>()
+		dbContext.Tenants
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<CampusBrandingEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateCampusBrandingPersistence(IApplicationDbContext dbContext) : IUpdateCampusBranding
+	internal sealed class UpdateCampusBrandingPersistence(ITenancyDbContext dbContext) : IUpdateCampusBranding
 	{
 		public async Task UpdateAsync(
 				CampusBrandingEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<CampusBrandingEntity>()
+				dbContext.CampusBrandings
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<CampusBrandingEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<CampusBrandingEntity>()
+				return await dbContext.CampusBrandings
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.CampusBrandingId == id,

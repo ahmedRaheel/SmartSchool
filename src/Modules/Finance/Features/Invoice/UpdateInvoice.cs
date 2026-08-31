@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<InvoiceEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateInvoicePersistence(IApplicationDbContext dbContext) : IUpdateInvoice
+	internal sealed class UpdateInvoicePersistence(IFinanceDbContext dbContext) : IUpdateInvoice
 	{
 		public async Task UpdateAsync(
 				InvoiceEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<InvoiceEntity>()
+				dbContext.Invoices
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<InvoiceEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<InvoiceEntity>()
+				return await dbContext.Invoices
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.StudentInvoiceId == id,

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteSchoolLogo
 
 	}
 
-	internal sealed class DeleteSchoolLogoPersistence(IApplicationDbContext dbContext) : IDeleteSchoolLogo
+	internal sealed class DeleteSchoolLogoPersistence(IDocumentsDbContext dbContext) : IDeleteSchoolLogo
 	{
 		public async Task DeleteAsync(
 				SchoolLogoEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<SchoolLogoEntity>()
+				dbContext.SchoolLogos
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteSchoolLogo
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<SchoolLogoEntity>()
+				return await dbContext.SchoolLogos
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.SchoolLogoId == id,

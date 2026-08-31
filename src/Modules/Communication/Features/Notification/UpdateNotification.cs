@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -70,15 +71,14 @@ public static class UpdateNotification
 	}
 
 	internal sealed class UpdateNotificationPersistence(
-		IApplicationDbContext dbContext) : IUpdateNotification
+		ICommunicationDbContext dbContext) : IUpdateNotification
 	{
 		public Task<NotificationEntity?> GetByIdAsync(
 			Guid tenantId,
 			Guid id,
 			CancellationToken cancellationToken)
 		{
-			return dbContext
-				.Set<NotificationEntity>()
+			return dbContext.Notifications
 				.SingleOrDefaultAsync(
 					entity => entity.TenantId == tenantId && entity.NotificationId == id,
 					cancellationToken);
@@ -88,8 +88,7 @@ public static class UpdateNotification
 				NotificationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<NotificationEntity>()
+				dbContext.Notifications
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

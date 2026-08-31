@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Communication.Features.MessageReceipt;
 /// Executes database writes for <see cref="MessageReceiptEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class MessageReceiptCommand(IApplicationDbContext dbContext) : IMessageReceiptCommand
+public sealed class MessageReceiptCommand(ICommunicationDbContext dbContext) : IMessageReceiptCommand
 {
 	public async Task AddAsync(
 		MessageReceiptEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<MessageReceiptEntity>()
+		await dbContext.MessageReceipts
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class MessageReceiptCommand(IApplicationDbContext dbContext) : IMe
 		MessageReceiptEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<MessageReceiptEntity>()
+		dbContext.MessageReceipts
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class MessageReceiptCommand(IApplicationDbContext dbContext) : IMe
 		MessageReceiptEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<MessageReceiptEntity>()
+		dbContext.MessageReceipts
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<ToolDefinitionEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateToolDefinitionPersistence(IApplicationDbContext dbContext) : IUpdateToolDefinition
+	internal sealed class UpdateToolDefinitionPersistence(IAICoreDbContext dbContext) : IUpdateToolDefinition
 	{
 		public async Task UpdateAsync(
 				ToolDefinitionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ToolDefinitionEntity>()
+				dbContext.ToolDefinitions
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<ToolDefinitionEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ToolDefinitionEntity>()
+				return await dbContext.ToolDefinitions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ToolDefinitionId == id,

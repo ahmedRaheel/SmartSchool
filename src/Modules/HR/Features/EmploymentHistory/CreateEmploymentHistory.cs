@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateEmploymentHistory
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateEmploymentHistoryPersistence(IApplicationDbContext dbContext) : ICreateEmploymentHistory
+	internal sealed class CreateEmploymentHistoryPersistence(IHRDbContext dbContext) : ICreateEmploymentHistory
 	{
 		public async Task AddAsync(
 				EmploymentHistoryEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<EmploymentHistoryEntity>()
+				await dbContext.EmploymentHistories
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

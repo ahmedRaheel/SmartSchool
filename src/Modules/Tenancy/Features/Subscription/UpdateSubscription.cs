@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<SubscriptionEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateSubscriptionPersistence(IApplicationDbContext dbContext) : IUpdateSubscription
+	internal sealed class UpdateSubscriptionPersistence(ITenancyDbContext dbContext) : IUpdateSubscription
 	{
 		public async Task UpdateAsync(
 				SubscriptionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<SubscriptionEntity>()
+				dbContext.Subscriptions
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<SubscriptionEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<SubscriptionEntity>()
+				return await dbContext.Subscriptions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.SubscriptionId == id,

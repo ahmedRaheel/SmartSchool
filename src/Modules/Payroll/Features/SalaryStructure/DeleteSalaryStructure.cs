@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteSalaryStructure
 
 	}
 
-	internal sealed class DeleteSalaryStructurePersistence(IApplicationDbContext dbContext) : IDeleteSalaryStructure
+	internal sealed class DeleteSalaryStructurePersistence(IPayrollDbContext dbContext) : IDeleteSalaryStructure
 	{
 		public async Task DeleteAsync(
 				SalaryStructureEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<SalaryStructureEntity>()
+				dbContext.SalaryStructures
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteSalaryStructure
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<SalaryStructureEntity>()
+				return await dbContext.SalaryStructures
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.SalaryStructureId == id,

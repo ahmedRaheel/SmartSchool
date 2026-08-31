@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<LeaveRequestEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateLeaveRequestPersistence(IApplicationDbContext dbContext) : IUpdateLeaveRequest
+	internal sealed class UpdateLeaveRequestPersistence(IHRDbContext dbContext) : IUpdateLeaveRequest
 	{
 		public async Task UpdateAsync(
 				LeaveRequestEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<LeaveRequestEntity>()
+				dbContext.LeaveRequests
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<LeaveRequestEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<LeaveRequestEntity>()
+				return await dbContext.LeaveRequests
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.LeaveRequestId == id,

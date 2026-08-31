@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Examinations.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Examinations.Features.StudentExamResult;
 /// Executes database writes for <see cref="StudentExamResultEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class StudentExamResultCommand(IApplicationDbContext dbContext) : IStudentExamResultCommand
+public sealed class StudentExamResultCommand(IExaminationsDbContext dbContext) : IStudentExamResultCommand
 {
 	public async Task AddAsync(
 		StudentExamResultEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<StudentExamResultEntity>()
+		await dbContext.StudentExamResults
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class StudentExamResultCommand(IApplicationDbContext dbContext) : 
 		StudentExamResultEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<StudentExamResultEntity>()
+		dbContext.StudentExamResults
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class StudentExamResultCommand(IApplicationDbContext dbContext) : 
 		StudentExamResultEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<StudentExamResultEntity>()
+		dbContext.StudentExamResults
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

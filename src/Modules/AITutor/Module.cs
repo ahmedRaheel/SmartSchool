@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Features;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +21,7 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAITutorDbContext, AITutorDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddScoped<IGeneratedQuizCommand, GeneratedQuizCommand>();

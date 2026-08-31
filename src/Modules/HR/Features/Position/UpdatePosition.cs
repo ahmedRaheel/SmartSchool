@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<PositionEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdatePositionPersistence(IApplicationDbContext dbContext) : IUpdatePosition
+	internal sealed class UpdatePositionPersistence(IHRDbContext dbContext) : IUpdatePosition
 	{
 		public async Task UpdateAsync(
 				PositionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<PositionEntity>()
+				dbContext.Positions
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<PositionEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<PositionEntity>()
+				return await dbContext.Positions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.PositionId == id,

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.HR.Features.Resume;
 /// Executes database writes for <see cref="ResumeEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ResumeCommand(IApplicationDbContext dbContext) : IResumeCommand
+public sealed class ResumeCommand(IHRDbContext dbContext) : IResumeCommand
 {
 	public async Task AddAsync(
 		ResumeEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ResumeEntity>()
+		await dbContext.Resumes
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ResumeCommand(IApplicationDbContext dbContext) : IResumeComm
 		ResumeEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ResumeEntity>()
+		dbContext.Resumes
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ResumeCommand(IApplicationDbContext dbContext) : IResumeComm
 		ResumeEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ResumeEntity>()
+		dbContext.Resumes
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

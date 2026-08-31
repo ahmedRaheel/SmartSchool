@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 /// Executes database writes for <see cref="SchoolLogoEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class SchoolLogoCommand(IApplicationDbContext dbContext) : ISchoolLogoCommand
+public sealed class SchoolLogoCommand(IDocumentsDbContext dbContext) : ISchoolLogoCommand
 {
 	public async Task AddAsync(
 		SchoolLogoEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<SchoolLogoEntity>()
+		await dbContext.SchoolLogos
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class SchoolLogoCommand(IApplicationDbContext dbContext) : ISchool
 		SchoolLogoEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<SchoolLogoEntity>()
+		dbContext.SchoolLogos
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class SchoolLogoCommand(IApplicationDbContext dbContext) : ISchool
 		SchoolLogoEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<SchoolLogoEntity>()
+		dbContext.SchoolLogos
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

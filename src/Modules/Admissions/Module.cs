@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Admissions.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
@@ -17,6 +18,7 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAdmissionsDbContext, AdmissionsDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();

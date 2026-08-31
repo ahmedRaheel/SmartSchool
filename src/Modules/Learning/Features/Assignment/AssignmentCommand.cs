@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Learning.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Learning.Features.Assignment;
 /// Executes database writes for <see cref="AssignmentEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class AssignmentCommand(IApplicationDbContext dbContext) : IAssignmentCommand
+public sealed class AssignmentCommand(ILearningDbContext dbContext) : IAssignmentCommand
 {
 	public async Task AddAsync(
 		AssignmentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<AssignmentEntity>()
+		await dbContext.Assignments
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class AssignmentCommand(IApplicationDbContext dbContext) : IAssign
 		AssignmentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<AssignmentEntity>()
+		dbContext.Assignments
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class AssignmentCommand(IApplicationDbContext dbContext) : IAssign
 		AssignmentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<AssignmentEntity>()
+		dbContext.Assignments
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Library.Features.BookCopy;
 /// Executes database writes for <see cref="BookCopyEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class BookCopyCommand(IApplicationDbContext dbContext) : IBookCopyCommand
+public sealed class BookCopyCommand(ILibraryDbContext dbContext) : IBookCopyCommand
 {
 	public async Task AddAsync(
 		BookCopyEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<BookCopyEntity>()
+		await dbContext.BookCopies
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class BookCopyCommand(IApplicationDbContext dbContext) : IBookCopy
 		BookCopyEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<BookCopyEntity>()
+		dbContext.BookCopies
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class BookCopyCommand(IApplicationDbContext dbContext) : IBookCopy
 		BookCopyEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<BookCopyEntity>()
+		dbContext.BookCopies
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

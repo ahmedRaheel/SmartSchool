@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<StopEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateStopPersistence(IApplicationDbContext dbContext) : IUpdateStop
+	internal sealed class UpdateStopPersistence(ITransportDbContext dbContext) : IUpdateStop
 	{
 		public async Task UpdateAsync(
 				StopEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<StopEntity>()
+				dbContext.Stops
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<StopEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<StopEntity>()
+				return await dbContext.Stops
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.StopId == id,

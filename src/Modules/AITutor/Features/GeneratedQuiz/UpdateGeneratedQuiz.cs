@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<GeneratedQuizEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateGeneratedQuizPersistence(IApplicationDbContext dbContext) : IUpdateGeneratedQuiz
+	internal sealed class UpdateGeneratedQuizPersistence(IAITutorDbContext dbContext) : IUpdateGeneratedQuiz
 	{
 		public async Task UpdateAsync(
 				GeneratedQuizEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<GeneratedQuizEntity>()
+				dbContext.GeneratedQuizs
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<GeneratedQuizEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<GeneratedQuizEntity>()
+				return await dbContext.GeneratedQuizs
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.GeneratedQuizId == id,

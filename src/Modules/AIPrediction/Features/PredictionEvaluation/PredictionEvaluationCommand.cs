@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionEvaluation;
 /// Executes database writes for <see cref="PredictionEvaluationEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PredictionEvaluationCommand(IApplicationDbContext dbContext) : IPredictionEvaluationCommand
+public sealed class PredictionEvaluationCommand(IAIPredictionDbContext dbContext) : IPredictionEvaluationCommand
 {
 	public async Task AddAsync(
 		PredictionEvaluationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<PredictionEvaluationEntity>()
+		await dbContext.PredictionEvaluations
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class PredictionEvaluationCommand(IApplicationDbContext dbContext)
 		PredictionEvaluationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PredictionEvaluationEntity>()
+		dbContext.PredictionEvaluations
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class PredictionEvaluationCommand(IApplicationDbContext dbContext)
 		PredictionEvaluationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PredictionEvaluationEntity>()
+		dbContext.PredictionEvaluations
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

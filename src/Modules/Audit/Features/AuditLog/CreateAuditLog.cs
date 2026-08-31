@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateAuditLog
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateAuditLogPersistence(IApplicationDbContext dbContext) : ICreateAuditLog
+	internal sealed class CreateAuditLogPersistence(IAuditDbContext dbContext) : ICreateAuditLog
 	{
 		public async Task AddAsync(
 				AuditLogEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<AuditLogEntity>()
+				await dbContext.AuditLogs
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

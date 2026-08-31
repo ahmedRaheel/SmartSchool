@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateSalaryStructure
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateSalaryStructurePersistence(IApplicationDbContext dbContext) : ICreateSalaryStructure
+	internal sealed class CreateSalaryStructurePersistence(IPayrollDbContext dbContext) : ICreateSalaryStructure
 	{
 		public async Task AddAsync(
 				SalaryStructureEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<SalaryStructureEntity>()
+				await dbContext.SalaryStructures
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Learning.Persistence;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
@@ -50,14 +51,13 @@ public static class CreateAssignment
 	}
 
 	internal sealed class CreateAssignmentPersistence(
-		IApplicationDbContext dbContext) : ICreateAssignment
+		ILearningDbContext dbContext) : ICreateAssignment
 	{
 		public async Task AddAsync(
 				AssignmentEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<AssignmentEntity>()
+				await dbContext.Assignments
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -65,7 +65,7 @@ public static class CreateAssignment
 	}
 
 	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
-		IApplicationDbContext dbContext,
+		ILearningDbContext dbContext,
 		ICreateAssignment dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{

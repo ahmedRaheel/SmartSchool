@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Finance.Features.Discount;
 /// Executes database writes for <see cref="DiscountEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class DiscountCommand(IApplicationDbContext dbContext) : IDiscountCommand
+public sealed class DiscountCommand(IFinanceDbContext dbContext) : IDiscountCommand
 {
 	public async Task AddAsync(
 		DiscountEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<DiscountEntity>()
+		await dbContext.Discounts
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class DiscountCommand(IApplicationDbContext dbContext) : IDiscount
 		DiscountEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<DiscountEntity>()
+		dbContext.Discounts
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class DiscountCommand(IApplicationDbContext dbContext) : IDiscount
 		DiscountEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<DiscountEntity>()
+		dbContext.Discounts
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

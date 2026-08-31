@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateGeneratedQuiz
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateGeneratedQuizPersistence(IApplicationDbContext dbContext) : ICreateGeneratedQuiz
+	internal sealed class CreateGeneratedQuizPersistence(IAITutorDbContext dbContext) : ICreateGeneratedQuiz
 	{
 		public async Task AddAsync(
 				GeneratedQuizEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<GeneratedQuizEntity>()
+				await dbContext.GeneratedQuizs
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

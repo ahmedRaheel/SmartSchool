@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Payroll.Features.PayrollRun;
 /// Executes database writes for <see cref="PayrollRunEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PayrollRunCommand(IApplicationDbContext dbContext) : IPayrollRunCommand
+public sealed class PayrollRunCommand(IPayrollDbContext dbContext) : IPayrollRunCommand
 {
 	public async Task AddAsync(
 		PayrollRunEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<PayrollRunEntity>()
+		await dbContext.PayrollRuns
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class PayrollRunCommand(IApplicationDbContext dbContext) : IPayrol
 		PayrollRunEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PayrollRunEntity>()
+		dbContext.PayrollRuns
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class PayrollRunCommand(IApplicationDbContext dbContext) : IPayrol
 		PayrollRunEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PayrollRunEntity>()
+		dbContext.PayrollRuns
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

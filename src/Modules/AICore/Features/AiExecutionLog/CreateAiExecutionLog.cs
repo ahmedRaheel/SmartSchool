@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateAiExecutionLog
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateAiExecutionLogPersistence(IApplicationDbContext dbContext) : ICreateAiExecutionLog
+	internal sealed class CreateAiExecutionLogPersistence(IAICoreDbContext dbContext) : ICreateAiExecutionLog
 	{
 		public async Task AddAsync(
 				AiExecutionLogEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<AiExecutionLogEntity>()
+				await dbContext.AiExecutionLogs
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<TopicPerformanceInsightEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateTopicPerformanceInsightPersistence(IApplicationDbContext dbContext) : IUpdateTopicPerformanceInsight
+	internal sealed class UpdateTopicPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : IUpdateTopicPerformanceInsight
 	{
 		public async Task UpdateAsync(
 				TopicPerformanceInsightEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<TopicPerformanceInsightEntity>()
+				dbContext.TopicPerformanceInsights
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<TopicPerformanceInsightEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<TopicPerformanceInsightEntity>()
+				return await dbContext.TopicPerformanceInsights
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.TopicPerformanceInsightId == id,

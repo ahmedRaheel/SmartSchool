@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateStudentOfMonth
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateStudentOfMonthPersistence(IApplicationDbContext dbContext) : ICreateStudentOfMonth
+	internal sealed class CreateStudentOfMonthPersistence(IActivitiesDbContext dbContext) : ICreateStudentOfMonth
 	{
 		public async Task AddAsync(
 				StudentOfMonthEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<StudentOfMonthEntity>()
+				await dbContext.StudentOfMonths
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

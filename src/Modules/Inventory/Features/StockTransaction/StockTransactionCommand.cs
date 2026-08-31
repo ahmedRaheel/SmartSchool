@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Inventory.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Inventory.Features.StockTransaction;
 /// Executes database writes for <see cref="StockTransactionEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class StockTransactionCommand(IApplicationDbContext dbContext) : IStockTransactionCommand
+public sealed class StockTransactionCommand(IInventoryDbContext dbContext) : IStockTransactionCommand
 {
 	public async Task AddAsync(
 		StockTransactionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<StockTransactionEntity>()
+		await dbContext.StockTransactions
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class StockTransactionCommand(IApplicationDbContext dbContext) : I
 		StockTransactionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<StockTransactionEntity>()
+		dbContext.StockTransactions
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class StockTransactionCommand(IApplicationDbContext dbContext) : I
 		StockTransactionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<StockTransactionEntity>()
+		dbContext.StockTransactions
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

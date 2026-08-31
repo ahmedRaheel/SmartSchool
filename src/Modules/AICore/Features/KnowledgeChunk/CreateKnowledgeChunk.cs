@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateKnowledgeChunk
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateKnowledgeChunkPersistence(IApplicationDbContext dbContext) : ICreateKnowledgeChunk
+	internal sealed class CreateKnowledgeChunkPersistence(IAICoreDbContext dbContext) : ICreateKnowledgeChunk
 	{
 		public async Task AddAsync(
 				KnowledgeChunkEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<KnowledgeChunkEntity>()
+				await dbContext.KnowledgeChunks
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

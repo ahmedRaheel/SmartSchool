@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 /// Executes database writes for <see cref="SalaryStructureEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class SalaryStructureCommand(IApplicationDbContext dbContext) : ISalaryStructureCommand
+public sealed class SalaryStructureCommand(IPayrollDbContext dbContext) : ISalaryStructureCommand
 {
 	public async Task AddAsync(
 		SalaryStructureEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<SalaryStructureEntity>()
+		await dbContext.SalaryStructures
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class SalaryStructureCommand(IApplicationDbContext dbContext) : IS
 		SalaryStructureEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<SalaryStructureEntity>()
+		dbContext.SalaryStructures
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class SalaryStructureCommand(IApplicationDbContext dbContext) : IS
 		SalaryStructureEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<SalaryStructureEntity>()
+		dbContext.SalaryStructures
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

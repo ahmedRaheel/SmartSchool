@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateParentMessage
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateParentMessagePersistence(IApplicationDbContext dbContext) : ICreateParentMessage
+	internal sealed class CreateParentMessagePersistence(IAIParentDbContext dbContext) : ICreateParentMessage
 	{
 		public async Task AddAsync(
 				ParentMessageEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<ParentMessageEntity>()
+				await dbContext.ParentMessages
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

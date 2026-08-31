@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteApproval
 
 	}
 
-	internal sealed class DeleteApprovalPersistence(IApplicationDbContext dbContext) : IDeleteApproval
+	internal sealed class DeleteApprovalPersistence(IWorkflowDbContext dbContext) : IDeleteApproval
 	{
 		public async Task DeleteAsync(
 				ApprovalEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ApprovalEntity>()
+				dbContext.Approvals
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteApproval
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ApprovalEntity>()
+				return await dbContext.Approvals
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ApprovalId == id,

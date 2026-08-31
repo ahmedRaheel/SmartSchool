@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Documents.Features.GeneratedDocument;
 /// Executes database writes for <see cref="GeneratedDocumentEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class GeneratedDocumentCommand(IApplicationDbContext dbContext) : IGeneratedDocumentCommand
+public sealed class GeneratedDocumentCommand(IDocumentsDbContext dbContext) : IGeneratedDocumentCommand
 {
 	public async Task AddAsync(
 		GeneratedDocumentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<GeneratedDocumentEntity>()
+		await dbContext.GeneratedDocuments
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class GeneratedDocumentCommand(IApplicationDbContext dbContext) : 
 		GeneratedDocumentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<GeneratedDocumentEntity>()
+		dbContext.GeneratedDocuments
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class GeneratedDocumentCommand(IApplicationDbContext dbContext) : 
 		GeneratedDocumentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<GeneratedDocumentEntity>()
+		dbContext.GeneratedDocuments
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

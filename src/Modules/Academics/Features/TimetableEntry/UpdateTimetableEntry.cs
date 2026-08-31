@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<TimetableEntryEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateTimetableEntryPersistence(IApplicationDbContext dbContext) : IUpdateTimetableEntry
+	internal sealed class UpdateTimetableEntryPersistence(IAcademicsDbContext dbContext) : IUpdateTimetableEntry
 	{
 		public async Task UpdateAsync(
 				TimetableEntryEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<TimetableEntryEntity>()
+				dbContext.TimetableEntries
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<TimetableEntryEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<TimetableEntryEntity>()
+				return await dbContext.TimetableEntries
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.TimetableEntryId == id,

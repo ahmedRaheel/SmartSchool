@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteResume
 
 	}
 
-	internal sealed class DeleteResumePersistence(IApplicationDbContext dbContext) : IDeleteResume
+	internal sealed class DeleteResumePersistence(IHRDbContext dbContext) : IDeleteResume
 	{
 		public async Task DeleteAsync(
 				ResumeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ResumeEntity>()
+				dbContext.Resumes
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteResume
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ResumeEntity>()
+				return await dbContext.Resumes
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ResumeId == id,

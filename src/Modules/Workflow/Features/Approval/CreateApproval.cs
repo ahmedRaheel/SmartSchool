@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateApproval
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateApprovalPersistence(IApplicationDbContext dbContext) : ICreateApproval
+	internal sealed class CreateApprovalPersistence(IWorkflowDbContext dbContext) : ICreateApproval
 	{
 		public async Task AddAsync(
 				ApprovalEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<ApprovalEntity>()
+				await dbContext.Approvals
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

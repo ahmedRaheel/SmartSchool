@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 /// Executes database writes for <see cref="StudentTransportEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class StudentTransportCommand(IApplicationDbContext dbContext) : IStudentTransportCommand
+public sealed class StudentTransportCommand(ITransportDbContext dbContext) : IStudentTransportCommand
 {
 	public async Task AddAsync(
 		StudentTransportEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<StudentTransportEntity>()
+		await dbContext.StudentTransports
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class StudentTransportCommand(IApplicationDbContext dbContext) : I
 		StudentTransportEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<StudentTransportEntity>()
+		dbContext.StudentTransports
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class StudentTransportCommand(IApplicationDbContext dbContext) : I
 		StudentTransportEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<StudentTransportEntity>()
+		dbContext.StudentTransports
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

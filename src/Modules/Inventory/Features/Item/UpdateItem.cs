@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<ItemEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateItemPersistence(IApplicationDbContext dbContext) : IUpdateItem
+	internal sealed class UpdateItemPersistence(IInventoryDbContext dbContext) : IUpdateItem
 	{
 		public async Task UpdateAsync(
 				ItemEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ItemEntity>()
+				dbContext.Items
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<ItemEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ItemEntity>()
+				return await dbContext.Items
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ItemId == id,

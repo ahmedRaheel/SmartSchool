@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<VehicleEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateVehiclePersistence(IApplicationDbContext dbContext) : IUpdateVehicle
+	internal sealed class UpdateVehiclePersistence(ITransportDbContext dbContext) : IUpdateVehicle
 	{
 		public async Task UpdateAsync(
 				VehicleEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<VehicleEntity>()
+				dbContext.Vehicles
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<VehicleEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<VehicleEntity>()
+				return await dbContext.Vehicles
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.VehicleId == id,

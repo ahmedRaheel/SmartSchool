@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateLearningRecommendation
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateLearningRecommendationPersistence(IApplicationDbContext dbContext) : ICreateLearningRecommendation
+	internal sealed class CreateLearningRecommendationPersistence(IAITutorDbContext dbContext) : ICreateLearningRecommendation
 	{
 		public async Task AddAsync(
 				LearningRecommendationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<LearningRecommendationEntity>()
+				await dbContext.LearningRecommendations
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

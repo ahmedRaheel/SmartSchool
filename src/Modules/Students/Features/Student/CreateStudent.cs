@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
@@ -67,14 +68,13 @@ public static class CreateStudent
 
 	}
 
-	internal sealed class CreateStudentPersistence(IApplicationDbContext dbContext) : ICreateStudent
+	internal sealed class CreateStudentPersistence(IStudentsDbContext dbContext) : ICreateStudent
 	{
 		public async Task AddAsync(
 				StudentEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<StudentEntity>()
+				await dbContext.Students
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -82,7 +82,7 @@ public static class CreateStudent
 
 		public async Task AddPlacementAsync(AdmissionPlacementEntity placement, CancellationToken cancellationToken)
 		    {
-		        await dbContext.Set<AdmissionPlacementEntity>().AddAsync(placement, cancellationToken);
+		        await dbContext.AdmissionPlacements.AddAsync(placement, cancellationToken);
 		        await dbContext.SaveChangesAsync(cancellationToken);
 		    }
 

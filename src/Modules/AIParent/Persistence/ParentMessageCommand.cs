@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIParent.Persistence;
 /// Executes database writes for <see cref="ParentMessageEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ParentMessageCommand(IApplicationDbContext dbContext) : IParentMessageCommand
+public sealed class ParentMessageCommand(IAIParentDbContext dbContext) : IParentMessageCommand
 {
 	public async Task AddAsync(
 		ParentMessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ParentMessageEntity>()
+		await dbContext.ParentMessages
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ParentMessageCommand(IApplicationDbContext dbContext) : IPar
 		ParentMessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ParentMessageEntity>()
+		dbContext.ParentMessages
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ParentMessageCommand(IApplicationDbContext dbContext) : IPar
 		ParentMessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ParentMessageEntity>()
+		dbContext.ParentMessages
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

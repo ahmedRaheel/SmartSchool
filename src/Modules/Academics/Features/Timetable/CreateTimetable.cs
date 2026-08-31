@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateTimetable
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateTimetablePersistence(IApplicationDbContext dbContext) : ICreateTimetable
+	internal sealed class CreateTimetablePersistence(IAcademicsDbContext dbContext) : ICreateTimetable
 	{
 		public async Task AddAsync(
 				TimetableEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<TimetableEntity>()
+				await dbContext.Timetables
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

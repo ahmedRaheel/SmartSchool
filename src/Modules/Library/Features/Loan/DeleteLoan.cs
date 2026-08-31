@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteLoan
 
 	}
 
-	internal sealed class DeleteLoanPersistence(IApplicationDbContext dbContext) : IDeleteLoan
+	internal sealed class DeleteLoanPersistence(ILibraryDbContext dbContext) : IDeleteLoan
 	{
 		public async Task DeleteAsync(
 				LoanEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<LoanEntity>()
+				dbContext.Loans
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteLoan
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<LoanEntity>()
+				return await dbContext.Loans
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.BookLoanId == id,

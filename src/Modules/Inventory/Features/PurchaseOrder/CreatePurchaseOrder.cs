@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreatePurchaseOrder
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreatePurchaseOrderPersistence(IApplicationDbContext dbContext) : ICreatePurchaseOrder
+	internal sealed class CreatePurchaseOrderPersistence(IInventoryDbContext dbContext) : ICreatePurchaseOrder
 	{
 		public async Task AddAsync(
 				PurchaseOrderEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<PurchaseOrderEntity>()
+				await dbContext.PurchaseOrders
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

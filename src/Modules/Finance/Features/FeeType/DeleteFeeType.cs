@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteFeeType
 
 	}
 
-	internal sealed class DeleteFeeTypePersistence(IApplicationDbContext dbContext) : IDeleteFeeType
+	internal sealed class DeleteFeeTypePersistence(IFinanceDbContext dbContext) : IDeleteFeeType
 	{
 		public async Task DeleteAsync(
 				FeeTypeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<FeeTypeEntity>()
+				dbContext.FeeTypes
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteFeeType
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<FeeTypeEntity>()
+				return await dbContext.FeeTypes
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.FeeTypeId == id,

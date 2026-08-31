@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreatePayment
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreatePaymentPersistence(IApplicationDbContext dbContext) : ICreatePayment
+	internal sealed class CreatePaymentPersistence(IFinanceDbContext dbContext) : ICreatePayment
 	{
 		public async Task AddAsync(
 				PaymentEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<PaymentEntity>()
+				await dbContext.Payments
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

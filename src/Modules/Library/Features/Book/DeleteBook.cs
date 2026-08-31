@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteBook
 
 	}
 
-	internal sealed class DeleteBookPersistence(IApplicationDbContext dbContext) : IDeleteBook
+	internal sealed class DeleteBookPersistence(ILibraryDbContext dbContext) : IDeleteBook
 	{
 		public async Task DeleteAsync(
 				BookEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<BookEntity>()
+				dbContext.Books
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteBook
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<BookEntity>()
+				return await dbContext.Books
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.BookId == id,

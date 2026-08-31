@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteSubscription
 
 	}
 
-	internal sealed class DeleteSubscriptionPersistence(IApplicationDbContext dbContext) : IDeleteSubscription
+	internal sealed class DeleteSubscriptionPersistence(ITenancyDbContext dbContext) : IDeleteSubscription
 	{
 		public async Task DeleteAsync(
 				SubscriptionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<SubscriptionEntity>()
+				dbContext.Subscriptions
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteSubscription
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<SubscriptionEntity>()
+				return await dbContext.Subscriptions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.SubscriptionId == id,

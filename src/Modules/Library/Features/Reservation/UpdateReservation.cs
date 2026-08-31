@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<ReservationEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateReservationPersistence(IApplicationDbContext dbContext) : IUpdateReservation
+	internal sealed class UpdateReservationPersistence(ILibraryDbContext dbContext) : IUpdateReservation
 	{
 		public async Task UpdateAsync(
 				ReservationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ReservationEntity>()
+				dbContext.Reservations
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<ReservationEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ReservationEntity>()
+				return await dbContext.Reservations
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ReservationId == id,

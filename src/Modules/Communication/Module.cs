@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SignalR;
@@ -22,6 +23,7 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<ICommunicationDbContext, CommunicationDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddSignalR();

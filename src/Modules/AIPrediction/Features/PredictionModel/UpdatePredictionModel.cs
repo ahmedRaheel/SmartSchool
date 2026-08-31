@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<PredictionModelEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdatePredictionModelPersistence(IApplicationDbContext dbContext) : IUpdatePredictionModel
+	internal sealed class UpdatePredictionModelPersistence(IAIPredictionDbContext dbContext) : IUpdatePredictionModel
 	{
 		public async Task UpdateAsync(
 				PredictionModelEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<PredictionModelEntity>()
+				dbContext.PredictionModels
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<PredictionModelEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<PredictionModelEntity>()
+				return await dbContext.PredictionModels
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.PredictionModelId == id,

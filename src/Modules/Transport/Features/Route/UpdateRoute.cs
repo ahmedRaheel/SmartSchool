@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<RouteEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateRoutePersistence(IApplicationDbContext dbContext) : IUpdateRoute
+	internal sealed class UpdateRoutePersistence(ITransportDbContext dbContext) : IUpdateRoute
 	{
 		public async Task UpdateAsync(
 				RouteEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<RouteEntity>()
+				dbContext.Routes
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<RouteEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<RouteEntity>()
+				return await dbContext.Routes
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.RouteId == id,

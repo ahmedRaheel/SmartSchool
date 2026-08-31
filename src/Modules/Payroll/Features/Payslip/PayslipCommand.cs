@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Payroll.Features.Payslip;
 /// Executes database writes for <see cref="PayslipEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PayslipCommand(IApplicationDbContext dbContext) : IPayslipCommand
+public sealed class PayslipCommand(IPayrollDbContext dbContext) : IPayslipCommand
 {
 	public async Task AddAsync(
 		PayslipEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<PayslipEntity>()
+		await dbContext.Payslips
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class PayslipCommand(IApplicationDbContext dbContext) : IPayslipCo
 		PayslipEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PayslipEntity>()
+		dbContext.Payslips
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class PayslipCommand(IApplicationDbContext dbContext) : IPayslipCo
 		PayslipEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PayslipEntity>()
+		dbContext.Payslips
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

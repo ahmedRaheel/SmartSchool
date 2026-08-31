@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Students.Features.Guardian;
 /// Executes database writes for <see cref="GuardianEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class GuardianCommand(IApplicationDbContext dbContext) : IGuardianCommand
+public sealed class GuardianCommand(IStudentsDbContext dbContext) : IGuardianCommand
 {
 	public async Task AddAsync(
 		GuardianEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<GuardianEntity>()
+		await dbContext.Guardians
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class GuardianCommand(IApplicationDbContext dbContext) : IGuardian
 		GuardianEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<GuardianEntity>()
+		dbContext.Guardians
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class GuardianCommand(IApplicationDbContext dbContext) : IGuardian
 		GuardianEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<GuardianEntity>()
+		dbContext.Guardians
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

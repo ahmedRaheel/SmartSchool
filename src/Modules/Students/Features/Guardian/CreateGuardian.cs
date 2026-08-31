@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
@@ -49,14 +50,13 @@ public static class CreateGuardian
 	}
 
 	internal sealed class CreateGuardianPersistence(
-		IApplicationDbContext dbContext) : ICreateGuardian
+		IStudentsDbContext dbContext) : ICreateGuardian
 	{
 		public async Task AddAsync(
 				GuardianEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<GuardianEntity>()
+				await dbContext.Guardians
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -65,7 +65,7 @@ public static class CreateGuardian
 		public Task<bool> ExistsByCnicNumberAsync(
 			Guid tenantId, string cnicNumber, Guid? excludingId, CancellationToken cancellationToken)
 		{
-			return dbContext.Set<GuardianEntity>().AnyAsync(
+			return dbContext.Guardians.AnyAsync(
 				x => x.TenantId == tenantId && x.CnicNumber == cnicNumber
 					&& (!excludingId.HasValue || x.GuardianId != excludingId.Value), cancellationToken);
 		}

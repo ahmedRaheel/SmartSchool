@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateLesson
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateLessonPersistence(IApplicationDbContext dbContext) : ICreateLesson
+	internal sealed class CreateLessonPersistence(ILearningDbContext dbContext) : ICreateLesson
 	{
 		public async Task AddAsync(
 				LessonEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<LessonEntity>()
+				await dbContext.Lessons
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

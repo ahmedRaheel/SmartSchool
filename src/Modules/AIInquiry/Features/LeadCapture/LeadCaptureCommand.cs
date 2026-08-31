@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIInquiry.Features.LeadCapture;
 /// Executes database writes for <see cref="LeadCaptureEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class LeadCaptureCommand(IApplicationDbContext dbContext) : ILeadCaptureCommand
+public sealed class LeadCaptureCommand(IAIInquiryDbContext dbContext) : ILeadCaptureCommand
 {
 	public async Task AddAsync(
 		LeadCaptureEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<LeadCaptureEntity>()
+		await dbContext.LeadCaptures
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class LeadCaptureCommand(IApplicationDbContext dbContext) : ILeadC
 		LeadCaptureEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LeadCaptureEntity>()
+		dbContext.LeadCaptures
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class LeadCaptureCommand(IApplicationDbContext dbContext) : ILeadC
 		LeadCaptureEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LeadCaptureEntity>()
+		dbContext.LeadCaptures
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

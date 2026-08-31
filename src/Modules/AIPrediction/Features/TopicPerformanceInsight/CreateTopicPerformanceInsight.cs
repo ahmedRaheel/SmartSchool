@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateTopicPerformanceInsight
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateTopicPerformanceInsightPersistence(IApplicationDbContext dbContext) : ICreateTopicPerformanceInsight
+	internal sealed class CreateTopicPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : ICreateTopicPerformanceInsight
 	{
 		public async Task AddAsync(
 				TopicPerformanceInsightEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<TopicPerformanceInsightEntity>()
+				await dbContext.TopicPerformanceInsights
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

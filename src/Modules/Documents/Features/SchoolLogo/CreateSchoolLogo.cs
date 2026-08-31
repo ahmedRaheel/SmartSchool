@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateSchoolLogo
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateSchoolLogoPersistence(IApplicationDbContext dbContext) : ICreateSchoolLogo
+	internal sealed class CreateSchoolLogoPersistence(IDocumentsDbContext dbContext) : ICreateSchoolLogo
 	{
 		public async Task AddAsync(
 				SchoolLogoEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<SchoolLogoEntity>()
+				await dbContext.SchoolLogos
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

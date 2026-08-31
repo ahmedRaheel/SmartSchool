@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using SmartSchool.Application.Http;
@@ -23,7 +24,7 @@ public static class CreateStudentTeacher
         }
     }
 
-    public sealed class Handler(IApplicationDbContext dbContext) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(IAcademicsDbContext dbContext) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {

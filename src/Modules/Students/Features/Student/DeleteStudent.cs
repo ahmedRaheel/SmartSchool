@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -30,14 +31,13 @@ public static class DeleteStudent
 	}
 
 	internal sealed class DeleteStudentPersistence(
-		IApplicationDbContext dbContext) : IDeleteStudent
+		IStudentsDbContext dbContext) : IDeleteStudent
 	{
 		public async Task DeleteAsync(
 				StudentEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<StudentEntity>()
+				dbContext.Students
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -46,7 +46,7 @@ public static class DeleteStudent
 		public Task<StudentEntity?> GetByIdAsync(
 			Guid tenantId, Guid id, CancellationToken cancellationToken)
 		{
-			return dbContext.Set<StudentEntity>()
+			return dbContext.Students
 				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentId == id, cancellationToken);
 		}
 }

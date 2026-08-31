@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AITutor.Features.TutorConversation;
 /// Executes database writes for <see cref="TutorConversationEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class TutorConversationCommand(IApplicationDbContext dbContext) : ITutorConversationCommand
+public sealed class TutorConversationCommand(IAITutorDbContext dbContext) : ITutorConversationCommand
 {
 	public async Task AddAsync(
 		TutorConversationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<TutorConversationEntity>()
+		await dbContext.TutorConversations
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class TutorConversationCommand(IApplicationDbContext dbContext) : 
 		TutorConversationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<TutorConversationEntity>()
+		dbContext.TutorConversations
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class TutorConversationCommand(IApplicationDbContext dbContext) : 
 		TutorConversationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<TutorConversationEntity>()
+		dbContext.TutorConversations
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

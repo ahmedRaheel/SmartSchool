@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateStudentFee
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateStudentFeePersistence(IApplicationDbContext dbContext) : ICreateStudentFee
+	internal sealed class CreateStudentFeePersistence(IFinanceDbContext dbContext) : ICreateStudentFee
 	{
 		public async Task AddAsync(
 				StudentFeeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<StudentFeeEntity>()
+				await dbContext.StudentFees
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

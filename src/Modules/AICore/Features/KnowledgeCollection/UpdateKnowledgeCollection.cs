@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<KnowledgeCollectionEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateKnowledgeCollectionPersistence(IApplicationDbContext dbContext) : IUpdateKnowledgeCollection
+	internal sealed class UpdateKnowledgeCollectionPersistence(IAICoreDbContext dbContext) : IUpdateKnowledgeCollection
 	{
 		public async Task UpdateAsync(
 				KnowledgeCollectionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<KnowledgeCollectionEntity>()
+				dbContext.KnowledgeCollections
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<KnowledgeCollectionEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<KnowledgeCollectionEntity>()
+				return await dbContext.KnowledgeCollections
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.KnowledgeCollectionId == id,

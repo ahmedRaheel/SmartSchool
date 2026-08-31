@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteHumanHandoff
 
 	}
 
-	internal sealed class DeleteHumanHandoffPersistence(IApplicationDbContext dbContext) : IDeleteHumanHandoff
+	internal sealed class DeleteHumanHandoffPersistence(IAIInquiryDbContext dbContext) : IDeleteHumanHandoff
 	{
 		public async Task DeleteAsync(
 				HumanHandoffEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<HumanHandoffEntity>()
+				dbContext.HumanHandoffs
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteHumanHandoff
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<HumanHandoffEntity>()
+				return await dbContext.HumanHandoffs
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.HumanHandoffId == id,

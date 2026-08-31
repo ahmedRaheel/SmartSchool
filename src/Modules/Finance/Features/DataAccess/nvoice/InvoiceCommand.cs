@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -11,14 +12,13 @@ namespace SmartSchool.Modules.Finance.Features.DataAccess.Invoice;
 /// Executes database writes for <see cref="InvoiceEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class InvoiceCommand(IApplicationDbContext dbContext) : IInvoiceCommand
+public sealed class InvoiceCommand(IFinanceDbContext dbContext) : IInvoiceCommand
 {
 	public async Task AddAsync(
 		InvoiceEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<InvoiceEntity>()
+		await dbContext.Invoices
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -28,8 +28,7 @@ public sealed class InvoiceCommand(IApplicationDbContext dbContext) : IInvoiceCo
 		InvoiceEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<InvoiceEntity>()
+		dbContext.Invoices
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -39,8 +38,7 @@ public sealed class InvoiceCommand(IApplicationDbContext dbContext) : IInvoiceCo
 		InvoiceEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<InvoiceEntity>()
+		dbContext.Invoices
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

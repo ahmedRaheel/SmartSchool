@@ -15,7 +15,7 @@ public interface IApplicationDbContext
 
 	/// <summary>Returns the EF Core set for a domain entity.</summary>
 	DbSet<TEntity> Set<TEntity>()
-		where TEntity : AggregateRootEntity;
+		where TEntity : Entity;
 
 	/// <summary>Persists all tracked changes atomically.</summary>
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

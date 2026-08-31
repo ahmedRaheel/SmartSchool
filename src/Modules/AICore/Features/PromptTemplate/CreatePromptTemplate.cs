@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreatePromptTemplate
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreatePromptTemplatePersistence(IApplicationDbContext dbContext) : ICreatePromptTemplate
+	internal sealed class CreatePromptTemplatePersistence(IAICoreDbContext dbContext) : ICreatePromptTemplate
 	{
 		public async Task AddAsync(
 				PromptTemplateEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<PromptTemplateEntity>()
+				await dbContext.PromptTemplates
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

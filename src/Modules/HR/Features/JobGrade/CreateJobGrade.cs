@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateJobGrade
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateJobGradePersistence(IApplicationDbContext dbContext) : ICreateJobGrade
+	internal sealed class CreateJobGradePersistence(IHRDbContext dbContext) : ICreateJobGrade
 	{
 		public async Task AddAsync(
 				JobGradeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<JobGradeEntity>()
+				await dbContext.JobGrades
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

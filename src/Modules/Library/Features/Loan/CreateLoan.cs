@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateLoan
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateLoanPersistence(IApplicationDbContext dbContext) : ICreateLoan
+	internal sealed class CreateLoanPersistence(ILibraryDbContext dbContext) : ICreateLoan
 	{
 		public async Task AddAsync(
 				LoanEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<LoanEntity>()
+				await dbContext.Loans
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

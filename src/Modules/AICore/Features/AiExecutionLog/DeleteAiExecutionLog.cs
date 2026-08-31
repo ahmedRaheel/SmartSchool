@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteAiExecutionLog
 
 	}
 
-	internal sealed class DeleteAiExecutionLogPersistence(IApplicationDbContext dbContext) : IDeleteAiExecutionLog
+	internal sealed class DeleteAiExecutionLogPersistence(IAICoreDbContext dbContext) : IDeleteAiExecutionLog
 	{
 		public async Task DeleteAsync(
 				AiExecutionLogEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<AiExecutionLogEntity>()
+				dbContext.AiExecutionLogs
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteAiExecutionLog
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<AiExecutionLogEntity>()
+				return await dbContext.AiExecutionLogs
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.AiExecutionLogId == id,

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateToolDefinition
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateToolDefinitionPersistence(IApplicationDbContext dbContext) : ICreateToolDefinition
+	internal sealed class CreateToolDefinitionPersistence(IAICoreDbContext dbContext) : ICreateToolDefinition
 	{
 		public async Task AddAsync(
 				ToolDefinitionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<ToolDefinitionEntity>()
+				await dbContext.ToolDefinitions
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

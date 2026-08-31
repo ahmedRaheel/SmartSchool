@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Modules.Communication.Models;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -28,14 +29,13 @@ public static class MarkAllNotificationsAsRead
 	}
 
 	internal sealed class MarkAllNotificationsAsReadPersistence(
-		IApplicationDbContext dbContext) : IMarkAllNotificationsAsRead
+		ICommunicationDbContext dbContext) : IMarkAllNotificationsAsRead
 	{
 		public async Task UpdateAsync(
 				NotificationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<NotificationEntity>()
+				dbContext.Notifications
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -46,8 +46,7 @@ public static class MarkAllNotificationsAsRead
 				Guid recipientUserId,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<NotificationEntity>()
+				return await dbContext.Notifications
 					.Where(entity =>
 						entity.TenantId == tenantId &&
 						entity.RecipientUserId == recipientUserId &&

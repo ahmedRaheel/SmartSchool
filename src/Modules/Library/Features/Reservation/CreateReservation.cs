@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateReservation
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateReservationPersistence(IApplicationDbContext dbContext) : ICreateReservation
+	internal sealed class CreateReservationPersistence(ILibraryDbContext dbContext) : ICreateReservation
 	{
 		public async Task AddAsync(
 				ReservationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<ReservationEntity>()
+				await dbContext.Reservations
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

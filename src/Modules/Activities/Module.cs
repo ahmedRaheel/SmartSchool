@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Activities.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -16,6 +17,7 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IActivitiesDbContext, ActivitiesDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		return services;

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<IncrementEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateIncrementPersistence(IApplicationDbContext dbContext) : IUpdateIncrement
+	internal sealed class UpdateIncrementPersistence(IPayrollDbContext dbContext) : IUpdateIncrement
 	{
 		public async Task UpdateAsync(
 				IncrementEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<IncrementEntity>()
+				dbContext.Increments
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<IncrementEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<IncrementEntity>()
+				return await dbContext.Increments
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.IncrementId == id,

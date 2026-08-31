@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteDiscount
 
 	}
 
-	internal sealed class DeleteDiscountPersistence(IApplicationDbContext dbContext) : IDeleteDiscount
+	internal sealed class DeleteDiscountPersistence(IFinanceDbContext dbContext) : IDeleteDiscount
 	{
 		public async Task DeleteAsync(
 				DiscountEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<DiscountEntity>()
+				dbContext.Discounts
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteDiscount
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<DiscountEntity>()
+				return await dbContext.Discounts
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.DiscountId == id,

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateStudentIntervention
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateStudentInterventionPersistence(IApplicationDbContext dbContext) : ICreateStudentIntervention
+	internal sealed class CreateStudentInterventionPersistence(IAIPredictionDbContext dbContext) : ICreateStudentIntervention
 	{
 		public async Task AddAsync(
 				StudentInterventionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<StudentInterventionEntity>()
+				await dbContext.StudentInterventions
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

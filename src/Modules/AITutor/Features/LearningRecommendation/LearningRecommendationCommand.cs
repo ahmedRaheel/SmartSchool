@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 /// Executes database writes for <see cref="LearningRecommendationEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class LearningRecommendationCommand(IApplicationDbContext dbContext) : ILearningRecommendationCommand
+public sealed class LearningRecommendationCommand(IAITutorDbContext dbContext) : ILearningRecommendationCommand
 {
 	public async Task AddAsync(
 		LearningRecommendationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<LearningRecommendationEntity>()
+		await dbContext.LearningRecommendations
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class LearningRecommendationCommand(IApplicationDbContext dbContex
 		LearningRecommendationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LearningRecommendationEntity>()
+		dbContext.LearningRecommendations
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class LearningRecommendationCommand(IApplicationDbContext dbContex
 		LearningRecommendationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LearningRecommendationEntity>()
+		dbContext.LearningRecommendations
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

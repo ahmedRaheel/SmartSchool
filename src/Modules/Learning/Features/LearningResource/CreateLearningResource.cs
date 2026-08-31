@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateLearningResource
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateLearningResourcePersistence(IApplicationDbContext dbContext) : ICreateLearningResource
+	internal sealed class CreateLearningResourcePersistence(ILearningDbContext dbContext) : ICreateLearningResource
 	{
 		public async Task AddAsync(
 				LearningResourceEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<LearningResourceEntity>()
+				await dbContext.LearningResources
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

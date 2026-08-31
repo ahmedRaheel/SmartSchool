@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.HR.Features.Position;
 /// Executes database writes for <see cref="PositionEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PositionCommand(IApplicationDbContext dbContext) : IPositionCommand
+public sealed class PositionCommand(IHRDbContext dbContext) : IPositionCommand
 {
 	public async Task AddAsync(
 		PositionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<PositionEntity>()
+		await dbContext.Positions
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class PositionCommand(IApplicationDbContext dbContext) : IPosition
 		PositionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PositionEntity>()
+		dbContext.Positions
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class PositionCommand(IApplicationDbContext dbContext) : IPosition
 		PositionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PositionEntity>()
+		dbContext.Positions
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -11,14 +12,13 @@ namespace SmartSchool.Modules.Payroll.Features.DataAccess.Increment;
 /// Executes database writes for <see cref="IncrementEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class IncrementCommand(IApplicationDbContext dbContext) : IIncrementCommand
+public sealed class IncrementCommand(IPayrollDbContext dbContext) : IIncrementCommand
 {
 	public async Task AddAsync(
 		IncrementEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<IncrementEntity>()
+		await dbContext.Increments
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -28,8 +28,7 @@ public sealed class IncrementCommand(IApplicationDbContext dbContext) : IIncreme
 		IncrementEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<IncrementEntity>()
+		dbContext.Increments
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -39,8 +38,7 @@ public sealed class IncrementCommand(IApplicationDbContext dbContext) : IIncreme
 		IncrementEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<IncrementEntity>()
+		dbContext.Increments
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<AssignmentSubmissionEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateAssignmentSubmissionPersistence(IApplicationDbContext dbContext) : IUpdateAssignmentSubmission
+	internal sealed class UpdateAssignmentSubmissionPersistence(ILearningDbContext dbContext) : IUpdateAssignmentSubmission
 	{
 		public async Task UpdateAsync(
 				AssignmentSubmissionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<AssignmentSubmissionEntity>()
+				dbContext.AssignmentSubmissions
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<AssignmentSubmissionEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<AssignmentSubmissionEntity>()
+				return await dbContext.AssignmentSubmissions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.AssignmentSubmissionId == id,

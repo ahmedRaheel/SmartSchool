@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateMessageReceipt
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateMessageReceiptPersistence(IApplicationDbContext dbContext) : ICreateMessageReceipt
+	internal sealed class CreateMessageReceiptPersistence(ICommunicationDbContext dbContext) : ICreateMessageReceipt
 	{
 		public async Task AddAsync(
 				MessageReceiptEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<MessageReceiptEntity>()
+				await dbContext.MessageReceipts
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

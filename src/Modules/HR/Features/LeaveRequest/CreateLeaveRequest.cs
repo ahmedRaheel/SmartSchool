@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateLeaveRequest
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateLeaveRequestPersistence(IApplicationDbContext dbContext) : ICreateLeaveRequest
+	internal sealed class CreateLeaveRequestPersistence(IHRDbContext dbContext) : ICreateLeaveRequest
 	{
 		public async Task AddAsync(
 				LeaveRequestEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<LeaveRequestEntity>()
+				await dbContext.LeaveRequests
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

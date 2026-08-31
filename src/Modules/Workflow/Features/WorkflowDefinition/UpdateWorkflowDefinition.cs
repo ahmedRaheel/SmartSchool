@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<WorkflowDefinitionEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateWorkflowDefinitionPersistence(IApplicationDbContext dbContext) : IUpdateWorkflowDefinition
+	internal sealed class UpdateWorkflowDefinitionPersistence(IWorkflowDbContext dbContext) : IUpdateWorkflowDefinition
 	{
 		public async Task UpdateAsync(
 				WorkflowDefinitionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<WorkflowDefinitionEntity>()
+				dbContext.WorkflowDefinitions
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<WorkflowDefinitionEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<WorkflowDefinitionEntity>()
+				return await dbContext.WorkflowDefinitions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.WorkflowDefinitionId == id,

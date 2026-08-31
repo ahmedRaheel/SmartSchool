@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Cag;
 using SmartSchool.Modules.AICore.Agents;
 using ModelContextProtocol.Server;
@@ -26,6 +27,7 @@ public static class Module
 		IConfiguration configuration)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAICoreDbContext, AICoreDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 

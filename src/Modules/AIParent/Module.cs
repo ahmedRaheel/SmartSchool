@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -15,6 +16,7 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAIParentDbContext, AIParentDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddScoped<IParentConversationCommand, ParentConversationCommand>();

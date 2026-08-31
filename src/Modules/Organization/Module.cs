@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Modules.Organization.Features.Campus;
 using SmartSchool.Modules.Organization.Features.Department;
@@ -14,6 +15,7 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IOrganizationDbContext, OrganizationDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddScoped<ICampusCommand, CampusCommand>();

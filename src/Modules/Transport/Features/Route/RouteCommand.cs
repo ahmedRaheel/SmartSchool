@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Transport.Features.Route;
 /// Executes database writes for <see cref="RouteEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class RouteCommand(IApplicationDbContext dbContext) : IRouteCommand
+public sealed class RouteCommand(ITransportDbContext dbContext) : IRouteCommand
 {
 	public async Task AddAsync(
 		RouteEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<RouteEntity>()
+		await dbContext.Routes
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class RouteCommand(IApplicationDbContext dbContext) : IRouteComman
 		RouteEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<RouteEntity>()
+		dbContext.Routes
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class RouteCommand(IApplicationDbContext dbContext) : IRouteComman
 		RouteEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<RouteEntity>()
+		dbContext.Routes
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

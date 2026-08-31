@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteRoute
 
 	}
 
-	internal sealed class DeleteRoutePersistence(IApplicationDbContext dbContext) : IDeleteRoute
+	internal sealed class DeleteRoutePersistence(ITransportDbContext dbContext) : IDeleteRoute
 	{
 		public async Task DeleteAsync(
 				RouteEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<RouteEntity>()
+				dbContext.Routes
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteRoute
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<RouteEntity>()
+				return await dbContext.Routes
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.RouteId == id,

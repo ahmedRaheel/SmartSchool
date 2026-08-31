@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteStop
 
 	}
 
-	internal sealed class DeleteStopPersistence(IApplicationDbContext dbContext) : IDeleteStop
+	internal sealed class DeleteStopPersistence(ITransportDbContext dbContext) : IDeleteStop
 	{
 		public async Task DeleteAsync(
 				StopEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<StopEntity>()
+				dbContext.Stops
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteStop
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<StopEntity>()
+				return await dbContext.Stops
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.StopId == id,

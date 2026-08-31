@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteInterview
 
 	}
 
-	internal sealed class DeleteInterviewPersistence(IApplicationDbContext dbContext) : IDeleteInterview
+	internal sealed class DeleteInterviewPersistence(IHRDbContext dbContext) : IDeleteInterview
 	{
 		public async Task DeleteAsync(
 				InterviewEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<InterviewEntity>()
+				dbContext.Interviews
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteInterview
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<InterviewEntity>()
+				return await dbContext.Interviews
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.InterviewId == id,

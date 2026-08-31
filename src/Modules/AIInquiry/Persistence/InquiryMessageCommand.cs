@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIInquiry.Persistence;
 /// Executes database writes for <see cref="InquiryMessageEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class InquiryMessageCommand(IApplicationDbContext dbContext) : IInquiryMessageCommand
+public sealed class InquiryMessageCommand(IAIInquiryDbContext dbContext) : IInquiryMessageCommand
 {
 	public async Task AddAsync(
 		InquiryMessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<InquiryMessageEntity>()
+		await dbContext.InquiryMessages
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class InquiryMessageCommand(IApplicationDbContext dbContext) : IIn
 		InquiryMessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<InquiryMessageEntity>()
+		dbContext.InquiryMessages
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class InquiryMessageCommand(IApplicationDbContext dbContext) : IIn
 		InquiryMessageEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<InquiryMessageEntity>()
+		dbContext.InquiryMessages
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

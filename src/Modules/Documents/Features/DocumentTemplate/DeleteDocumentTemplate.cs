@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteDocumentTemplate
 
 	}
 
-	internal sealed class DeleteDocumentTemplatePersistence(IApplicationDbContext dbContext) : IDeleteDocumentTemplate
+	internal sealed class DeleteDocumentTemplatePersistence(IDocumentsDbContext dbContext) : IDeleteDocumentTemplate
 	{
 		public async Task DeleteAsync(
 				DocumentTemplateEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<DocumentTemplateEntity>()
+				dbContext.DocumentTemplates
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteDocumentTemplate
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<DocumentTemplateEntity>()
+				return await dbContext.DocumentTemplates
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.DocumentTemplateId == id,

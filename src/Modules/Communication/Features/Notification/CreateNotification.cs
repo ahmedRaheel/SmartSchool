@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Modules.Communication.Realtime;
@@ -66,14 +67,13 @@ public static class CreateNotification
 	}
 
 	internal sealed class CreateNotificationPersistence(
-		IApplicationDbContext dbContext) : ICreateNotification
+		ICommunicationDbContext dbContext) : ICreateNotification
 	{
 		public async Task AddAsync(
 				NotificationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<NotificationEntity>()
+				await dbContext.Notifications
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

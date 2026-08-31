@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreatePayrollRun
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreatePayrollRunPersistence(IApplicationDbContext dbContext) : ICreatePayrollRun
+	internal sealed class CreatePayrollRunPersistence(IPayrollDbContext dbContext) : ICreatePayrollRun
 	{
 		public async Task AddAsync(
 				PayrollRunEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<PayrollRunEntity>()
+				await dbContext.PayrollRuns
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteTutorMessage
 
 	}
 
-	internal sealed class DeleteTutorMessagePersistence(IApplicationDbContext dbContext) : IDeleteTutorMessage
+	internal sealed class DeleteTutorMessagePersistence(IAITutorDbContext dbContext) : IDeleteTutorMessage
 	{
 		public async Task DeleteAsync(
 				TutorMessageEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<TutorMessageEntity>()
+				dbContext.TutorMessages
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteTutorMessage
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<TutorMessageEntity>()
+				return await dbContext.TutorMessages
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.TutorMessageId == id,

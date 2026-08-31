@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
@@ -87,14 +88,13 @@ public static class CreateEmployee
 
 	}
 
-	internal sealed class CreateEmployeePersistence(IApplicationDbContext dbContext) : ICreateEmployee
+	internal sealed class CreateEmployeePersistence(IHRDbContext dbContext) : ICreateEmployee
 	{
 		public async Task AddAsync(
 				EmployeeEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<EmployeeEntity>()
+				await dbContext.Employees
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

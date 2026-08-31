@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteMessageReceipt
 
 	}
 
-	internal sealed class DeleteMessageReceiptPersistence(IApplicationDbContext dbContext) : IDeleteMessageReceipt
+	internal sealed class DeleteMessageReceiptPersistence(ICommunicationDbContext dbContext) : IDeleteMessageReceipt
 	{
 		public async Task DeleteAsync(
 				MessageReceiptEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<MessageReceiptEntity>()
+				dbContext.MessageReceipts
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteMessageReceipt
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<MessageReceiptEntity>()
+				return await dbContext.MessageReceipts
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.MessageReceiptId == id,

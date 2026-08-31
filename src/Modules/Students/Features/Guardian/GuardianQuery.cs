@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Students.Features.Guardian;
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
 public sealed class GuardianQuery(
-	IApplicationDbContext dbContext,
+	IStudentsDbContext dbContext,
 	IDbConnectionFactory connectionFactory) : IGuardianQuery
 {
 	public Task<GuardianEntity?> GetByIdAsync(
@@ -20,8 +21,7 @@ public sealed class GuardianQuery(
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<GuardianEntity>()
+		return dbContext.Guardians
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
 				entity => entity.TenantId == tenantId && entity.GuardianId == id,
@@ -93,8 +93,7 @@ public sealed class GuardianQuery(
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<GuardianEntity>()
+		return dbContext.Guardians
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>

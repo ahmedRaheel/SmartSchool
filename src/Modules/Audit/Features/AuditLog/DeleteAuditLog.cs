@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteAuditLog
 
 	}
 
-	internal sealed class DeleteAuditLogPersistence(IApplicationDbContext dbContext) : IDeleteAuditLog
+	internal sealed class DeleteAuditLogPersistence(IAuditDbContext dbContext) : IDeleteAuditLog
 	{
 		public async Task DeleteAsync(
 				AuditLogEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<AuditLogEntity>()
+				dbContext.AuditLogs
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteAuditLog
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<AuditLogEntity>()
+				return await dbContext.AuditLogs
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.AuditLogId == id,

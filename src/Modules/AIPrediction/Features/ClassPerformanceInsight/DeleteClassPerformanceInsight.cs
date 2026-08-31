@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteClassPerformanceInsight
 
 	}
 
-	internal sealed class DeleteClassPerformanceInsightPersistence(IApplicationDbContext dbContext) : IDeleteClassPerformanceInsight
+	internal sealed class DeleteClassPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : IDeleteClassPerformanceInsight
 	{
 		public async Task DeleteAsync(
 				ClassPerformanceInsightEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ClassPerformanceInsightEntity>()
+				dbContext.ClassPerformanceInsights
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteClassPerformanceInsight
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ClassPerformanceInsightEntity>()
+				return await dbContext.ClassPerformanceInsights
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ClassPerformanceInsightId == id,

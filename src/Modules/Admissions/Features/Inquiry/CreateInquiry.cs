@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateInquiry
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateInquiryPersistence(IApplicationDbContext dbContext) : ICreateInquiry
+	internal sealed class CreateInquiryPersistence(IAdmissionsDbContext dbContext) : ICreateInquiry
 	{
 		public async Task AddAsync(
 				InquiryEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<InquiryEntity>()
+				await dbContext.Inquiries
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

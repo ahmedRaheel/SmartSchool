@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateTutorMessage
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateTutorMessagePersistence(IApplicationDbContext dbContext) : ICreateTutorMessage
+	internal sealed class CreateTutorMessagePersistence(IAITutorDbContext dbContext) : ICreateTutorMessage
 	{
 		public async Task AddAsync(
 				TutorMessageEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<TutorMessageEntity>()
+				await dbContext.TutorMessages
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

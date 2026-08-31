@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateStudentTransport
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateStudentTransportPersistence(IApplicationDbContext dbContext) : ICreateStudentTransport
+	internal sealed class CreateStudentTransportPersistence(ITransportDbContext dbContext) : ICreateStudentTransport
 	{
 		public async Task AddAsync(
 				StudentTransportEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<StudentTransportEntity>()
+				await dbContext.StudentTransports
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

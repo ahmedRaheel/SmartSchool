@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateWorkflowInstance
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateWorkflowInstancePersistence(IApplicationDbContext dbContext) : ICreateWorkflowInstance
+	internal sealed class CreateWorkflowInstancePersistence(IWorkflowDbContext dbContext) : ICreateWorkflowInstance
 	{
 		public async Task AddAsync(
 				WorkflowInstanceEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<WorkflowInstanceEntity>()
+				await dbContext.WorkflowInstances
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

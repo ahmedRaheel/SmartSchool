@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Communication.Features.Notification;
 /// Executes database writes for <see cref="NotificationEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class NotificationCommand(IApplicationDbContext dbContext) : INotificationCommand
+public sealed class NotificationCommand(ICommunicationDbContext dbContext) : INotificationCommand
 {
 	public async Task AddAsync(
 		NotificationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<NotificationEntity>()
+		await dbContext.Notifications
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class NotificationCommand(IApplicationDbContext dbContext) : INoti
 		NotificationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<NotificationEntity>()
+		dbContext.Notifications
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class NotificationCommand(IApplicationDbContext dbContext) : INoti
 		NotificationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<NotificationEntity>()
+		dbContext.Notifications
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

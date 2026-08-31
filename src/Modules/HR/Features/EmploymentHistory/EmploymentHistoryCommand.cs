@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 /// Executes database writes for <see cref="EmploymentHistoryEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class EmploymentHistoryCommand(IApplicationDbContext dbContext) : IEmploymentHistoryCommand
+public sealed class EmploymentHistoryCommand(IHRDbContext dbContext) : IEmploymentHistoryCommand
 {
 	public async Task AddAsync(
 		EmploymentHistoryEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<EmploymentHistoryEntity>()
+		await dbContext.EmploymentHistories
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class EmploymentHistoryCommand(IApplicationDbContext dbContext) : 
 		EmploymentHistoryEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<EmploymentHistoryEntity>()
+		dbContext.EmploymentHistories
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class EmploymentHistoryCommand(IApplicationDbContext dbContext) : 
 		EmploymentHistoryEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<EmploymentHistoryEntity>()
+		dbContext.EmploymentHistories
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

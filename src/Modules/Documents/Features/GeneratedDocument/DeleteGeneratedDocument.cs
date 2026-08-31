@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteGeneratedDocument
 
 	}
 
-	internal sealed class DeleteGeneratedDocumentPersistence(IApplicationDbContext dbContext) : IDeleteGeneratedDocument
+	internal sealed class DeleteGeneratedDocumentPersistence(IDocumentsDbContext dbContext) : IDeleteGeneratedDocument
 	{
 		public async Task DeleteAsync(
 				GeneratedDocumentEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<GeneratedDocumentEntity>()
+				dbContext.GeneratedDocuments
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteGeneratedDocument
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<GeneratedDocumentEntity>()
+				return await dbContext.GeneratedDocuments
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.GeneratedDocumentId == id,

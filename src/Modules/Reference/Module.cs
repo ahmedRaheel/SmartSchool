@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Reference.Persistence;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Reference.Features.Lookups;
 
@@ -6,6 +7,7 @@ namespace SmartSchool.Modules.Reference;
 
 public static class Module
 {
+		services.AddScoped<IReferenceDbContext, ReferenceDbContext>();
 	public static IServiceCollection AddReferenceModule(this IServiceCollection services)
 	{
 		services.AddFeaturePersistence(typeof(Module).Assembly);

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Features;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +19,7 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAIInquiryDbContext, AIInquiryDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();	

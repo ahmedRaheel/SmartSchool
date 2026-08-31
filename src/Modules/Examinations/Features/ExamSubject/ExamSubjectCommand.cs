@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Examinations.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Examinations.Features.ExamSubject;
 /// Executes database writes for <see cref="ExamSubjectEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ExamSubjectCommand(IApplicationDbContext dbContext) : IExamSubjectCommand
+public sealed class ExamSubjectCommand(IExaminationsDbContext dbContext) : IExamSubjectCommand
 {
 	public async Task AddAsync(
 		ExamSubjectEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ExamSubjectEntity>()
+		await dbContext.ExamSubjects
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ExamSubjectCommand(IApplicationDbContext dbContext) : IExamS
 		ExamSubjectEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ExamSubjectEntity>()
+		dbContext.ExamSubjects
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ExamSubjectCommand(IApplicationDbContext dbContext) : IExamS
 		ExamSubjectEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ExamSubjectEntity>()
+		dbContext.ExamSubjects
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

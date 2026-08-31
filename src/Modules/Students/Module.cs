@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
@@ -22,6 +23,7 @@ public static class Module
     public static IServiceCollection AddStudentsModule(this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IStudentsDbContext, StudentsDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 

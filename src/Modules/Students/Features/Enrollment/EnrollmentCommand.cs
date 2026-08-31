@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Students.Features.Enrollment;
 /// Executes database writes for <see cref="EnrollmentEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class EnrollmentCommand(IApplicationDbContext dbContext) : IEnrollmentCommand
+public sealed class EnrollmentCommand(IStudentsDbContext dbContext) : IEnrollmentCommand
 {
 	public async Task AddAsync(
 		EnrollmentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<EnrollmentEntity>()
+		await dbContext.Enrollments
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class EnrollmentCommand(IApplicationDbContext dbContext) : IEnroll
 		EnrollmentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<EnrollmentEntity>()
+		dbContext.Enrollments
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class EnrollmentCommand(IApplicationDbContext dbContext) : IEnroll
 		EnrollmentEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<EnrollmentEntity>()
+		dbContext.Enrollments
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

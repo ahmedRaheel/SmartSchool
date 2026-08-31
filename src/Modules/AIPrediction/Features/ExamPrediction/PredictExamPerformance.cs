@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
@@ -37,7 +38,7 @@ public static class PredictExamPerformance
 
 	public sealed class Handler(
 		IExamPredictionService predictionService,
-		IApplicationDbContext dbContext) : IRequestHandler<Request, Result<Response>>
+		IAIPredictionDbContext dbContext) : IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
@@ -71,7 +72,7 @@ public static class PredictExamPerformance
 				prediction.HistoricalResultCount,
 				prediction.UsedMachineLearning);
 
-			await dbContext.Set<MlExamPredictionEntity>().AddAsync(entity, cancellationToken);
+			await dbContext.MlExamPredictions.AddAsync(entity, cancellationToken);
 			await dbContext.SaveChangesAsync(cancellationToken);
 
 			return Result<Response>.Success(new Response(

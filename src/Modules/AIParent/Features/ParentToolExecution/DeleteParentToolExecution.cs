@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteParentToolExecution
 
 	}
 
-	internal sealed class DeleteParentToolExecutionPersistence(IApplicationDbContext dbContext) : IDeleteParentToolExecution
+	internal sealed class DeleteParentToolExecutionPersistence(IAIParentDbContext dbContext) : IDeleteParentToolExecution
 	{
 		public async Task DeleteAsync(
 				ParentToolExecutionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ParentToolExecutionEntity>()
+				dbContext.ParentToolExecutions
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteParentToolExecution
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ParentToolExecutionEntity>()
+				return await dbContext.ParentToolExecutions
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ParentToolExecutionId == id,

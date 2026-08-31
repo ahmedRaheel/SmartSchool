@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateLeadCapture
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateLeadCapturePersistence(IApplicationDbContext dbContext) : ICreateLeadCapture
+	internal sealed class CreateLeadCapturePersistence(IAIInquiryDbContext dbContext) : ICreateLeadCapture
 	{
 		public async Task AddAsync(
 				LeadCaptureEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<LeadCaptureEntity>()
+				await dbContext.LeadCaptures
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

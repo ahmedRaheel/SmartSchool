@@ -1,3 +1,4 @@
+using SmartSchool.Modules.HR.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 /// Executes database writes for <see cref="LeaveRequestEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class LeaveRequestCommand(IApplicationDbContext dbContext) : ILeaveRequestCommand
+public sealed class LeaveRequestCommand(IHRDbContext dbContext) : ILeaveRequestCommand
 {
 	public async Task AddAsync(
 		LeaveRequestEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<LeaveRequestEntity>()
+		await dbContext.LeaveRequests
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class LeaveRequestCommand(IApplicationDbContext dbContext) : ILeav
 		LeaveRequestEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LeaveRequestEntity>()
+		dbContext.LeaveRequests
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class LeaveRequestCommand(IApplicationDbContext dbContext) : ILeav
 		LeaveRequestEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LeaveRequestEntity>()
+		dbContext.LeaveRequests
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

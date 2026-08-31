@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Workflow.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
 /// Executes database writes for <see cref="WorkflowDefinitionEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class WorkflowDefinitionCommand(IApplicationDbContext dbContext) : IWorkflowDefinitionCommand
+public sealed class WorkflowDefinitionCommand(IWorkflowDbContext dbContext) : IWorkflowDefinitionCommand
 {
 	public async Task AddAsync(
 		WorkflowDefinitionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<WorkflowDefinitionEntity>()
+		await dbContext.WorkflowDefinitions
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class WorkflowDefinitionCommand(IApplicationDbContext dbContext) :
 		WorkflowDefinitionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<WorkflowDefinitionEntity>()
+		dbContext.WorkflowDefinitions
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class WorkflowDefinitionCommand(IApplicationDbContext dbContext) :
 		WorkflowDefinitionEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<WorkflowDefinitionEntity>()
+		dbContext.WorkflowDefinitions
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

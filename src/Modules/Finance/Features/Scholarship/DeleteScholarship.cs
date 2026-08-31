@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteScholarship
 
 	}
 
-	internal sealed class DeleteScholarshipPersistence(IApplicationDbContext dbContext) : IDeleteScholarship
+	internal sealed class DeleteScholarshipPersistence(IFinanceDbContext dbContext) : IDeleteScholarship
 	{
 		public async Task DeleteAsync(
 				ScholarshipEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ScholarshipEntity>()
+				dbContext.Scholarships
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteScholarship
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ScholarshipEntity>()
+				return await dbContext.Scholarships
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ScholarshipId == id,

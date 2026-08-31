@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Organization.Persistence;
 using Dapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
 public sealed class CampusQuery(
-	IApplicationDbContext dbContext,
+	IOrganizationDbContext dbContext,
 	IDbConnectionFactory connectionFactory) : ICampusQuery
 {
 	public Task<CampusEntity?> GetByIdAsync(
@@ -20,8 +21,7 @@ public sealed class CampusQuery(
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<CampusEntity>()
+		return dbContext.Campuses
 			.AsNoTracking()
 			.SingleOrDefaultAsync(
 				entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id,
@@ -106,8 +106,7 @@ public sealed class CampusQuery(
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		return dbContext
-			.Set<CampusEntity>()
+		return dbContext.Campuses
 			.AsNoTracking()
 			.AnyAsync(
 				entity =>

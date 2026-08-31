@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<HumanHandoffEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateHumanHandoffPersistence(IApplicationDbContext dbContext) : IUpdateHumanHandoff
+	internal sealed class UpdateHumanHandoffPersistence(IAIInquiryDbContext dbContext) : IUpdateHumanHandoff
 	{
 		public async Task UpdateAsync(
 				HumanHandoffEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<HumanHandoffEntity>()
+				dbContext.HumanHandoffs
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<HumanHandoffEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<HumanHandoffEntity>()
+				return await dbContext.HumanHandoffs
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.HumanHandoffId == id,

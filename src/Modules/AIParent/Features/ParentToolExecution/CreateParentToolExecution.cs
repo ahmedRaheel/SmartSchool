@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateParentToolExecution
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateParentToolExecutionPersistence(IApplicationDbContext dbContext) : ICreateParentToolExecution
+	internal sealed class CreateParentToolExecutionPersistence(IAIParentDbContext dbContext) : ICreateParentToolExecution
 	{
 		public async Task AddAsync(
 				ParentToolExecutionEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<ParentToolExecutionEntity>()
+				await dbContext.ParentToolExecutions
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

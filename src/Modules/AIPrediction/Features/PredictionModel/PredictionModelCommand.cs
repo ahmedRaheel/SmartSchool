@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 /// Executes database writes for <see cref="PredictionModelEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class PredictionModelCommand(IApplicationDbContext dbContext) : IPredictionModelCommand
+public sealed class PredictionModelCommand(IAIPredictionDbContext dbContext) : IPredictionModelCommand
 {
 	public async Task AddAsync(
 		PredictionModelEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<PredictionModelEntity>()
+		await dbContext.PredictionModels
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class PredictionModelCommand(IApplicationDbContext dbContext) : IP
 		PredictionModelEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PredictionModelEntity>()
+		dbContext.PredictionModels
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class PredictionModelCommand(IApplicationDbContext dbContext) : IP
 		PredictionModelEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<PredictionModelEntity>()
+		dbContext.PredictionModels
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

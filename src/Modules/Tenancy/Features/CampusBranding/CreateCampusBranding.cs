@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Tenancy.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateCampusBranding
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateCampusBrandingPersistence(IApplicationDbContext dbContext) : ICreateCampusBranding
+	internal sealed class CreateCampusBrandingPersistence(ITenancyDbContext dbContext) : ICreateCampusBranding
 	{
 		public async Task AddAsync(
 				CampusBrandingEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<CampusBrandingEntity>()
+				await dbContext.CampusBrandings
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

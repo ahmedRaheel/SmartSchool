@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteModelConfiguration
 
 	}
 
-	internal sealed class DeleteModelConfigurationPersistence(IApplicationDbContext dbContext) : IDeleteModelConfiguration
+	internal sealed class DeleteModelConfigurationPersistence(IAICoreDbContext dbContext) : IDeleteModelConfiguration
 	{
 		public async Task DeleteAsync(
 				ModelConfigurationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<ModelConfigurationEntity>()
+				dbContext.ModelConfigurations
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteModelConfiguration
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<ModelConfigurationEntity>()
+				return await dbContext.ModelConfigurations
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ModelConfigurationId == id,

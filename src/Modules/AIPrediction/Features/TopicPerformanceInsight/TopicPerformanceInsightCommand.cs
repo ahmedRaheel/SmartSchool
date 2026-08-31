@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
 /// Executes database writes for <see cref="TopicPerformanceInsightEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class TopicPerformanceInsightCommand(IApplicationDbContext dbContext) : ITopicPerformanceInsightCommand
+public sealed class TopicPerformanceInsightCommand(IAIPredictionDbContext dbContext) : ITopicPerformanceInsightCommand
 {
 	public async Task AddAsync(
 		TopicPerformanceInsightEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<TopicPerformanceInsightEntity>()
+		await dbContext.TopicPerformanceInsights
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class TopicPerformanceInsightCommand(IApplicationDbContext dbConte
 		TopicPerformanceInsightEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<TopicPerformanceInsightEntity>()
+		dbContext.TopicPerformanceInsights
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class TopicPerformanceInsightCommand(IApplicationDbContext dbConte
 		TopicPerformanceInsightEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<TopicPerformanceInsightEntity>()
+		dbContext.TopicPerformanceInsights
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

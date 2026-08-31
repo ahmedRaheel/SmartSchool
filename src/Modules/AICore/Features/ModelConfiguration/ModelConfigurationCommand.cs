@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 /// Executes database writes for <see cref="ModelConfigurationEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class ModelConfigurationCommand(IApplicationDbContext dbContext) : IModelConfigurationCommand
+public sealed class ModelConfigurationCommand(IAICoreDbContext dbContext) : IModelConfigurationCommand
 {
 	public async Task AddAsync(
 		ModelConfigurationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<ModelConfigurationEntity>()
+		await dbContext.ModelConfigurations
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class ModelConfigurationCommand(IApplicationDbContext dbContext) :
 		ModelConfigurationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ModelConfigurationEntity>()
+		dbContext.ModelConfigurations
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class ModelConfigurationCommand(IApplicationDbContext dbContext) :
 		ModelConfigurationEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<ModelConfigurationEntity>()
+		dbContext.ModelConfigurations
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

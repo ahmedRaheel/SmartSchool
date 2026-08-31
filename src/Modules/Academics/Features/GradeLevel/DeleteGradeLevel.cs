@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Academics.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteGradeLevel
 
 	}
 
-	internal sealed class DeleteGradeLevelPersistence(IApplicationDbContext dbContext) : IDeleteGradeLevel
+	internal sealed class DeleteGradeLevelPersistence(IAcademicsDbContext dbContext) : IDeleteGradeLevel
 	{
 		public async Task DeleteAsync(
 				GradeLevelEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<GradeLevelEntity>()
+				dbContext.GradeLevels
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteGradeLevel
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<GradeLevelEntity>()
+				return await dbContext.GradeLevels
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.GradeLevelId == id,

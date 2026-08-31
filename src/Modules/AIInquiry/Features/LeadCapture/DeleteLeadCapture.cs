@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -32,14 +33,13 @@ public static class DeleteLeadCapture
 
 	}
 
-	internal sealed class DeleteLeadCapturePersistence(IApplicationDbContext dbContext) : IDeleteLeadCapture
+	internal sealed class DeleteLeadCapturePersistence(IAIInquiryDbContext dbContext) : IDeleteLeadCapture
 	{
 		public async Task DeleteAsync(
 				LeadCaptureEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<LeadCaptureEntity>()
+				dbContext.LeadCaptures
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -50,8 +50,7 @@ public static class DeleteLeadCapture
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<LeadCaptureEntity>()
+				return await dbContext.LeadCaptures
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.LeadCaptureId == id,

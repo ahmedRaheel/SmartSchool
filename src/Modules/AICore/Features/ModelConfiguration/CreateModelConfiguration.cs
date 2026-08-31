@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -47,14 +48,13 @@ public static class CreateModelConfiguration
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateModelConfigurationPersistence(IApplicationDbContext dbContext) : ICreateModelConfiguration
+	internal sealed class CreateModelConfigurationPersistence(IAICoreDbContext dbContext) : ICreateModelConfiguration
 	{
 		public async Task AddAsync(
 				ModelConfigurationEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<ModelConfigurationEntity>()
+				await dbContext.ModelConfigurations
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

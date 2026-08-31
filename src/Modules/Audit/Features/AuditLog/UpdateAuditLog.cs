@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<AuditLogEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateAuditLogPersistence(IApplicationDbContext dbContext) : IUpdateAuditLog
+	internal sealed class UpdateAuditLogPersistence(IAuditDbContext dbContext) : IUpdateAuditLog
 	{
 		public async Task UpdateAsync(
 				AuditLogEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<AuditLogEntity>()
+				dbContext.AuditLogs
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<AuditLogEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<AuditLogEntity>()
+				return await dbContext.AuditLogs
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.AuditLogId == id,

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -46,14 +47,13 @@ public static class CreateCertificate
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateCertificatePersistence(IApplicationDbContext dbContext) : ICreateCertificate
+	internal sealed class CreateCertificatePersistence(IDocumentsDbContext dbContext) : ICreateCertificate
 	{
 		public async Task AddAsync(
 				CertificateEntity entity,
 				CancellationToken cancellationToken)
 			{
-				await dbContext
-					.Set<CertificateEntity>()
+				await dbContext.Certificates
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

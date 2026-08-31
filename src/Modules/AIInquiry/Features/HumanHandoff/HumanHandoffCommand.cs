@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 /// Executes database writes for <see cref="HumanHandoffEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class HumanHandoffCommand(IApplicationDbContext dbContext) : IHumanHandoffCommand
+public sealed class HumanHandoffCommand(IAIInquiryDbContext dbContext) : IHumanHandoffCommand
 {
 	public async Task AddAsync(
 		HumanHandoffEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<HumanHandoffEntity>()
+		await dbContext.HumanHandoffs
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class HumanHandoffCommand(IApplicationDbContext dbContext) : IHuma
 		HumanHandoffEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<HumanHandoffEntity>()
+		dbContext.HumanHandoffs
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class HumanHandoffCommand(IApplicationDbContext dbContext) : IHuma
 		HumanHandoffEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<HumanHandoffEntity>()
+		dbContext.HumanHandoffs
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);

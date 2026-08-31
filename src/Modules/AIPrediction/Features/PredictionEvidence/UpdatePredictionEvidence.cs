@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<PredictionEvidenceEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdatePredictionEvidencePersistence(IApplicationDbContext dbContext) : IUpdatePredictionEvidence
+	internal sealed class UpdatePredictionEvidencePersistence(IAIPredictionDbContext dbContext) : IUpdatePredictionEvidence
 	{
 		public async Task UpdateAsync(
 				PredictionEvidenceEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<PredictionEvidenceEntity>()
+				dbContext.PredictionEvidences
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<PredictionEvidenceEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<PredictionEvidenceEntity>()
+				return await dbContext.PredictionEvidences
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.PredictionEvidenceId == id,

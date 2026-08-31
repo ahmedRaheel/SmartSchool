@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<InquiryMessageEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateInquiryMessagePersistence(IApplicationDbContext dbContext) : IUpdateInquiryMessage
+	internal sealed class UpdateInquiryMessagePersistence(IAIInquiryDbContext dbContext) : IUpdateInquiryMessage
 	{
 		public async Task UpdateAsync(
 				InquiryMessageEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<InquiryMessageEntity>()
+				dbContext.InquiryMessages
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<InquiryMessageEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<InquiryMessageEntity>()
+				return await dbContext.InquiryMessages
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.InquiryMessageId == id,

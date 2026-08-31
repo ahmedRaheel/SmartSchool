@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -53,14 +54,13 @@ Task<MessageReceiptEntity?> GetByIdAsync(
 
 	}
 
-	internal sealed class UpdateMessageReceiptPersistence(IApplicationDbContext dbContext) : IUpdateMessageReceipt
+	internal sealed class UpdateMessageReceiptPersistence(ICommunicationDbContext dbContext) : IUpdateMessageReceipt
 	{
 		public async Task UpdateAsync(
 				MessageReceiptEntity entity,
 				CancellationToken cancellationToken)
 			{
-				dbContext
-					.Set<MessageReceiptEntity>()
+				dbContext.MessageReceipts
 					.Update(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -71,8 +71,7 @@ Task<MessageReceiptEntity?> GetByIdAsync(
 				Guid id,
 				CancellationToken cancellationToken)
 			{
-				return await dbContext
-					.Set<MessageReceiptEntity>()
+				return await dbContext.MessageReceipts
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.MessageReceiptId == id,

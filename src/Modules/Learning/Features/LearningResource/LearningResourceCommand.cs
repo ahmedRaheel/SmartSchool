@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Learning.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -9,14 +10,13 @@ namespace SmartSchool.Modules.Learning.Features.LearningResource;
 /// Executes database writes for <see cref="LearningResourceEntity"/>.
 /// The command owns persistence of its unit of work.
 /// </summary>
-public sealed class LearningResourceCommand(IApplicationDbContext dbContext) : ILearningResourceCommand
+public sealed class LearningResourceCommand(ILearningDbContext dbContext) : ILearningResourceCommand
 {
 	public async Task AddAsync(
 		LearningResourceEntity entity,
 		CancellationToken cancellationToken)
 	{
-		await dbContext
-			.Set<LearningResourceEntity>()
+		await dbContext.LearningResources
 			.AddAsync(entity, cancellationToken);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -26,8 +26,7 @@ public sealed class LearningResourceCommand(IApplicationDbContext dbContext) : I
 		LearningResourceEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LearningResourceEntity>()
+		dbContext.LearningResources
 			.Update(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
@@ -37,8 +36,7 @@ public sealed class LearningResourceCommand(IApplicationDbContext dbContext) : I
 		LearningResourceEntity entity,
 		CancellationToken cancellationToken)
 	{
-		dbContext
-			.Set<LearningResourceEntity>()
+		dbContext.LearningResources
 			.Remove(entity);
 
 		await dbContext.SaveChangesAsync(cancellationToken);
