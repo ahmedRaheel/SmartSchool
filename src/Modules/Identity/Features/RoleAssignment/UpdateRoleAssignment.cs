@@ -82,10 +82,7 @@ public static class UpdateRoleAssignment
 				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "role-assignment"),
 				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var command = request with
-					{
-						Id = id
-					};
+					var command = request with { Id = id };
 					var result = await mediator.SendAsync<Request, Result<Response>>(
 						command, cancellationToken);
 					return result.ToHttpResult();
@@ -97,7 +94,7 @@ public static class UpdateRoleAssignment
 	}
 
 	private static Response MapResponse(
-		RoleAssignmentEntity entity)
+		SmartSchool.Modules.Identity.Models.RoleAssignmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

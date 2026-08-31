@@ -63,7 +63,8 @@ public static class GetUserProfileById
 		return endpoints;
 	}
 
-	private static Response MapResponse(UserProfileEntity entity)
+	private static Response MapResponse(
+		SmartSchool.Modules.Identity.Models.UserProfileEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

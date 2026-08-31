@@ -85,7 +85,7 @@ public static class CreateUserProfile
 	}
 
 	private static Response MapResponse(
-		UserProfileEntity entity)
+		SmartSchool.Modules.Identity.Models.UserProfileEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

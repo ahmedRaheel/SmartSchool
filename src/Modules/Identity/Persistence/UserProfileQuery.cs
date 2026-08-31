@@ -1,5 +1,6 @@
 using Dapper;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
@@ -10,33 +11,21 @@ namespace SmartSchool.Modules.Identity.Persistence;
 /// Executes database reads for <see cref="UserProfileEntity"/>.
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
-public sealed class UserProfileQuery(IDbConnectionFactory connectionFactory) : IUserProfileQuery
+public sealed class UserProfileQuery(
+	IApplicationDbContext dbContext,
+	IDbConnectionFactory connectionFactory) : IUserProfileQuery
 {
-	public async Task<UserProfileEntity?> GetByIdAsync(
+	public Task<UserProfileEntity?> GetByIdAsync(
 		Guid tenantId,
 		Guid id,
 		CancellationToken cancellationToken)
 	{
-		const string sql = """
-			SELECT *
-			FROM public.UserProfile
-			WHERE tenant_id = @TenantId
-			  AND userprofile_id = @Id
-			  AND is_active = TRUE;
-			""";
-
-		await using var connection =
-			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-		return await connection.QuerySingleOrDefaultAsync<UserProfileEntity>(
-			new CommandDefinition(
-				sql,
-				new
-				{
-					TenantId = tenantId,
-					Id = id
-				},
-				cancellationToken: cancellationToken)).ConfigureAwait(false);
+		return dbContext
+			.Set<UserProfileEntity>()
+			.AsNoTracking()
+			.SingleOrDefaultAsync(
+				entity => entity.TenantId == tenantId && entity.UserProfileId == id,
+				cancellationToken);
 	}
 
 	public async Task<PagedResult<UserProfileEntity>> GetPageAsync(
@@ -77,13 +66,13 @@ public sealed class UserProfileQuery(IDbConnectionFactory connectionFactory) : I
 			new CommandDefinition(
 				countSql,
 				parameters,
-				cancellationToken: cancellationToken)).ConfigureAwait(false);
+				cancellationToken: cancellationToken));
 
 		var items = (await connection.QueryAsync<UserProfileEntity>(
 			new CommandDefinition(
 				pageSql,
 				parameters,
-				cancellationToken: cancellationToken)).ConfigureAwait(false))
+				cancellationToken: cancellationToken)))
 			.AsList();
 
 		return new PagedResult<UserProfileEntity>(
@@ -93,34 +82,20 @@ public sealed class UserProfileQuery(IDbConnectionFactory connectionFactory) : I
 			totalCount);
 	}
 
-	public async Task<bool> ExistsByCodeAsync(
+	public Task<bool> ExistsByCodeAsync(
 		Guid tenantId,
 		string code,
 		Guid? excludingId,
 		CancellationToken cancellationToken)
 	{
-		const string sql = """
-			SELECT EXISTS (
-				SELECT 1
-				FROM public.UserProfile
-				WHERE tenant_id = @TenantId
-				  AND code = @Code
-				  AND (@ExcludingId IS NULL OR userprofile_id <> @ExcludingId)
-			);
-			""";
-
-		await using var connection =
-			await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-		return await connection.ExecuteScalarAsync<bool>(
-			new CommandDefinition(
-				sql,
-				new
-				{
-					TenantId = tenantId,
-					Code = code,
-					ExcludingId = excludingId
-				},
-				cancellationToken: cancellationToken)).ConfigureAwait(false);
+		return dbContext
+			.Set<UserProfileEntity>()
+			.AsNoTracking()
+			.AnyAsync(
+				entity =>
+					entity.TenantId == tenantId
+					&& EF.Property<string>(entity, "Code") == code
+					&& (!excludingId.HasValue || (excludingId.HasValue && entity.UserProfileId != excludingId.Value)),
+				cancellationToken);
 	}
 }

@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Validation;
 using Microsoft.AspNetCore.Identity;
-using SmartSchool.Modules.Identity.Infrastructure.Identity;
+using SmartSchool.Modules.Identity.Persistence.Identity;
 using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Server;

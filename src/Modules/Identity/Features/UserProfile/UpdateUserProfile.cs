@@ -74,15 +74,6 @@ public static class UpdateUserProfile
 			await entityCommand.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
-		private static Response MapResponse(UserProfileEntity entity)
-		{
-			return new Response(
-				entity.TenantId,
-				entity.UserProfileId,
-				entity.Code,
-				entity.Name,
-				entity.MetadataJson);
-		}
 	}
 
 	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
@@ -91,10 +82,7 @@ public static class UpdateUserProfile
 				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "user-profile"),
 				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var command = request with
-					{
-						Id = id
-					};
+					var command = request with { Id = id };
 					var result = await mediator.SendAsync<Request, Result<Response>>(
 						command, cancellationToken);
 					return result.ToHttpResult();
@@ -104,5 +92,15 @@ public static class UpdateUserProfile
 			.RequireAuthorization();
 		return endpoints;
 	}
-	
+
+	private static Response MapResponse(
+		SmartSchool.Modules.Identity.Models.UserProfileEntity entity)
+	{
+		return new Response(
+			entity.TenantId,
+			entity.UserProfileId,
+			entity.Code,
+			entity.Name,
+			entity.MetadataJson);
+	}
 }

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using SmartSchool.Modules.Identity.Infrastructure.Identity;
-using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Identity.Persistence.Identity;
 
 namespace SmartSchool.Modules.Identity.Server;
 
@@ -11,8 +10,8 @@ public sealed class IdentityDataSeeder(
 {
 	private static readonly string[] Roles =
 	[
-		SmartSchoolRoles.SuperAdmin, "SchoolAdmin", "Admin", "Principal", SmartSchoolRoles.Teacher, SmartSchoolRoles.Parent, SmartSchoolRoles.Student,
-		"Staff", SmartSchoolRoles.Driver, "Examiner", "Exam", "Academics", "Finance", "HR", "Transport"
+		"SuperAdmin", "SchoolAdmin", "Admin", "Principal", "Teacher", "Parent", "Student",
+		"Staff", "Driver", "Examiner", "Exam", "Academics", "Finance", "HR", "Transport"
 	];
 
 	public async Task SeedAsync()
@@ -62,14 +61,14 @@ public sealed class IdentityDataSeeder(
 		if (user is null)
 		{
 			var firstName = configuration["BootstrapSuperAdmin:FirstName"] ?? "SmartSchool";
-			var lastName = configuration["BootstrapSuperAdmin:LastName"] ?? SmartSchoolRoles.SuperAdmin;
+			var lastName = configuration["BootstrapSuperAdmin:LastName"] ?? "SuperAdmin";
 
 			user = new SmartSchoolUser
 			{
 				Id = Guid.NewGuid(),
 				TenantId = null,
 				BusinessEntityId = null,
-				AccountType = SmartSchoolRoles.SuperAdmin,
+				AccountType = "SuperAdmin",
 				UserName = email,
 				Email = email,
 				EmailConfirmed = true,
@@ -84,10 +83,10 @@ public sealed class IdentityDataSeeder(
 				"create bootstrap SuperAdmin");
 		}
 
-		if (!await userManager.IsInRoleAsync(user, SmartSchoolRoles.SuperAdmin))
+		if (!await userManager.IsInRoleAsync(user, "SuperAdmin"))
 		{
 			EnsureSucceeded(
-				await userManager.AddToRoleAsync(user, SmartSchoolRoles.SuperAdmin),
+				await userManager.AddToRoleAsync(user, "SuperAdmin"),
 				"assign SuperAdmin role");
 		}
 	}

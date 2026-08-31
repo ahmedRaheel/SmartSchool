@@ -18,7 +18,7 @@ public static class AccountProvisioningEndpoints
 
 	public static void MapEndpoints(IEndpointRouteBuilder endpoints)
 	{
-		var group = endpoints.MapGroup("/api/internal/accounts")
+		var group=endpoints.MapGroup("/api/internal/accounts")
 			.WithTags("Identity - Internal Account Provisioning")
 			.RequireAuthorization("SmartSchoolApi");
 
@@ -34,39 +34,23 @@ public static class AccountProvisioningEndpoints
 		ILoggerFactory loggerFactory)
 	{
 		var logger = loggerFactory.CreateLogger("SmartSchool.Identity.AccountProvisioning");
-		var existing = await users.FindByEmailAsync(request.Email);
-		if (existing is not null)
-		{
-			return Results.Conflict(new
-			{
-				message = "An account already exists for this email.",
-				userId = existing.Id
-			});
-		}
+		var existing=await users.FindByEmailAsync(request.Email);
+		if(existing is not null) return Results.Conflict(new { message="An account already exists for this email.", userId=existing.Id });
 
-		var user = new SmartSchoolUser
+		var user=new SmartSchoolUser
 		{
-			Id = Guid.NewGuid(),
-			TenantId = request.TenantId,
-			UserName = request.Email,
-			Email = request.Email,
-			EmailConfirmed = false,
-			FirstName = request.FirstName,
-			LastName = request.LastName,
-			DisplayName = $"{request.FirstName} {request.LastName}".Trim(),
-			IsActive = true,
-			BusinessEntityId = request.BusinessEntityId,
-			AccountType = request.AccountType,
-			SchoolId = request.SchoolId,
-			BranchId = request.BranchId,
-			MustChangePassword = true
+			Id=Guid.NewGuid(), TenantId=request.TenantId, UserName=request.Email, Email=request.Email,
+			EmailConfirmed=false, FirstName=request.FirstName, LastName=request.LastName,
+			DisplayName=$"{request.FirstName} {request.LastName}".Trim(), IsActive=true,
+			BusinessEntityId=request.BusinessEntityId, AccountType=request.AccountType, SchoolId=request.SchoolId, BranchId=request.BranchId,
+			 MustChangePassword=true
 		};
 
 		var temporaryPassword = provisioningOptions.Value.TemporaryPassword;
 		if (string.IsNullOrWhiteSpace(temporaryPassword))
 			throw new InvalidOperationException("AccountProvisioning:TemporaryPassword configuration is required.");
-		var created = await users.CreateAsync(user, temporaryPassword);
-		if (!created.Succeeded)
+		var created=await users.CreateAsync(user, temporaryPassword);
+		if(!created.Succeeded)
 		{
 			logger.LogWarning("Provisioning identity user failed for {Email}, tenant {TenantId}, business entity {BusinessEntityId}. Errors: {Errors}",
 				request.Email, request.TenantId, request.BusinessEntityId,
@@ -74,10 +58,10 @@ public static class AccountProvisioningEndpoints
 			return Results.ValidationProblem(Errors(created));
 		}
 
-		if (request.Roles.Length > 0)
+		if(request.Roles.Length>0)
 		{
-			var roleResult = await users.AddToRolesAsync(user, request.Roles.Distinct(StringComparer.OrdinalIgnoreCase));
-			if (!roleResult.Succeeded)
+			var roleResult=await users.AddToRolesAsync(user,request.Roles.Distinct(StringComparer.OrdinalIgnoreCase));
+			if(!roleResult.Succeeded)
 			{
 				logger.LogWarning("Provisioned identity user {UserId} but role assignment failed. Roles: {Roles}. Errors: {Errors}",
 					user.Id, request.Roles, string.Join(", ", roleResult.Errors.Select(error => $"{error.Code}: {error.Description}")));
@@ -93,34 +77,31 @@ public static class AccountProvisioningEndpoints
 		return Results.Created($"/api/identity/users/{user.Id}",
 			new
 			{
-				userId = user.Id,
-				email = user.Email!,
+				userId=user.Id,
+				email=user.Email!,
 				temporaryPassword,
-				mustChangePassword = true
+				mustChangePassword=true
 			});
 	}
 
 	private static async Task<IResult> DeleteAsync(Guid userId, UserManager<SmartSchoolUser> users)
 	{
-		var user = await users.FindByIdAsync(userId.ToString());
-		if (user is null)
-			return Results.NotFound();
-		var result = await users.DeleteAsync(user);
+		var user=await users.FindByIdAsync(userId.ToString());
+		if(user is null) return Results.NotFound();
+		var result=await users.DeleteAsync(user);
 		return result.Succeeded ? Results.NoContent() : Results.ValidationProblem(Errors(result));
 	}
 
 	private static async Task<IResult> DeactivateAsync(Guid userId, UserManager<SmartSchoolUser> users)
 	{
-		var user = await users.FindByIdAsync(userId.ToString());
-		if (user is null)
-			return Results.NotFound();
-		user.IsActive = false;
-		user.UpdatedAt = DateTimeOffset.UtcNow;
+		var user=await users.FindByIdAsync(userId.ToString());
+		if(user is null) return Results.NotFound();
+		user.IsActive=false; user.UpdatedAt=DateTimeOffset.UtcNow;
 		await users.UpdateSecurityStampAsync(user); // invalidates security-stamp-aware sessions/cookies
-		var result = await users.UpdateAsync(user);
+		var result=await users.UpdateAsync(user);
 		return result.Succeeded ? Results.NoContent() : Results.ValidationProblem(Errors(result));
 	}
 
-	private static Dictionary<string, string[]> Errors(IdentityResult result) =>
-		result.Errors.GroupBy(x => x.Code).ToDictionary(x => x.Key, x => x.Select(e => e.Description).ToArray());
+	private static Dictionary<string,string[]> Errors(IdentityResult result) =>
+		result.Errors.GroupBy(x=>x.Code).ToDictionary(x=>x.Key,x=>x.Select(e=>e.Description).ToArray());
 }

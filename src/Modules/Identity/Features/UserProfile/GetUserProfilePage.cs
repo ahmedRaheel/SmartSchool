@@ -5,7 +5,6 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Identity.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Modules.Identity.Models;
 
 namespace SmartSchool.Modules.Identity.Features.UserProfile;
 
@@ -69,7 +68,8 @@ public static class GetUserProfilePage
 		return endpoints;
 	}
 
-	private static Response MapResponse(UserProfileEntity entity)
+	private static Response MapResponse(
+		SmartSchool.Modules.Identity.Models.UserProfileEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

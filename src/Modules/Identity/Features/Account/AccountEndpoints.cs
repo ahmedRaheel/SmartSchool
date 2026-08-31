@@ -54,35 +54,23 @@ public static class AccountEndpoints
 	{
 		if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
 		{
-			return Results.BadRequest(new
-			{
-				message = "Email and password are required."
-			});
+			return Results.BadRequest(new { message = "Email and password are required." });
 		}
 
 		var user = await userManager.FindByEmailAsync(request.Email.Trim());
 		if (user is null || !user.IsActive)
 		{
-			return Results.Json(new
-			{
-				message = "Invalid email or password."
-			}, statusCode: StatusCodes.Status401Unauthorized);
+			return Results.Json(new { message = "Invalid email or password." }, statusCode: StatusCodes.Status401Unauthorized);
 		}
 
 		var passwordResult = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
 		if (passwordResult.IsLockedOut)
 		{
-			return Results.Json(new
-			{
-				message = "Account is temporarily locked."
-			}, statusCode: StatusCodes.Status423Locked);
+			return Results.Json(new { message = "Account is temporarily locked." }, statusCode: StatusCodes.Status423Locked);
 		}
 		if (!passwordResult.Succeeded)
 		{
-			return Results.Json(new
-			{
-				message = "Invalid email or password."
-			}, statusCode: StatusCodes.Status401Unauthorized);
+			return Results.Json(new { message = "Invalid email or password." }, statusCode: StatusCodes.Status401Unauthorized);
 		}
 
 		var clientId = configuration["LoginApiClient:ClientId"] ?? throw new InvalidOperationException("LoginApiClient:ClientId is required.");
@@ -121,29 +109,25 @@ public static class AccountEndpoints
 		}
 		using (tokenResponse)
 		{
-			var tokenJson = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
-			if (!tokenResponse.IsSuccessStatusCode)
-			{
-				return Results.Json(
-					new
-					{
-						message = "Authentication failed at the token service.",
-						detail = tokenJson
-					},
-					statusCode: (int)tokenResponse.StatusCode);
-			}
+		var tokenJson = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
+		if (!tokenResponse.IsSuccessStatusCode)
+		{
+			return Results.Json(
+				new { message = "Authentication failed at the token service.", detail = tokenJson },
+				statusCode: (int)tokenResponse.StatusCode);
+		}
 
-			using var document = JsonDocument.Parse(tokenJson);
-			var root = document.RootElement;
-			var roles = (await userManager.GetRolesAsync(user)).ToArray();
-			var response = new LoginResponse(
-				root.GetProperty("access_token").GetString()!,
-				root.TryGetProperty("token_type", out var tokenType) ? tokenType.GetString() ?? "Bearer" : "Bearer",
-				root.TryGetProperty("expires_in", out var expiresIn) ? expiresIn.GetInt32() : 0,
-				root.TryGetProperty("refresh_token", out var refreshToken) ? refreshToken.GetString() : null,
-				root.TryGetProperty("scope", out var scope) ? scope.GetString() ?? string.Empty : string.Empty,
-				new UserSummary(user.Id, user.TenantId, user.Email ?? string.Empty, user.FirstName, user.LastName,
-					user.DisplayName ?? string.Empty, user.AccountType ?? string.Empty, roles));
+		using var document = JsonDocument.Parse(tokenJson);
+		var root = document.RootElement;
+		var roles = (await userManager.GetRolesAsync(user)).ToArray();
+		var response = new LoginResponse(
+			root.GetProperty("access_token").GetString()!,
+			root.TryGetProperty("token_type", out var tokenType) ? tokenType.GetString() ?? "Bearer" : "Bearer",
+			root.TryGetProperty("expires_in", out var expiresIn) ? expiresIn.GetInt32() : 0,
+			root.TryGetProperty("refresh_token", out var refreshToken) ? refreshToken.GetString() : null,
+			root.TryGetProperty("scope", out var scope) ? scope.GetString() ?? string.Empty : string.Empty,
+			new UserSummary(user.Id, user.TenantId, user.Email ?? string.Empty, user.FirstName, user.LastName,
+				user.DisplayName ?? string.Empty, user.AccountType ?? string.Empty, roles));
 
 			return Results.Ok(response);
 		}
@@ -175,10 +159,7 @@ public static class AccountEndpoints
 		var user = await userManager.FindByEmailAsync(request.Email);
 		if (user is null || !user.IsActive)
 		{
-			return Results.BadRequest(new
-			{
-				message = "Invalid password reset request."
-			});
+			return Results.BadRequest(new { message = "Invalid password reset request." });
 		}
 
 		var result = await userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
@@ -193,8 +174,7 @@ public static class AccountEndpoints
 		UserManager<SmartSchoolUser> userManager)
 	{
 		var user = await userManager.FindByIdAsync(currentUser.UserId.ToString());
-		if (user is null)
-			return Results.Unauthorized();
+		if (user is null) return Results.Unauthorized();
 
 		var result = await userManager.ChangePasswordAsync(
 			user, request.CurrentPassword, request.NewPassword);
@@ -206,38 +186,22 @@ public static class AccountEndpoints
 
 	private static async Task<IResult> RefreshAsync(RefreshTokenRequest request, IHttpClientFactory factory, IConfiguration configuration, CancellationToken cancellationToken)
 	{
-		if (string.IsNullOrWhiteSpace(request.RefreshToken))
-		{
-			return Results.BadRequest(new
-			{
-				message = "Refresh token is required."
-			});
-		}
-
+		if (string.IsNullOrWhiteSpace(request.RefreshToken)) return Results.BadRequest(new { message = "Refresh token is required." });
 		var clientId = configuration["LoginApiClient:ClientId"] ?? throw new InvalidOperationException("LoginApiClient:ClientId is required.");
 		var clientSecret = configuration["LoginApiClient:ClientSecret"] ?? throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
 		var tokenUrl = configuration["LoginApiClient:TokenEndpoint"] ?? throw new InvalidOperationException("LoginApiClient:TokenEndpoint configuration is required.");
-		using var message = new HttpRequestMessage(HttpMethod.Post, tokenUrl)
-		{
-			Content = new FormUrlEncodedContent(new Dictionary<string, string>
-			{
-				["grant_type"] = "refresh_token",
-				["client_id"] = clientId,
-				["client_secret"] = clientSecret,
-				["refresh_token"] = request.RefreshToken
-			})
-		};
+		using var message = new HttpRequestMessage(HttpMethod.Post, tokenUrl) { Content = new FormUrlEncodedContent(new Dictionary<string,string> {
+			["grant_type"]="refresh_token", ["client_id"]=clientId, ["client_secret"]=clientSecret, ["refresh_token"]=request.RefreshToken }) };
 		using var response = await factory.CreateClient("IdentityTokenClient").SendAsync(message, cancellationToken);
-		return Results.Content(await response.Content.ReadAsStringAsync(cancellationToken), "application/json", statusCode: (int)response.StatusCode);
+		return Results.Content(await response.Content.ReadAsStringAsync(cancellationToken), "application/json", statusCode:(int)response.StatusCode);
 	}
 	private static async Task<IResult> MeAsync(ICurrentUser currentUser, UserManager<SmartSchoolUser> manager)
 	{
 		var user = await manager.FindByIdAsync(currentUser.UserId.ToString());
-		if (user is null)
-			return Results.Unauthorized();
-		var roles = (await manager.GetRolesAsync(user)).ToArray();
-		return Results.Ok(new UserSummary(user.Id, user.TenantId, user.Email ?? string.Empty,
-			user.FirstName, user.LastName, user.DisplayName ?? string.Empty, user.AccountType ?? string.Empty, roles));
+		if (user is null) return Results.Unauthorized();
+		var roles=(await manager.GetRolesAsync(user)).ToArray();
+		return Results.Ok(new UserSummary(user.Id,user.TenantId,user.Email??string.Empty,
+			user.FirstName,user.LastName,user.DisplayName??string.Empty,user.AccountType??string.Empty,roles));
 	}
 
 	private static Dictionary<string, string[]> ToErrors(IdentityResult result) =>

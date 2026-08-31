@@ -69,7 +69,7 @@ public static class GetRoleAssignmentPage
 	}
 
 	private static Response MapResponse(
-		Models.RoleAssignmentEntity entity)
+		SmartSchool.Modules.Identity.Models.RoleAssignmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
