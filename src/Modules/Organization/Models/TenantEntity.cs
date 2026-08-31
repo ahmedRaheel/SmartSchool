@@ -5,7 +5,7 @@ namespace SmartSchool.Modules.Organization.Models;
 /// <summary>
 /// Represents the tenant aggregate root.
 /// </summary>
-public sealed class TenantEntity : AggregateRootEntity
+public sealed class TenantEntity : Entity
 {
 	private readonly List<SchoolEntity> _schools = [];
 	private readonly List<TenantContactEntity> _contactDetails = [];
@@ -14,13 +14,13 @@ public sealed class TenantEntity : AggregateRootEntity
 	{
 	}
 
-	/// <summary>
-	/// Gets the tenant identifier.
-	/// </summary>
-	public Guid TenantId
-	{
-		get; private set;
-	}
+	///// <summary>
+	///// Gets the tenant identifier.
+	///// </summary>
+	//public Guid TenantId
+	//{
+	//	get; private set;
+	//}
 
 	/// <summary>
 	/// Gets the persisted status code.

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence;
 
