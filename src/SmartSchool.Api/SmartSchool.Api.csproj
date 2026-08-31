@@ -25,7 +25,6 @@
     <ProjectReference Include="../Modules/Examinations/SmartSchool.Modules.Examinations.csproj" />
     <ProjectReference Include="../Modules/Finance/SmartSchool.Modules.Finance.csproj" />
     <ProjectReference Include="../Modules/HR/SmartSchool.Modules.HR.csproj" />
-    <ProjectReference Include="../Modules/Payroll/SmartSchool.Modules.Payroll.csproj" />
     <ProjectReference Include="../Modules/Documents/SmartSchool.Modules.Documents.csproj" />
     <ProjectReference Include="../Modules/Communication/SmartSchool.Modules.Communication.csproj" />
     <ProjectReference Include="../Modules/Workflow/SmartSchool.Modules.Workflow.csproj" />
@@ -39,7 +38,6 @@
     <ProjectReference Include="../Modules/AIParent/SmartSchool.Modules.AIParent.csproj" />
     <ProjectReference Include="../Modules/AIPrediction/SmartSchool.Modules.AIPrediction.csproj" />
     <ProjectReference Include="../Modules/Audit/SmartSchool.Modules.Audit.csproj" />
-    <ProjectReference Include="../Modules/Teachers/SmartSchool.Modules.Teachers.csproj" />
    
    
       <PackageReference Include="Serilog.Settings.Configuration" />
