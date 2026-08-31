@@ -13,6 +13,7 @@ namespace SmartSchool.Modules.Organization.Features.School;
 public static class CreateSchool
 {
     public sealed record Request(
+		Guid TenantId,
 	    string Name,
 		string AdminFirstName,
 		string AdminLastName,
