@@ -6,7 +6,7 @@ public sealed class TenantContactEntityConfiguration : IEntityTypeConfiguration<
 {
 	public void Configure(EntityTypeBuilder<TenantContactEntity> builder)
 	{
-		builder.ToTable("tenant_contact", "org");
+		builder.ToTable("tenant_contact", "saas");
 		builder.HasKey(x => x.TenantContactId);
 		builder.Property(x => x.TenantContactId).HasColumnName("tenant_contact_id");
 		builder.Property(x => x.TenantId).HasColumnName("tenant_id");
