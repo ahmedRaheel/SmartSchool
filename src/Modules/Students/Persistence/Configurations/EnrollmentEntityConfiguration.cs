@@ -46,5 +46,12 @@ public sealed class EnrollmentEntityConfiguration
 		builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
 		builder.Property(entity => entity.EnrollmentDate).HasColumnName("enrollment_date");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<StudentEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

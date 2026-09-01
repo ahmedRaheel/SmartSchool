@@ -63,5 +63,12 @@ public sealed class CourseSelectionEntityConfiguration
 		builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
 		builder.Property(entity => entity.ApprovedAt).HasColumnName("approved_at");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<CourseOfferingEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.CourseOfferingId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

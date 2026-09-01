@@ -65,5 +65,12 @@ public sealed class LeadCaptureEntityConfiguration
 		builder.Property(entity => entity.Notes).HasColumnName("notes");
 		builder.Property(entity => entity.CapturedAt).HasColumnName("captured_at");
 		builder.Property(entity => entity.ConvertedInquiryId).HasColumnName("converted_inquiry_id");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<InquiryConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.InquiryConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

@@ -59,5 +59,12 @@ public sealed class InquiryMessageEntityConfiguration
 		builder.Property(entity => entity.InquiryConversationId).HasColumnName("inquiry_conversation_id");
 		builder.Property(entity => entity.Role).HasColumnName("role");
 		builder.Property(entity => entity.Content).HasColumnName("content");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<InquiryConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.InquiryConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

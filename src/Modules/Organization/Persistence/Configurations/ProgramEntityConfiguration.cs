@@ -58,5 +58,12 @@ public sealed class ProgramEntityConfiguration
 		// Database columns synchronized from SmartSchoolComplete.sql.
 		builder.Property(entity => entity.AcademicSystemId).HasColumnName("academic_system_id");
 		builder.Property(entity => entity.Description).HasColumnName("description");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<AcademicSystemEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.AcademicSystemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

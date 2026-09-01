@@ -25,5 +25,12 @@ public sealed class FeeStructureEntityConfiguration : IEntityTypeConfiguration<F
 		builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(x => x.RowVersion).HasColumnName("row_version").IsConcurrencyToken();
 		builder.HasIndex(x => new { x.TenantId, x.GradeLevelId, x.FeeTypeId, x.AcademicYearId });
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<FeeTypeEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.FeeTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

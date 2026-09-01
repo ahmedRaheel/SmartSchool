@@ -67,5 +67,12 @@ public sealed class AiExecutionLogEntityConfiguration
 		builder.Property(entity => entity.LatencyMs).HasColumnName("latency_ms");
 		builder.Property(entity => entity.Status).HasColumnName("status");
 		builder.Property(entity => entity.CorrelationId).HasColumnName("correlation_id");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ModelConfigurationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ModelConfigurationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

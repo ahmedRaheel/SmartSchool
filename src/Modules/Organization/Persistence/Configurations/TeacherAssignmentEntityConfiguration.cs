@@ -65,5 +65,17 @@ public sealed class TeacherAssignmentEntityConfiguration
 		builder.Property(entity => entity.EffectiveFrom).HasColumnName("effective_from");
 		builder.Property(entity => entity.EffectiveTo).HasColumnName("effective_to");
 		builder.Property(entity => entity.IsPrimary).HasColumnName("is_primary");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ClassSectionEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ClassSectionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<CourseOfferingEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.CourseOfferingId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

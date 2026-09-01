@@ -63,5 +63,12 @@ public sealed class ParentToolExecutionEntityConfiguration
 		builder.Property(entity => entity.OutputPayload).HasColumnName("output_payload");
 		builder.Property(entity => entity.Status).HasColumnName("status");
 		builder.Property(entity => entity.ExecutedAt).HasColumnName("executed_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ParentConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ParentConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

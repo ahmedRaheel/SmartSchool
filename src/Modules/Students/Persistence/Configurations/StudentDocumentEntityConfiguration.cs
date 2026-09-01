@@ -101,5 +101,12 @@ public sealed class StudentDocumentEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updatedat");
 		builder.Property(entity => entity.RowVersion).HasColumnName("rowversion");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<StudentEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

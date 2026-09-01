@@ -59,5 +59,12 @@ public sealed class TutorMessageEntityConfiguration
 		builder.Property(entity => entity.TutorConversationId).HasColumnName("tutor_conversation_id");
 		builder.Property(entity => entity.Role).HasColumnName("role");
 		builder.Property(entity => entity.Content).HasColumnName("content");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<TutorConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.TutorConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

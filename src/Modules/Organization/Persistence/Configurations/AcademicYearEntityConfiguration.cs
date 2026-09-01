@@ -60,5 +60,7 @@ public sealed class AcademicYearEntityConfiguration
 		builder.Property(entity => entity.StartDate).HasColumnName("start_date");
 		builder.Property(entity => entity.EndDate).HasColumnName("end_date");
 		builder.Property(entity => entity.IsCurrent).HasColumnName("is_current");
-	}
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+}
 }

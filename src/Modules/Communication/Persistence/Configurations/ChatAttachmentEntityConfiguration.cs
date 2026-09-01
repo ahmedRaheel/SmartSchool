@@ -25,5 +25,12 @@ public sealed class ChatAttachmentEntityConfiguration : IEntityTypeConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<MessageEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.MessageId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }	

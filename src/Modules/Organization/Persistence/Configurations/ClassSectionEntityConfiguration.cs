@@ -66,5 +66,22 @@ public sealed class ClassSectionEntityConfiguration
 		builder.Property(entity => entity.RoomNo).HasColumnName("room_no").HasMaxLength(50);
 		builder.Property(entity => entity.Capacity).HasColumnName("capacity");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<AcademicYearEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.AcademicYearId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<CampusEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.CampusId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<GradeLevelEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.GradeLevelId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

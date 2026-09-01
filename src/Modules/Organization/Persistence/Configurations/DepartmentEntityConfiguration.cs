@@ -60,5 +60,7 @@ public sealed class DepartmentEntityConfiguration
 		// Database columns synchronized from SmartSchoolComplete.sql.
 		builder.Property(entity => entity.CampusId).HasColumnName("campus_id").IsRequired();
 		builder.Property(entity => entity.HeadOfDepartmentEmployeeId).HasColumnName("head_of_department_employee_id");
-	}
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+}
 }

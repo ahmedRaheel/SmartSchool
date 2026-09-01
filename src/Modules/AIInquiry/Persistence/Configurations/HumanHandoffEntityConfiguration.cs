@@ -63,5 +63,12 @@ public sealed class HumanHandoffEntityConfiguration
 		builder.Property(entity => entity.AcceptedAt).HasColumnName("accepted_at");
 		builder.Property(entity => entity.ResolvedAt).HasColumnName("resolved_at");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<InquiryConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.InquiryConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

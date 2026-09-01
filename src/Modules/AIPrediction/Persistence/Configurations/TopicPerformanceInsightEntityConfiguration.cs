@@ -64,5 +64,12 @@ public sealed class TopicPerformanceInsightEntityConfiguration
 		builder.Property(entity => entity.StudentsMasteredCount).HasColumnName("students_mastered_count");
 		builder.Property(entity => entity.RiskLevel).HasColumnName("risk_level");
 		builder.Property(entity => entity.RecommendedFocus).HasColumnName("recommended_focus");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ClassPerformanceInsightEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ClassPerformanceInsightId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

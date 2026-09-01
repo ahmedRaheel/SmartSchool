@@ -27,5 +27,17 @@ public sealed class StudentGuardianEntityConfiguration : IEntityTypeConfiguratio
         builder.Ignore(x => x.Name);
         builder.Ignore(x => x.MetadataJson);
         builder.HasIndex(x => new { x.StudentId, x.GuardianId }).IsUnique();
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<GuardianEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.GuardianId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<StudentEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

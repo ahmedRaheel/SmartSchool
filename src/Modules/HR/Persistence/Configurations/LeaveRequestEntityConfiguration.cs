@@ -65,5 +65,12 @@ public sealed class LeaveRequestEntityConfiguration
 		builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
 		builder.Property(entity => entity.DecisionAt).HasColumnName("decision_at");
 		builder.Property(entity => entity.DecisionNote).HasColumnName("decision_note");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<EmployeeEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.EmployeeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

@@ -22,5 +22,12 @@ public sealed class AdmissionPlacementEntityConfiguration : IEntityTypeConfigura
         builder.Ignore(x => x.CreatedAt);
         builder.Ignore(x => x.UpdatedAt);
         builder.Ignore(x => x.RowVersion);
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<StudentEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

@@ -60,5 +60,12 @@ public sealed class ConversationParticipantEntityConfiguration
 		builder.Property(entity => entity.UserId).HasColumnName("user_id");
 		builder.Property(entity => entity.JoinedAt).HasColumnName("joined_at");
 		builder.Property(entity => entity.LeftAt).HasColumnName("left_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

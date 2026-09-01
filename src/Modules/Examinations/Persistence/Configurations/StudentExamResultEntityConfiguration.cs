@@ -65,5 +65,12 @@ public sealed class StudentExamResultEntityConfiguration
 		builder.Property(entity => entity.Remarks).HasColumnName("remarks");
 		builder.Property(entity => entity.EnteredBy).HasColumnName("entered_by");
 		builder.Property(entity => entity.VerifiedBy).HasColumnName("verified_by");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ExamSubjectEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ExamSubjectId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

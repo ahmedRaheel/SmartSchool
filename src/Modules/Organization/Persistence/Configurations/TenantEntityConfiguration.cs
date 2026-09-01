@@ -43,12 +43,12 @@ public sealed class TenantEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
-		builder.HasMany<TenantContactEntity>("_contactDetails")
+		builder.HasMany(x => x.ContactDetails)
 			.WithOne()
 			.HasForeignKey(contact => contact.TenantId)
 			.OnDelete(DeleteBehavior.Cascade);
 
-		builder.HasMany<SchoolEntity>("_schools")
+		builder.HasMany(x => x.Schools)
 			.WithOne()
 			.HasForeignKey(school => school.TenantId)
 			.OnDelete(DeleteBehavior.Cascade);

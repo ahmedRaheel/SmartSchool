@@ -59,5 +59,12 @@ public sealed class TermEntityConfiguration
 		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
 		builder.Property(entity => entity.StartDate).HasColumnName("start_date");
 		builder.Property(entity => entity.EndDate).HasColumnName("end_date");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<AcademicYearEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.AcademicYearId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

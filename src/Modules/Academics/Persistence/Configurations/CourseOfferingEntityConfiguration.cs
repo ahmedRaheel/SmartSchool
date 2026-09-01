@@ -63,5 +63,17 @@ public sealed class CourseOfferingEntityConfiguration
 		builder.Property(entity => entity.ProgramSubjectId).HasColumnName("program_subject_id");
 		builder.Property(entity => entity.DisplayName).HasColumnName("display_name");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<TermEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.TermId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<AcademicYearEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.AcademicYearId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

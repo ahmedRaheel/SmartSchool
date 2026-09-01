@@ -65,5 +65,12 @@ public sealed class AssignmentSubmissionEntityConfiguration
 		builder.Property(entity => entity.MarksObtained).HasColumnName("marks_obtained");
 		builder.Property(entity => entity.TeacherFeedback).HasColumnName("teacher_feedback");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<AssignmentEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.AcademicAssignmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

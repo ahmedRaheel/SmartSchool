@@ -30,7 +30,7 @@ public sealed class SchoolEntityConfiguration : IEntityTypeConfiguration<SchoolE
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
         builder.Property(x => x.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
         builder.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
-		builder.HasMany<CampusEntity>("_campuses")
+		builder.HasMany(x => x.Campuses)
 		.WithOne()
 		.HasForeignKey(campus => campus.SchoolId)
 		.OnDelete(DeleteBehavior.Cascade);

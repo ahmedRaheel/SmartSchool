@@ -61,5 +61,12 @@ public sealed class StudentActivityEntityConfiguration
 		builder.Property(entity => entity.RoleName).HasColumnName("role_name");
 		builder.Property(entity => entity.JoinedAt).HasColumnName("joined_at");
 		builder.Property(entity => entity.LeftAt).HasColumnName("left_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ActivityEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ActivityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

@@ -62,5 +62,16 @@ public sealed class TimetableEntityConfiguration
 		builder.Property(entity => entity.EffectiveFrom).HasColumnName("effective_from");
 		builder.Property(entity => entity.EffectiveTo).HasColumnName("effective_to");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<AcademicYearEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.AcademicYearId)
+            .OnDelete(DeleteBehavior.Restrict);
+builder.HasOne<TermEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.TermId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

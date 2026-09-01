@@ -61,5 +61,12 @@ public sealed class GeneratedQuizEntityConfiguration
 		builder.Property(entity => entity.TutorConversationId).HasColumnName("tutor_conversation_id");
 		builder.Property(entity => entity.Topic).HasColumnName("topic");
 		builder.Property(entity => entity.Difficulty).HasColumnName("difficulty");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<TutorConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.TutorConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

@@ -62,5 +62,12 @@ public sealed class QuizAttemptEntityConfiguration
 		builder.Property(entity => entity.CompletedAt).HasColumnName("completed_at");
 		builder.Property(entity => entity.Score).HasColumnName("score");
 		builder.Property(entity => entity.Answers).HasColumnName("answers");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<GeneratedQuizEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.GeneratedQuizId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

@@ -21,5 +21,12 @@ public sealed class EmployeeExperienceEntityConfiguration : IEntityTypeConfigura
         builder.Ignore(x => x.IsActive);
         builder.Ignore(x => x.UpdatedAt);
         builder.Ignore(x => x.RowVersion);
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<EmployeeEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.EmployeeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

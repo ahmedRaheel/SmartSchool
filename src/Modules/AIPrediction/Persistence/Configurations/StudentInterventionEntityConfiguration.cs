@@ -68,5 +68,17 @@ public sealed class StudentInterventionEntityConfiguration
 		builder.Property(entity => entity.StartDate).HasColumnName("start_date");
 		builder.Property(entity => entity.TargetDate).HasColumnName("target_date");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<StudentPerformancePredictionEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.SourcePredictionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<TeachingRecommendationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.SourceRecommendationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

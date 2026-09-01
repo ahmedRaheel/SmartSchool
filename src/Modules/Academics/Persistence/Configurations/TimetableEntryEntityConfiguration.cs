@@ -65,5 +65,27 @@ public sealed class TimetableEntryEntityConfiguration
 		builder.Property(entity => entity.TeacherCourseAssignmentId).HasColumnName("teacher_course_assignment_id");
 		builder.Property(entity => entity.RoomId).HasColumnName("room_id");
 		builder.Property(entity => entity.EntryType).HasColumnName("entry_type");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ClassSectionEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ClassSectionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<TimetableEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.TimetableId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<CourseOfferingEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.CourseOfferingId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<TeacherAssignmentEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.TeacherCourseAssignmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }
