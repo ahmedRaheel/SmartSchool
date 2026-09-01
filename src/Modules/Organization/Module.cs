@@ -5,6 +5,7 @@ using SmartSchool.Modules.Organization.Features.Department;
 using SmartSchool.Modules.Organization.Features.School;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application;
+using SmartSchool.Modules.Tenancy.Features.Tenant;
 
 
 
@@ -33,6 +34,8 @@ public static class Module
 	public static IEndpointRouteBuilder MapOrganizationEndpoints(
 		this IEndpointRouteBuilder endpoints)
 	{
+
+		CreateTenant.MapEndpoint(endpoints);
 		CreateCampus.MapEndpoint(endpoints);
 		BranchPolicyEndpoints.MapEndpoints(endpoints);
 		GetCampusById.MapEndpoint(endpoints);

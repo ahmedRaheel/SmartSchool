@@ -23,6 +23,10 @@ public sealed class TenantEntity : Entity
 	//}
 
 	/// <summary>
+	/// Gets the organization name associated with the tenant.
+	/// </summary>
+	public string OrganizationName { get; private set; } = string.Empty;
+	/// <summary>
 	/// Gets the persisted status code.
 	/// </summary>
 	public string StatusCode { get; private set; } = string.Empty;
@@ -50,7 +54,8 @@ public sealed class TenantEntity : Entity
 	/// <summary>
 	/// Gets the tenant display name.
 	/// </summary>
-	public string Name { get; private set; } = string.Empty;
+	public string FirstName { get; private set; } = string.Empty;
+	public string LastName { get; private set; } = string.Empty;
 
 	/// <summary>
 	/// Gets optional domain metadata serialized as JSON.
@@ -77,7 +82,9 @@ public sealed class TenantEntity : Entity
 	public static TenantEntity Create(
 		Guid tenantId,
 		string code,
-		string name,
+		string organizationName,
+		string firstName,
+		string lastName,
 		string? metadataJson = null)
 	{
 		if (tenantId == Guid.Empty)
@@ -88,13 +95,15 @@ public sealed class TenantEntity : Entity
 		}
 
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+		ArgumentException.ThrowIfNullOrWhiteSpace(organizationName);		
 
 		return new TenantEntity
 		{
 			TenantId = tenantId,
 			Code = code.Trim(),
-			Name = name.Trim(),
+			OrganizationName = organizationName.Trim(),
+			FirstName = firstName.Trim(),
+			LastName = lastName.Trim(),
 			MetadataJson = metadataJson
 		};
 	}
