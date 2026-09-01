@@ -179,8 +179,8 @@ public static class CreateTenant
 					return result.ToHttpResult();
 				})
 			.WithName("CreateTenant")
-			.WithTags(ModuleConstants.Name).AllowAnonymous();
-		//.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
+			.WithTags(ModuleConstants.Name)
+		  .RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 
 		return endpoints;
 	}

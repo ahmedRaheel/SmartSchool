@@ -19,11 +19,11 @@ public sealed class TenantContactEntity : Entity
 		string email,
 		string phone, 
 		string address) 
-		=> new() { 
+		=> new () { 
 			TenantId=tenantId, 
-			ContactName=name.Trim(),
-			Email=email.Trim(), 
-			Phone=phone.Trim(), 
-			AddressLine1=address.Trim()
+			ContactName=name?.Trim(),
+			Email=email?.Trim(), 
+			Phone=phone?.Trim(), 
+			AddressLine1=address?.Trim()
 		};
 }
