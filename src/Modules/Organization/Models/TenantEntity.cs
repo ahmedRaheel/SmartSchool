@@ -208,7 +208,7 @@ public sealed class TenantEntity : Entity
 		ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
 		Code = code.Trim();
-		Name = name.Trim();
+		OrganizationName = name.Trim();
 		MetadataJson = metadataJson;
 
 		MarkAsUpdated();
