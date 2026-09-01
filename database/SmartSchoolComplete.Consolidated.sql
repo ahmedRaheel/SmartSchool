@@ -27,7 +27,7 @@ SET idle_in_transaction_session_timeout = 0;
 SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
+SELECT pg_catalog.set_config('search_path', 'public', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
@@ -37,6 +37,8 @@ SET row_security = off;
 -- TOC entry 12 (class 2615 OID 16431)
 -- Name: academic; Type: SCHEMA; Schema: -; Owner: postgres
 --
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE SCHEMA academic;
 
@@ -258,8 +260,7 @@ ALTER SCHEMA payroll OWNER TO postgres;
 -- Name: public; Type: SCHEMA; Schema: -; Owner: pg_database_owner
 --
 
-
-
+CREATE SCHEMA IF NOT EXISTS public;
 
 ALTER SCHEMA public OWNER TO pg_database_owner;
 
@@ -368,7 +369,7 @@ CREATE TABLE academic.academic_system (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -390,7 +391,7 @@ CREATE TABLE academic.academic_year (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -411,7 +412,7 @@ CREATE TABLE academic.campus_program (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -436,7 +437,7 @@ CREATE TABLE academic.class_section (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -459,7 +460,7 @@ CREATE TABLE academic.course_offering (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -481,7 +482,7 @@ CREATE TABLE academic.course_selection_group (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -513,7 +514,7 @@ CREATE TABLE academic.education_board (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -533,7 +534,7 @@ CREATE TABLE academic.grade_level (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -554,7 +555,7 @@ CREATE TABLE academic.program (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -574,7 +575,7 @@ CREATE TABLE academic.program_grade (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -597,7 +598,7 @@ CREATE TABLE academic.program_subject (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -616,7 +617,7 @@ CREATE TABLE academic.section (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -637,7 +638,7 @@ CREATE TABLE academic.subject (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -663,7 +664,7 @@ CREATE TABLE academic.teacher_course_assignment (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -687,7 +688,7 @@ CREATE TABLE academic.teaching_group (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -722,7 +723,7 @@ CREATE TABLE academic.term (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -746,7 +747,7 @@ CREATE TABLE academic.timetable (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -792,7 +793,7 @@ CREATE TABLE academic.timetable_period (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -813,7 +814,7 @@ CREATE TABLE activity.activity (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -853,7 +854,7 @@ CREATE TABLE activity.student_award (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -884,7 +885,7 @@ CREATE TABLE ai.class_performance_insight (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -964,7 +965,7 @@ CREATE TABLE ai.prediction (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1027,7 +1028,7 @@ CREATE TABLE ai.prediction_model (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1056,7 +1057,7 @@ CREATE TABLE ai.student_intervention (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1100,7 +1101,7 @@ CREATE TABLE ai.student_performance_prediction (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL,
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL,
     CONSTRAINT student_performance_prediction_confidence_score_check CHECK (((confidence_score IS NULL) OR ((confidence_score >= (0)::numeric) AND (confidence_score <= (1)::numeric)))),
     CONSTRAINT student_performance_prediction_fail_probability_check CHECK (((fail_probability IS NULL) OR ((fail_probability >= (0)::numeric) AND (fail_probability <= (1)::numeric)))),
     CONSTRAINT student_performance_prediction_pass_probability_check CHECK (((pass_probability IS NULL) OR ((pass_probability >= (0)::numeric) AND (pass_probability <= (1)::numeric)))),
@@ -1130,7 +1131,7 @@ CREATE TABLE ai.student_progress_recommendation (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL,
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL,
     CONSTRAINT student_progress_recommendation_audience_check CHECK (((audience)::text = ANY ((ARRAY['STUDENT'::character varying, 'PARENT'::character varying, 'TEACHER'::character varying])::text[])))
 );
 
@@ -1164,7 +1165,7 @@ CREATE TABLE ai.teaching_recommendation (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1250,7 +1251,7 @@ CREATE TABLE ai_core.ai_execution_log (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1269,7 +1270,7 @@ CREATE TABLE ai_core.assistant_knowledge_collection (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1289,7 +1290,7 @@ CREATE TABLE ai_core.assistant_tool (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1328,7 +1329,7 @@ CREATE TABLE ai_core.knowledge_collection (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1353,7 +1354,7 @@ CREATE TABLE ai_core.knowledge_document (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1374,7 +1375,7 @@ CREATE TABLE ai_core.model_configuration (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1396,7 +1397,7 @@ CREATE TABLE ai_core.prompt_template (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1500,7 +1501,7 @@ CREATE TABLE ai_inquiry.inquiry_conversation (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1562,7 +1563,7 @@ CREATE TABLE ai_parent.parent_conversation (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1620,7 +1621,7 @@ CREATE TABLE ai_tutor.generated_quiz (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -1701,7 +1702,7 @@ CREATE TABLE ai_tutor.student_topic_mastery (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL,
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL,
     CONSTRAINT student_topic_mastery_confidence_score_check CHECK (((confidence_score >= (0)::numeric) AND (confidence_score <= (1)::numeric))),
     CONSTRAINT student_topic_mastery_mastery_score_check CHECK (((mastery_score >= (0)::numeric) AND (mastery_score <= (1)::numeric)))
 );
@@ -1728,7 +1729,7 @@ CREATE TABLE ai_tutor.tutor_conversation (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -2067,7 +2068,7 @@ CREATE TABLE communication.conversation (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -2140,7 +2141,7 @@ CREATE TABLE communication.notification (
     sent_at timestamp with time zone,
     is_active boolean DEFAULT true NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -2203,7 +2204,7 @@ CREATE TABLE document.document_template (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -2323,7 +2324,7 @@ CREATE TABLE document.generated_document (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -2452,7 +2453,7 @@ CREATE TABLE exam.exam (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -2512,7 +2513,7 @@ CREATE TABLE finance.fee_type (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -2552,7 +2553,7 @@ CREATE TABLE finance.student_invoice (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -2591,7 +2592,7 @@ CREATE TABLE finance.student_payment (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3025,7 +3026,7 @@ CREATE TABLE hr.candidate (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3075,7 +3076,7 @@ CREATE TABLE hr.employee (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3100,7 +3101,7 @@ CREATE TABLE hr.employee_compensation (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3124,7 +3125,7 @@ CREATE TABLE hr.employee_position (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3185,7 +3186,7 @@ CREATE TABLE hr.increment_policy (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3267,7 +3268,7 @@ CREATE TABLE hr.job (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3292,7 +3293,7 @@ CREATE TABLE hr.job_application (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3311,7 +3312,7 @@ CREATE TABLE hr.job_family (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3335,7 +3336,7 @@ CREATE TABLE hr.job_grade (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3373,7 +3374,7 @@ CREATE TABLE hr.job_vacancy (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3398,7 +3399,7 @@ CREATE TABLE hr."position" (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3421,7 +3422,7 @@ CREATE TABLE hr.salary_component (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3451,7 +3452,7 @@ CREATE TABLE hr.salary_increment_request (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3488,7 +3489,7 @@ CREATE TABLE inventory.item (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3509,7 +3510,7 @@ CREATE TABLE library.book (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3575,7 +3576,7 @@ CREATE TABLE lms.academic_assignment (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3654,7 +3655,7 @@ CREATE TABLE org.campus (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3674,7 +3675,7 @@ CREATE TABLE org.department (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3696,7 +3697,7 @@ CREATE TABLE org.room (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -3750,7 +3751,7 @@ CREATE TABLE payroll.payroll_period (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL,
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL,
     CONSTRAINT payroll_period_month_check CHECK (((month >= 1) AND (month <= 12)))
 );
 
@@ -3772,7 +3773,7 @@ CREATE TABLE payroll.payroll_run (
     approved_at timestamp with time zone,
     is_active boolean DEFAULT true NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4218,7 +4219,7 @@ CREATE TABLE saas.school_branding (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4240,7 +4241,7 @@ CREATE TABLE saas.tenant (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4262,7 +4263,7 @@ CREATE TABLE student.guardian (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4290,7 +4291,7 @@ CREATE TABLE student.student (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4314,7 +4315,7 @@ CREATE TABLE student.student_course_enrollment (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4336,7 +4337,7 @@ CREATE TABLE student.student_enrollment (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4438,7 +4439,7 @@ CREATE TABLE transport.driver (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4458,7 +4459,7 @@ CREATE TABLE transport.route (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4479,7 +4480,7 @@ CREATE TABLE transport.vehicle (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -4501,7 +4502,7 @@ CREATE TABLE transport.vehicle_driver_assignment (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL,
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL,
     CONSTRAINT vehicle_driver_assignment_check CHECK (((effective_to IS NULL) OR (effective_to >= effective_from)))
 );
 
@@ -4531,7 +4532,7 @@ CREATE TABLE workflow.work_assignment (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 
@@ -13331,7 +13332,7 @@ CREATE TABLE IF NOT EXISTS org.school (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamptz DEFAULT now() NOT NULL,
     updated_at timestamptz,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL,
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL,
     CONSTRAINT uq_school_tenant_code UNIQUE (tenant_id, code)
 );
 
@@ -13510,7 +13511,7 @@ CREATE TABLE IF NOT EXISTS org.school (
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamptz DEFAULT now() NOT NULL,
     updated_at timestamptz,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL,
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL,
     CONSTRAINT uq_school_tenant_code UNIQUE (tenant_id, code)
 );
 
@@ -13650,7 +13651,7 @@ ALTER TABLE org.campus ADD COLUMN IF NOT EXISTS country varchar(120);
 -- SOURCE: database/postgresql/V100__academic_setup_admission_vertical_slice.sql
 -- ============================================================================
 BEGIN;
-CREATE TABLE IF NOT EXISTS academic.class (class_id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES saas.tenant(tenant_id), school_id uuid NOT NULL REFERENCES org.school(school_id), branch_id uuid NOT NULL REFERENCES org.campus(campus_id), code varchar(30) NOT NULL, name varchar(100) NOT NULL, sort_order integer NOT NULL DEFAULT 0, is_active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz, row_version bytea NOT NULL DEFAULT public.gen_random_bytes(8), UNIQUE(branch_id,code));
+CREATE TABLE IF NOT EXISTS academic.class (class_id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES saas.tenant(tenant_id), school_id uuid NOT NULL REFERENCES org.school(school_id), branch_id uuid NOT NULL REFERENCES org.campus(campus_id), code varchar(30) NOT NULL, name varchar(100) NOT NULL, sort_order integer NOT NULL DEFAULT 0, is_active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz, row_version bytea NOT NULL DEFAULT gen_random_bytes(8), UNIQUE(branch_id,code));
 ALTER TABLE academic.section ADD COLUMN IF NOT EXISTS branch_id uuid REFERENCES org.campus(campus_id);
 ALTER TABLE academic.section ADD COLUMN IF NOT EXISTS class_id uuid REFERENCES academic.class(class_id);
 ALTER TABLE academic.academic_year ADD COLUMN IF NOT EXISTS school_id uuid REFERENCES org.school(school_id);
@@ -13755,7 +13756,7 @@ CREATE TABLE IF NOT EXISTS org.department (
     is_active boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz,
-    row_version bytea NOT NULL DEFAULT public.gen_random_bytes(8),
+    row_version bytea NOT NULL DEFAULT gen_random_bytes(8),
     UNIQUE(tenant_id, code)
 );
 
@@ -13768,7 +13769,7 @@ CREATE TABLE IF NOT EXISTS finance.fee_type (
     is_active boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz,
-    row_version bytea NOT NULL DEFAULT public.gen_random_bytes(8),
+    row_version bytea NOT NULL DEFAULT gen_random_bytes(8),
     UNIQUE(tenant_id, code)
 );
 
@@ -13926,7 +13927,7 @@ BEGIN;
 ALTER TABLE finance.fee_type ADD COLUMN IF NOT EXISTS frequency varchar(30) NOT NULL DEFAULT 'Monthly';
 ALTER TABLE finance.fee_type ADD COLUMN IF NOT EXISTS description varchar(500);
 ALTER TABLE finance.fee_type ADD COLUMN IF NOT EXISTS metadata_json jsonb;
-CREATE TABLE IF NOT EXISTS finance.fee_structure (fee_structure_id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL, grade_level_id uuid NOT NULL, fee_type_id uuid NOT NULL, academic_year_id uuid, amount numeric(18,2) NOT NULL DEFAULT 0, frequency varchar(30) NOT NULL DEFAULT 'Monthly', effective_from date, effective_to date, code varchar(100) NOT NULL, name varchar(250) NOT NULL, metadata_json jsonb, is_active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz, row_version bytea NOT NULL DEFAULT public.gen_random_bytes(8));
+CREATE TABLE IF NOT EXISTS finance.fee_structure (fee_structure_id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL, grade_level_id uuid NOT NULL, fee_type_id uuid NOT NULL, academic_year_id uuid, amount numeric(18,2) NOT NULL DEFAULT 0, frequency varchar(30) NOT NULL DEFAULT 'Monthly', effective_from date, effective_to date, code varchar(100) NOT NULL, name varchar(250) NOT NULL, metadata_json jsonb, is_active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz, row_version bytea NOT NULL DEFAULT gen_random_bytes(8));
 CREATE INDEX IF NOT EXISTS ix_fee_structure_scope ON finance.fee_structure(tenant_id,grade_level_id,academic_year_id);
 ALTER TABLE finance.student_invoice ADD COLUMN IF NOT EXISTS fee_type_id uuid;
 ALTER TABLE finance.student_invoice ADD COLUMN IF NOT EXISTS paid_amount numeric(18,2) NOT NULL DEFAULT 0;
