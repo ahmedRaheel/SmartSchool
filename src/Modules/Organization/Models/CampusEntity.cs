@@ -8,8 +8,8 @@ namespace SmartSchool.Modules.Organization.Models;
 public sealed class CampusEntity : Entity
 {
 	private readonly List<AcademicYearEntity> _academicYears = [];
-	private readonly List<TermEntity> _academicTerms = [];
-	private readonly List<CampusBrandingEntity> _brandings = [];
+	//private readonly List<TermEntity> _academicTerms = [];
+	//private readonly List<CampusBrandingEntity> _brandings = [];
 	private readonly List<DepartmentEntity> _departments = [];
 	private readonly List<TimetableEntity> _timetables = [];
 
@@ -93,11 +93,11 @@ public sealed class CampusEntity : Entity
 	public IReadOnlyCollection<AcademicYearEntity> AcademicYears =>
 		_academicYears.AsReadOnly();
 
-	public IReadOnlyCollection<TermEntity> AcademicTerms =>
-		_academicTerms.AsReadOnly();
+	//public IReadOnlyCollection<TermEntity> AcademicTerms =>
+	//	_academicTerms.AsReadOnly();
 
-	public IReadOnlyCollection<CampusBrandingEntity> Brandings =>
-		_brandings.AsReadOnly();
+	//public IReadOnlyCollection<CampusBrandingEntity> Brandings =>
+	//	_brandings.AsReadOnly();
 
 	public IReadOnlyCollection<DepartmentEntity> Departments =>
 		_departments.AsReadOnly();
@@ -268,60 +268,60 @@ public sealed class CampusEntity : Entity
 		MarkAsUpdated();
 	}
 
-	public void AddAcademicTerm(TermEntity term)
-	{
-		ArgumentNullException.ThrowIfNull(term);
+	//public void AddAcademicTerm(TermEntity term)
+	//{
+	//	ArgumentNullException.ThrowIfNull(term);
 
-		if (_academicTerms.Any(x => x.TermId == term.TermId))
-		{
-			throw new InvalidOperationException(
-				"Academic term already belongs to this campus.");
-		}
+	//	if (_academicTerms.Any(x => x.TermId == term.TermId))
+	//	{
+	//		throw new InvalidOperationException(
+	//			"Academic term already belongs to this campus.");
+	//	}
 
-		_academicTerms.Add(term);
+	//	_academicTerms.Add(term);
 
-		MarkAsUpdated();
-	}
+	//	MarkAsUpdated();
+	//}
 
-	public void RemoveAcademicTerm(Guid termId)
-	{
-		TermEntity term = GetRequired(
-			_academicTerms,
-			x => x.TermId == termId,
-			"Academic term");
+	//public void RemoveAcademicTerm(Guid termId)
+	//{
+	//	TermEntity term = GetRequired(
+	//		_academicTerms,
+	//		x => x.TermId == termId,
+	//		"Academic term");
 
-		_academicTerms.Remove(term);
+	//	_academicTerms.Remove(term);
 
-		MarkAsUpdated();
-	}
+	//	MarkAsUpdated();
+	//}
 
-	public void AddBranding(CampusBrandingEntity branding)
-	{
-		ArgumentNullException.ThrowIfNull(branding);
+	//public void AddBranding(CampusBrandingEntity branding)
+	//{
+	//	ArgumentNullException.ThrowIfNull(branding);
 
-		if (_brandings.Any(
-				x => x.CampusBrandingId == branding.CampusBrandingId))
-		{
-			throw new InvalidOperationException(
-				"Branding already belongs to this campus.");
-		}
+	//	if (_brandings.Any(
+	//			x => x.CampusBrandingId == branding.CampusBrandingId))
+	//	{
+	//		throw new InvalidOperationException(
+	//			"Branding already belongs to this campus.");
+	//	}
 
-		_brandings.Add(branding);
+	//	_brandings.Add(branding);
 
-		MarkAsUpdated();
-	}
+	//	MarkAsUpdated();
+	//}
 
-	public void RemoveBranding(Guid campusBrandingId)
-	{
-		CampusBrandingEntity branding = GetRequired(
-			_brandings,
-			x => x.CampusBrandingId == campusBrandingId,
-			"Campus branding");
+	//public void RemoveBranding(Guid campusBrandingId)
+	//{
+	//	CampusBrandingEntity branding = GetRequired(
+	//		_brandings,
+	//		x => x.CampusBrandingId == campusBrandingId,
+	//		"Campus branding");
 
-		_brandings.Remove(branding);
+	//	_brandings.Remove(branding);
 
-		MarkAsUpdated();
-	}
+	//	MarkAsUpdated();
+	//}
 
 	public void AddDepartment(DepartmentEntity department)
 	{

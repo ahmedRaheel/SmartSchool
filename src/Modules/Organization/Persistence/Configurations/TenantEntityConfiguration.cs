@@ -43,10 +43,22 @@ public sealed class TenantEntityConfiguration
 			.HasMaxLength(250)
 			.IsRequired();
 
+		builder.HasMany<TenantContactEntity>("_contactDetails")
+			.WithOne()
+			.HasForeignKey(contact => contact.TenantId)
+			.OnDelete(DeleteBehavior.Cascade);
+
+		builder.HasMany<SchoolEntity>("_schools")
+			.WithOne()
+			.HasForeignKey(school => school.TenantId)
+			.OnDelete(DeleteBehavior.Cascade);
+
 
 		// Canonical database mapping generated from SmartSchoolComplete.sql.
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.OrganizationName).HasColumnName("name");
+		builder.Property(entity => entity.FirstName).HasColumnName("first_name");
+		builder.Property(entity => entity.LastName).HasColumnName("last_name");
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
 		builder.Property(entity => entity.IsActive).HasColumnName("is_active");

@@ -34,5 +34,29 @@ public sealed class CampusEntityConfiguration : IEntityTypeConfiguration<CampusE
         builder.Property(x => x.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
         builder.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
         builder.HasIndex(x => new { x.TenantId, x.SchoolId });
-    }
+		builder.HasMany<AcademicYearEntity>("_academicYears")
+		.WithOne()
+		.HasForeignKey(entity => entity.CampusId)
+		.OnDelete(DeleteBehavior.Cascade);
+
+		//builder.HasMany<TermEntity>("_academicTerms")
+		//	.WithOne()
+		//	.HasForeignKey(entity => entity.CampusId)
+		//	.OnDelete(DeleteBehavior.Cascade);
+
+		//builder.HasMany<CampusBrandingEntity>("_brandings")
+		//	.WithOne()
+		//	.HasForeignKey(entity => entity.CampusId)
+		//	.OnDelete(DeleteBehavior.Cascade);
+
+		builder.HasMany<DepartmentEntity>("_departments")
+			.WithOne()
+			.HasForeignKey(entity => entity.CampusId)
+			.OnDelete(DeleteBehavior.Cascade);
+
+		builder.HasMany<TimetableEntity>("_timetables")
+			.WithOne()
+			.HasForeignKey(entity => entity.CampusId)
+			.OnDelete(DeleteBehavior.Cascade);
+	}
 }
