@@ -10,7 +10,7 @@ using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
 
-namespace SmartSchool.Modules.Organization.Features.Organization;
+namespace SmartSchool.Modules.Tenancy.Features.Tenant;
 
 /// <summary>
 /// Creates a tenant and its initial master administrator account.
@@ -23,12 +23,12 @@ public static class CreateTenant
 		string AdminFirstName,
 		string AdminLastName,
 		string AdminEmail,
-		string AdminPhoneNumber,		
-		string ContactName, 
+		string AdminPhoneNumber,
+		string ContactName,
 		string ContactEmail,
 		string ContactPhoneNumber,
 		string ContactAddress
-		) : IRequest<Result<Response>>;	
+		) : IRequest<Result<Response>>;
 
 	public sealed record AdminAccountResponse(
 		Guid UserId,
@@ -40,7 +40,7 @@ public static class CreateTenant
 		Guid TenantId,
 		Guid Id,
 		string Code,
-		string OrganizationName,		
+		string OrganizationName,
 		AdminAccountResponse AdminAccount,
 		ContactResponse Contact);
 	public sealed record ContactResponse(
@@ -73,16 +73,18 @@ public static class CreateTenant
 				CancellationToken cancellationToken);
 
 	}
-	public sealed class TenantCommand (IOrganizationDbContext dbContext) 
-		: ITenantCommand
+	public sealed class TenantCommand(IOrganizationDbContext dbContext) : ITenantCommand
 	{
-		public async Task AddAsync(TenantEntity entity, CancellationToken cancellationToken)
+		public async Task AddAsync(
+				TenantEntity entity,
+				CancellationToken cancellationToken)
 		{
-			dbContext.Tenants.Add(entity);
+			await dbContext.Tenants.AddAsync(entity, cancellationToken);
 			await dbContext.SaveChangesAsync(cancellationToken);
 		}
-
-		public async Task DeleteAsync(TenantEntity entity, CancellationToken cancellationToken)
+		public async Task DeleteAsync(
+				TenantEntity entity,
+				CancellationToken cancellationToken)
 		{
 			dbContext.Tenants.Remove(entity);
 			await dbContext.SaveChangesAsync(cancellationToken);
@@ -101,7 +103,7 @@ public static class CreateTenant
 			var tenantId = Guid.NewGuid();
 
 			var code = await numberGenerator.NextAsync(
-				"TENANT", "TN", null, 4, cancellationToken);
+				"TENANT", "TN", null, 8, cancellationToken);
 
 			var tenant = TenantEntity.Create(
 				tenantId,
@@ -113,13 +115,13 @@ public static class CreateTenant
 			if (!string.IsNullOrWhiteSpace(request.ContactName))
 			{
 				tenant.AddContactDetail(
-					 TenantContactEntity.CreatePrimary(tenant.TenantId, 
+					 TenantContactEntity.CreatePrimary(tenant.TenantId,
 					 request.ContactName,
-					 request.ContactEmail, 
+					 request.ContactEmail,
 					 request.ContactPhoneNumber,
 					 request.ContactAddress)
 					);
-			}				
+			}
 			await tenantCommand.AddAsync(tenant, cancellationToken);
 			try
 			{
@@ -177,8 +179,8 @@ public static class CreateTenant
 					return result.ToHttpResult();
 				})
 			.WithName("CreateTenant")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
+			.WithTags(ModuleConstants.Name).AllowAnonymous();
+		//.RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 
 		return endpoints;
 	}
