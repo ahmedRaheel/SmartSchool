@@ -13,12 +13,8 @@ namespace SmartSchool.Modules.Organization.Features.School;
 public static class CreateSchool
 {
     public sealed record Request(
-		Guid TenantId,
-	    string Name,
-		string AdminFirstName,
-		string AdminLastName,
-		string AdminEmail,
-		string SchoolName,
+		Guid TenantId,	   
+		string Name,
         string? RegistrationNumber,
         string? Email,
         string? Phone,
@@ -38,12 +34,8 @@ public static class CreateSchool
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
-        {
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-			RuleFor(x => x.AdminFirstName).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.AdminLastName).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.AdminEmail).NotEmpty().EmailAddress().MaximumLength(256);
-			RuleFor(x => x.SchoolName).NotEmpty().MaximumLength(200);
+        {			
+			RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
             RuleFor(x => x.Phone).MaximumLength(50);
             RuleFor(x => x.Fax).MaximumLength(50);
