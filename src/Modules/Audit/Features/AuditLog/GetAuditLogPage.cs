@@ -21,7 +21,7 @@ public static class GetAuditLogPage
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 	Guid TenantId,
-	Guid Id,
+	long Id,
 	string Code,
 	string Name,
 	string? MetadataJson);
@@ -30,6 +30,13 @@ public static class GetAuditLogPage
 		Guid TenantId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
+
+	private sealed record Row(
+		Guid TenantId,
+		long Id,
+		string Code,
+		string Name,
+		string? MetadataJson);
 
 	public interface IGetAuditLogPage
 	{
@@ -63,7 +70,7 @@ public static class GetAuditLogPage
 					audit_log_id AS "Id",
 					code AS "Code",
 					name AS "Name",
-					metadata_json AS "MetadataJson"
+					metadata_json::text AS "MetadataJson"
 					FROM audit.audit_log
 					WHERE tenant_id = @TenantId
 					  AND is_active = TRUE
@@ -87,13 +94,22 @@ public static class GetAuditLogPage
 						parameters,
 						cancellationToken: cancellationToken)).ConfigureAwait(false);
 		
-				var items = (await connection.QueryAsync<Response>(
+				var rows = (await connection.QueryAsync<Row>(
 					new CommandDefinition(
 						pageSql,
 						parameters,
 						cancellationToken: cancellationToken)).ConfigureAwait(false))
 					.AsList();
 		
+				var items = rows
+					.Select(row => new Response(
+						row.TenantId,
+						row.Id,
+						row.Code,
+						row.Name,
+						row.MetadataJson))
+					.ToArray();
+
 				return new PagedResult<Response>(
 					items,
 					page,

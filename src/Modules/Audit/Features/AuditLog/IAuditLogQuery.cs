@@ -14,7 +14,7 @@ public interface IAuditLogQuery
 	/// </summary>
 	Task<AuditLogEntity?> GetByIdAsync(
 		Guid tenantId,
-		Guid id,
+		long id,
 		CancellationToken cancellationToken);
 
 	/// <summary>

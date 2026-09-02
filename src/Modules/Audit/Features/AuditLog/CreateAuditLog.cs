@@ -22,7 +22,7 @@ public static class CreateAuditLog
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 	Guid TenantId,
-	Guid Id,
+	long Id,
 	string Code,
 	string Name,
 	string? MetadataJson);

@@ -20,20 +20,27 @@ public static class GetAuditLogById
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 	Guid TenantId,
-	Guid Id,
+	long Id,
 	string Code,
 	string Name,
 	string? MetadataJson);
 
+	private sealed record Row(
+		Guid TenantId,
+		long Id,
+		string Code,
+		string Name,
+		string? MetadataJson);
+
 	public sealed record Query(
 		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+		long Id) : IRequest<Result<Response>>;
 
 	public interface IGetAuditLogById
 	{
 		Task<Response?> GetByIdAsync(
 				Guid tenantId,
-				Guid id,
+				long id,
 				CancellationToken cancellationToken);
 
 	}
@@ -43,7 +50,7 @@ public static class GetAuditLogById
 	{
 		public async Task<Response?> GetByIdAsync(
 				Guid tenantId,
-				Guid id,
+				long id,
 				CancellationToken cancellationToken)
 			{
 				const string sql = """
@@ -52,7 +59,7 @@ public static class GetAuditLogById
 						audit_log_id AS "Id",
 						code AS "Code",
 						name AS "Name",
-						metadata_json AS "MetadataJson"
+						metadata_json::text AS "MetadataJson"
 					FROM audit.audit_log
 					WHERE tenant_id = @TenantId
 					  AND audit_log_id = @Id
@@ -62,11 +69,15 @@ public static class GetAuditLogById
 				await using var connection =
 					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 		
-				return await connection.QuerySingleOrDefaultAsync<Response>(
+				var row = await connection.QuerySingleOrDefaultAsync<Row>(
 					new CommandDefinition(
 						sql,
 						new { TenantId = tenantId, Id = id },
 						cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+				return row is null
+					? null
+					: new Response(row.TenantId, row.Id, row.Code, row.Name, row.MetadataJson);
 			}
 	}
 
@@ -92,7 +103,7 @@ public static class GetAuditLogById
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "audit-log"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+				async (long id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var request = new Query(tenantId, id);
 					var result = await mediator.SendAsync<Query, Result<Response>>(

@@ -1821,7 +1821,14 @@ CREATE TABLE audit.audit_log (
     new_values jsonb,
     ip_address inet,
     correlation_id character varying(100),
-    occurred_at timestamp with time zone DEFAULT now() NOT NULL
+    occurred_at timestamp with time zone DEFAULT now() NOT NULL,
+    code character varying(100) DEFAULT '' NOT NULL,
+    name character varying(250) DEFAULT '' NOT NULL,
+    metadata_json jsonb,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone,
+    row_version bytea DEFAULT gen_random_bytes(8) NOT NULL
 );
 
 

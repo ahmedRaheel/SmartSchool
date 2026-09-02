@@ -14,7 +14,7 @@ public sealed class AuditLogQuery(IDbConnectionFactory connectionFactory) : IAud
 {
 	public async Task<AuditLogEntity?> GetByIdAsync(
 		Guid tenantId,
-		Guid id,
+		long id,
 		CancellationToken cancellationToken)
 	{
 		const string sql = """

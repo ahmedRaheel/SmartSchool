@@ -22,14 +22,14 @@ public static class UpdateAuditLog
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 	Guid TenantId,
-	Guid Id,
+	long Id,
 	string Code,
 	string Name,
 	string? MetadataJson);
 
 	public sealed record Request(
 		Guid TenantId,
-		Guid Id,
+		long Id,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -49,7 +49,7 @@ public static class UpdateAuditLog
 				CancellationToken cancellationToken);
 Task<AuditLogEntity?> GetByIdAsync(
 				Guid tenantId,
-				Guid id,
+				long id,
 				CancellationToken cancellationToken);
 
 	}
@@ -68,7 +68,7 @@ Task<AuditLogEntity?> GetByIdAsync(
 
 		public async Task<AuditLogEntity?> GetByIdAsync(
 				Guid tenantId,
-				Guid id,
+				long id,
 				CancellationToken cancellationToken)
 			{
 				return await dbContext.AuditLogs
@@ -107,7 +107,7 @@ Task<AuditLogEntity?> GetByIdAsync(
 	{
 		endpoints.MapPut(
 				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "audit-log"),
-				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+				async (long id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var command = request with { Id = id };
 					var result = await mediator.SendAsync<Request, Result<Response>>(

@@ -14,11 +14,11 @@ public static class DeleteAuditLog
 {
 	public sealed record Command(
 		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+		long Id) : IRequest<Result<Response>>;
 
 	public sealed record Response(
 		Guid TenantId,
-		Guid Id);
+		long Id);
 
 	public interface IDeleteAuditLog
 	{
@@ -28,7 +28,7 @@ public static class DeleteAuditLog
 
 		Task<AuditLogEntity?> GetByIdAsync(
 				Guid tenantId,
-				Guid id,
+				long id,
 				CancellationToken cancellationToken);
 
 	}
@@ -47,7 +47,7 @@ public static class DeleteAuditLog
 
 		public async Task<AuditLogEntity?> GetByIdAsync(
 				Guid tenantId,
-				Guid id,
+				long id,
 				CancellationToken cancellationToken)
 			{
 				return await dbContext.AuditLogs
@@ -81,7 +81,7 @@ public static class DeleteAuditLog
 	{
 		endpoints.MapDelete(
 				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "audit-log"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+				async (long id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var request = new Command(tenantId, id);
 					var result = await mediator.SendAsync<Command, Result<Response>>(
