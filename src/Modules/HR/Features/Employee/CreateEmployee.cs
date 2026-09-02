@@ -72,7 +72,7 @@ public static class CreateEmployee
 			RuleFor(x => x.BranchId).NotEmpty();
 			RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.EmploymentTypeCode).NotEmpty().MaximumLength(30);
-			RuleFor(x => x.StaffType).Must(value => new[] { "TEACHER", "DRIVER", "PRINCIPAL", "ADMIN_OFFICER", "ACCOUNTANT", "HR", "LIBRARIAN", "TRANSPORT", "OTHER" }.Contains(value)).WithMessage("A valid staff type is required.");
+			RuleFor(x => x.StaffType).Must(value => new[] { "TEACHER", "DRIVER", "PRINCIPAL", "EXAMINER", "ADMIN_OFFICER", "ACCOUNTANT", "HR", "HR_MANAGER", "LIBRARIAN", "TRANSPORT", "RECEPTIONIST", "COORDINATOR", "OTHER" }.Contains(value)).WithMessage("A valid staff type is required.");
 		}
 	}
 

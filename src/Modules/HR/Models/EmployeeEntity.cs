@@ -23,6 +23,9 @@ public sealed class EmployeeEntity : Entity
 	public Guid? DepartmentId { get; private set; }
 	public string StaffType { get; private set; } = "OTHER";
 
+	/// <summary>Gets the employee business designation.</summary>
+	public EmployeeDesignation Designation { get; private set; } = EmployeeDesignation.Other;
+
 	/// <summary>Gets the tenant-unique employee number.</summary>
 	public string? EmployeeNumber { get; private set; }
 
@@ -127,6 +130,7 @@ public sealed class EmployeeEntity : Entity
 			BranchId = branchId,
 			DepartmentId = departmentId,
 			StaffType = staffType.Trim(),
+			Designation = ParseDesignation(staffType),
 			EmployeeNumber = employeeNumber?.Trim(),
 			FirstName = firstName.Trim(),
 			LastName = lastName?.Trim(),
@@ -222,4 +226,20 @@ public sealed class EmployeeEntity : Entity
 		PhotoFileName = fileName?.Trim();
 		MarkAsUpdated();
 	}
+	private static EmployeeDesignation ParseDesignation(string? value)
+	{
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return EmployeeDesignation.Other;
+		}
+
+		var normalized = value.Replace("_", string.Empty, StringComparison.Ordinal)
+			.Replace("-", string.Empty, StringComparison.Ordinal)
+			.Replace(" ", string.Empty, StringComparison.Ordinal);
+
+		return Enum.TryParse<EmployeeDesignation>(normalized, true, out var designation)
+			? designation
+			: EmployeeDesignation.Other;
+	}
+
 }
