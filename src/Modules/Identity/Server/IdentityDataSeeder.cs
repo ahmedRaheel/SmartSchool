@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using SmartSchool.Modules.Identity.Persistence.Identity;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Identity.Server;
 
@@ -8,11 +9,7 @@ public sealed class IdentityDataSeeder(
 	UserManager<SmartSchoolUser> userManager,
 	IConfiguration configuration)
 {
-	private static readonly string[] Roles =
-	[
-		"SuperAdmin", "SchoolAdmin", "Admin", "Principal", "Teacher", "Parent", "Student",
-		"Staff", "Driver", "Examiner", "Exam", "Academics", "Finance", "HR", "Transport"
-	];
+	private static readonly string[] Roles = Enum.GetNames<Role>();
 
 	public async Task SeedAsync()
 	{
@@ -83,10 +80,10 @@ public sealed class IdentityDataSeeder(
 				"create bootstrap SuperAdmin");
 		}
 
-		if (!await userManager.IsInRoleAsync(user, "SuperAdmin"))
+		if (!await userManager.IsInRoleAsync(user, nameof(Role.SuperAdmin)))
 		{
 			EnsureSucceeded(
-				await userManager.AddToRoleAsync(user, "SuperAdmin"),
+				await userManager.AddToRoleAsync(user, nameof(Role.SuperAdmin)),
 				"assign SuperAdmin role");
 		}
 	}

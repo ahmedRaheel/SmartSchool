@@ -19,7 +19,7 @@ public sealed class PurchaseOrderQuery(IDbConnectionFactory connectionFactory) :
 	{
 		const string sql = """
 			SELECT *
-			FROM inventory.purchaseorder
+			FROM inventory.purchase_order
 			WHERE tenant_id = @TenantId
 			  AND purchase_order_id = @Id
 			  AND is_active = TRUE;
@@ -47,7 +47,7 @@ public sealed class PurchaseOrderQuery(IDbConnectionFactory connectionFactory) :
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM inventory.purchaseorder
+			FROM inventory.purchase_order
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -56,7 +56,7 @@ public sealed class PurchaseOrderQuery(IDbConnectionFactory connectionFactory) :
 			SELECT
 				tenant_id AS "TenantId",
 				purchase_order_id AS "Id"
-			FROM inventory.purchaseorder
+			FROM inventory.purchase_order
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY purchase_order_id
@@ -102,7 +102,7 @@ public sealed class PurchaseOrderQuery(IDbConnectionFactory connectionFactory) :
 		const string sql = """
 			SELECT EXISTS (
 				SELECT 1
-				FROM inventory.purchaseorder
+				FROM inventory.purchase_order
 				WHERE tenant_id = @TenantId
 				  AND code = @Code
 				  AND (@ExcludingId IS NULL OR purchase_order_id <> @ExcludingId)

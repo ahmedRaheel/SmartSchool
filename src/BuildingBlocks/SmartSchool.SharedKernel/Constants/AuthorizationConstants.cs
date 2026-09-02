@@ -2,23 +2,27 @@ namespace SmartSchool.SharedKernel.Constants;
 
 public static class SmartSchoolRoles
 {
-    public const string SuperAdmin = "SuperAdmin";
-    public const string SchoolAdmin = "SchoolAdmin";
-    public const string Admin = "Admin";
-    public const string Principal = "Principal";
-    public const string Teacher = "Teacher";
-    public const string Student = "Student";
-    public const string StudentEntity = Student; // backward-compatible alias
-    public const string Parent = "Parent";
-    public const string Driver = "Driver";
-    public const string Examiner = "Examiner";
-    public const string Staff = "Staff";
-    public const string Accountant = "Accountant";
-    public const string HrManager = "HRManager";
-    public const string Librarian = "Librarian";
-    public const string TransportManager = "TransportManager";
-    public const string AdmissionOfficer = "AdmissionOfficer";
+    public const string SuperAdmin = nameof(Role.SuperAdmin);
+    public const string Tenant = nameof(Role.Tenant);
+    public const string Principal = nameof(Role.Principal);
+    public const string Admin = nameof(Role.Admin);
+    public const string Teacher = nameof(Role.Teacher);
+    public const string Student = nameof(Role.Student);
+    public const string StudentEntity = Student;
+    public const string Parent = nameof(Role.Parent);
+    public const string Driver = nameof(Role.Driver);
+    public const string Accountant = nameof(Role.Accountant);
+    public const string HrManager = nameof(Role.HRManager);
+    public const string Librarian = nameof(Role.Librarian);
+    public const string Examiner = nameof(Role.Examiner);
+
+    // Compatibility aliases. New code must use the canonical Role enum.
+    public const string SchoolAdmin = Tenant;
+    public const string Staff = Admin;
+    public const string TransportManager = Admin;
+    public const string AdmissionOfficer = Admin;
 }
+
 
 public static class SmartSchoolPolicies
 {

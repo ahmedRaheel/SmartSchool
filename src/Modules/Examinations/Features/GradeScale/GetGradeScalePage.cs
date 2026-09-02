@@ -52,7 +52,7 @@ public static class GetGradeScalePage
 			{
 				const string countSql = """
 					SELECT COUNT(*)
-					FROM exam.gradescale
+					FROM exam.grade_scale
 					WHERE tenant_id = @TenantId
 					  AND is_active = TRUE;
 					""";
@@ -64,7 +64,7 @@ public static class GetGradeScalePage
 					code AS "Code",
 					name AS "Name",
 					metadata_json AS "MetadataJson"
-					FROM exam.gradescale
+					FROM exam.grade_scale
 					WHERE tenant_id = @TenantId
 					  AND is_active = TRUE
 					ORDER BY grade_scale_id

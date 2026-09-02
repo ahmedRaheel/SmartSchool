@@ -19,7 +19,7 @@ public sealed class FeeStructureQuery(IDbConnectionFactory connectionFactory) : 
 	{
 		const string sql = """
 			SELECT *
-			FROM finance.feestructure
+			FROM finance.fee_structure
 			WHERE tenant_id = @TenantId
 			  AND fee_structure_id = @Id
 			  AND is_active = TRUE;
@@ -47,7 +47,7 @@ public sealed class FeeStructureQuery(IDbConnectionFactory connectionFactory) : 
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM finance.feestructure
+			FROM finance.fee_structure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -56,7 +56,7 @@ public sealed class FeeStructureQuery(IDbConnectionFactory connectionFactory) : 
 			SELECT
 				tenant_id AS "TenantId",
 				fee_structure_id AS "Id"
-			FROM finance.feestructure
+			FROM finance.fee_structure
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY fee_structure_id
@@ -102,7 +102,7 @@ public sealed class FeeStructureQuery(IDbConnectionFactory connectionFactory) : 
 		const string sql = """
 			SELECT EXISTS (
 				SELECT 1
-				FROM finance.feestructure
+				FROM finance.fee_structure
 				WHERE tenant_id = @TenantId
 				  AND code = @Code
 				  AND (@ExcludingId IS NULL OR fee_structure_id <> @ExcludingId)

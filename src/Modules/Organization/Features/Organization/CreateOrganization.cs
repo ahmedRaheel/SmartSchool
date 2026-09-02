@@ -128,13 +128,13 @@ public static class CreateTenant
 				var account = await identityAccountService.CreateAccountAsync(
 					tenantId,
 					tenant.TenantId,
-					"Admin",
+					nameof(Role.Tenant),
 					request.AdminEmail,
 					request.AdminFirstName,
 					request.AdminLastName,
 					null,
 					null,
-					["Admin"],
+					[nameof(Role.Tenant)],
 					cancellationToken);
 
 				return Result<Response>.Success(

@@ -53,7 +53,7 @@ public static class GetFeeStructureById
 						code AS "Code",
 						name AS "Name",
 						metadata_json AS "MetadataJson"
-					FROM finance.feestructure
+					FROM finance.fee_structure
 					WHERE tenant_id = @TenantId
 					  AND fee_structure_id = @Id
 					  AND is_active = TRUE;

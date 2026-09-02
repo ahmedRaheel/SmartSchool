@@ -76,7 +76,7 @@ public static class GetEmployeePage
 					e.gender AS "Gender",
 					e.job_title AS "JobTitle",
 					d.name AS "Department",
-					(SELECT ee.qualification FROM hr.employee_education ee WHERE ee.tenant_id = e.tenant_id AND ee.employee_id = e.employee_id AND ee.is_active = TRUE ORDER BY ee.is_highest DESC, ee.end_date DESC NULLS LAST LIMIT 1) AS "Qualification",
+					(SELECT ee.qualification FROM hr.employee_education ee WHERE ee.tenant_id = e.tenant_id AND ee.employee_id = e.employee_id ORDER BY ee.is_highest DESC, ee.end_date DESC NULLS LAST LIMIT 1) AS "Qualification",
 					e.email AS "Email",
 					e.phone AS "Phone",
 					e.alternate_phone AS "AlternatePhone",

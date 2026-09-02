@@ -52,7 +52,7 @@ public static class GetPurchaseOrderPage
 			{
 				const string countSql = """
 					SELECT COUNT(*)
-					FROM inventory.purchaseorder
+					FROM inventory.purchase_order
 					WHERE tenant_id = @TenantId
 					  AND is_active = TRUE;
 					""";
@@ -64,7 +64,7 @@ public static class GetPurchaseOrderPage
 					code AS "Code",
 					name AS "Name",
 					metadata_json AS "MetadataJson"
-					FROM inventory.purchaseorder
+					FROM inventory.purchase_order
 					WHERE tenant_id = @TenantId
 					  AND is_active = TRUE
 					ORDER BY purchase_order_id

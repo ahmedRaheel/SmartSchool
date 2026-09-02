@@ -53,7 +53,7 @@ public static class GetPurchaseOrderById
 						code AS "Code",
 						name AS "Name",
 						metadata_json AS "MetadataJson"
-					FROM inventory.purchaseorder
+					FROM inventory.purchase_order
 					WHERE tenant_id = @TenantId
 					  AND purchase_order_id = @Id
 					  AND is_active = TRUE;

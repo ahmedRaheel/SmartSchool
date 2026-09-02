@@ -53,7 +53,7 @@ public static class GetGradeScaleById
 						code AS "Code",
 						name AS "Name",
 						metadata_json AS "MetadataJson"
-					FROM exam.gradescale
+					FROM exam.grade_scale
 					WHERE tenant_id = @TenantId
 					  AND grade_scale_id = @Id
 					  AND is_active = TRUE;

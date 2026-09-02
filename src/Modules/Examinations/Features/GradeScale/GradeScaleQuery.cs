@@ -19,7 +19,7 @@ public sealed class GradeScaleQuery(IDbConnectionFactory connectionFactory) : IG
 	{
 		const string sql = """
 			SELECT *
-			FROM exam.gradescale
+			FROM exam.grade_scale
 			WHERE tenant_id = @TenantId
 			  AND grade_scale_id = @Id
 			  AND is_active = TRUE;
@@ -47,7 +47,7 @@ public sealed class GradeScaleQuery(IDbConnectionFactory connectionFactory) : IG
 	{
 		const string countSql = """
 			SELECT COUNT(*)
-			FROM exam.gradescale
+			FROM exam.grade_scale
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE;
 			""";
@@ -56,7 +56,7 @@ public sealed class GradeScaleQuery(IDbConnectionFactory connectionFactory) : IG
 			SELECT
 				tenant_id AS "TenantId",
 				grade_scale_id AS "Id"
-			FROM exam.gradescale
+			FROM exam.grade_scale
 			WHERE tenant_id = @TenantId
 			  AND is_active = TRUE
 			ORDER BY grade_scale_id
@@ -102,7 +102,7 @@ public sealed class GradeScaleQuery(IDbConnectionFactory connectionFactory) : IG
 		const string sql = """
 			SELECT EXISTS (
 				SELECT 1
-				FROM exam.gradescale
+				FROM exam.grade_scale
 				WHERE tenant_id = @TenantId
 				  AND code = @Code
 				  AND (@ExcludingId IS NULL OR grade_scale_id <> @ExcludingId)

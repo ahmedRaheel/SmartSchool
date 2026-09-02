@@ -52,7 +52,7 @@ public static class GetFeeStructurePage
 			{
 				const string countSql = """
 					SELECT COUNT(*)
-					FROM finance.feestructure
+					FROM finance.fee_structure
 					WHERE tenant_id = @TenantId
 					  AND is_active = TRUE;
 					""";
@@ -64,7 +64,7 @@ public static class GetFeeStructurePage
 					code AS "Code",
 					name AS "Name",
 					metadata_json AS "MetadataJson"
-					FROM finance.feestructure
+					FROM finance.fee_structure
 					WHERE tenant_id = @TenantId
 					  AND is_active = TRUE
 					ORDER BY fee_structure_id
