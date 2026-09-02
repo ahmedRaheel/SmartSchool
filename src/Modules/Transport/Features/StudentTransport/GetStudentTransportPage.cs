@@ -1,10 +1,12 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Transport.Models;
 
 namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 
@@ -29,7 +31,78 @@ public static class GetStudentTransportPage
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-	public sealed class Handler(IStudentTransportQuery entityQuery)
+	public interface IGetStudentTransportPage
+	{
+		Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetStudentTransportPagePersistence(
+		IDbConnectionFactory connectionFactory) : IGetStudentTransportPage
+	{
+		public async Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken)
+			{
+				const string countSql = """
+					SELECT COUNT(*)
+					FROM transport.studenttransport
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE;
+					""";
+		
+				const string pageSql = """
+					SELECT
+					tenant_id AS "TenantId",
+					student_transport_id AS "Id",
+					code AS "Code",
+					name AS "Name",
+					metadata_json AS "MetadataJson"
+					FROM transport.studenttransport
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE
+					ORDER BY student_transport_id
+					LIMIT @PageSize OFFSET @Offset;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken);
+		
+				var parameters = new
+				{
+					TenantId = tenantId,
+					PageSize = pageSize,
+					Offset = (page - 1) * pageSize
+				};
+		
+				var totalCount = await connection.ExecuteScalarAsync<long>(
+					new CommandDefinition(
+						countSql,
+						parameters,
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+		
+				var items = (await connection.QueryAsync<Response>(
+					new CommandDefinition(
+						pageSql,
+						parameters,
+						cancellationToken: cancellationToken)).ConfigureAwait(false))
+					.AsList();
+		
+				return new PagedResult<Response>(
+					items,
+					page,
+					pageSize,
+					totalCount);
+			}
+	}
+
+	public sealed class Handler(IGetStudentTransportPage dataAccess)
 		: IRequestHandler<Query, Result<PagedResult<Response>>>
 	{
 		public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -37,13 +110,13 @@ public static class GetStudentTransportPage
 			CancellationToken cancellationToken)
 		{
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
-			var page = await entityQuery.GetPageAsync(
+			var page = await dataAccess.GetPageAsync(
 				request.TenantId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
 			var response = new PagedResult<Response>(
-				page.Items.Select(MapResponse).ToArray(),
+				page.Items,
 				page.Page,
 				page.PageSize,
 				page.TotalCount);
@@ -66,16 +139,5 @@ public static class GetStudentTransportPage
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		SmartSchool.Modules.Transport.Models.StudentTransportEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.StudentTransportId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
 	}
 }

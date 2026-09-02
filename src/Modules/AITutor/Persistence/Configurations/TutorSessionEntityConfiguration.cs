@@ -62,5 +62,12 @@ public sealed class TutorSessionEntityConfiguration
 		builder.Property(entity => entity.StartedAt).HasColumnName("started_at");
 		builder.Property(entity => entity.EndedAt).HasColumnName("ended_at");
 		builder.Property(entity => entity.SessionSummary).HasColumnName("session_summary");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<TutorConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.TutorConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

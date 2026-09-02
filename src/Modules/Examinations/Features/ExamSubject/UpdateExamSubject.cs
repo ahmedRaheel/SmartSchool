@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Examinations.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Models;
-using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateExamSubject
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateExamSubject
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IExamSubjectQuery entityQuery,
-		IExamSubjectCommand entityCommand)
+	public interface IUpdateExamSubject
+	{
+		Task UpdateAsync(
+				ExamSubjectEntity entity,
+				CancellationToken cancellationToken);
+Task<ExamSubjectEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateExamSubjectPersistence(IExaminationsDbContext dbContext) : IUpdateExamSubject
+	{
+		public async Task UpdateAsync(
+				ExamSubjectEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.ExamSubjects
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<ExamSubjectEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.ExamSubjects
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.ExamSubjectId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateExamSubject dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateExamSubject
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(ExamSubjectEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(ExamSubjectEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateExamSubject
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Examinations.Models.ExamSubjectEntity entity)
+	private static Response MapResponse(ExamSubjectEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

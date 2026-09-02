@@ -8,3 +8,5 @@
 \i 006_distributed_cache.sql
 
 \i 009_prediction_suite.sql
+
+\i 019_academic_relationship_refinement.sql

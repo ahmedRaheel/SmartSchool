@@ -1,9 +1,11 @@
+using SmartSchool.Modules.HR.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
-using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateResume
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateResume
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IResumeQuery entityQuery,
-		IResumeCommand entityCommand)
+	public interface IUpdateResume
+	{
+		Task UpdateAsync(
+				ResumeEntity entity,
+				CancellationToken cancellationToken);
+Task<ResumeEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateResumePersistence(IHRDbContext dbContext) : IUpdateResume
+	{
+		public async Task UpdateAsync(
+				ResumeEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.Resumes
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<ResumeEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.Resumes
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.ResumeId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateResume dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateResume
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(ResumeEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(ResumeEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateResume
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.ResumeEntity entity)
+	private static Response MapResponse(ResumeEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

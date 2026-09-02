@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Examinations.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Models;
-using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -27,7 +29,6 @@ public static class CreateExam
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -35,35 +36,45 @@ public static class CreateExam
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IExamQuery entityQuery,
-		IExamCommand entityCommand)
+	public interface ICreateExam
+	{
+		Task AddAsync(
+				ExamEntity entity,
+				CancellationToken cancellationToken);
+}
+
+	internal sealed class CreateExamPersistence(IExaminationsDbContext dbContext) : ICreateExam
+	{
+		public async Task AddAsync(
+				ExamEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.Exams
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(ICreateExam dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(ExamEntity), request.Code)));
-			}
+
 
 			var entity = ExamEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -84,8 +95,7 @@ public static class CreateExam
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Examinations.Models.ExamEntity entity)
+	private static Response MapResponse(ExamEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

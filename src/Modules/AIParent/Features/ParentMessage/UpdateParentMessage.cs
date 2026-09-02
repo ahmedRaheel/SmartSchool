@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AIParent.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIParent.Models;
-using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateParentMessage
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateParentMessage
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IParentMessageQuery entityQuery,
-		IParentMessageCommand entityCommand)
+	public interface IUpdateParentMessage
+	{
+		Task UpdateAsync(
+				ParentMessageEntity entity,
+				CancellationToken cancellationToken);
+Task<ParentMessageEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateParentMessagePersistence(IAIParentDbContext dbContext) : IUpdateParentMessage
+	{
+		public async Task UpdateAsync(
+				ParentMessageEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.ParentMessages
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<ParentMessageEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.ParentMessages
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.ParentMessageId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateParentMessage dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateParentMessage
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentMessageEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(ParentMessageEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateParentMessage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIParent.Models.ParentMessageEntity entity)
+	private static Response MapResponse(ParentMessageEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

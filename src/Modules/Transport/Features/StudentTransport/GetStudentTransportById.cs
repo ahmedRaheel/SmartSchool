@@ -1,8 +1,9 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Transport.Models;
-using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,21 +29,62 @@ public static class GetStudentTransportById
 		Guid TenantId,
 		Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(IStudentTransportQuery entityQuery)
+	public interface IGetStudentTransportById
+	{
+		Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetStudentTransportByIdPersistence(
+		IDbConnectionFactory connectionFactory) : IGetStudentTransportById
+	{
+		public async Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT
+						tenant_id AS "TenantId",
+						student_transport_id AS "Id",
+						code AS "Code",
+						name AS "Name",
+						metadata_json AS "MetadataJson"
+					FROM transport.studenttransport
+					WHERE tenant_id = @TenantId
+					  AND student_transport_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IGetStudentTransportById dataAccess)
 		: IRequestHandler<Query, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Query request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentTransportEntity))));
 			}
-			return Result<Response>.Success(MapResponse(entity));
+			return Result<Response>.Success(entity);
 		}
 	}
 
@@ -61,16 +103,5 @@ public static class GetStudentTransportById
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		SmartSchool.Modules.Transport.Models.StudentTransportEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.StudentTransportId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
 	}
 }

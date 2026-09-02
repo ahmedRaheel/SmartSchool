@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.Modules.AIInquiry.Features;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,8 +8,8 @@ using SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 using SmartSchool.Modules.AIInquiry.Features.InquiryConversation;
 using SmartSchool.Modules.AIInquiry.Features.InquiryMessage;
 using SmartSchool.Modules.AIInquiry.Features.LeadCapture;
-using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
+
 
 namespace SmartSchool.Modules.AIInquiry;
 
@@ -18,14 +19,13 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IHumanHandoffQuery, HumanHandoffQuery>();
-		services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();
-		services.AddScoped<IInquiryConversationQuery, InquiryConversationQuery>();
-		services.AddScoped<IInquiryConversationCommand, InquiryConversationCommand>();
-		services.AddScoped<IInquiryMessageQuery, InquiryMessageQuery>();
-		services.AddScoped<IInquiryMessageCommand, InquiryMessageCommand>();
-		services.AddScoped<ILeadCaptureQuery, LeadCaptureQuery>();
+		services.AddScoped<IAIInquiryDbContext, AIInquiryDbContext>();
+
+        services.AddFeaturePersistence(typeof(Module).Assembly);
+		services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();	
+		
 		services.AddScoped<ILeadCaptureCommand, LeadCaptureCommand>();
+		
 
 		return services;
 	}
@@ -54,8 +54,7 @@ public static class Module
 		UpdateLeadCapture.MapEndpoint(endpoints);
 		DeleteLeadCapture.MapEndpoint(endpoints);
 
-		OperationalInquiryEndpoints.MapOperationalInquiryEndpoints(endpoints);
-
+		
 		return endpoints;
 	}
 }

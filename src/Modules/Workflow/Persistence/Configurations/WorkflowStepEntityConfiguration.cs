@@ -12,7 +12,7 @@ public sealed class WorkflowStepEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<WorkflowStepEntity> builder)
 	{
-		builder.ToTable("WorkflowStep", schema: "workflow");
+		builder.ToTable("workflowstep", schema: "workflow");
 		builder.HasKey(entity => entity.WorkflowStepId);
 
 		builder
@@ -52,6 +52,7 @@ public sealed class WorkflowStepEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json");
 		builder.Property(entity => entity.WorkflowStepId).HasColumnName("workflow_step_id");
 	}
 }

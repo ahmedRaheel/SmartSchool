@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Inventory.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Inventory.Models;
-using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateStockTransaction
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateStockTransaction
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IStockTransactionQuery entityQuery,
-		IStockTransactionCommand entityCommand)
+	public interface IUpdateStockTransaction
+	{
+		Task UpdateAsync(
+				StockTransactionEntity entity,
+				CancellationToken cancellationToken);
+Task<StockTransactionEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateStockTransactionPersistence(IInventoryDbContext dbContext) : IUpdateStockTransaction
+	{
+		public async Task UpdateAsync(
+				StockTransactionEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.StockTransactions
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<StockTransactionEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.StockTransactions
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.StockTransactionId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateStockTransaction dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateStockTransaction
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StockTransactionEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(StockTransactionEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateStockTransaction
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Inventory.Models.StockTransactionEntity entity)
+	private static Response MapResponse(StockTransactionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

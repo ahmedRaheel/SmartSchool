@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIParent.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -5,7 +6,6 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIParent.Features.ParentConversation;
 using SmartSchool.Modules.AIParent.Features.ParentMessage;
 using SmartSchool.Modules.AIParent.Features.ParentToolExecution;
-using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIParent;
@@ -16,13 +16,16 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IParentConversationQuery, ParentConversationQuery>();
-		services.AddScoped<IParentConversationCommand, ParentConversationCommand>();
-		services.AddScoped<IParentMessageQuery, ParentMessageQuery>();
-		services.AddScoped<IParentMessageCommand, ParentMessageCommand>();
-		services.AddScoped<IParentToolExecutionQuery, ParentToolExecutionQuery>();
-		services.AddScoped<IParentToolExecutionCommand, ParentToolExecutionCommand>();
+		services.AddScoped<IAIParentDbContext, AIParentDbContext>();
 
+        services.AddFeaturePersistence(typeof(Module).Assembly);
+		services.AddScoped<IParentConversationCommand, ParentConversationCommand>();
+		services.AddScoped<IParentConversationQuery, ParentConversationQuery>();
+		services.AddScoped<IParentMessageCommand, ParentMessageCommand>();
+		services.AddScoped<IParentMessageQuery, ParentMessageQuery>();
+		services.AddScoped<IParentToolExecutionCommand, ParentToolExecutionCommand>();
+		services.AddScoped<IParentToolExecutionQuery, ParentToolExecutionQuery>();
+		
 		return services;
 	}
 

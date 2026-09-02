@@ -1,10 +1,12 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Library.Models;
 
 namespace SmartSchool.Modules.Library.Features.Book;
 
@@ -29,7 +31,78 @@ public static class GetBookPage
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-	public sealed class Handler(IBookQuery entityQuery)
+	public interface IGetBookPage
+	{
+		Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetBookPagePersistence(
+		IDbConnectionFactory connectionFactory) : IGetBookPage
+	{
+		public async Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken)
+			{
+				const string countSql = """
+					SELECT COUNT(*)
+					FROM library.book
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE;
+					""";
+		
+				const string pageSql = """
+					SELECT
+					tenant_id AS "TenantId",
+					book_id AS "Id",
+					code AS "Code",
+					name AS "Name",
+					metadata_json AS "MetadataJson"
+					FROM library.book
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE
+					ORDER BY book_id
+					LIMIT @PageSize OFFSET @Offset;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken);
+		
+				var parameters = new
+				{
+					TenantId = tenantId,
+					PageSize = pageSize,
+					Offset = (page - 1) * pageSize
+				};
+		
+				var totalCount = await connection.ExecuteScalarAsync<long>(
+					new CommandDefinition(
+						countSql,
+						parameters,
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+		
+				var items = (await connection.QueryAsync<Response>(
+					new CommandDefinition(
+						pageSql,
+						parameters,
+						cancellationToken: cancellationToken)).ConfigureAwait(false))
+					.AsList();
+		
+				return new PagedResult<Response>(
+					items,
+					page,
+					pageSize,
+					totalCount);
+			}
+	}
+
+	public sealed class Handler(IGetBookPage dataAccess)
 		: IRequestHandler<Query, Result<PagedResult<Response>>>
 	{
 		public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -37,13 +110,13 @@ public static class GetBookPage
 			CancellationToken cancellationToken)
 		{
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
-			var page = await entityQuery.GetPageAsync(
+			var page = await dataAccess.GetPageAsync(
 				request.TenantId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
 			var response = new PagedResult<Response>(
-				page.Items.Select(MapResponse).ToArray(),
+				page.Items,
 				page.Page,
 				page.PageSize,
 				page.TotalCount);
@@ -66,16 +139,5 @@ public static class GetBookPage
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		SmartSchool.Modules.Library.Models.BookEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.BookId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
 	}
 }

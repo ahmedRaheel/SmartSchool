@@ -1,8 +1,10 @@
+using SmartSchool.Modules.HR.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
-using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -48,12 +50,50 @@ public static class UpdateEmployee
 		}
 	}
 
-	public sealed class Handler(IEmployeeQuery entityQuery, IEmployeeCommand entityCommand)
+	public interface IUpdateEmployee
+	{
+		Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
+		Task UpdateAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateEmployeePersistence(
+		IHRDbContext dbContext) : IUpdateEmployee
+	{
+		public Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext.Employees
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.EmployeeId == id,
+					cancellationToken);
+		}
+
+		public async Task UpdateAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.Employees
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateEmployee dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+			var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
@@ -70,8 +110,23 @@ public static class UpdateEmployee
 				request.EmploymentTypeCode,
 				request.Status);
 
-			await entityCommand.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
+			await dataAccess.UpdateAsync(entity, cancellationToken);
+			return Result<Response>.Success(new Response(
+				entity.TenantId,
+				entity.EmployeeId,
+				entity.UserId,
+				entity.FirstName,
+				entity.LastName,
+				entity.CnicNumber,
+				entity.Photo,
+				entity.PhotoContentType,
+				entity.PhotoFileName,
+				entity.Email,
+				entity.Phone,
+				entity.HireDate,
+				entity.EmploymentTypeCode,
+				entity.Status,
+				entity.SourceCandidateId));
 		}
 	}
 
@@ -87,25 +142,5 @@ public static class UpdateEmployee
 				})
 			.WithName("UpdateEmployee").WithTags(ModuleConstants.Name).RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(EmployeeEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.EmployeeId,
-			entity.UserId,			
-			entity.FirstName,
-			entity.LastName,
-			entity.CnicNumber,
-			entity.Photo,
-			entity.PhotoContentType,
-			entity.PhotoFileName,
-			entity.Email,
-			entity.Phone,
-			entity.HireDate,
-			entity.EmploymentTypeCode,
-			entity.Status,
-			entity.SourceCandidateId);
 	}
 }

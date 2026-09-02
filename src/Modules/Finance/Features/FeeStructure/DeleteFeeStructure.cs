@@ -1,8 +1,10 @@
+using SmartSchool.Modules.Finance.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Finance.Models;
-using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,59 @@ public static class DeleteFeeStructure
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IFeeStructureQuery entityQuery,
-		IFeeStructureCommand entityCommand)
+	public interface IDeleteFeeStructure
+	{
+		Task DeleteAsync(
+				FeeStructureEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<FeeStructureEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteFeeStructurePersistence(IFinanceDbContext dbContext) : IDeleteFeeStructure
+	{
+		public async Task DeleteAsync(
+				FeeStructureEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.FeeStructures
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<FeeStructureEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.FeeStructures
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.FeeStructureId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteFeeStructure dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeStructureEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

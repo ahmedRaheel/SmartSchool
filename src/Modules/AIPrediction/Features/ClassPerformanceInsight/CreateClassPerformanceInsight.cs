@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIPrediction.Models;
-using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -27,7 +29,6 @@ public static class CreateClassPerformanceInsight
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -35,35 +36,45 @@ public static class CreateClassPerformanceInsight
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IClassPerformanceInsightQuery entityQuery,
-		IClassPerformanceInsightCommand entityCommand)
+	public interface ICreateClassPerformanceInsight
+	{
+		Task AddAsync(
+				ClassPerformanceInsightEntity entity,
+				CancellationToken cancellationToken);
+}
+
+	internal sealed class CreateClassPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : ICreateClassPerformanceInsight
+	{
+		public async Task AddAsync(
+				ClassPerformanceInsightEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.ClassPerformanceInsights
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(ICreateClassPerformanceInsight dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(ClassPerformanceInsightEntity), request.Code)));
-			}
+
 
 			var entity = ClassPerformanceInsightEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -84,8 +95,7 @@ public static class CreateClassPerformanceInsight
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.ClassPerformanceInsightEntity entity)
+	private static Response MapResponse(ClassPerformanceInsightEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

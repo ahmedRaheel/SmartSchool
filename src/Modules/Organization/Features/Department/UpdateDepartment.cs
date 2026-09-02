@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Organization.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
-using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -23,13 +25,16 @@ public static class UpdateDepartment
 	Guid Id,
 	string Code,
 	string Name,
+	string? Telephone,
+	string? Email,
 	string? MetadataJson);
 
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+		string Name,
+		string? Telephone,
+		string? Email) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -37,21 +42,57 @@ public static class UpdateDepartment
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Telephone).MaximumLength(50);
+			RuleFor(x => x.Email).EmailAddress().MaximumLength(250).When(x => !string.IsNullOrWhiteSpace(x.Email));
 		}
 	}
 
-	public sealed class Handler(
-		IDepartmentQuery entityQuery,
-		IDepartmentCommand entityCommand)
+	public interface IUpdateDepartment
+	{
+		Task UpdateAsync(
+				DepartmentEntity entity,
+				CancellationToken cancellationToken);
+Task<DepartmentEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateDepartmentPersistence(IOrganizationDbContext dbContext) : IUpdateDepartment
+	{
+		public async Task UpdateAsync(
+				DepartmentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.Departments
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<DepartmentEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.Departments
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.DepartmentId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateDepartment dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +100,13 @@ public static class UpdateDepartment
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(DepartmentEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(DepartmentEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
-				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+				entity.Code,
+				request.Name,
+				request.Telephone,
+				request.Email);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,14 +128,15 @@ public static class UpdateDepartment
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.DepartmentEntity entity)
+	private static Response MapResponse(DepartmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.DepartmentId,
 			entity.Code,
 			entity.Name,
+			entity.Telephone,
+			entity.Email,
 			entity.MetadataJson);
 	}
 }

@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Audit.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Audit.Models;
-using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -20,15 +22,14 @@ public static class UpdateAuditLog
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
 	Guid TenantId,
-	Guid Id,
+	long Id,
 	string Code,
 	string Name,
 	string? MetadataJson);
 
 	public sealed record Request(
 		Guid TenantId,
-		Guid Id,
-		string Code,
+		long Id,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateAuditLog
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IAuditLogQuery entityQuery,
-		IAuditLogCommand entityCommand)
+	public interface IUpdateAuditLog
+	{
+		Task UpdateAsync(
+				AuditLogEntity entity,
+				CancellationToken cancellationToken);
+Task<AuditLogEntity?> GetByIdAsync(
+				Guid tenantId,
+				long id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateAuditLogPersistence(IAuditDbContext dbContext) : IUpdateAuditLog
+	{
+		public async Task UpdateAsync(
+				AuditLogEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.AuditLogs
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<AuditLogEntity?> GetByIdAsync(
+				Guid tenantId,
+				long id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.AuditLogs
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.AuditLogId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateAuditLog dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateAuditLog
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(AuditLogEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(AuditLogEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -80,7 +107,7 @@ public static class UpdateAuditLog
 	{
 		endpoints.MapPut(
 				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "audit-log"),
-				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+				async (long id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var command = request with { Id = id };
 					var result = await mediator.SendAsync<Request, Result<Response>>(
@@ -93,8 +120,7 @@ public static class UpdateAuditLog
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Audit.Models.AuditLogEntity entity)
+	private static Response MapResponse(AuditLogEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -1,8 +1,10 @@
+using SmartSchool.Modules.AICore.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AICore.Models;
-using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,59 @@ public static class DeleteToolDefinition
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IToolDefinitionQuery entityQuery,
-		IToolDefinitionCommand entityCommand)
+	public interface IDeleteToolDefinition
+	{
+		Task DeleteAsync(
+				ToolDefinitionEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<ToolDefinitionEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteToolDefinitionPersistence(IAICoreDbContext dbContext) : IDeleteToolDefinition
+	{
+		public async Task DeleteAsync(
+				ToolDefinitionEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.ToolDefinitions
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<ToolDefinitionEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.ToolDefinitions
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.ToolDefinitionId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteToolDefinition dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(ToolDefinitionEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

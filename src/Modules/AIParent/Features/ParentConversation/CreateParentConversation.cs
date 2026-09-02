@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AIParent.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIParent.Models;
-using SmartSchool.Modules.AIParent.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -27,7 +29,6 @@ public static class CreateParentConversation
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -35,35 +36,45 @@ public static class CreateParentConversation
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IParentConversationQuery entityQuery,
-		IParentConversationCommand entityCommand)
+	public interface ICreateParentConversation
+	{
+		Task AddAsync(
+				ParentConversationEntity entity,
+				CancellationToken cancellationToken);
+}
+
+	internal sealed class CreateParentConversationPersistence(IAIParentDbContext dbContext) : ICreateParentConversation
+	{
+		public async Task AddAsync(
+				ParentConversationEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.ParentConversations
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(ICreateParentConversation dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(ParentConversationEntity), request.Code)));
-			}
+
 
 			var entity = ParentConversationEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -85,7 +96,7 @@ public static class CreateParentConversation
 	}
 
 	private static Response MapResponse(
-		SmartSchool.Modules.AIParent.Models.ParentConversationEntity entity)
+		ParentConversationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

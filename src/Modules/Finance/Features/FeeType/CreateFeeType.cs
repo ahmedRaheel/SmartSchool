@@ -1,9 +1,9 @@
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
-using FluentValidation;
-using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Finance.Models;
 using SmartSchool.Modules.Finance.Persistence;
+using FluentValidation;
+using SmartSchool.Application.Http;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Finance.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -11,87 +11,29 @@ namespace SmartSchool.Modules.Finance.Features.FeeType;
 
 public static class CreateFeeType
 {
-	/// <summary>
-	/// Represents the response returned by this FeeTypeEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
-
-	public sealed record Request(
-		Guid TenantId,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
-
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
-
-	public sealed class Handler(
-		IFeeTypeQuery entityQuery,
-		IFeeTypeCommand entityCommand)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(FeeTypeEntity), request.Code)));
-			}
-
-			var entity = FeeTypeEntity.Create(
-				request.TenantId,
-				request.Code,
-				request.Name);
-
-			await entityCommand.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
-
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPost(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "fee-type"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("CreateFeeType")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
-
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.FeeTypeEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.FeeTypeId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+    public sealed record Response(Guid TenantId, Guid Id, string Code, string Name, string Frequency, bool IsActive, string? Description);
+    public sealed record Request(Guid TenantId, string Name, string Frequency = "Monthly", string? Description = null) : IRequest<Result<Response>>;
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator() { RuleFor(x=>x.TenantId).NotEmpty(); RuleFor(x=>x.Name).NotEmpty().MaximumLength(120); RuleFor(x=>x.Frequency).NotEmpty().Must(x=>new[]{"Monthly","Term","Annual","OneTime"}.Contains(x)); }
+    }
+    public interface ICreateFeeType { Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken); }
+    internal sealed class CreateFeeTypePersistence(IFinanceDbContext dbContext) : ICreateFeeType
+    {
+        public async Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken) { await dbContext.FeeTypes.AddAsync(entity,cancellationToken); await dbContext.SaveChangesAsync(cancellationToken); }
+    }
+    public sealed class Handler(ICreateFeeType persistence) : IRequestHandler<Request,Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(Request request,CancellationToken cancellationToken)
+        {
+            var code = $"FEE-{Guid.NewGuid():N}"[..12].ToUpperInvariant();
+            var entity=FeeTypeEntity.Create(request.TenantId,code,request.Name,request.Frequency,request.Description);
+            await persistence.AddAsync(entity,cancellationToken);
+            return Result<Response>.Success(new(entity.TenantId,entity.FeeTypeId,entity.Code,entity.Name,entity.Frequency,entity.IsActive,entity.Description));
+        }
+    }
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment,"fee-type"),async(Request request,IMediator mediator,CancellationToken ct)=>(await mediator.SendAsync<Request,Result<Response>>(request,ct)).ToHttpResult()).WithName("CreateFeeType").WithTags(ModuleConstants.Name).RequireAuthorization(); return endpoints;
+    }
 }

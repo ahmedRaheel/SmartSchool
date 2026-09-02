@@ -1,10 +1,10 @@
-using Dapper;
+using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Application.Identity;
@@ -32,6 +32,8 @@ public static class CreateStudent
 		Guid? TenantId,
 		Guid SchoolId,
 		Guid BranchId,
+		Guid AcademicYearId,
+		Guid ClassSectionId,
 		Guid? UserId,
 		string FirstName,
 		string? LastName,
@@ -48,40 +50,99 @@ public static class CreateStudent
 		{
 			RuleFor(x => x.SchoolId).NotEmpty();
 			RuleFor(x => x.BranchId).NotEmpty();
+			RuleFor(x => x.AcademicYearId).NotEmpty();
+			RuleFor(x => x.ClassSectionId).NotEmpty();
 			RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
 		}
 	}
 
-	public sealed class Handler(IStudentCommand entityCommand, IDbConnectionFactory connectionFactory)
+	public interface ICreateStudent
+	{
+		Task AddAsync(
+				StudentEntity entity,
+				CancellationToken cancellationToken);
+
+		Task AddPlacementAsync(AdmissionPlacementEntity placement, CancellationToken cancellationToken);
+
+		Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateStudentPersistence(IStudentsDbContext dbContext) : ICreateStudent
+	{
+		public async Task AddAsync(
+				StudentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.Students
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task AddPlacementAsync(AdmissionPlacementEntity placement, CancellationToken cancellationToken)
+		    {
+		        await dbContext.AdmissionPlacements.AddAsync(placement, cancellationToken);
+		        await dbContext.SaveChangesAsync(cancellationToken);
+		    }
+
+		public async Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken)
+		{
+			return await dbContext.Database.SqlQueryRaw<bool>(
+				"SELECT EXISTS (SELECT 1 FROM org.campus WHERE tenant_id = {0} AND school_id = {1} AND campus_id = {2} AND is_active = TRUE) AS \"Value\"",
+				tenantId, schoolId, campusId).SingleAsync(cancellationToken);
+		}
+
+	}
+
+	public sealed class Handler(ICreateStudent dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
-		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
-		{
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var validScope = await connection.ExecuteScalarAsync<bool>(new CommandDefinition(
-                "SELECT EXISTS(SELECT 1 FROM org.campus c WHERE c.tenant_id=@TenantId AND c.school_id=@SchoolId AND c.campus_id=@BranchId)",
-                new { TenantId = request.TenantId!.Value, request.SchoolId, request.BranchId }, cancellationToken: cancellationToken));
-            if (!validScope) return Result<Response>.Failure(Error.Validation("Selected branch does not belong to the selected school and tenant."));
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            var tenantId = request.TenantId!.Value;
+            var validScope = await dataAccess.CampusBelongsToSchoolAsync(
+                tenantId,
+                request.SchoolId,
+                request.BranchId,
+                cancellationToken);
 
-			var entity = StudentEntity.Create(
-				request.TenantId!.Value,
-				null,
-				request.SchoolId,
-				request.BranchId,
-				null,
-				request.FirstName,
-				request.LastName,
-				request.DateOfBirth,
-				request.Gender,
-				request.Photo,
-				request.PhotoContentType,
-				request.PhotoFileName,
-				request.AdmissionDate,
-				"PENDING_APPROVAL");
+            if (!validScope)
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("Selected branch does not belong to the selected school and tenant."));
+            }
 
-			await entityCommand.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
+            var entity = StudentEntity.Create(
+                tenantId,
+                null,
+                request.SchoolId,
+                request.BranchId,
+                null,
+                request.FirstName,
+                request.LastName,
+                request.DateOfBirth,
+                request.Gender,
+                request.Photo,
+                request.PhotoContentType,
+                request.PhotoFileName,
+                request.AdmissionDate,
+                LifecycleStatuses.PendingApproval);
+
+            await dataAccess.AddAsync(entity, cancellationToken);
+
+            var placement = AdmissionPlacementEntity.Create(
+                tenantId,
+                entity.StudentId,
+                request.AcademicYearId,
+                request.ClassSectionId);
+
+            await dataAccess.AddPlacementAsync(placement, cancellationToken);
+
+            return Result<Response>.Success(MapResponse(entity));
+        }
 	}
 
 	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)

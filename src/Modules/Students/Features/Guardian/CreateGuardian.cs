@@ -1,8 +1,10 @@
+using SmartSchool.Modules.Students.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -37,13 +39,45 @@ public static class CreateGuardian
 		}
 	}
 
-	public sealed class Handler(IGuardianQuery entityQuery, IGuardianCommand entityCommand)
+	public interface ICreateGuardian
+	{
+		Task AddAsync(
+				GuardianEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<bool> ExistsByCnicNumberAsync(Guid tenantId, string cnicNumber, Guid? excludingId, CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateGuardianPersistence(
+		IStudentsDbContext dbContext) : ICreateGuardian
+	{
+		public async Task AddAsync(
+				GuardianEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.Guardians
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	
+		public Task<bool> ExistsByCnicNumberAsync(
+			Guid tenantId, string cnicNumber, Guid? excludingId, CancellationToken cancellationToken)
+		{
+			return dbContext.Guardians.AnyAsync(
+				x => x.TenantId == tenantId && x.CnicNumber == cnicNumber
+					&& (!excludingId.HasValue || x.GuardianId != excludingId.Value), cancellationToken);
+		}
+}
+
+	public sealed class Handler(ICreateGuardian dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
 			var exists = !string.IsNullOrWhiteSpace(request.CnicNumber)
-				&& await entityQuery.ExistsByCnicNumberAsync(
+				&& await dataAccess.ExistsByCnicNumberAsync(
 					request.TenantId, request.CnicNumber, null, cancellationToken);
 			if (exists)
 			{
@@ -59,7 +93,7 @@ public static class CreateGuardian
 				request.Email,
 				request.Phone);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

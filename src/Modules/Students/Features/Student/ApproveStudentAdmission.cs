@@ -1,10 +1,10 @@
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
-using SmartSchool.Modules.Students.Persistence;
+using SmartSchool.Modules.Students.Models;
+
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -25,32 +25,122 @@ public static class ApproveStudentAdmission
         }
     }
 
-    public sealed class Handler(IStudentQuery query, IStudentCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator, IDbConnectionFactory connectionFactory)
+    public sealed class Handler(
+        IStudentQuery query,
+        IStudentCommand command,
+        IStudentOnboardingQuery onboardingQuery,
+        IStudentOnboardingCommand onboardingCommand,
+        IIdentityAccountService accounts,
+        IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
         {
-            var student = await query.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
-            if (student is null) return Result<Response>.Failure(Error.NotFound("Student was not found."));
-            if (student.UserId.HasValue) return Result<Response>.Failure(Error.Conflict("Student already has a login account."));
+            var student = await query.GetByIdAsync(
+                request.TenantId,
+                request.StudentId,
+                cancellationToken);
 
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
-                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
-                new { request.TenantId, student.BranchId }, cancellationToken: cancellationToken));
-            if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("The student's branch is invalid."));
+            if (student is null)
+            {
+                return Result<Response>.Failure(Error.NotFound("Student was not found."));
+            }
+
+            if (student.UserId.HasValue)
+            {
+                return Result<Response>.Failure(Error.Conflict("Student already has a login account."));
+            }
+
+            if (!await onboardingQuery.HasGuardianAsync(request.TenantId, request.StudentId, cancellationToken))
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("A parent or guardian is required before student admission can be approved."));
+            }
+
+            var missingDocuments = await onboardingQuery.GetMissingRequiredDocumentsAsync(
+                request.TenantId,
+                request.StudentId,
+                cancellationToken);
+
+            if (missingDocuments.Count > 0)
+            {
+                return Result<Response>.Failure(
+                    Error.Validation($"Required student documents are missing: {string.Join(", ", missingDocuments)}."));
+            }
+
+            var placement = await onboardingQuery.GetPendingPlacementAsync(
+                request.TenantId,
+                request.StudentId,
+                cancellationToken);
+
+            if (placement is null)
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("Academic year and class section placement are required before approval."));
+            }
+
+            var branchCode = await onboardingQuery.GetCampusCodeAsync(
+                request.TenantId,
+                student.BranchId,
+                cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(branchCode))
+            {
+                return Result<Response>.Failure(Error.Validation("The student's branch is invalid."));
+            }
+
             var studentNumber = await numberGenerator.NextAsync(
-                $"STUDENT:{student.BranchId}", $"{branchCode}-", request.TenantId, 7, cancellationToken);
+                $"STUDENT:{student.BranchId}",
+                $"{branchCode}-",
+                request.TenantId,
+                7,
+                cancellationToken);
 
             var account = await accounts.CreateAccountAsync(
-                request.TenantId, student.StudentId, "Student", request.Email, student.FirstName, student.LastName ?? string.Empty,
-                student.SchoolId, student.BranchId, new[] { "Student" }, cancellationToken);
+                request.TenantId,
+                student.StudentId,
+                SmartSchoolRoles.Student,
+                request.Email,
+                student.FirstName,
+                student.LastName ?? string.Empty,
+                student.SchoolId,
+                student.BranchId,
+                new[] { SmartSchoolRoles.Student },
+                cancellationToken);
 
             student.ApproveAdmission(account.UserId, studentNumber);
             await command.UpdateAsync(student, cancellationToken);
-            return Result<Response>.Success(new Response(student.StudentId, account.UserId, student.StudentNumber!, student.Status));
+
+            var enrollmentNumber = await numberGenerator.NextAsync(
+                $"ENROLLMENT:{student.BranchId}",
+                string.Empty,
+                request.TenantId,
+                3,
+                cancellationToken);
+
+            var enrollment = EnrollmentEntity.Create(
+                request.TenantId,
+                student.StudentId,
+                enrollmentNumber,
+                placement.AcademicYearId,
+                placement.ClassSectionId,
+                DateOnly.FromDateTime(DateTime.UtcNow),
+                LifecycleStatuses.Active);
+
+            await onboardingCommand.AddEnrollmentAndApprovePlacementAsync(
+                enrollment,
+                request.TenantId,
+                student.StudentId,
+                placement.AcademicYearId,
+                cancellationToken);
+
+            return Result<Response>.Success(
+                new Response(student.StudentId, account.UserId, student.StudentNumber!, student.Status));
         }
     }
+
 
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {

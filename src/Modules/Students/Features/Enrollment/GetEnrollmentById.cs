@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
+
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -65,8 +65,7 @@ public static class GetEnrollmentById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Students.Models.EnrollmentEntity entity)
+	private static Response MapResponse(EnrollmentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

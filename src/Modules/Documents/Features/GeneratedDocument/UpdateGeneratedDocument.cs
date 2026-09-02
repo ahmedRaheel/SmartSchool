@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Documents.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Documents.Models;
-using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateGeneratedDocument
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateGeneratedDocument
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IGeneratedDocumentQuery entityQuery,
-		IGeneratedDocumentCommand entityCommand)
+	public interface IUpdateGeneratedDocument
+	{
+		Task UpdateAsync(
+				GeneratedDocumentEntity entity,
+				CancellationToken cancellationToken);
+Task<GeneratedDocumentEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateGeneratedDocumentPersistence(IDocumentsDbContext dbContext) : IUpdateGeneratedDocument
+	{
+		public async Task UpdateAsync(
+				GeneratedDocumentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.GeneratedDocuments
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<GeneratedDocumentEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.GeneratedDocuments
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.GeneratedDocumentId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateGeneratedDocument dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateGeneratedDocument
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(GeneratedDocumentEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(GeneratedDocumentEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateGeneratedDocument
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.GeneratedDocumentEntity entity)
+	private static Response MapResponse(GeneratedDocumentEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

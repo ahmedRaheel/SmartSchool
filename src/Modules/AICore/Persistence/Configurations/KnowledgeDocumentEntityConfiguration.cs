@@ -64,5 +64,12 @@ public sealed class KnowledgeDocumentEntityConfiguration
 		builder.Property(entity => entity.SourceUrl).HasColumnName("source_url");
 		builder.Property(entity => entity.Metadata).HasColumnName("metadata");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<KnowledgeCollectionEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.KnowledgeCollectionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

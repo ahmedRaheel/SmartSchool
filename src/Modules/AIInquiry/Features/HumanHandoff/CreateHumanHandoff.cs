@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIInquiry.Models;
-using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -27,7 +29,6 @@ public static class CreateHumanHandoff
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name,
 		string? MetadataJson = null) : IRequest<Result<Response>>;
 
@@ -36,36 +37,46 @@ public static class CreateHumanHandoff
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IHumanHandoffQuery entityQuery,
-		IHumanHandoffCommand entityCommand)
+	public interface ICreateHumanHandoff
+	{
+		Task AddAsync(
+				HumanHandoffEntity entity,
+				CancellationToken cancellationToken);
+}
+
+	internal sealed class CreateHumanHandoffPersistence(IAIInquiryDbContext dbContext) : ICreateHumanHandoff
+	{
+		public async Task AddAsync(
+				HumanHandoffEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.HumanHandoffs
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(ICreateHumanHandoff dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(HumanHandoffEntity), request.Code)));
-			}
+
 
 			var entity = HumanHandoffEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name,
 				request.MetadataJson);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -86,8 +97,7 @@ public static class CreateHumanHandoff
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.HumanHandoffEntity entity)
+	private static Response MapResponse(HumanHandoffEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

@@ -1,8 +1,10 @@
+using SmartSchool.Modules.Students.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
-using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -43,12 +45,43 @@ public static class UpdateStudent
 		}
 	}
 
-	public sealed class Handler(IStudentQuery entityQuery, IStudentCommand entityCommand)
+	public interface IUpdateStudent
+	{
+		Task UpdateAsync(
+				StudentEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateStudentPersistence(
+		IStudentsDbContext dbContext) : IUpdateStudent
+	{
+		public async Task UpdateAsync(
+				StudentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.Students
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	
+		public Task<StudentEntity?> GetByIdAsync(
+			Guid tenantId, Guid id, CancellationToken cancellationToken)
+		{
+			return dbContext.Students
+				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentId == id, cancellationToken);
+		}
+}
+
+	public sealed class Handler(IUpdateStudent dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+			var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
@@ -63,7 +96,7 @@ public static class UpdateStudent
 				request.AdmissionDate,
 				request.Status);
 
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

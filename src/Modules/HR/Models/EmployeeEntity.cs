@@ -1,4 +1,5 @@
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Models;
 
@@ -19,7 +20,11 @@ public sealed class EmployeeEntity : Entity
 
 	public Guid SchoolId { get; private set; }
 	public Guid BranchId { get; private set; }
+	public Guid? DepartmentId { get; private set; }
 	public string StaffType { get; private set; } = "OTHER";
+
+	/// <summary>Gets the employee business designation.</summary>
+	public EmployeeDesignation Designation { get; private set; } = EmployeeDesignation.Other;
 
 	/// <summary>Gets the tenant-unique employee number.</summary>
 	public string? EmployeeNumber { get; private set; }
@@ -32,6 +37,10 @@ public sealed class EmployeeEntity : Entity
 
 	/// <summary>Gets the employee CNIC number.</summary>
 	public string? CnicNumber { get; private set; }
+
+	public DateOnly? DateOfBirth { get; private set; }
+	public string? Gender { get; private set; }
+	public string? JobTitle { get; private set; }
 
 	/// <summary>Gets the employee photograph bytes.</summary>
 	public byte[]? Photo { get; private set; }
@@ -59,7 +68,7 @@ public sealed class EmployeeEntity : Entity
 	public string EmploymentTypeCode { get; private set; } = string.Empty;
 
 	/// <summary>Gets the employee status.</summary>
-	public string Status { get; private set; } = "ACTIVE";
+	public string Status { get; private set; } = LifecycleStatuses.Active;
 
 	/// <summary>Gets the optional recruitment candidate identifier.</summary>
 	public Guid? SourceCandidateId { get; private set; }
@@ -86,11 +95,15 @@ public sealed class EmployeeEntity : Entity
 		Guid? userId,
 		Guid schoolId,
 		Guid branchId,
+		Guid? departmentId,
 		string staffType,
 		string? employeeNumber,
 		string firstName,
 		string? lastName,
 		string? cnicNumber,
+		DateOnly? dateOfBirth,
+		string? gender,
+		string? jobTitle,
 		byte[]? photo,
 		string? photoContentType,
 		string? photoFileName,
@@ -115,11 +128,16 @@ public sealed class EmployeeEntity : Entity
 			UserId = userId,
 			SchoolId = schoolId,
 			BranchId = branchId,
+			DepartmentId = departmentId,
 			StaffType = staffType.Trim(),
+			Designation = ParseDesignation(staffType),
 			EmployeeNumber = employeeNumber?.Trim(),
 			FirstName = firstName.Trim(),
 			LastName = lastName?.Trim(),
 			CnicNumber = cnicNumber?.Trim(),
+			DateOfBirth = dateOfBirth,
+			Gender = gender?.Trim(),
+			JobTitle = jobTitle?.Trim(),
 			Photo = photo,
 			PhotoContentType = photoContentType?.Trim(),
 			PhotoFileName = photoFileName?.Trim(),
@@ -143,13 +161,13 @@ public sealed class EmployeeEntity : Entity
 		if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
 		UserId = userId;
 		EmployeeNumber = employeeNumber.Trim();
-		Status = "HIRED";
+		Status = LifecycleStatuses.Hired;
 		MarkAsUpdated();
 	}
 
 	public void SetRecruitmentStatus(string status)
 	{
-		if (status is not ("SUBMITTED" or "REJECTED" or "WAITING_LIST"))
+		if (status is not (LifecycleStatuses.Submitted or LifecycleStatuses.Rejected or LifecycleStatuses.WaitingList))
 			throw new ArgumentException("Invalid recruitment status.", nameof(status));
 		Status = status;
 		MarkAsUpdated();
@@ -208,4 +226,20 @@ public sealed class EmployeeEntity : Entity
 		PhotoFileName = fileName?.Trim();
 		MarkAsUpdated();
 	}
+	private static EmployeeDesignation ParseDesignation(string? value)
+	{
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return EmployeeDesignation.Other;
+		}
+
+		var normalized = value.Replace("_", string.Empty, StringComparison.Ordinal)
+			.Replace("-", string.Empty, StringComparison.Ordinal)
+			.Replace(" ", string.Empty, StringComparison.Ordinal);
+
+		return Enum.TryParse<EmployeeDesignation>(normalized, true, out var designation)
+			? designation
+			: EmployeeDesignation.Other;
+	}
+
 }

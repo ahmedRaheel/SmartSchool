@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AITutor.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AITutor.Models;
-using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateStudentTopicMastery
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateStudentTopicMastery
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IStudentTopicMasteryQuery entityQuery,
-		IStudentTopicMasteryCommand entityCommand)
+	public interface IUpdateStudentTopicMastery
+	{
+		Task UpdateAsync(
+				StudentTopicMasteryEntity entity,
+				CancellationToken cancellationToken);
+Task<StudentTopicMasteryEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateStudentTopicMasteryPersistence(IAITutorDbContext dbContext) : IUpdateStudentTopicMastery
+	{
+		public async Task UpdateAsync(
+				StudentTopicMasteryEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.StudentTopicMasteries
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<StudentTopicMasteryEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.StudentTopicMasteries
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.StudentTopicMasteryId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateStudentTopicMastery dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateStudentTopicMastery
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentTopicMasteryEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(StudentTopicMasteryEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateStudentTopicMastery
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.StudentTopicMasteryEntity entity)
+	private static Response MapResponse(StudentTopicMasteryEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

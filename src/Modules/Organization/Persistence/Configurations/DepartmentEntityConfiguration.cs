@@ -47,6 +47,8 @@ public sealed class DepartmentEntityConfiguration
 		// Canonical database mapping generated from SmartSchoolComplete.sql.
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.Telephone).HasColumnName("telephone").HasMaxLength(50);
+		builder.Property(entity => entity.Email).HasColumnName("email").HasMaxLength(250);
 		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
 		builder.Property(entity => entity.DepartmentId).HasColumnName("department_id");
 		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
@@ -56,6 +58,9 @@ public sealed class DepartmentEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
 		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
-	}
+		builder.Property(entity => entity.CampusId).HasColumnName("campus_id").IsRequired();
+		builder.Property(entity => entity.HeadOfDepartmentEmployeeId).HasColumnName("head_of_department_employee_id");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+}
 }

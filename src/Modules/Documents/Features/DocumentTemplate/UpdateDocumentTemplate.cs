@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Documents.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Documents.Models;
-using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateDocumentTemplate
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateDocumentTemplate
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IDocumentTemplateQuery entityQuery,
-		IDocumentTemplateCommand entityCommand)
+	public interface IUpdateDocumentTemplate
+	{
+		Task UpdateAsync(
+				DocumentTemplateEntity entity,
+				CancellationToken cancellationToken);
+Task<DocumentTemplateEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateDocumentTemplatePersistence(IDocumentsDbContext dbContext) : IUpdateDocumentTemplate
+	{
+		public async Task UpdateAsync(
+				DocumentTemplateEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.DocumentTemplates
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<DocumentTemplateEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.DocumentTemplates
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.DocumentTemplateId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateDocumentTemplate dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateDocumentTemplate
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(DocumentTemplateEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(DocumentTemplateEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateDocumentTemplate
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.DocumentTemplateEntity entity)
+	private static Response MapResponse(DocumentTemplateEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

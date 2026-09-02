@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIInquiry.Models;
-using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateInquiryMessage
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateInquiryMessage
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IInquiryMessageQuery entityQuery,
-		IInquiryMessageCommand entityCommand)
+	public interface IUpdateInquiryMessage
+	{
+		Task UpdateAsync(
+				InquiryMessageEntity entity,
+				CancellationToken cancellationToken);
+Task<InquiryMessageEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateInquiryMessagePersistence(IAIInquiryDbContext dbContext) : IUpdateInquiryMessage
+	{
+		public async Task UpdateAsync(
+				InquiryMessageEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.InquiryMessages
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<InquiryMessageEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.InquiryMessages
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.InquiryMessageId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateInquiryMessage dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateInquiryMessage
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryMessageEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(InquiryMessageEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateInquiryMessage
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.InquiryMessageEntity entity)
+	private static Response MapResponse(InquiryMessageEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

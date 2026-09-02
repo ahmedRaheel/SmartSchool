@@ -65,5 +65,12 @@ public sealed class PredictionEvaluationEntityConfiguration
 		builder.Property(entity => entity.ActualGrade).HasColumnName("actual_grade");
 		builder.Property(entity => entity.GradeCorrect).HasColumnName("grade_correct");
 		builder.Property(entity => entity.EvaluatedAt).HasColumnName("evaluated_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<StudentPerformancePredictionEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.StudentPerformancePredictionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

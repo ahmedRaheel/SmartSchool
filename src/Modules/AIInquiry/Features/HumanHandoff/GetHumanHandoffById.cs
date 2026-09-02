@@ -1,8 +1,9 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIInquiry.Models;
-using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,21 +29,62 @@ public static class GetHumanHandoffById
 		Guid TenantId,
 		Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(IHumanHandoffQuery entityQuery)
+	public interface IGetHumanHandoffById
+	{
+		Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetHumanHandoffByIdPersistence(
+		IDbConnectionFactory connectionFactory) : IGetHumanHandoffById
+	{
+		public async Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT
+						tenant_id AS "TenantId",
+						human_handoff_id AS "Id",
+						code AS "Code",
+						name AS "Name",
+						metadata_json AS "MetadataJson"
+					FROM ai_core.human_handoff
+					WHERE tenant_id = @TenantId
+					  AND human_handoff_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IGetHumanHandoffById dataAccess)
 		: IRequestHandler<Query, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Query request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(HumanHandoffEntity))));
 			}
-			return Result<Response>.Success(MapResponse(entity));
+			return Result<Response>.Success(entity);
 		}
 	}
 
@@ -61,16 +103,5 @@ public static class GetHumanHandoffById
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.HumanHandoffEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.HumanHandoffId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
 	}
 }

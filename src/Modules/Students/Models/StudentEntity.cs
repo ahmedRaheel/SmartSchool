@@ -1,4 +1,5 @@
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.Students.Models;
 
@@ -48,7 +49,7 @@ public sealed class StudentEntity : Entity
 	public DateOnly? AdmissionDate { get; private set; }
 
 	/// <summary>Gets the current student status.</summary>
-	public string Status { get; private set; } = "ACTIVE";
+	public string Status { get; private set; } = LifecycleStatuses.Active;
 
 	/// <summary>Creates a student.</summary>
 	public static StudentEntity Create(
@@ -96,7 +97,7 @@ public sealed class StudentEntity : Entity
 		if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
 		UserId = userId;
 		StudentNumber = studentNumber.Trim();
-		Status = "ACTIVE";
+		Status = LifecycleStatuses.Active;
 		MarkAsUpdated();
 	}
 

@@ -1,11 +1,11 @@
-using Dapper;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
-using SmartSchool.Modules.HR.Persistence;
+
 using SmartSchool.SharedKernel;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.HR.Features.Employee;
 
@@ -24,7 +24,12 @@ public static class ApproveEmployee
         }
     }
 
-    public sealed class Handler(IEmployeeQuery query, IEmployeeCommand command, IIdentityAccountService accounts, IBusinessNumberGenerator numberGenerator, IDbConnectionFactory connectionFactory)
+    public sealed class Handler(
+        IEmployeeQuery query,
+        IEmployeeCommand command,
+        IEmployeeOnboardingQuery onboardingQuery,
+        IIdentityAccountService accounts,
+        IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -34,18 +39,38 @@ public static class ApproveEmployee
             if (employee.UserId.HasValue) return Result<Response>.Failure(Error.Conflict("Employee already has a login account."));
             if (string.IsNullOrWhiteSpace(employee.Email)) return Result<Response>.Failure(Error.Validation("Employee email is required before approval."));
 
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
-                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
-                new { request.TenantId, employee.BranchId }, cancellationToken: cancellationToken));
+            var staffType = employee.StaffType.ToUpperInvariant();
+            var missingDocuments = await onboardingQuery.GetMissingRequiredDocumentsAsync(
+                request.TenantId,
+                request.EmployeeId,
+                staffType,
+                cancellationToken);
+
+            if (missingDocuments.Count > 0)
+            {
+                return Result<Response>.Failure(
+                    Error.Validation($"Required employment documents are missing: {string.Join(", ", missingDocuments)}."));
+            }
+
+            if (staffType == "TEACHER" &&
+                !await onboardingQuery.HasEducationAsync(request.TenantId, request.EmployeeId, cancellationToken))
+            {
+                return Result<Response>.Failure(
+                    Error.Validation("At least one education/qualification record is required before a teacher can be hired."));
+            }
+
+            var branchCode = await query.GetBranchCodeAsync(
+                request.TenantId,
+                employee.BranchId,
+                cancellationToken);
             if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("The employee's branch is invalid."));
-            var marker = request.Roles.Any(r => r.Equals("Teacher", StringComparison.OrdinalIgnoreCase)) ? "T"
-                : request.Roles.Any(r => r.Equals("Driver", StringComparison.OrdinalIgnoreCase)) ? "D" : "E";
+            var marker = request.Roles.Any(r => r.Equals(SmartSchoolRoles.Teacher, StringComparison.OrdinalIgnoreCase)) ? "T"
+                : request.Roles.Any(r => r.Equals(SmartSchoolRoles.Driver, StringComparison.OrdinalIgnoreCase)) ? "D" : "E";
             var employeeNumber = await numberGenerator.NextAsync(
                 $"EMPLOYEE:{marker}:{employee.BranchId}", $"{branchCode}-{marker}-", request.TenantId, 7, cancellationToken);
 
-            var accountType = request.Roles.Any(r => r.Equals("Teacher", StringComparison.OrdinalIgnoreCase)) ? "Teacher"
-                : request.Roles.Any(r => r.Equals("Driver", StringComparison.OrdinalIgnoreCase)) ? "Driver"
+            var accountType = request.Roles.Any(r => r.Equals(SmartSchoolRoles.Teacher, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Teacher
+                : request.Roles.Any(r => r.Equals(SmartSchoolRoles.Driver, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Driver
                 : request.Roles.Any(r => r.Equals("Examiner", StringComparison.OrdinalIgnoreCase)) ? "Examiner" : "Employee";
             var account = await accounts.CreateAccountAsync(
                 request.TenantId, employee.EmployeeId, accountType, employee.Email, employee.FirstName, employee.LastName ?? string.Empty,

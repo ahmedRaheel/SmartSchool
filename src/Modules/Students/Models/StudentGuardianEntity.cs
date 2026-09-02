@@ -43,6 +43,28 @@ private StudentGuardianEntity()
 	/// <summary>Gets optional domain metadata serialized as JSON.</summary>
 	public string? MetadataJson { get; private set; }
 
+    public static StudentGuardianEntity Link(
+        Guid tenantId,
+        Guid studentId,
+        Guid guardianId,
+        string relationship,
+        bool isPrimary)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(relationship);
+
+        return new StudentGuardianEntity
+        {
+            TenantId = tenantId,
+            StudentId = studentId,
+            GuardianId = guardianId,
+            Relationship = relationship.Trim().ToUpperInvariant(),
+            IsPrimary = isPrimary,
+            CanViewAcademics = true,
+            CanViewFinance = true,
+            CanPickup = true
+        };
+    }
+
 	/// <summary>Creates a new StudentGuardianEntity.</summary>
 	/// <param name="tenantId">The owning tenant identifier.</param>
 	/// <param name="code">The business code.</param>

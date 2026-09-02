@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIPrediction.Models;
-using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateTopicPerformanceInsight
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateTopicPerformanceInsight
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		ITopicPerformanceInsightQuery entityQuery,
-		ITopicPerformanceInsightCommand entityCommand)
+	public interface IUpdateTopicPerformanceInsight
+	{
+		Task UpdateAsync(
+				TopicPerformanceInsightEntity entity,
+				CancellationToken cancellationToken);
+Task<TopicPerformanceInsightEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateTopicPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : IUpdateTopicPerformanceInsight
+	{
+		public async Task UpdateAsync(
+				TopicPerformanceInsightEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.TopicPerformanceInsights
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<TopicPerformanceInsightEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.TopicPerformanceInsights
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.TopicPerformanceInsightId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateTopicPerformanceInsight dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateTopicPerformanceInsight
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(TopicPerformanceInsightEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(TopicPerformanceInsightEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateTopicPerformanceInsight
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.TopicPerformanceInsightEntity entity)
+	private static Response MapResponse(TopicPerformanceInsightEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

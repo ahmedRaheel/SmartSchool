@@ -1,8 +1,9 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Workflow.Models;
-using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,21 +29,62 @@ public static class GetWorkflowInstanceById
 		Guid TenantId,
 		Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(IWorkflowInstanceQuery entityQuery)
+	public interface IGetWorkflowInstanceById
+	{
+		Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetWorkflowInstanceByIdPersistence(
+		IDbConnectionFactory connectionFactory) : IGetWorkflowInstanceById
+	{
+		public async Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT
+						tenant_id AS "TenantId",
+						workflow_instance_id AS "Id",
+						code AS "Code",
+						name AS "Name",
+						metadata_json AS "MetadataJson"
+					FROM workflow.workflowinstance
+					WHERE tenant_id = @TenantId
+					  AND workflow_instance_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IGetWorkflowInstanceById dataAccess)
 		: IRequestHandler<Query, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Query request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowInstanceEntity))));
 			}
-			return Result<Response>.Success(MapResponse(entity));
+			return Result<Response>.Success(entity);
 		}
 	}
 
@@ -61,16 +103,5 @@ public static class GetWorkflowInstanceById
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization();
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		SmartSchool.Modules.Workflow.Models.WorkflowInstanceEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.WorkflowInstanceId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
 	}
 }

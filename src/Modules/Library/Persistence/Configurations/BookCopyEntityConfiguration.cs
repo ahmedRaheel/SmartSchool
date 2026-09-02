@@ -60,5 +60,12 @@ public sealed class BookCopyEntityConfiguration
 		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
 		builder.Property(entity => entity.Barcode).HasColumnName("barcode");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<BookEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.BookId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

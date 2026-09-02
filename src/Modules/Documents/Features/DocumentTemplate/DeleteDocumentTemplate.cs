@@ -1,8 +1,10 @@
+using SmartSchool.Modules.Documents.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Documents.Models;
-using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,59 @@ public static class DeleteDocumentTemplate
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IDocumentTemplateQuery entityQuery,
-		IDocumentTemplateCommand entityCommand)
+	public interface IDeleteDocumentTemplate
+	{
+		Task DeleteAsync(
+				DocumentTemplateEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<DocumentTemplateEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteDocumentTemplatePersistence(IDocumentsDbContext dbContext) : IDeleteDocumentTemplate
+	{
+		public async Task DeleteAsync(
+				DocumentTemplateEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.DocumentTemplates
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<DocumentTemplateEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.DocumentTemplates
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.DocumentTemplateId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteDocumentTemplate dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(DocumentTemplateEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

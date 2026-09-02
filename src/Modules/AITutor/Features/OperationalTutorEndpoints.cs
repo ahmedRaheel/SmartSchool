@@ -3,7 +3,11 @@ using System.Text.Json;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AITutor.Models;
-using SmartSchool.Modules.AITutor.Persistence;
+using SmartSchool.Modules.AITutor.Features.TutorSession;
+using SmartSchool.Modules.AITutor.Features.TutorConversation;
+using SmartSchool.Modules.AITutor.Features.TutorMessage;
+using SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
+using SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AITutor.Features;
@@ -35,7 +39,7 @@ public static class OperationalTutorEndpoints
     private static async Task<IResult> Ask(AskRequest r,ITenantScope scope,ITutorMessageCommand messages,IHttpClientFactory clients,IConfiguration cfg,IIntegrationEventPublisher events,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
-        var u=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}","Student",JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="user",content=r.Message,r.Subject,r.Topic}));await messages.AddAsync(u,ct);
+        var u=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}",SmartSchoolRoles.Student,JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="user",content=r.Message,r.Subject,r.Topic}));await messages.AddAsync(u,ct);
         var prompt=$"""
 			You are SmartSchool AI Tutor. Student subject: {r.Subject}. Topic: {r.Topic}.
 			

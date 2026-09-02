@@ -31,8 +31,8 @@ public static class UserManagementEndpoints
         bool MustChangePassword, IReadOnlyList<string> Roles);
 
     private static readonly HashSet<string> SchoolRoles =
-        new(StringComparer.OrdinalIgnoreCase)
-        { "SchoolAdmin", "Admin", "Principal", "Teacher", "Parent", "Student", "Staff", "Driver" };
+        Enum.GetNames<Role>().Where(role => role != nameof(Role.SuperAdmin))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     public static void MapEndpoints(IEndpointRouteBuilder endpoints)
     {

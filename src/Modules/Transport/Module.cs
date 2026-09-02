@@ -1,10 +1,10 @@
+using SmartSchool.Modules.Transport.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Transport.Features.Route;
 using SmartSchool.Modules.Transport.Features.Vehicle;
-using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Transport.Features.Stop;
@@ -17,14 +17,9 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IRouteQuery, RouteQuery>();
-		services.AddScoped<IRouteCommand, RouteCommand>();
-		services.AddScoped<IVehicleQuery, VehicleQuery>();
-		services.AddScoped<IVehicleCommand, VehicleCommand>();
-		services.AddScoped<IStopCommand, StopCommand>();
-		services.AddScoped<IStopQuery, StopQuery>();
-		services.AddScoped<IStudentTransportCommand, StudentTransportCommand>();
-		services.AddScoped<IStudentTransportQuery, StudentTransportQuery>();
+		services.AddScoped<ITransportDbContext, TransportDbContext>();
+
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 		return services;
 	}
 

@@ -1,10 +1,10 @@
+using SmartSchool.Modules.Documents.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Documents.Features.DocumentTemplate;
 using SmartSchool.Modules.Documents.Features.GeneratedDocument;
-using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Documents.Features;
@@ -18,14 +18,9 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IDocumentTemplateQuery, DocumentTemplateQuery>();
-		services.AddScoped<IDocumentTemplateCommand, DocumentTemplateCommand>();
-		services.AddScoped<IGeneratedDocumentQuery, GeneratedDocumentQuery>();
-		services.AddScoped<IGeneratedDocumentCommand, GeneratedDocumentCommand>();
-		services.AddScoped<ICertificateCommand, CertificateCommand>();
-		services.AddScoped<ICertificateQuery, CertificateQuery>();
-		services.AddScoped<ISchoolLogoCommand, SchoolLogoCommand>();
-		services.AddScoped<ISchoolLogoQuery, SchoolLogoQuery>();
+		services.AddScoped<IDocumentsDbContext, DocumentsDbContext>();
+
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 		return services;
 	}
 

@@ -66,5 +66,12 @@ public sealed class PredictionEvidenceEntityConfiguration
 		builder.Property(entity => entity.Weight).HasColumnName("weight");
 		builder.Property(entity => entity.OccurredAt).HasColumnName("occurred_at");
 		builder.Property(entity => entity.Explanation).HasColumnName("explanation");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<StudentPerformancePredictionEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.StudentPerformancePredictionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

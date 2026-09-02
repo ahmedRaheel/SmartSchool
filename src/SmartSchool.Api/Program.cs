@@ -1,3 +1,4 @@
+using ModelContextProtocol.AspNetCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -26,7 +27,6 @@ using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIParent;
 using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AITutor;
-using SmartSchool.Modules.Academics;
 using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Admissions;
 using SmartSchool.Modules.Audit;
@@ -43,8 +43,6 @@ using SmartSchool.Modules.Organization;
 using SmartSchool.Modules.Payroll;
 using SmartSchool.Modules.Reference;
 using SmartSchool.Modules.Students;
-using SmartSchool.Modules.Tenancy;
-using SmartSchool.Modules.Teachers;
 using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Workflow;
 
@@ -172,6 +170,17 @@ builder.Services.AddCors(
 
 builder.Services.AddScoped<SampleActorSeeder>();
 
+builder.Services.AddHttpClient("Ollama", (serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["AI:Ollama:BaseUrl"]
+        ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.");
+    var timeoutSeconds = configuration.GetValue("AI:Ollama:TimeoutSeconds", 180);
+
+    client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+    client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+});
+
 builder.Services
 	.AddHttpClient(
 		ApplicationConstants.MachineLearningHttpClient,
@@ -200,8 +209,6 @@ builder.Services.AddAIInquiryModule();
 builder.Services.AddAIParentModule();
 builder.Services.AddAIPredictionModule();
 builder.Services.AddAITutorModule();
-
-builder.Services.AddAcademicsModule();
 builder.Services.AddActivitiesModule();
 builder.Services.AddAdmissionsModule();
 builder.Services.AddAuditModule();
@@ -214,11 +221,9 @@ builder.Services.AddInventoryModule();
 builder.Services.AddLearningModule();
 builder.Services.AddLibraryModule();
 builder.Services.AddOrganizationModule();
-builder.Services.AddPayrollModule();
 builder.Services.AddReferenceModule();
 builder.Services.AddStudentsModule();
-builder.Services.AddTenancyModule();
-builder.Services.AddTeachersModule();
+
 builder.Services.AddTransportModule();
 builder.Services.AddWorkflowModule();
 
@@ -274,8 +279,8 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<
 	SmartSchool.Api.Middleware.ResultResponseMiddleware>();
 
-app.UseMiddleware<
-    SmartSchool.Api.Middleware.BusinessContactValidationMiddleware>();
+//app.UseMiddleware<
+//    SmartSchool.Api.Middleware.BusinessContactValidationMiddleware>();
 
 app.UseExceptionHandler();
 
@@ -323,12 +328,12 @@ app.MapApplicationLogEndpoints();
 app.MapActorProfileEndpoints();
 
 app.MapAICoreEndpoints();
+app.MapMcp("/mcp").RequireAuthorization();
 app.MapAIInquiryEndpoints();
 app.MapAIParentEndpoints();
 app.MapAIPredictionEndpoints();
 app.MapAITutorEndpoints();
 
-app.MapAcademicsEndpoints();
 app.MapActivitiesEndpoints();
 app.MapAdmissionsEndpoints();
 app.MapAuditEndpoints();
@@ -354,10 +359,8 @@ app.MapInventoryEndpoints();
 app.MapLearningEndpoints();
 app.MapLibraryEndpoints();
 app.MapOrganizationEndpoints();
-app.MapPayrollEndpoints();
 app.MapReferenceEndpoints();
 app.MapStudentsEndpoints();
-app.MapTenancyEndpoints();
 app.MapTeachersEndpoints();
 app.MapTransportEndpoints();
 app.MapWorkflowEndpoints();

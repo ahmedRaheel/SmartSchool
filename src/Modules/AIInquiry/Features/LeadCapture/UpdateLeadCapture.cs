@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIInquiry.Models;
-using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateLeadCapture
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateLeadCapture
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		ILeadCaptureQuery entityQuery,
-		ILeadCaptureCommand entityCommand)
+	public interface IUpdateLeadCapture
+	{
+		Task UpdateAsync(
+				LeadCaptureEntity entity,
+				CancellationToken cancellationToken);
+Task<LeadCaptureEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateLeadCapturePersistence(IAIInquiryDbContext dbContext) : IUpdateLeadCapture
+	{
+		public async Task UpdateAsync(
+				LeadCaptureEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.LeadCaptures
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<LeadCaptureEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.LeadCaptures
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.LeadCaptureId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateLeadCapture dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateLeadCapture
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(LeadCaptureEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(LeadCaptureEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateLeadCapture
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIInquiry.Models.LeadCaptureEntity entity)
+	private static Response MapResponse(LeadCaptureEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

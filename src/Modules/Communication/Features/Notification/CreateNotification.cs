@@ -1,3 +1,6 @@
+using SmartSchool.Modules.Communication.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Modules.Communication.Realtime;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
@@ -5,7 +8,6 @@ using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Communication.Models;
-using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -56,10 +58,31 @@ public static class CreateNotification
 		}
 	}
 
-	public sealed class Handler(
-		INotificationCommand entityCommand,
-		IHubContext<NotificationHub> notificationHub,
-        IIntegrationEventPublisher eventPublisher)
+	public interface ICreateNotification
+	{
+		Task AddAsync(
+				NotificationEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateNotificationPersistence(
+		ICommunicationDbContext dbContext) : ICreateNotification
+	{
+		public async Task AddAsync(
+				NotificationEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.Notifications
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IHubContext<NotificationHub> notificationHub,
+		IIntegrationEventPublisher eventPublisher,
+		ICreateNotification dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
@@ -77,7 +100,7 @@ public static class CreateNotification
 					request.RelatedEntityType,
 					request.ActionUrl,
 					request.Priority);
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			var response = MapResponse(entity);
 			await eventPublisher.PublishAsync(KafkaTopics.NotificationCreated, response, cancellationToken);
             await notificationHub.Clients

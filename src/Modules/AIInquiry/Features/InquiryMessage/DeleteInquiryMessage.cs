@@ -1,8 +1,10 @@
+using SmartSchool.Modules.AIInquiry.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIInquiry.Models;
-using SmartSchool.Modules.AIInquiry.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,59 @@ public static class DeleteInquiryMessage
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IInquiryMessageQuery entityQuery,
-		IInquiryMessageCommand entityCommand)
+	public interface IDeleteInquiryMessage
+	{
+		Task DeleteAsync(
+				InquiryMessageEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<InquiryMessageEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteInquiryMessagePersistence(IAIInquiryDbContext dbContext) : IDeleteInquiryMessage
+	{
+		public async Task DeleteAsync(
+				InquiryMessageEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.InquiryMessages
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<InquiryMessageEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.InquiryMessages
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.InquiryMessageId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteInquiryMessage dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryMessageEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

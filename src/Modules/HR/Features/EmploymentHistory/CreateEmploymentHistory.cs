@@ -1,9 +1,11 @@
+using SmartSchool.Modules.HR.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
-using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -27,7 +29,6 @@ public static class CreateEmploymentHistory
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -35,35 +36,45 @@ public static class CreateEmploymentHistory
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IEmploymentHistoryQuery entityQuery,
-		IEmploymentHistoryCommand entityCommand)
+	public interface ICreateEmploymentHistory
+	{
+		Task AddAsync(
+				EmploymentHistoryEntity entity,
+				CancellationToken cancellationToken);
+}
+
+	internal sealed class CreateEmploymentHistoryPersistence(IHRDbContext dbContext) : ICreateEmploymentHistory
+	{
+		public async Task AddAsync(
+				EmploymentHistoryEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.EmploymentHistories
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(ICreateEmploymentHistory dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(EmploymentHistoryEntity), request.Code)));
-			}
+
 
 			var entity = EmploymentHistoryEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -84,8 +95,7 @@ public static class CreateEmploymentHistory
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.HR.Models.EmploymentHistoryEntity entity)
+	private static Response MapResponse(EmploymentHistoryEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

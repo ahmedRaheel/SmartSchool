@@ -83,5 +83,12 @@ public sealed class StudentPerformancePredictionEntityConfiguration
 		builder.Property(entity => entity.ModelVersion).HasColumnName("model_version");
 		builder.Property(entity => entity.GeneratedAt).HasColumnName("generated_at");
 		builder.Property(entity => entity.ExpiresAt).HasColumnName("expires_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<PredictionModelEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.PredictionModelId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

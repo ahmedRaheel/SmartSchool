@@ -72,5 +72,12 @@ public sealed class TeachingRecommendationEntityConfiguration
 		builder.Property(entity => entity.ReviewedAt).HasColumnName("reviewed_at");
 		builder.Property(entity => entity.ReviewedBy).HasColumnName("reviewed_by");
 		builder.Property(entity => entity.TeacherComments).HasColumnName("teacher_comments");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ClassPerformanceInsightEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ClassPerformanceInsightId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

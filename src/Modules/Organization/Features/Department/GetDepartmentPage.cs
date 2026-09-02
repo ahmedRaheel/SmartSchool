@@ -1,10 +1,12 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Requests;
-using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Organization.Models;
 
 namespace SmartSchool.Modules.Organization.Features.Department;
 
@@ -22,14 +24,95 @@ public static class GetDepartmentPage
 	Guid Id,
 	string Code,
 	string Name,
+	string? Telephone,
+	string? Email,
+	Guid? CampusId,
+	Guid? HeadOfDepartmentEmployeeId,
 	string? MetadataJson);
 
 	public sealed record Query(
 		Guid TenantId,
+		Guid? BranchId = null,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-	public sealed class Handler(IDepartmentQuery entityQuery)
+	public interface IGetDepartmentPage
+	{
+		Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetDepartmentPagePersistence(
+		IDbConnectionFactory connectionFactory) : IGetDepartmentPage
+	{
+		public async Task<PagedResult<Response>> GetPageAsync(
+				Guid tenantId,
+				int page,
+				int pageSize,
+				CancellationToken cancellationToken)
+			{
+				const string countSql = """
+					SELECT COUNT(*)
+					FROM org.department
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE;
+					""";
+		
+				const string pageSql = """
+					SELECT
+					tenant_id AS "TenantId",
+					department_id AS "Id",
+					code AS "Code",
+					name AS "Name",
+					telephone AS "Telephone",
+					email AS "Email",
+					campus_id AS "CampusId",
+					head_of_department_employee_id AS "HeadOfDepartmentEmployeeId",
+					metadata_json AS "MetadataJson"
+					FROM org.department
+					WHERE tenant_id = @TenantId
+					  AND is_active = TRUE
+					ORDER BY department_id
+					LIMIT @PageSize OFFSET @Offset;
+					""";
+		
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken);
+		
+				var parameters = new
+				{
+					TenantId = tenantId,
+					PageSize = pageSize,
+					Offset = (page - 1) * pageSize
+				};
+		
+				var totalCount = await connection.ExecuteScalarAsync<long>(
+					new CommandDefinition(
+						countSql,
+						parameters,
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+		
+				var items = (await connection.QueryAsync<Response>(
+					new CommandDefinition(
+						pageSql,
+						parameters,
+						cancellationToken: cancellationToken)).ConfigureAwait(false))
+					.AsList();
+		
+				return new PagedResult<Response>(
+					items,
+					page,
+					pageSize,
+					totalCount);
+			}
+	}
+
+	public sealed class Handler(IGetDepartmentPage dataAccess)
 		: IRequestHandler<Query, Result<PagedResult<Response>>>
 	{
 		public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -37,13 +120,16 @@ public static class GetDepartmentPage
 			CancellationToken cancellationToken)
 		{
 			var pageRequest = new PageRequest(request.Page, request.PageSize);
-			var page = await entityQuery.GetPageAsync(
+			var page = await dataAccess.GetPageAsync(
 				request.TenantId,
 				pageRequest.NormalizedPage,
 				pageRequest.NormalizedPageSize,
 				cancellationToken);
+			var pageItems = request.BranchId.HasValue
+				? page.Items.Where(x => x.CampusId == request.BranchId.Value)
+				: page.Items;
 			var response = new PagedResult<Response>(
-				page.Items.Select(MapResponse).ToArray(),
+				pageItems.ToArray(),
 				page.Page,
 				page.PageSize,
 				page.TotalCount);
@@ -55,9 +141,9 @@ public static class GetDepartmentPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "department"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid tenantId, Guid? branchId, int? page, int? pageSize, IMediator mediator, CancellationToken cancellationToken) =>
 				{
-					var request = new Query(tenantId, page, pageSize);
+					var request = new Query(tenantId, branchId, page ?? 1, pageSize ?? 25);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
 						request, cancellationToken);
 					return result.ToHttpResult();
@@ -66,16 +152,5 @@ public static class GetDepartmentPage
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.DepartmentEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.DepartmentId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
 	}
 }

@@ -1,10 +1,12 @@
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.Modules.AICore.Agents;
+using ModelContextProtocol.Server;
 using SmartSchool.Modules.AICore.Features;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.SharedKernel;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.AICore.Persistence;
 
 using SmartSchool.Modules.AICore.Features.AiExecutionLog;
 using SmartSchool.Modules.AICore.Features.KnowledgeChunk;
@@ -25,26 +27,34 @@ public static class Module
 		IConfiguration configuration)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAICoreDbContext, AICoreDbContext>();
+
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 
 		services.Configure<AiAssistantOptions>(configuration.GetSection(AiAssistantOptions.SectionName));
 		services.AddScoped<IOllamaClient, OllamaClient>();
 		services.AddScoped<IAiAssistantService, AiAssistantService>();
-
-		services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
+        services.AddScoped<SmartSchoolAgentTools>();
+        services.AddScoped<IAgentWorkflowService, AgentWorkflowService>();
 		services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
-		services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();
+		services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
 		services.AddScoped<IKnowledgeChunkCommand, KnowledgeChunkCommand>();
-		services.AddScoped<IKnowledgeCollectionQuery, KnowledgeCollectionQuery>();
+		services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();
 		services.AddScoped<IKnowledgeCollectionCommand, KnowledgeCollectionCommand>();
-		services.AddScoped<IKnowledgeDocumentQuery, KnowledgeDocumentQuery>();
+		services.AddScoped<IKnowledgeCollectionQuery, KnowledgeCollectionQuery>();
 		services.AddScoped<IKnowledgeDocumentCommand, KnowledgeDocumentCommand>();
-		services.AddScoped<IModelConfigurationQuery, ModelConfigurationQuery>();
+		services.AddScoped<IKnowledgeDocumentQuery, KnowledgeDocumentQuery>();
 		services.AddScoped<IModelConfigurationCommand, ModelConfigurationCommand>();
-		services.AddScoped<IPromptTemplateQuery, PromptTemplateQuery>();
+		services.AddScoped<IModelConfigurationQuery, ModelConfigurationQuery>();
 		services.AddScoped<IPromptTemplateCommand, PromptTemplateCommand>();
-		services.AddScoped<IToolDefinitionQuery, ToolDefinitionQuery>();
+		services.AddScoped<IPromptTemplateQuery, PromptTemplateQuery>();
 		services.AddScoped<IToolDefinitionCommand, ToolDefinitionCommand>();
+		services.AddScoped<IToolDefinitionQuery, ToolDefinitionQuery>();
 
+		services
+            .AddMcpServer()
+            .WithHttpTransport()
+            .WithTools<SmartSchoolAgentTools>();
 		return services;
 	}
 
@@ -89,6 +99,7 @@ public static class Module
 		DeleteToolDefinition.MapEndpoint(endpoints);
 
 		OperationalAiCoreEndpoints.MapOperationalAiCoreEndpoints(endpoints);
+        endpoints.MapAgentEndpoints();
 
 		return endpoints;
 	}

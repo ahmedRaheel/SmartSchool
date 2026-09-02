@@ -1,3 +1,4 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -13,7 +14,6 @@ using SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
 using SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction;
 using SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 using SmartSchool.Modules.AIPrediction.Features.TopicPerformanceInsight;
-using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AIPrediction;
@@ -24,25 +24,31 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAIPredictionDbContext, AIPredictionDbContext>();
+
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 		services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
 		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
-		services.AddScoped<IClassPerformanceInsightQuery, ClassPerformanceInsightQuery>();
 		services.AddScoped<IClassPerformanceInsightCommand, ClassPerformanceInsightCommand>();
-		services.AddScoped<IPredictionEvaluationQuery, PredictionEvaluationQuery>();
+		services.AddScoped<IClassPerformanceInsightQuery, ClassPerformanceInsightQuery>();
 		services.AddScoped<IPredictionEvaluationCommand, PredictionEvaluationCommand>();
-		services.AddScoped<IPredictionEvidenceQuery, PredictionEvidenceQuery>();
+		services.AddScoped<IPredictionEvaluationQuery, PredictionEvaluationQuery>();
 		services.AddScoped<IPredictionEvidenceCommand, PredictionEvidenceCommand>();
-		services.AddScoped<IPredictionModelQuery, PredictionModelQuery>();
+		services.AddScoped<IPredictionEvidenceQuery, PredictionEvidenceQuery>();
 		services.AddScoped<IPredictionModelCommand, PredictionModelCommand>();
-		services.AddScoped<IStudentInterventionQuery, StudentInterventionQuery>();
+		services.AddScoped<IPredictionModelQuery, PredictionModelQuery>();
 		services.AddScoped<IStudentInterventionCommand, StudentInterventionCommand>();
-		services.AddScoped<IStudentPerformancePredictionQuery, StudentPerformancePredictionQuery>();
+		services.AddScoped<IStudentInterventionQuery, StudentInterventionQuery>();
 		services.AddScoped<IStudentPerformancePredictionCommand, StudentPerformancePredictionCommand>();
-		services.AddScoped<ITeachingRecommendationQuery, TeachingRecommendationQuery>();
+		services.AddScoped<IStudentPerformancePredictionQuery, StudentPerformancePredictionQuery>();
 		services.AddScoped<ITeachingRecommendationCommand, TeachingRecommendationCommand>();
-		services.AddScoped<ITopicPerformanceInsightQuery, TopicPerformanceInsightQuery>();
+		services.AddScoped<ITeachingRecommendationQuery, TeachingRecommendationQuery>();
 		services.AddScoped<ITopicPerformanceInsightCommand, TopicPerformanceInsightCommand>();
-
+		services.AddScoped<ITopicPerformanceInsightQuery, TopicPerformanceInsightQuery>();
+		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
+		services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
+		services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
+	
 		return services;
 	}
 

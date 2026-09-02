@@ -64,5 +64,17 @@ public sealed class PositionEntityConfiguration
 		builder.Property(entity => entity.PositionCode).HasColumnName("position_code");
 		builder.Property(entity => entity.Headcount).HasColumnName("headcount");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<JobEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.JobId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<JobGradeEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.JobGradeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

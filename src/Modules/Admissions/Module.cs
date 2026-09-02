@@ -1,11 +1,14 @@
+using SmartSchool.Modules.Admissions.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Admissions.Features;
 using SmartSchool.Modules.Admissions.Features.AdmissionDecision;
+using SmartSchool.Modules.Admissions.Features.AdmissionWorkflow;
 using SmartSchool.Modules.Admissions.Features.Applicant;
 using SmartSchool.Modules.Admissions.Features.Application;
 using SmartSchool.Modules.Admissions.Features.Inquiry;
-using SmartSchool.Modules.Admissions.Persistence;
+
 
 namespace SmartSchool.Modules.Admissions;
 
@@ -15,19 +18,12 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IAdmissionsDbContext, AdmissionsDbContext>();
 
-        services.AddScoped<IAdmissionDecisionCommand, AdmissionDecisionCommand>();
-        services.AddScoped<IAdmissionDecisionQuery, AdmissionDecisionQuery>();
-        services.AddScoped<IApplicantCommand, ApplicantCommand>();
-        services.AddScoped<IApplicantQuery, ApplicantQuery>();
-        services.AddScoped<IApplicationCommand, ApplicationCommand>();
-        services.AddScoped<IApplicationQuery, ApplicationQuery>();
-        services.AddScoped<IInquiryCommand, InquiryCommand>();
-        services.AddScoped<IInquiryQuery, InquiryQuery>();
-        services.AddScoped<IAdmissionWorkflowQuery, AdmissionWorkflowQuery>();
-        services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();
-
-        return services;
+        services.AddFeaturePersistence(typeof(Module).Assembly);
+		services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();
+		services.AddScoped<IAdmissionWorkflowQuery, AdmissionWorkflowQuery>();
+		return services;
     }
 
     public static IEndpointRouteBuilder MapAdmissionsEndpoints(

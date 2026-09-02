@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIPrediction.Models;
-using SmartSchool.Modules.AIPrediction.Persistence;
+
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -63,8 +63,7 @@ public static class GetStudentPerformancePredictionById
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AIPrediction.Models.StudentPerformancePredictionEntity entity)
+	private static Response MapResponse(StudentPerformancePredictionEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

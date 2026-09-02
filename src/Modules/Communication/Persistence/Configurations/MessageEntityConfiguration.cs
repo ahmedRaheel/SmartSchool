@@ -64,5 +64,17 @@ public sealed class MessageEntityConfiguration
 		builder.Property(entity => entity.SentAt).HasColumnName("sent_at");
 		builder.Property(entity => entity.EditedAt).HasColumnName("edited_at");
 		builder.Property(entity => entity.DeletedAt).HasColumnName("deleted_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<MessageEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ReplyToMessageId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

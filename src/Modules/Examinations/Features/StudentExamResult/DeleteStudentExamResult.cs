@@ -1,8 +1,10 @@
+using SmartSchool.Modules.Examinations.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Models;
-using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,52 @@ public static class DeleteStudentExamResult
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IStudentExamResultQuery entityQuery,
-		IStudentExamResultCommand entityCommand)
+	public interface IDeleteStudentExamResult
+	{
+		Task DeleteAsync(
+				StudentExamResultEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<StudentExamResultEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteStudentExamResultPersistence(
+		IExaminationsDbContext dbContext) : IDeleteStudentExamResult
+	{
+		public async Task DeleteAsync(
+				StudentExamResultEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.StudentExamResults
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	
+		public Task<StudentExamResultEntity?> GetByIdAsync(
+			Guid tenantId, Guid id, CancellationToken cancellationToken)
+		{
+			return dbContext.StudentExamResults
+				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentExamResultId == id, cancellationToken);
+		}
+}
+
+	public sealed class Handler(IDeleteStudentExamResult dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentExamResultEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

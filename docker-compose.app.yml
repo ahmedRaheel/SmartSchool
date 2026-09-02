@@ -43,6 +43,7 @@ services:
       AI__Ollama__BaseUrl: "http://host.docker.internal:11434"
       AI__Ollama__ChatModel: "llama3.2"
       AI__Ollama__EmbeddingModel: "nomic-embed-text"
+      AI__Ollama__TimeoutSeconds: "180"
       AI__Ollama__TopK: "5"
       Identity__Authority: "${IDENTITY_INTERNAL_URL}"
       Identity__MetadataAddress: "${IDENTITY_INTERNAL_URL}/.well-known/openid-configuration"

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Communication.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,7 @@ public sealed class NotificationHub(ICurrentUser currentUser) : Hub
 
 [Authorize]
 public sealed class ChatHub(
-    IApplicationDbContext dbContext,
+    ICommunicationDbContext dbContext,
     IIntegrationEventPublisher publisher,
     ICurrentUser currentUser) : Hub
 {
@@ -78,7 +79,7 @@ public sealed class ChatHub(
             userId,
             message.Trim());
 
-        await dbContext.Set<ChatMessageEntity>().AddAsync(
+        await dbContext.ChatMessages.AddAsync(
             entity,
             Context.ConnectionAborted);
 
@@ -128,8 +129,7 @@ public sealed class ChatHub(
         Guid conversationId,
         CancellationToken cancellationToken)
     {
-        var conversation = await dbContext
-            .Set<ChatConversationEntity>()
+        var conversation = await dbContext.ChatConversations
             .AsNoTracking()
             .SingleOrDefaultAsync(
                 item => item.ChatConversationId == conversationId && item.IsActive,
@@ -152,8 +152,7 @@ public sealed class ChatHub(
                 throw new HubException("Conversation is outside your tenant.");
             }
 
-            var isParticipant = await dbContext
-                .Set<ChatParticipantEntity>()
+            var isParticipant = await dbContext.ChatParticipants
                 .AsNoTracking()
                 .AnyAsync(
                     item =>

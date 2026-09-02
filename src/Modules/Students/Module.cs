@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Students.Persistence;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
@@ -7,7 +8,7 @@ using SmartSchool.Modules.Students.Features.Enrollment;
 using SmartSchool.Modules.Students.Features.Guardian;
 using SmartSchool.Modules.Students.Features.Student;
 using SmartSchool.Modules.Students.Features.StudentGuardian;
-using SmartSchool.Modules.Students.Persistence;
+
 
 namespace SmartSchool.Modules.Students;
 
@@ -22,19 +23,23 @@ public static class Module
     public static IServiceCollection AddStudentsModule(this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
+		services.AddScoped<IStudentsDbContext, StudentsDbContext>();
 
-        services.AddScoped<IStudentQuery, StudentQuery>();
-        services.AddScoped<IStudentCommand, StudentCommand>();
-        services.AddScoped<IGuardianQuery, GuardianQuery>();
-        services.AddScoped<IGuardianCommand, GuardianCommand>();
-        services.AddScoped<IStudentGuardianQuery, StudentGuardianQuery>();
-        services.AddScoped<IStudentGuardianCommand, StudentGuardianCommand>();
-        services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();
-        services.AddScoped<IEnrollmentCommand, EnrollmentCommand>();
-        services.AddScoped<IAttendanceQuery, AttendanceQuery>();
-        services.AddScoped<IAttendanceCommand, AttendanceCommand>();
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 
-        return services;
+		services.AddScoped<IStudentCommand, StudentCommand>();
+		services.AddScoped<IStudentQuery, StudentQuery>();
+		services.AddScoped<IGuardianCommand, GuardianCommand>();
+		services.AddScoped<IGuardianQuery, GuardianQuery>();
+		services.AddScoped<IEnrollmentCommand, EnrollmentCommand>();
+		services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();
+		services.AddScoped<IAttendanceCommand, AttendanceCommand>();
+		services.AddScoped<IAttendanceQuery, AttendanceQuery>();
+		services.AddScoped<IStudentGuardianCommand, StudentGuardianCommand>();
+		services.AddScoped<IStudentGuardianQuery, StudentGuardianQuery>();
+		services.AddScoped<IStudentOnboardingQuery, StudentOnboardingQuery>();
+		services.AddScoped<IStudentOnboardingCommand, StudentOnboardingCommand>();
+		return services;
     }
 
     /// <summary>
@@ -61,6 +66,7 @@ public static class Module
         StrikeOffStudent.MapEndpoint(endpoints);
 
         CreateStudentGuardian.MapEndpoint(endpoints);
+        LinkStudentGuardian.MapEndpoint(endpoints);
         GetStudentGuardianById.MapEndpoint(endpoints);
         GetStudentGuardianPage.MapEndpoint(endpoints);
         UpdateStudentGuardian.MapEndpoint(endpoints);

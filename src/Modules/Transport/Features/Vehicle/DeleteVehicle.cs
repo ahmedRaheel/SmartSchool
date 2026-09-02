@@ -1,8 +1,10 @@
+using SmartSchool.Modules.Transport.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Transport.Models;
-using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,59 @@ public static class DeleteVehicle
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IVehicleQuery entityQuery,
-		IVehicleCommand entityCommand)
+	public interface IDeleteVehicle
+	{
+		Task DeleteAsync(
+				VehicleEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<VehicleEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteVehiclePersistence(ITransportDbContext dbContext) : IDeleteVehicle
+	{
+		public async Task DeleteAsync(
+				VehicleEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.Vehicles
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<VehicleEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.Vehicles
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.VehicleId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteVehicle dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(VehicleEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

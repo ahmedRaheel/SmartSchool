@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Documents.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Documents.Models;
-using SmartSchool.Modules.Documents.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdateSchoolLogo
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdateSchoolLogo
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		ISchoolLogoQuery entityQuery,
-		ISchoolLogoCommand entityCommand)
+	public interface IUpdateSchoolLogo
+	{
+		Task UpdateAsync(
+				SchoolLogoEntity entity,
+				CancellationToken cancellationToken);
+Task<SchoolLogoEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateSchoolLogoPersistence(IDocumentsDbContext dbContext) : IUpdateSchoolLogo
+	{
+		public async Task UpdateAsync(
+				SchoolLogoEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.SchoolLogos
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<SchoolLogoEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.SchoolLogos
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.SchoolLogoId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateSchoolLogo dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdateSchoolLogo
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolLogoEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(SchoolLogoEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdateSchoolLogo
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Documents.Models.SchoolLogoEntity entity)
+	private static Response MapResponse(SchoolLogoEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

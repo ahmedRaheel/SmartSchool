@@ -68,5 +68,12 @@ public sealed class MlExamPredictionEntityConfiguration : IEntityTypeConfigurati
 		builder.Property(entity => entity.Score).HasColumnName("score");
 		builder.Property(entity => entity.Explanation).HasColumnName("explanation");
 		builder.Property(entity => entity.PredictedAt).HasColumnName("predicted_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<PredictionModelEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.PredictionModelId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

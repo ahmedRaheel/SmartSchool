@@ -1,8 +1,10 @@
+using SmartSchool.Modules.Finance.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Finance.Models;
-using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,59 @@ public static class DeleteScholarship
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IScholarshipQuery entityQuery,
-		IScholarshipCommand entityCommand)
+	public interface IDeleteScholarship
+	{
+		Task DeleteAsync(
+				ScholarshipEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<ScholarshipEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteScholarshipPersistence(IFinanceDbContext dbContext) : IDeleteScholarship
+	{
+		public async Task DeleteAsync(
+				ScholarshipEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.Scholarships
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<ScholarshipEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.Scholarships
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.ScholarshipId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteScholarship dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(ScholarshipEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

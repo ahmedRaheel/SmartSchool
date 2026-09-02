@@ -1,11 +1,11 @@
-using Dapper;
+using SmartSchool.Modules.Learning.Persistence;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Learning.Models;
-using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -42,20 +42,43 @@ public static class CreateAssignment
 		}
 	}
 
-	public sealed class Handler(		
-		IAssignmentCommand entityCommand,
-        IBusinessNumberGenerator numberGenerator,
-        IDbConnectionFactory connectionFactory)
+	public interface ICreateAssignment
+	{
+		Task AddAsync(
+				AssignmentEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class CreateAssignmentPersistence(
+		ILearningDbContext dbContext) : ICreateAssignment
+	{
+		public async Task AddAsync(
+				AssignmentEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.Assignments
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
+		ILearningDbContext dbContext,
+		ICreateAssignment dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            var branchCode = await connection.ExecuteScalarAsync<string>(new CommandDefinition(
-                "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@BranchId",
-                new { request.TenantId, request.BranchId }, cancellationToken: cancellationToken));
+            var branchCode = await dbContext.Database
+                .SqlQueryRaw<string>(
+                    "SELECT code AS \"Value\" FROM org.campus WHERE tenant_id = {0} AND campus_id = {1} AND is_active = TRUE",
+                    request.TenantId,
+                    request.BranchId)
+                .SingleOrDefaultAsync(cancellationToken);
             if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("A valid branch is required."));
             var code = await numberGenerator.NextAsync("ASSIGNMENT:" + request.BranchId, $"{branchCode}-ASG-", request.TenantId, 7, cancellationToken);
 
@@ -65,7 +88,7 @@ public static class CreateAssignment
 				code,
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}

@@ -13,7 +13,7 @@ public sealed class SchoolDocumentEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<SchoolDocumentEntity> builder)
 	{
-		builder.ToTable("schooldocument", schema: "public");
+		builder.ToTable("schooldocument", schema: "org");
 		builder.HasKey(document => document.SchoolDocumentId);
 
 		builder.Property(document => document.TenantId).IsRequired();
@@ -101,5 +101,12 @@ public sealed class SchoolDocumentEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updatedat");
 		builder.Property(entity => entity.RowVersion).HasColumnName("rowversion");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<SchoolEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.SchoolId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

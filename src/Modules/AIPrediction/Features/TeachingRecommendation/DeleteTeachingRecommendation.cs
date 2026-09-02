@@ -1,8 +1,10 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AIPrediction.Models;
-using SmartSchool.Modules.AIPrediction.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,59 @@ public static class DeleteTeachingRecommendation
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		ITeachingRecommendationQuery entityQuery,
-		ITeachingRecommendationCommand entityCommand)
+	public interface IDeleteTeachingRecommendation
+	{
+		Task DeleteAsync(
+				TeachingRecommendationEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<TeachingRecommendationEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteTeachingRecommendationPersistence(IAIPredictionDbContext dbContext) : IDeleteTeachingRecommendation
+	{
+		public async Task DeleteAsync(
+				TeachingRecommendationEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.TeachingRecommendations
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<TeachingRecommendationEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.TeachingRecommendations
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.TeachingRecommendationId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteTeachingRecommendation dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(TeachingRecommendationEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

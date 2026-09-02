@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Communication.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Communication.Models;
-using SmartSchool.Modules.Communication.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -55,16 +57,52 @@ public static class UpdateNotification
 		}
 	}
 
-	public sealed class Handler(
-		INotificationQuery entityQuery,
-		INotificationCommand entityCommand)
+	public interface IUpdateNotification
+	{
+		Task<NotificationEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
+		Task UpdateAsync(
+				NotificationEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateNotificationPersistence(
+		ICommunicationDbContext dbContext) : IUpdateNotification
+	{
+		public Task<NotificationEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext.Notifications
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.NotificationId == id,
+					cancellationToken);
+		}
+
+		public async Task UpdateAsync(
+				NotificationEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.Notifications
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateNotification dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -81,8 +119,21 @@ public static class UpdateNotification
 				request.RelatedEntityType,
 				request.ActionUrl,
 				request.Priority);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
+			await dataAccess.UpdateAsync(entity, cancellationToken);
+			return Result<Response>.Success(new Response(
+				entity.TenantId,
+				entity.NotificationId,
+				entity.RecipientUserId,
+				entity.Type,
+				entity.Title,
+				entity.Message,
+				entity.RelatedEntityId,
+				entity.RelatedEntityType,
+				entity.ActionUrl,
+				entity.Priority,
+				entity.IsRead,
+				entity.ReadAt,
+				entity.OccurredAt));
 		}
 	}
 
@@ -101,24 +152,5 @@ public static class UpdateNotification
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		NotificationEntity entity)
-	{
-		return new Response(
-		entity.TenantId,
-			entity.NotificationId,
-			entity.RecipientUserId,
-			entity.Type,
-			entity.Title,
-			entity.Message,
-			entity.RelatedEntityId,
-			entity.RelatedEntityType,
-			entity.ActionUrl,
-			entity.Priority,
-			entity.IsRead,
-			entity.ReadAt,
-			entity.OccurredAt);
 	}
 }

@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Inventory.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Inventory.Models;
-using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,7 +30,6 @@ public static class UpdatePurchaseOrder
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -37,21 +38,55 @@ public static class UpdatePurchaseOrder
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IPurchaseOrderQuery entityQuery,
-		IPurchaseOrderCommand entityCommand)
+	public interface IUpdatePurchaseOrder
+	{
+		Task UpdateAsync(
+				PurchaseOrderEntity entity,
+				CancellationToken cancellationToken);
+Task<PurchaseOrderEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdatePurchaseOrderPersistence(IInventoryDbContext dbContext) : IUpdatePurchaseOrder
+	{
+		public async Task UpdateAsync(
+				PurchaseOrderEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.PurchaseOrders
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<PurchaseOrderEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.PurchaseOrders
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.PurchaseOrderId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdatePurchaseOrder dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +94,11 @@ public static class UpdatePurchaseOrder
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(PurchaseOrderEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(PurchaseOrderEntity), request.Code)));
-			}
 
 			entity.UpdateDetails(
-				request.Code,
+				entity.Code,
 				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +120,7 @@ public static class UpdatePurchaseOrder
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Inventory.Models.PurchaseOrderEntity entity)
+	private static Response MapResponse(PurchaseOrderEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

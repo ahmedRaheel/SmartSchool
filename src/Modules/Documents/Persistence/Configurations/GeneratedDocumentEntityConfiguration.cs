@@ -68,5 +68,12 @@ public sealed class GeneratedDocumentEntityConfiguration
 		builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
 		builder.Property(entity => entity.IssuedAt).HasColumnName("issued_at");
 		builder.Property(entity => entity.Status).HasColumnName("status");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<DocumentTemplateEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.DocumentTemplateId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

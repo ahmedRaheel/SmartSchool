@@ -15,6 +15,8 @@ public sealed class AuditLogEntityConfiguration
 		builder.ToTable("audit_log", schema: "audit");
 		builder.HasKey(entity => entity.AuditLogId);
 
+		builder.Property(entity => entity.AuditLogId).ValueGeneratedOnAdd();
+
 		builder
 			.Property(entity => entity.TenantId)
 			.IsRequired();

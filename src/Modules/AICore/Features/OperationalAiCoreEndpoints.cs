@@ -7,7 +7,8 @@ using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
-using SmartSchool.Modules.AICore.Persistence;
+using SmartSchool.Modules.AICore.Features.AiExecutionLog;
+using SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.Modules.AICore.Features;
@@ -16,7 +17,7 @@ public static class OperationalAiCoreEndpoints
 {
     public sealed record IndexKnowledgeRequest(Guid? TenantId, Guid CollectionId, Guid? DocumentId, string Code, string Name, string Content, string[]? Tags);
     public sealed record ExecuteRequest(Guid? TenantId, string Assistant, string Prompt, string[]? Collections);
-    private sealed record EmbeddingResponse(float[] Embedding);
+    private sealed record EmbeddingResponse(float[][] Embeddings);
     private sealed record GenerateResponse(string Response);
     private sealed record Hit(Guid Id,string DocumentName,string Collection,string Content,double Score);
 
@@ -97,11 +98,25 @@ public static class OperationalAiCoreEndpoints
 
     private static async Task<IResult> HealthAsync(IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct)
     {
-        try{var h=clients.CreateClient();h.BaseAddress=new Uri(Base(cfg));var r=await h.GetAsync("api/tags",ct);return Results.Ok(new{ollama=r.IsSuccessStatusCode,pgvector=true});}
+        try{var h=clients.CreateClient("Ollama");h.BaseAddress=new Uri(Base(cfg));var r=await h.GetAsync("api/tags",ct);return Results.Ok(new{ollama=r.IsSuccessStatusCode,pgvector=true});}
         catch(Exception ex){return Results.Json(new{ollama=false,error=ex.Message},statusCode:503);}
     }
     private static string Base(IConfiguration c)=>(c["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/')+"/";
-    private static async Task<float[]> Embed(string text,IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct){var h=clients.CreateClient();h.BaseAddress=new Uri(Base(cfg));var r=await h.PostAsJsonAsync("api/embeddings",new{model=cfg["AI:Ollama:EmbeddingModel"]??"nomic-embed-text",prompt=text},ct);r.EnsureSuccessStatusCode();return (await r.Content.ReadFromJsonAsync<EmbeddingResponse>(cancellationToken:ct))?.Embedding??throw new InvalidOperationException("No embedding.");}
-    private static async Task<string> Generate(string prompt,IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct){var h=clients.CreateClient();h.BaseAddress=new Uri(Base(cfg));var r=await h.PostAsJsonAsync("api/generate",new{model=cfg["AI:Ollama:ChatModel"]??"llama3.2",prompt,stream=false},ct);r.EnsureSuccessStatusCode();return (await r.Content.ReadFromJsonAsync<GenerateResponse>(cancellationToken:ct))?.Response??"";}
+    private static async Task<float[]> Embed(string text, IHttpClientFactory clients, IConfiguration cfg, CancellationToken ct)
+    {
+        var h = clients.CreateClient("Ollama");
+        h.BaseAddress = new Uri(Base(cfg));
+        var r = await h.PostAsJsonAsync("api/embed", new
+        {
+            model = cfg["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text",
+            input = text
+        }, ct);
+        r.EnsureSuccessStatusCode();
+        var result = await r.Content.ReadFromJsonAsync<EmbeddingResponse>(cancellationToken: ct);
+        return result?.Embeddings is { Length: > 0 } && result.Embeddings[0].Length > 0
+            ? result.Embeddings[0]
+            : throw new InvalidOperationException("Ollama returned no embedding.");
+    }
+    private static async Task<string> Generate(string prompt,IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct){var h=clients.CreateClient("Ollama");h.BaseAddress=new Uri(Base(cfg));var r=await h.PostAsJsonAsync("api/generate",new{model=cfg["AI:Ollama:ChatModel"]??"llama3.2",prompt,stream=false},ct);r.EnsureSuccessStatusCode();return (await r.Content.ReadFromJsonAsync<GenerateResponse>(cancellationToken:ct))?.Response??"";}
     private static string Literal(IEnumerable<float> x)=>"["+string.Join(",",x.Select(v=>v.ToString(CultureInfo.InvariantCulture)))+"]";
 }

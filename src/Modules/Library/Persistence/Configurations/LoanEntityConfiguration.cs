@@ -62,5 +62,12 @@ public sealed class LoanEntityConfiguration
 		builder.Property(entity => entity.IssuedAt).HasColumnName("issued_at");
 		builder.Property(entity => entity.DueAt).HasColumnName("due_at");
 		builder.Property(entity => entity.ReturnedAt).HasColumnName("returned_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<BookCopyEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.BookCopyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

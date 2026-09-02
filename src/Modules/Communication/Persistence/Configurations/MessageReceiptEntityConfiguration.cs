@@ -60,5 +60,12 @@ public sealed class MessageReceiptEntityConfiguration
 		builder.Property(entity => entity.UserId).HasColumnName("user_id");
 		builder.Property(entity => entity.DeliveredAt).HasColumnName("delivered_at");
 		builder.Property(entity => entity.ReadAt).HasColumnName("read_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<MessageEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.MessageId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

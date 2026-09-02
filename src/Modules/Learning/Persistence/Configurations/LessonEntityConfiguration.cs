@@ -12,7 +12,7 @@ public sealed class LessonEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<LessonEntity> builder)
 	{
-		builder.ToTable("Lesson", schema: "lms");
+		builder.ToTable("lesson", schema: "lms");
 		builder.HasKey(entity => entity.LessonId);
 
 		builder

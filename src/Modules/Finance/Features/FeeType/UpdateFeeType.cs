@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Finance.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Finance.Models;
-using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -23,13 +25,17 @@ public static class UpdateFeeType
 	Guid Id,
 	string Code,
 	string Name,
-	string? MetadataJson);
+	string Frequency,
+	bool IsActive,
+	string? Description);
 
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+		string Name,
+		string Frequency = "Monthly",
+		bool IsActive = true,
+		string? Description = null) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -37,21 +43,55 @@ public static class UpdateFeeType
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IFeeTypeQuery entityQuery,
-		IFeeTypeCommand entityCommand)
+	public interface IUpdateFeeType
+	{
+		Task UpdateAsync(
+				FeeTypeEntity entity,
+				CancellationToken cancellationToken);
+Task<FeeTypeEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateFeeTypePersistence(IFinanceDbContext dbContext) : IUpdateFeeType
+	{
+		public async Task UpdateAsync(
+				FeeTypeEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.FeeTypes
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<FeeTypeEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.FeeTypes
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.FeeTypeId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateFeeType dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +99,9 @@ public static class UpdateFeeType
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeTypeEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(FeeTypeEntity), request.Code)));
-			}
 
-			entity.UpdateDetails(
-				request.Code,
-				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			entity.UpdateDetails(request.Name, request.Frequency, request.IsActive, request.Description);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,14 +123,15 @@ public static class UpdateFeeType
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.FeeTypeEntity entity)
+	private static Response MapResponse(FeeTypeEntity entity)
 	{
 		return new Response(
 			entity.TenantId,
 			entity.FeeTypeId,
 			entity.Code,
 			entity.Name,
-			entity.MetadataJson);
+			entity.Frequency,
+			entity.IsActive,
+			entity.Description);
 	}
 }

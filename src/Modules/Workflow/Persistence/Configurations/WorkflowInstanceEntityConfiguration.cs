@@ -12,7 +12,7 @@ public sealed class WorkflowInstanceEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<WorkflowInstanceEntity> builder)
 	{
-		builder.ToTable("WorkflowInstance", schema: "workflow");
+		builder.ToTable("workflowinstance", schema: "workflow");
 		builder.HasKey(entity => entity.WorkflowInstanceId);
 
 		builder
@@ -52,6 +52,7 @@ public sealed class WorkflowInstanceEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 		builder.Property(entity => entity.Code).HasColumnName("code");
 		builder.Property(entity => entity.Name).HasColumnName("name");
+		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json");
 		builder.Property(entity => entity.WorkflowInstanceId).HasColumnName("workflow_instance_id");
 	}
 }

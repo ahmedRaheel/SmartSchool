@@ -1,9 +1,11 @@
+using SmartSchool.Modules.AITutor.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AITutor.Models;
-using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -27,7 +29,6 @@ public static class CreateGeneratedQuiz
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name,
 		string? MetadataJson = null) : IRequest<Result<Response>>;
 
@@ -36,36 +37,46 @@ public static class CreateGeneratedQuiz
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IGeneratedQuizQuery entityQuery,
-		IGeneratedQuizCommand entityCommand)
+	public interface ICreateGeneratedQuiz
+	{
+		Task AddAsync(
+				GeneratedQuizEntity entity,
+				CancellationToken cancellationToken);
+}
+
+	internal sealed class CreateGeneratedQuizPersistence(IAITutorDbContext dbContext) : ICreateGeneratedQuiz
+	{
+		public async Task AddAsync(
+				GeneratedQuizEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.GeneratedQuizs
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(ICreateGeneratedQuiz dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(GeneratedQuizEntity), request.Code)));
-			}
+
 
 			var entity = GeneratedQuizEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name,
 				request.MetadataJson);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -86,8 +97,7 @@ public static class CreateGeneratedQuiz
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.AITutor.Models.GeneratedQuizEntity entity)
+	private static Response MapResponse(GeneratedQuizEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

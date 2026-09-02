@@ -1,8 +1,10 @@
+using SmartSchool.Modules.HR.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
-using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -18,23 +20,59 @@ public static class DeleteEmployee
 		Guid TenantId,
 		Guid Id);
 
-	public sealed class Handler(
-		IEmployeeQuery entityQuery,
-		IEmployeeCommand entityCommand)
+	public interface IDeleteEmployee
+	{
+		Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken);
+
+		Task DeleteAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteEmployeePersistence(
+		IHRDbContext dbContext) : IDeleteEmployee
+	{
+		public Task<EmployeeEntity?> GetByIdAsync(
+			Guid tenantId,
+			Guid id,
+			CancellationToken cancellationToken)
+		{
+			return dbContext.Employees
+				.SingleOrDefaultAsync(
+					entity => entity.TenantId == tenantId && entity.EmployeeId == id,
+					cancellationToken);
+		}
+
+		public async Task DeleteAsync(
+				EmployeeEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.Employees
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteEmployee dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmployeeEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}

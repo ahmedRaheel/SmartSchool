@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -5,13 +6,13 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Finance.Features.FeeType;
 using SmartSchool.Modules.Finance.Features.Invoice;
 using SmartSchool.Modules.Finance.Features.Payment;
-using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Finance.Features.Discount;
 using SmartSchool.Modules.Finance.Features.FeeStructure;
 using SmartSchool.Modules.Finance.Features.Scholarship;
 using SmartSchool.Modules.Finance.Features.StudentFee;
+
 namespace SmartSchool.Modules.Finance;
 
 public static class Module
@@ -20,20 +21,9 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IFeeTypeQuery, FeeTypeQuery>();
-		services.AddScoped<IFeeTypeCommand, FeeTypeCommand>();
-		services.AddScoped<IInvoiceQuery, InvoiceQuery>();
-		services.AddScoped<IInvoiceCommand, InvoiceCommand>();
-		services.AddScoped<IPaymentQuery, PaymentQuery>();
-		services.AddScoped<IPaymentCommand, PaymentCommand>();
-		services.AddScoped<IDiscountCommand, DiscountCommand>();
-		services.AddScoped<IDiscountQuery, DiscountQuery>();
-		services.AddScoped<IFeeStructureCommand, FeeStructureCommand>();
-		services.AddScoped<IFeeStructureQuery, FeeStructureQuery>();
-		services.AddScoped<IScholarshipCommand, ScholarshipCommand>();
-		services.AddScoped<IScholarshipQuery, ScholarshipQuery>();
-		services.AddScoped<IStudentFeeCommand, StudentFeeCommand>();
-		services.AddScoped<IStudentFeeQuery, StudentFeeQuery>();
+		services.AddScoped<IFinanceDbContext, FinanceDbContext>();
+
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 		return services;
 	}
 

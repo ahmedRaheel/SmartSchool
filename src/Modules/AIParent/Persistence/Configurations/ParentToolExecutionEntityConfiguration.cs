@@ -12,7 +12,7 @@ public sealed class ParentToolExecutionEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<ParentToolExecutionEntity> builder)
 	{
-		builder.ToTable("parent_tool_execution", schema: "ai_parent");
+		builder.ToTable("parent_tool_execution", schema: "ai_core");
 		builder.HasKey(entity => entity.ParentToolExecutionId);
 
 		builder
@@ -63,5 +63,12 @@ public sealed class ParentToolExecutionEntityConfiguration
 		builder.Property(entity => entity.OutputPayload).HasColumnName("output_payload");
 		builder.Property(entity => entity.Status).HasColumnName("status");
 		builder.Property(entity => entity.ExecutedAt).HasColumnName("executed_at");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ParentConversationEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ParentConversationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Payroll.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Payroll.Models;
-using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -27,7 +29,6 @@ public static class CreateEmployeeCompensation
 
 	public sealed record Request(
 		Guid TenantId,
-		string Code,
 		string Name) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -35,35 +36,45 @@ public static class CreateEmployeeCompensation
 		public Validator()
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
 		}
 	}
 
-	public sealed class Handler(
-		IEmployeeCompensationQuery entityQuery,
-		IEmployeeCompensationCommand entityCommand)
+	public interface ICreateEmployeeCompensation
+	{
+		Task AddAsync(
+				EmployeeCompensationEntity entity,
+				CancellationToken cancellationToken);
+}
+
+	internal sealed class CreateEmployeeCompensationPersistence(IPayrollDbContext dbContext) : ICreateEmployeeCompensation
+	{
+		public async Task AddAsync(
+				EmployeeCompensationEntity entity,
+				CancellationToken cancellationToken)
+			{
+				await dbContext.EmployeeCompensations
+					.AddAsync(entity, cancellationToken);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+	}
+
+	public sealed class Handler(ICreateEmployeeCompensation dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, null, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(EmployeeCompensationEntity), request.Code)));
-			}
+
 
 			var entity = EmployeeCompensationEntity.Create(
 				request.TenantId,
-				request.Code,
+				Guid.NewGuid().ToString("N").ToUpperInvariant(),
 				request.Name);
 
-			await entityCommand.AddAsync(entity, cancellationToken);
+			await dataAccess.AddAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -84,8 +95,7 @@ public static class CreateEmployeeCompensation
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Payroll.Models.EmployeeCompensationEntity entity)
+	private static Response MapResponse(EmployeeCompensationEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

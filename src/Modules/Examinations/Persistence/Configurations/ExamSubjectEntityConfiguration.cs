@@ -64,5 +64,12 @@ public sealed class ExamSubjectEntityConfiguration
 		builder.Property(entity => entity.TotalMarks).HasColumnName("total_marks");
 		builder.Property(entity => entity.PassingMarks).HasColumnName("passing_marks");
 		builder.Property(entity => entity.RoomId).HasColumnName("room_id");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<ExamEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.ExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }

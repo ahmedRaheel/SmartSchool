@@ -1,8 +1,10 @@
+using SmartSchool.Modules.Audit.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Audit.Models;
-using SmartSchool.Modules.Audit.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,29 +14,65 @@ public static class DeleteAuditLog
 {
 	public sealed record Command(
 		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+		long Id) : IRequest<Result<Response>>;
 
 	public sealed record Response(
 		Guid TenantId,
-		Guid Id);
+		long Id);
 
-	public sealed class Handler(
-		IAuditLogQuery entityQuery,
-		IAuditLogCommand entityCommand)
+	public interface IDeleteAuditLog
+	{
+		Task DeleteAsync(
+				AuditLogEntity entity,
+				CancellationToken cancellationToken);
+
+		Task<AuditLogEntity?> GetByIdAsync(
+				Guid tenantId,
+				long id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class DeleteAuditLogPersistence(IAuditDbContext dbContext) : IDeleteAuditLog
+	{
+		public async Task DeleteAsync(
+				AuditLogEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.AuditLogs
+					.Remove(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<AuditLogEntity?> GetByIdAsync(
+				Guid tenantId,
+				long id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.AuditLogs
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.AuditLogId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IDeleteAuditLog dataAccess)
 		: IRequestHandler<Command, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Command request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(AuditLogEntity))));
 			}
-			await entityCommand.DeleteAsync(entity, cancellationToken);
+			await dataAccess.DeleteAsync(entity, cancellationToken);
 			return Result<Response>.Success(new Response(request.TenantId, request.Id));
 		}
 	}
@@ -43,7 +81,7 @@ public static class DeleteAuditLog
 	{
 		endpoints.MapDelete(
 				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "audit-log"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+				async (long id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var request = new Command(tenantId, id);
 					var result = await mediator.SendAsync<Command, Result<Response>>(

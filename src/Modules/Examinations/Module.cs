@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Examinations.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
@@ -5,7 +6,6 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Features.Exam;
 using SmartSchool.Modules.Examinations.Features.ExamSubject;
 using SmartSchool.Modules.Examinations.Features.StudentExamResult;
-using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Examinations.Features.GradeScale;
@@ -17,12 +17,16 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IExamQuery, ExamQuery>();
+		services.AddScoped<IExaminationsDbContext, ExaminationsDbContext>();
+
+        services.AddFeaturePersistence(typeof(Module).Assembly);
+
 		services.AddScoped<IExamCommand, ExamCommand>();
-		services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
+		services.AddScoped<IExamQuery, ExamQuery>();
 		services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
-		services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
+		services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
 		services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
+		services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
 		services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
 		services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
 		

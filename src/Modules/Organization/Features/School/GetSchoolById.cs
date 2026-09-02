@@ -1,8 +1,9 @@
+using SmartSchool.Application.Persistence;
+using Dapper;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
-using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -26,21 +27,71 @@ public static class GetSchoolById
 		Guid TenantId,
 		Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(ISchoolQuery entityQuery)
+	public interface IGetSchoolById
+	{
+		Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class GetSchoolByIdPersistence(
+		IDbConnectionFactory connectionFactory) : IGetSchoolById
+	{
+		public async Task<Response?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				const string sql = """
+					SELECT
+						tenant_id AS "TenantId",
+						school_id AS "Id",
+						code AS "Code",
+						name AS "Name",
+						registration_number AS "RegistrationNumber",
+						email AS "Email",
+						phone AS "Phone",
+						fax AS "Fax",
+						website AS "Website",
+						address AS "Address",
+						city AS "City",
+						province AS "Province",
+						country AS "Country",
+						logo_url AS "LogoUrl"
+					FROM org.school
+					WHERE tenant_id = @TenantId
+					  AND school_id = @Id
+					  AND is_active = TRUE;
+					""";
+		
+				await using var connection =
+					await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+		
+				return await connection.QuerySingleOrDefaultAsync<Response>(
+					new CommandDefinition(
+						sql,
+						new { TenantId = tenantId, Id = id },
+						cancellationToken: cancellationToken)).ConfigureAwait(false);
+			}
+	}
+
+	public sealed class Handler(IGetSchoolById dataAccess)
 		: IRequestHandler<Query, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Query request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
 				return Result<Response>.Failure(
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolEntity))));
 			}
-			return Result<Response>.Success(MapResponse(entity));
+			return Result<Response>.Success(entity);
 		}
 	}
 
@@ -59,14 +110,5 @@ public static class GetSchoolById
 			.WithTags(ModuleConstants.Name)
 			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
 		return endpoints;
-	}
-
-	private static Response MapResponse(
-		SmartSchool.Modules.Organization.Models.SchoolEntity entity)
-	{
-		return new Response(
-			entity.TenantId, entity.SchoolId, entity.Code, entity.Name, entity.RegistrationNumber,
-			            entity.Email, entity.Phone, entity.Fax, entity.Website, entity.Address, entity.City,
-			            entity.Province, entity.Country, entity.LogoUrl);
 	}
 }

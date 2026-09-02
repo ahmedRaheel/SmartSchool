@@ -1,10 +1,10 @@
+using SmartSchool.Modules.Learning.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Learning.Features.Assignment;
 using SmartSchool.Modules.Learning.Features.AssignmentSubmission;
-using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.SharedKernel;
 
 using SmartSchool.Modules.Learning.Features.LearningResource;
@@ -17,15 +17,9 @@ public static class Module
 		this IServiceCollection services)
 	{
 		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IAssignmentQuery, AssignmentQuery>();
-		services.AddScoped<IAssignmentCommand, AssignmentCommand>();
-		services.AddScoped<IAssignmentSubmissionQuery, AssignmentSubmissionQuery>();
-		services.AddScoped<IAssignmentSubmissionCommand, AssignmentSubmissionCommand>();
-		services.AddScoped<ILearningResourceCommand, LearningResourceCommand>();
-		services.AddScoped<ILearningResourceQuery, LearningResourceQuery>();
-		services.AddScoped<ILessonCommand, LessonCommand>();
-		services.AddScoped<ILessonQuery, LessonQuery>();
+		services.AddScoped<ILearningDbContext, LearningDbContext>();
 
+        services.AddFeaturePersistence(typeof(Module).Assembly);
 		return services;
 	}
 

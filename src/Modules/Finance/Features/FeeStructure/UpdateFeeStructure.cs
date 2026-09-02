@@ -1,9 +1,11 @@
+using SmartSchool.Modules.Finance.Persistence;
+using SmartSchool.Application.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Finance.Models;
-using SmartSchool.Modules.Finance.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -28,8 +30,11 @@ public static class UpdateFeeStructure
 	public sealed record Request(
 		Guid TenantId,
 		Guid Id,
-		string Code,
-		string Name) : IRequest<Result<Response>>;
+		decimal Amount,
+		string Frequency = "Monthly",
+		DateOnly? EffectiveFrom = null,
+		DateOnly? EffectiveTo = null,
+		bool IsActive = true) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
 	{
@@ -37,21 +42,55 @@ public static class UpdateFeeStructure
 		{
 			RuleFor(x => x.TenantId).NotEmpty();
 			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+			RuleFor(x => x.Amount).GreaterThanOrEqualTo(0);
 		}
 	}
 
-	public sealed class Handler(
-		IFeeStructureQuery entityQuery,
-		IFeeStructureCommand entityCommand)
+	public interface IUpdateFeeStructure
+	{
+		Task UpdateAsync(
+				FeeStructureEntity entity,
+				CancellationToken cancellationToken);
+Task<FeeStructureEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken);
+
+	}
+
+	internal sealed class UpdateFeeStructurePersistence(IFinanceDbContext dbContext) : IUpdateFeeStructure
+	{
+		public async Task UpdateAsync(
+				FeeStructureEntity entity,
+				CancellationToken cancellationToken)
+			{
+				dbContext.FeeStructures
+					.Update(entity);
+		
+				await dbContext.SaveChangesAsync(cancellationToken);
+			}
+
+		public async Task<FeeStructureEntity?> GetByIdAsync(
+				Guid tenantId,
+				Guid id,
+				CancellationToken cancellationToken)
+			{
+				return await dbContext.FeeStructures
+					.FirstOrDefaultAsync(
+						x => x.TenantId == tenantId
+							&& x.FeeStructureId == id,
+						cancellationToken);
+			}
+	}
+
+	public sealed class Handler(IUpdateFeeStructure dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
 		public async Task<Result<Response>> HandleAsync(
 			Request request,
 			CancellationToken cancellationToken)
 		{
-			var entity = await entityQuery.GetByIdAsync(
+			var entity = await dataAccess.GetByIdAsync(
 				request.TenantId, request.Id, cancellationToken);
 			if (entity is null)
 			{
@@ -59,19 +98,9 @@ public static class UpdateFeeStructure
 					Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeStructureEntity))));
 			}
 
-			var exists = await entityQuery.ExistsByCodeAsync(
-				request.TenantId, request.Code, request.Id, cancellationToken);
-			if (exists)
-			{
-				return Result<Response>.Failure(
-					Error.Conflict(
-						ErrorMessages.DuplicateCode(nameof(FeeStructureEntity), request.Code)));
-			}
 
-			entity.UpdateDetails(
-				request.Code,
-				request.Name);
-			await entityCommand.UpdateAsync(entity, cancellationToken);
+			entity.Update(request.Amount, request.Frequency, request.EffectiveFrom, request.EffectiveTo, request.IsActive);
+			await dataAccess.UpdateAsync(entity, cancellationToken);
 			return Result<Response>.Success(MapResponse(entity));
 		}
 	}
@@ -93,8 +122,7 @@ public static class UpdateFeeStructure
 		return endpoints;
 	}
 
-	private static Response MapResponse(
-		SmartSchool.Modules.Finance.Models.FeeStructureEntity entity)
+	private static Response MapResponse(FeeStructureEntity entity)
 	{
 		return new Response(
 			entity.TenantId,

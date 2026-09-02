@@ -8,7 +8,7 @@ namespace SmartSchool.Modules.Audit.Models;
 public sealed class AuditLogEntity : Entity
 {
 	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid AuditLogId { get; private set; } = Guid.NewGuid();
+	public long AuditLogId { get; private set; }
 
 	private AuditLogEntity()
 	{

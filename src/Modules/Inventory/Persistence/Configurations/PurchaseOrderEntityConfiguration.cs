@@ -12,7 +12,7 @@ public sealed class PurchaseOrderEntityConfiguration
 {
 	public void Configure(EntityTypeBuilder<PurchaseOrderEntity> builder)
 	{
-		builder.ToTable("PurchaseOrder", schema: "inventory");
+		builder.ToTable("purchase_order", schema: "inventory");
 		builder.HasKey(entity => entity.PurchaseOrderId);
 
 		builder

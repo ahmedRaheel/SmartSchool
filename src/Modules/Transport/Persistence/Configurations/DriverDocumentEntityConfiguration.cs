@@ -101,5 +101,12 @@ public sealed class DriverDocumentEntityConfiguration
 		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");
 		builder.Property(entity => entity.UpdatedAt).HasColumnName("updatedat");
 		builder.Property(entity => entity.RowVersion).HasColumnName("rowversion");
+
+        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasOne<DriverEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.DriverId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 	}
 }
