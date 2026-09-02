@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -46,14 +46,14 @@ public static class CreateProgram
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateProgramPersistence(IApplicationDbContext dbContext) : ICreateProgram
+	internal sealed class CreateProgramPersistence(IOrganizationDbContext dbContext) : ICreateProgram
 	{
 		public async Task AddAsync(
 				ProgramEntity entity,
 				CancellationToken cancellationToken)
 			{
 				await dbContext
-					.Set<ProgramEntity>()
+					.Programs
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

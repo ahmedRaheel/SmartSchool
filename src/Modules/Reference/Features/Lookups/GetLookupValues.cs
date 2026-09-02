@@ -1,11 +1,14 @@
 using Dapper;
 using SmartSchool.Application.Persistence;
+using SmartSchool.Application.Messaging;
 
 namespace SmartSchool.Modules.Reference.Features.Lookups;
 
 public static class GetLookupValues
 {
     public sealed record Response(long Id, string TypeCode, string Code, string Name, int SortOrder);
+    public sealed record Request(string TypeCode) : IRequest<IReadOnlyList<Response>>;
+
     public interface IGetLookupValues { Task<IReadOnlyList<Response>> ExecuteAsync(string typeCode, CancellationToken cancellationToken); }
     internal sealed class GetLookupValuesPersistence(IDbConnectionFactory connectionFactory) : IGetLookupValues
     {
@@ -20,9 +23,16 @@ public static class GetLookupValues
             return (await connection.QueryAsync<Response>(new CommandDefinition(sql, new { TypeCode = typeCode }, cancellationToken: cancellationToken))).AsList();
         }
     }
+
+    public sealed class Handler(IGetLookupValues query) : IRequestHandler<Request, IReadOnlyList<Response>>
+    {
+        public Task<IReadOnlyList<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+            => query.ExecuteAsync(request.TypeCode, cancellationToken);
+    }
+
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/lookups/{typeCode}", async (string typeCode, IGetLookupValues query, CancellationToken cancellationToken) =>
-            Results.Ok(await query.ExecuteAsync(typeCode, cancellationToken))).WithTags("Lookups").WithName("GetLookupValues");
+        endpoints.MapGet("/api/lookups/{typeCode}", async (string typeCode, IMediator mediator, CancellationToken cancellationToken) =>
+            Results.Ok(await mediator.SendAsync<Request, IReadOnlyList<Response>>(new Request(typeCode), cancellationToken))).WithTags("Lookups").WithName("GetLookupValues");
     }
 }

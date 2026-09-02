@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -46,14 +46,14 @@ public static class CreateAcademicSystem
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateAcademicSystemPersistence(IApplicationDbContext dbContext) : ICreateAcademicSystem
+	internal sealed class CreateAcademicSystemPersistence(IOrganizationDbContext dbContext) : ICreateAcademicSystem
 	{
 		public async Task AddAsync(
 				AcademicSystemEntity entity,
 				CancellationToken cancellationToken)
 			{
 				await dbContext
-					.Set<AcademicSystemEntity>()
+					.AcademicSystems
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

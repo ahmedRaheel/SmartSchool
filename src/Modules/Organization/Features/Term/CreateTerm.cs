@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -46,14 +46,14 @@ public static class CreateTerm
 				CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateTermPersistence(IApplicationDbContext dbContext) : ICreateTerm
+	internal sealed class CreateTermPersistence(IOrganizationDbContext dbContext) : ICreateTerm
 	{
 		public async Task AddAsync(
 				TermEntity entity,
 				CancellationToken cancellationToken)
 			{
 				await dbContext
-					.Set<TermEntity>()
+					.Terms
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);

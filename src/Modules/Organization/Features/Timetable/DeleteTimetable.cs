@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -32,14 +32,14 @@ public static class DeleteTimetable
 
 	}
 
-	internal sealed class DeleteTimetablePersistence(IApplicationDbContext dbContext) : IDeleteTimetable
+	internal sealed class DeleteTimetablePersistence(IOrganizationDbContext dbContext) : IDeleteTimetable
 	{
 		public async Task DeleteAsync(
 				TimetableEntity entity,
 				CancellationToken cancellationToken)
 			{
 				dbContext
-					.Set<TimetableEntity>()
+					.Timetables
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -51,7 +51,7 @@ public static class DeleteTimetable
 				CancellationToken cancellationToken)
 			{
 				return await dbContext
-					.Set<TimetableEntity>()
+					.Timetables
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.TimetableId == id,

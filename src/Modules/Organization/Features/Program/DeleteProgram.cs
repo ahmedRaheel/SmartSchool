@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -32,14 +32,14 @@ public static class DeleteProgram
 
 	}
 
-	internal sealed class DeleteProgramPersistence(IApplicationDbContext dbContext) : IDeleteProgram
+	internal sealed class DeleteProgramPersistence(IOrganizationDbContext dbContext) : IDeleteProgram
 	{
 		public async Task DeleteAsync(
 				ProgramEntity entity,
 				CancellationToken cancellationToken)
 			{
 				dbContext
-					.Set<ProgramEntity>()
+					.Programs
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -51,7 +51,7 @@ public static class DeleteProgram
 				CancellationToken cancellationToken)
 			{
 				return await dbContext
-					.Set<ProgramEntity>()
+					.Programs
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.ProgramId == id,

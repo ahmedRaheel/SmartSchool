@@ -1,4 +1,4 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -32,14 +32,14 @@ public static class DeleteCourseOffering
 
 	}
 
-	internal sealed class DeleteCourseOfferingPersistence(IApplicationDbContext dbContext) : IDeleteCourseOffering
+	internal sealed class DeleteCourseOfferingPersistence(IOrganizationDbContext dbContext) : IDeleteCourseOffering
 	{
 		public async Task DeleteAsync(
 				CourseOfferingEntity entity,
 				CancellationToken cancellationToken)
 			{
 				dbContext
-					.Set<CourseOfferingEntity>()
+					.CourseOfferings
 					.Remove(entity);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -51,7 +51,7 @@ public static class DeleteCourseOffering
 				CancellationToken cancellationToken)
 			{
 				return await dbContext
-					.Set<CourseOfferingEntity>()
+					.CourseOfferings
 					.FirstOrDefaultAsync(
 						x => x.TenantId == tenantId
 							&& x.CourseOfferingId == id,

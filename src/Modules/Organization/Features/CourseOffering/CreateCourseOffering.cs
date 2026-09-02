@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Organization.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using FluentValidation;
@@ -7,6 +7,7 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Organization.Features.CourseOffering;
 
@@ -50,14 +51,14 @@ public static class CreateCourseOffering
 	}
 
 	internal sealed class CreateCourseOfferingPersistence(
-		IApplicationDbContext dbContext) : ICreateCourseOffering
+		IOrganizationDbContext dbContext) : ICreateCourseOffering
 	{
 		public async Task AddAsync(
 				CourseOfferingEntity entity,
 				CancellationToken cancellationToken)
 			{
 				await dbContext
-					.Set<CourseOfferingEntity>()
+					.CourseOfferings
 					.AddAsync(entity, cancellationToken);
 		
 				await dbContext.SaveChangesAsync(cancellationToken);
@@ -65,7 +66,7 @@ public static class CreateCourseOffering
 	}
 
 	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
-		IApplicationDbContext dbContext,
+		IOrganizationDbContext dbContext,
 		ICreateCourseOffering dataAccess)
 		: IRequestHandler<Request, Result<Response>>
 	{
