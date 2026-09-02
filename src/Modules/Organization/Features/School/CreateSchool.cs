@@ -51,9 +51,9 @@ public static class CreateSchool
         {
             var code = await numberGenerator.NextAsync(
                 "SCHOOL", "SCH", request.TenantId, 3, cancellationToken);
-
-            var school = SchoolEntity.Create(
-                request.TenantId, code, request.Name, request.RegistrationNumber, request.Email,
+			var schoolId = Guid.NewGuid();
+			var school = SchoolEntity.Create(
+                request.TenantId, schoolId, code, request.Name, request.RegistrationNumber, request.Email,
                 request.Phone, request.Fax, request.Website, request.Address, request.City, request.Province,
                 request.Country, request.LogoUrl);
 

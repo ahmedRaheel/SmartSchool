@@ -1,12 +1,14 @@
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Organization.Features.School;
 using SmartSchool.Modules.Organization.Models;
+using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Application.Persistence;
+using System.Threading.Tasks;
 
 namespace SmartSchool.Modules.Organization.Features.Subject;
 
@@ -23,8 +25,8 @@ public static class CreateSubject
 	Guid TenantId,
 	Guid Id,
 	string Code,
-	string Name,
-	string? MetadataJson);
+	string Name
+	);
 
 	public sealed record Request(
 		Guid TenantId,
@@ -41,39 +43,43 @@ public static class CreateSubject
 		}
 	}
 
-	public interface ICreateSubject
+	public interface ISubjectCommand
 	{
 		Task AddAsync(
 				SubjectEntity entity,
-				CancellationToken cancellationToken);
-
-		Task<string?> GetBranchCodeAsync(
-				Guid tenantId,
-				Guid branchId,
-				CancellationToken cancellationToken);
+				CancellationToken cancellationToken);		
 
 	}
 
-	internal sealed class CreateSubjectPersistence(IApplicationDbContext dbContext) : ICreateSubject
+	public sealed class SubjectCommand(OrganizationDbContext dbContext) : ISubjectCommand
 	{
 		public async Task AddAsync(
 				SubjectEntity entity,
 				CancellationToken cancellationToken)
-			{
-				await dbContext
-					.Set<SubjectEntity>()
-					.AddAsync(entity, cancellationToken);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-
-		public async Task<string?> GetBranchCodeAsync(Guid tenantId, Guid branchId, CancellationToken cancellationToken)
 		{
-			return await dbContext.Database.SqlQueryRaw<string>(
-				"SELECT code AS \"Value\" FROM org.campus WHERE tenant_id = {0} AND campus_id = {1} AND is_active = TRUE",
-				tenantId, branchId).SingleOrDefaultAsync(cancellationToken);
-		}	}
+			await dbContext
+				.Subjects
+				.AddAsync(entity, cancellationToken);
 
+			await dbContext.SaveChangesAsync(cancellationToken);
+		}
+
+	}
+
+	public sealed class Handler(ISubjectCommand command, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+	{
+		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+		{
+			var code = await numberGenerator.NextAsync(
+				"SUBJECT", "SUB", request.TenantId, 8, cancellationToken);
+			var subjectId = Guid.NewGuid();
+			var subject = SubjectEntity.Create(
+				request.TenantId, subjectId, code, request.Name);
+
+			await command.AddAsync(subject, cancellationToken);
+			return Result<Response>.Success(new Response(request.TenantId, subjectId, code, request.Name));
+		}
+	}
 	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
 	{
 		endpoints.MapPost(

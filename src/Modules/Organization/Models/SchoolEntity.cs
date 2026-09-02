@@ -96,6 +96,7 @@ public sealed class SchoolEntity : Entity
 	/// Creates a school.
 	/// </summary>
 	public static SchoolEntity Create(
+		Guid tenantId,
 		Guid schoolId,
 		string code,
 		string name,
@@ -124,6 +125,7 @@ public sealed class SchoolEntity : Entity
 		return new SchoolEntity
 		{
 			SchoolId = schoolId,
+			TenantId = tenantId,
 			Code = code.Trim(),
 			Name = name.Trim(),
 			RegistrationNumber = Clean(registrationNumber),
