@@ -60,7 +60,7 @@ public static class GetConversationPage
 				const string pageSql = """
 					SELECT
 					tenant_id AS "TenantId",
-					id AS "Id",
+					conversation_id AS "Id",
 					code AS "Code",
 					name AS "Name",
 					metadata_json AS "MetadataJson"

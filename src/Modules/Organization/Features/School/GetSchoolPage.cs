@@ -58,7 +58,7 @@ public static class GetSchoolPage
 				const string pageSql = """
 					SELECT
 					tenant_id AS "TenantId",
-					id AS "Id",
+					school_id AS "Id",
 					code AS "Code",
 					name AS "Name",
 					registration_number AS "RegistrationNumber",

@@ -65,7 +65,7 @@ public static class GetDepartmentPage
 				const string pageSql = """
 					SELECT
 					tenant_id AS "TenantId",
-					id AS "Id",
+					department_id AS "Id",
 					code AS "Code",
 					name AS "Name",
 					telephone AS "Telephone",

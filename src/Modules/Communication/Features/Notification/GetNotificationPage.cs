@@ -70,7 +70,7 @@ public static class GetNotificationPage
 				const string pageSql = """
 					SELECT
 					tenant_id AS "TenantId",
-					id AS "Id",
+					notification_id AS "Id",
 					recipient_user_id AS "RecipientUserId",
 					type AS "Type",
 					title AS "Title",

@@ -64,7 +64,7 @@ public static class GetAcademicYearPage
 				const string pageSql = """
 					SELECT
 					tenant_id AS "TenantId",
-					id AS "Id",
+					academic_year_id AS "Id",
 					code AS "Code",
 					name AS "Name",
 					metadata_json AS "MetadataJson"
