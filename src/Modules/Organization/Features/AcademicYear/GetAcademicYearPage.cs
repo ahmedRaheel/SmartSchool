@@ -28,7 +28,7 @@ public static class GetAcademicYearPage
 
 	public sealed record Query(
 		Guid TenantId,
-		Guid CampusId,
+		Guid? CampusId,
 		int Page = 1,
 		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
@@ -36,7 +36,7 @@ public static class GetAcademicYearPage
 	{
 		Task<PagedResult<Response>> GetPageAsync(
 				Guid tenantId,
-				Guid campusId,
+				Guid? campusId,
 				int page,
 				int pageSize,
 				CancellationToken cancellationToken);
@@ -48,7 +48,7 @@ public static class GetAcademicYearPage
 	{
 		public async Task<PagedResult<Response>> GetPageAsync(
 				Guid tenantId,
-				Guid campusId,
+				Guid? campusId,
 				int page,
 				int pageSize,
 				CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ public static class GetAcademicYearPage
 					SELECT COUNT(*)
 					FROM academic.academic_year
 					WHERE tenant_id = @TenantId
-					  AND campus_id = @CampusId
+					  AND (@CampusId IS NULL OR campus_id = @CampusId)
 					  AND is_active = TRUE;
 					""";
 		
@@ -70,7 +70,7 @@ public static class GetAcademicYearPage
 					metadata_json AS "MetadataJson"
 					FROM academic.academic_year
 					WHERE tenant_id = @TenantId
-					  AND campus_id = @CampusId
+					  AND (@CampusId IS NULL OR campus_id = @CampusId)
 					  AND is_active = TRUE
 					ORDER BY start_date DESC, academic_year_id
 					LIMIT @PageSize OFFSET @Offset;
@@ -135,7 +135,7 @@ public static class GetAcademicYearPage
 	{
 		endpoints.MapGet(
 				ApiRoutes.EntityCollection("academics", "academic-year"),
-				async (Guid tenantId, Guid campusId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+				async (Guid tenantId, Guid? campusId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
 				{
 					var request = new Query(tenantId, campusId, page, pageSize);
 					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
