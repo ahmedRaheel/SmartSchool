@@ -4234,7 +4234,10 @@ CREATE TABLE saas.tenant (
     tenant_id uuid DEFAULT gen_random_uuid() NOT NULL,
     code character varying(50) NOT NULL,
     name character varying(200) NOT NULL,
-    status_code character varying(30) DEFAULT 'ACTIVE'::character varying NOT NULL,
+    first_name character varying(100) NOT NULL DEFAULT '',
+    last_name character varying(100) NOT NULL DEFAULT '',
+    metadata_json jsonb,
+    status_code smallint DEFAULT 1 NOT NULL,
     default_language character varying(10) DEFAULT 'en'::character varying NOT NULL,
     timezone character varying(80) DEFAULT 'Asia/Karachi'::character varying NOT NULL,
     currency_code character(3) DEFAULT 'PKR'::bpchar NOT NULL,
@@ -13375,7 +13378,7 @@ CREATE TABLE IF NOT EXISTS document.required_document (
 -- Contact data is separated from aggregate roots so actors can have multiple contact methods/addresses.
 CREATE TABLE IF NOT EXISTS saas.tenant_contact (
     tenant_contact_id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL,
-    contact_type varchar(30) NOT NULL, contact_name varchar(150), email varchar(200), phone varchar(30),
+    contact_type smallint NOT NULL DEFAULT 1, contact_name varchar(150), email varchar(200), phone varchar(30),
     address_line1 varchar(250), address_line2 varchar(250), city varchar(100), province varchar(100), country varchar(100), postal_code varchar(30),
     is_primary boolean NOT NULL DEFAULT false, is_active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now()
 );

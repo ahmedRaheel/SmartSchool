@@ -5,7 +5,7 @@ using SmartSchool.Modules.Organization.Features.Department;
 using SmartSchool.Modules.Organization.Features.School;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application;
-using SmartSchool.Modules.Tenancy.Features.Tenant;
+using SmartSchool.Modules.Organization.Features.Organization;
 
 
 
@@ -36,6 +36,10 @@ public static class Module
 	{
 
 		CreateTenant.MapEndpoint(endpoints);
+		GetOrganizationById.MapEndpoint(endpoints);
+		GetOrganizationPage.MapEndpoint(endpoints);
+		UpdateOrganization.MapEndpoint(endpoints);
+		DeleteOrganization.MapEndpoint(endpoints);
 		CreateCampus.MapEndpoint(endpoints);
 		BranchPolicyEndpoints.MapEndpoints(endpoints);
 		GetCampusById.MapEndpoint(endpoints);

@@ -1,4 +1,5 @@
 using SmartSchool.SharedKernel;
+using SmartSchool.Modules.Organization.Enums;
 
 namespace SmartSchool.Modules.Organization.Models;
 
@@ -8,7 +9,7 @@ public sealed class TenantContactEntity : Entity
 	{
 	}
     public Guid TenantContactId { get; private set; } = Guid.NewGuid();
-    public string ContactType { get; private set; } = "PRIMARY";
+    public ContactType ContactType { get; private set; } = ContactType.Primary;
     public string? ContactName { get; private set; }
     public string? Email { get; private set; }
     public string? Phone { get; private set; }
@@ -26,4 +27,18 @@ public sealed class TenantContactEntity : Entity
 			Phone=phone?.Trim(), 
 			AddressLine1=address?.Trim()
 		};
+
+	public void UpdatePrimary(string? name, string? email, string? phone, string? address)
+	{
+		ContactType = ContactType.Primary;
+		IsPrimary = true;
+		ContactName = Clean(name);
+		Email = Clean(email);
+		Phone = Clean(phone);
+		AddressLine1 = Clean(address);
+		MarkAsUpdated();
+	}
+
+	private static string? Clean(string? value) =>
+		string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

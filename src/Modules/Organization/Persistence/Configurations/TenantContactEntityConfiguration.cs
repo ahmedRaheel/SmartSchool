@@ -17,6 +17,13 @@ public sealed class TenantContactEntityConfiguration : IEntityTypeConfiguration<
 			.HasColumnName("tenant_id")
 			.IsRequired();
 
+
+		builder.Property(entity => entity.ContactType)
+			.HasColumnName("contact_type")
+			.HasConversion<short>()
+			.HasColumnType("smallint")
+			.IsRequired();
+
 		builder.Property(entity => entity.ContactName)
 			.HasColumnName("contact_name")
 			.HasMaxLength(200)

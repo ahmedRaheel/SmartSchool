@@ -10,7 +10,7 @@ using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
 
-namespace SmartSchool.Modules.Tenancy.Features.Tenant;
+namespace SmartSchool.Modules.Organization.Features.Organization;
 
 /// <summary>
 /// Creates a tenant and its initial master administrator account.

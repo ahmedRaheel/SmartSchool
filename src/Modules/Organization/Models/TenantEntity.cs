@@ -1,4 +1,5 @@
 using SmartSchool.SharedKernel;
+using SmartSchool.Modules.Organization.Enums;
 
 namespace SmartSchool.Modules.Organization.Models;
 
@@ -29,7 +30,7 @@ public sealed class TenantEntity : Entity
 	/// <summary>
 	/// Gets the persisted status code.
 	/// </summary>
-	public string StatusCode { get; private set; } = string.Empty;
+	public TenantStatus Status { get; private set; } = TenantStatus.Active;
 
 	/// <summary>
 	/// Gets the default language.
@@ -102,6 +103,7 @@ public sealed class TenantEntity : Entity
 			TenantId = tenantId,
 			Code = code.Trim(),
 			OrganizationName = organizationName.Trim(),
+			Status = TenantStatus.Active,
 			FirstName = firstName.Trim(),
 			LastName = lastName.Trim(),
 			MetadataJson = metadataJson
@@ -201,14 +203,20 @@ public sealed class TenantEntity : Entity
 	/// </summary>
 	public void UpdateDetails(
 		string code,
-		string name,
+		string organizationName,
+		string firstName,
+		string lastName,
 		string? metadataJson = null)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
-		ArgumentException.ThrowIfNullOrWhiteSpace(name);
+		ArgumentException.ThrowIfNullOrWhiteSpace(organizationName);
+		ArgumentException.ThrowIfNullOrWhiteSpace(firstName);
+		ArgumentException.ThrowIfNullOrWhiteSpace(lastName);
 
 		Code = code.Trim();
-		OrganizationName = name.Trim();
+		OrganizationName = organizationName.Trim();
+		FirstName = firstName.Trim();
+		LastName = lastName.Trim();
 		MetadataJson = metadataJson;
 
 		MarkAsUpdated();

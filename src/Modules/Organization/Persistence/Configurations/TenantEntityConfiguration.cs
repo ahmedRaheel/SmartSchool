@@ -51,7 +51,7 @@ public sealed class TenantEntityConfiguration
 		builder.HasMany(x => x.Schools)
 			.WithOne()
 			.HasForeignKey(school => school.TenantId)
-			.OnDelete(DeleteBehavior.Cascade);
+			.OnDelete(DeleteBehavior.Restrict);
 
 
 		// Canonical database mapping generated from SmartSchoolComplete.sql.
@@ -67,7 +67,11 @@ public sealed class TenantEntityConfiguration
 		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
 		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.StatusCode).HasColumnName("status_code");
+		builder.Property(entity => entity.Status)
+			.HasColumnName("status_code")
+			.HasConversion<short>()
+			.HasColumnType("smallint")
+			.IsRequired();
 		builder.Property(entity => entity.DefaultLanguage).HasColumnName("default_language");
 		builder.Property(entity => entity.Timezone).HasColumnName("timezone");
 		builder.Property(entity => entity.CurrencyCode).HasColumnName("currency_code");
