@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Organization.Features.TenantSettings;
 using SmartSchool.Modules.Organization.Features.AcademicSystem;
 using SmartSchool.Modules.Organization.Features.AcademicYear;
 using SmartSchool.Modules.Organization.Features.ClassSection;
@@ -91,6 +92,8 @@ public static class Module
 		GetTimetablePage.MapEndpoint(endpoints);
 		UpdateTimetable.MapEndpoint(endpoints);
 		DeleteTimetable.MapEndpoint(endpoints);
+
+		TenantSettingsFeature.MapEndpoints(endpoints);
 
 		CreateTenant.MapEndpoint(endpoints);
 		GetOrganizationById.MapEndpoint(endpoints);

@@ -111,14 +111,14 @@ public static class Module
 			identityServer.AddDeveloperSigningCredential();
 		}
 
-		services.AddOptions<AccountProvisioningEndpoints.AccountProvisioningOptions>()
-			.Bind(configuration.GetSection(AccountProvisioningEndpoints.AccountProvisioningOptions.SectionName))
+		services.AddOptions<Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions>()
+			.Bind(configuration.GetSection(Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions.SectionName))
 			.Validate(options => !string.IsNullOrWhiteSpace(options.TemporaryPassword), "AccountProvisioning:TemporaryPassword is required.")
 			.ValidateOnStart();
 
 		services.AddHttpContextAccessor();
-		services.AddScoped<ICurrentUser, CurrentUser>();
-		services.AddScoped<ITenantScope, TenantScope>();
+		services.AddScoped<SmartSchool.Application.Identity.ICurrentUser, SmartSchool.Application.Identity.CurrentUser>();
+		services.AddScoped<SmartSchool.Application.Identity.ITenantScope, SmartSchool.Application.Identity.TenantScope>();
 
 		services.AddHttpClient("IdentityTokenClient");
 		services.AddTransient<Duende.IdentityServer.Validation.IExtensionGrantValidator, ImpersonationGrantValidator>();

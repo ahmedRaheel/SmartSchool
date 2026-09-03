@@ -25,6 +25,7 @@ public interface IOrganizationDbContext
 	DbSet<TeacherAssignmentEntity> TeacherAssignments { get; }
 	DbSet<TenantContactEntity> TenantContacts { get; }
 	DbSet<TenantEntity> Tenants { get; }
+	DbSet<TenantSettingsEntity> TenantSettings { get; }
 	DbSet<TermEntity> Terms { get; }
 	DbSet<TimetableEntity> Timetables { get; }
 	DbSet<TimetableEntryEntity> TimetableEntries { get; }
@@ -56,6 +57,7 @@ public sealed class OrganizationDbContext(DbContextOptions<OrganizationDbContext
 	public DbSet<TeacherAssignmentEntity> TeacherAssignments => Set<TeacherAssignmentEntity>();
 	public DbSet<TenantContactEntity> TenantContacts => Set<TenantContactEntity>();
 	public DbSet<TenantEntity> Tenants => Set<TenantEntity>();
+	public DbSet<TenantSettingsEntity> TenantSettings => Set<TenantSettingsEntity>();
 	public DbSet<TermEntity> Terms => Set<TermEntity>();
 	public DbSet<TimetableEntity> Timetables => Set<TimetableEntity>();
 	public DbSet<TimetableEntryEntity> TimetableEntries => Set<TimetableEntryEntity>();
