@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Library.Features.Book;
 /// </summary>
 public sealed class BookCommand(ILibraryDbContext dbContext) : IBookCommand
 {
-	public async Task AddAsync(
-		BookEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Books
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        BookEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Books
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		BookEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Books
-			.Update(entity);
+    public async Task UpdateAsync(
+        BookEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Books
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		BookEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Books
-			.Remove(entity);
+    public async Task DeleteAsync(
+        BookEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Books
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

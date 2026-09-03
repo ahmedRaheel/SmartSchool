@@ -8,36 +8,36 @@ namespace SmartSchool.Application.Persistence;
 /// </summary>
 public interface IDapperReadStore
 {
-	Task<PagedResult<TEntity>> GetPageAsync<TEntity>(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		IReadOnlyCollection<string> projectedProperties,
-		CancellationToken cancellationToken)
-		where TEntity : Entity;
+    Task<PagedResult<TEntity>> GetPageAsync<TEntity>(
+        Guid tenantId,
+        int page,
+        int pageSize,
+        IReadOnlyCollection<string> projectedProperties,
+        CancellationToken cancellationToken)
+        where TEntity : Entity;
 
-	Task<PagedResult<TEntity>> GetFilteredPageAsync<TEntity>(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		IReadOnlyCollection<string> projectedProperties,
-		IReadOnlyDictionary<string, object?> filters,
-		string orderByProperty,
-		bool descending,
-		CancellationToken cancellationToken)
-		where TEntity : Entity;
+    Task<PagedResult<TEntity>> GetFilteredPageAsync<TEntity>(
+        Guid tenantId,
+        int page,
+        int pageSize,
+        IReadOnlyCollection<string> projectedProperties,
+        IReadOnlyDictionary<string, object?> filters,
+        string orderByProperty,
+        bool descending,
+        CancellationToken cancellationToken)
+        where TEntity : Entity;
 
-	Task<int> CountAsync<TEntity>(
-		Guid tenantId,
-		IReadOnlyDictionary<string, object?> filters,
-		CancellationToken cancellationToken)
-		where TEntity : Entity;
+    Task<int> CountAsync<TEntity>(
+        Guid tenantId,
+        IReadOnlyDictionary<string, object?> filters,
+        CancellationToken cancellationToken)
+        where TEntity : Entity;
 
-	Task<bool> ExistsAsync<TEntity>(
-		Guid tenantId,
-		string propertyName,
-		object value,
-		Guid? excludingId,
-		CancellationToken cancellationToken)
-		where TEntity : Entity;
+    Task<bool> ExistsAsync<TEntity>(
+        Guid tenantId,
+        string propertyName,
+        object value,
+        Guid? excludingId,
+        CancellationToken cancellationToken)
+        where TEntity : Entity;
 }

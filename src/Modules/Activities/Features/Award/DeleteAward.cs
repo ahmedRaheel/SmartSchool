@@ -12,85 +12,85 @@ namespace SmartSchool.Modules.Activities.Features.Award;
 
 public static class DeleteAward
 {
-	public sealed record Command(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+    public sealed record Command(
+        Guid TenantId,
+        Guid Id) : IRequest<Result<Response>>;
 
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
-	public interface IDeleteAward
-	{
-		Task DeleteAsync(
-				AwardEntity entity,
-				CancellationToken cancellationToken);
+    public interface IDeleteAward
+    {
+        Task DeleteAsync(
+                AwardEntity entity,
+                CancellationToken cancellationToken);
 
-		Task<AwardEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken);
+        Task<AwardEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class DeleteAwardPersistence(IActivitiesDbContext dbContext) : IDeleteAward
-	{
-		public async Task DeleteAsync(
-				AwardEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext.Awards
-					.Remove(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+    internal sealed class DeleteAwardPersistence(IActivitiesDbContext dbContext) : IDeleteAward
+    {
+        public async Task DeleteAsync(
+                AwardEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext.Awards
+                    .Remove(entity);
 
-		public async Task<AwardEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken)
-			{
-				return await dbContext.Awards
-					.FirstOrDefaultAsync(
-						x => x.TenantId == tenantId
-							&& x.StudentAwardId == id,
-						cancellationToken);
-			}
-	}
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
 
-	public sealed class Handler(IDeleteAward dataAccess)
-		: IRequestHandler<Command, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Command request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(AwardEntity))));
-			}
-			await dataAccess.DeleteAsync(entity, cancellationToken);
-			return Result<Response>.Success(new Response(request.TenantId, request.Id));
-		}
-	}
+        public async Task<AwardEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken)
+            {
+                return await dbContext.Awards
+                    .FirstOrDefaultAsync(
+                        x => x.TenantId == tenantId
+                            && x.StudentAwardId == id,
+                        cancellationToken);
+            }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapDelete(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "award"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Command(tenantId, id);
-					var result = await mediator.SendAsync<Command, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("DeleteAward")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+    public sealed class Handler(IDeleteAward dataAccess)
+        : IRequestHandler<Command, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Command request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AwardEntity))));
+            }
+            await dataAccess.DeleteAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
+        }
+    }
+
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapDelete(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "award"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Command(tenantId, id);
+                    var result = await mediator.SendAsync<Command, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("DeleteAward")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 }

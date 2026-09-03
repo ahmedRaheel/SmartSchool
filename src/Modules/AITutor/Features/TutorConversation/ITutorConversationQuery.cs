@@ -9,29 +9,29 @@ namespace SmartSchool.Modules.AITutor.Features.TutorConversation;
 /// </summary>
 public interface ITutorConversationQuery
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<TutorConversationEntity?> GetByIdAsync(
-		Guid tenantId,
-		Guid id,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<TutorConversationEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<PagedResult<TutorConversationEntity>> GetPageAsync(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PagedResult<TutorConversationEntity>> GetPageAsync(
+        Guid tenantId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<bool> ExistsByCodeAsync(
-		Guid tenantId,
-		string code,
-		Guid? excludingId,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<bool> ExistsByCodeAsync(
+        Guid tenantId,
+        string code,
+        Guid? excludingId,
+        CancellationToken cancellationToken);
 }

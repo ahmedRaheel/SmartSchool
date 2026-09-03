@@ -9,29 +9,29 @@ namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 /// </summary>
 public interface ISalaryStructureQuery
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<SalaryStructureEntity?> GetByIdAsync(
-		Guid tenantId,
-		Guid id,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<SalaryStructureEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<PagedResult<SalaryStructureEntity>> GetPageAsync(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PagedResult<SalaryStructureEntity>> GetPageAsync(
+        Guid tenantId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<bool> ExistsByCodeAsync(
-		Guid tenantId,
-		string code,
-		Guid? excludingId,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<bool> ExistsByCodeAsync(
+        Guid tenantId,
+        string code,
+        Guid? excludingId,
+        CancellationToken cancellationToken);
 }

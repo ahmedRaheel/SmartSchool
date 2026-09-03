@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Communication.Features.MessageReceipt;
 /// </summary>
 public sealed class MessageReceiptCommand(ICommunicationDbContext dbContext) : IMessageReceiptCommand
 {
-	public async Task AddAsync(
-		MessageReceiptEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.MessageReceipts
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        MessageReceiptEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.MessageReceipts
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		MessageReceiptEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.MessageReceipts
-			.Update(entity);
+    public async Task UpdateAsync(
+        MessageReceiptEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.MessageReceipts
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		MessageReceiptEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.MessageReceipts
-			.Remove(entity);
+    public async Task DeleteAsync(
+        MessageReceiptEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.MessageReceipts
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

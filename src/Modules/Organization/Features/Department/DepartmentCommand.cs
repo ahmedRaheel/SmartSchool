@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Organization.Features.Department;
 /// </summary>
 public sealed class DepartmentCommand(IOrganizationDbContext dbContext) : IDepartmentCommand
 {
-	public async Task AddAsync(
-		DepartmentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Departments
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        DepartmentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Departments
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		DepartmentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Departments
-			.Update(entity);
+    public async Task UpdateAsync(
+        DepartmentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Departments
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		DepartmentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Departments
-			.Remove(entity);
+    public async Task DeleteAsync(
+        DepartmentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Departments
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

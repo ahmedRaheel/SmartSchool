@@ -8,72 +8,72 @@ namespace SmartSchool.Modules.Organization.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="TenantEntity"/>.
 /// </summary>
 public sealed class TenantEntityConfiguration
-	: IEntityTypeConfiguration<TenantEntity>
+    : IEntityTypeConfiguration<TenantEntity>
 {
-	public void Configure(EntityTypeBuilder<TenantEntity> builder)
-	{
-		builder.ToTable("tenant", schema: "saas");
-		builder.HasKey(entity => entity.TenantId);
+    public void Configure(EntityTypeBuilder<TenantEntity> builder)
+    {
+        builder.ToTable("tenant", schema: "saas");
+        builder.HasKey(entity => entity.TenantId);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
+        builder
+            .Property(entity => entity.RowVersion)
+            .IsConcurrencyToken();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Code)
+            .HasMaxLength(100)
+            .IsRequired();
 
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
+        builder
+            .HasIndex(entity => new { entity.TenantId, entity.Code })
+            .IsUnique();
 
-		builder
-			.Property(entity => entity.OrganizationName)
-			.HasMaxLength(250)
-			.IsRequired();
+        builder
+            .Property(entity => entity.OrganizationName)
+            .HasMaxLength(250)
+            .IsRequired();
 
-		builder.HasMany(x => x.ContactDetails)
-			.WithOne()
-			.HasForeignKey(contact => contact.TenantId)
-			.OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(x => x.ContactDetails)
+            .WithOne()
+            .HasForeignKey(contact => contact.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-		builder.HasMany(x => x.Schools)
-			.WithOne()
-			.HasForeignKey(school => school.TenantId)
-			.OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(x => x.Schools)
+            .WithOne()
+            .HasForeignKey(school => school.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
 
 
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Code).HasColumnName("code");
-		builder.Property(entity => entity.OrganizationName).HasColumnName("name");
-		builder.Property(entity => entity.FirstName).HasColumnName("first_name");
-		builder.Property(entity => entity.LastName).HasColumnName("last_name");
-		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+        // Canonical database mapping generated from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.Code).HasColumnName("code");
+        builder.Property(entity => entity.OrganizationName).HasColumnName("name");
+        builder.Property(entity => entity.FirstName).HasColumnName("first_name");
+        builder.Property(entity => entity.LastName).HasColumnName("last_name");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
-		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Status)
-			.HasColumnName("status_code")
-			.HasConversion<short>()
-			.HasColumnType("smallint")
-			.IsRequired();
-		builder.Property(entity => entity.DefaultLanguage).HasColumnName("default_language");
-		builder.Property(entity => entity.Timezone).HasColumnName("timezone");
-		builder.Property(entity => entity.CurrencyCode).HasColumnName("currency_code");
-	}
+        // Database columns synchronized from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.Status)
+            .HasColumnName("status_code")
+            .HasConversion<short>()
+            .HasColumnType("smallint")
+            .IsRequired();
+        builder.Property(entity => entity.DefaultLanguage).HasColumnName("default_language");
+        builder.Property(entity => entity.Timezone).HasColumnName("timezone");
+        builder.Property(entity => entity.CurrencyCode).HasColumnName("currency_code");
+    }
 }

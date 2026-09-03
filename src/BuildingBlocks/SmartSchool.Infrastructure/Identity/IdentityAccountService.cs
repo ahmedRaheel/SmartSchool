@@ -69,17 +69,17 @@ public sealed class IdentityAccountService : IIdentityAccountService
         using var response = await _httpClient.SendAsync(
             request,
             cancellationToken);
-		if (!response.IsSuccessStatusCode)
-		{
-			_logger.LogError(
-				"Failed to create identity account for {Email} in tenant {TenantId} with roles {Roles}." +
-				" Status: {StatusCode}  response: {ResponseContent}",
-				email,
-				tenantId,
-				roles,
-				response.StatusCode,
-				await response.Content.ReadAsStringAsync(cancellationToken));
-		}
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError(
+                "Failed to create identity account for {Email} in tenant {TenantId} with roles {Roles}." +
+                " Status: {StatusCode}  response: {ResponseContent}",
+                email,
+                tenantId,
+                roles,
+                response.StatusCode,
+                await response.Content.ReadAsStringAsync(cancellationToken));
+        }
         await EnsureSuccessfulResponseAsync(
             response,
             "create identity account",
@@ -158,24 +158,24 @@ public sealed class IdentityAccountService : IIdentityAccountService
                 ["client_secret"] = _options.ClientSecret,
                 ["scope"] = _options.Scope
             });
-		Log.Information("Requesting access token from identity service for client_id: {ClientId}" +
-			" and scope: {Scope}  client_secret: {ClientSecret}", _options.ClientId, _options.Scope, _options.ClientSecret	);
+        Log.Information("Requesting access token from identity service for client_id: {ClientId}" +
+            " and scope: {Scope}  client_secret: {ClientSecret}", _options.ClientId, _options.Scope, _options.ClientSecret	);
 
-		using var response = await _httpClient.SendAsync(
+        using var response = await _httpClient.SendAsync(
             tokenRequest,
             cancellationToken);
-		if (!response.IsSuccessStatusCode)
-		{
-			_logger.LogInformation(
-				"Failed to obtain access token from identity service for client_id: {ClientId} and scope: {Scope}. Status: {StatusCode}  response: {ResponseContent}",
-				_options.ClientId,
-				_options.Scope,
-				response.StatusCode,
-				await response.Content.ReadAsStringAsync(cancellationToken));
-		}
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation(
+                "Failed to obtain access token from identity service for client_id: {ClientId} and scope: {Scope}. Status: {StatusCode}  response: {ResponseContent}",
+                _options.ClientId,
+                _options.Scope,
+                response.StatusCode,
+                await response.Content.ReadAsStringAsync(cancellationToken));
+        }
 
 
-			await EnsureSuccessfulResponseAsync(
+            await EnsureSuccessfulResponseAsync(
             response,
             "obtain identity service access token",
             cancellationToken);

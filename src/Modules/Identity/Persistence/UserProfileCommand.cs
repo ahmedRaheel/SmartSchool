@@ -11,36 +11,36 @@ namespace SmartSchool.Modules.Identity.Persistence;
 /// </summary>
 public sealed class UserProfileCommand(IApplicationDbContext dbContext) : IUserProfileCommand
 {
-	public async Task AddAsync(
-		UserProfileEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext
-			.Set<UserProfileEntity>()
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        UserProfileEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext
+            .Set<UserProfileEntity>()
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		UserProfileEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext
-			.Set<UserProfileEntity>()
-			.Update(entity);
+    public async Task UpdateAsync(
+        UserProfileEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext
+            .Set<UserProfileEntity>()
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		UserProfileEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext
-			.Set<UserProfileEntity>()
-			.Remove(entity);
+    public async Task DeleteAsync(
+        UserProfileEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext
+            .Set<UserProfileEntity>()
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

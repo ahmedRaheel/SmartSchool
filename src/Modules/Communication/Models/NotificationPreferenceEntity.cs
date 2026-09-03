@@ -5,8 +5,8 @@ namespace SmartSchool.Modules.Communication.Models;
 /// <summary>Stores a user's delivery preferences for a notification type.</summary>
 public sealed class NotificationPreferenceEntity : Entity
 {
-	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid NotificationPreferenceId { get; private set; } = Guid.NewGuid();
+    /// <summary>Gets the entity-specific identifier.</summary>
+    public Guid NotificationPreferenceId { get; private set; } = Guid.NewGuid();
 private NotificationPreferenceEntity()
     {
     }

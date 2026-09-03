@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 /// </summary>
 public sealed class StudentTransportCommand(ITransportDbContext dbContext) : IStudentTransportCommand
 {
-	public async Task AddAsync(
-		StudentTransportEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.StudentTransports
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        StudentTransportEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.StudentTransports
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		StudentTransportEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentTransports
-			.Update(entity);
+    public async Task UpdateAsync(
+        StudentTransportEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentTransports
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		StudentTransportEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentTransports
-			.Remove(entity);
+    public async Task DeleteAsync(
+        StudentTransportEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentTransports
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

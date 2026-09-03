@@ -13,130 +13,130 @@ namespace SmartSchool.Modules.Organization.Features.Department;
 
 public static class UpdateDepartment
 {
-	/// <summary>
-	/// Represents the response returned by this DepartmentEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? Telephone,
-	string? Email,
-	string? MetadataJson);
+    /// <summary>
+    /// Represents the response returned by this DepartmentEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    string Code,
+    string Name,
+    string? Telephone,
+    string? Email,
+    string? MetadataJson);
 
-	public sealed record Request(
-		Guid TenantId,
-		Guid Id,
-		string Name,
-		string? Telephone,
-		string? Email) : IRequest<Result<Response>>;
+    public sealed record Request(
+        Guid TenantId,
+        Guid Id,
+        string Name,
+        string? Telephone,
+        string? Email) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-			RuleFor(x => x.Telephone).MaximumLength(50);
-			RuleFor(x => x.Email).EmailAddress().MaximumLength(250).When(x => !string.IsNullOrWhiteSpace(x.Email));
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+            RuleFor(x => x.Telephone).MaximumLength(50);
+            RuleFor(x => x.Email).EmailAddress().MaximumLength(250).When(x => !string.IsNullOrWhiteSpace(x.Email));
+        }
+    }
 
-	public interface IUpdateDepartment
-	{
-		Task UpdateAsync(
-				DepartmentEntity entity,
-				CancellationToken cancellationToken);
+    public interface IUpdateDepartment
+    {
+        Task UpdateAsync(
+                DepartmentEntity entity,
+                CancellationToken cancellationToken);
 Task<DepartmentEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken);
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class UpdateDepartmentPersistence(IOrganizationDbContext dbContext) : IUpdateDepartment
-	{
-		public async Task UpdateAsync(
-				DepartmentEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext.Departments
-					.Update(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+    internal sealed class UpdateDepartmentPersistence(IOrganizationDbContext dbContext) : IUpdateDepartment
+    {
+        public async Task UpdateAsync(
+                DepartmentEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext.Departments
+                    .Update(entity);
 
-		public async Task<DepartmentEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken)
-			{
-				return await dbContext.Departments
-					.FirstOrDefaultAsync(
-						x => x.TenantId == tenantId
-							&& x.DepartmentId == id,
-						cancellationToken);
-			}
-	}
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
 
-	public sealed class Handler(IUpdateDepartment dataAccess)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(DepartmentEntity))));
-			}
+        public async Task<DepartmentEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken)
+            {
+                return await dbContext.Departments
+                    .FirstOrDefaultAsync(
+                        x => x.TenantId == tenantId
+                            && x.DepartmentId == id,
+                        cancellationToken);
+            }
+    }
+
+    public sealed class Handler(IUpdateDepartment dataAccess)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(DepartmentEntity))));
+            }
 
 
-			entity.UpdateDetails(
-				entity.Code,
-				request.Name,
-				request.Telephone,
-				request.Email);
-			await dataAccess.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            entity.UpdateDetails(
+                entity.Code,
+                request.Name,
+                request.Telephone,
+                request.Email);
+            await dataAccess.UpdateAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPut(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "department"),
-				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var command = request with { Id = id };
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						command, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("UpdateDepartment")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPut(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "department"),
+                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var command = request with { Id = id };
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
+                        command, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("UpdateDepartment")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
+        return endpoints;
+    }
 
-	private static Response MapResponse(DepartmentEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.DepartmentId,
-			entity.Code,
-			entity.Name,
-			entity.Telephone,
-			entity.Email,
-			entity.MetadataJson);
-	}
+    private static Response MapResponse(DepartmentEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.DepartmentId,
+            entity.Code,
+            entity.Name,
+            entity.Telephone,
+            entity.Email,
+            entity.MetadataJson);
+    }
 }

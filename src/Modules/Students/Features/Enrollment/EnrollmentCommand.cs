@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Students.Features.Enrollment;
 /// </summary>
 public sealed class EnrollmentCommand(IStudentsDbContext dbContext) : IEnrollmentCommand
 {
-	public async Task AddAsync(
-		EnrollmentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Enrollments
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        EnrollmentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Enrollments
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		EnrollmentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Enrollments
-			.Update(entity);
+    public async Task UpdateAsync(
+        EnrollmentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Enrollments
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		EnrollmentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Enrollments
-			.Remove(entity);
+    public async Task DeleteAsync(
+        EnrollmentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Enrollments
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

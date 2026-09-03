@@ -11,64 +11,64 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 
 public static class GetCampusById
 {
-	/// <summary>
-	/// Represents the response returned by this CampusEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-		Guid TenantId, Guid SchoolId, string Code, string Name, BranchType BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId,
-		        string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax,
-		        string? Mobile, string? Email, string? LogoUrl);
+    /// <summary>
+    /// Represents the response returned by this CampusEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+        Guid TenantId, Guid SchoolId, string Code, string Name, BranchType BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId,
+                string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax,
+                string? Mobile, string? Email, string? LogoUrl);
 
-	public sealed record Query(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+    public sealed record Query(
+        Guid TenantId,
+        Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(ICampusQuery entityQuery)
-		: IRequestHandler<Query, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Query request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await entityQuery.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusEntity))));
-			}
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+    public sealed class Handler(ICampusQuery entityQuery)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusEntity))));
+            }
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapGet(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "campus"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Query(tenantId, id);
-					var result = await mediator.SendAsync<Query, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("GetCampusById")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "campus"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("GetCampusById")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
+        return endpoints;
+    }
 
-	private static Response MapResponse(CampusEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.SchoolId, entity.Code, entity.Name, entity.BranchType, entity.BranchGenderTypeId, entity.AcademicSystemId,
-			entity.Address, entity.City, entity.Province, entity.Country, entity.Phone, entity.Fax, entity.Mobile,
-			entity.Email, entity.LogoUrl
-			);
-	}
+    private static Response MapResponse(CampusEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.SchoolId, entity.Code, entity.Name, entity.BranchType, entity.BranchGenderTypeId, entity.AcademicSystemId,
+            entity.Address, entity.City, entity.Province, entity.Country, entity.Phone, entity.Fax, entity.Mobile,
+            entity.Email, entity.LogoUrl
+            );
+    }
 }

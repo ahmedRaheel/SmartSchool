@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Learning.Features.LearningResource;
 /// </summary>
 public sealed class LearningResourceCommand(ILearningDbContext dbContext) : ILearningResourceCommand
 {
-	public async Task AddAsync(
-		LearningResourceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.LearningResources
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        LearningResourceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.LearningResources
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		LearningResourceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.LearningResources
-			.Update(entity);
+    public async Task UpdateAsync(
+        LearningResourceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.LearningResources
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		LearningResourceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.LearningResources
-			.Remove(entity);
+    public async Task DeleteAsync(
+        LearningResourceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.LearningResources
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

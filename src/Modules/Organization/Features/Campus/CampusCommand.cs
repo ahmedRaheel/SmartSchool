@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 /// </summary>
 public sealed class CampusCommand(IOrganizationDbContext dbContext) : ICampusCommand
 {
-	public async Task AddAsync(
-		CampusEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Campuses
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        CampusEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Campuses
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		CampusEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Campuses
-			.Update(entity);
+    public async Task UpdateAsync(
+        CampusEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Campuses
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		CampusEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Campuses
-			.Remove(entity);
+    public async Task DeleteAsync(
+        CampusEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Campuses
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

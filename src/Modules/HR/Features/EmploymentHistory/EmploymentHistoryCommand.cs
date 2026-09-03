@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 /// </summary>
 public sealed class EmploymentHistoryCommand(IHRDbContext dbContext) : IEmploymentHistoryCommand
 {
-	public async Task AddAsync(
-		EmploymentHistoryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.EmploymentHistories
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        EmploymentHistoryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.EmploymentHistories
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		EmploymentHistoryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.EmploymentHistories
-			.Update(entity);
+    public async Task UpdateAsync(
+        EmploymentHistoryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.EmploymentHistories
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		EmploymentHistoryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.EmploymentHistories
-			.Remove(entity);
+    public async Task DeleteAsync(
+        EmploymentHistoryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.EmploymentHistories
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

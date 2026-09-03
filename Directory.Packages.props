@@ -62,6 +62,7 @@
       <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" Version="8.0.2" />
       <PackageVersion Include="Duende.IdentityServer.EntityFramework" Version="8.0.2" />
       
+      <PackageVersion Include="UglyToad.PdfPig" Version="0.1.13" />
   </ItemGroup>
 
 </Project>

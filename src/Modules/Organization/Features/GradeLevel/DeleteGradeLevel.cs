@@ -11,87 +11,87 @@ namespace SmartSchool.Modules.Organization.Features.GradeLevel;
 
 public static class DeleteGradeLevel
 {
-	public sealed record Command(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+    public sealed record Command(
+        Guid TenantId,
+        Guid Id) : IRequest<Result<Response>>;
 
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
-	public interface IDeleteGradeLevel
-	{
-		Task DeleteAsync(
-				GradeLevelEntity entity,
-				CancellationToken cancellationToken);
+    public interface IDeleteGradeLevel
+    {
+        Task DeleteAsync(
+                GradeLevelEntity entity,
+                CancellationToken cancellationToken);
 
-		Task<GradeLevelEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken);
+        Task<GradeLevelEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class DeleteGradeLevelPersistence(IOrganizationDbContext dbContext) : IDeleteGradeLevel
-	{
-		public async Task DeleteAsync(
-				GradeLevelEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext
-					.GradeLevels
-					.Remove(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+    internal sealed class DeleteGradeLevelPersistence(IOrganizationDbContext dbContext) : IDeleteGradeLevel
+    {
+        public async Task DeleteAsync(
+                GradeLevelEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext
+                    .GradeLevels
+                    .Remove(entity);
 
-		public async Task<GradeLevelEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken)
-			{
-				return await dbContext
-					.GradeLevels
-					.FirstOrDefaultAsync(
-						x => x.TenantId == tenantId
-							&& x.GradeLevelId == id,
-						cancellationToken);
-			}
-	}
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
 
-	public sealed class Handler(IDeleteGradeLevel dataAccess)
-		: IRequestHandler<Command, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Command request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeLevelEntity))));
-			}
-			await dataAccess.DeleteAsync(entity, cancellationToken);
-			return Result<Response>.Success(new Response(request.TenantId, request.Id));
-		}
-	}
+        public async Task<GradeLevelEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken)
+            {
+                return await dbContext
+                    .GradeLevels
+                    .FirstOrDefaultAsync(
+                        x => x.TenantId == tenantId
+                            && x.GradeLevelId == id,
+                        cancellationToken);
+            }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapDelete(
-				ApiRoutes.EntityById("academics", "grade-level"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Command(tenantId, id);
-					var result = await mediator.SendAsync<Command, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("DeleteGradeLevel")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
-		return endpoints;
-	}
+    public sealed class Handler(IDeleteGradeLevel dataAccess)
+        : IRequestHandler<Command, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Command request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeLevelEntity))));
+            }
+            await dataAccess.DeleteAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
+        }
+    }
+
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapDelete(
+                ApiRoutes.EntityById("academics", "grade-level"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Command(tenantId, id);
+                    var result = await mediator.SendAsync<Command, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("DeleteGradeLevel")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
+        return endpoints;
+    }
 }

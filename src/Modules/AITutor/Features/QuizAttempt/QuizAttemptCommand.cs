@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AITutor.Features.QuizAttempt;
 /// </summary>
 public sealed class QuizAttemptCommand(IAITutorDbContext dbContext) : IQuizAttemptCommand
 {
-	public async Task AddAsync(
-		QuizAttemptEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.QuizAttempts
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        QuizAttemptEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.QuizAttempts
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		QuizAttemptEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.QuizAttempts
-			.Update(entity);
+    public async Task UpdateAsync(
+        QuizAttemptEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.QuizAttempts
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		QuizAttemptEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.QuizAttempts
-			.Remove(entity);
+    public async Task DeleteAsync(
+        QuizAttemptEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.QuizAttempts
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

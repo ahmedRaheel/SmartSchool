@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Finance.Features.Payment;
 /// </summary>
 public sealed class PaymentCommand(IFinanceDbContext dbContext) : IPaymentCommand
 {
-	public async Task AddAsync(
-		PaymentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Payments
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        PaymentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Payments
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		PaymentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Payments
-			.Update(entity);
+    public async Task UpdateAsync(
+        PaymentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Payments
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		PaymentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Payments
-			.Remove(entity);
+    public async Task DeleteAsync(
+        PaymentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Payments
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

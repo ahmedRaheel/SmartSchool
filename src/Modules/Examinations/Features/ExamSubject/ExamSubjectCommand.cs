@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Examinations.Features.ExamSubject;
 /// </summary>
 public sealed class ExamSubjectCommand(IExaminationsDbContext dbContext) : IExamSubjectCommand
 {
-	public async Task AddAsync(
-		ExamSubjectEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.ExamSubjects
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ExamSubjectEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.ExamSubjects
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ExamSubjectEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ExamSubjects
-			.Update(entity);
+    public async Task UpdateAsync(
+        ExamSubjectEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ExamSubjects
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ExamSubjectEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ExamSubjects
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ExamSubjectEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ExamSubjects
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

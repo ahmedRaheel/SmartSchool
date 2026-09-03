@@ -8,37 +8,37 @@ namespace SmartSchool.Modules.Students.Persistence.Configurations;
 /// Configures the StudentDirectoryRead materialized read table.
 /// </summary>
 public sealed class StudentDirectoryReadEntityConfiguration
-	: IEntityTypeConfiguration<StudentDirectoryReadEntity>
+    : IEntityTypeConfiguration<StudentDirectoryReadEntity>
 {
-	public void Configure(EntityTypeBuilder<StudentDirectoryReadEntity> builder)
-	{
-		builder.ToTable("studentdirectoryread", schema: "public");
-		builder.HasKey(readModel => readModel.StudentDirectoryReadId);
-		builder.Property(readModel => readModel.TenantId).IsRequired();
-		builder.Property(readModel => readModel.StudentId).IsRequired();
-		builder.HasIndex(readModel => new { readModel.TenantId, readModel.StudentId }).IsUnique();
-		builder.Property(readModel => readModel.RowVersion).IsConcurrencyToken();
+    public void Configure(EntityTypeBuilder<StudentDirectoryReadEntity> builder)
+    {
+        builder.ToTable("studentdirectoryread", schema: "public");
+        builder.HasKey(readModel => readModel.StudentDirectoryReadId);
+        builder.Property(readModel => readModel.TenantId).IsRequired();
+        builder.Property(readModel => readModel.StudentId).IsRequired();
+        builder.HasIndex(readModel => new { readModel.TenantId, readModel.StudentId }).IsUnique();
+        builder.Property(readModel => readModel.RowVersion).IsConcurrencyToken();
 
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.StudentId).HasColumnName("studentid");
-		builder.Property(entity => entity.AdmissionNumber).HasColumnName("admissionnumber");
-		builder.Property(entity => entity.StudentName).HasColumnName("studentname");
-		builder.Property(entity => entity.ProgramName).HasColumnName("programname");
-		builder.Property(entity => entity.ClassName).HasColumnName("classname");
-		builder.Property(entity => entity.SectionName).HasColumnName("sectionname");
-		builder.Property(entity => entity.PrimaryGuardianName).HasColumnName("primaryguardianname");
-		builder.Property(entity => entity.PrimaryGuardianMobile).HasColumnName("primaryguardianmobile");
-		builder.Property(entity => entity.AttendancePercentage).HasColumnName("attendancepercentage");
-		builder.Property(entity => entity.LatestExamPercentage).HasColumnName("latestexampercentage");
-		builder.Property(entity => entity.OutstandingBalance).HasColumnName("outstandingbalance");
-		builder.Property(entity => entity.DocumentCount).HasColumnName("documentcount");
-		builder.Property(entity => entity.VerifiedDocumentCount).HasColumnName("verifieddocumentcount");
-		builder.Property(entity => entity.StudentId).HasColumnName("id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenantid");
-		builder.Property(entity => entity.IsActive).HasColumnName("isactive");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updatedat");
-		builder.Property(entity => entity.RowVersion).HasColumnName("rowversion");
+        // Canonical database mapping generated from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.StudentId).HasColumnName("studentid");
+        builder.Property(entity => entity.AdmissionNumber).HasColumnName("admissionnumber");
+        builder.Property(entity => entity.StudentName).HasColumnName("studentname");
+        builder.Property(entity => entity.ProgramName).HasColumnName("programname");
+        builder.Property(entity => entity.ClassName).HasColumnName("classname");
+        builder.Property(entity => entity.SectionName).HasColumnName("sectionname");
+        builder.Property(entity => entity.PrimaryGuardianName).HasColumnName("primaryguardianname");
+        builder.Property(entity => entity.PrimaryGuardianMobile).HasColumnName("primaryguardianmobile");
+        builder.Property(entity => entity.AttendancePercentage).HasColumnName("attendancepercentage");
+        builder.Property(entity => entity.LatestExamPercentage).HasColumnName("latestexampercentage");
+        builder.Property(entity => entity.OutstandingBalance).HasColumnName("outstandingbalance");
+        builder.Property(entity => entity.DocumentCount).HasColumnName("documentcount");
+        builder.Property(entity => entity.VerifiedDocumentCount).HasColumnName("verifieddocumentcount");
+        builder.Property(entity => entity.StudentId).HasColumnName("id");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenantid");
+        builder.Property(entity => entity.IsActive).HasColumnName("isactive");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("createdat");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updatedat");
+        builder.Property(entity => entity.RowVersion).HasColumnName("rowversion");
 
         // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
         builder.HasOne<StudentEntity>()
@@ -46,5 +46,5 @@ public sealed class StudentDirectoryReadEntityConfiguration
             .HasForeignKey(entity => entity.StudentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-	}
+    }
 }

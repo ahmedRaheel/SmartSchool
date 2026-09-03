@@ -8,41 +8,41 @@ namespace SmartSchool.Modules.Identity.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="RoleAssignmentEntity"/>.
 /// </summary>
 public sealed class RoleAssignmentEntityConfiguration
-	: IEntityTypeConfiguration<RoleAssignmentEntity>
+    : IEntityTypeConfiguration<RoleAssignmentEntity>
 {
-	public void Configure(EntityTypeBuilder<RoleAssignmentEntity> builder)
-	{
-		builder.ToTable("RoleAssignment", SmartSchool.Modules.Identity.ModuleConstants.Schema);
+    public void Configure(EntityTypeBuilder<RoleAssignmentEntity> builder)
+    {
+        builder.ToTable("RoleAssignment", SmartSchool.Modules.Identity.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.RoleAssignmentId);
+        builder.HasKey(entity => entity.RoleAssignmentId);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
+        builder
+            .Property(entity => entity.RowVersion)
+            .IsConcurrencyToken();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Code)
+            .HasMaxLength(100)
+            .IsRequired();
 
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
+        builder
+            .HasIndex(entity => new { entity.TenantId, entity.Code })
+            .IsUnique();
 
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Name)
+            .HasMaxLength(250)
+            .IsRequired();
 
-	}
+    }
 }

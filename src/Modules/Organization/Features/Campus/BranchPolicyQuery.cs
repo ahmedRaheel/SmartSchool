@@ -9,9 +9,9 @@ public sealed class BranchPolicyQuery(IDbConnectionFactory connectionFactory) : 
         GetLookupsAsync("SELECT branch_gender_type_id AS Id, code AS Code, name AS Name FROM reference.branch_gender_type WHERE is_active = TRUE ORDER BY sort_order, name;", cancellationToken);
 
     public Task<IReadOnlyCollection<LookupItem>> GetEducationLevelsAsync(CancellationToken cancellationToken) =>
-		GetLookupsAsync("SELECT education_level_id AS Id, code AS Code, name AS Name FROM reference.education_level WHERE is_active = TRUE ORDER BY sort_order, name;", cancellationToken);
+        GetLookupsAsync("SELECT education_level_id AS Id, code AS Code, name AS Name FROM reference.education_level WHERE is_active = TRUE ORDER BY sort_order, name;", cancellationToken);
 
-	public async Task<BranchPolicy?> GetBranchPolicyAsync(Guid tenantId, Guid branchId, CancellationToken cancellationToken)
+    public async Task<BranchPolicy?> GetBranchPolicyAsync(Guid tenantId, Guid branchId, CancellationToken cancellationToken)
     {
         const string headerSql = """
             SELECT c.branch_gender_type_id AS BranchGenderTypeId, g.code AS GenderCode
@@ -21,26 +21,27 @@ public sealed class BranchPolicyQuery(IDbConnectionFactory connectionFactory) : 
             """;
         const string levelsSql = """
             SELECT l.education_level_id AS Id, l.code AS Code, l.name AS Name
-            FROM org.branch_education_level b
+            FROM org.campus_education_level b
             INNER JOIN reference.education_level l ON l.education_level_id = b.education_level_id
-            WHERE b.branch_id = @BranchId AND l.is_active = TRUE
+            WHERE b.tenant_id = @TenantId AND b.campus_id = @BranchId AND l.is_active = TRUE
             ORDER BY l.sort_order, l.name;
             """;
-		await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-		var (genderTypeId, genderCode) = await connection.QuerySingleOrDefaultAsync<(Guid BranchGenderTypeId, string GenderCode)>(new CommandDefinition(headerSql, new
-		{
-			TenantId = tenantId,
-			BranchId = branchId
-		}, cancellationToken: cancellationToken));
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        var (genderTypeId, genderCode) = await connection.QuerySingleOrDefaultAsync<(Guid BranchGenderTypeId, string GenderCode)>(new CommandDefinition(headerSql, new
+        {
+            TenantId = tenantId,
+            BranchId = branchId
+        }, cancellationToken: cancellationToken));
         if (genderTypeId == Guid.Empty) return null;
         var levels = (await connection.QueryAsync<LookupItem>(new CommandDefinition(levelsSql, new
-		{
-			BranchId = branchId
-		}, cancellationToken: cancellationToken))).AsList();
+        {
+            TenantId = tenantId,
+            BranchId = branchId
+        }, cancellationToken: cancellationToken))).AsList();
         return new BranchPolicy(genderTypeId, genderCode, levels);
-	}
+    }
 
-	private async Task<IReadOnlyCollection<LookupItem>> GetLookupsAsync(string sql, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<LookupItem>> GetLookupsAsync(string sql, CancellationToken cancellationToken)
     {
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         return (await connection.QueryAsync<LookupItem>(new CommandDefinition(sql, cancellationToken: cancellationToken))).AsList();

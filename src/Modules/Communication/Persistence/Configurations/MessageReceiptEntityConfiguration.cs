@@ -8,58 +8,58 @@ namespace SmartSchool.Modules.Communication.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="MessageReceiptEntity"/>.
 /// </summary>
 public sealed class MessageReceiptEntityConfiguration
-	: IEntityTypeConfiguration<MessageReceiptEntity>
+    : IEntityTypeConfiguration<MessageReceiptEntity>
 {
-	public void Configure(EntityTypeBuilder<MessageReceiptEntity> builder)
-	{
-		builder.ToTable("message_receipt", schema: "communication");
-		builder.HasKey(entity => entity.MessageReceiptId);
+    public void Configure(EntityTypeBuilder<MessageReceiptEntity> builder)
+    {
+        builder.ToTable("message_receipt", schema: "communication");
+        builder.HasKey(entity => entity.MessageReceiptId);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-		builder.Property(entity => entity.CreatedAt).IsRequired();
-		builder.Property(entity => entity.UpdatedAt);
-		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
+        builder.Property(entity => entity.CreatedAt).IsRequired();
+        builder.Property(entity => entity.UpdatedAt);
+        builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Code)
+            .HasMaxLength(100)
+            .IsRequired();
 
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
+        builder
+            .HasIndex(entity => new { entity.TenantId, entity.Code })
+            .IsUnique();
 
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Name)
+            .HasMaxLength(250)
+            .IsRequired();
 
 
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Code).HasColumnName("code");
-		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.MessageReceiptId).HasColumnName("message_receipt_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+        // Canonical database mapping generated from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.Code).HasColumnName("code");
+        builder.Property(entity => entity.Name).HasColumnName("name");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+        builder.Property(entity => entity.MessageReceiptId).HasColumnName("message_receipt_id");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
-		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.MessageId).HasColumnName("message_id");
-		builder.Property(entity => entity.UserId).HasColumnName("user_id");
-		builder.Property(entity => entity.DeliveredAt).HasColumnName("delivered_at");
-		builder.Property(entity => entity.ReadAt).HasColumnName("read_at");
+        // Database columns synchronized from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.MessageId).HasColumnName("message_id");
+        builder.Property(entity => entity.UserId).HasColumnName("user_id");
+        builder.Property(entity => entity.DeliveredAt).HasColumnName("delivered_at");
+        builder.Property(entity => entity.ReadAt).HasColumnName("read_at");
 
         // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
         builder.HasOne<MessageEntity>()
@@ -67,5 +67,5 @@ public sealed class MessageReceiptEntityConfiguration
             .HasForeignKey(entity => entity.MessageId)
             .OnDelete(DeleteBehavior.Restrict);
 
-	}
+    }
 }

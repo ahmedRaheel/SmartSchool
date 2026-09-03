@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIInquiry.Features.LeadCapture;
 /// </summary>
 public sealed class LeadCaptureCommand(IAIInquiryDbContext dbContext) : ILeadCaptureCommand
 {
-	public async Task AddAsync(
-		LeadCaptureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.LeadCaptures
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        LeadCaptureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.LeadCaptures
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		LeadCaptureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.LeadCaptures
-			.Update(entity);
+    public async Task UpdateAsync(
+        LeadCaptureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.LeadCaptures
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		LeadCaptureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.LeadCaptures
-			.Remove(entity);
+    public async Task DeleteAsync(
+        LeadCaptureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.LeadCaptures
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Documents.Features.SchoolLogo;
 /// </summary>
 public sealed class SchoolLogoCommand(IDocumentsDbContext dbContext) : ISchoolLogoCommand
 {
-	public async Task AddAsync(
-		SchoolLogoEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.SchoolLogos
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        SchoolLogoEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.SchoolLogos
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		SchoolLogoEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.SchoolLogos
-			.Update(entity);
+    public async Task UpdateAsync(
+        SchoolLogoEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.SchoolLogos
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		SchoolLogoEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.SchoolLogos
-			.Remove(entity);
+    public async Task DeleteAsync(
+        SchoolLogoEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.SchoolLogos
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -5,6 +5,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
     <PackageReference Include="Microsoft.Extensions.AI" />
     <PackageReference Include="ModelContextProtocol.AspNetCore" />
+    <PackageReference Include="UglyToad.PdfPig" />
    
   </ItemGroup>
   <ItemGroup>

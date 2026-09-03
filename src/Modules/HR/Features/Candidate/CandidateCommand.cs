@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.HR.Features.Candidate;
 /// </summary>
 public sealed class CandidateCommand(IHRDbContext dbContext) : ICandidateCommand
 {
-	public async Task AddAsync(
-		CandidateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Candidates
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        CandidateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Candidates
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		CandidateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Candidates
-			.Update(entity);
+    public async Task UpdateAsync(
+        CandidateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Candidates
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		CandidateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Candidates
-			.Remove(entity);
+    public async Task DeleteAsync(
+        CandidateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Candidates
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

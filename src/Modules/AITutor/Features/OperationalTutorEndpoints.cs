@@ -41,8 +41,8 @@ public static class OperationalTutorEndpoints
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var u=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}",SmartSchoolRoles.Student,JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="user",content=r.Message,r.Subject,r.Topic}));await messages.AddAsync(u,ct);
         var prompt=$"""
-			You are SmartSchool AI Tutor. Student subject: {r.Subject}. Topic: {r.Topic}.
-			
+            You are SmartSchool AI Tutor. Student subject: {r.Subject}. Topic: {r.Topic}.
+
 Teach using hints, explanation and formative questions. Do not fabricate school-specific facts. Do not reveal another student's data.
 For assessed work, coach rather than blindly completing it.
 Student: {r.Message}
@@ -57,8 +57,8 @@ Student: {r.Message}
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var count=Math.Clamp(r.QuestionCount,1,20);
         var prompt=$"""
-			Generate exactly {count} {r.Difficulty} quiz questions for {r.Subject}, topic {r.Topic}.
-			
+            Generate exactly {count} {r.Difficulty} quiz questions for {r.Subject}, topic {r.Topic}.
+
 Return ONLY valid JSON array. Each object: question, options (4 strings), correctAnswer, explanation. Avoid personal data.
 """;
         var raw=await Generate(prompt,clients,cfg,ct);

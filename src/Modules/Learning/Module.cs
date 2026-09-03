@@ -13,41 +13,41 @@ namespace SmartSchool.Modules.Learning;
 
 public static class Module
 {
-	public static IServiceCollection AddLearningModule(
-		this IServiceCollection services)
-	{
-		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<ILearningDbContext, LearningDbContext>();
+    public static IServiceCollection AddLearningModule(
+        this IServiceCollection services)
+    {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
+        services.AddScoped<ILearningDbContext, LearningDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-		return services;
-	}
+        return services;
+    }
 
-	public static IEndpointRouteBuilder MapLearningEndpoints(
-		this IEndpointRouteBuilder endpoints)
-	{
-		CreateAssignment.MapEndpoint(endpoints);
-		GetAssignmentById.MapEndpoint(endpoints);
-		GetAssignmentPage.MapEndpoint(endpoints);
-		UpdateAssignment.MapEndpoint(endpoints);
-		DeleteAssignment.MapEndpoint(endpoints);
-		CreateAssignmentSubmission.MapEndpoint(endpoints);
-		GetAssignmentSubmissionById.MapEndpoint(endpoints);
-		GetAssignmentSubmissionPage.MapEndpoint(endpoints);
-		UpdateAssignmentSubmission.MapEndpoint(endpoints);
-		DeleteAssignmentSubmission.MapEndpoint(endpoints);
+    public static IEndpointRouteBuilder MapLearningEndpoints(
+        this IEndpointRouteBuilder endpoints)
+    {
+        CreateAssignment.MapEndpoint(endpoints);
+        GetAssignmentById.MapEndpoint(endpoints);
+        GetAssignmentPage.MapEndpoint(endpoints);
+        UpdateAssignment.MapEndpoint(endpoints);
+        DeleteAssignment.MapEndpoint(endpoints);
+        CreateAssignmentSubmission.MapEndpoint(endpoints);
+        GetAssignmentSubmissionById.MapEndpoint(endpoints);
+        GetAssignmentSubmissionPage.MapEndpoint(endpoints);
+        UpdateAssignmentSubmission.MapEndpoint(endpoints);
+        DeleteAssignmentSubmission.MapEndpoint(endpoints);
 
-		CreateLearningResource.MapEndpoint(endpoints);
-		CreateLesson.MapEndpoint(endpoints);
-		DeleteLearningResource.MapEndpoint(endpoints);
-		DeleteLesson.MapEndpoint(endpoints);
-		GetLearningResourceById.MapEndpoint(endpoints);
-		GetLearningResourcePage.MapEndpoint(endpoints);
-		GetLessonById.MapEndpoint(endpoints);
-		GetLessonPage.MapEndpoint(endpoints);
-		UpdateLearningResource.MapEndpoint(endpoints);
-		UpdateLesson.MapEndpoint(endpoints);
+        CreateLearningResource.MapEndpoint(endpoints);
+        CreateLesson.MapEndpoint(endpoints);
+        DeleteLearningResource.MapEndpoint(endpoints);
+        DeleteLesson.MapEndpoint(endpoints);
+        GetLearningResourceById.MapEndpoint(endpoints);
+        GetLearningResourcePage.MapEndpoint(endpoints);
+        GetLessonById.MapEndpoint(endpoints);
+        GetLessonPage.MapEndpoint(endpoints);
+        UpdateLearningResource.MapEndpoint(endpoints);
+        UpdateLesson.MapEndpoint(endpoints);
 
-		return endpoints;
-	}
+        return endpoints;
+    }
 }

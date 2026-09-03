@@ -8,64 +8,64 @@ namespace SmartSchool.Modules.Audit.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="AuditLogEntity"/>.
 /// </summary>
 public sealed class AuditLogEntityConfiguration
-	: IEntityTypeConfiguration<AuditLogEntity>
+    : IEntityTypeConfiguration<AuditLogEntity>
 {
-	public void Configure(EntityTypeBuilder<AuditLogEntity> builder)
-	{
-		builder.ToTable("audit_log", schema: "audit");
-		builder.HasKey(entity => entity.AuditLogId);
+    public void Configure(EntityTypeBuilder<AuditLogEntity> builder)
+    {
+        builder.ToTable("audit_log", schema: "audit");
+        builder.HasKey(entity => entity.AuditLogId);
 
-		builder.Property(entity => entity.AuditLogId).ValueGeneratedOnAdd();
+        builder.Property(entity => entity.AuditLogId).ValueGeneratedOnAdd();
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-		builder.Property(entity => entity.CreatedAt).IsRequired();
-		builder.Property(entity => entity.UpdatedAt);
-		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
+        builder.Property(entity => entity.CreatedAt).IsRequired();
+        builder.Property(entity => entity.UpdatedAt);
+        builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Code)
+            .HasMaxLength(100)
+            .IsRequired();
 
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
+        builder
+            .HasIndex(entity => new { entity.TenantId, entity.Code })
+            .IsUnique();
 
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Name)
+            .HasMaxLength(250)
+            .IsRequired();
 
 
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Code).HasColumnName("code");
-		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.AuditLogId).HasColumnName("audit_log_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+        // Canonical database mapping generated from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.Code).HasColumnName("code");
+        builder.Property(entity => entity.Name).HasColumnName("name");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+        builder.Property(entity => entity.AuditLogId).HasColumnName("audit_log_id");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
-		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.UserId).HasColumnName("user_id");
-		builder.Property(entity => entity.Action).HasColumnName("action");
-		builder.Property(entity => entity.EntityType).HasColumnName("entity_type");
-		builder.Property(entity => entity.EntityId).HasColumnName("entity_id");
-		builder.Property(entity => entity.OldValues).HasColumnName("old_values");
-		builder.Property(entity => entity.NewValues).HasColumnName("new_values");
-		builder.Property(entity => entity.IpAddress).HasColumnName("ip_address");
-		builder.Property(entity => entity.CorrelationId).HasColumnName("correlation_id");
-		builder.Property(entity => entity.OccurredAt).HasColumnName("occurred_at");
-	}
+        // Database columns synchronized from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.UserId).HasColumnName("user_id");
+        builder.Property(entity => entity.Action).HasColumnName("action");
+        builder.Property(entity => entity.EntityType).HasColumnName("entity_type");
+        builder.Property(entity => entity.EntityId).HasColumnName("entity_id");
+        builder.Property(entity => entity.OldValues).HasColumnName("old_values");
+        builder.Property(entity => entity.NewValues).HasColumnName("new_values");
+        builder.Property(entity => entity.IpAddress).HasColumnName("ip_address");
+        builder.Property(entity => entity.CorrelationId).HasColumnName("correlation_id");
+        builder.Property(entity => entity.OccurredAt).HasColumnName("occurred_at");
+    }
 }

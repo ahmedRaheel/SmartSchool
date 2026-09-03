@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Library.Features.Loan;
 /// </summary>
 public sealed class LoanCommand(ILibraryDbContext dbContext) : ILoanCommand
 {
-	public async Task AddAsync(
-		LoanEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Loans
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        LoanEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Loans
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		LoanEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Loans
-			.Update(entity);
+    public async Task UpdateAsync(
+        LoanEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Loans
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		LoanEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Loans
-			.Remove(entity);
+    public async Task DeleteAsync(
+        LoanEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Loans
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

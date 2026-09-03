@@ -13,8 +13,8 @@ namespace SmartSchool.Modules.Organization.Features.School;
 public static class CreateSchool
 {
     public sealed record Request(
-		Guid TenantId,	   
-		string Name,
+        Guid TenantId,
+        string Name,
         string? RegistrationNumber,
         string? Email,
         string? Phone,
@@ -34,8 +34,8 @@ public static class CreateSchool
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
-        {			
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        {
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
             RuleFor(x => x.Phone).MaximumLength(50);
             RuleFor(x => x.Fax).MaximumLength(50);
@@ -51,8 +51,8 @@ public static class CreateSchool
         {
             var code = await numberGenerator.NextAsync(
                 "SCHOOL", "SCH", request.TenantId, 3, cancellationToken);
-			var schoolId = Guid.NewGuid();
-			var school = SchoolEntity.Create(
+            var schoolId = Guid.NewGuid();
+            var school = SchoolEntity.Create(
                 request.TenantId, schoolId, code, request.Name, request.RegistrationNumber, request.Email,
                 request.Phone, request.Fax, request.Website, request.Address, request.City, request.Province,
                 request.Country, request.LogoUrl);
@@ -62,14 +62,14 @@ public static class CreateSchool
         }
     }
 
-	public interface ITenantSchoolCommand
-	{		
-		Task AddAsync(
-				TenantEntity entity,
-				CancellationToken cancellationToken);
-		
-	}
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    public interface ITenantSchoolCommand
+    {
+        Task AddAsync(
+                TenantEntity entity,
+                CancellationToken cancellationToken);
+
+    }
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school"),
             async (Request request, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>

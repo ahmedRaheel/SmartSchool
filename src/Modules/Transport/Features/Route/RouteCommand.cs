@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Transport.Features.Route;
 /// </summary>
 public sealed class RouteCommand(ITransportDbContext dbContext) : IRouteCommand
 {
-	public async Task AddAsync(
-		RouteEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Routes
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        RouteEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Routes
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		RouteEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Routes
-			.Update(entity);
+    public async Task UpdateAsync(
+        RouteEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Routes
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		RouteEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Routes
-			.Remove(entity);
+    public async Task DeleteAsync(
+        RouteEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Routes
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Finance.Features.FeeType;
 /// </summary>
 public sealed class FeeTypeCommand(IFinanceDbContext dbContext) : IFeeTypeCommand
 {
-	public async Task AddAsync(
-		FeeTypeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.FeeTypes
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        FeeTypeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.FeeTypes
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		FeeTypeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.FeeTypes
-			.Update(entity);
+    public async Task UpdateAsync(
+        FeeTypeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.FeeTypes
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		FeeTypeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.FeeTypes
-			.Remove(entity);
+    public async Task DeleteAsync(
+        FeeTypeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.FeeTypes
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

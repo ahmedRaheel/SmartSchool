@@ -13,36 +13,36 @@ namespace SmartSchool.Modules.Inventory;
 
 public static class Module
 {
-	public static IServiceCollection AddInventoryModule(
-		this IServiceCollection services)
-	{
-		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IInventoryDbContext, InventoryDbContext>();
+    public static IServiceCollection AddInventoryModule(
+        this IServiceCollection services)
+    {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
+        services.AddScoped<IInventoryDbContext, InventoryDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-		return services;
-	}
+        return services;
+    }
 
-	public static IEndpointRouteBuilder MapInventoryEndpoints(
-		this IEndpointRouteBuilder endpoints)
-	{
-		CreateItem.MapEndpoint(endpoints);
-		GetItemById.MapEndpoint(endpoints);
-		GetItemPage.MapEndpoint(endpoints);
-		UpdateItem.MapEndpoint(endpoints);
-		DeleteItem.MapEndpoint(endpoints);
+    public static IEndpointRouteBuilder MapInventoryEndpoints(
+        this IEndpointRouteBuilder endpoints)
+    {
+        CreateItem.MapEndpoint(endpoints);
+        GetItemById.MapEndpoint(endpoints);
+        GetItemPage.MapEndpoint(endpoints);
+        UpdateItem.MapEndpoint(endpoints);
+        DeleteItem.MapEndpoint(endpoints);
 
-		CreatePurchaseOrder.MapEndpoint(endpoints);
-		CreateStockTransaction.MapEndpoint(endpoints);
-		DeletePurchaseOrder.MapEndpoint(endpoints);
-		DeleteStockTransaction.MapEndpoint(endpoints);
-		GetPurchaseOrderById.MapEndpoint(endpoints);
-		GetPurchaseOrderPage.MapEndpoint(endpoints);
-		GetStockTransactionById.MapEndpoint(endpoints);
-		GetStockTransactionPage.MapEndpoint(endpoints);
-		UpdatePurchaseOrder.MapEndpoint(endpoints);
-		UpdateStockTransaction.MapEndpoint(endpoints);
+        CreatePurchaseOrder.MapEndpoint(endpoints);
+        CreateStockTransaction.MapEndpoint(endpoints);
+        DeletePurchaseOrder.MapEndpoint(endpoints);
+        DeleteStockTransaction.MapEndpoint(endpoints);
+        GetPurchaseOrderById.MapEndpoint(endpoints);
+        GetPurchaseOrderPage.MapEndpoint(endpoints);
+        GetStockTransactionById.MapEndpoint(endpoints);
+        GetStockTransactionPage.MapEndpoint(endpoints);
+        UpdatePurchaseOrder.MapEndpoint(endpoints);
+        UpdateStockTransaction.MapEndpoint(endpoints);
 
-		return endpoints;
-	}
+        return endpoints;
+    }
 }

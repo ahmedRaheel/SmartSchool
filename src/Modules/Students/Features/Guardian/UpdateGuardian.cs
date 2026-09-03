@@ -12,119 +12,119 @@ namespace SmartSchool.Modules.Students.Features.Guardian;
 
 public static class UpdateGuardian
 {
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id,
-		Guid? UserId,
-		string FullName,
-		string? CnicNumber,
-		string? Email,
-		string? Phone);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id,
+        Guid? UserId,
+        string FullName,
+        string? CnicNumber,
+        string? Email,
+        string? Phone);
 
-	public sealed record Request(
-		Guid TenantId,
-		Guid Id,
-		string FullName,
-		string? CnicNumber,
-		string? Email,
-		string? Phone) : IRequest<Result<Response>>;
+    public sealed record Request(
+        Guid TenantId,
+        Guid Id,
+        string FullName,
+        string? CnicNumber,
+        string? Email,
+        string? Phone) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Id).NotEmpty();
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
+        }
+    }
 
-	public interface IUpdateGuardian
-	{
-		Task UpdateAsync(
-				GuardianEntity entity,
-				CancellationToken cancellationToken);
+    public interface IUpdateGuardian
+    {
+        Task UpdateAsync(
+                GuardianEntity entity,
+                CancellationToken cancellationToken);
 
-		Task<GuardianEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+        Task<GuardianEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
 
-		Task<bool> ExistsByCnicNumberAsync(Guid tenantId, string cnicNumber, Guid? excludingId, CancellationToken cancellationToken);
+        Task<bool> ExistsByCnicNumberAsync(Guid tenantId, string cnicNumber, Guid? excludingId, CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class UpdateGuardianPersistence(
-		IStudentsDbContext dbContext) : IUpdateGuardian
-	{
-		public async Task UpdateAsync(
-				GuardianEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext.Guardians
-					.Update(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-	
-		public Task<GuardianEntity?> GetByIdAsync(
-			Guid tenantId, Guid id, CancellationToken cancellationToken)
-		{
-			return dbContext.Guardians
-				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.GuardianId == id, cancellationToken);
-		}
+    internal sealed class UpdateGuardianPersistence(
+        IStudentsDbContext dbContext) : IUpdateGuardian
+    {
+        public async Task UpdateAsync(
+                GuardianEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext.Guardians
+                    .Update(entity);
 
-		public Task<bool> ExistsByCnicNumberAsync(
-			Guid tenantId, string cnicNumber, Guid? excludingId, CancellationToken cancellationToken)
-		{
-			return dbContext.Guardians.AnyAsync(
-				x => x.TenantId == tenantId && x.CnicNumber == cnicNumber
-					&& (!excludingId.HasValue || x.GuardianId != excludingId.Value), cancellationToken);
-		}
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+        public Task<GuardianEntity?> GetByIdAsync(
+            Guid tenantId, Guid id, CancellationToken cancellationToken)
+        {
+            return dbContext.Guardians
+                .SingleOrDefaultAsync(x => x.TenantId == tenantId && x.GuardianId == id, cancellationToken);
+        }
+
+        public Task<bool> ExistsByCnicNumberAsync(
+            Guid tenantId, string cnicNumber, Guid? excludingId, CancellationToken cancellationToken)
+        {
+            return dbContext.Guardians.AnyAsync(
+                x => x.TenantId == tenantId && x.CnicNumber == cnicNumber
+                    && (!excludingId.HasValue || x.GuardianId != excludingId.Value), cancellationToken);
+        }
 }
 
-	public sealed class Handler(IUpdateGuardian dataAccess)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(GuardianEntity))));
-			}
+    public sealed class Handler(IUpdateGuardian dataAccess)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GuardianEntity))));
+            }
 
-			entity.UpdateDetails(
-				request.FullName,
-				request.CnicNumber,
-				request.Email,
-				request.Phone);
+            entity.UpdateDetails(
+                request.FullName,
+                request.CnicNumber,
+                request.Email,
+                request.Phone);
 
-			await dataAccess.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            await dataAccess.UpdateAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPut(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "guardian"),
-				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var command = request with { Id = id };
-					var result = await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("UpdateGuardian").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPut(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "guardian"),
+                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var command = request with { Id = id };
+                    var result = await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("UpdateGuardian").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
+        return endpoints;
+    }
 
-	private static Response MapResponse(GuardianEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.GuardianId,
-			entity.UserId,
-			entity.FullName,
-			entity.CnicNumber,
-			entity.Email,
-			entity.Phone);
-	}
+    private static Response MapResponse(GuardianEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.GuardianId,
+            entity.UserId,
+            entity.FullName,
+            entity.CnicNumber,
+            entity.Email,
+            entity.Phone);
+    }
 }

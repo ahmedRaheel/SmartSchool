@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 /// </summary>
 public sealed class PredictionModelCommand(IAIPredictionDbContext dbContext) : IPredictionModelCommand
 {
-	public async Task AddAsync(
-		PredictionModelEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.PredictionModels
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        PredictionModelEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.PredictionModels
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		PredictionModelEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.PredictionModels
-			.Update(entity);
+    public async Task UpdateAsync(
+        PredictionModelEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.PredictionModels
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		PredictionModelEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.PredictionModels
-			.Remove(entity);
+    public async Task DeleteAsync(
+        PredictionModelEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.PredictionModels
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

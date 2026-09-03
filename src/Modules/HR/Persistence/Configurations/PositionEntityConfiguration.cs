@@ -8,62 +8,62 @@ namespace SmartSchool.Modules.HR.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="PositionEntity"/>.
 /// </summary>
 public sealed class PositionEntityConfiguration
-	: IEntityTypeConfiguration<PositionEntity>
+    : IEntityTypeConfiguration<PositionEntity>
 {
-	public void Configure(EntityTypeBuilder<PositionEntity> builder)
-	{
-		builder.ToTable("position", schema: "hr");
-		builder.HasKey(entity => entity.PositionId);
+    public void Configure(EntityTypeBuilder<PositionEntity> builder)
+    {
+        builder.ToTable("position", schema: "hr");
+        builder.HasKey(entity => entity.PositionId);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
+        builder
+            .Property(entity => entity.RowVersion)
+            .IsConcurrencyToken();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Code)
+            .HasMaxLength(100)
+            .IsRequired();
 
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
+        builder
+            .HasIndex(entity => new { entity.TenantId, entity.Code })
+            .IsUnique();
 
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Name)
+            .HasMaxLength(250)
+            .IsRequired();
 
 
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Code).HasColumnName("code");
-		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.PositionId).HasColumnName("position_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+        // Canonical database mapping generated from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.Code).HasColumnName("code");
+        builder.Property(entity => entity.Name).HasColumnName("name");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+        builder.Property(entity => entity.PositionId).HasColumnName("position_id");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
-		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
-		builder.Property(entity => entity.DepartmentId).HasColumnName("department_id");
-		builder.Property(entity => entity.JobId).HasColumnName("job_id");
-		builder.Property(entity => entity.JobGradeId).HasColumnName("job_grade_id");
-		builder.Property(entity => entity.ReportsToPositionId).HasColumnName("reports_to_position_id");
-		builder.Property(entity => entity.PositionCode).HasColumnName("position_code");
-		builder.Property(entity => entity.Headcount).HasColumnName("headcount");
-		builder.Property(entity => entity.Status).HasColumnName("status");
+        // Database columns synchronized from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
+        builder.Property(entity => entity.DepartmentId).HasColumnName("department_id");
+        builder.Property(entity => entity.JobId).HasColumnName("job_id");
+        builder.Property(entity => entity.JobGradeId).HasColumnName("job_grade_id");
+        builder.Property(entity => entity.ReportsToPositionId).HasColumnName("reports_to_position_id");
+        builder.Property(entity => entity.PositionCode).HasColumnName("position_code");
+        builder.Property(entity => entity.Headcount).HasColumnName("headcount");
+        builder.Property(entity => entity.Status).HasColumnName("status");
 
         // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
         builder.HasOne<JobEntity>()
@@ -76,5 +76,5 @@ public sealed class PositionEntityConfiguration
             .HasForeignKey(entity => entity.JobGradeId)
             .OnDelete(DeleteBehavior.Restrict);
 
-	}
+    }
 }

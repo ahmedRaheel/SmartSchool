@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction
 /// </summary>
 public sealed class StudentPerformancePredictionCommand(IAIPredictionDbContext dbContext) : IStudentPerformancePredictionCommand
 {
-	public async Task AddAsync(
-		StudentPerformancePredictionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.StudentPerformancePredictions
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        StudentPerformancePredictionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.StudentPerformancePredictions
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		StudentPerformancePredictionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentPerformancePredictions
-			.Update(entity);
+    public async Task UpdateAsync(
+        StudentPerformancePredictionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentPerformancePredictions
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		StudentPerformancePredictionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentPerformancePredictions
-			.Remove(entity);
+    public async Task DeleteAsync(
+        StudentPerformancePredictionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentPerformancePredictions
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

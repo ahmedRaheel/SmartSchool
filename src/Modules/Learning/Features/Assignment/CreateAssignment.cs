@@ -13,66 +13,66 @@ namespace SmartSchool.Modules.Learning.Features.Assignment;
 
 public static class CreateAssignment
 {
-	/// <summary>
-	/// Represents the response returned by this AssignmentEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    /// <summary>
+    /// Represents the response returned by this AssignmentEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    string Code,
+    string Name,
+    string? MetadataJson);
 
-	public sealed record Request(
-		Guid TenantId,
+    public sealed record Request(
+        Guid TenantId,
         Guid BranchId,
-		string Name) : IRequest<Result<Response>>;
+        string Name) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.BranchId).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.BranchId).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        }
+    }
 
-	public interface ICreateAssignment
-	{
-		Task AddAsync(
-				AssignmentEntity entity,
-				CancellationToken cancellationToken);
+    public interface ICreateAssignment
+    {
+        Task AddAsync(
+                AssignmentEntity entity,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class CreateAssignmentPersistence(
-		ILearningDbContext dbContext) : ICreateAssignment
-	{
-		public async Task AddAsync(
-				AssignmentEntity entity,
-				CancellationToken cancellationToken)
-			{
-				await dbContext.Assignments
-					.AddAsync(entity, cancellationToken);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-	}
+    internal sealed class CreateAssignmentPersistence(
+        ILearningDbContext dbContext) : ICreateAssignment
+    {
+        public async Task AddAsync(
+                AssignmentEntity entity,
+                CancellationToken cancellationToken)
+            {
+                await dbContext.Assignments
+                    .AddAsync(entity, cancellationToken);
 
-	public sealed class Handler(IBusinessNumberGenerator numberGenerator,
-		ILearningDbContext dbContext,
-		ICreateAssignment dataAccess)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+    }
+
+    public sealed class Handler(IBusinessNumberGenerator numberGenerator,
+        ILearningDbContext dbContext,
+        ICreateAssignment dataAccess)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
             var branchCode = await dbContext.Database
                 .SqlQueryRaw<string>(
                     "SELECT code AS \"Value\" FROM org.campus WHERE tenant_id = {0} AND campus_id = {1} AND is_active = TRUE",
@@ -82,41 +82,41 @@ public static class CreateAssignment
             if (string.IsNullOrWhiteSpace(branchCode)) return Result<Response>.Failure(Error.Validation("A valid branch is required."));
             var code = await numberGenerator.NextAsync("ASSIGNMENT:" + request.BranchId, $"{branchCode}-ASG-", request.TenantId, 7, cancellationToken);
 
-			var entity = AssignmentEntity.Create(
-				request.TenantId,
+            var entity = AssignmentEntity.Create(
+                request.TenantId,
                 request.BranchId,
-				code,
-				request.Name);
+                code,
+                request.Name);
 
-			await dataAccess.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            await dataAccess.AddAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPost(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "assignment"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("CreateAssignment")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost(
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "assignment"),
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("CreateAssignment")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 
-	private static Response MapResponse(
-		AssignmentEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.AcademicAssignmentId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+    private static Response MapResponse(
+        AssignmentEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.AcademicAssignmentId,
+            entity.Code,
+            entity.Name,
+            entity.MetadataJson);
+    }
 }

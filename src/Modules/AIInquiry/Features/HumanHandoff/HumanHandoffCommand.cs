@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIInquiry.Features.HumanHandoff;
 /// </summary>
 public sealed class HumanHandoffCommand(IAIInquiryDbContext dbContext) : IHumanHandoffCommand
 {
-	public async Task AddAsync(
-		HumanHandoffEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.HumanHandoffs
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        HumanHandoffEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.HumanHandoffs
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		HumanHandoffEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.HumanHandoffs
-			.Update(entity);
+    public async Task UpdateAsync(
+        HumanHandoffEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.HumanHandoffs
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		HumanHandoffEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.HumanHandoffs
-			.Remove(entity);
+    public async Task DeleteAsync(
+        HumanHandoffEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.HumanHandoffs
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

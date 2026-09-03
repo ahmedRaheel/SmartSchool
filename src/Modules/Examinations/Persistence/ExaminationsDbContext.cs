@@ -6,14 +6,14 @@ namespace SmartSchool.Modules.Examinations.Persistence;
 
 public interface IExaminationsDbContext
 {
-	DatabaseFacade Database { get; }
+    DatabaseFacade Database { get; }
 
-	DbSet<ExamEntity> Exams { get; }
-	DbSet<ExamSubjectEntity> ExamSubjects { get; }
-	DbSet<GradeScaleEntity> GradeScales { get; }
-	DbSet<StudentExamResultEntity> StudentExamResults { get; }
+    DbSet<ExamEntity> Exams { get; }
+    DbSet<ExamSubjectEntity> ExamSubjects { get; }
+    DbSet<GradeScaleEntity> GradeScales { get; }
+    DbSet<StudentExamResultEntity> StudentExamResults { get; }
 
-	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -21,20 +21,20 @@ public interface IExaminationsDbContext
 /// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
 public sealed class ExaminationsDbContext(DbContextOptions<ExaminationsDbContext> options)
-	: DbContext(options), IExaminationsDbContext
+    : DbContext(options), IExaminationsDbContext
 {
-	public DbSet<ExamEntity> Exams => Set<ExamEntity>();
-	public DbSet<ExamSubjectEntity> ExamSubjects => Set<ExamSubjectEntity>();
-	public DbSet<GradeScaleEntity> GradeScales => Set<GradeScaleEntity>();
-	public DbSet<StudentExamResultEntity> StudentExamResults => Set<StudentExamResultEntity>();
+    public DbSet<ExamEntity> Exams => Set<ExamEntity>();
+    public DbSet<ExamSubjectEntity> ExamSubjects => Set<ExamSubjectEntity>();
+    public DbSet<GradeScaleEntity> GradeScales => Set<GradeScaleEntity>();
+    public DbSet<StudentExamResultEntity> StudentExamResults => Set<StudentExamResultEntity>();
 
-	protected override void OnModelCreating(ModelBuilder modelBuilder)
-	{
-		base.OnModelCreating(modelBuilder);
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-		modelBuilder.ApplyConfigurationsFromAssembly(
-			typeof(ExaminationsDbContext).Assembly,
-			type => type.Namespace is not null
-				&& type.Namespace.StartsWith("SmartSchool.Modules.Examinations.Persistence.Configurations", StringComparison.Ordinal));
-	}
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(ExaminationsDbContext).Assembly,
+            type => type.Namespace is not null
+                && type.Namespace.StartsWith("SmartSchool.Modules.Examinations.Persistence.Configurations", StringComparison.Ordinal));
+    }
 }

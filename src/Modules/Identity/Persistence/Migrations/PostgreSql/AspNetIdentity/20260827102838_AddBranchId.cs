@@ -16,7 +16,7 @@ namespace SmartSchool.Modules.Identity.Persistence.Migrations.PostgreSql.AspNetI
                 schema: "identity",
                 table: "Users",
                 type: "uuid",
-                nullable: true);       
+                nullable: true);
         }
 
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace SmartSchool.Modules.Identity.Persistence.Migrations.PostgreSql.AspNetI
             migrationBuilder.DropColumn(
                 name: "BranchId",
                 schema: "identity",
-                table: "Users");     
+                table: "Users");
         }
     }
 }

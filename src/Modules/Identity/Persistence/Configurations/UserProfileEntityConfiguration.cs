@@ -8,41 +8,41 @@ namespace SmartSchool.Modules.Identity.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="UserProfileEntity"/>.
 /// </summary>
 public sealed class UserProfileEntityConfiguration
-	: IEntityTypeConfiguration<UserProfileEntity>
+    : IEntityTypeConfiguration<UserProfileEntity>
 {
-	public void Configure(EntityTypeBuilder<UserProfileEntity> builder)
-	{
-		builder.ToTable("UserProfile", SmartSchool.Modules.Identity.ModuleConstants.Schema);
+    public void Configure(EntityTypeBuilder<UserProfileEntity> builder)
+    {
+        builder.ToTable("UserProfile", SmartSchool.Modules.Identity.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.UserProfileId);
+        builder.HasKey(entity => entity.UserProfileId);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
+        builder
+            .Property(entity => entity.RowVersion)
+            .IsConcurrencyToken();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Code)
+            .HasMaxLength(100)
+            .IsRequired();
 
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
+        builder
+            .HasIndex(entity => new { entity.TenantId, entity.Code })
+            .IsUnique();
 
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Name)
+            .HasMaxLength(250)
+            .IsRequired();
 
-	}
+    }
 }

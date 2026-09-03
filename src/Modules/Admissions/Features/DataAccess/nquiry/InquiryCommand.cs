@@ -14,33 +14,33 @@ namespace SmartSchool.Modules.Admissions.Features.DataAccess.Inquiry;
 /// </summary>
 public sealed class InquiryCommand(IAdmissionsDbContext dbContext) : IInquiryCommand
 {
-	public async Task AddAsync(
-		InquiryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Inquiries
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        InquiryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Inquiries
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		InquiryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Inquiries
-			.Update(entity);
+    public async Task UpdateAsync(
+        InquiryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Inquiries
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		InquiryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Inquiries
-			.Remove(entity);
+    public async Task DeleteAsync(
+        InquiryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Inquiries
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

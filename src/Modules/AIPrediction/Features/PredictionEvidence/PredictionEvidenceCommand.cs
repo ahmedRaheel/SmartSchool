@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionEvidence;
 /// </summary>
 public sealed class PredictionEvidenceCommand(IAIPredictionDbContext dbContext) : IPredictionEvidenceCommand
 {
-	public async Task AddAsync(
-		PredictionEvidenceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.PredictionEvidences
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        PredictionEvidenceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.PredictionEvidences
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		PredictionEvidenceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.PredictionEvidences
-			.Update(entity);
+    public async Task UpdateAsync(
+        PredictionEvidenceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.PredictionEvidences
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		PredictionEvidenceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.PredictionEvidences
-			.Remove(entity);
+    public async Task DeleteAsync(
+        PredictionEvidenceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.PredictionEvidences
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

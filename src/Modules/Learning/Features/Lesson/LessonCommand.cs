@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Learning.Features.Lesson;
 /// </summary>
 public sealed class LessonCommand(ILearningDbContext dbContext) : ILessonCommand
 {
-	public async Task AddAsync(
-		LessonEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Lessons
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        LessonEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Lessons
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		LessonEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Lessons
-			.Update(entity);
+    public async Task UpdateAsync(
+        LessonEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Lessons
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		LessonEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Lessons
-			.Remove(entity);
+    public async Task DeleteAsync(
+        LessonEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Lessons
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

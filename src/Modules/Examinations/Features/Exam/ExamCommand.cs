@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Examinations.Features.Exam;
 /// </summary>
 public sealed class ExamCommand(IExaminationsDbContext dbContext) : IExamCommand
 {
-	public async Task AddAsync(
-		ExamEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Exams
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ExamEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Exams
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ExamEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Exams
-			.Update(entity);
+    public async Task UpdateAsync(
+        ExamEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Exams
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ExamEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Exams
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ExamEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Exams
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIPrediction.Features.StudentIntervention;
 /// </summary>
 public sealed class StudentInterventionCommand(IAIPredictionDbContext dbContext) : IStudentInterventionCommand
 {
-	public async Task AddAsync(
-		StudentInterventionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.StudentInterventions
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        StudentInterventionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.StudentInterventions
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		StudentInterventionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentInterventions
-			.Update(entity);
+    public async Task UpdateAsync(
+        StudentInterventionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentInterventions
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		StudentInterventionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentInterventions
-			.Remove(entity);
+    public async Task DeleteAsync(
+        StudentInterventionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentInterventions
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

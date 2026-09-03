@@ -14,33 +14,33 @@ namespace SmartSchool.Modules.Inventory.Features.DataAccess.Item;
 /// </summary>
 public sealed class ItemCommand(IInventoryDbContext dbContext) : IItemCommand
 {
-	public async Task AddAsync(
-		ItemEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Items
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ItemEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Items
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ItemEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Items
-			.Update(entity);
+    public async Task UpdateAsync(
+        ItemEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Items
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ItemEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Items
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ItemEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Items
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

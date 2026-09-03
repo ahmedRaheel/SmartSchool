@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AICore.Features.AiExecutionLog;
 /// </summary>
 public sealed class AiExecutionLogCommand(IAICoreDbContext dbContext) : IAiExecutionLogCommand
 {
-	public async Task AddAsync(
-		AiExecutionLogEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.AiExecutionLogs
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        AiExecutionLogEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.AiExecutionLogs
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		AiExecutionLogEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.AiExecutionLogs
-			.Update(entity);
+    public async Task UpdateAsync(
+        AiExecutionLogEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.AiExecutionLogs
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		AiExecutionLogEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.AiExecutionLogs
-			.Remove(entity);
+    public async Task DeleteAsync(
+        AiExecutionLogEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.AiExecutionLogs
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

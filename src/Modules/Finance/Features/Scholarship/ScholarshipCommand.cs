@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Finance.Features.Scholarship;
 /// </summary>
 public sealed class ScholarshipCommand(IFinanceDbContext dbContext) : IScholarshipCommand
 {
-	public async Task AddAsync(
-		ScholarshipEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Scholarships
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ScholarshipEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Scholarships
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ScholarshipEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Scholarships
-			.Update(entity);
+    public async Task UpdateAsync(
+        ScholarshipEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Scholarships
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ScholarshipEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Scholarships
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ScholarshipEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Scholarships
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

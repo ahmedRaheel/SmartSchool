@@ -14,33 +14,33 @@ namespace SmartSchool.Modules.Finance.Features.DataAccess.Invoice;
 /// </summary>
 public sealed class InvoiceCommand(IFinanceDbContext dbContext) : IInvoiceCommand
 {
-	public async Task AddAsync(
-		InvoiceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Invoices
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        InvoiceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Invoices
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		InvoiceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Invoices
-			.Update(entity);
+    public async Task UpdateAsync(
+        InvoiceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Invoices
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		InvoiceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Invoices
-			.Remove(entity);
+    public async Task DeleteAsync(
+        InvoiceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Invoices
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }
