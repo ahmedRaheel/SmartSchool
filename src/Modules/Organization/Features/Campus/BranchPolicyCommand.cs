@@ -23,8 +23,8 @@ public sealed class BranchPolicyCommand(IDbConnectionFactory connectionFactory) 
 
     public async Task SetEducationLevelsAsync(Guid branchId, IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
     {
-        const string deleteSql = "DELETE FROM org.branch_education_level WHERE branch_id=@BranchId;";
-        const string insertSql = "INSERT INTO org.branch_education_level(branch_id, education_level_id) VALUES(@BranchId, @EducationLevelId);";
+        const string deleteSql = "DELETE FROM org.branch_education_level WHERE campus_id=@BranchId;";
+        const string insertSql = "INSERT INTO org.branch_education_level(campus_id, education_level_id) VALUES(@BranchId, @EducationLevelId);";
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
         await connection.ExecuteAsync(new CommandDefinition(deleteSql, new { BranchId = branchId }, transaction, cancellationToken: cancellationToken));
