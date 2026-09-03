@@ -7,6 +7,7 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Organization.Features.CourseOffering;
 

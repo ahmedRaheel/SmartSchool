@@ -140,7 +140,7 @@ public static class CreateEmployee
 				entity.EmployeeNumber, entity.FirstName, entity.LastName, entity.CnicNumber, entity.DateOfBirth,
 				entity.Gender, entity.JobTitle, entity.Photo, entity.PhotoContentType, entity.PhotoFileName,
 				entity.Email, entity.Phone, entity.AlternatePhone, entity.Address, entity.EmergencyContactName,
-				entity.EmergencyContactPhone, entity.HireDate, entity.EmploymentTypeCode, entity.StaffType,
+				entity.EmergencyContactPhone, entity.HireDate, entity.EmploymentTypeCode, request.StaffType,
 				entity.SourceCandidateId));
 		}
 	}
