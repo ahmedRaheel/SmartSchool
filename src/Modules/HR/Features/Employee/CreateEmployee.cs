@@ -35,7 +35,7 @@ public static class CreateEmployee
 		string? EmergencyContactPhone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
-		string StaffType,
+		EmployeeDesignation StaffType,
 		Guid? SourceCandidateId);
 
 	public sealed record Request(
@@ -61,7 +61,7 @@ public static class CreateEmployee
 		string? EmergencyContactPhone,
 		DateOnly HireDate,
 		string EmploymentTypeCode,
-		string StaffType,
+		EmployeeDesignation StaffType,
 		Guid? SourceCandidateId) : IRequest<Result<Response>>;
 
 	public sealed class Validator : AbstractValidator<Request>
@@ -72,7 +72,7 @@ public static class CreateEmployee
 			RuleFor(x => x.BranchId).NotEmpty();
 			RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
 			RuleFor(x => x.EmploymentTypeCode).NotEmpty().MaximumLength(30);
-			RuleFor(x => x.StaffType).Must(value => new[] { "TEACHER", "DRIVER", "PRINCIPAL", "EXAMINER", "ADMIN_OFFICER", "ACCOUNTANT", "HR", "HR_MANAGER", "LIBRARIAN", "TRANSPORT", "RECEPTIONIST", "COORDINATOR", "OTHER" }.Contains(value)).WithMessage("A valid staff type is required.");
+			RuleFor(x => x.StaffType).IsInEnum().WithMessage("A valid employee designation is required.");
 		}
 	}
 
@@ -129,7 +129,7 @@ public static class CreateEmployee
 
 			var entity = EmployeeEntity.Create(
 				tenantId, request.UserId, request.SchoolId, request.BranchId, request.DepartmentId,
-				request.StaffType, null, request.FirstName, request.LastName, request.CnicNumber,
+				request.StaffType.ToString(), null, request.FirstName, request.LastName, request.CnicNumber,
 				request.DateOfBirth, request.Gender, request.JobTitle, request.Photo, request.PhotoContentType,
 				request.PhotoFileName, request.Email, request.Phone, request.AlternatePhone, request.Address,
 				request.EmergencyContactName, request.EmergencyContactPhone, request.HireDate,

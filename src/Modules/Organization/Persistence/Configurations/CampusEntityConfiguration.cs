@@ -16,7 +16,7 @@ public sealed class CampusEntityConfiguration : IEntityTypeConfiguration<CampusE
 		builder.Property(x => x.SchoolId).HasColumnName("school_id").IsRequired();
 		builder.Property(x => x.Code).HasColumnName("code").HasMaxLength(50).IsRequired();
 		builder.Property(x => x.Name).HasColumnName("name").HasMaxLength(200).IsRequired();
-		builder.Property(x => x.BranchType).HasColumnName("branch_type").HasMaxLength(40).IsRequired();
+		builder.Property(x => x.BranchType).HasColumnName("branch_type").HasColumnType("smallint").IsRequired();
 		builder.Property(x => x.BranchGenderTypeId).HasColumnName("branch_gender_type_id").IsRequired();
 		builder.Property(x => x.AcademicSystemId).HasColumnName("academic_system_id");
 		builder.Property(x => x.Address).HasColumnName("address");

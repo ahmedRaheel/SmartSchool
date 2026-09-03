@@ -3,6 +3,7 @@ using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
+using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.Modules.Organization.Features.School;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -11,9 +12,8 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 
 public static class UpdateCampus
 {
-    private static readonly string[] BranchTypes = ["HEAD_OFFICE", "REGIONAL_HEAD_OFFICE", "REGIONAL_BRANCH"];
-    public sealed record Request(Guid? TenantId,Guid CampusId,  Guid SchoolId, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
-    public sealed record Response(Guid Id, Guid SchoolId, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl);
+    public sealed record Request(Guid? TenantId,Guid CampusId,  Guid SchoolId, string Name, BranchType BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
+    public sealed record Response(Guid Id, Guid SchoolId, string Name, BranchType BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl);
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -22,7 +22,7 @@ public static class UpdateCampus
            
             RuleFor(x => x.SchoolId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.BranchType).Must(BranchTypes.Contains);
+            RuleFor(x => x.BranchType).IsInEnum();
             RuleFor(x => x.BranchGenderTypeId).NotEmpty();
             
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));

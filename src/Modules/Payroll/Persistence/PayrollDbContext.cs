@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Payroll.Persistence;
@@ -19,20 +18,25 @@ public interface IPayrollDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Payroll module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class PayrollDbContext(IApplicationDbContext dbContext) : IPayrollDbContext
+public sealed class PayrollDbContext(DbContextOptions<PayrollDbContext> options)
+	: DbContext(options), IPayrollDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<EmployeeCompensationEntity> EmployeeCompensations => Set<EmployeeCompensationEntity>();
+	public DbSet<IncrementEntity> Increments => Set<IncrementEntity>();
+	public DbSet<PayrollRunEntity> PayrollRuns => Set<PayrollRunEntity>();
+	public DbSet<PayslipEntity> Payslips => Set<PayslipEntity>();
+	public DbSet<SalaryStructureEntity> SalaryStructures => Set<SalaryStructureEntity>();
 
-	public DbSet<EmployeeCompensationEntity> EmployeeCompensations => dbContext.Set<EmployeeCompensationEntity>();
-	public DbSet<IncrementEntity> Increments => dbContext.Set<IncrementEntity>();
-	public DbSet<PayrollRunEntity> PayrollRuns => dbContext.Set<PayrollRunEntity>();
-	public DbSet<PayslipEntity> Payslips => dbContext.Set<PayslipEntity>();
-	public DbSet<SalaryStructureEntity> SalaryStructures => dbContext.Set<SalaryStructureEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(PayrollDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Payroll.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

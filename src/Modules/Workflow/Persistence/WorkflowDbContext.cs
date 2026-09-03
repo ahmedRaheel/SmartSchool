@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Persistence;
@@ -18,19 +17,24 @@ public interface IWorkflowDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Workflow module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class WorkflowDbContext(IApplicationDbContext dbContext) : IWorkflowDbContext
+public sealed class WorkflowDbContext(DbContextOptions<WorkflowDbContext> options)
+	: DbContext(options), IWorkflowDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<ApprovalEntity> Approvals => Set<ApprovalEntity>();
+	public DbSet<WorkflowDefinitionEntity> WorkflowDefinitions => Set<WorkflowDefinitionEntity>();
+	public DbSet<WorkflowInstanceEntity> WorkflowInstances => Set<WorkflowInstanceEntity>();
+	public DbSet<WorkflowStepEntity> WorkflowSteps => Set<WorkflowStepEntity>();
 
-	public DbSet<ApprovalEntity> Approvals => dbContext.Set<ApprovalEntity>();
-	public DbSet<WorkflowDefinitionEntity> WorkflowDefinitions => dbContext.Set<WorkflowDefinitionEntity>();
-	public DbSet<WorkflowInstanceEntity> WorkflowInstances => dbContext.Set<WorkflowInstanceEntity>();
-	public DbSet<WorkflowStepEntity> WorkflowSteps => dbContext.Set<WorkflowStepEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(WorkflowDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Workflow.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

@@ -4,6 +4,7 @@ using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Models;
+using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.Modules.Organization.Features.School;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -12,10 +13,8 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 
 public static class CreateCampus
 {
-    private static readonly string[] BranchTypes = ["HEAD_OFFICE", "REGIONAL_HEAD_OFFICE", "REGIONAL_BRANCH"];
-
-    public sealed record Request(Guid? TenantId, Guid SchoolId, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
-    public sealed record Response(Guid Id, Guid SchoolId, string Code, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl);
+    public sealed record Request(Guid? TenantId, Guid SchoolId, string Name, BranchType BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl) : IRequest<Result<Response>>;
+    public sealed record Response(Guid Id, Guid SchoolId, string Code, string Name, BranchType BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId, IReadOnlyCollection<Guid>? EducationLevelIds, string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax, string? Mobile, string? Email, string? LogoUrl);
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -23,7 +22,7 @@ public static class CreateCampus
         {
             RuleFor(x => x.SchoolId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.BranchType).Must(BranchTypes.Contains).WithMessage("A valid branch type is required.");
+            RuleFor(x => x.BranchType).IsInEnum().WithMessage("A valid branch type is required.");
             RuleFor(x => x.BranchGenderTypeId).NotEmpty();
             
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));

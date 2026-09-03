@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Transport.Models;
 
 namespace SmartSchool.Modules.Transport.Persistence;
@@ -21,22 +20,27 @@ public interface ITransportDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Transport module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class TransportDbContext(IApplicationDbContext dbContext) : ITransportDbContext
+public sealed class TransportDbContext(DbContextOptions<TransportDbContext> options)
+	: DbContext(options), ITransportDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<DriverDirectoryReadEntity> DriverDirectoryReads => Set<DriverDirectoryReadEntity>();
+	public DbSet<DriverDocumentEntity> DriverDocuments => Set<DriverDocumentEntity>();
+	public DbSet<DriverEntity> Drivers => Set<DriverEntity>();
+	public DbSet<RouteEntity> Routes => Set<RouteEntity>();
+	public DbSet<StopEntity> Stops => Set<StopEntity>();
+	public DbSet<StudentTransportEntity> StudentTransports => Set<StudentTransportEntity>();
+	public DbSet<VehicleEntity> Vehicles => Set<VehicleEntity>();
 
-	public DbSet<DriverDirectoryReadEntity> DriverDirectoryReads => dbContext.Set<DriverDirectoryReadEntity>();
-	public DbSet<DriverDocumentEntity> DriverDocuments => dbContext.Set<DriverDocumentEntity>();
-	public DbSet<DriverEntity> Drivers => dbContext.Set<DriverEntity>();
-	public DbSet<RouteEntity> Routes => dbContext.Set<RouteEntity>();
-	public DbSet<StopEntity> Stops => dbContext.Set<StopEntity>();
-	public DbSet<StudentTransportEntity> StudentTransports => dbContext.Set<StudentTransportEntity>();
-	public DbSet<VehicleEntity> Vehicles => dbContext.Set<VehicleEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(TransportDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Transport.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

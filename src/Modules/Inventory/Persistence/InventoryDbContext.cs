@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Inventory.Models;
 
 namespace SmartSchool.Modules.Inventory.Persistence;
@@ -17,18 +16,23 @@ public interface IInventoryDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Inventory module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class InventoryDbContext(IApplicationDbContext dbContext) : IInventoryDbContext
+public sealed class InventoryDbContext(DbContextOptions<InventoryDbContext> options)
+	: DbContext(options), IInventoryDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<ItemEntity> Items => Set<ItemEntity>();
+	public DbSet<PurchaseOrderEntity> PurchaseOrders => Set<PurchaseOrderEntity>();
+	public DbSet<StockTransactionEntity> StockTransactions => Set<StockTransactionEntity>();
 
-	public DbSet<ItemEntity> Items => dbContext.Set<ItemEntity>();
-	public DbSet<PurchaseOrderEntity> PurchaseOrders => dbContext.Set<PurchaseOrderEntity>();
-	public DbSet<StockTransactionEntity> StockTransactions => dbContext.Set<StockTransactionEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(InventoryDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Inventory.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

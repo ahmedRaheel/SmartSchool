@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIParent.Models;
 
 namespace SmartSchool.Modules.AIParent.Persistence;
@@ -17,18 +16,23 @@ public interface IAIParentDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the AIParent module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class AIParentDbContext(IApplicationDbContext dbContext) : IAIParentDbContext
+public sealed class AIParentDbContext(DbContextOptions<AIParentDbContext> options)
+	: DbContext(options), IAIParentDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<ParentConversationEntity> ParentConversations => Set<ParentConversationEntity>();
+	public DbSet<ParentMessageEntity> ParentMessages => Set<ParentMessageEntity>();
+	public DbSet<ParentToolExecutionEntity> ParentToolExecutions => Set<ParentToolExecutionEntity>();
 
-	public DbSet<ParentConversationEntity> ParentConversations => dbContext.Set<ParentConversationEntity>();
-	public DbSet<ParentMessageEntity> ParentMessages => dbContext.Set<ParentMessageEntity>();
-	public DbSet<ParentToolExecutionEntity> ParentToolExecutions => dbContext.Set<ParentToolExecutionEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(AIParentDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.AIParent.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

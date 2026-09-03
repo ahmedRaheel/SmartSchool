@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Students.Models;
 
 namespace SmartSchool.Modules.Students.Persistence;
@@ -25,26 +24,31 @@ public interface IStudentsDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Students module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class StudentsDbContext(IApplicationDbContext dbContext) : IStudentsDbContext
+public sealed class StudentsDbContext(DbContextOptions<StudentsDbContext> options)
+	: DbContext(options), IStudentsDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<AdmissionPlacementEntity> AdmissionPlacements => Set<AdmissionPlacementEntity>();
+	public DbSet<AttendanceEntity> Attendances => Set<AttendanceEntity>();
+	public DbSet<EnrollmentEntity> Enrollments => Set<EnrollmentEntity>();
+	public DbSet<GuardianEntity> Guardians => Set<GuardianEntity>();
+	public DbSet<ParentDocumentEntity> ParentDocuments => Set<ParentDocumentEntity>();
+	public DbSet<ParentProfileEntity> ParentProfiles => Set<ParentProfileEntity>();
+	public DbSet<StudentDirectoryReadEntity> StudentDirectoryReads => Set<StudentDirectoryReadEntity>();
+	public DbSet<StudentDocumentEntity> StudentDocuments => Set<StudentDocumentEntity>();
+	public DbSet<StudentEntity> Students => Set<StudentEntity>();
+	public DbSet<StudentGuardianEntity> StudentGuardians => Set<StudentGuardianEntity>();
+	public DbSet<StudentProfileEntity> StudentProfiles => Set<StudentProfileEntity>();
 
-	public DbSet<AdmissionPlacementEntity> AdmissionPlacements => dbContext.Set<AdmissionPlacementEntity>();
-	public DbSet<AttendanceEntity> Attendances => dbContext.Set<AttendanceEntity>();
-	public DbSet<EnrollmentEntity> Enrollments => dbContext.Set<EnrollmentEntity>();
-	public DbSet<GuardianEntity> Guardians => dbContext.Set<GuardianEntity>();
-	public DbSet<ParentDocumentEntity> ParentDocuments => dbContext.Set<ParentDocumentEntity>();
-	public DbSet<ParentProfileEntity> ParentProfiles => dbContext.Set<ParentProfileEntity>();
-	public DbSet<StudentDirectoryReadEntity> StudentDirectoryReads => dbContext.Set<StudentDirectoryReadEntity>();
-	public DbSet<StudentDocumentEntity> StudentDocuments => dbContext.Set<StudentDocumentEntity>();
-	public DbSet<StudentEntity> Students => dbContext.Set<StudentEntity>();
-	public DbSet<StudentGuardianEntity> StudentGuardians => dbContext.Set<StudentGuardianEntity>();
-	public DbSet<StudentProfileEntity> StudentProfiles => dbContext.Set<StudentProfileEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(StudentsDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Students.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

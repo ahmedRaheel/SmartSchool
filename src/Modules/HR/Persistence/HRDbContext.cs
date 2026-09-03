@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 
 namespace SmartSchool.Modules.HR.Persistence;
@@ -31,32 +30,37 @@ public interface IHRDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the HR module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class HRDbContext(IApplicationDbContext dbContext) : IHRDbContext
+public sealed class HRDbContext(DbContextOptions<HRDbContext> options)
+	: DbContext(options), IHRDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<CandidateDocumentEntity> CandidateDocuments => Set<CandidateDocumentEntity>();
+	public DbSet<CandidateEntity> Candidates => Set<CandidateEntity>();
+	public DbSet<EmployeeDocumentEntity> EmployeeDocuments => Set<EmployeeDocumentEntity>();
+	public DbSet<EmployeeEducationEntity> EmployeeEducations => Set<EmployeeEducationEntity>();
+	public DbSet<EmployeeEntity> Employees => Set<EmployeeEntity>();
+	public DbSet<EmployeeExperienceEntity> EmployeeExperiences => Set<EmployeeExperienceEntity>();
+	public DbSet<EmploymentHistoryEntity> EmploymentHistories => Set<EmploymentHistoryEntity>();
+	public DbSet<InterviewEntity> Interviews => Set<InterviewEntity>();
+	public DbSet<JobEntity> Jobs => Set<JobEntity>();
+	public DbSet<JobGradeEntity> JobGrades => Set<JobGradeEntity>();
+	public DbSet<LeaveRequestEntity> LeaveRequests => Set<LeaveRequestEntity>();
+	public DbSet<PayrollProfileEntity> PayrollProfiles => Set<PayrollProfileEntity>();
+	public DbSet<PositionEntity> Positions => Set<PositionEntity>();
+	public DbSet<ResumeEntity> Resumes => Set<ResumeEntity>();
+	public DbSet<TeacherDirectoryReadEntity> TeacherDirectoryReads => Set<TeacherDirectoryReadEntity>();
+	public DbSet<TeacherDocumentEntity> TeacherDocuments => Set<TeacherDocumentEntity>();
+	public DbSet<TeacherProfileEntity> TeacherProfiles => Set<TeacherProfileEntity>();
 
-	public DbSet<CandidateDocumentEntity> CandidateDocuments => dbContext.Set<CandidateDocumentEntity>();
-	public DbSet<CandidateEntity> Candidates => dbContext.Set<CandidateEntity>();
-	public DbSet<EmployeeDocumentEntity> EmployeeDocuments => dbContext.Set<EmployeeDocumentEntity>();
-	public DbSet<EmployeeEducationEntity> EmployeeEducations => dbContext.Set<EmployeeEducationEntity>();
-	public DbSet<EmployeeEntity> Employees => dbContext.Set<EmployeeEntity>();
-	public DbSet<EmployeeExperienceEntity> EmployeeExperiences => dbContext.Set<EmployeeExperienceEntity>();
-	public DbSet<EmploymentHistoryEntity> EmploymentHistories => dbContext.Set<EmploymentHistoryEntity>();
-	public DbSet<InterviewEntity> Interviews => dbContext.Set<InterviewEntity>();
-	public DbSet<JobEntity> Jobs => dbContext.Set<JobEntity>();
-	public DbSet<JobGradeEntity> JobGrades => dbContext.Set<JobGradeEntity>();
-	public DbSet<LeaveRequestEntity> LeaveRequests => dbContext.Set<LeaveRequestEntity>();
-	public DbSet<PayrollProfileEntity> PayrollProfiles => dbContext.Set<PayrollProfileEntity>();
-	public DbSet<PositionEntity> Positions => dbContext.Set<PositionEntity>();
-	public DbSet<ResumeEntity> Resumes => dbContext.Set<ResumeEntity>();
-	public DbSet<TeacherDirectoryReadEntity> TeacherDirectoryReads => dbContext.Set<TeacherDirectoryReadEntity>();
-	public DbSet<TeacherDocumentEntity> TeacherDocuments => dbContext.Set<TeacherDocumentEntity>();
-	public DbSet<TeacherProfileEntity> TeacherProfiles => dbContext.Set<TeacherProfileEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(HRDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.HR.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Dapper;
@@ -21,7 +22,7 @@ public static class GetCampusPage
 	/// <param name="Code">The business code.</param>
 	/// <param name="Name">The display name.</param>
 	public sealed record Response(
-		Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, string BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId,
+		Guid TenantId, Guid Id, Guid SchoolId, string Code, string Name, BranchType BranchType, Guid BranchGenderTypeId, Guid? AcademicSystemId,
 		        string? Address, string? City, string? Province, string? Country, string? Phone, string? Fax,
 		        string? Mobile, string? Email, string? LogoUrl);
 

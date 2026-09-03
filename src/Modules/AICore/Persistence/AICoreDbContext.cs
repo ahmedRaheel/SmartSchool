@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Models;
 
 namespace SmartSchool.Modules.AICore.Persistence;
@@ -21,22 +20,27 @@ public interface IAICoreDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the AICore module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class AICoreDbContext(IApplicationDbContext dbContext) : IAICoreDbContext
+public sealed class AICoreDbContext(DbContextOptions<AICoreDbContext> options)
+	: DbContext(options), IAICoreDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<AiExecutionLogEntity> AiExecutionLogs => Set<AiExecutionLogEntity>();
+	public DbSet<KnowledgeChunkEntity> KnowledgeChunks => Set<KnowledgeChunkEntity>();
+	public DbSet<KnowledgeCollectionEntity> KnowledgeCollections => Set<KnowledgeCollectionEntity>();
+	public DbSet<KnowledgeDocumentEntity> KnowledgeDocuments => Set<KnowledgeDocumentEntity>();
+	public DbSet<ModelConfigurationEntity> ModelConfigurations => Set<ModelConfigurationEntity>();
+	public DbSet<PromptTemplateEntity> PromptTemplates => Set<PromptTemplateEntity>();
+	public DbSet<ToolDefinitionEntity> ToolDefinitions => Set<ToolDefinitionEntity>();
 
-	public DbSet<AiExecutionLogEntity> AiExecutionLogs => dbContext.Set<AiExecutionLogEntity>();
-	public DbSet<KnowledgeChunkEntity> KnowledgeChunks => dbContext.Set<KnowledgeChunkEntity>();
-	public DbSet<KnowledgeCollectionEntity> KnowledgeCollections => dbContext.Set<KnowledgeCollectionEntity>();
-	public DbSet<KnowledgeDocumentEntity> KnowledgeDocuments => dbContext.Set<KnowledgeDocumentEntity>();
-	public DbSet<ModelConfigurationEntity> ModelConfigurations => dbContext.Set<ModelConfigurationEntity>();
-	public DbSet<PromptTemplateEntity> PromptTemplates => dbContext.Set<PromptTemplateEntity>();
-	public DbSet<ToolDefinitionEntity> ToolDefinitions => dbContext.Set<ToolDefinitionEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(AICoreDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.AICore.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

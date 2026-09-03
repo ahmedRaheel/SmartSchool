@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Examinations.Models;
 
 namespace SmartSchool.Modules.Examinations.Persistence;
@@ -18,19 +17,24 @@ public interface IExaminationsDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Examinations module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class ExaminationsDbContext(IApplicationDbContext dbContext) : IExaminationsDbContext
+public sealed class ExaminationsDbContext(DbContextOptions<ExaminationsDbContext> options)
+	: DbContext(options), IExaminationsDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<ExamEntity> Exams => Set<ExamEntity>();
+	public DbSet<ExamSubjectEntity> ExamSubjects => Set<ExamSubjectEntity>();
+	public DbSet<GradeScaleEntity> GradeScales => Set<GradeScaleEntity>();
+	public DbSet<StudentExamResultEntity> StudentExamResults => Set<StudentExamResultEntity>();
 
-	public DbSet<ExamEntity> Exams => dbContext.Set<ExamEntity>();
-	public DbSet<ExamSubjectEntity> ExamSubjects => dbContext.Set<ExamSubjectEntity>();
-	public DbSet<GradeScaleEntity> GradeScales => dbContext.Set<GradeScaleEntity>();
-	public DbSet<StudentExamResultEntity> StudentExamResults => dbContext.Set<StudentExamResultEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(ExaminationsDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Examinations.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

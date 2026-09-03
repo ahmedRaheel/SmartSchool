@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Reference.Models;
 
 namespace SmartSchool.Modules.Reference.Persistence;
@@ -15,16 +14,21 @@ public interface IReferenceDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Reference module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class ReferenceDbContext(IApplicationDbContext dbContext) : IReferenceDbContext
+public sealed class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
+	: DbContext(options), IReferenceDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<LookupValueEntity> LookupValues => Set<LookupValueEntity>();
 
-	public DbSet<LookupValueEntity> LookupValues => dbContext.Set<LookupValueEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(ReferenceDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Reference.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

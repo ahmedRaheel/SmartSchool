@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Models;
 
 namespace SmartSchool.Modules.Organization.Persistence;
@@ -34,35 +33,40 @@ public interface IOrganizationDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Organization module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class OrganizationDbContext(IApplicationDbContext dbContext) : IOrganizationDbContext
+public sealed class OrganizationDbContext(DbContextOptions<OrganizationDbContext> options)
+	: DbContext(options), IOrganizationDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<AcademicSystemEntity> AcademicSystems => Set<AcademicSystemEntity>();
+	public DbSet<AcademicYearEntity> AcademicYears => Set<AcademicYearEntity>();
+	public DbSet<CampusBrandingEntity> CampusBrandings => Set<CampusBrandingEntity>();
+	public DbSet<CampusEntity> Campuses => Set<CampusEntity>();
+	public DbSet<ClassSectionEntity> ClassSections => Set<ClassSectionEntity>();
+	public DbSet<CourseOfferingEntity> CourseOfferings => Set<CourseOfferingEntity>();
+	public DbSet<CourseSelectionEntity> CourseSelections => Set<CourseSelectionEntity>();
+	public DbSet<DepartmentEntity> Departments => Set<DepartmentEntity>();
+	public DbSet<GradeLevelEntity> GradeLevels => Set<GradeLevelEntity>();
+	public DbSet<ProgramEntity> Programs => Set<ProgramEntity>();
+	public DbSet<SchoolDocumentEntity> SchoolDocuments => Set<SchoolDocumentEntity>();
+	public DbSet<SchoolEntity> Schools => Set<SchoolEntity>();
+	public DbSet<SubjectEntity> Subjects => Set<SubjectEntity>();
+	public DbSet<SubscriptionEntity> Subscriptions => Set<SubscriptionEntity>();
+	public DbSet<TeacherAssignmentEntity> TeacherAssignments => Set<TeacherAssignmentEntity>();
+	public DbSet<TenantContactEntity> TenantContacts => Set<TenantContactEntity>();
+	public DbSet<TenantEntity> Tenants => Set<TenantEntity>();
+	public DbSet<TermEntity> Terms => Set<TermEntity>();
+	public DbSet<TimetableEntity> Timetables => Set<TimetableEntity>();
+	public DbSet<TimetableEntryEntity> TimetableEntries => Set<TimetableEntryEntity>();
 
-	public DbSet<AcademicSystemEntity> AcademicSystems => dbContext.Set<AcademicSystemEntity>();
-	public DbSet<AcademicYearEntity> AcademicYears => dbContext.Set<AcademicYearEntity>();
-	public DbSet<CampusBrandingEntity> CampusBrandings => dbContext.Set<CampusBrandingEntity>();
-	public DbSet<CampusEntity> Campuses => dbContext.Set<CampusEntity>();
-	public DbSet<ClassSectionEntity> ClassSections => dbContext.Set<ClassSectionEntity>();
-	public DbSet<CourseOfferingEntity> CourseOfferings => dbContext.Set<CourseOfferingEntity>();
-	public DbSet<CourseSelectionEntity> CourseSelections => dbContext.Set<CourseSelectionEntity>();
-	public DbSet<DepartmentEntity> Departments => dbContext.Set<DepartmentEntity>();
-	public DbSet<GradeLevelEntity> GradeLevels => dbContext.Set<GradeLevelEntity>();
-	public DbSet<ProgramEntity> Programs => dbContext.Set<ProgramEntity>();
-	public DbSet<SchoolDocumentEntity> SchoolDocuments => dbContext.Set<SchoolDocumentEntity>();
-	public DbSet<SchoolEntity> Schools => dbContext.Set<SchoolEntity>();
-	public DbSet<SubjectEntity> Subjects => dbContext.Set<SubjectEntity>();
-	public DbSet<SubscriptionEntity> Subscriptions => dbContext.Set<SubscriptionEntity>();
-	public DbSet<TeacherAssignmentEntity> TeacherAssignments => dbContext.Set<TeacherAssignmentEntity>();
-	public DbSet<TenantContactEntity> TenantContacts => dbContext.Set<TenantContactEntity>();
-	public DbSet<TenantEntity> Tenants => dbContext.Set<TenantEntity>();
-	public DbSet<TermEntity> Terms => dbContext.Set<TermEntity>();
-	public DbSet<TimetableEntity> Timetables => dbContext.Set<TimetableEntity>();
-	public DbSet<TimetableEntryEntity> TimetableEntries => dbContext.Set<TimetableEntryEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(OrganizationDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Organization.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AIInquiry.Models;
 
 namespace SmartSchool.Modules.AIInquiry.Persistence;
@@ -18,19 +17,24 @@ public interface IAIInquiryDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the AIInquiry module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class AIInquiryDbContext(IApplicationDbContext dbContext) : IAIInquiryDbContext
+public sealed class AIInquiryDbContext(DbContextOptions<AIInquiryDbContext> options)
+	: DbContext(options), IAIInquiryDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<HumanHandoffEntity> HumanHandoffs => Set<HumanHandoffEntity>();
+	public DbSet<InquiryConversationEntity> InquiryConversations => Set<InquiryConversationEntity>();
+	public DbSet<InquiryMessageEntity> InquiryMessages => Set<InquiryMessageEntity>();
+	public DbSet<LeadCaptureEntity> LeadCaptures => Set<LeadCaptureEntity>();
 
-	public DbSet<HumanHandoffEntity> HumanHandoffs => dbContext.Set<HumanHandoffEntity>();
-	public DbSet<InquiryConversationEntity> InquiryConversations => dbContext.Set<InquiryConversationEntity>();
-	public DbSet<InquiryMessageEntity> InquiryMessages => dbContext.Set<InquiryMessageEntity>();
-	public DbSet<LeadCaptureEntity> LeadCaptures => dbContext.Set<LeadCaptureEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(AIInquiryDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.AIInquiry.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

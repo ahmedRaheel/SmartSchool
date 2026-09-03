@@ -1,4 +1,5 @@
 using SmartSchool.SharedKernel;
+using SmartSchool.Modules.Organization.Enums;
 
 namespace SmartSchool.Modules.Organization.Models;
 
@@ -28,7 +29,7 @@ public sealed class CampusEntity : Entity
 
 	public string Name { get; private set; } = string.Empty;
 
-	public string BranchType { get; private set; } = string.Empty;
+	public BranchType BranchType { get; private set; } = BranchType.RegionalBranch;
 
 	public Guid BranchGenderTypeId
 	{
@@ -110,7 +111,7 @@ public sealed class CampusEntity : Entity
 		Guid schoolId,
 		string code,
 		string name,
-		string branchType,
+		BranchType branchType,
 		Guid branchGenderTypeId,
 		Guid? academicSystemId,
 		string? address,
@@ -155,7 +156,7 @@ public sealed class CampusEntity : Entity
 			SchoolId = schoolId,
 			Code = code.Trim(),
 			Name = name.Trim(),
-			BranchType = branchType.Trim(),
+			BranchType = branchType,
 			BranchGenderTypeId = branchGenderTypeId,
 			AcademicSystemId = academicSystemId,
 			Address = Clean(address),
@@ -174,7 +175,7 @@ public sealed class CampusEntity : Entity
 	public void UpdateDetails(
 		string code,
 		string name,
-		string branchType,
+		BranchType branchType,
 		Guid branchGenderTypeId,
 		Guid? academicSystemId,
 		string? address,
@@ -201,7 +202,7 @@ public sealed class CampusEntity : Entity
 
 		Code = code.Trim();
 		Name = name.Trim();
-		BranchType = branchType.Trim();
+		BranchType = branchType;
 		BranchGenderTypeId = branchGenderTypeId;
 		AcademicSystemId = academicSystemId;
 		Address = Clean(address);

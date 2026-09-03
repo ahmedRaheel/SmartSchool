@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Persistence;
@@ -21,22 +20,27 @@ public interface IDocumentsDbContext
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Documents module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class DocumentsDbContext(IApplicationDbContext dbContext) : IDocumentsDbContext
+public sealed class DocumentsDbContext(DbContextOptions<DocumentsDbContext> options)
+	: DbContext(options), IDocumentsDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+	public DbSet<CertificateEntity> Certificates => Set<CertificateEntity>();
+	public DbSet<DocumentFileEntity> DocumentFiles => Set<DocumentFileEntity>();
+	public DbSet<DocumentLinkEntity> DocumentLinks => Set<DocumentLinkEntity>();
+	public DbSet<DocumentTemplateEntity> DocumentTemplates => Set<DocumentTemplateEntity>();
+	public DbSet<DocumentTypeEntity> DocumentTypes => Set<DocumentTypeEntity>();
+	public DbSet<GeneratedDocumentEntity> GeneratedDocuments => Set<GeneratedDocumentEntity>();
+	public DbSet<SchoolLogoEntity> SchoolLogos => Set<SchoolLogoEntity>();
 
-	public DbSet<CertificateEntity> Certificates => dbContext.Set<CertificateEntity>();
-	public DbSet<DocumentFileEntity> DocumentFiles => dbContext.Set<DocumentFileEntity>();
-	public DbSet<DocumentLinkEntity> DocumentLinks => dbContext.Set<DocumentLinkEntity>();
-	public DbSet<DocumentTemplateEntity> DocumentTemplates => dbContext.Set<DocumentTemplateEntity>();
-	public DbSet<DocumentTypeEntity> DocumentTypes => dbContext.Set<DocumentTypeEntity>();
-	public DbSet<GeneratedDocumentEntity> GeneratedDocuments => dbContext.Set<GeneratedDocumentEntity>();
-	public DbSet<SchoolLogoEntity> SchoolLogos => dbContext.Set<SchoolLogoEntity>();
-
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		return dbContext.SaveChangesAsync(cancellationToken);
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.ApplyConfigurationsFromAssembly(
+			typeof(DocumentsDbContext).Assembly,
+			type => type.Namespace is not null
+				&& type.Namespace.StartsWith("SmartSchool.Modules.Documents.Persistence.Configurations", StringComparison.Ordinal));
 	}
 }

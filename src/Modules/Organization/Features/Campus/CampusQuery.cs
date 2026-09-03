@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.Modules.Organization.Persistence;
 using Dapper;
 using System.Threading.Tasks;

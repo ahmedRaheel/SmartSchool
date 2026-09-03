@@ -204,6 +204,8 @@ builder.Services
 //
 // Modules
 //
+builder.Services.AddModuleDbContexts(builder.Configuration);
+
 builder.Services.AddAICoreModule(builder.Configuration);
 builder.Services.AddAIInquiryModule();
 builder.Services.AddAIParentModule();
