@@ -148,8 +148,7 @@ public sealed class CampusEntity : Entity
 
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
 		ArgumentException.ThrowIfNullOrWhiteSpace(name);
-		ArgumentException.ThrowIfNullOrWhiteSpace(branchType);
-
+	
 		return new CampusEntity
 		{
 			TenantId = tenantId,
@@ -191,7 +190,7 @@ public sealed class CampusEntity : Entity
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(code);
 		ArgumentException.ThrowIfNullOrWhiteSpace(name);
-		ArgumentException.ThrowIfNullOrWhiteSpace(branchType);
+		
 
 		if (branchGenderTypeId == Guid.Empty)
 		{
