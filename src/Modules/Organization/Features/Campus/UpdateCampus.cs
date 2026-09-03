@@ -48,7 +48,7 @@ public static class UpdateCampus
 				return Result<Response>.Failure(Error.Validation("One or more education levels are invalid."));
             campus.UpdateDetails(campus.Code, request.Name, request.BranchType, request.BranchGenderTypeId, request.AcademicSystemId, request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);
             await command.UpdateAsync(campus, cancellationToken);
-            await policyCommand.SetEducationLevelsAsync(campus.CampusId, educationLevelIds, cancellationToken);
+            await policyCommand.SetEducationLevelsAsync(request.TenantId, campus.CampusId, educationLevelIds, cancellationToken);
 			return Result<Response>.Success(new Response(campus.CampusId, campus.SchoolId, campus.Name, campus.BranchType, campus.BranchGenderTypeId, campus.AcademicSystemId, educationLevelIds, campus.Address, campus.City, campus.Province, campus.Country, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl));
         }
 	}

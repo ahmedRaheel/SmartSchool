@@ -1,6 +1,7 @@
 using ModelContextProtocol.AspNetCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -47,6 +48,12 @@ using SmartSchool.Modules.Transport;
 using SmartSchool.Modules.Workflow;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    // Accept enum names from the React UI while retaining numeric enum support.
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.AddSmartSchoolPlatform();
 

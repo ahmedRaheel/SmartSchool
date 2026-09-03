@@ -1,3 +1,4 @@
+using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Reference.Features.Lookups;
 using SmartSchool.Modules.Reference.Persistence;
@@ -9,6 +10,7 @@ public static class Module
 	public static IServiceCollection AddReferenceModule(
 		this IServiceCollection services)
 	{
+		services.AddSmartSchoolMediator(typeof(Module).Assembly);
 		services.AddScoped<
 			IReferenceDbContext,
 			ReferenceDbContext>();

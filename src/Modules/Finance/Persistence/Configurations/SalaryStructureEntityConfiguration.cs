@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartSchool.Modules.Payroll.Models;
 
-namespace SmartSchool.Modules.Payroll.Persistence.Configurations;
+namespace SmartSchool.Modules.Finance.Persistence.Configurations;
 
 /// <summary>
 /// Defines relational persistence rules for <see cref="SalaryStructureEntity"/>.

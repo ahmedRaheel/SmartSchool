@@ -21,9 +21,9 @@ public sealed class BranchPolicyQuery(IDbConnectionFactory connectionFactory) : 
             """;
         const string levelsSql = """
             SELECT l.education_level_id AS Id, l.code AS Code, l.name AS Name
-            FROM org.branch_education_level b
+            FROM org.campus_education_level b
             INNER JOIN reference.education_level l ON l.education_level_id = b.education_level_id
-            WHERE b.branch_id = @BranchId AND l.is_active = TRUE
+            WHERE b.tenant_id = @TenantId AND b.campus_id = @BranchId AND l.is_active = TRUE
             ORDER BY l.sort_order, l.name;
             """;
 		await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
@@ -35,6 +35,7 @@ public sealed class BranchPolicyQuery(IDbConnectionFactory connectionFactory) : 
         if (genderTypeId == Guid.Empty) return null;
         var levels = (await connection.QueryAsync<LookupItem>(new CommandDefinition(levelsSql, new
 		{
+            TenantId = tenantId,
 			BranchId = branchId
 		}, cancellationToken: cancellationToken))).AsList();
         return new BranchPolicy(genderTypeId, genderCode, levels);
