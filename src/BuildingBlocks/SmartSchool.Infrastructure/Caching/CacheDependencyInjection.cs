@@ -47,7 +47,7 @@ public static class CacheDependencyInjection
 
                     postgres.SchemaName = options.PostgreSqlSchema;
                     postgres.TableName = options.PostgreSqlTable;
-                    postgres.CreateIfNotExists = false;
+                    postgres.CreateIfNotExists = true;
                 });
                 break;
         }

@@ -31,6 +31,6 @@ public sealed class CacheOptions
 
     /// <summary>Gets or sets the PostgreSQL cache table.</summary>
     public string PostgreSqlTable { get; set; } = "DistributedCache";
-	public string RedisConnectionStringName { get; set; } = 	"Redis";
-	public string InstanceName { get; set; } = 	"SmartSchool:";
+    public string RedisConnectionStringName { get; set; } = 	"Redis";
+    public string InstanceName { get; set; } = 	"SmartSchool:";
 }

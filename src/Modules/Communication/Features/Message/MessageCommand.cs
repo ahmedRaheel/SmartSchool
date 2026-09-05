@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Communication.Features.Message;
 /// </summary>
 public sealed class MessageCommand(ICommunicationDbContext dbContext) : IMessageCommand
 {
-	public async Task AddAsync(
-		MessageEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Messages
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        MessageEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Messages
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		MessageEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Messages
-			.Update(entity);
+    public async Task UpdateAsync(
+        MessageEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Messages
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		MessageEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Messages
-			.Remove(entity);
+    public async Task DeleteAsync(
+        MessageEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Messages
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

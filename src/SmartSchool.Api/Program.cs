@@ -1,6 +1,7 @@
 using ModelContextProtocol.AspNetCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -48,15 +49,21 @@ using SmartSchool.Modules.Workflow;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    // Accept enum names from the React UI while retaining numeric enum support.
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
 builder.AddSmartSchoolPlatform();
 
 var portalUrl = builder.Configuration.GetValue<string>("PortalUrl")
-	?? throw new InvalidOperationException("PortalUrl configuration is required.");
+    ?? throw new InvalidOperationException("PortalUrl configuration is required.");
 
 var identityOptions = builder.Configuration
-	.GetRequiredSection(AuthenticationOptions.SectionName)
-	.Get<AuthenticationOptions>()
-	?? throw new InvalidOperationException("Identity configuration is required.");
+    .GetRequiredSection(AuthenticationOptions.SectionName)
+    .Get<AuthenticationOptions>()
+    ?? throw new InvalidOperationException("Identity configuration is required.");
 
 //
 // Authentication
@@ -67,78 +74,78 @@ var identityOptions = builder.Configuration
 //
 
 builder.Services.Configure<JwtBearerOptions>(
-	JwtBearerDefaults.AuthenticationScheme,
-	options =>
-	{
-		options.Authority = identityOptions.Authority;
-		options.MetadataAddress = identityOptions.MetadataAddress;
-		options.Audience = identityOptions.Audience;
-		options.RequireHttpsMetadata = identityOptions.RequireHttpsMetadata;
-		options.MapInboundClaims = false;
+    JwtBearerDefaults.AuthenticationScheme,
+    options =>
+    {
+        options.Authority = identityOptions.Authority;
+        options.MetadataAddress = identityOptions.MetadataAddress;
+        options.Audience = identityOptions.Audience;
+        options.RequireHttpsMetadata = identityOptions.RequireHttpsMetadata;
+        options.MapInboundClaims = false;
 
-		options.TokenValidationParameters ??=
-			new TokenValidationParameters();
+        options.TokenValidationParameters ??=
+            new TokenValidationParameters();
 
-		options.TokenValidationParameters.ValidateIssuer = true;
-		options.TokenValidationParameters.ValidIssuer = identityOptions.ValidIssuer;
+        options.TokenValidationParameters.ValidateIssuer = true;
+        options.TokenValidationParameters.ValidIssuer = identityOptions.ValidIssuer;
 
-		options.TokenValidationParameters.ValidateAudience = true;
-		options.TokenValidationParameters.ValidAudience = identityOptions.Audience;
+        options.TokenValidationParameters.ValidateAudience = true;
+        options.TokenValidationParameters.ValidAudience = identityOptions.Audience;
 
-		options.TokenValidationParameters.ValidateLifetime = true;
-		options.TokenValidationParameters.ValidateIssuerSigningKey = true;
+        options.TokenValidationParameters.ValidateLifetime = true;
+        options.TokenValidationParameters.ValidateIssuerSigningKey = true;
 
-		options.TokenValidationParameters.NameClaimType = "name";
-		options.TokenValidationParameters.RoleClaimType = "role";
+        options.TokenValidationParameters.NameClaimType = "name";
+        options.TokenValidationParameters.RoleClaimType = "role";
 
-		options.Events ??= new JwtBearerEvents();
+        options.Events ??= new JwtBearerEvents();
 
-		options.Events.OnMessageReceived = context =>
-		{
-			var accessToken =
-				context.Request.Query["access_token"];
+        options.Events.OnMessageReceived = context =>
+        {
+            var accessToken =
+                context.Request.Query["access_token"];
 
-			if (!string.IsNullOrWhiteSpace(accessToken) &&
-				context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
-			{
-				context.Token = accessToken;
-			}
+            if (!string.IsNullOrWhiteSpace(accessToken) &&
+                context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
 
-			return Task.CompletedTask;
-		};
+            return Task.CompletedTask;
+        };
 
-		options.Events.OnAuthenticationFailed = context =>
-		{
-			var logger = context.HttpContext.RequestServices
-				.GetRequiredService<ILoggerFactory>()
-				.CreateLogger("SmartSchool.Authentication");
+        options.Events.OnAuthenticationFailed = context =>
+        {
+            var logger = context.HttpContext.RequestServices
+                .GetRequiredService<ILoggerFactory>()
+                .CreateLogger("SmartSchool.Authentication");
 
-			logger.LogError(
-				context.Exception,
-				"JWT authentication failed.");
+            logger.LogError(
+                context.Exception,
+                "JWT authentication failed.");
 
-			return Task.CompletedTask;
-		};
+            return Task.CompletedTask;
+        };
 
-		options.Events.OnTokenValidated = context =>
-		{
-			var logger = context.HttpContext.RequestServices
-				.GetRequiredService<ILoggerFactory>()
-				.CreateLogger("SmartSchool.Authentication");
+        options.Events.OnTokenValidated = context =>
+        {
+            var logger = context.HttpContext.RequestServices
+                .GetRequiredService<ILoggerFactory>()
+                .CreateLogger("SmartSchool.Authentication");
 
-			logger.LogInformation(
-				"JWT validated. Subject={Subject}, Roles={Roles}",
-				context.Principal?.FindFirst("sub")?.Value,
-				string.Join(
-					",",
-					context.Principal?
-						.FindAll("role")
-						.Select(x => x.Value)
-					?? []));
+            logger.LogInformation(
+                "JWT validated. Subject={Subject}, Roles={Roles}",
+                context.Principal?.FindFirst("sub")?.Value,
+                string.Join(
+                    ",",
+                    context.Principal?
+                        .FindAll("role")
+                        .Select(x => x.Value)
+                    ?? []));
 
-			return Task.CompletedTask;
-		};
-	});
+            return Task.CompletedTask;
+        };
+    });
 
 
 
@@ -151,22 +158,22 @@ builder.Services.AddSmartSchoolAuthorization();
 builder.Services.AddOpenApi();
 
 builder.Services.AddSmartSchoolObservability(
-	builder.Configuration,
-	"SmartSchool.Api");
+    builder.Configuration,
+    "SmartSchool.Api");
 
 builder.Services.AddCors(
-	options =>
-		options.AddPolicy(
-			"Portal",
-			policy =>
-				policy
-					.WithOrigins(portalUrl)
-					.AllowAnyHeader()
-					.AllowAnyMethod()
-					.AllowCredentials()
-					.WithExposedHeaders(
-						"X-Correlation-ID",
-						"X-Trace-Id")));
+    options =>
+        options.AddPolicy(
+            "Portal",
+            policy =>
+                policy
+                    .WithOrigins(portalUrl)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                    .WithExposedHeaders(
+                        "X-Correlation-ID",
+                        "X-Trace-Id")));
 
 builder.Services.AddScoped<SampleActorSeeder>();
 
@@ -182,24 +189,24 @@ builder.Services.AddHttpClient("Ollama", (serviceProvider, client) =>
 });
 
 builder.Services
-	.AddHttpClient(
-		ApplicationConstants.MachineLearningHttpClient,
-		(serviceProvider, client) =>
-		{
-			var options =
-				serviceProvider
-					.GetRequiredService<
-						IOptionsMonitor<MachineLearningOptions>>()
-					.CurrentValue;
+    .AddHttpClient(
+        ApplicationConstants.MachineLearningHttpClient,
+        (serviceProvider, client) =>
+        {
+            var options =
+                serviceProvider
+                    .GetRequiredService<
+                        IOptionsMonitor<MachineLearningOptions>>()
+                    .CurrentValue;
 
-			client.BaseAddress =
-				new Uri(options.BaseUrl);
+            client.BaseAddress =
+                new Uri(options.BaseUrl);
 
-			client.Timeout =
-				TimeSpan.FromSeconds(
-					options.TimeoutSeconds);
-		})
-	.AddStandardResilienceHandler();
+            client.Timeout =
+                TimeSpan.FromSeconds(
+                    options.TimeoutSeconds);
+        })
+    .AddStandardResilienceHandler();
 
 //
 // Modules
@@ -239,47 +246,47 @@ var app = builder.Build();
 //
 if (app.Environment.IsDevelopment())
 {
-	app.MapOpenApi();
+    app.MapOpenApi();
 
-	app.MapScalarApiReference(
-		options =>
-			options.WithTitle(
-				"SmartSchool API"));
+    app.MapScalarApiReference(
+        options =>
+            options.WithTitle(
+                "SmartSchool API"));
 
-	using var scope =
-		app.Services.CreateScope();
+    using var scope =
+        app.Services.CreateScope();
 
-	var persistenceOptions =
-		scope.ServiceProvider
-			.GetRequiredService<
-				IOptions<PersistenceOptions>>()
-			.Value;
+    var persistenceOptions =
+        scope.ServiceProvider
+            .GetRequiredService<
+                IOptions<PersistenceOptions>>()
+            .Value;
 
-	if (
-		persistenceOptions.Provider
-		== PersistenceProvider.Mock)
-	{
-		var mockDatabaseSeeder =
-			scope.ServiceProvider
-				.GetRequiredService<
-					MockDatabaseSeeder>();
+    if (
+        persistenceOptions.Provider
+        == PersistenceProvider.Mock)
+    {
+        var mockDatabaseSeeder =
+            scope.ServiceProvider
+                .GetRequiredService<
+                    MockDatabaseSeeder>();
 
-		await mockDatabaseSeeder.SeedAsync();
-	}
+        await mockDatabaseSeeder.SeedAsync();
+    }
 
-	var sampleActorSeeder =
-		scope.ServiceProvider
-			.GetRequiredService<
-				SampleActorSeeder>();
+    var sampleActorSeeder =
+        scope.ServiceProvider
+            .GetRequiredService<
+                SampleActorSeeder>();
 
-	await sampleActorSeeder.SeedAsync();
+    await sampleActorSeeder.SeedAsync();
 }
 
 //
 // HTTP pipeline
 //
 app.UseMiddleware<
-	SmartSchool.Api.Middleware.ResultResponseMiddleware>();
+    SmartSchool.Api.Middleware.ResultResponseMiddleware>();
 
 //app.UseMiddleware<
 //    SmartSchool.Api.Middleware.BusinessContactValidationMiddleware>();
@@ -303,17 +310,17 @@ app.UseAuthorization();
 // Health
 //
 app.MapGet(
-	ApiRoutes.Health,
-	() =>
-		Results.Ok(
-			new
-			{
-				Status =
-					ApplicationConstants.HealthStatusOk,
+    ApiRoutes.Health,
+    () =>
+        Results.Ok(
+            new
+            {
+                Status =
+                    ApplicationConstants.HealthStatusOk,
 
-				Product =
-					ApplicationConstants.ProductName
-			}));
+                Product =
+                    ApplicationConstants.ProductName
+            }));
 
 app.MapSmartSchoolHealth();
 
@@ -346,12 +353,12 @@ app.MapCommunicationEndpoints();
 // SignalR
 //
 app.MapHub<NotificationHub>(
-		"/hubs/notifications")
-	.RequireAuthorization();
+        "/hubs/notifications")
+    .RequireAuthorization();
 
 app.MapHub<ChatHub>(
-		"/hubs/chat")
-	.RequireAuthorization();
+        "/hubs/chat")
+    .RequireAuthorization();
 
 app.MapDocumentsEndpoints();
 app.MapExaminationsEndpoints();

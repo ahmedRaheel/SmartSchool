@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 /// </summary>
 public sealed class KnowledgeDocumentCommand(IAICoreDbContext dbContext) : IKnowledgeDocumentCommand
 {
-	public async Task AddAsync(
-		KnowledgeDocumentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.KnowledgeDocuments
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        KnowledgeDocumentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.KnowledgeDocuments
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		KnowledgeDocumentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.KnowledgeDocuments
-			.Update(entity);
+    public async Task UpdateAsync(
+        KnowledgeDocumentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.KnowledgeDocuments
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		KnowledgeDocumentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.KnowledgeDocuments
-			.Remove(entity);
+    public async Task DeleteAsync(
+        KnowledgeDocumentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.KnowledgeDocuments
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

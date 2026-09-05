@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIPrediction.Features.TeachingRecommendation;
 /// </summary>
 public sealed class TeachingRecommendationCommand(IAIPredictionDbContext dbContext) : ITeachingRecommendationCommand
 {
-	public async Task AddAsync(
-		TeachingRecommendationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.TeachingRecommendations
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        TeachingRecommendationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.TeachingRecommendations
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		TeachingRecommendationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.TeachingRecommendations
-			.Update(entity);
+    public async Task UpdateAsync(
+        TeachingRecommendationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.TeachingRecommendations
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		TeachingRecommendationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.TeachingRecommendations
-			.Remove(entity);
+    public async Task DeleteAsync(
+        TeachingRecommendationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.TeachingRecommendations
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

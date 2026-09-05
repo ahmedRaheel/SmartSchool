@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Communication.Features.Conversation;
 /// </summary>
 public sealed class ConversationCommand(ICommunicationDbContext dbContext) : IConversationCommand
 {
-	public async Task AddAsync(
-		ConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Conversations
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Conversations
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Conversations
-			.Update(entity);
+    public async Task UpdateAsync(
+        ConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Conversations
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Conversations
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Conversations
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

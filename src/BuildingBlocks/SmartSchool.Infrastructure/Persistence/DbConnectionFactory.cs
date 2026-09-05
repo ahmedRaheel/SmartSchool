@@ -12,33 +12,33 @@ namespace SmartSchool.Infrastructure.Persistence;
 /// Creates provider-specific connections for Dapper read queries.
 /// </summary>
 public sealed class DbConnectionFactory(
-	IConfiguration configuration,
-	IOptions<PersistenceOptions> persistenceOptions) : IDbConnectionFactory
+    IConfiguration configuration,
+    IOptions<PersistenceOptions> persistenceOptions) : IDbConnectionFactory
 {
-	public async Task<DbConnection> OpenConnectionAsync(
-		CancellationToken cancellationToken = default)
-	{
-		var options = persistenceOptions.Value;
+    public async Task<DbConnection> OpenConnectionAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var options = persistenceOptions.Value;
 
-		var connectionString = configuration.GetConnectionString(
-			options.ConnectionStringName);
+        var connectionString = configuration.GetConnectionString(
+            options.ConnectionStringName);
 
-		if (string.IsNullOrWhiteSpace(connectionString))
-		{
-			throw new InvalidOperationException(
-				$"Connection string '{options.ConnectionStringName}' was not found.");
-		}
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException(
+                $"Connection string '{options.ConnectionStringName}' was not found.");
+        }
 
-		DbConnection connection = options.Provider switch
-		{
-			PersistenceProvider.PostgreSql => new NpgsqlConnection(connectionString),
-			PersistenceProvider.SqlServer => new SqlConnection(connectionString),
-			_ => throw new InvalidOperationException(
-				"Dapper reads require PostgreSQL or SQL Server.")
-		};
+        DbConnection connection = options.Provider switch
+        {
+            PersistenceProvider.PostgreSql => new NpgsqlConnection(connectionString),
+            PersistenceProvider.SqlServer => new SqlConnection(connectionString),
+            _ => throw new InvalidOperationException(
+                "Dapper reads require PostgreSQL or SQL Server.")
+        };
 
-		await connection.OpenAsync(cancellationToken);
+        await connection.OpenAsync(cancellationToken);
 
-		return connection;
-	}
+        return connection;
+    }
 }

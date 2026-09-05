@@ -10,70 +10,70 @@ namespace SmartSchool.Modules.Students.Features.Enrollment;
 
 public static class GetEnrollmentById
 {
-	/// <summary>
-	/// Represents the response returned by this EnrollmentEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	Guid StudentId,
-	Guid AcademicYearId,
-	Guid ClassSectionId,
-	DateOnly EnrollmentDate,
-	string Status);
+    /// <summary>
+    /// Represents the response returned by this EnrollmentEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    Guid StudentId,
+    Guid AcademicYearId,
+    Guid ClassSectionId,
+    DateOnly EnrollmentDate,
+    string Status);
 
-	public sealed record Query(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+    public sealed record Query(
+        Guid TenantId,
+        Guid Id) : IRequest<Result<Response>>;
 
-	public sealed class Handler(IEnrollmentQuery entityQuery)
-		: IRequestHandler<Query, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Query request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await entityQuery.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(EnrollmentEntity))));
-			}
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+    public sealed class Handler(IEnrollmentQuery entityQuery)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await entityQuery.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EnrollmentEntity))));
+            }
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapGet(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "enrollment"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Query(tenantId, id);
-					var result = await mediator.SendAsync<Query, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("GetEnrollmentById")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "enrollment"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Query(tenantId, id);
+                    var result = await mediator.SendAsync<Query, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("GetEnrollmentById")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
+        return endpoints;
+    }
 
-	private static Response MapResponse(EnrollmentEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.StudentEnrollmentId,
-			entity.StudentId,
-			entity.AcademicYearId,
-			entity.ClassSectionId,
-			entity.EnrollmentDate,
-			entity.Status);
-	}
+    private static Response MapResponse(EnrollmentEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.StudentEnrollmentId,
+            entity.StudentId,
+            entity.AcademicYearId,
+            entity.ClassSectionId,
+            entity.EnrollmentDate,
+            entity.Status);
+    }
 }

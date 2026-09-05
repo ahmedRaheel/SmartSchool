@@ -16,14 +16,14 @@ public interface IRequest<TResponse>
 /// <typeparam name="TRequest">The request type.</typeparam>
 /// <typeparam name="TResponse">The response type.</typeparam>
 public interface IRequestHandler<TRequest, TResponse>
-	where TRequest : IRequest<TResponse>
+    where TRequest : IRequest<TResponse>
 {
-	/// <summary>
-	/// Handles the request.
-	/// </summary>
-	Task<TResponse> HandleAsync(
-		TRequest request,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Handles the request.
+    /// </summary>
+    Task<TResponse> HandleAsync(
+        TRequest request,
+        CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -38,15 +38,15 @@ public delegate Task<TResponse> RequestHandlerDelegate<TResponse>();
 /// <typeparam name="TRequest">The request type.</typeparam>
 /// <typeparam name="TResponse">The response type.</typeparam>
 public interface IPipelineBehavior<TRequest, TResponse>
-	where TRequest : IRequest<TResponse>
+    where TRequest : IRequest<TResponse>
 {
-	/// <summary>
-	/// Processes the request and invokes the next pipeline component.
-	/// </summary>
-	Task<TResponse> HandleAsync(
-		TRequest request,
-		RequestHandlerDelegate<TResponse> next,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Processes the request and invokes the next pipeline component.
+    /// </summary>
+    Task<TResponse> HandleAsync(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -54,13 +54,13 @@ public interface IPipelineBehavior<TRequest, TResponse>
 /// </summary>
 public interface IMediator
 {
-	/// <summary>
-	/// Sends a request through the pipeline to its handler.
-	/// </summary>
-	Task<TResponse> SendAsync<TRequest, TResponse>(
-		TRequest request,
-		CancellationToken cancellationToken = default)
-		where TRequest : IRequest<TResponse>;
+    /// <summary>
+    /// Sends a request through the pipeline to its handler.
+    /// </summary>
+    Task<TResponse> SendAsync<TRequest, TResponse>(
+        TRequest request,
+        CancellationToken cancellationToken = default)
+        where TRequest : IRequest<TResponse>;
 }
 
 /// <summary>
@@ -69,37 +69,37 @@ public interface IMediator
 /// </summary>
 public sealed class Mediator(IServiceProvider serviceProvider) : IMediator
 {
-	/// <inheritdoc />
-	public Task<TResponse> SendAsync<TRequest, TResponse>(
-		TRequest request,
-		CancellationToken cancellationToken = default)
-		where TRequest : IRequest<TResponse>
-	{
-		ArgumentNullException.ThrowIfNull(request);
+    /// <inheritdoc />
+    public Task<TResponse> SendAsync<TRequest, TResponse>(
+        TRequest request,
+        CancellationToken cancellationToken = default)
+        where TRequest : IRequest<TResponse>
+    {
+        ArgumentNullException.ThrowIfNull(request);
 
-		var handler = serviceProvider.GetRequiredService<
-			IRequestHandler<TRequest, TResponse>>();
+        var handler = serviceProvider.GetRequiredService<
+            IRequestHandler<TRequest, TResponse>>();
 
-		var behaviors = serviceProvider
-			.GetServices<IPipelineBehavior<TRequest, TResponse>>()
-			.ToArray();
+        var behaviors = serviceProvider
+            .GetServices<IPipelineBehavior<TRequest, TResponse>>()
+            .ToArray();
 
-		RequestHandlerDelegate<TResponse> pipeline =
-			() => handler.HandleAsync(
-				request,
-				cancellationToken);
+        RequestHandlerDelegate<TResponse> pipeline =
+            () => handler.HandleAsync(
+                request,
+                cancellationToken);
 
-		for (var index = behaviors.Length - 1; index >= 0; index--)
-		{
-			var behavior = behaviors[index];
-			var next = pipeline;
+        for (var index = behaviors.Length - 1; index >= 0; index--)
+        {
+            var behavior = behaviors[index];
+            var next = pipeline;
 
-			pipeline = () => behavior.HandleAsync(
-				request,
-				next,
-				cancellationToken);
-		}
+            pipeline = () => behavior.HandleAsync(
+                request,
+                next,
+                cancellationToken);
+        }
 
-		return pipeline();
-	}
+        return pipeline();
+    }
 }

@@ -5,8 +5,8 @@ namespace SmartSchool.Modules.Communication.Models;
 /// <summary>Stores metadata for a file attached to a chat message.</summary>
 public sealed class ChatAttachmentEntity : Entity
 {
-	/// <summary>Gets the entity-specific identifier.</summary>
-	public Guid ChatAttachmentId { get; private set; } = Guid.NewGuid();
+    /// <summary>Gets the entity-specific identifier.</summary>
+    public Guid ChatAttachmentId { get; private set; } = Guid.NewGuid();
 private ChatAttachmentEntity()
     {
     }

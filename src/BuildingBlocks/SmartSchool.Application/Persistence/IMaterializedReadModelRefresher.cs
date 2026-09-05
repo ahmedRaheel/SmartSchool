@@ -7,18 +7,18 @@ namespace SmartSchool.Application.Persistence;
 /// </summary>
 public interface IMaterializedReadModelRefresher
 {
-	Task RefreshStudentAsync(
-		Guid tenantId,
-		Guid studentId,
-		CancellationToken cancellationToken);
+    Task RefreshStudentAsync(
+        Guid tenantId,
+        Guid studentId,
+        CancellationToken cancellationToken);
 
-	Task RefreshTeacherAsync(
-		Guid tenantId,
-		Guid teacherId,
-		CancellationToken cancellationToken);
+    Task RefreshTeacherAsync(
+        Guid tenantId,
+        Guid teacherId,
+        CancellationToken cancellationToken);
 
-	Task RefreshDriverAsync(
-		Guid tenantId,
-		Guid driverId,
-		CancellationToken cancellationToken);
+    Task RefreshDriverAsync(
+        Guid tenantId,
+        Guid driverId,
+        CancellationToken cancellationToken);
 }

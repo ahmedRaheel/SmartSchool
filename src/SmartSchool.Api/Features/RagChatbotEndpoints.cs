@@ -56,7 +56,7 @@ public static class RagChatbotEndpoints
 
         var tenantId = currentUser.IsSuperAdmin ? request.TenantId : tenantScope.Resolve(request.TenantId);
 
-		if (!tenantId.HasValue)
+        if (!tenantId.HasValue)
         {
             return Results.BadRequest(new { message = "SuperAdmin must select a tenant." });
         }

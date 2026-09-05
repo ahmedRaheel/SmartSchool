@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.HR.Features.Job;
 /// </summary>
 public sealed class JobCommand(IHRDbContext dbContext) : IJobCommand
 {
-	public async Task AddAsync(
-		JobEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Jobs
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        JobEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Jobs
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		JobEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Jobs
-			.Update(entity);
+    public async Task UpdateAsync(
+        JobEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Jobs
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		JobEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Jobs
-			.Remove(entity);
+    public async Task DeleteAsync(
+        JobEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Jobs
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Transport.Features.Stop;
 /// </summary>
 public sealed class StopCommand(ITransportDbContext dbContext) : IStopCommand
 {
-	public async Task AddAsync(
-		StopEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Stops
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        StopEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Stops
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		StopEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Stops
-			.Update(entity);
+    public async Task UpdateAsync(
+        StopEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Stops
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		StopEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Stops
-			.Remove(entity);
+    public async Task DeleteAsync(
+        StopEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Stops
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

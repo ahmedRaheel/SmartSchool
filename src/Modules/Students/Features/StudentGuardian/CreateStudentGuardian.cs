@@ -13,95 +13,95 @@ namespace SmartSchool.Modules.Students.Features.StudentGuardian;
 
 public static class CreateStudentGuardian
 {
-	/// <summary>
-	/// Represents the response returned by this StudentGuardianEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    /// <summary>
+    /// Represents the response returned by this StudentGuardianEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    string Code,
+    string Name,
+    string? MetadataJson);
 
-	public sealed record Request(
-		Guid TenantId,
-		string Name) : IRequest<Result<Response>>;
+    public sealed record Request(
+        Guid TenantId,
+        string Name) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        }
+    }
 
-	public interface ICreateStudentGuardian
-	{
-		Task AddAsync(
-				StudentGuardianEntity entity,
-				CancellationToken cancellationToken);
+    public interface ICreateStudentGuardian
+    {
+        Task AddAsync(
+                StudentGuardianEntity entity,
+                CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateStudentGuardianPersistence(IStudentsDbContext dbContext) : ICreateStudentGuardian
-	{
-		public async Task AddAsync(
-				StudentGuardianEntity entity,
-				CancellationToken cancellationToken)
-			{
-				await dbContext.StudentGuardians
-					.AddAsync(entity, cancellationToken);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-	}
+    internal sealed class CreateStudentGuardianPersistence(IStudentsDbContext dbContext) : ICreateStudentGuardian
+    {
+        public async Task AddAsync(
+                StudentGuardianEntity entity,
+                CancellationToken cancellationToken)
+            {
+                await dbContext.StudentGuardians
+                    .AddAsync(entity, cancellationToken);
 
-	public sealed class Handler(ICreateStudentGuardian dataAccess)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+    }
+
+    public sealed class Handler(ICreateStudentGuardian dataAccess)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
 
 
-			var entity = StudentGuardianEntity.Create(
-				request.TenantId,
-				Guid.NewGuid().ToString("N").ToUpperInvariant(),
-				request.Name);
+            var entity = StudentGuardianEntity.Create(
+                request.TenantId,
+                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                request.Name);
 
-			await dataAccess.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            await dataAccess.AddAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPost(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-guardian"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("CreateStudentGuardian")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost(
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "student-guardian"),
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("CreateStudentGuardian")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
+        return endpoints;
+    }
 
-	private static Response MapResponse(StudentGuardianEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.GuardianId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+    private static Response MapResponse(StudentGuardianEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.GuardianId,
+            entity.Code,
+            entity.Name,
+            entity.MetadataJson);
+    }
 }

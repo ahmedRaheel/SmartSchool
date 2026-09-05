@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AICore.Features.ModelConfiguration;
 /// </summary>
 public sealed class ModelConfigurationCommand(IAICoreDbContext dbContext) : IModelConfigurationCommand
 {
-	public async Task AddAsync(
-		ModelConfigurationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.ModelConfigurations
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ModelConfigurationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.ModelConfigurations
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ModelConfigurationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ModelConfigurations
-			.Update(entity);
+    public async Task UpdateAsync(
+        ModelConfigurationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ModelConfigurations
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ModelConfigurationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ModelConfigurations
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ModelConfigurationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ModelConfigurations
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -14,33 +14,33 @@ namespace SmartSchool.Modules.Payroll.Features.DataAccess.Increment;
 /// </summary>
 public sealed class IncrementCommand(IPayrollDbContext dbContext) : IIncrementCommand
 {
-	public async Task AddAsync(
-		IncrementEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Increments
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        IncrementEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Increments
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		IncrementEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Increments
-			.Update(entity);
+    public async Task UpdateAsync(
+        IncrementEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Increments
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		IncrementEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Increments
-			.Remove(entity);
+    public async Task DeleteAsync(
+        IncrementEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Increments
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Payroll.Features.PayrollRun;
 /// </summary>
 public sealed class PayrollRunCommand(IPayrollDbContext dbContext) : IPayrollRunCommand
 {
-	public async Task AddAsync(
-		PayrollRunEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.PayrollRuns
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        PayrollRunEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.PayrollRuns
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		PayrollRunEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.PayrollRuns
-			.Update(entity);
+    public async Task UpdateAsync(
+        PayrollRunEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.PayrollRuns
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		PayrollRunEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.PayrollRuns
-			.Remove(entity);
+    public async Task DeleteAsync(
+        PayrollRunEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.PayrollRuns
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

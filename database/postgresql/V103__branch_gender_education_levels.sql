@@ -38,11 +38,12 @@ ALTER TABLE org.campus ALTER COLUMN branch_gender_type_id SET NOT NULL;
 ALTER TABLE org.campus DROP CONSTRAINT IF EXISTS fk_campus_branch_gender_type;
 ALTER TABLE org.campus ADD CONSTRAINT fk_campus_branch_gender_type FOREIGN KEY (branch_gender_type_id) REFERENCES reference.branch_gender_type(branch_gender_type_id);
 
-CREATE TABLE IF NOT EXISTS org.branch_education_level (
-    branch_id uuid NOT NULL REFERENCES org.campus(campus_id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS org.campus_education_level (
+    tenant_id uuid NOT NULL REFERENCES saas.tenant(tenant_id),
+    campus_id uuid NOT NULL REFERENCES org.campus(campus_id) ON DELETE CASCADE,
     education_level_id uuid NOT NULL REFERENCES reference.education_level(education_level_id),
     created_at timestamptz NOT NULL DEFAULT now(),
-    PRIMARY KEY (branch_id, education_level_id)
+    PRIMARY KEY (tenant_id, campus_id, education_level_id)
 );
 
 ALTER TABLE academic.class ADD COLUMN IF NOT EXISTS education_level_id uuid;

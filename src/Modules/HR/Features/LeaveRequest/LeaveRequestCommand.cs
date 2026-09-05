@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 /// </summary>
 public sealed class LeaveRequestCommand(IHRDbContext dbContext) : ILeaveRequestCommand
 {
-	public async Task AddAsync(
-		LeaveRequestEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.LeaveRequests
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        LeaveRequestEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.LeaveRequests
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		LeaveRequestEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.LeaveRequests
-			.Update(entity);
+    public async Task UpdateAsync(
+        LeaveRequestEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.LeaveRequests
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		LeaveRequestEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.LeaveRequests
-			.Remove(entity);
+    public async Task DeleteAsync(
+        LeaveRequestEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.LeaveRequests
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

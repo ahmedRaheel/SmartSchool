@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIParent.Features.ParentConversation;
 /// </summary>
 public sealed class ParentConversationCommand(IAIParentDbContext dbContext) : IParentConversationCommand
 {
-	public async Task AddAsync(
-		ParentConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.ParentConversations
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ParentConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.ParentConversations
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ParentConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ParentConversations
-			.Update(entity);
+    public async Task UpdateAsync(
+        ParentConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ParentConversations
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ParentConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ParentConversations
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ParentConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ParentConversations
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

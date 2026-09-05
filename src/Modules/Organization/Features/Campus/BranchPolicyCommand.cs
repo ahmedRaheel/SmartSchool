@@ -21,15 +21,15 @@ public sealed class BranchPolicyCommand(IDbConnectionFactory connectionFactory) 
         return count == educationLevelIds.Distinct().Count();
     }
 
-    public async Task SetEducationLevelsAsync(Guid branchId, IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
+    public async Task SetEducationLevelsAsync(Guid tenantId, Guid branchId, IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
     {
-        const string deleteSql = "DELETE FROM org.branch_education_level WHERE campus_id=@BranchId;";
-        const string insertSql = "INSERT INTO org.branch_education_level(campus_id, education_level_id) VALUES(@BranchId, @EducationLevelId);";
+        const string deleteSql = "DELETE FROM org.campus_education_level WHERE tenant_id=@TenantId AND campus_id=@CampusId;";
+        const string insertSql = "INSERT INTO org.campus_education_level(tenant_id, campus_id, education_level_id) VALUES(@TenantId, @CampusId, @EducationLevelId);";
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
-        await connection.ExecuteAsync(new CommandDefinition(deleteSql, new { BranchId = branchId }, transaction, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(deleteSql, new { TenantId = tenantId, CampusId = branchId }, transaction, cancellationToken: cancellationToken));
         foreach (var levelId in educationLevelIds.Distinct())
-            await connection.ExecuteAsync(new CommandDefinition(insertSql, new { BranchId = branchId, EducationLevelId = levelId }, transaction, cancellationToken: cancellationToken));
+            await connection.ExecuteAsync(new CommandDefinition(insertSql, new { TenantId = tenantId, CampusId = branchId, EducationLevelId = levelId }, transaction, cancellationToken: cancellationToken));
         await transaction.CommitAsync(cancellationToken);
     }
 }

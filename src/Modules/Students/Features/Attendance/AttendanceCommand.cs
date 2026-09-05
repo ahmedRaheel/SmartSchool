@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Students.Features.Attendance;
 /// </summary>
 public sealed class AttendanceCommand(IStudentsDbContext dbContext) : IAttendanceCommand
 {
-	public async Task AddAsync(
-		AttendanceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Attendances
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        AttendanceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Attendances
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		AttendanceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Attendances
-			.Update(entity);
+    public async Task UpdateAsync(
+        AttendanceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Attendances
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		AttendanceEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Attendances
-			.Remove(entity);
+    public async Task DeleteAsync(
+        AttendanceEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Attendances
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

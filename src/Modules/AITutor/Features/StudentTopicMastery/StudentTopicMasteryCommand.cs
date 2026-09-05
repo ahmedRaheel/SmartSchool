@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AITutor.Features.StudentTopicMastery;
 /// </summary>
 public sealed class StudentTopicMasteryCommand(IAITutorDbContext dbContext) : IStudentTopicMasteryCommand
 {
-	public async Task AddAsync(
-		StudentTopicMasteryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.StudentTopicMasteries
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        StudentTopicMasteryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.StudentTopicMasteries
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		StudentTopicMasteryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentTopicMasteries
-			.Update(entity);
+    public async Task UpdateAsync(
+        StudentTopicMasteryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentTopicMasteries
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		StudentTopicMasteryEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentTopicMasteries
-			.Remove(entity);
+    public async Task DeleteAsync(
+        StudentTopicMasteryEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentTopicMasteries
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

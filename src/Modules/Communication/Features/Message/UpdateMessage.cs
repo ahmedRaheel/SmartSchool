@@ -13,120 +13,120 @@ namespace SmartSchool.Modules.Communication.Features.Message;
 
 public static class UpdateMessage
 {
-	/// <summary>
-	/// Represents the response returned by this MessageEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    /// <summary>
+    /// Represents the response returned by this MessageEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    string Code,
+    string Name,
+    string? MetadataJson);
 
-	public sealed record Request(
-		Guid TenantId,
-		Guid Id,
-		string Name) : IRequest<Result<Response>>;
+    public sealed record Request(
+        Guid TenantId,
+        Guid Id,
+        string Name) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Id).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        }
+    }
 
-	public interface IUpdateMessage
-	{
-		Task UpdateAsync(
-				MessageEntity entity,
-				CancellationToken cancellationToken);
+    public interface IUpdateMessage
+    {
+        Task UpdateAsync(
+                MessageEntity entity,
+                CancellationToken cancellationToken);
 Task<MessageEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken);
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class UpdateMessagePersistence(ICommunicationDbContext dbContext) : IUpdateMessage
-	{
-		public async Task UpdateAsync(
-				MessageEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext.Messages
-					.Update(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+    internal sealed class UpdateMessagePersistence(ICommunicationDbContext dbContext) : IUpdateMessage
+    {
+        public async Task UpdateAsync(
+                MessageEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext.Messages
+                    .Update(entity);
 
-		public async Task<MessageEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken)
-			{
-				return await dbContext.Messages
-					.FirstOrDefaultAsync(
-						x => x.TenantId == tenantId
-							&& x.MessageId == id,
-						cancellationToken);
-			}
-	}
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
 
-	public sealed class Handler(IUpdateMessage dataAccess)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(MessageEntity))));
-			}
+        public async Task<MessageEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken)
+            {
+                return await dbContext.Messages
+                    .FirstOrDefaultAsync(
+                        x => x.TenantId == tenantId
+                            && x.MessageId == id,
+                        cancellationToken);
+            }
+    }
+
+    public sealed class Handler(IUpdateMessage dataAccess)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(MessageEntity))));
+            }
 
 
-			entity.UpdateDetails(
-				entity.Code,
-				request.Name);
-			await dataAccess.UpdateAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            entity.UpdateDetails(
+                entity.Code,
+                request.Name);
+            await dataAccess.UpdateAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPut(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "message"),
-				async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var command = request with { Id = id };
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						command, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("UpdateMessage")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPut(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "message"),
+                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var command = request with { Id = id };
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
+                        command, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("UpdateMessage")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 
-	private static Response MapResponse(MessageEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.MessageId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+    private static Response MapResponse(MessageEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.MessageId,
+            entity.Code,
+            entity.Name,
+            entity.MetadataJson);
+    }
 }

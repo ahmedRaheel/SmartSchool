@@ -13,41 +13,41 @@ namespace SmartSchool.Modules.Transport;
 
 public static class Module
 {
-	public static IServiceCollection AddTransportModule(
-		this IServiceCollection services)
-	{
-		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<ITransportDbContext, TransportDbContext>();
+    public static IServiceCollection AddTransportModule(
+        this IServiceCollection services)
+    {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
+        services.AddScoped<ITransportDbContext, TransportDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-		return services;
-	}
+        return services;
+    }
 
-	public static IEndpointRouteBuilder MapTransportEndpoints(
-		this IEndpointRouteBuilder endpoints)
-	{
-		CreateRoute.MapEndpoint(endpoints);
-		GetRouteById.MapEndpoint(endpoints);
-		GetRoutePage.MapEndpoint(endpoints);
-		UpdateRoute.MapEndpoint(endpoints);
-		DeleteRoute.MapEndpoint(endpoints);
-		CreateVehicle.MapEndpoint(endpoints);
-		GetVehicleById.MapEndpoint(endpoints);
-		GetVehiclePage.MapEndpoint(endpoints);
-		UpdateVehicle.MapEndpoint(endpoints);
-		DeleteVehicle.MapEndpoint(endpoints);
+    public static IEndpointRouteBuilder MapTransportEndpoints(
+        this IEndpointRouteBuilder endpoints)
+    {
+        CreateRoute.MapEndpoint(endpoints);
+        GetRouteById.MapEndpoint(endpoints);
+        GetRoutePage.MapEndpoint(endpoints);
+        UpdateRoute.MapEndpoint(endpoints);
+        DeleteRoute.MapEndpoint(endpoints);
+        CreateVehicle.MapEndpoint(endpoints);
+        GetVehicleById.MapEndpoint(endpoints);
+        GetVehiclePage.MapEndpoint(endpoints);
+        UpdateVehicle.MapEndpoint(endpoints);
+        DeleteVehicle.MapEndpoint(endpoints);
 
-		CreateStop.MapEndpoint(endpoints);
-		CreateStudentTransport.MapEndpoint(endpoints);
-		DeleteStop.MapEndpoint(endpoints);
-		DeleteStudentTransport.MapEndpoint(endpoints);
-		GetStopById.MapEndpoint(endpoints);
-		GetStopPage.MapEndpoint(endpoints);
-		GetStudentTransportById.MapEndpoint(endpoints);
-		GetStudentTransportPage.MapEndpoint(endpoints);
-		UpdateStop.MapEndpoint(endpoints);
-		UpdateStudentTransport.MapEndpoint(endpoints);
+        CreateStop.MapEndpoint(endpoints);
+        CreateStudentTransport.MapEndpoint(endpoints);
+        DeleteStop.MapEndpoint(endpoints);
+        DeleteStudentTransport.MapEndpoint(endpoints);
+        GetStopById.MapEndpoint(endpoints);
+        GetStopPage.MapEndpoint(endpoints);
+        GetStudentTransportById.MapEndpoint(endpoints);
+        GetStudentTransportPage.MapEndpoint(endpoints);
+        UpdateStop.MapEndpoint(endpoints);
+        UpdateStudentTransport.MapEndpoint(endpoints);
 
-		return endpoints;
-	}
+        return endpoints;
+    }
 }

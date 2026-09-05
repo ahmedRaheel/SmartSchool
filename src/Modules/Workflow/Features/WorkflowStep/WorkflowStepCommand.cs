@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowStep;
 /// </summary>
 public sealed class WorkflowStepCommand(IWorkflowDbContext dbContext) : IWorkflowStepCommand
 {
-	public async Task AddAsync(
-		WorkflowStepEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.WorkflowSteps
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        WorkflowStepEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.WorkflowSteps
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		WorkflowStepEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.WorkflowSteps
-			.Update(entity);
+    public async Task UpdateAsync(
+        WorkflowStepEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.WorkflowSteps
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		WorkflowStepEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.WorkflowSteps
-			.Remove(entity);
+    public async Task DeleteAsync(
+        WorkflowStepEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.WorkflowSteps
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

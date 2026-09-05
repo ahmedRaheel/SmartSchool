@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Documents.Features.Certificate;
 /// </summary>
 public sealed class CertificateCommand(IDocumentsDbContext dbContext) : ICertificateCommand
 {
-	public async Task AddAsync(
-		CertificateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Certificates
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        CertificateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Certificates
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		CertificateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Certificates
-			.Update(entity);
+    public async Task UpdateAsync(
+        CertificateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Certificates
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		CertificateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Certificates
-			.Remove(entity);
+    public async Task DeleteAsync(
+        CertificateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Certificates
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

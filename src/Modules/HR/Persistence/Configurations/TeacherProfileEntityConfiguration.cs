@@ -8,27 +8,27 @@ namespace SmartSchool.Modules.HR.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="TeacherProfileEntity"/>.
 /// </summary>
 public sealed class TeacherProfileEntityConfiguration
-	: IEntityTypeConfiguration<TeacherProfileEntity>
+    : IEntityTypeConfiguration<TeacherProfileEntity>
 {
-	public void Configure(EntityTypeBuilder<TeacherProfileEntity> builder)
-	{
-		builder.ToTable("TeacherProfile", SmartSchool.Modules.HR.ModuleConstants.Schema);
+    public void Configure(EntityTypeBuilder<TeacherProfileEntity> builder)
+    {
+        builder.ToTable("TeacherProfile", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
-		builder.HasKey(entity => entity.TeacherProfileId);
+        builder.HasKey(entity => entity.TeacherProfileId);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.RowVersion)
-			.IsConcurrencyToken();
+        builder
+            .Property(entity => entity.RowVersion)
+            .IsConcurrencyToken();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-	}
+    }
 }

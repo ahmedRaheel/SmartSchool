@@ -8,44 +8,44 @@ namespace SmartSchool.Modules.Students.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="EnrollmentEntity"/>.
 /// </summary>
 public sealed class EnrollmentEntityConfiguration
-	: IEntityTypeConfiguration<EnrollmentEntity>
+    : IEntityTypeConfiguration<EnrollmentEntity>
 {
-	public void Configure(EntityTypeBuilder<EnrollmentEntity> builder)
-	{
-		builder.ToTable("student_enrollment", schema: "student");
-		builder.HasKey(entity => entity.StudentEnrollmentId);
+    public void Configure(EntityTypeBuilder<EnrollmentEntity> builder)
+    {
+        builder.ToTable("student_enrollment", schema: "student");
+        builder.HasKey(entity => entity.StudentEnrollmentId);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-		builder.Property(entity => entity.CreatedAt).IsRequired();
-		builder.Property(entity => entity.UpdatedAt);
-		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
+        builder.Property(entity => entity.CreatedAt).IsRequired();
+        builder.Property(entity => entity.UpdatedAt);
+        builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
 
 
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.StudentEnrollmentId).HasColumnName("student_enrollment_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+        // Canonical database mapping generated from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.StudentEnrollmentId).HasColumnName("student_enrollment_id");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
-		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
-		builder.Property(entity => entity.EnrollmentNumber).HasColumnName("enrollment_number").HasMaxLength(80).IsRequired();
-		builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
-		builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
-		builder.Property(entity => entity.EnrollmentDate).HasColumnName("enrollment_date");
-		builder.Property(entity => entity.Status).HasColumnName("status");
+        // Database columns synchronized from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+        builder.Property(entity => entity.EnrollmentNumber).HasColumnName("enrollment_number").HasMaxLength(80).IsRequired();
+        builder.Property(entity => entity.AcademicYearId).HasColumnName("academic_year_id");
+        builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
+        builder.Property(entity => entity.EnrollmentDate).HasColumnName("enrollment_date");
+        builder.Property(entity => entity.Status).HasColumnName("status");
 
         // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
         builder.HasOne<StudentEntity>()
@@ -53,5 +53,5 @@ public sealed class EnrollmentEntityConfiguration
             .HasForeignKey(entity => entity.StudentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-	}
+    }
 }

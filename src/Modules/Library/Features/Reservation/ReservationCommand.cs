@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Library.Features.Reservation;
 /// </summary>
 public sealed class ReservationCommand(ILibraryDbContext dbContext) : IReservationCommand
 {
-	public async Task AddAsync(
-		ReservationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Reservations
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ReservationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Reservations
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ReservationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Reservations
-			.Update(entity);
+    public async Task UpdateAsync(
+        ReservationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Reservations
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ReservationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Reservations
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ReservationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Reservations
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

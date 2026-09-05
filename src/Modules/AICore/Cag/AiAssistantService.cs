@@ -6,6 +6,7 @@ using Dapper;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Rag;
 
 namespace SmartSchool.Modules.AICore.Cag;
 
@@ -18,6 +19,7 @@ internal sealed class AiAssistantService(
     IDbConnectionFactory connectionFactory,
     IDistributedCache cache,
     IOllamaClient ollama,
+    LangChainRagWorkflow workflow,
     IOptions<AiAssistantOptions> options) : IAiAssistantService
 {
     private sealed record KnowledgeRow(Guid Id, string DocumentName, string Collection, string Content);
@@ -29,7 +31,29 @@ internal sealed class AiAssistantService(
     public async Task<AiAssistantResponse> AskAsync(AiAssistantRequest request, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(request.Question);
-        if (request.Collections.Count == 0) throw new ArgumentException("At least one knowledge collection is required.", nameof(request));
+
+        var workflowContext = await workflow.ExecuteAsync(
+            new RagWorkflowContext(
+                request.TenantId,
+                request.SchoolId,
+                request.UserId,
+                request.Assistant,
+                request.Question,
+                request.Collections,
+                request.SystemPrompt),
+            cancellationToken);
+
+        if (workflowContext.IsRejected)
+        {
+            return new AiAssistantResponse(
+                request.Assistant,
+                workflowContext.Answer ?? "The request was rejected by the RAG guardrail.",
+                "none",
+                "Guardrail",
+                Array.Empty<AiCitation>());
+        }
+
+        request = request with { SystemPrompt = workflowContext.SystemPrompt };
 
         var context = await GetOrBuildContextAsync(request, cancellationToken);
         var strategy = "CAG";

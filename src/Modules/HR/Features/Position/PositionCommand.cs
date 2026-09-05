@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.HR.Features.Position;
 /// </summary>
 public sealed class PositionCommand(IHRDbContext dbContext) : IPositionCommand
 {
-	public async Task AddAsync(
-		PositionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Positions
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        PositionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Positions
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		PositionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Positions
-			.Update(entity);
+    public async Task UpdateAsync(
+        PositionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Positions
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		PositionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Positions
-			.Remove(entity);
+    public async Task DeleteAsync(
+        PositionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Positions
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

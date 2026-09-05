@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AICore.Features.ToolDefinition;
 /// </summary>
 public sealed class ToolDefinitionCommand(IAICoreDbContext dbContext) : IToolDefinitionCommand
 {
-	public async Task AddAsync(
-		ToolDefinitionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.ToolDefinitions
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ToolDefinitionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.ToolDefinitions
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ToolDefinitionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ToolDefinitions
-			.Update(entity);
+    public async Task UpdateAsync(
+        ToolDefinitionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ToolDefinitions
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ToolDefinitionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ToolDefinitions
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ToolDefinitionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ToolDefinitions
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

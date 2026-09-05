@@ -7,7 +7,7 @@ namespace SmartSchool.Application.Persistence;
 /// </summary>
 public interface IDbConnectionFactory
 {
-	/// <summary>Opens a database connection using the configured persistence provider.</summary>
-	Task<DbConnection> OpenConnectionAsync(
-		CancellationToken cancellationToken = default);
+    /// <summary>Opens a database connection using the configured persistence provider.</summary>
+    Task<DbConnection> OpenConnectionAsync(
+        CancellationToken cancellationToken = default);
 }

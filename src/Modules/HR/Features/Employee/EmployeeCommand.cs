@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.HR.Features.Employee;
 /// </summary>
 public sealed class EmployeeCommand(IHRDbContext dbContext) : IEmployeeCommand
 {
-	public async Task AddAsync(
-		EmployeeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Employees
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        EmployeeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Employees
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		EmployeeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Employees
-			.Update(entity);
+    public async Task UpdateAsync(
+        EmployeeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Employees
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		EmployeeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Employees
-			.Remove(entity);
+    public async Task DeleteAsync(
+        EmployeeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Employees
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -8,60 +8,60 @@ namespace SmartSchool.Modules.AITutor.Persistence.Configurations;
 /// Defines relational persistence rules for <see cref="StudentTopicMasteryEntity"/>.
 /// </summary>
 public sealed class StudentTopicMasteryEntityConfiguration
-	: IEntityTypeConfiguration<StudentTopicMasteryEntity>
+    : IEntityTypeConfiguration<StudentTopicMasteryEntity>
 {
-	public void Configure(EntityTypeBuilder<StudentTopicMasteryEntity> builder)
-	{
-		builder.ToTable("student_topic_mastery", schema: "ai_tutor");
-		builder.HasKey(entity => entity.StudentTopicMasteryId);
+    public void Configure(EntityTypeBuilder<StudentTopicMasteryEntity> builder)
+    {
+        builder.ToTable("student_topic_mastery", schema: "ai_tutor");
+        builder.HasKey(entity => entity.StudentTopicMasteryId);
 
-		builder
-			.Property(entity => entity.TenantId)
-			.IsRequired();
+        builder
+            .Property(entity => entity.TenantId)
+            .IsRequired();
 
-		builder
-			.Property(entity => entity.IsActive)
-			.IsRequired();
+        builder
+            .Property(entity => entity.IsActive)
+            .IsRequired();
 
-		builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => entity.TenantId);
 
-		builder.Property(entity => entity.CreatedAt).IsRequired();
-		builder.Property(entity => entity.UpdatedAt);
-		builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
+        builder.Property(entity => entity.CreatedAt).IsRequired();
+        builder.Property(entity => entity.UpdatedAt);
+        builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
 
-		builder
-			.Property(entity => entity.Code)
-			.HasMaxLength(100)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Code)
+            .HasMaxLength(100)
+            .IsRequired();
 
-		builder
-			.HasIndex(entity => new { entity.TenantId, entity.Code })
-			.IsUnique();
+        builder
+            .HasIndex(entity => new { entity.TenantId, entity.Code })
+            .IsUnique();
 
-		builder
-			.Property(entity => entity.Name)
-			.HasMaxLength(250)
-			.IsRequired();
+        builder
+            .Property(entity => entity.Name)
+            .HasMaxLength(250)
+            .IsRequired();
 
 
-		// Canonical database mapping generated from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.Code).HasColumnName("code");
-		builder.Property(entity => entity.Name).HasColumnName("name");
-		builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-		builder.Property(entity => entity.StudentTopicMasteryId).HasColumnName("student_topic_mastery_id");
-		builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-		builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-		builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-		builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-		builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+        // Canonical database mapping generated from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.Code).HasColumnName("code");
+        builder.Property(entity => entity.Name).HasColumnName("name");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
+        builder.Property(entity => entity.StudentTopicMasteryId).HasColumnName("student_topic_mastery_id");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
-		// Database columns synchronized from SmartSchoolComplete.sql.
-		builder.Property(entity => entity.StudentId).HasColumnName("student_id");
-		builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
-		builder.Property(entity => entity.Topic).HasColumnName("topic");
-		builder.Property(entity => entity.MasteryScore).HasColumnName("mastery_score");
-		builder.Property(entity => entity.ConfidenceScore).HasColumnName("confidence_score");
-		builder.Property(entity => entity.EvidenceCount).HasColumnName("evidence_count");
-		builder.Property(entity => entity.LastAssessedAt).HasColumnName("last_assessed_at");
-	}
+        // Database columns synchronized from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+        builder.Property(entity => entity.SubjectId).HasColumnName("subject_id");
+        builder.Property(entity => entity.Topic).HasColumnName("topic");
+        builder.Property(entity => entity.MasteryScore).HasColumnName("mastery_score");
+        builder.Property(entity => entity.ConfidenceScore).HasColumnName("confidence_score");
+        builder.Property(entity => entity.EvidenceCount).HasColumnName("evidence_count");
+        builder.Property(entity => entity.LastAssessedAt).HasColumnName("last_assessed_at");
+    }
 }

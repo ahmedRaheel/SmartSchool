@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 /// </summary>
 public sealed class GeneratedQuizCommand(IAITutorDbContext dbContext) : IGeneratedQuizCommand
 {
-	public async Task AddAsync(
-		GeneratedQuizEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.GeneratedQuizs
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        GeneratedQuizEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.GeneratedQuizs
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		GeneratedQuizEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.GeneratedQuizs
-			.Update(entity);
+    public async Task UpdateAsync(
+        GeneratedQuizEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.GeneratedQuizs
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		GeneratedQuizEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.GeneratedQuizs
-			.Remove(entity);
+    public async Task DeleteAsync(
+        GeneratedQuizEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.GeneratedQuizs
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

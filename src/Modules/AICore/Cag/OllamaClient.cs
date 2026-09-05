@@ -35,9 +35,20 @@ internal sealed class OllamaClient(IHttpClientFactory httpClientFactory, IConfig
     /// <summary>Generates a response using the configured Ollama chat model.</summary>
     public async Task<(string Answer, string Model)> GenerateAsync(string prompt, CancellationToken cancellationToken)
     {
-        var model = configuration["AI:Ollama:ChatModel"] ?? "llama3.2";
+        var model = configuration["AI:Ollama:ChatModel"] ?? "qwen3:1.7b";
         var client = CreateClient();
-        var response = await client.PostAsJsonAsync("api/generate", new { model, prompt, stream = false }, cancellationToken);
+        var response = await client.PostAsJsonAsync("api/generate", new
+        {
+            model,
+            prompt = "/no_think\n" + prompt,
+            stream = false,
+            keep_alive = "30m",
+            options = new
+            {
+                temperature = 0.1,
+                num_predict = 256
+            }
+        }, cancellationToken);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<GenerateResponse>(cancellationToken: cancellationToken);
         return (result?.Response ?? string.Empty, model);

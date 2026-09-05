@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.HR.Features.JobGrade;
 /// </summary>
 public sealed class JobGradeCommand(IHRDbContext dbContext) : IJobGradeCommand
 {
-	public async Task AddAsync(
-		JobGradeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.JobGrades
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        JobGradeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.JobGrades
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		JobGradeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.JobGrades
-			.Update(entity);
+    public async Task UpdateAsync(
+        JobGradeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.JobGrades
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		JobGradeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.JobGrades
-			.Remove(entity);
+    public async Task DeleteAsync(
+        JobGradeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.JobGrades
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

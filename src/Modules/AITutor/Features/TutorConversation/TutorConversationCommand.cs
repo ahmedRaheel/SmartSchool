@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AITutor.Features.TutorConversation;
 /// </summary>
 public sealed class TutorConversationCommand(IAITutorDbContext dbContext) : ITutorConversationCommand
 {
-	public async Task AddAsync(
-		TutorConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.TutorConversations
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        TutorConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.TutorConversations
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		TutorConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.TutorConversations
-			.Update(entity);
+    public async Task UpdateAsync(
+        TutorConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.TutorConversations
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		TutorConversationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.TutorConversations
-			.Remove(entity);
+    public async Task DeleteAsync(
+        TutorConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.TutorConversations
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

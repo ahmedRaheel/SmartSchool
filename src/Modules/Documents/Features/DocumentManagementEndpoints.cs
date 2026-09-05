@@ -9,12 +9,12 @@ namespace SmartSchool.Modules.Documents.Features;
 /// <summary>Central binary document store. Database storage is the initial provider; metadata remains stable when moved to cloud storage.</summary>
 public static class DocumentManagementEndpoints
 {
-	private const long MaxFileSize = 25 * 1024 * 1024;
+    private const long MaxFileSize = 25 * 1024 * 1024;
 
-	public static IEndpointRouteBuilder MapDocumentManagement(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapDocumentManagement(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/api/documents/files")
-			.WithTags("Documents").RequireAuthorization();
+            .WithTags("Documents").RequireAuthorization();
         group.MapPost("", UploadAsync).DisableAntiforgery();
         group.MapGet("/{documentId:guid}", DownloadAsync);
         group.MapGet("/entity/{entityType}/{entityId:guid}", ListAsync);
@@ -22,9 +22,9 @@ public static class DocumentManagementEndpoints
         group.MapGet("/requirements/{actorType}", RequiredDocumentsAsync);
         group.MapGet("/compliance/{actorType}/{entityId:guid}", ComplianceAsync);
         return endpoints;
-	}
+    }
 
-	private static async Task<IResult> UploadAsync(
+    private static async Task<IResult> UploadAsync(
         HttpRequest request, Guid? tenantId, ITenantScope tenantScope, IDbConnectionFactory factory, CancellationToken ct)
     {
         var resolvedTenant = tenantScope.Resolve(tenantId);
@@ -32,25 +32,25 @@ public static class DocumentManagementEndpoints
         if (!request.HasFormContentType) return Results.BadRequest(new { message = "multipart/form-data is required." });
 
         var form = await request.ReadFormAsync(ct);
-		if (form is null || !form.Files.Any())
-		{
-			return Results.BadRequest(new
-			{
-				message = "A file is required."
-			});
-		}
-		var file = form.Files.GetFile("file");
-        if (file is null || file.Length == 0) 
-			return Results.BadRequest(new { message = "A file is required." });
+        if (form is null || !form.Files.Any())
+        {
+            return Results.BadRequest(new
+            {
+                message = "A file is required."
+            });
+        }
+        var file = form.Files.GetFile("file");
+        if (file is null || file.Length == 0)
+            return Results.BadRequest(new { message = "A file is required." });
 
         if (file.Length > MaxFileSize)
-			return Results.BadRequest(new { message = "File exceeds the 25 MB limit." });
+            return Results.BadRequest(new { message = "File exceeds the 25 MB limit." });
 
-        if (!Guid.TryParse(form["entityId"], out var entityId)) 
-			return Results.BadRequest(new { message = "entityId is required." });
+        if (!Guid.TryParse(form["entityId"], out var entityId))
+            return Results.BadRequest(new { message = "entityId is required." });
 
-		var entityType = Clean(form["entityType"].ToString(), "entityType");
-		var purpose = Clean(form["purpose"].ToString(), "purpose");
+        var entityType = Clean(form["entityType"].ToString(), "entityType");
+        var purpose = Clean(form["purpose"].ToString(), "purpose");
         var category = Clean(form["category"].ToString(), "category");
         var documentType = Clean(form["documentType"].ToString(), "documentType");
         Guid? schoolId = Guid.TryParse(form["schoolId"], out var school) ? school : null;
@@ -167,6 +167,6 @@ public static class DocumentManagementEndpoints
             await connection.ExecuteAsync(new CommandDefinition(sql, new { TenantId=tenantId, EntityId=entityId, DocumentId=documentId, DocumentType=documentType }, cancellationToken:ct));
     }
 
-	private static string Clean(string value, string name) => string.IsNullOrWhiteSpace(value) ? throw new BadHttpRequestException($"{name} is required.") : value.Trim();
-	private sealed record FileRow(byte[]? Data, string MimeType, string FileName);
+    private static string Clean(string value, string name) => string.IsNullOrWhiteSpace(value) ? throw new BadHttpRequestException($"{name} is required.") : value.Trim();
+    private sealed record FileRow(byte[]? Data, string MimeType, string FileName);
 }

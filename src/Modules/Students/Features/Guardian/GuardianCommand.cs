@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Students.Features.Guardian;
 /// </summary>
 public sealed class GuardianCommand(IStudentsDbContext dbContext) : IGuardianCommand
 {
-	public async Task AddAsync(
-		GuardianEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Guardians
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        GuardianEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Guardians
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		GuardianEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Guardians
-			.Update(entity);
+    public async Task UpdateAsync(
+        GuardianEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Guardians
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		GuardianEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Guardians
-			.Remove(entity);
+    public async Task DeleteAsync(
+        GuardianEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Guardians
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

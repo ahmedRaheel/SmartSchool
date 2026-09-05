@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AIParent.Features.ParentToolExecution;
 /// </summary>
 public sealed class ParentToolExecutionCommand(IAIParentDbContext dbContext) : IParentToolExecutionCommand
 {
-	public async Task AddAsync(
-		ParentToolExecutionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.ParentToolExecutions
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ParentToolExecutionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.ParentToolExecutions
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ParentToolExecutionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ParentToolExecutions
-			.Update(entity);
+    public async Task UpdateAsync(
+        ParentToolExecutionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ParentToolExecutions
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ParentToolExecutionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.ParentToolExecutions
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ParentToolExecutionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.ParentToolExecutions
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }
