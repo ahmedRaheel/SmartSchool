@@ -14,33 +14,33 @@ namespace SmartSchool.Modules.HR.Features.DataAccess.Interview;
 /// </summary>
 public sealed class InterviewCommand(IHRDbContext dbContext) : IInterviewCommand
 {
-	public async Task AddAsync(
-		InterviewEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Interviews
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        InterviewEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Interviews
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		InterviewEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Interviews
-			.Update(entity);
+    public async Task UpdateAsync(
+        InterviewEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Interviews
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		InterviewEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Interviews
-			.Remove(entity);
+    public async Task DeleteAsync(
+        InterviewEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Interviews
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

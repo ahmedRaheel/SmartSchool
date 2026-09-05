@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Library.Features.BookCopy;
 /// </summary>
 public sealed class BookCopyCommand(ILibraryDbContext dbContext) : IBookCopyCommand
 {
-	public async Task AddAsync(
-		BookCopyEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.BookCopies
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        BookCopyEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.BookCopies
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		BookCopyEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.BookCopies
-			.Update(entity);
+    public async Task UpdateAsync(
+        BookCopyEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.BookCopies
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		BookCopyEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.BookCopies
-			.Remove(entity);
+    public async Task DeleteAsync(
+        BookCopyEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.BookCopies
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

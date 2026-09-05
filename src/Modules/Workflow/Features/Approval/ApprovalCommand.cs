@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Workflow.Features.Approval;
 /// </summary>
 public sealed class ApprovalCommand(IWorkflowDbContext dbContext) : IApprovalCommand
 {
-	public async Task AddAsync(
-		ApprovalEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Approvals
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ApprovalEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Approvals
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ApprovalEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Approvals
-			.Update(entity);
+    public async Task UpdateAsync(
+        ApprovalEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Approvals
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ApprovalEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Approvals
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ApprovalEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Approvals
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

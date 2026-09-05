@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Documents.Features.GeneratedDocument;
 /// </summary>
 public sealed class GeneratedDocumentCommand(IDocumentsDbContext dbContext) : IGeneratedDocumentCommand
 {
-	public async Task AddAsync(
-		GeneratedDocumentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.GeneratedDocuments
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        GeneratedDocumentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.GeneratedDocuments
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		GeneratedDocumentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.GeneratedDocuments
-			.Update(entity);
+    public async Task UpdateAsync(
+        GeneratedDocumentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.GeneratedDocuments
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		GeneratedDocumentEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.GeneratedDocuments
-			.Remove(entity);
+    public async Task DeleteAsync(
+        GeneratedDocumentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.GeneratedDocuments
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

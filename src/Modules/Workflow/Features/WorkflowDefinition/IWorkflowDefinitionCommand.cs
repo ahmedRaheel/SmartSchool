@@ -8,24 +8,24 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
 /// </summary>
 public interface IWorkflowDefinitionCommand
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task AddAsync(
-		WorkflowDefinitionEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task AddAsync(
+        WorkflowDefinitionEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task UpdateAsync(
-		WorkflowDefinitionEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task UpdateAsync(
+        WorkflowDefinitionEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task DeleteAsync(
-		WorkflowDefinitionEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task DeleteAsync(
+        WorkflowDefinitionEntity entity,
+        CancellationToken cancellationToken);
 }

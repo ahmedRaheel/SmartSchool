@@ -8,24 +8,24 @@ namespace SmartSchool.Modules.Library.Features.Reservation;
 /// </summary>
 public interface IReservationCommand
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task AddAsync(
-		ReservationEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task AddAsync(
+        ReservationEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task UpdateAsync(
-		ReservationEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task UpdateAsync(
+        ReservationEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task DeleteAsync(
-		ReservationEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task DeleteAsync(
+        ReservationEntity entity,
+        CancellationToken cancellationToken);
 }

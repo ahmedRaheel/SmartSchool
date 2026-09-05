@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AICore.Features.PromptTemplate;
 /// </summary>
 public sealed class PromptTemplateCommand(IAICoreDbContext dbContext) : IPromptTemplateCommand
 {
-	public async Task AddAsync(
-		PromptTemplateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.PromptTemplates
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        PromptTemplateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.PromptTemplates
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		PromptTemplateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.PromptTemplates
-			.Update(entity);
+    public async Task UpdateAsync(
+        PromptTemplateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.PromptTemplates
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		PromptTemplateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.PromptTemplates
-			.Remove(entity);
+    public async Task DeleteAsync(
+        PromptTemplateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.PromptTemplates
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -8,24 +8,24 @@ namespace SmartSchool.Modules.Identity.Features.RoleAssignment;
 /// </summary>
 public interface IRoleAssignmentCommand
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task AddAsync(
-		RoleAssignmentEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task AddAsync(
+        RoleAssignmentEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task UpdateAsync(
-		RoleAssignmentEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task UpdateAsync(
+        RoleAssignmentEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task DeleteAsync(
-		RoleAssignmentEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task DeleteAsync(
+        RoleAssignmentEntity entity,
+        CancellationToken cancellationToken);
 }

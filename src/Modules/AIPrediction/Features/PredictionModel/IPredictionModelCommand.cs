@@ -8,24 +8,24 @@ namespace SmartSchool.Modules.AIPrediction.Features.PredictionModel;
 /// </summary>
 public interface IPredictionModelCommand
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task AddAsync(
-		PredictionModelEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task AddAsync(
+        PredictionModelEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task UpdateAsync(
-		PredictionModelEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task UpdateAsync(
+        PredictionModelEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task DeleteAsync(
-		PredictionModelEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task DeleteAsync(
+        PredictionModelEntity entity,
+        CancellationToken cancellationToken);
 }

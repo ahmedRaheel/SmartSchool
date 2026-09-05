@@ -13,97 +13,97 @@ namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 
 public static class CreateLearningRecommendation
 {
-	/// <summary>
-	/// Represents the response returned by this LearningRecommendationEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    /// <summary>
+    /// Represents the response returned by this LearningRecommendationEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    string Code,
+    string Name,
+    string? MetadataJson);
 
-	public sealed record Request(
-		Guid TenantId,
-		string Name,
-		string? MetadataJson = null) : IRequest<Result<Response>>;
+    public sealed record Request(
+        Guid TenantId,
+        string Name,
+        string? MetadataJson = null) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        }
+    }
 
-	public interface ICreateLearningRecommendation
-	{
-		Task AddAsync(
-				LearningRecommendationEntity entity,
-				CancellationToken cancellationToken);
+    public interface ICreateLearningRecommendation
+    {
+        Task AddAsync(
+                LearningRecommendationEntity entity,
+                CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateLearningRecommendationPersistence(IAITutorDbContext dbContext) : ICreateLearningRecommendation
-	{
-		public async Task AddAsync(
-				LearningRecommendationEntity entity,
-				CancellationToken cancellationToken)
-			{
-				await dbContext.LearningRecommendations
-					.AddAsync(entity, cancellationToken);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-	}
+    internal sealed class CreateLearningRecommendationPersistence(IAITutorDbContext dbContext) : ICreateLearningRecommendation
+    {
+        public async Task AddAsync(
+                LearningRecommendationEntity entity,
+                CancellationToken cancellationToken)
+            {
+                await dbContext.LearningRecommendations
+                    .AddAsync(entity, cancellationToken);
 
-	public sealed class Handler(ICreateLearningRecommendation dataAccess)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+    }
+
+    public sealed class Handler(ICreateLearningRecommendation dataAccess)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
 
 
-			var entity = LearningRecommendationEntity.Create(
-				request.TenantId,
-				Guid.NewGuid().ToString("N").ToUpperInvariant(),
-				request.Name,
-				request.MetadataJson);
+            var entity = LearningRecommendationEntity.Create(
+                request.TenantId,
+                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                request.Name,
+                request.MetadataJson);
 
-			await dataAccess.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            await dataAccess.AddAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPost(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "learning-recommendation"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("CreateLearningRecommendation")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost(
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "learning-recommendation"),
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("CreateLearningRecommendation")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 
-	private static Response MapResponse(LearningRecommendationEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.LearningRecommendationId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+    private static Response MapResponse(LearningRecommendationEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.LearningRecommendationId,
+            entity.Code,
+            entity.Name,
+            entity.MetadataJson);
+    }
 }

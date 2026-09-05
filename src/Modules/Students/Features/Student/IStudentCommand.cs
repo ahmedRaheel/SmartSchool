@@ -8,24 +8,24 @@ namespace SmartSchool.Modules.Students.Features.Student;
 /// </summary>
 public interface IStudentCommand
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task AddAsync(
-		StudentEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task AddAsync(
+        StudentEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task UpdateAsync(
-		StudentEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task UpdateAsync(
+        StudentEntity entity,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task DeleteAsync(
-		StudentEntity entity,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task DeleteAsync(
+        StudentEntity entity,
+        CancellationToken cancellationToken);
 }

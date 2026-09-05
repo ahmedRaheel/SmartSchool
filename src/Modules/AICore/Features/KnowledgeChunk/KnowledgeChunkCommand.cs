@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 /// </summary>
 public sealed class KnowledgeChunkCommand(IAICoreDbContext dbContext) : IKnowledgeChunkCommand
 {
-	public async Task AddAsync(
-		KnowledgeChunkEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.KnowledgeChunks
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        KnowledgeChunkEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.KnowledgeChunks
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		KnowledgeChunkEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.KnowledgeChunks
-			.Update(entity);
+    public async Task UpdateAsync(
+        KnowledgeChunkEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.KnowledgeChunks
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		KnowledgeChunkEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.KnowledgeChunks
-			.Remove(entity);
+    public async Task DeleteAsync(
+        KnowledgeChunkEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.KnowledgeChunks
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

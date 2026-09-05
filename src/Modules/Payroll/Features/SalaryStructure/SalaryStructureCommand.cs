@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Payroll.Features.SalaryStructure;
 /// </summary>
 public sealed class SalaryStructureCommand(IPayrollDbContext dbContext) : ISalaryStructureCommand
 {
-	public async Task AddAsync(
-		SalaryStructureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.SalaryStructures
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        SalaryStructureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.SalaryStructures
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		SalaryStructureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.SalaryStructures
-			.Update(entity);
+    public async Task UpdateAsync(
+        SalaryStructureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.SalaryStructures
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		SalaryStructureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.SalaryStructures
-			.Remove(entity);
+    public async Task DeleteAsync(
+        SalaryStructureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.SalaryStructures
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

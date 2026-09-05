@@ -13,51 +13,51 @@ namespace SmartSchool.Modules.Examinations;
 
 public static class Module
 {
-	public static IServiceCollection AddExaminationsModule(
-		this IServiceCollection services)
-	{
-		services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IExaminationsDbContext, ExaminationsDbContext>();
+    public static IServiceCollection AddExaminationsModule(
+        this IServiceCollection services)
+    {
+        services.AddSmartSchoolMediator(typeof(Module).Assembly);
+        services.AddScoped<IExaminationsDbContext, ExaminationsDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 
-		services.AddScoped<IExamCommand, ExamCommand>();
-		services.AddScoped<IExamQuery, ExamQuery>();
-		services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
-		services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
-		services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
-		services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
-		services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
-		services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
-		
-		return services;
-	}
+        services.AddScoped<IExamCommand, ExamCommand>();
+        services.AddScoped<IExamQuery, ExamQuery>();
+        services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
+        services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
+        services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
+        services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
+        services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
+        services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
 
-	public static IEndpointRouteBuilder MapExaminationsEndpoints(
-		this IEndpointRouteBuilder endpoints)
-	{
-		CreateExam.MapEndpoint(endpoints);
-		GetExamById.MapEndpoint(endpoints);
-		GetExamPage.MapEndpoint(endpoints);
-		UpdateExam.MapEndpoint(endpoints);
-		DeleteExam.MapEndpoint(endpoints);
-		CreateExamSubject.MapEndpoint(endpoints);
-		GetExamSubjectById.MapEndpoint(endpoints);
-		GetExamSubjectPage.MapEndpoint(endpoints);
-		UpdateExamSubject.MapEndpoint(endpoints);
-		DeleteExamSubject.MapEndpoint(endpoints);
-		CreateStudentExamResult.MapEndpoint(endpoints);
-		GetStudentExamResultById.MapEndpoint(endpoints);
-		GetStudentExamResultPage.MapEndpoint(endpoints);
-		UpdateStudentExamResult.MapEndpoint(endpoints);
-		DeleteStudentExamResult.MapEndpoint(endpoints);
+        return services;
+    }
 
-		CreateGradeScale.MapEndpoint(endpoints);
-		DeleteGradeScale.MapEndpoint(endpoints);
-		GetGradeScaleById.MapEndpoint(endpoints);
-		GetGradeScalePage.MapEndpoint(endpoints);
-		UpdateGradeScale.MapEndpoint(endpoints);
+    public static IEndpointRouteBuilder MapExaminationsEndpoints(
+        this IEndpointRouteBuilder endpoints)
+    {
+        CreateExam.MapEndpoint(endpoints);
+        GetExamById.MapEndpoint(endpoints);
+        GetExamPage.MapEndpoint(endpoints);
+        UpdateExam.MapEndpoint(endpoints);
+        DeleteExam.MapEndpoint(endpoints);
+        CreateExamSubject.MapEndpoint(endpoints);
+        GetExamSubjectById.MapEndpoint(endpoints);
+        GetExamSubjectPage.MapEndpoint(endpoints);
+        UpdateExamSubject.MapEndpoint(endpoints);
+        DeleteExamSubject.MapEndpoint(endpoints);
+        CreateStudentExamResult.MapEndpoint(endpoints);
+        GetStudentExamResultById.MapEndpoint(endpoints);
+        GetStudentExamResultPage.MapEndpoint(endpoints);
+        UpdateStudentExamResult.MapEndpoint(endpoints);
+        DeleteStudentExamResult.MapEndpoint(endpoints);
 
-		return endpoints;
-	}
+        CreateGradeScale.MapEndpoint(endpoints);
+        DeleteGradeScale.MapEndpoint(endpoints);
+        GetGradeScaleById.MapEndpoint(endpoints);
+        GetGradeScalePage.MapEndpoint(endpoints);
+        UpdateGradeScale.MapEndpoint(endpoints);
+
+        return endpoints;
+    }
 }

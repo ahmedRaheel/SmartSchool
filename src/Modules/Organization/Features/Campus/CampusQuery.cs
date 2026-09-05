@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.Modules.Organization.Persistence;
 using Dapper;
 using System.Threading.Tasks;
@@ -13,106 +14,106 @@ namespace SmartSchool.Modules.Organization.Features.Campus;
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
 public sealed class CampusQuery(
-	IOrganizationDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : ICampusQuery
+    IOrganizationDbContext dbContext,
+    IDbConnectionFactory connectionFactory) : ICampusQuery
 {
-	public Task<CampusEntity?> GetByIdAsync(
-		Guid? tenantId,
-		Guid id,
-		CancellationToken cancellationToken)
-	{
-		return dbContext.Campuses
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id,
-				cancellationToken);
-	}
+    public Task<CampusEntity?> GetByIdAsync(
+        Guid? tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Campuses
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id,
+                cancellationToken);
+    }
 
-	public async Task<PagedResult<CampusEntity>> GetPageAsync(
-		Guid? tenantId,
-		int page,
-		int pageSize,
-		CancellationToken cancellationToken)
-	{
-		const string countSql = """
-			SELECT COUNT(*)
-			FROM org.campus
-			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
-			  AND is_active = TRUE;
-			""";
+    public async Task<PagedResult<CampusEntity>> GetPageAsync(
+        Guid? tenantId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        const string countSql = """
+            SELECT COUNT(*)
+            FROM org.campus
+            WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
+              AND is_active = TRUE;
+            """;
 
-		const string pageSql = """
-			SELECT
-				campus_id AS "CampusId",
-				tenant_id AS "TenantId",
-				school_id AS "SchoolId",
-				code AS "Code",
-				name AS "Name",
-				branch_type AS "BranchType",
-				branch_gender_type_id AS "BranchGenderTypeId",
-				address AS "Address",
-				city AS "City",
-				province AS "Province",
-				country AS "Country",
-				phone AS "Phone",
-				fax AS "Fax",
-				mobile AS "Mobile",
-				email AS "Email",
-				logo_url AS "LogoUrl",
-				is_active AS "IsActive",
-				created_at AS "CreatedAt",
-				updated_at AS "UpdatedAt",
-				row_version AS "RowVersion"
-			FROM org.campus
-			WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
-			  AND is_active = TRUE
-			ORDER BY campus_id
-			LIMIT @PageSize OFFSET @Offset;
-			""";
+        const string pageSql = """
+            SELECT
+                campus_id AS "CampusId",
+                tenant_id AS "TenantId",
+                school_id AS "SchoolId",
+                code AS "Code",
+                name AS "Name",
+                branch_type AS "BranchType",
+                branch_gender_type_id AS "BranchGenderTypeId",
+                address AS "Address",
+                city AS "City",
+                province AS "Province",
+                country AS "Country",
+                phone AS "Phone",
+                fax AS "Fax",
+                mobile AS "Mobile",
+                email AS "Email",
+                logo_url AS "LogoUrl",
+                is_active AS "IsActive",
+                created_at AS "CreatedAt",
+                updated_at AS "UpdatedAt",
+                row_version AS "RowVersion"
+            FROM org.campus
+            WHERE (@TenantId IS NULL OR tenant_id = @TenantId)
+              AND is_active = TRUE
+            ORDER BY campus_id
+            LIMIT @PageSize OFFSET @Offset;
+            """;
 
-		await using var connection =
-			await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken);
 
-		var parameters = new
-		{
-			TenantId = tenantId,
-			PageSize = pageSize,
-			Offset = (page - 1) * pageSize
-		};
+        var parameters = new
+        {
+            TenantId = tenantId,
+            PageSize = pageSize,
+            Offset = (page - 1) * pageSize
+        };
 
-		var totalCount = await connection.ExecuteScalarAsync<long>(
-			new CommandDefinition(
-				countSql,
-				parameters,
-				cancellationToken: cancellationToken));
+        var totalCount = await connection.ExecuteScalarAsync<long>(
+            new CommandDefinition(
+                countSql,
+                parameters,
+                cancellationToken: cancellationToken));
 
-		var items = (await connection.QueryAsync<CampusEntity>(
-			new CommandDefinition(
-				pageSql,
-				parameters,
-				cancellationToken: cancellationToken)))
-			.AsList();
+        var items = (await connection.QueryAsync<CampusEntity>(
+            new CommandDefinition(
+                pageSql,
+                parameters,
+                cancellationToken: cancellationToken)))
+            .AsList();
 
-		return new PagedResult<CampusEntity>(
-			items,
-			page,
-			pageSize,
-			totalCount);
-	}
+        return new PagedResult<CampusEntity>(
+            items,
+            page,
+            pageSize,
+            totalCount);
+    }
 
-	public Task<bool> ExistsByCodeAsync(
-		Guid tenantId,
-		string code,
-		Guid? excludingId,
-		CancellationToken cancellationToken)
-	{
-		return dbContext.Campuses
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId
-					&& EF.Property<string>(entity, "Code") == code
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.CampusId != excludingId.Value)),
-				cancellationToken);
-	}
+    public Task<bool> ExistsByCodeAsync(
+        Guid tenantId,
+        string code,
+        Guid? excludingId,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Campuses
+            .AsNoTracking()
+            .AnyAsync(
+                entity =>
+                    entity.TenantId == tenantId
+                    && EF.Property<string>(entity, "Code") == code
+                    && (!excludingId.HasValue || (excludingId.HasValue && entity.CampusId != excludingId.Value)),
+                cancellationToken);
+    }
 }

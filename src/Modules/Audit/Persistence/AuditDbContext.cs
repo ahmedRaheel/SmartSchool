@@ -1,30 +1,34 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Audit.Models;
 
 namespace SmartSchool.Modules.Audit.Persistence;
 
 public interface IAuditDbContext
 {
-	DatabaseFacade Database { get; }
+    DatabaseFacade Database { get; }
 
-	DbSet<AuditLogEntity> AuditLogs { get; }
+    DbSet<AuditLogEntity> AuditLogs { get; }
 
-	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Audit module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class AuditDbContext(IApplicationDbContext dbContext) : IAuditDbContext
+public sealed class AuditDbContext(DbContextOptions<AuditDbContext> options)
+    : DbContext(options), IAuditDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+    public DbSet<AuditLogEntity> AuditLogs => Set<AuditLogEntity>();
 
-	public DbSet<AuditLogEntity> AuditLogs => dbContext.Set<AuditLogEntity>();
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-	{
-		return dbContext.SaveChangesAsync(cancellationToken);
-	}
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(AuditDbContext).Assembly,
+            type => type.Namespace is not null
+                && type.Namespace.StartsWith("SmartSchool.Modules.Audit.Persistence.Configurations", StringComparison.Ordinal));
+    }
 }

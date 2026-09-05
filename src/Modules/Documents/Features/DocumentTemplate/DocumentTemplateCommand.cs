@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Documents.Features.DocumentTemplate;
 /// </summary>
 public sealed class DocumentTemplateCommand(IDocumentsDbContext dbContext) : IDocumentTemplateCommand
 {
-	public async Task AddAsync(
-		DocumentTemplateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.DocumentTemplates
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        DocumentTemplateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.DocumentTemplates
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		DocumentTemplateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.DocumentTemplates
-			.Update(entity);
+    public async Task UpdateAsync(
+        DocumentTemplateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.DocumentTemplates
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		DocumentTemplateEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.DocumentTemplates
-			.Remove(entity);
+    public async Task DeleteAsync(
+        DocumentTemplateEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.DocumentTemplates
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

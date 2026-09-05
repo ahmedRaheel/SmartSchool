@@ -13,95 +13,95 @@ namespace SmartSchool.Modules.Payroll.Features.Payslip;
 
 public static class CreatePayslip
 {
-	/// <summary>
-	/// Represents the response returned by this PayslipEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    /// <summary>
+    /// Represents the response returned by this PayslipEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    string Code,
+    string Name,
+    string? MetadataJson);
 
-	public sealed record Request(
-		Guid TenantId,
-		string Name) : IRequest<Result<Response>>;
+    public sealed record Request(
+        Guid TenantId,
+        string Name) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        }
+    }
 
-	public interface ICreatePayslip
-	{
-		Task AddAsync(
-				PayslipEntity entity,
-				CancellationToken cancellationToken);
+    public interface ICreatePayslip
+    {
+        Task AddAsync(
+                PayslipEntity entity,
+                CancellationToken cancellationToken);
 }
 
-	internal sealed class CreatePayslipPersistence(IPayrollDbContext dbContext) : ICreatePayslip
-	{
-		public async Task AddAsync(
-				PayslipEntity entity,
-				CancellationToken cancellationToken)
-			{
-				await dbContext.Payslips
-					.AddAsync(entity, cancellationToken);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-	}
+    internal sealed class CreatePayslipPersistence(IPayrollDbContext dbContext) : ICreatePayslip
+    {
+        public async Task AddAsync(
+                PayslipEntity entity,
+                CancellationToken cancellationToken)
+            {
+                await dbContext.Payslips
+                    .AddAsync(entity, cancellationToken);
 
-	public sealed class Handler(ICreatePayslip dataAccess)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+    }
+
+    public sealed class Handler(ICreatePayslip dataAccess)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
 
 
-			var entity = PayslipEntity.Create(
-				request.TenantId,
-				Guid.NewGuid().ToString("N").ToUpperInvariant(),
-				request.Name);
+            var entity = PayslipEntity.Create(
+                request.TenantId,
+                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                request.Name);
 
-			await dataAccess.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            await dataAccess.AddAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPost(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "payslip"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("CreatePayslip")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost(
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "payslip"),
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("CreatePayslip")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 
-	private static Response MapResponse(PayslipEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.PayslipId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+    private static Response MapResponse(PayslipEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.PayslipId,
+            entity.Code,
+            entity.Name,
+            entity.MetadataJson);
+    }
 }

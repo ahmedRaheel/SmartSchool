@@ -1,36 +1,40 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Learning.Models;
 
 namespace SmartSchool.Modules.Learning.Persistence;
 
 public interface ILearningDbContext
 {
-	DatabaseFacade Database { get; }
+    DatabaseFacade Database { get; }
 
-	DbSet<AssignmentEntity> Assignments { get; }
-	DbSet<AssignmentSubmissionEntity> AssignmentSubmissions { get; }
-	DbSet<LearningResourceEntity> LearningResources { get; }
-	DbSet<LessonEntity> Lessons { get; }
+    DbSet<AssignmentEntity> Assignments { get; }
+    DbSet<AssignmentSubmissionEntity> AssignmentSubmissions { get; }
+    DbSet<LearningResourceEntity> LearningResources { get; }
+    DbSet<LessonEntity> Lessons { get; }
 
-	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Learning module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class LearningDbContext(IApplicationDbContext dbContext) : ILearningDbContext
+public sealed class LearningDbContext(DbContextOptions<LearningDbContext> options)
+    : DbContext(options), ILearningDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+    public DbSet<AssignmentEntity> Assignments => Set<AssignmentEntity>();
+    public DbSet<AssignmentSubmissionEntity> AssignmentSubmissions => Set<AssignmentSubmissionEntity>();
+    public DbSet<LearningResourceEntity> LearningResources => Set<LearningResourceEntity>();
+    public DbSet<LessonEntity> Lessons => Set<LessonEntity>();
 
-	public DbSet<AssignmentEntity> Assignments => dbContext.Set<AssignmentEntity>();
-	public DbSet<AssignmentSubmissionEntity> AssignmentSubmissions => dbContext.Set<AssignmentSubmissionEntity>();
-	public DbSet<LearningResourceEntity> LearningResources => dbContext.Set<LearningResourceEntity>();
-	public DbSet<LessonEntity> Lessons => dbContext.Set<LessonEntity>();
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-	{
-		return dbContext.SaveChangesAsync(cancellationToken);
-	}
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(LearningDbContext).Assembly,
+            type => type.Namespace is not null
+                && type.Namespace.StartsWith("SmartSchool.Modules.Learning.Persistence.Configurations", StringComparison.Ordinal));
+    }
 }

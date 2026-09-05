@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Finance.Features.StudentFee;
 /// </summary>
 public sealed class StudentFeeCommand(IFinanceDbContext dbContext) : IStudentFeeCommand
 {
-	public async Task AddAsync(
-		StudentFeeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.StudentFees
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        StudentFeeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.StudentFees
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		StudentFeeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentFees
-			.Update(entity);
+    public async Task UpdateAsync(
+        StudentFeeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentFees
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		StudentFeeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.StudentFees
-			.Remove(entity);
+    public async Task DeleteAsync(
+        StudentFeeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.StudentFees
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

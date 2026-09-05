@@ -12,85 +12,85 @@ namespace SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 
 public static class DeleteLearningRecommendation
 {
-	public sealed record Command(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+    public sealed record Command(
+        Guid TenantId,
+        Guid Id) : IRequest<Result<Response>>;
 
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
-	public interface IDeleteLearningRecommendation
-	{
-		Task DeleteAsync(
-				LearningRecommendationEntity entity,
-				CancellationToken cancellationToken);
+    public interface IDeleteLearningRecommendation
+    {
+        Task DeleteAsync(
+                LearningRecommendationEntity entity,
+                CancellationToken cancellationToken);
 
-		Task<LearningRecommendationEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken);
+        Task<LearningRecommendationEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class DeleteLearningRecommendationPersistence(IAITutorDbContext dbContext) : IDeleteLearningRecommendation
-	{
-		public async Task DeleteAsync(
-				LearningRecommendationEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext.LearningRecommendations
-					.Remove(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+    internal sealed class DeleteLearningRecommendationPersistence(IAITutorDbContext dbContext) : IDeleteLearningRecommendation
+    {
+        public async Task DeleteAsync(
+                LearningRecommendationEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext.LearningRecommendations
+                    .Remove(entity);
 
-		public async Task<LearningRecommendationEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken)
-			{
-				return await dbContext.LearningRecommendations
-					.FirstOrDefaultAsync(
-						x => x.TenantId == tenantId
-							&& x.LearningRecommendationId == id,
-						cancellationToken);
-			}
-	}
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
 
-	public sealed class Handler(IDeleteLearningRecommendation dataAccess)
-		: IRequestHandler<Command, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Command request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(LearningRecommendationEntity))));
-			}
-			await dataAccess.DeleteAsync(entity, cancellationToken);
-			return Result<Response>.Success(new Response(request.TenantId, request.Id));
-		}
-	}
+        public async Task<LearningRecommendationEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken)
+            {
+                return await dbContext.LearningRecommendations
+                    .FirstOrDefaultAsync(
+                        x => x.TenantId == tenantId
+                            && x.LearningRecommendationId == id,
+                        cancellationToken);
+            }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapDelete(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "learning-recommendation"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Command(tenantId, id);
-					var result = await mediator.SendAsync<Command, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("DeleteLearningRecommendation")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+    public sealed class Handler(IDeleteLearningRecommendation dataAccess)
+        : IRequestHandler<Command, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Command request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(LearningRecommendationEntity))));
+            }
+            await dataAccess.DeleteAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
+        }
+    }
+
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapDelete(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "learning-recommendation"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Command(tenantId, id);
+                    var result = await mediator.SendAsync<Command, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("DeleteLearningRecommendation")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 }

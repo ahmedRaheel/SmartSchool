@@ -9,29 +9,29 @@ namespace SmartSchool.Modules.HR.Features.EmploymentHistory;
 /// </summary>
 public interface IEmploymentHistoryQuery
 {
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<EmploymentHistoryEntity?> GetByIdAsync(
-		Guid tenantId,
-		Guid id,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<EmploymentHistoryEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<PagedResult<EmploymentHistoryEntity>> GetPageAsync(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<PagedResult<EmploymentHistoryEntity>> GetPageAsync(
+        Guid tenantId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken);
 
-	/// <summary>
-	/// Executes the persistence operation.
-	/// </summary>
-	Task<bool> ExistsByCodeAsync(
-		Guid tenantId,
-		string code,
-		Guid? excludingId,
-		CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes the persistence operation.
+    /// </summary>
+    Task<bool> ExistsByCodeAsync(
+        Guid tenantId,
+        string code,
+        Guid? excludingId,
+        CancellationToken cancellationToken);
 }

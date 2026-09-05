@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Finance.Features.FeeStructure;
 /// </summary>
 public sealed class FeeStructureCommand(IFinanceDbContext dbContext) : IFeeStructureCommand
 {
-	public async Task AddAsync(
-		FeeStructureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.FeeStructures
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        FeeStructureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.FeeStructures
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		FeeStructureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.FeeStructures
-			.Update(entity);
+    public async Task UpdateAsync(
+        FeeStructureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.FeeStructures
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		FeeStructureEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.FeeStructures
-			.Remove(entity);
+    public async Task DeleteAsync(
+        FeeStructureEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.FeeStructures
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

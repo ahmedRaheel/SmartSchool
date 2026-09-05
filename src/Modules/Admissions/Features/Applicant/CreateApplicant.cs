@@ -13,95 +13,95 @@ namespace SmartSchool.Modules.Admissions.Features.Applicant;
 
 public static class CreateApplicant
 {
-	/// <summary>
-	/// Represents the response returned by this ApplicantEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    /// <summary>
+    /// Represents the response returned by this ApplicantEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    string Code,
+    string Name,
+    string? MetadataJson);
 
-	public sealed record Request(
-		Guid TenantId,
-		string Name) : IRequest<Result<Response>>;
+    public sealed record Request(
+        Guid TenantId,
+        string Name) : IRequest<Result<Response>>;
 
-	public sealed class Validator : AbstractValidator<Request>
-	{
-		public Validator()
-		{
-			RuleFor(x => x.TenantId).NotEmpty();
-			RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-		}
-	}
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        }
+    }
 
-	public interface ICreateApplicant
-	{
-		Task AddAsync(
-				ApplicantEntity entity,
-				CancellationToken cancellationToken);
+    public interface ICreateApplicant
+    {
+        Task AddAsync(
+                ApplicantEntity entity,
+                CancellationToken cancellationToken);
 }
 
-	internal sealed class CreateApplicantPersistence(IAdmissionsDbContext dbContext) : ICreateApplicant
-	{
-		public async Task AddAsync(
-				ApplicantEntity entity,
-				CancellationToken cancellationToken)
-			{
-				await dbContext.Applicants
-					.AddAsync(entity, cancellationToken);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-	}
+    internal sealed class CreateApplicantPersistence(IAdmissionsDbContext dbContext) : ICreateApplicant
+    {
+        public async Task AddAsync(
+                ApplicantEntity entity,
+                CancellationToken cancellationToken)
+            {
+                await dbContext.Applicants
+                    .AddAsync(entity, cancellationToken);
 
-	public sealed class Handler(ICreateApplicant dataAccess)
-		: IRequestHandler<Request, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Request request,
-			CancellationToken cancellationToken)
-		{
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+    }
+
+    public sealed class Handler(ICreateApplicant dataAccess)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
 
 
-			var entity = ApplicantEntity.Create(
-				request.TenantId,
-				Guid.NewGuid().ToString("N").ToUpperInvariant(),
-				request.Name);
+            var entity = ApplicantEntity.Create(
+                request.TenantId,
+                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                request.Name);
 
-			await dataAccess.AddAsync(entity, cancellationToken);
-			return Result<Response>.Success(MapResponse(entity));
-		}
-	}
+            await dataAccess.AddAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapPost(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "applicant"),
-				async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var result = await mediator.SendAsync<Request, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("CreateApplicant")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost(
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "applicant"),
+                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var result = await mediator.SendAsync<Request, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("CreateApplicant")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 
-	private static Response MapResponse(ApplicantEntity entity)
-	{
-		return new Response(
-			entity.TenantId,
-			entity.ApplicantId,
-			entity.Code,
-			entity.Name,
-			entity.MetadataJson);
-	}
+    private static Response MapResponse(ApplicantEntity entity)
+    {
+        return new Response(
+            entity.TenantId,
+            entity.ApplicantId,
+            entity.Code,
+            entity.Name,
+            entity.MetadataJson);
+    }
 }

@@ -1,36 +1,40 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Activities.Models;
 
 namespace SmartSchool.Modules.Activities.Persistence;
 
 public interface IActivitiesDbContext
 {
-	DatabaseFacade Database { get; }
+    DatabaseFacade Database { get; }
 
-	DbSet<ActivityEntity> Activities { get; }
-	DbSet<AwardEntity> Awards { get; }
-	DbSet<StudentActivityEntity> StudentActivities { get; }
-	DbSet<StudentOfMonthEntity> StudentOfMonths { get; }
+    DbSet<ActivityEntity> Activities { get; }
+    DbSet<AwardEntity> Awards { get; }
+    DbSet<StudentActivityEntity> StudentActivities { get; }
+    DbSet<StudentOfMonthEntity> StudentOfMonths { get; }
 
-	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Activities module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class ActivitiesDbContext(IApplicationDbContext dbContext) : IActivitiesDbContext
+public sealed class ActivitiesDbContext(DbContextOptions<ActivitiesDbContext> options)
+    : DbContext(options), IActivitiesDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+    public DbSet<ActivityEntity> Activities => Set<ActivityEntity>();
+    public DbSet<AwardEntity> Awards => Set<AwardEntity>();
+    public DbSet<StudentActivityEntity> StudentActivities => Set<StudentActivityEntity>();
+    public DbSet<StudentOfMonthEntity> StudentOfMonths => Set<StudentOfMonthEntity>();
 
-	public DbSet<ActivityEntity> Activities => dbContext.Set<ActivityEntity>();
-	public DbSet<AwardEntity> Awards => dbContext.Set<AwardEntity>();
-	public DbSet<StudentActivityEntity> StudentActivities => dbContext.Set<StudentActivityEntity>();
-	public DbSet<StudentOfMonthEntity> StudentOfMonths => dbContext.Set<StudentOfMonthEntity>();
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-	{
-		return dbContext.SaveChangesAsync(cancellationToken);
-	}
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(ActivitiesDbContext).Assembly,
+            type => type.Namespace is not null
+                && type.Namespace.StartsWith("SmartSchool.Modules.Activities.Persistence.Configurations", StringComparison.Ordinal));
+    }
 }

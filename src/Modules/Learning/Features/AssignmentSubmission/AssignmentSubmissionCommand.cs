@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Learning.Features.AssignmentSubmission;
 /// </summary>
 public sealed class AssignmentSubmissionCommand(ILearningDbContext dbContext) : IAssignmentSubmissionCommand
 {
-	public async Task AddAsync(
-		AssignmentSubmissionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.AssignmentSubmissions
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        AssignmentSubmissionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.AssignmentSubmissions
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		AssignmentSubmissionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.AssignmentSubmissions
-			.Update(entity);
+    public async Task UpdateAsync(
+        AssignmentSubmissionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.AssignmentSubmissions
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		AssignmentSubmissionEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.AssignmentSubmissions
-			.Remove(entity);
+    public async Task DeleteAsync(
+        AssignmentSubmissionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.AssignmentSubmissions
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

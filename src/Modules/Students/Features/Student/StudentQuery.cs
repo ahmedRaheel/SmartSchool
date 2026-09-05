@@ -13,94 +13,94 @@ namespace SmartSchool.Modules.Students.Features.Student;
 /// Read operations are tenant-scoped and use no-tracking queries.
 /// </summary>
 public sealed class StudentQuery(
-	IStudentsDbContext dbContext,
-	IDbConnectionFactory connectionFactory) : IStudentQuery
+    IStudentsDbContext dbContext,
+    IDbConnectionFactory connectionFactory) : IStudentQuery
 {
-	public Task<StudentEntity?> GetByIdAsync(
-		Guid tenantId,
-		Guid id,
-		CancellationToken cancellationToken)
-	{
-		return dbContext.Students
-			.AsNoTracking()
-			.SingleOrDefaultAsync(
-				entity => entity.TenantId == tenantId && entity.StudentId == id,
-				cancellationToken);
-	}
+    public Task<StudentEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Students
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.StudentId == id,
+                cancellationToken);
+    }
 
-	public async Task<PagedResult<StudentEntity>> GetPageAsync(
-		Guid tenantId,
-		int page,
-		int pageSize,
-		CancellationToken cancellationToken)
-	{
-		const string countSql = """
-			SELECT COUNT(*)
-			FROM student.student
-			WHERE tenant_id = @TenantId
-			  AND is_active = TRUE;
-			""";
+    public async Task<PagedResult<StudentEntity>> GetPageAsync(
+        Guid tenantId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        const string countSql = """
+            SELECT COUNT(*)
+            FROM student.student
+            WHERE tenant_id = @TenantId
+              AND is_active = TRUE;
+            """;
 
-		const string pageSql = """
-			SELECT
-				tenant_id AS "TenantId",
-				student_id AS "Id",
-				student_number AS "StudentNumber",
-				first_name AS "FirstName",
-				last_name AS "LastName",
-				date_of_birth AS "DateOfBirth",
-				gender AS "Gender",
-				admission_date AS "AdmissionDate",
-				status AS "Status"
-			FROM student.student
-			WHERE tenant_id = @TenantId
-			  AND is_active = TRUE
-			ORDER BY student_id
-			LIMIT @PageSize OFFSET @Offset;
-			""";
+        const string pageSql = """
+            SELECT
+                tenant_id AS "TenantId",
+                student_id AS "Id",
+                student_number AS "StudentNumber",
+                first_name AS "FirstName",
+                last_name AS "LastName",
+                date_of_birth AS "DateOfBirth",
+                gender AS "Gender",
+                admission_date AS "AdmissionDate",
+                status AS "Status"
+            FROM student.student
+            WHERE tenant_id = @TenantId
+              AND is_active = TRUE
+            ORDER BY student_id
+            LIMIT @PageSize OFFSET @Offset;
+            """;
 
-		await using var connection =
-			await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken);
 
-		var parameters = new
-		{
-			TenantId = tenantId,
-			PageSize = pageSize,
-			Offset = (page - 1) * pageSize
-		};
+        var parameters = new
+        {
+            TenantId = tenantId,
+            PageSize = pageSize,
+            Offset = (page - 1) * pageSize
+        };
 
-		var totalCount = await connection.ExecuteScalarAsync<long>(
-			new CommandDefinition(
-				countSql,
-				parameters,
-				cancellationToken: cancellationToken));
+        var totalCount = await connection.ExecuteScalarAsync<long>(
+            new CommandDefinition(
+                countSql,
+                parameters,
+                cancellationToken: cancellationToken));
 
-		var items = (await connection.QueryAsync<StudentEntity>(
-			new CommandDefinition(
-				pageSql,
-				parameters,
-				cancellationToken: cancellationToken)))
-			.AsList();
+        var items = (await connection.QueryAsync<StudentEntity>(
+            new CommandDefinition(
+                pageSql,
+                parameters,
+                cancellationToken: cancellationToken)))
+            .AsList();
 
-		return new PagedResult<StudentEntity>(
-			items,
-			page,
-			pageSize,
-			totalCount);
-	}
+        return new PagedResult<StudentEntity>(
+            items,
+            page,
+            pageSize,
+            totalCount);
+    }
 
-	public Task<bool> ExistsByStudentNumberAsync(
-		Guid tenantId,
-		string studentNumber,
-		Guid? excludingId,
-		CancellationToken cancellationToken)
-	{
-		return dbContext.Students
-			.AsNoTracking()
-			.AnyAsync(
-				entity =>
-					entity.TenantId == tenantId && entity.StudentNumber == studentNumber
-					&& (!excludingId.HasValue || (excludingId.HasValue && entity.StudentId != excludingId.Value)),
-				cancellationToken);
-	}
+    public Task<bool> ExistsByStudentNumberAsync(
+        Guid tenantId,
+        string studentNumber,
+        Guid? excludingId,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Students
+            .AsNoTracking()
+            .AnyAsync(
+                entity =>
+                    entity.TenantId == tenantId && entity.StudentNumber == studentNumber
+                    && (!excludingId.HasValue || (excludingId.HasValue && entity.StudentId != excludingId.Value)),
+                cancellationToken);
+    }
 }

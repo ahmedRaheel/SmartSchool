@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Finance.Models;
 using SmartSchool.Modules.Payroll.Models;
 
@@ -8,46 +7,51 @@ namespace SmartSchool.Modules.Finance.Persistence;
 
 public interface IFinanceDbContext
 {
-	DatabaseFacade Database { get; }
+    DatabaseFacade Database { get; }
 
-	DbSet<DiscountEntity> Discounts { get; }
-	DbSet<EmployeeCompensationEntity> EmployeeCompensations { get; }
-	DbSet<FeeStructureEntity> FeeStructures { get; }
-	DbSet<FeeTypeEntity> FeeTypes { get; }
-	DbSet<IncrementEntity> Increments { get; }
-	DbSet<InvoiceEntity> Invoices { get; }
-	DbSet<PaymentEntity> Payments { get; }
-	DbSet<PayrollRunEntity> PayrollRuns { get; }
-	DbSet<PayslipEntity> Payslips { get; }
-	DbSet<SalaryStructureEntity> SalaryStructures { get; }
-	DbSet<ScholarshipEntity> Scholarships { get; }
-	DbSet<StudentFeeEntity> StudentFees { get; }
+    DbSet<DiscountEntity> Discounts { get; }
+    DbSet<EmployeeCompensationEntity> EmployeeCompensations { get; }
+    DbSet<FeeStructureEntity> FeeStructures { get; }
+    DbSet<FeeTypeEntity> FeeTypes { get; }
+    DbSet<IncrementEntity> Increments { get; }
+    DbSet<InvoiceEntity> Invoices { get; }
+    DbSet<PaymentEntity> Payments { get; }
+    DbSet<PayrollRunEntity> PayrollRuns { get; }
+    DbSet<PayslipEntity> Payslips { get; }
+    DbSet<SalaryStructureEntity> SalaryStructures { get; }
+    DbSet<ScholarshipEntity> Scholarships { get; }
+    DbSet<StudentFeeEntity> StudentFees { get; }
 
-	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>
-/// Provides strongly typed EF Core sets for this module.
+/// EF Core unit-of-work owned by the Finance module.
+/// This context is intentionally independent from ApplicationDbContext.
 /// </summary>
-public sealed class FinanceDbContext(IApplicationDbContext dbContext) : IFinanceDbContext
+public sealed class FinanceDbContext(DbContextOptions<FinanceDbContext> options)
+    : DbContext(options), IFinanceDbContext
 {
-	public DatabaseFacade Database => dbContext.Database;
+    public DbSet<DiscountEntity> Discounts => Set<DiscountEntity>();
+    public DbSet<EmployeeCompensationEntity> EmployeeCompensations => Set<EmployeeCompensationEntity>();
+    public DbSet<FeeStructureEntity> FeeStructures => Set<FeeStructureEntity>();
+    public DbSet<FeeTypeEntity> FeeTypes => Set<FeeTypeEntity>();
+    public DbSet<IncrementEntity> Increments => Set<IncrementEntity>();
+    public DbSet<InvoiceEntity> Invoices => Set<InvoiceEntity>();
+    public DbSet<PaymentEntity> Payments => Set<PaymentEntity>();
+    public DbSet<PayrollRunEntity> PayrollRuns => Set<PayrollRunEntity>();
+    public DbSet<PayslipEntity> Payslips => Set<PayslipEntity>();
+    public DbSet<SalaryStructureEntity> SalaryStructures => Set<SalaryStructureEntity>();
+    public DbSet<ScholarshipEntity> Scholarships => Set<ScholarshipEntity>();
+    public DbSet<StudentFeeEntity> StudentFees => Set<StudentFeeEntity>();
 
-	public DbSet<DiscountEntity> Discounts => dbContext.Set<DiscountEntity>();
-	public DbSet<EmployeeCompensationEntity> EmployeeCompensations => dbContext.Set<EmployeeCompensationEntity>();
-	public DbSet<FeeStructureEntity> FeeStructures => dbContext.Set<FeeStructureEntity>();
-	public DbSet<FeeTypeEntity> FeeTypes => dbContext.Set<FeeTypeEntity>();
-	public DbSet<IncrementEntity> Increments => dbContext.Set<IncrementEntity>();
-	public DbSet<InvoiceEntity> Invoices => dbContext.Set<InvoiceEntity>();
-	public DbSet<PaymentEntity> Payments => dbContext.Set<PaymentEntity>();
-	public DbSet<PayrollRunEntity> PayrollRuns => dbContext.Set<PayrollRunEntity>();
-	public DbSet<PayslipEntity> Payslips => dbContext.Set<PayslipEntity>();
-	public DbSet<SalaryStructureEntity> SalaryStructures => dbContext.Set<SalaryStructureEntity>();
-	public DbSet<ScholarshipEntity> Scholarships => dbContext.Set<ScholarshipEntity>();
-	public DbSet<StudentFeeEntity> StudentFees => dbContext.Set<StudentFeeEntity>();
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-	{
-		return dbContext.SaveChangesAsync(cancellationToken);
-	}
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(FinanceDbContext).Assembly,
+            type => type.Namespace is not null
+                && type.Namespace.StartsWith("SmartSchool.Modules.Finance.Persistence.Configurations", StringComparison.Ordinal));
+    }
 }

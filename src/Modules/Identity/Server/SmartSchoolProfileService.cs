@@ -28,10 +28,10 @@ public sealed class SmartSchoolProfileService(
         }
 
         var roles = await userManager.GetRolesAsync(user);
-		if (roles is null)
-		{
-			return;
-		}
+        if (roles is null)
+        {
+            return;
+        }
         var claims = BuildUserClaims(user, roles.ToList());
 
         context.IssuedClaims.AddRange(claims);

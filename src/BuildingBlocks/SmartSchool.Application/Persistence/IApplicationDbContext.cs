@@ -10,13 +10,13 @@ namespace SmartSchool.Application.Persistence;
 /// </summary>
 public interface IApplicationDbContext
 {
-	/// <summary>Exposes EF Core relational database operations for feature-owned command persistence.</summary>
-	DatabaseFacade Database { get; }
+    /// <summary>Exposes EF Core relational database operations for feature-owned command persistence.</summary>
+    DatabaseFacade Database { get; }
 
-	/// <summary>Returns the EF Core set for a domain entity.</summary>
-	DbSet<TEntity> Set<TEntity>()
-		where TEntity : Entity;
+    /// <summary>Returns the EF Core set for a domain entity.</summary>
+    DbSet<TEntity> Set<TEntity>()
+        where TEntity : Entity;
 
-	/// <summary>Persists all tracked changes atomically.</summary>
-	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    /// <summary>Persists all tracked changes atomically.</summary>
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

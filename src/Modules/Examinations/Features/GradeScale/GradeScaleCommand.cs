@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 /// </summary>
 public sealed class GradeScaleCommand(IExaminationsDbContext dbContext) : IGradeScaleCommand
 {
-	public async Task AddAsync(
-		GradeScaleEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.GradeScales
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        GradeScaleEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.GradeScales
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		GradeScaleEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.GradeScales
-			.Update(entity);
+    public async Task UpdateAsync(
+        GradeScaleEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.GradeScales
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		GradeScaleEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.GradeScales
-			.Remove(entity);
+    public async Task DeleteAsync(
+        GradeScaleEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.GradeScales
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

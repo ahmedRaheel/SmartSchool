@@ -155,8 +155,8 @@ internal sealed class AdmissionWorkflowQuery(IDbConnectionFactory connectionFact
             SELECT EXISTS (
                 SELECT 1
                 FROM academic.class c
-                INNER JOIN org.branch_education_level bel
-                    ON bel.branch_id = c.branch_id
+                INNER JOIN org.campus_education_level bel
+                    ON bel.campus_id = c.branch_id
                    AND bel.education_level_id = c.education_level_id
                 WHERE c.tenant_id = @TenantId
                   AND c.branch_id = @BranchId
@@ -194,8 +194,8 @@ internal sealed class AdmissionWorkflowQuery(IDbConnectionFactory connectionFact
                 INNER JOIN org.campus AS b
                     ON b.campus_id = c.branch_id
                    AND b.tenant_id = c.tenant_id
-                INNER JOIN org.branch_education_level AS bel
-                    ON bel.branch_id = c.branch_id
+                INNER JOIN org.campus_education_level AS bel
+                    ON bel.campus_id = c.branch_id
                    AND bel.education_level_id = c.education_level_id
                 WHERE c.tenant_id = @TenantId
                   AND b.school_id = @SchoolId

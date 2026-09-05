@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Organization.Features.School;
 /// </summary>
 public sealed class SchoolCommand(IOrganizationDbContext dbContext) : ISchoolCommand
 {
-	public async Task AddAsync(
-		SchoolEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Schools
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        SchoolEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Schools
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		SchoolEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Schools
-			.Update(entity);
+    public async Task UpdateAsync(
+        SchoolEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Schools
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		SchoolEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Schools
-			.Remove(entity);
+    public async Task DeleteAsync(
+        SchoolEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Schools
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

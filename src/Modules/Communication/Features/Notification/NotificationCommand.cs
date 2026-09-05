@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Communication.Features.Notification;
 /// </summary>
 public sealed class NotificationCommand(ICommunicationDbContext dbContext) : INotificationCommand
 {
-	public async Task AddAsync(
-		NotificationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Notifications
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        NotificationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Notifications
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		NotificationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Notifications
-			.Update(entity);
+    public async Task UpdateAsync(
+        NotificationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Notifications
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		NotificationEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Notifications
-			.Remove(entity);
+    public async Task DeleteAsync(
+        NotificationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Notifications
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

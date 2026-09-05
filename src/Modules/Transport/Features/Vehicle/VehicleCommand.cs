@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.Transport.Features.Vehicle;
 /// </summary>
 public sealed class VehicleCommand(ITransportDbContext dbContext) : IVehicleCommand
 {
-	public async Task AddAsync(
-		VehicleEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Vehicles
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        VehicleEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Vehicles
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		VehicleEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Vehicles
-			.Update(entity);
+    public async Task UpdateAsync(
+        VehicleEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Vehicles
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		VehicleEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Vehicles
-			.Remove(entity);
+    public async Task DeleteAsync(
+        VehicleEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Vehicles
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

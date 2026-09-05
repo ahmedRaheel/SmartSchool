@@ -12,33 +12,33 @@ namespace SmartSchool.Modules.HR.Features.Resume;
 /// </summary>
 public sealed class ResumeCommand(IHRDbContext dbContext) : IResumeCommand
 {
-	public async Task AddAsync(
-		ResumeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		await dbContext.Resumes
-			.AddAsync(entity, cancellationToken);
+    public async Task AddAsync(
+        ResumeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Resumes
+            .AddAsync(entity, cancellationToken);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task UpdateAsync(
-		ResumeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Resumes
-			.Update(entity);
+    public async Task UpdateAsync(
+        ResumeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Resumes
+            .Update(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 
-	public async Task DeleteAsync(
-		ResumeEntity entity,
-		CancellationToken cancellationToken)
-	{
-		dbContext.Resumes
-			.Remove(entity);
+    public async Task DeleteAsync(
+        ResumeEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Resumes
+            .Remove(entity);
 
-		await dbContext.SaveChangesAsync(cancellationToken);
-	}
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

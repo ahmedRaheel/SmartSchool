@@ -18,12 +18,12 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IAdmissionsDbContext, AdmissionsDbContext>();
+        services.AddScoped<IAdmissionsDbContext, AdmissionsDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-		services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();
-		services.AddScoped<IAdmissionWorkflowQuery, AdmissionWorkflowQuery>();
-		return services;
+        services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();
+        services.AddScoped<IAdmissionWorkflowQuery, AdmissionWorkflowQuery>();
+        return services;
     }
 
     public static IEndpointRouteBuilder MapAdmissionsEndpoints(

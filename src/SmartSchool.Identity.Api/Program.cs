@@ -100,9 +100,9 @@ builder.Services.AddAuthorization(options =>
 });
 
 var portalOrigins = builder.Configuration
-	.GetSection("Cors:PortalOrigins")
-	.Get<string[]>()
-	?? throw new InvalidOperationException("Cors:PortalOrigins configuration is required.");
+    .GetSection("Cors:PortalOrigins")
+    .Get<string[]>()
+    ?? throw new InvalidOperationException("Cors:PortalOrigins configuration is required.");
 
 builder.Services.AddCors(options => options.AddPolicy("Portal", policy => policy
     .WithOrigins(portalOrigins)
@@ -121,14 +121,14 @@ app.UseSerilogRequestLogging(options =>
 
 if (app.Environment.IsDevelopment())
 {
-	using var scope = app.Services.CreateScope();
-	var identitySeeder = scope.ServiceProvider
-		.GetRequiredService<SmartSchool.Modules.Identity.Server.IdentityDataSeeder>();
-	await identitySeeder.SeedAsync();
+    using var scope = app.Services.CreateScope();
+    var identitySeeder = scope.ServiceProvider
+        .GetRequiredService<SmartSchool.Modules.Identity.Server.IdentityDataSeeder>();
+    await identitySeeder.SeedAsync();
 
-	var duendeSeeder = scope.ServiceProvider
-		.GetRequiredService<SmartSchool.Modules.Identity.Server.DuendeConfigurationSeeder>();
-	await duendeSeeder.SeedAsync();
+    var duendeSeeder = scope.ServiceProvider
+        .GetRequiredService<SmartSchool.Modules.Identity.Server.DuendeConfigurationSeeder>();
+    await duendeSeeder.SeedAsync();
 }
 
 if (!app.Environment.IsDevelopment())
@@ -149,8 +149,8 @@ app.MapUiErrorEndpoints();
 
 app.MapGet("/", () => Results.Ok(new
 {
-	service = "SmartSchool.Identity.Api",
-	status = "Running"
+    service = "SmartSchool.Identity.Api",
+    status = "Running"
 }));
 
 app.Run();

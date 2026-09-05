@@ -12,85 +12,85 @@ namespace SmartSchool.Modules.Transport.Features.StudentTransport;
 
 public static class DeleteStudentTransport
 {
-	public sealed record Command(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+    public sealed record Command(
+        Guid TenantId,
+        Guid Id) : IRequest<Result<Response>>;
 
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
-	public interface IDeleteStudentTransport
-	{
-		Task DeleteAsync(
-				StudentTransportEntity entity,
-				CancellationToken cancellationToken);
+    public interface IDeleteStudentTransport
+    {
+        Task DeleteAsync(
+                StudentTransportEntity entity,
+                CancellationToken cancellationToken);
 
-		Task<StudentTransportEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken);
+        Task<StudentTransportEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class DeleteStudentTransportPersistence(ITransportDbContext dbContext) : IDeleteStudentTransport
-	{
-		public async Task DeleteAsync(
-				StudentTransportEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext.StudentTransports
-					.Remove(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+    internal sealed class DeleteStudentTransportPersistence(ITransportDbContext dbContext) : IDeleteStudentTransport
+    {
+        public async Task DeleteAsync(
+                StudentTransportEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext.StudentTransports
+                    .Remove(entity);
 
-		public async Task<StudentTransportEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken)
-			{
-				return await dbContext.StudentTransports
-					.FirstOrDefaultAsync(
-						x => x.TenantId == tenantId
-							&& x.StudentTransportId == id,
-						cancellationToken);
-			}
-	}
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
 
-	public sealed class Handler(IDeleteStudentTransport dataAccess)
-		: IRequestHandler<Command, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Command request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentTransportEntity))));
-			}
-			await dataAccess.DeleteAsync(entity, cancellationToken);
-			return Result<Response>.Success(new Response(request.TenantId, request.Id));
-		}
-	}
+        public async Task<StudentTransportEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken)
+            {
+                return await dbContext.StudentTransports
+                    .FirstOrDefaultAsync(
+                        x => x.TenantId == tenantId
+                            && x.StudentTransportId == id,
+                        cancellationToken);
+            }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapDelete(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "student-transport"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Command(tenantId, id);
-					var result = await mediator.SendAsync<Command, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("DeleteStudentTransport")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
-		return endpoints;
-	}
+    public sealed class Handler(IDeleteStudentTransport dataAccess)
+        : IRequestHandler<Command, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Command request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentTransportEntity))));
+            }
+            await dataAccess.DeleteAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
+        }
+    }
+
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapDelete(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "student-transport"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Command(tenantId, id);
+                    var result = await mediator.SendAsync<Command, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("DeleteStudentTransport")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
+        return endpoints;
+    }
 }

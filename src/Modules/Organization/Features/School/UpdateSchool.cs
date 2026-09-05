@@ -18,9 +18,9 @@ public static class UpdateSchool
     public sealed record Response(
         Guid TenantId, Guid Id, string Name, string? RegistrationNumber,
         string? Email, string? Phone, string? Fax, string? Website, string? Address,
-		string? City, string? Province, string? Country, string? LogoUrl);
+        string? City, string? Province, string? Country, string? LogoUrl);
 
-	public sealed class Validator : AbstractValidator<Request>
+    public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
@@ -60,19 +60,19 @@ public static class UpdateSchool
         return endpoints;
     }
 
-	private static Response Map(SchoolEntity school) => new(
-		TenantId: school.TenantId,
-		Id: school.SchoolId,
-		Name: school.Name,
-		RegistrationNumber: school.RegistrationNumber,
-		Email: school.Email,
-		Phone: school.Phone,
-		Fax: school.Fax,
-		Website: school.Website,
-		Address: school.Address,
-		City: school.City,
-		Province: school.Province,
-		Country: school.Country,
-		LogoUrl: school.LogoUrl
-	);
+    private static Response Map(SchoolEntity school) => new(
+        TenantId: school.TenantId,
+        Id: school.SchoolId,
+        Name: school.Name,
+        RegistrationNumber: school.RegistrationNumber,
+        Email: school.Email,
+        Phone: school.Phone,
+        Fax: school.Fax,
+        Website: school.Website,
+        Address: school.Address,
+        City: school.City,
+        Province: school.Province,
+        Country: school.Country,
+        LogoUrl: school.LogoUrl
+    );
 }

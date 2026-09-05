@@ -12,132 +12,132 @@ namespace SmartSchool.Modules.Finance.Features.Payment;
 
 public static class GetPaymentPage
 {
-	/// <summary>
-	/// Represents the response returned by this PaymentEntity feature.
-	/// </summary>
-	/// <param name="TenantId">The owning tenant identifier.</param>
-	/// <param name="Id">The entity identifier.</param>
-	/// <param name="Code">The business code.</param>
-	/// <param name="Name">The display name.</param>
-	public sealed record Response(
-	Guid TenantId,
-	Guid Id,
-	string Code,
-	string Name,
-	string? MetadataJson);
+    /// <summary>
+    /// Represents the response returned by this PaymentEntity feature.
+    /// </summary>
+    /// <param name="TenantId">The owning tenant identifier.</param>
+    /// <param name="Id">The entity identifier.</param>
+    /// <param name="Code">The business code.</param>
+    /// <param name="Name">The display name.</param>
+    public sealed record Response(
+    Guid TenantId,
+    Guid Id,
+    string Code,
+    string Name,
+    string? MetadataJson);
 
-	public sealed record Query(
-		Guid TenantId,
-		int Page = 1,
-		int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
+    public sealed record Query(
+        Guid TenantId,
+        int Page = 1,
+        int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-	public interface IGetPaymentPage
-	{
-		Task<PagedResult<Response>> GetPageAsync(
-				Guid tenantId,
-				int page,
-				int pageSize,
-				CancellationToken cancellationToken);
+    public interface IGetPaymentPage
+    {
+        Task<PagedResult<Response>> GetPageAsync(
+                Guid tenantId,
+                int page,
+                int pageSize,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class GetPaymentPagePersistence(
-		IDbConnectionFactory connectionFactory) : IGetPaymentPage
-	{
-		public async Task<PagedResult<Response>> GetPageAsync(
-				Guid tenantId,
-				int page,
-				int pageSize,
-				CancellationToken cancellationToken)
-			{
-				const string countSql = """
-					SELECT COUNT(*)
-					FROM finance.student_payment
-					WHERE tenant_id = @TenantId
-					  AND is_active = TRUE;
-					""";
-		
-				const string pageSql = """
-					SELECT
-					tenant_id AS "TenantId",
-					student_payment_id AS "Id",
-					code AS "Code",
-					name AS "Name",
-					metadata_json AS "MetadataJson"
-					FROM finance.student_payment
-					WHERE tenant_id = @TenantId
-					  AND is_active = TRUE
-					ORDER BY student_payment_id
-					LIMIT @PageSize OFFSET @Offset;
-					""";
-		
-				await using var connection =
-					await connectionFactory.OpenConnectionAsync(cancellationToken);
-		
-				var parameters = new
-				{
-					TenantId = tenantId,
-					PageSize = pageSize,
-					Offset = (page - 1) * pageSize
-				};
-		
-				var totalCount = await connection.ExecuteScalarAsync<long>(
-					new CommandDefinition(
-						countSql,
-						parameters,
-						cancellationToken: cancellationToken)).ConfigureAwait(false);
-		
-				var items = (await connection.QueryAsync<Response>(
-					new CommandDefinition(
-						pageSql,
-						parameters,
-						cancellationToken: cancellationToken)).ConfigureAwait(false))
-					.AsList();
-		
-				return new PagedResult<Response>(
-					items,
-					page,
-					pageSize,
-					totalCount);
-			}
-	}
+    internal sealed class GetPaymentPagePersistence(
+        IDbConnectionFactory connectionFactory) : IGetPaymentPage
+    {
+        public async Task<PagedResult<Response>> GetPageAsync(
+                Guid tenantId,
+                int page,
+                int pageSize,
+                CancellationToken cancellationToken)
+            {
+                const string countSql = """
+                    SELECT COUNT(*)
+                    FROM finance.student_payment
+                    WHERE tenant_id = @TenantId
+                      AND is_active = TRUE;
+                    """;
 
-	public sealed class Handler(IGetPaymentPage dataAccess)
-		: IRequestHandler<Query, Result<PagedResult<Response>>>
-	{
-		public async Task<Result<PagedResult<Response>>> HandleAsync(
-			Query request,
-			CancellationToken cancellationToken)
-		{
-			var pageRequest = new PageRequest(request.Page, request.PageSize);
-			var page = await dataAccess.GetPageAsync(
-				request.TenantId,
-				pageRequest.NormalizedPage,
-				pageRequest.NormalizedPageSize,
-				cancellationToken);
-			var response = new PagedResult<Response>(
-				page.Items,
-				page.Page,
-				page.PageSize,
-				page.TotalCount);
-			return Result<PagedResult<Response>>.Success(response);
-		}
-	}
+                const string pageSql = """
+                    SELECT
+                    tenant_id AS "TenantId",
+                    student_payment_id AS "Id",
+                    code AS "Code",
+                    name AS "Name",
+                    metadata_json AS "MetadataJson"
+                    FROM finance.student_payment
+                    WHERE tenant_id = @TenantId
+                      AND is_active = TRUE
+                    ORDER BY student_payment_id
+                    LIMIT @PageSize OFFSET @Offset;
+                    """;
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapGet(
-				ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "payment"),
-				async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Query(tenantId, page, pageSize);
-					var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("GetPaymentPage")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+                await using var connection =
+                    await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+                var parameters = new
+                {
+                    TenantId = tenantId,
+                    PageSize = pageSize,
+                    Offset = (page - 1) * pageSize
+                };
+
+                var totalCount = await connection.ExecuteScalarAsync<long>(
+                    new CommandDefinition(
+                        countSql,
+                        parameters,
+                        cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+                var items = (await connection.QueryAsync<Response>(
+                    new CommandDefinition(
+                        pageSql,
+                        parameters,
+                        cancellationToken: cancellationToken)).ConfigureAwait(false))
+                    .AsList();
+
+                return new PagedResult<Response>(
+                    items,
+                    page,
+                    pageSize,
+                    totalCount);
+            }
+    }
+
+    public sealed class Handler(IGetPaymentPage dataAccess)
+        : IRequestHandler<Query, Result<PagedResult<Response>>>
+    {
+        public async Task<Result<PagedResult<Response>>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            var pageRequest = new PageRequest(request.Page, request.PageSize);
+            var page = await dataAccess.GetPageAsync(
+                request.TenantId,
+                pageRequest.NormalizedPage,
+                pageRequest.NormalizedPageSize,
+                cancellationToken);
+            var response = new PagedResult<Response>(
+                page.Items,
+                page.Page,
+                page.PageSize,
+                page.TotalCount);
+            return Result<PagedResult<Response>>.Success(response);
+        }
+    }
+
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet(
+                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "payment"),
+                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Query(tenantId, page, pageSize);
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("GetPaymentPage")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 }

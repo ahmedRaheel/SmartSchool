@@ -12,78 +12,78 @@ namespace SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction
 
 public static class DeleteStudentPerformancePrediction
 {
-	public sealed record Command(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+    public sealed record Command(
+        Guid TenantId,
+        Guid Id) : IRequest<Result<Response>>;
 
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
-	public interface IDeleteStudentPerformancePrediction
-	{
-		Task DeleteAsync(
-				StudentPerformancePredictionEntity entity,
-				CancellationToken cancellationToken);
+    public interface IDeleteStudentPerformancePrediction
+    {
+        Task DeleteAsync(
+                StudentPerformancePredictionEntity entity,
+                CancellationToken cancellationToken);
 
-		Task<StudentPerformancePredictionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+        Task<StudentPerformancePredictionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class DeleteStudentPerformancePredictionPersistence(
-		IAIPredictionDbContext dbContext) : IDeleteStudentPerformancePrediction
-	{
-		public async Task DeleteAsync(
-				StudentPerformancePredictionEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext.StudentPerformancePredictions
-					.Remove(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
-	
-		public Task<StudentPerformancePredictionEntity?> GetByIdAsync(
-			Guid tenantId, Guid id, CancellationToken cancellationToken)
-		{
-			return dbContext.StudentPerformancePredictions
-				.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentPerformancePredictionId == id, cancellationToken);
-		}
+    internal sealed class DeleteStudentPerformancePredictionPersistence(
+        IAIPredictionDbContext dbContext) : IDeleteStudentPerformancePrediction
+    {
+        public async Task DeleteAsync(
+                StudentPerformancePredictionEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext.StudentPerformancePredictions
+                    .Remove(entity);
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+        public Task<StudentPerformancePredictionEntity?> GetByIdAsync(
+            Guid tenantId, Guid id, CancellationToken cancellationToken)
+        {
+            return dbContext.StudentPerformancePredictions
+                .SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentPerformancePredictionId == id, cancellationToken);
+        }
 }
 
-	public sealed class Handler(IDeleteStudentPerformancePrediction dataAccess)
-		: IRequestHandler<Command, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Command request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentPerformancePredictionEntity))));
-			}
-			await dataAccess.DeleteAsync(entity, cancellationToken);
-			return Result<Response>.Success(new Response(request.TenantId, request.Id));
-		}
-	}
+    public sealed class Handler(IDeleteStudentPerformancePrediction dataAccess)
+        : IRequestHandler<Command, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Command request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentPerformancePredictionEntity))));
+            }
+            await dataAccess.DeleteAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
+        }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapDelete(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "student-performance-prediction"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Command(tenantId, id);
-					var result = await mediator.SendAsync<Command, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("DeleteStudentPerformancePrediction")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization();
-		return endpoints;
-	}
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapDelete(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "student-performance-prediction"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Command(tenantId, id);
+                    var result = await mediator.SendAsync<Command, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("DeleteStudentPerformancePrediction")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+        return endpoints;
+    }
 }

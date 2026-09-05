@@ -12,85 +12,85 @@ namespace SmartSchool.Modules.Organization.Features.School;
 
 public static class DeleteSchool
 {
-	public sealed record Command(
-		Guid TenantId,
-		Guid Id) : IRequest<Result<Response>>;
+    public sealed record Command(
+        Guid TenantId,
+        Guid Id) : IRequest<Result<Response>>;
 
-	public sealed record Response(
-		Guid TenantId,
-		Guid Id);
+    public sealed record Response(
+        Guid TenantId,
+        Guid Id);
 
-	public interface IDeleteSchool
-	{
-		Task DeleteAsync(
-				SchoolEntity entity,
-				CancellationToken cancellationToken);
+    public interface IDeleteSchool
+    {
+        Task DeleteAsync(
+                SchoolEntity entity,
+                CancellationToken cancellationToken);
 
-		Task<SchoolEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken);
+        Task<SchoolEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken);
 
-	}
+    }
 
-	internal sealed class DeleteSchoolPersistence(IOrganizationDbContext dbContext) : IDeleteSchool
-	{
-		public async Task DeleteAsync(
-				SchoolEntity entity,
-				CancellationToken cancellationToken)
-			{
-				dbContext.Schools
-					.Remove(entity);
-		
-				await dbContext.SaveChangesAsync(cancellationToken);
-			}
+    internal sealed class DeleteSchoolPersistence(IOrganizationDbContext dbContext) : IDeleteSchool
+    {
+        public async Task DeleteAsync(
+                SchoolEntity entity,
+                CancellationToken cancellationToken)
+            {
+                dbContext.Schools
+                    .Remove(entity);
 
-		public async Task<SchoolEntity?> GetByIdAsync(
-				Guid tenantId,
-				Guid id,
-				CancellationToken cancellationToken)
-			{
-				return await dbContext.Schools
-					.FirstOrDefaultAsync(
-						x => x.TenantId == tenantId
-							&& x.SchoolId == id,
-						cancellationToken);
-			}
-	}
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
 
-	public sealed class Handler(IDeleteSchool dataAccess)
-		: IRequestHandler<Command, Result<Response>>
-	{
-		public async Task<Result<Response>> HandleAsync(
-			Command request,
-			CancellationToken cancellationToken)
-		{
-			var entity = await dataAccess.GetByIdAsync(
-				request.TenantId, request.Id, cancellationToken);
-			if (entity is null)
-			{
-				return Result<Response>.Failure(
-					Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolEntity))));
-			}
-			await dataAccess.DeleteAsync(entity, cancellationToken);
-			return Result<Response>.Success(new Response(request.TenantId, request.Id));
-		}
-	}
+        public async Task<SchoolEntity?> GetByIdAsync(
+                Guid tenantId,
+                Guid id,
+                CancellationToken cancellationToken)
+            {
+                return await dbContext.Schools
+                    .FirstOrDefaultAsync(
+                        x => x.TenantId == tenantId
+                            && x.SchoolId == id,
+                        cancellationToken);
+            }
+    }
 
-	public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-	{
-		endpoints.MapDelete(
-				ApiRoutes.EntityById(ModuleConstants.RouteSegment, "school"),
-				async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-				{
-					var request = new Command(tenantId, id);
-					var result = await mediator.SendAsync<Command, Result<Response>>(
-						request, cancellationToken);
-					return result.ToHttpResult();
-				})
-			.WithName("DeleteSchool")
-			.WithTags(ModuleConstants.Name)
-			.RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
-		return endpoints;
-	}
+    public sealed class Handler(IDeleteSchool dataAccess)
+        : IRequestHandler<Command, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(
+            Command request,
+            CancellationToken cancellationToken)
+        {
+            var entity = await dataAccess.GetByIdAsync(
+                request.TenantId, request.Id, cancellationToken);
+            if (entity is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolEntity))));
+            }
+            await dataAccess.DeleteAsync(entity, cancellationToken);
+            return Result<Response>.Success(new Response(request.TenantId, request.Id));
+        }
+    }
+
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapDelete(
+                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "school"),
+                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Command(tenantId, id);
+                    var result = await mediator.SendAsync<Command, Result<Response>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("DeleteSchool")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
+        return endpoints;
+    }
 }

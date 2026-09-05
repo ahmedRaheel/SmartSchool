@@ -23,23 +23,23 @@ public static class Module
     public static IServiceCollection AddStudentsModule(this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-		services.AddScoped<IStudentsDbContext, StudentsDbContext>();
+        services.AddScoped<IStudentsDbContext, StudentsDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 
-		services.AddScoped<IStudentCommand, StudentCommand>();
-		services.AddScoped<IStudentQuery, StudentQuery>();
-		services.AddScoped<IGuardianCommand, GuardianCommand>();
-		services.AddScoped<IGuardianQuery, GuardianQuery>();
-		services.AddScoped<IEnrollmentCommand, EnrollmentCommand>();
-		services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();
-		services.AddScoped<IAttendanceCommand, AttendanceCommand>();
-		services.AddScoped<IAttendanceQuery, AttendanceQuery>();
-		services.AddScoped<IStudentGuardianCommand, StudentGuardianCommand>();
-		services.AddScoped<IStudentGuardianQuery, StudentGuardianQuery>();
-		services.AddScoped<IStudentOnboardingQuery, StudentOnboardingQuery>();
-		services.AddScoped<IStudentOnboardingCommand, StudentOnboardingCommand>();
-		return services;
+        services.AddScoped<IStudentCommand, StudentCommand>();
+        services.AddScoped<IStudentQuery, StudentQuery>();
+        services.AddScoped<IGuardianCommand, GuardianCommand>();
+        services.AddScoped<IGuardianQuery, GuardianQuery>();
+        services.AddScoped<IEnrollmentCommand, EnrollmentCommand>();
+        services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();
+        services.AddScoped<IAttendanceCommand, AttendanceCommand>();
+        services.AddScoped<IAttendanceQuery, AttendanceQuery>();
+        services.AddScoped<IStudentGuardianCommand, StudentGuardianCommand>();
+        services.AddScoped<IStudentGuardianQuery, StudentGuardianQuery>();
+        services.AddScoped<IStudentOnboardingQuery, StudentOnboardingQuery>();
+        services.AddScoped<IStudentOnboardingCommand, StudentOnboardingCommand>();
+        return services;
     }
 
     /// <summary>
