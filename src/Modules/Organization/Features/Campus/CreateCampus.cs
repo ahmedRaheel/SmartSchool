@@ -47,7 +47,8 @@ public static class CreateCampus
             var code = await numberGenerator.NextAsync("BRANCH", "BR", tenantId.Value, 3, cancellationToken);
             var campus = CampusEntity.Create(tenantId.Value, request.SchoolId, code, request.Name, request.BranchType, request.BranchGenderTypeId, request.AcademicSystemId, request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);
             await command.AddAsync(campus, cancellationToken);
-            await policyCommand.SetEducationLevelsAsync(request.TenantId, campus.CampusId, educationLevelIds, cancellationToken);
+            await policyCommand.SetEducationLevelsAsync(tenantId.Value, campus.CampusId, educationLevelIds, cancellationToken);
+            await command.SyncGradeLevelsAsync(tenantId.Value, campus.CampusId, request.AcademicSystemId, cancellationToken);
             return Result<Response>.Success(Map(campus, educationLevelIds));
         }
     }

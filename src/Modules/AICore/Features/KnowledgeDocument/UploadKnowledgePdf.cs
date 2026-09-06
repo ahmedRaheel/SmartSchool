@@ -4,6 +4,8 @@ using System.Text.RegularExpressions;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.SharedKernel.Constants;
 using UglyToad.PdfPig;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
@@ -20,7 +22,7 @@ public static class UploadKnowledgePdf
         endpoints.MapPost("/api/aicore/knowledge/pdf", UploadAsync)
             .WithTags("AICore Knowledge")
             .WithName("UploadKnowledgePdf")
-            .RequireAuthorization()
+            .RequireAuthorization(SmartSchoolPolicies.AiKnowledgeContribution)
             .DisableAntiforgery();
     }
 
@@ -34,6 +36,7 @@ public static class UploadKnowledgePdf
         IDbConnectionFactory connectionFactory,
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
+        IAiAssistantService assistantService,
         CancellationToken cancellationToken)
     {
         var resolvedTenantId = tenantScope.Resolve(tenantId);
@@ -70,14 +73,14 @@ public static class UploadKnowledgePdf
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
 
         const string verifyCollectionSql = """
-            SELECT count(1)
+            SELECT code
             FROM ai_core.knowledge_collection
             WHERE tenant_id = @TenantId
               AND knowledge_collection_id = @CollectionId
               AND is_active = true;
             """;
 
-        var collectionExists = await connection.ExecuteScalarAsync<int>(
+        var collectionCode = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(
                 verifyCollectionSql,
                 new
@@ -87,7 +90,7 @@ public static class UploadKnowledgePdf
                 },
                 cancellationToken: cancellationToken));
 
-        if (collectionExists == 0)
+        if (string.IsNullOrWhiteSpace(collectionCode))
         {
             return Results.BadRequest(new { message = "Knowledge collection does not belong to this tenant." });
         }
@@ -147,7 +150,7 @@ public static class UploadKnowledgePdf
         const string insertChunkSql = """
             INSERT INTO ai_core.rag_knowledge_chunk
             (
-                knowledge_chunk_id,
+                id,
                 tenant_id,
                 collection,
                 document_name,
@@ -158,7 +161,7 @@ public static class UploadKnowledgePdf
             )
             VALUES
             (
-                @KnowledgeChunkId,
+                @Id,
                 @TenantId,
                 @Collection,
                 @DocumentName,
@@ -169,28 +172,32 @@ public static class UploadKnowledgePdf
             );
             """;
 
-        foreach (var content in chunks)
+        foreach (var batch in chunks.Chunk(32))
         {
-            var embedding = await EmbedAsync(
-                content,
+            var embeddings = await EmbedBatchAsync(
+                batch,
                 httpClientFactory,
                 configuration,
                 cancellationToken);
 
+            var rows = batch.Select((content, index) => new
+            {
+                Id = Guid.NewGuid(),
+                TenantId = resolvedTenantId.Value,
+                Collection = collectionCode.Trim().ToLowerInvariant(),
+                DocumentName = Path.GetFileName(file.FileName),
+                Content = content,
+                Embedding = ToVectorLiteral(embeddings[index])
+            }).ToArray();
+
             await connection.ExecuteAsync(
-                new CommandDefinition(
-                    insertChunkSql,
-                    new
-                    {
-                        KnowledgeChunkId = Guid.NewGuid(),
-                        TenantId = resolvedTenantId.Value,
-                        Collection = collectionId.ToString(),
-                        DocumentName = Path.GetFileName(file.FileName),
-                        Content = content,
-                        Embedding = ToVectorLiteral(embedding)
-                    },
-                    cancellationToken: cancellationToken));
+                new CommandDefinition(insertChunkSql, rows, cancellationToken: cancellationToken));
         }
+
+        await assistantService.InvalidateKnowledgeAsync(
+            resolvedTenantId.Value,
+            collectionCode,
+            cancellationToken);
 
         return Results.Ok(
             new
@@ -214,8 +221,8 @@ public static class UploadKnowledgePdf
         }
     }
 
-    private static async Task<float[]> EmbedAsync(
-        string text,
+    private static async Task<float[][]> EmbedBatchAsync(
+        IReadOnlyCollection<string> texts,
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
         CancellationToken cancellationToken)
@@ -225,24 +232,25 @@ public static class UploadKnowledgePdf
             ?? throw new InvalidOperationException("AI:Ollama:BaseUrl is required.");
 
         client.BaseAddress = new Uri($"{baseUrl.TrimEnd('/')}/");
-
         var response = await client.PostAsJsonAsync(
             "api/embed",
             new
             {
                 model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text",
-                input = text
+                input = texts.ToArray()
             },
             cancellationToken);
 
         response.EnsureSuccessStatusCode();
-
         var embeddingResponse = await response.Content.ReadFromJsonAsync<EmbeddingResponse>(
             cancellationToken: cancellationToken);
 
-        return embeddingResponse?.Embeddings is { Length: > 0 }
-            ? embeddingResponse.Embeddings[0]
-            : throw new InvalidOperationException("Ollama returned no embedding.");
+        if (embeddingResponse?.Embeddings is not { Length: > 0 } embeddings || embeddings.Length != texts.Count)
+        {
+            throw new InvalidOperationException("Ollama returned an invalid embedding batch.");
+        }
+
+        return embeddings;
     }
 
     private static string ToVectorLiteral(IEnumerable<float> values)

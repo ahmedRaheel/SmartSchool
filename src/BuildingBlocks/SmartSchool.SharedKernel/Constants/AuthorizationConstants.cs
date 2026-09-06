@@ -39,6 +39,7 @@ public static class SmartSchoolPolicies
     public const string ExaminationManagement = "ExaminationManagement";
     public const string FinanceManagement = "FinanceManagement";
     public const string HumanResourcesManagement = "HumanResourcesManagement";
+    public const string AiKnowledgeContribution = "AiKnowledgeContribution";
 
     // Actor-composition policies. Names intentionally describe every role allowed.
     public const string SuperAdminOnly = "SuperAdminOnly";

@@ -18,7 +18,10 @@ public static class RagChatbotEndpoints
             ["teacher"] = new("teacher", [SmartSchoolRoles.Teacher, SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin], ["learning", "academic", "teacher", "policy"], "Assist teachers with learning material, class operations and approved school policy."),
             ["parent"] = new("parent", [SmartSchoolRoles.Parent, SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin], ["parent", "policy", "fees", "academic"], "Assist parents without exposing information about unrelated students."),
             ["admissions"] = new("admissions", [SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.AdmissionOfficer], ["admissions", "fees", "policy"], "Answer admissions questions only from approved school knowledge."),
-            ["admin"] = new("admin", [SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal], ["operations", "policy", "academic", "fees", "hr"], "Assist administrators using authorized operational and policy knowledge.")
+            ["admin"] = new("admin", [SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal], ["operations", "policy", "academic", "fees", "hr"], "Assist administrators using authorized operational and policy knowledge."),
+            ["examiner"] = new("examiner", [SmartSchoolRoles.Examiner, SmartSchoolRoles.Principal, SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin], ["academic", "examinations", "policy"], "Assist examination staff using authorized assessment and academic knowledge."),
+            ["hr"] = new("hr", [SmartSchoolRoles.HrManager, SmartSchoolRoles.Principal, SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin], ["hr", "operations", "policy"], "Assist HR staff using authorized HR and school policy knowledge."),
+            ["finance"] = new("finance", [SmartSchoolRoles.Accountant, SmartSchoolRoles.Principal, SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin], ["fees", "finance", "operations", "policy"], "Assist finance staff using authorized finance and policy knowledge.")
         };
 
     /// <summary>Maps the actor chatbot API endpoints.</summary>

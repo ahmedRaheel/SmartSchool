@@ -14,6 +14,12 @@ public sealed class GradeLevelEntity : Entity
     {
     }
 
+    /// <summary>Gets the campus that owns this grade level.</summary>
+    public Guid CampusId { get; private set; }
+
+    /// <summary>Gets the academic system that defined this grade level.</summary>
+    public Guid? AcademicSystemId { get; private set; }
+
     /// <summary>Gets the persisted sort order value.</summary>
     public int SortOrder { get; private set; }
 
@@ -34,8 +40,11 @@ public sealed class GradeLevelEntity : Entity
     /// <returns>The newly created entity.</returns>
     public static GradeLevelEntity Create(
         Guid tenantId,
+        Guid campusId,
+        Guid? academicSystemId,
         string code,
         string name,
+        int sortOrder = 0,
         string? metadataJson = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
@@ -44,8 +53,11 @@ public sealed class GradeLevelEntity : Entity
         return new GradeLevelEntity
         {
             TenantId = tenantId,
+            CampusId = campusId,
+            AcademicSystemId = academicSystemId,
             Code = code.Trim(),
             Name = name.Trim(),
+            SortOrder = sortOrder,
             MetadataJson = metadataJson
         };
     }

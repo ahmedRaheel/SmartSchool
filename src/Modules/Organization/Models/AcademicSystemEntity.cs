@@ -46,6 +46,7 @@ public sealed class AcademicSystemEntity : Entity
             TenantId = tenantId,
             Code = code.Trim(),
             Name = name.Trim(),
+            SystemTypeCode = NormalizeSystemTypeCode(name),
             MetadataJson = metadataJson
         };
     }
@@ -66,5 +67,13 @@ public sealed class AcademicSystemEntity : Entity
         Name = name.Trim();
         MetadataJson = metadataJson;
         MarkAsUpdated();
+    }
+
+    private static string NormalizeSystemTypeCode(string value)
+    {
+        var normalized = new string(value.Trim().ToUpperInvariant()
+            .Select(character => char.IsLetterOrDigit(character) ? character : '_')
+            .ToArray());
+        return normalized.Length <= 40 ? normalized : normalized[..40];
     }
 }

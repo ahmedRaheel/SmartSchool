@@ -28,13 +28,23 @@ public static class CreateClassSection
 
     public sealed record Request(
         Guid TenantId,
-        string Name) : IRequest<Result<Response>>;
+        Guid CampusId,
+        Guid AcademicYearId,
+        Guid GradeLevelId,
+        Guid SectionId,
+        string Name,
+        int? Capacity = null,
+        string? RoomNo = null) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.CampusId).NotEmpty();
+            RuleFor(x => x.AcademicYearId).NotEmpty();
+            RuleFor(x => x.GradeLevelId).NotEmpty();
+            RuleFor(x => x.SectionId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
@@ -71,8 +81,14 @@ public static class CreateClassSection
 
             var entity = ClassSectionEntity.Create(
                 request.TenantId,
+                request.CampusId,
+                request.AcademicYearId,
+                request.GradeLevelId,
+                request.SectionId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
-                request.Name);
+                request.Name,
+                capacity: request.Capacity,
+                roomNo: request.RoomNo);
 
             await dataAccess.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
