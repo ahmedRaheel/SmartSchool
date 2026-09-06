@@ -24,6 +24,7 @@ using SmartSchool.Infrastructure.Persistence;
 using SmartSchool.SharedKernel.Constants;
 
 using SmartSchool.Modules.AICore;
+using SmartSchool.Modules.AICore.Rag.Ollama;
 using SmartSchool.Modules.AIInquiry;
 using SmartSchool.Modules.AIParent;
 using SmartSchool.Modules.AIPrediction;
@@ -179,13 +180,9 @@ builder.Services.AddScoped<SampleActorSeeder>();
 
 builder.Services.AddHttpClient("Ollama", (serviceProvider, client) =>
 {
-    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    var baseUrl = configuration["AI:Ollama:BaseUrl"]
-        ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.");
-    var timeoutSeconds = configuration.GetValue("AI:Ollama:TimeoutSeconds", 180);
-
-    client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
-    client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+    var options = serviceProvider.GetRequiredService<IOptionsMonitor<OllamaRagOptions>>().CurrentValue;
+    client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/");
+    client.Timeout = TimeSpan.FromSeconds(180);
 });
 
 builder.Services

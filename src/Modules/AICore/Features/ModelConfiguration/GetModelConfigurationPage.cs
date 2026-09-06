@@ -128,9 +128,9 @@ public static class GetModelConfigurationPage
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "model-configuration"),
-                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+                async (Guid tenantId, int? page, int? pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var request = new Query(tenantId, page, pageSize);
+                    var request = new Query(tenantId, page ?? 1, pageSize ?? 25);
                     var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
@@ -138,6 +138,19 @@ public static class GetModelConfigurationPage
             .WithName("GetModelConfigurationPage")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
+        endpoints.MapGet(
+                "/api/ai/model-config",
+                async (Guid tenantId, int? page, int? pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Query(tenantId, page ?? 1, pageSize ?? 25);
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("GetAiModelConfig")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+
         return endpoints;
     }
 }
