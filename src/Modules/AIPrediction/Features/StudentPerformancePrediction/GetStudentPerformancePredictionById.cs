@@ -81,8 +81,7 @@ public static class GetStudentPerformancePredictionById
 /// <summary>
 /// Feature-owned data access for GetStudentPerformancePredictionById. Do not share across slices.
 /// </summary>
-internal sealed class GetStudentPerformancePredictionByIdStudentPerformancePredictionReadData(IAIPredictionDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
+internal sealed class GetStudentPerformancePredictionByIdStudentPerformancePredictionReadData(IAIPredictionDbContext dbContext)
 {
     public Task<StudentPerformancePredictionEntity?> GetByIdAsync(
         Guid tenantId,
