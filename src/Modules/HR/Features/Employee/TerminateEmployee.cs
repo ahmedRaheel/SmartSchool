@@ -11,7 +11,7 @@ public static class TerminateEmployee
     public sealed record Request(Guid TenantId, Guid EmployeeId, string Reason) : IRequest<Result<Response>>;
     public sealed record Response(Guid EmployeeId, string Status);
 
-    public sealed class Handler(IEmployeeQuery query, IEmployeeCommand command, IIdentityAccountService accounts)
+    public sealed class Handler(EmployeeReader query, EmployeeWriter command, IIdentityAccountService accounts)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)

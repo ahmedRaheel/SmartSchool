@@ -20,7 +20,7 @@ public static class GetGuardianById
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IGuardianQuery entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed class Handler(GuardianReader entityQuery) : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
         {

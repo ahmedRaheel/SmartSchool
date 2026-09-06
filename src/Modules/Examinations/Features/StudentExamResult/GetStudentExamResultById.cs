@@ -28,7 +28,7 @@ public static class GetStudentExamResultById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IStudentExamResultQuery entityQuery)
+    public sealed class Handler(StudentExamResultReader entityQuery)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(

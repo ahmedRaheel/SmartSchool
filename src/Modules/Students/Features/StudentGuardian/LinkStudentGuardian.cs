@@ -25,8 +25,8 @@ public static class LinkStudentGuardian
     }
 
     public sealed class Handler(
-        IStudentOnboardingQuery query,
-        IStudentOnboardingCommand command)
+        StudentOnboardingReader query,
+        StudentOnboardingWriter command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(

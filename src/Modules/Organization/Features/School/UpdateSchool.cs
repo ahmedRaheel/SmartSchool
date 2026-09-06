@@ -31,7 +31,7 @@ public static class UpdateSchool
         }
     }
 
-    public sealed class Handler(ISchoolQuery query, ISchoolCommand command) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(SchoolReader query, SchoolWriter command) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {

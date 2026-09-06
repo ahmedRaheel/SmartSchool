@@ -26,10 +26,10 @@ public static class ApproveStudentAdmission
     }
 
     public sealed class Handler(
-        IStudentQuery query,
-        IStudentCommand command,
-        IStudentOnboardingQuery onboardingQuery,
-        IStudentOnboardingCommand onboardingCommand,
+        StudentReader query,
+        StudentWriter command,
+        StudentOnboardingReader onboardingQuery,
+        StudentOnboardingWriter onboardingCommand,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>

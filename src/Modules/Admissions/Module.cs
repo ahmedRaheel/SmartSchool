@@ -21,8 +21,8 @@ public static class Module
         services.AddScoped<IAdmissionsDbContext, AdmissionsDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();
-        services.AddScoped<IAdmissionWorkflowQuery, AdmissionWorkflowQuery>();
+        services.AddScoped<AdmissionWorkflowWriter>();
+        services.AddScoped<AdmissionWorkflowReader>();
         return services;
     }
 

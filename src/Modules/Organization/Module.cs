@@ -29,14 +29,12 @@ public static class Module
         services.AddScoped<IOrganizationDbContext, OrganizationDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<ICampusCommand, CampusCommand>();
-        services.AddScoped<ICampusQuery, CampusQuery>();
-        services.AddScoped<IDepartmentCommand, DepartmentCommand>();
-        services.AddScoped<IDepartmentQuery, DepartmentQuery>();
-        services.AddScoped<ISchoolCommand, SchoolCommand>();
-        services.AddScoped<ISchoolQuery, SchoolQuery>();
-        services.AddScoped<IBranchPolicyCommand, BranchPolicyCommand>();
-        services.AddScoped<IBranchPolicyQuery, BranchPolicyQuery>();
+        services.AddScoped<CampusWriter>();
+        services.AddScoped<CampusReader>();
+        services.AddScoped<SchoolWriter>();
+        services.AddScoped<SchoolReader>();
+        services.AddScoped<BranchPolicyWriter>();
+        services.AddScoped<BranchPolicyReader>();
 
         return services;
     }

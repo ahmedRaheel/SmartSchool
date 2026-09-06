@@ -29,26 +29,10 @@ public static class Module
         services.AddScoped<IHRDbContext, HRDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<ICandidateQuery, CandidateQuery>();
-        services.AddScoped<ICandidateCommand, CandidateCommand>();
-        services.AddScoped<IEmployeeQuery, EmployeeQuery>();
-        services.AddScoped<IEmployeeCommand, EmployeeCommand>();
-        services.AddScoped<IInterviewQuery, InterviewQuery>();
-        services.AddScoped<IInterviewCommand, InterviewCommand>();
-        services.AddScoped<IJobQuery, JobQuery>();
-        services.AddScoped<IJobCommand, JobCommand>();
-        services.AddScoped<IJobGradeQuery, JobGradeQuery>();
-        services.AddScoped<IJobGradeCommand, JobGradeCommand>();
-        services.AddScoped<ILeaveRequestQuery, LeaveRequestQuery>();
-        services.AddScoped<ILeaveRequestCommand, LeaveRequestCommand>();
-        services.AddScoped<IPositionQuery, PositionQuery>();
-        services.AddScoped<IPositionCommand, PositionCommand>();
-        services.AddScoped<IResumeCommand, ResumeCommand>();
-        services.AddScoped<IResumeQuery, ResumeQuery>();
-        services.AddScoped<IEmploymentHistoryCommand, EmploymentHistoryCommand>();
-        services.AddScoped<IEmploymentHistoryQuery, EmploymentHistoryQuery>();
-        services.AddScoped<IEmployeeEvidenceCommand, EmployeeEvidenceCommand>();
-        services.AddScoped<IEmployeeOnboardingQuery, EmployeeOnboardingQuery>();
+        services.AddScoped<EmployeeReader>();
+        services.AddScoped<EmployeeWriter>();
+        services.AddScoped<EmployeeEvidenceWriter>();
+        services.AddScoped<EmployeeOnboardingReader>();
 
         return services;
     }

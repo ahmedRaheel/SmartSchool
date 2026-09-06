@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using Dapper;
 using SmartSchool.Application.Identity;
@@ -14,8 +13,6 @@ public static class UploadKnowledgePdf
 {
     private const long MaxPdfSize = 25 * 1024 * 1024;
     private const int ChunkSize = 1200;
-
-    private sealed record EmbeddingResponse(float[][] Embeddings);
 
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
@@ -34,8 +31,7 @@ public static class UploadKnowledgePdf
         Guid? academicSystemId,
         ITenantScope tenantScope,
         IDbConnectionFactory connectionFactory,
-        IHttpClientFactory httpClientFactory,
-        IConfiguration configuration,
+        IOllamaClient ollamaClient,
         IAiAssistantService assistantService,
         CancellationToken cancellationToken)
     {
@@ -174,11 +170,7 @@ public static class UploadKnowledgePdf
 
         foreach (var batch in chunks.Chunk(32))
         {
-            var embeddings = await EmbedBatchAsync(
-                batch,
-                httpClientFactory,
-                configuration,
-                cancellationToken);
+            var embeddings = await ollamaClient.EmbedBatchAsync(batch, cancellationToken);
 
             var rows = batch.Select((content, index) => new
             {
@@ -219,38 +211,6 @@ public static class UploadKnowledgePdf
                 yield return page.Substring(index, Math.Min(maxLength, page.Length - index));
             }
         }
-    }
-
-    private static async Task<float[][]> EmbedBatchAsync(
-        IReadOnlyCollection<string> texts,
-        IHttpClientFactory httpClientFactory,
-        IConfiguration configuration,
-        CancellationToken cancellationToken)
-    {
-        var client = httpClientFactory.CreateClient("Ollama");
-        var baseUrl = configuration["AI:Ollama:BaseUrl"]
-            ?? throw new InvalidOperationException("AI:Ollama:BaseUrl is required.");
-
-        client.BaseAddress = new Uri($"{baseUrl.TrimEnd('/')}/");
-        var response = await client.PostAsJsonAsync(
-            "api/embed",
-            new
-            {
-                model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text",
-                input = texts.ToArray()
-            },
-            cancellationToken);
-
-        response.EnsureSuccessStatusCode();
-        var embeddingResponse = await response.Content.ReadFromJsonAsync<EmbeddingResponse>(
-            cancellationToken: cancellationToken);
-
-        if (embeddingResponse?.Embeddings is not { Length: > 0 } embeddings || embeddings.Length != texts.Count)
-        {
-            throw new InvalidOperationException("Ollama returned an invalid embedding batch.");
-        }
-
-        return embeddings;
     }
 
     private static string ToVectorLiteral(IEnumerable<float> values)

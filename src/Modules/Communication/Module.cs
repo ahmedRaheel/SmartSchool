@@ -27,16 +27,7 @@ public static class Module
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddSignalR();
-        services.AddScoped<IConversationCommand, ConversationCommand>();
-        services.AddScoped<IConversationQuery, ConversationQuery>();
-        services.AddScoped<IConversationParticipantCommand, ConversationParticipantCommand>();
-        services.AddScoped<IConversationParticipantQuery, ConversationParticipantQuery>();
-        services.AddScoped<IMessageCommand, MessageCommand>();
-        services.AddScoped<IMessageQuery, MessageQuery>();
-        services.AddScoped<IMessageReceiptCommand, MessageReceiptCommand>();
-        services.AddScoped<IMessageReceiptQuery, MessageReceiptQuery>();
-        services.AddScoped<INotificationCommand, NotificationCommand>();
-        services.AddScoped<INotificationQuery, NotificationQuery>();
+        services.AddScoped<NotificationReader>();
         return services;
     }
 

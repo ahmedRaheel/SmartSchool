@@ -27,18 +27,12 @@ public static class Module
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 
-        services.AddScoped<IStudentCommand, StudentCommand>();
-        services.AddScoped<IStudentQuery, StudentQuery>();
-        services.AddScoped<IGuardianCommand, GuardianCommand>();
-        services.AddScoped<IGuardianQuery, GuardianQuery>();
-        services.AddScoped<IEnrollmentCommand, EnrollmentCommand>();
-        services.AddScoped<IEnrollmentQuery, EnrollmentQuery>();
-        services.AddScoped<IAttendanceCommand, AttendanceCommand>();
-        services.AddScoped<IAttendanceQuery, AttendanceQuery>();
-        services.AddScoped<IStudentGuardianCommand, StudentGuardianCommand>();
-        services.AddScoped<IStudentGuardianQuery, StudentGuardianQuery>();
-        services.AddScoped<IStudentOnboardingQuery, StudentOnboardingQuery>();
-        services.AddScoped<IStudentOnboardingCommand, StudentOnboardingCommand>();
+        services.AddScoped<StudentWriter>();
+        services.AddScoped<StudentReader>();
+        services.AddScoped<GuardianReader>();
+        services.AddScoped<EnrollmentReader>();
+        services.AddScoped<StudentOnboardingReader>();
+        services.AddScoped<StudentOnboardingWriter>();
         return services;
     }
 
