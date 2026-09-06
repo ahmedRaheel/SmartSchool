@@ -1,3 +1,8 @@
+using SmartSchool.Modules.HR.Persistence;
+using Dapper;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
@@ -29,7 +34,7 @@ public static class GetEmployeeById
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IEmployeeQuery entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed class Handler(GetEmployeeByIdEmployeeReadData entityQuery) : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
@@ -75,5 +80,24 @@ public static class GetEmployeeById
             entity.EmploymentTypeCode,
             entity.Status,
             entity.SourceCandidateId);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for GetEmployeeById. Do not share across slices.
+/// </summary>
+internal sealed class GetEmployeeByIdEmployeeReadData(IHRDbContext dbContext,
+    IDbConnectionFactory connectionFactory)
+{
+    public Task<EmployeeEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Employees
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.EmployeeId == id,
+                cancellationToken);
     }
 }

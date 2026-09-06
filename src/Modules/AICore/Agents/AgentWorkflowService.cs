@@ -33,7 +33,7 @@ internal sealed class AgentWorkflowService(
     SmartSchoolAgentTools tools,
     IOllamaClient ollamaClient,
     ITenantScope tenantScope,
-    IAiExecutionLogCommand executionLogCommand) : IAgentWorkflowService
+    AiExecutionLogWriter executionLogCommand) : IAgentWorkflowService
 {
     public async Task<AgentRunResponse> RunAsync(
         AgentRunRequest request,

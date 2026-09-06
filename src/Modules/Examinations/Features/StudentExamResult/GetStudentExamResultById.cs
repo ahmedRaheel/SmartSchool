@@ -1,3 +1,7 @@
+using SmartSchool.Modules.Examinations.Persistence;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -28,7 +32,7 @@ public static class GetStudentExamResultById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IStudentExamResultQuery entityQuery)
+    public sealed class Handler(GetStudentExamResultByIdStudentExamResultReadData entityQuery)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -71,5 +75,24 @@ public static class GetStudentExamResultById
             entity.Code,
             entity.Name,
             entity.MetadataJson);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for GetStudentExamResultById. Do not share across slices.
+/// </summary>
+internal sealed class GetStudentExamResultByIdStudentExamResultReadData(IExaminationsDbContext dbContext,
+    IDbConnectionFactory connectionFactory)
+{
+    public Task<StudentExamResultEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.StudentExamResults
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.StudentExamResultId == id,
+                cancellationToken);
     }
 }

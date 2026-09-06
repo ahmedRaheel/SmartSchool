@@ -21,24 +21,15 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAITutorDbContext, AITutorDbContext>();
+        services.AddScoped<IAITutorDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<AITutorDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<IGeneratedQuizCommand, GeneratedQuizCommand>();
-        services.AddScoped<ILearningRecommendationCommand, LearningRecommendationCommand>();
-        services.AddScoped<IQuizAttemptCommand, QuizAttemptCommand>();
-        services.AddScoped<IStudentTopicMasteryCommand, StudentTopicMasteryCommand>();
-        services.AddScoped<ITutorConversationCommand, TutorConversationCommand>();
-        services.AddScoped<ITutorMessageCommand, TutorMessageCommand>();
-        services.AddScoped<ITutorSessionCommand, TutorSessionCommand>();
-        services.AddScoped<IGeneratedQuizQuery, GeneratedQuizQuery>();
-        services.AddScoped<ILearningRecommendationQuery, LearningRecommendationQuery>();
-        services.AddScoped<IQuizAttemptQuery, QuizAttemptQuery>();
-        services.AddScoped<IStudentTopicMasteryQuery, StudentTopicMasteryQuery>();
-        services.AddScoped<ITutorConversationQuery, TutorConversationQuery>();
-        services.AddScoped<ITutorMessageQuery, TutorMessageQuery>();
-        services.AddScoped<ITutorSessionQuery, TutorSessionQuery>();
-
+        services.AddScoped<OperationalTutorEndpointsGeneratedQuizWriteData>();
+        services.AddScoped<OperationalTutorEndpointsLearningRecommendationWriteData>();
+        services.AddScoped<OperationalTutorEndpointsTutorConversationWriteData>();
+        services.AddScoped<OperationalTutorEndpointsTutorMessageWriteData>();
+        services.AddScoped<OperationalTutorEndpointsTutorSessionWriteData>();
         return services;
     }
 

@@ -1,6 +1,7 @@
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Cag;
 using SmartSchool.Modules.AICore.Rag;
+using SmartSchool.Modules.AICore.Rag.Ollama;
 using SmartSchool.Modules.AICore.Agents;
 using ModelContextProtocol.Server;
 using SmartSchool.Modules.AICore.Features;
@@ -28,11 +29,24 @@ public static class Module
         IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAICoreDbContext, AICoreDbContext>();
+        services.AddScoped<IAICoreDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<AICoreDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
+        services.AddScoped<AgentWorkflowServiceAiExecutionLogWriteData>();
+        services.AddScoped<OperationalAiCoreEndpointsAiExecutionLogWriteData>();
+        services.AddScoped<OperationalAiCoreEndpointsKnowledgeChunkWriteData>();
+        services.AddScoped<SmartSchoolAgentToolsStudentExamResultReadData>();
+        services.AddScoped<SmartSchoolAgentToolsStudentPerformancePredictionReadData>();
+        services.AddScoped<SmartSchoolAgentToolsStudentReadData>();
 
         services.Configure<AiAssistantOptions>(configuration.GetSection(AiAssistantOptions.SectionName));
+        services.AddOptions<OllamaRagOptions>()
+            .Bind(configuration.GetSection(OllamaRagOptions.SectionName))
+            .Validate(options => Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out _), "AI:Ollama:BaseUrl must be an absolute URI.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ChatModel), "AI:Ollama:ChatModel is required.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.EmbeddingModel), "AI:Ollama:EmbeddingModel is required.")
+            .ValidateOnStart();
         services.AddScoped<IOllamaClient, OllamaClient>();
         services.AddScoped<IAiAssistantService, AiAssistantService>();
         services.AddScoped<IRagWorkflowStep, RagGuardrailStep>();
@@ -40,21 +54,6 @@ public static class Module
         services.AddScoped<LangChainRagWorkflow>();
         services.AddScoped<SmartSchoolAgentTools>();
         services.AddScoped<IAgentWorkflowService, AgentWorkflowService>();
-        services.AddScoped<IAiExecutionLogCommand, AiExecutionLogCommand>();
-        services.AddScoped<IAiExecutionLogQuery, AiExecutionLogQuery>();
-        services.AddScoped<IKnowledgeChunkCommand, KnowledgeChunkCommand>();
-        services.AddScoped<IKnowledgeChunkQuery, KnowledgeChunkQuery>();
-        services.AddScoped<IKnowledgeCollectionCommand, KnowledgeCollectionCommand>();
-        services.AddScoped<IKnowledgeCollectionQuery, KnowledgeCollectionQuery>();
-        services.AddScoped<IKnowledgeDocumentCommand, KnowledgeDocumentCommand>();
-        services.AddScoped<IKnowledgeDocumentQuery, KnowledgeDocumentQuery>();
-        services.AddScoped<IModelConfigurationCommand, ModelConfigurationCommand>();
-        services.AddScoped<IModelConfigurationQuery, ModelConfigurationQuery>();
-        services.AddScoped<IPromptTemplateCommand, PromptTemplateCommand>();
-        services.AddScoped<IPromptTemplateQuery, PromptTemplateQuery>();
-        services.AddScoped<IToolDefinitionCommand, ToolDefinitionCommand>();
-        services.AddScoped<IToolDefinitionQuery, ToolDefinitionQuery>();
-
         services
             .AddMcpServer()
             .WithHttpTransport()

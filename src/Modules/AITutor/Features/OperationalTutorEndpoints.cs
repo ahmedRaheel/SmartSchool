@@ -1,4 +1,7 @@
-using System.Net.Http.Json;
+using SmartSchool.Modules.AITutor.Persistence;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using System.Text.Json;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
@@ -9,6 +12,7 @@ using SmartSchool.Modules.AITutor.Features.TutorMessage;
 using SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 using SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.AICore.Cag;
 
 namespace SmartSchool.Modules.AITutor.Features;
 
@@ -29,14 +33,14 @@ public static class OperationalTutorEndpoints
         return e;
     }
     private static Guid? Tenant(ITenantScope s,Guid? t)=>s.IsSuperAdmin?t:s.Resolve(t);
-    private static async Task<IResult> Start(StartSessionRequest r,ITenantScope scope,ITutorSessionCommand sessions,ITutorConversationCommand conversations,CancellationToken ct)
+    private static async Task<IResult> Start(StartSessionRequest r,ITenantScope scope,OperationalTutorEndpointsTutorSessionWriteData sessions,OperationalTutorEndpointsTutorConversationWriteData conversations,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var s=TutorSessionEntity.Create(t.Value,$"SESSION-{Guid.NewGuid():N}",$"{r.Subject}: {r.Topic}",JsonSerializer.Serialize(r));await sessions.AddAsync(s,ct);
         var c=TutorConversationEntity.Create(t.Value,$"CONV-{Guid.NewGuid():N}",$"{r.Subject} tutoring",JsonSerializer.Serialize(new{sessionId=s.TutorSessionId,r.StudentId,r.Subject,r.Topic}));await conversations.AddAsync(c,ct);
         return Results.Created($"/api/aitutor/tutor-session/{s.TutorSessionId}",new{sessionId=s.TutorSessionId,conversationId=c.TutorConversationId});
     }
-    private static async Task<IResult> Ask(AskRequest r,ITenantScope scope,ITutorMessageCommand messages,IHttpClientFactory clients,IConfiguration cfg,IIntegrationEventPublisher events,CancellationToken ct)
+    private static async Task<IResult> Ask(AskRequest r,ITenantScope scope,OperationalTutorEndpointsTutorMessageWriteData messages,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var u=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}",SmartSchoolRoles.Student,JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="user",content=r.Message,r.Subject,r.Topic}));await messages.AddAsync(u,ct);
@@ -47,12 +51,13 @@ Teach using hints, explanation and formative questions. Do not fabricate school-
 For assessed work, coach rather than blindly completing it.
 Student: {r.Message}
 """;
-        var answer=await Generate(prompt,clients,cfg,ct);
+        var generated=await ollama.GenerateAsync(prompt,ct);
+        var answer=generated.Answer;
         var a=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}","AI Tutor",JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="assistant",content=answer}));await messages.AddAsync(a,ct);
         await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked,new{tenantId=t.Value,bot="student-tutor",r.StudentId,r.SessionId},ct);
-        return Results.Ok(new{messageId=a.TutorMessageId,answer,model=cfg["AI:Ollama:ChatModel"]??"qwen3:1.7b"});
+        return Results.Ok(new{messageId=a.TutorMessageId,answer,model=generated.Model});
     }
-    private static async Task<IResult> Quiz(QuizRequest r,ITenantScope scope,IGeneratedQuizCommand quizzes,IHttpClientFactory clients,IConfiguration cfg,IIntegrationEventPublisher events,CancellationToken ct)
+    private static async Task<IResult> Quiz(QuizRequest r,ITenantScope scope,OperationalTutorEndpointsGeneratedQuizWriteData quizzes,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var count=Math.Clamp(r.QuestionCount,1,20);
@@ -61,19 +66,99 @@ Student: {r.Message}
 
 Return ONLY valid JSON array. Each object: question, options (4 strings), correctAnswer, explanation. Avoid personal data.
 """;
-        var raw=await Generate(prompt,clients,cfg,ct);
+        var raw=(await ollama.GenerateAsync(prompt,ct)).Answer;
         var e=GeneratedQuizEntity.Create(t.Value,$"QUIZ-{Guid.NewGuid():N}",$"{r.Subject} - {r.Topic}",JsonSerializer.Serialize(new{r.StudentId,r.Subject,r.Topic,r.Difficulty,questionsJson=raw}));
         await quizzes.AddAsync(e,ct);await events.PublishAsync("smartschool.aitutor.quiz-generated",new{tenantId=t.Value,quizId=e.GeneratedQuizId,r.StudentId},ct);
         return Results.Created($"/api/aitutor/generated-quiz/{e.GeneratedQuizId}",new{quizId=e.GeneratedQuizId,questions=TryJson(raw)});
     }
-    private static async Task<IResult> Recommend(RecommendationRequest r,ITenantScope scope,ILearningRecommendationCommand recommendations,IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct)
+    private static async Task<IResult> Recommend(RecommendationRequest r,ITenantScope scope,OperationalTutorEndpointsLearningRecommendationWriteData recommendations,IOllamaClient ollama,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var prompt=$"Create a concise learning plan for {r.Subject}/{r.Topic}. Current mastery is {r.MasteryScore:P0}. Include next concept, practice type, revision frequency and success criterion.";
-        var answer=await Generate(prompt,clients,cfg,ct);
+        var generated=await ollama.GenerateAsync(prompt,ct);
+        var answer=generated.Answer;
         var e=LearningRecommendationEntity.Create(t.Value,$"REC-{Guid.NewGuid():N}",$"{r.Subject} recommendation",JsonSerializer.Serialize(new{r.StudentId,r.Subject,r.Topic,r.MasteryScore,recommendation=answer}));
         await recommendations.AddAsync(e,ct);return Results.Ok(new{recommendationId=e.LearningRecommendationId,recommendation=answer});
     }
-    private static async Task<string> Generate(string prompt,IHttpClientFactory clients,IConfiguration cfg,CancellationToken ct){var h=clients.CreateClient();h.BaseAddress=new Uri((cfg["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/')+"/");var x=await h.PostAsJsonAsync("api/generate",new{model=cfg["AI:Ollama:ChatModel"]??"qwen3:1.7b",prompt,stream=false},ct);x.EnsureSuccessStatusCode();using var d=JsonDocument.Parse(await x.Content.ReadAsStringAsync(ct));return d.RootElement.GetProperty("response").GetString()??"";}
     private static object TryJson(string raw){try{return JsonSerializer.Deserialize<object>(raw)??raw;}catch{return raw;}}
+}
+
+/// <summary>
+/// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
+/// </summary>
+internal sealed class OperationalTutorEndpointsTutorMessageWriteData(IAITutorDbContext dbContext)
+{
+    public async Task AddAsync(
+        TutorMessageEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.TutorMessages
+            .AddAsync(entity, cancellationToken);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
+/// </summary>
+internal sealed class OperationalTutorEndpointsTutorSessionWriteData(IAITutorDbContext dbContext)
+{
+    public async Task AddAsync(
+        TutorSessionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.TutorSessions
+            .AddAsync(entity, cancellationToken);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
+/// </summary>
+internal sealed class OperationalTutorEndpointsLearningRecommendationWriteData(IAITutorDbContext dbContext)
+{
+    public async Task AddAsync(
+        LearningRecommendationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.LearningRecommendations
+            .AddAsync(entity, cancellationToken);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
+/// </summary>
+internal sealed class OperationalTutorEndpointsTutorConversationWriteData(IAITutorDbContext dbContext)
+{
+    public async Task AddAsync(
+        TutorConversationEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.TutorConversations
+            .AddAsync(entity, cancellationToken);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
+/// </summary>
+internal sealed class OperationalTutorEndpointsGeneratedQuizWriteData(IAITutorDbContext dbContext)
+{
+    public async Task AddAsync(
+        GeneratedQuizEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.GeneratedQuizs
+            .AddAsync(entity, cancellationToken);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

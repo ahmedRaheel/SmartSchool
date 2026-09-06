@@ -17,19 +17,11 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IExaminationsDbContext, ExaminationsDbContext>();
+        services.AddScoped<IExaminationsDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<ExaminationsDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-
-        services.AddScoped<IExamCommand, ExamCommand>();
-        services.AddScoped<IExamQuery, ExamQuery>();
-        services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
-        services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
-        services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
-        services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
-        services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
-        services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
-
+        services.AddScoped<GetStudentExamResultByIdStudentExamResultReadData>();
         return services;
     }
 

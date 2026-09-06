@@ -1,3 +1,8 @@
+using SmartSchool.Modules.Students.Persistence;
+using Dapper;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
@@ -20,7 +25,7 @@ public static class GetGuardianById
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IGuardianQuery entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed class Handler(GetGuardianByIdGuardianReadData entityQuery) : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
@@ -57,5 +62,24 @@ public static class GetGuardianById
             entity.CnicNumber,
             entity.Email,
             entity.Phone);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for GetGuardianById. Do not share across slices.
+/// </summary>
+internal sealed class GetGuardianByIdGuardianReadData(IStudentsDbContext dbContext,
+    IDbConnectionFactory connectionFactory)
+{
+    public Task<GuardianEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Guardians
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.GuardianId == id,
+                cancellationToken);
     }
 }

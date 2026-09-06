@@ -1,3 +1,7 @@
+using SmartSchool.Modules.Organization.Persistence;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Enums;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -27,7 +31,7 @@ public static class GetCampusById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(ICampusQuery entityQuery)
+    public sealed class Handler(GetCampusByIdCampusReadData entityQuery)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -70,5 +74,24 @@ public static class GetCampusById
             entity.Address, entity.City, entity.Province, entity.Country, entity.Phone, entity.Fax, entity.Mobile,
             entity.Email, entity.LogoUrl
             );
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for GetCampusById. Do not share across slices.
+/// </summary>
+internal sealed class GetCampusByIdCampusReadData(IOrganizationDbContext dbContext,
+    IDbConnectionFactory connectionFactory)
+{
+    public Task<CampusEntity?> GetByIdAsync(
+        Guid? tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Campuses
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id,
+                cancellationToken);
     }
 }

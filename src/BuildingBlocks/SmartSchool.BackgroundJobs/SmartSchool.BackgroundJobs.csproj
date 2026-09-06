@@ -5,7 +5,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../SmartSchool.Application/SmartSchool.Application.csproj" />
     <ProjectReference Include="../SmartSchool.Infrastructure/SmartSchool.Infrastructure.csproj" />
     <ProjectReference Include="../SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
   </ItemGroup>

@@ -10,7 +10,7 @@ internal sealed class AdmissionWorkflowCommand(IDbConnectionFactory connectionFa
 {
     public async Task<Guid> CreateApplicationAsync(
         Guid tenantId,
-        CreateAdmissionApplication.Request request,
+        Request request,
         CancellationToken cancellationToken)
     {
         const string sql = """

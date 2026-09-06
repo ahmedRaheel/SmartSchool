@@ -26,18 +26,21 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IOrganizationDbContext, OrganizationDbContext>();
+        services.AddScoped<IOrganizationDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<OrganizationDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<ICampusCommand, CampusCommand>();
-        services.AddScoped<ICampusQuery, CampusQuery>();
-        services.AddScoped<IDepartmentCommand, DepartmentCommand>();
-        services.AddScoped<IDepartmentQuery, DepartmentQuery>();
-        services.AddScoped<ISchoolCommand, SchoolCommand>();
-        services.AddScoped<ISchoolQuery, SchoolQuery>();
-        services.AddScoped<IBranchPolicyCommand, BranchPolicyCommand>();
-        services.AddScoped<IBranchPolicyQuery, BranchPolicyQuery>();
-
+        services.AddScoped<BranchPolicyBranchPolicyReadData>();
+        services.AddScoped<CreateCampusBranchPolicyWriteData>();
+        services.AddScoped<CreateCampusCampusWriteData>();
+        services.AddScoped<CreateCampusSchoolReadData>();
+        services.AddScoped<GetCampusByIdCampusReadData>();
+        services.AddScoped<UpdateCampusBranchPolicyWriteData>();
+        services.AddScoped<UpdateCampusCampusReadData>();
+        services.AddScoped<UpdateCampusCampusWriteData>();
+        services.AddScoped<UpdateCampusSchoolReadData>();
+        services.AddScoped<UpdateSchoolSchoolReadData>();
+        services.AddScoped<UpdateSchoolSchoolWriteData>();
         return services;
     }
 
