@@ -13,7 +13,7 @@ public static class BranchPolicyEndpoints
     public sealed record PolicyResponse(Guid BranchGenderTypeId, string GenderCode, IReadOnlyCollection<LookupResponse> EducationLevels);
 
     public sealed record GetLookupsRequest(bool GenderTypes) : IRequest<Result<IReadOnlyCollection<LookupResponse>>>;
-    public sealed class GetLookupsHandler(IBranchPolicyQuery query) : IRequestHandler<GetLookupsRequest, Result<IReadOnlyCollection<LookupResponse>>>
+    public sealed class GetLookupsHandler(BranchPolicyReader query) : IRequestHandler<GetLookupsRequest, Result<IReadOnlyCollection<LookupResponse>>>
     {
         public async Task<Result<IReadOnlyCollection<LookupResponse>>> HandleAsync(GetLookupsRequest request, CancellationToken cancellationToken)
         {
@@ -25,7 +25,7 @@ public static class BranchPolicyEndpoints
     }
 
     public sealed record GetPolicyRequest(Guid? TenantId, Guid BranchId) : IRequest<Result<PolicyResponse>>;
-    public sealed class GetPolicyHandler(ITenantScope tenantScope, IBranchPolicyQuery query) : IRequestHandler<GetPolicyRequest, Result<PolicyResponse>>
+    public sealed class GetPolicyHandler(ITenantScope tenantScope, BranchPolicyReader query) : IRequestHandler<GetPolicyRequest, Result<PolicyResponse>>
     {
         public async Task<Result<PolicyResponse>> HandleAsync(GetPolicyRequest request, CancellationToken cancellationToken)
         {

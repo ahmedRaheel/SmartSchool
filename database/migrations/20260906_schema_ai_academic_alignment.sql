@@ -115,3 +115,16 @@ END $$;
 
 -- RAG table indexes used by chatbot retrieval.
 CREATE INDEX IF NOT EXISTS ix_rag_knowledge_chunk_tenant_collection ON ai_core.rag_knowledge_chunk(tenant_id, collection) WHERE is_active = true;
+
+-- Enforce the new hierarchy for all new/updated rows without making legacy data migration destructive.
+-- Existing legacy rows can be remediated and the constraints validated afterwards.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname='ck_grade_level_campus_required') THEN
+    ALTER TABLE academic.grade_level
+      ADD CONSTRAINT ck_grade_level_campus_required CHECK (campus_id IS NOT NULL) NOT VALID;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname='ck_class_section_grade_required') THEN
+    ALTER TABLE academic.class_section
+      ADD CONSTRAINT ck_class_section_grade_required CHECK (grade_level_id IS NOT NULL) NOT VALID;
+  END IF;
+END $$;

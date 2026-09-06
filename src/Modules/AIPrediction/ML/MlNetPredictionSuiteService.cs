@@ -11,7 +11,8 @@ namespace SmartSchool.Modules.AIPrediction.ML;
 /// returns an explainable cold-start score with UsedMachineLearning=false.
 /// </summary>
 public sealed class MlNetPredictionSuiteService(
-    IDbConnectionFactory connectionFactory
+    IDbConnectionFactory connectionFactory,
+    TimeProvider timeProvider
     ) : IPredictionSuiteService
 {
     private const int MinimumRows = 12;
@@ -245,7 +246,7 @@ public sealed class MlNetPredictionSuiteService(
         var values = history.Select(x => x.Value).ToArray();
         var baseline = values.Length == 0 ? 0f : values.Average();
         var trend = values.Length < 2 ? 0f : (values[^1]-values[0])/(values.Length-1);
-        var start = history.Count == 0 ? DateOnly.FromDateTime(DateTime.UtcNow) : history[^1].Period;
+        var start = history.Count == 0 ? DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime) : history[^1].Period;
         var points = new List<ForecastPoint>();
         for (var i=1;i<=horizon;i++)
         {

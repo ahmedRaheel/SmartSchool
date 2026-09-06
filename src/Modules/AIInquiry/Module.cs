@@ -22,9 +22,7 @@ public static class Module
         services.AddScoped<IAIInquiryDbContext, AIInquiryDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();
 
-        services.AddScoped<ILeadCaptureCommand, LeadCaptureCommand>();
 
 
         return services;

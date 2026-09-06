@@ -26,12 +26,13 @@ public static class ApproveStudentAdmission
     }
 
     public sealed class Handler(
-        IStudentQuery query,
-        IStudentCommand command,
-        IStudentOnboardingQuery onboardingQuery,
-        IStudentOnboardingCommand onboardingCommand,
+        StudentReader query,
+        StudentWriter command,
+        StudentOnboardingReader onboardingQuery,
+        StudentOnboardingWriter onboardingCommand,
         IIdentityAccountService accounts,
-        IBusinessNumberGenerator numberGenerator)
+        IBusinessNumberGenerator numberGenerator,
+        TimeProvider timeProvider)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -126,7 +127,7 @@ public static class ApproveStudentAdmission
                 enrollmentNumber,
                 placement.AcademicYearId,
                 placement.ClassSectionId,
-                DateOnly.FromDateTime(DateTime.UtcNow),
+                DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime),
                 LifecycleStatuses.Active);
 
             await onboardingCommand.AddEnrollmentAndApprovePlacementAsync(

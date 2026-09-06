@@ -27,7 +27,7 @@ public static class GetCampusById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(ICampusQuery entityQuery)
+    public sealed class Handler(CampusReader entityQuery)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(

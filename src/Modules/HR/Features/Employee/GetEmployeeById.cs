@@ -29,7 +29,7 @@ public static class GetEmployeeById
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IEmployeeQuery entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed class Handler(EmployeeReader entityQuery) : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
         {

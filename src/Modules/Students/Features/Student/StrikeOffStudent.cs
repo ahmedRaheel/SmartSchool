@@ -11,7 +11,7 @@ public static class StrikeOffStudent
     public sealed record Request(Guid TenantId, Guid StudentId, string Reason) : IRequest<Result<Response>>;
     public sealed record Response(Guid StudentId, string Status);
 
-    public sealed class Handler(IStudentQuery query, IStudentCommand command, IIdentityAccountService accounts)
+    public sealed class Handler(StudentReader query, StudentWriter command, IIdentityAccountService accounts)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)

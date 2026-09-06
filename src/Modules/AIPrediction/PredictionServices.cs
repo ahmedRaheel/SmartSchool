@@ -34,7 +34,12 @@ public sealed class PredictionClient(
             request,
             cancellationToken);
 
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException(
+                $"Grade prediction service failed. HTTP {(int)response.StatusCode} ({response.StatusCode}). Response: {body}");
+        }
 
         return await response.Content.ReadFromJsonAsync<GradePredictionResponse>(
             cancellationToken: cancellationToken);

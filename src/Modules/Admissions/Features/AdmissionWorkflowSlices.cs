@@ -109,7 +109,7 @@ public static class GetAdmissionApplications
 
     public sealed class Handler(
         ITenantScope tenantScope,
-        IAdmissionWorkflowQuery query)
+        AdmissionWorkflowReader query)
         : IRequestHandler<Request, Result<IReadOnlyList<AdmissionApplicationDto>>>
     {
         public async Task<Result<IReadOnlyList<AdmissionApplicationDto>>> HandleAsync(
@@ -161,8 +161,8 @@ public static class CreateAdmissionApplication
 
     public sealed class Handler(
         ITenantScope tenantScope,
-        IAdmissionWorkflowQuery query,
-        IAdmissionWorkflowCommand command)
+        AdmissionWorkflowReader query,
+        AdmissionWorkflowWriter command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -289,8 +289,8 @@ public static class ChangeAdmissionStatus
 
     public sealed class Handler(
         ITenantScope tenantScope,
-        IAdmissionWorkflowQuery query,
-        IAdmissionWorkflowCommand command,
+        AdmissionWorkflowReader query,
+        AdmissionWorkflowWriter command,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numbers)
         : IRequestHandler<Request, Result<Response>>
@@ -462,7 +462,7 @@ public static class GetAdmissionCriteria
 
     public sealed class Handler(
         ITenantScope tenantScope,
-        IAdmissionWorkflowQuery query)
+        AdmissionWorkflowReader query)
         : IRequestHandler<Request, Result<IReadOnlyList<AdmissionCriteriaDto>>>
     {
         public async Task<Result<IReadOnlyList<AdmissionCriteriaDto>>> HandleAsync(
@@ -505,8 +505,8 @@ public static class CreateAdmissionCriteria
 
     public sealed class Handler(
         ITenantScope tenantScope,
-        IAdmissionWorkflowQuery query,
-        IAdmissionWorkflowCommand command)
+        AdmissionWorkflowReader query,
+        AdmissionWorkflowWriter command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(

@@ -30,7 +30,7 @@ public static class GetEnrollmentById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IEnrollmentQuery entityQuery)
+    public sealed class Handler(EnrollmentReader entityQuery)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(

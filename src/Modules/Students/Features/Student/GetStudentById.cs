@@ -26,7 +26,7 @@ public static class GetStudentById
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IStudentQuery entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed class Handler(StudentReader entityQuery) : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
         {

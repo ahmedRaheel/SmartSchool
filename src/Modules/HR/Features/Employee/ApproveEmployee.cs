@@ -25,9 +25,9 @@ public static class ApproveEmployee
     }
 
     public sealed class Handler(
-        IEmployeeQuery query,
-        IEmployeeCommand command,
-        IEmployeeOnboardingQuery onboardingQuery,
+        EmployeeReader query,
+        EmployeeWriter command,
+        EmployeeOnboardingReader onboardingQuery,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
