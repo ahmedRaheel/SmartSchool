@@ -21,7 +21,7 @@ internal sealed class OllamaClient(IHttpClientFactory httpClientFactory, IConfig
         var client = CreateClient();
         var response = await client.PostAsJsonAsync("api/embed", new
         {
-            model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text",
+            model = configuration["AI:Ollama:EmbeddingModel"] ?? "all-minilm",
             input = text
         }, cancellationToken);
 
