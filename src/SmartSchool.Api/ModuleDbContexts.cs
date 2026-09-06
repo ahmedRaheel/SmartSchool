@@ -17,7 +17,6 @@ using SmartSchool.Modules.Inventory.Persistence;
 using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.Modules.Library.Persistence;
 using SmartSchool.Modules.Organization.Persistence;
-using SmartSchool.Modules.Payroll.Persistence;
 using SmartSchool.Modules.Reference.Persistence;
 using SmartSchool.Modules.Students.Persistence;
 using SmartSchool.Modules.Transport.Persistence;
@@ -46,7 +45,6 @@ internal static class ModuleDbContexts
         Add<LearningDbContext>(services, configuration);
         Add<LibraryDbContext>(services, configuration);
         Add<OrganizationDbContext>(services, configuration);
-        Add<PayrollDbContext>(services, configuration);
         Add<ReferenceDbContext>(services, configuration);
         Add<StudentsDbContext>(services, configuration);
         Add<TransportDbContext>(services, configuration);
