@@ -1,3 +1,7 @@
+using SmartSchool.Modules.Students.Persistence;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -30,7 +34,7 @@ public static class GetEnrollmentById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IEnrollmentQuery entityQuery)
+    public sealed class Handler(GetEnrollmentByIdEnrollmentReadData entityQuery)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -75,5 +79,24 @@ public static class GetEnrollmentById
             entity.ClassSectionId,
             entity.EnrollmentDate,
             entity.Status);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for GetEnrollmentById. Do not share across slices.
+/// </summary>
+internal sealed class GetEnrollmentByIdEnrollmentReadData(IStudentsDbContext dbContext,
+    IDbConnectionFactory connectionFactory)
+{
+    public Task<EnrollmentEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Enrollments
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.StudentEnrollmentId == id,
+                cancellationToken);
     }
 }

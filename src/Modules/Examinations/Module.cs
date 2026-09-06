@@ -20,16 +20,7 @@ public static class Module
         services.AddScoped<IExaminationsDbContext, ExaminationsDbContext>();
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-
-        services.AddScoped<IExamCommand, ExamCommand>();
-        services.AddScoped<IExamQuery, ExamQuery>();
-        services.AddScoped<IExamSubjectCommand, ExamSubjectCommand>();
-        services.AddScoped<IExamSubjectQuery, ExamSubjectQuery>();
-        services.AddScoped<IStudentExamResultCommand, StudentExamResultCommand>();
-        services.AddScoped<IStudentExamResultQuery, StudentExamResultQuery>();
-        services.AddScoped<IGradeScaleCommand, GradeScaleCommand>();
-        services.AddScoped<IGradeScaleQuery, GradeScaleQuery>();
-
+        services.AddScoped<GetStudentExamResultByIdStudentExamResultReadData>();
         return services;
     }
 

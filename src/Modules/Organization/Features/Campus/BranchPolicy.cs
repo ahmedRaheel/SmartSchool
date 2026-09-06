@@ -1,3 +1,5 @@
+using Dapper;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
@@ -13,7 +15,7 @@ public static class BranchPolicyEndpoints
     public sealed record PolicyResponse(Guid BranchGenderTypeId, string GenderCode, IReadOnlyCollection<LookupResponse> EducationLevels);
 
     public sealed record GetLookupsRequest(bool GenderTypes) : IRequest<Result<IReadOnlyCollection<LookupResponse>>>;
-    public sealed class GetLookupsHandler(IBranchPolicyQuery query) : IRequestHandler<GetLookupsRequest, Result<IReadOnlyCollection<LookupResponse>>>
+    public sealed class GetLookupsHandler(BranchPolicyBranchPolicyReadData query) : IRequestHandler<GetLookupsRequest, Result<IReadOnlyCollection<LookupResponse>>>
     {
         public async Task<Result<IReadOnlyCollection<LookupResponse>>> HandleAsync(GetLookupsRequest request, CancellationToken cancellationToken)
         {
@@ -25,7 +27,7 @@ public static class BranchPolicyEndpoints
     }
 
     public sealed record GetPolicyRequest(Guid? TenantId, Guid BranchId) : IRequest<Result<PolicyResponse>>;
-    public sealed class GetPolicyHandler(ITenantScope tenantScope, IBranchPolicyQuery query) : IRequestHandler<GetPolicyRequest, Result<PolicyResponse>>
+    public sealed class GetPolicyHandler(ITenantScope tenantScope, BranchPolicyBranchPolicyReadData query) : IRequestHandler<GetPolicyRequest, Result<PolicyResponse>>
     {
         public async Task<Result<PolicyResponse>> HandleAsync(GetPolicyRequest request, CancellationToken cancellationToken)
         {
@@ -48,5 +50,49 @@ public static class BranchPolicyEndpoints
         endpoints.MapGet("/api/organization/branches/{branchId:guid}/policy", async (Guid branchId, Guid? tenantId, IMediator mediator, CancellationToken ct) =>
             (await mediator.SendAsync<GetPolicyRequest, Result<PolicyResponse>>(new GetPolicyRequest(tenantId, branchId), ct)).ToHttpResult())
             .WithTags(ModuleConstants.Name).RequireAuthorization();
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for BranchPolicy. Do not share across slices.
+/// </summary>
+internal sealed class BranchPolicyBranchPolicyReadData(IDbConnectionFactory connectionFactory)
+{
+    public Task<IReadOnlyCollection<LookupItem>> GetGenderTypesAsync(CancellationToken cancellationToken) =>
+        GetLookupsAsync("SELECT branch_gender_type_id AS Id, code AS Code, name AS Name FROM reference.branch_gender_type WHERE is_active = TRUE ORDER BY sort_order, name;
+
+
+    public Task<IReadOnlyCollection<LookupItem>> GetEducationLevelsAsync(CancellationToken cancellationToken) =>
+        GetLookupsAsync("SELECT education_level_id AS Id, code AS Code, name AS Name FROM reference.education_level WHERE is_active = TRUE ORDER BY sort_order, name;
+
+
+    public async Task<BranchPolicy?> GetBranchPolicyAsync(Guid tenantId, Guid branchId, CancellationToken cancellationToken)
+    {
+        const string headerSql = """
+            SELECT c.branch_gender_type_id AS BranchGenderTypeId, g.code AS GenderCode
+            FROM org.campus c
+            INNER JOIN reference.branch_gender_type g ON g.branch_gender_type_id = c.branch_gender_type_id
+            WHERE c.tenant_id = @TenantId AND c.campus_id = @BranchId AND c.is_active = TRUE;
+            """;
+        const string levelsSql = """
+            SELECT l.education_level_id AS Id, l.code AS Code, l.name AS Name
+            FROM org.campus_education_level b
+            INNER JOIN reference.education_level l ON l.education_level_id = b.education_level_id
+            WHERE b.tenant_id = @TenantId AND b.campus_id = @BranchId AND l.is_active = TRUE
+            ORDER BY l.sort_order, l.name;
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        var (genderTypeId, genderCode) = await connection.QuerySingleOrDefaultAsync<(Guid BranchGenderTypeId, string GenderCode)>(new CommandDefinition(headerSql, new
+        {
+            TenantId = tenantId,
+            BranchId = branchId
+        }, cancellationToken: cancellationToken));
+        if (genderTypeId == Guid.Empty) return null;
+        var levels = (await connection.QueryAsync<LookupItem>(new CommandDefinition(levelsSql, new
+        {
+            TenantId = tenantId,
+            BranchId = branchId
+        }, cancellationToken: cancellationToken))).AsList();
+        return new BranchPolicy(genderTypeId, genderCode, levels);
     }
 }

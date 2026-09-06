@@ -1,3 +1,7 @@
+using SmartSchool.Modules.Communication.Persistence;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -34,7 +38,7 @@ public static class GetNotificationById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(INotificationQuery entityQuery)
+    public sealed class Handler(GetNotificationByIdNotificationReadData entityQuery)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -86,5 +90,26 @@ public static class GetNotificationById
             entity.IsRead,
             entity.ReadAt,
             entity.OccurredAt);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for GetNotificationById. Do not share across slices.
+/// </summary>
+internal sealed class GetNotificationByIdNotificationReadData(ICommunicationDbContext dbContext,
+    IDbConnectionFactory connectionFactory)
+{
+
+    public Task<NotificationEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Notifications
+            .SingleOrDefaultAsync(
+                entity =>
+                    entity.TenantId == tenantId &&
+                    entity.NotificationId == id,
+                cancellationToken);
     }
 }

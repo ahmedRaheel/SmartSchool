@@ -1,3 +1,9 @@
+using Dapper;
+using SmartSchool.Modules.Students.Persistence;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Students.Models;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
@@ -11,7 +17,7 @@ public static class StrikeOffStudent
     public sealed record Request(Guid TenantId, Guid StudentId, string Reason) : IRequest<Result<Response>>;
     public sealed record Response(Guid StudentId, string Status);
 
-    public sealed class Handler(IStudentQuery query, IStudentCommand command, IIdentityAccountService accounts)
+    public sealed class Handler(StrikeOffStudentStudentReadData query, StrikeOffStudentStudentWriteData command, IIdentityAccountService accounts)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -33,5 +39,41 @@ public static class StrikeOffStudent
             return (await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken)).ToHttpResult();
         }).WithName("StrikeOffStudent").WithTags("Students").RequireAuthorization();
         return endpoints;
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for StrikeOffStudent. Do not share across slices.
+/// </summary>
+internal sealed class StrikeOffStudentStudentWriteData(IStudentsDbContext dbContext)
+{
+
+    public async Task UpdateAsync(
+        StudentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Students
+            .Update(entity);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for StrikeOffStudent. Do not share across slices.
+/// </summary>
+internal sealed class StrikeOffStudentStudentReadData(IStudentsDbContext dbContext,
+    IDbConnectionFactory connectionFactory)
+{
+    public Task<StudentEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Students
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.StudentId == id,
+                cancellationToken);
     }
 }

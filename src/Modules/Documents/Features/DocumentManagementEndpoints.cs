@@ -25,7 +25,7 @@ public static class DocumentManagementEndpoints
     }
 
     private static async Task<IResult> UploadAsync(
-        HttpRequest request, Guid? tenantId, ITenantScope tenantScope, IDbConnectionFactory factory, CancellationToken ct)
+        HttpRequest request, Guid? tenantId, ITenantScope tenantScope, IDbConnectionFactory factory, TimeProvider timeProvider, CancellationToken ct)
     {
         var resolvedTenant = tenantScope.Resolve(tenantId);
         if (!resolvedTenant.HasValue) return Results.BadRequest(new { message = "Tenant is required for SuperAdmin." });
@@ -63,7 +63,7 @@ public static class DocumentManagementEndpoints
         var checksum = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
         var documentId = Guid.NewGuid();
         var linkId = Guid.NewGuid();
-        var documentNumber = $"DOC-{DateTime.UtcNow:yyyyMMdd}-{documentId.ToString("N")[..8].ToUpperInvariant()}";
+        var documentNumber = $"DOC-{timeProvider.GetUtcNow():yyyyMMdd}-{documentId.ToString("N")[..8].ToUpperInvariant()}";
         var extension = Path.GetExtension(file.FileName);
 
         const string sql = """

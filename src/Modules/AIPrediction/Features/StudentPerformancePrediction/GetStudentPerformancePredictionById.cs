@@ -1,3 +1,7 @@
+using SmartSchool.Modules.AIPrediction.Persistence;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -28,7 +32,7 @@ public static class GetStudentPerformancePredictionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(IStudentPerformancePredictionQuery entityQuery)
+    public sealed class Handler(GetStudentPerformancePredictionByIdStudentPerformancePredictionReadData entityQuery)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -71,5 +75,24 @@ public static class GetStudentPerformancePredictionById
             entity.Code,
             entity.Name,
             entity.MetadataJson);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for GetStudentPerformancePredictionById. Do not share across slices.
+/// </summary>
+internal sealed class GetStudentPerformancePredictionByIdStudentPerformancePredictionReadData(IAIPredictionDbContext dbContext,
+    IDbConnectionFactory connectionFactory)
+{
+    public Task<StudentPerformancePredictionEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.StudentPerformancePredictions
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.StudentPerformancePredictionId == id,
+                cancellationToken);
     }
 }

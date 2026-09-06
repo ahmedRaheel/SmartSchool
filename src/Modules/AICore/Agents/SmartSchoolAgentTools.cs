@@ -16,9 +16,9 @@ namespace SmartSchool.Modules.AICore.Agents;
 public sealed class SmartSchoolAgentTools(
     ICurrentUser currentUser,
     ITenantScope tenantScope,
-    IStudentQuery studentQuery,
-    IStudentExamResultQuery examResultQuery,
-    IStudentPerformancePredictionQuery predictionQuery)
+    StudentReader studentQuery,
+    StudentExamResultReader examResultQuery,
+    StudentPerformancePredictionReader predictionQuery)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 

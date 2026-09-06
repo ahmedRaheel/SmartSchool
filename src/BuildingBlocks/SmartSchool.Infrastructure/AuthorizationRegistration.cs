@@ -34,7 +34,7 @@ public static class AuthorizationRegistration
             AddPolicy(options, SmartSchoolPolicies.HumanResourcesManagement,
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Admin, SmartSchoolRoles.HrManager);
             AddPolicy(options, SmartSchoolPolicies.AiKnowledgeContribution,
-                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Principal,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.Tenant, SmartSchoolRoles.Principal,
                 SmartSchoolRoles.Teacher, SmartSchoolRoles.Examiner, SmartSchoolRoles.HrManager, SmartSchoolRoles.Accountant);
             AddPolicy(options, SmartSchoolPolicies.SuperAdminOnly,
                 SmartSchoolRoles.SuperAdmin);

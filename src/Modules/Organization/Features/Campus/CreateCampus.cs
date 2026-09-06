@@ -1,3 +1,7 @@
+using SmartSchool.Modules.Organization.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
+using System.Threading.Tasks;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -29,7 +33,7 @@ public static class CreateCampus
         }
     }
 
-    public sealed class Handler(ITenantScope tenantScope, ICampusCommand command, ISchoolQuery schoolQuery, IBranchPolicyCommand policyCommand, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(ITenantScope tenantScope, CreateCampusCampusWriteData command, CreateCampusSchoolReadData schoolQuery, CreateCampusBranchPolicyWriteData policyCommand, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
@@ -61,4 +65,137 @@ public static class CreateCampus
     }
 
     private static Response Map(CampusEntity campus, IReadOnlyCollection<Guid> levels) => new(campus.CampusId, campus.SchoolId, campus.Code, campus.Name, campus.BranchType, campus.BranchGenderTypeId, campus.AcademicSystemId, levels, campus.Address, campus.City, campus.Province, campus.Country, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl);
+}
+
+/// <summary>
+/// Feature-owned data access for CreateCampus. Do not share across slices.
+/// </summary>
+internal sealed class CreateCampusSchoolReadData(IDbConnectionFactory connectionFactory)
+{
+    public async Task<SchoolEntity?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT *
+            FROM org.school
+            WHERE tenant_id = @TenantId
+              AND school_id = @Id
+              AND is_active = TRUE;
+            """;
+
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<SchoolEntity>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    Id = id
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for CreateCampus. Do not share across slices.
+/// </summary>
+internal sealed class CreateCampusBranchPolicyWriteData(IDbConnectionFactory connectionFactory)
+{
+    public async Task<bool> GenderTypeExistsAsync(Guid genderTypeId, CancellationToken cancellationToken)
+    {
+        const string sql = "SELECT EXISTS(SELECT 1 FROM reference.branch_gender_type WHERE branch_gender_type_id=@Id AND is_active=TRUE);";
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { Id = genderTypeId }, cancellationToken: cancellationToken));
+    }
+
+
+    public async Task<bool> EducationLevelsExistAsync(IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
+    {
+        if (educationLevelIds.Count == 0) return false;
+        const string sql = "SELECT COUNT(*) FROM reference.education_level WHERE education_level_id = ANY(@Ids) AND is_active=TRUE;";
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        var count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, new { Ids = educationLevelIds.ToArray() }, cancellationToken: cancellationToken));
+        return count == educationLevelIds.Distinct().Count();
+    }
+
+
+    public async Task SetEducationLevelsAsync(Guid tenantId, Guid branchId, IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
+    {
+        const string deleteSql = "DELETE FROM org.campus_education_level WHERE tenant_id=@TenantId AND campus_id=@CampusId;";
+        const string insertSql = "INSERT INTO org.campus_education_level(tenant_id, campus_id, education_level_id) VALUES(@TenantId, @CampusId, @EducationLevelId);";
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+        await connection.ExecuteAsync(new CommandDefinition(deleteSql, new { TenantId = tenantId, CampusId = branchId }, transaction, cancellationToken: cancellationToken));
+        foreach (var levelId in educationLevelIds.Distinct())
+            await connection.ExecuteAsync(new CommandDefinition(insertSql, new { TenantId = tenantId, CampusId = branchId, EducationLevelId = levelId }, transaction, cancellationToken: cancellationToken));
+        await transaction.CommitAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for CreateCampus. Do not share across slices.
+/// </summary>
+internal sealed class CreateCampusCampusWriteData(IOrganizationDbContext dbContext)
+{
+    public async Task AddAsync(
+        CampusEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Campuses
+            .AddAsync(entity, cancellationToken);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+
+    public async Task SyncGradeLevelsAsync(
+        Guid tenantId,
+        Guid campusId,
+        Guid? academicSystemId,
+        CancellationToken cancellationToken)
+    {
+        if (!academicSystemId.HasValue)
+        {
+            return;
+        }
+
+        var academicSystem = await dbContext.AcademicSystems
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                x => x.TenantId == tenantId && x.AcademicSystemId == academicSystemId.Value,
+                cancellationToken);
+
+        if (academicSystem is null)
+        {
+            throw new InvalidOperationException("The selected academic system does not belong to the tenant.");
+        }
+
+        var presets = CampusGradeLevelPresets.Resolve(academicSystem.Code, academicSystem.Name);
+        var existingCodes = await dbContext.GradeLevels
+            .AsNoTracking()
+            .Where(x => x.TenantId == tenantId && x.CampusId == campusId)
+            .Select(x => x.Code)
+            .ToListAsync(cancellationToken);
+
+        var existing = existingCodes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var preset in presets.Where(x => !existing.Contains(x.Code)))
+        {
+            await dbContext.GradeLevels.AddAsync(
+                GradeLevelEntity.Create(
+                    tenantId,
+                    campusId,
+                    academicSystemId,
+                    preset.Code,
+                    preset.Name,
+                    preset.SortOrder,
+                    "{\"source\":\"campus-academic-system\"}"),
+                cancellationToken);
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }
