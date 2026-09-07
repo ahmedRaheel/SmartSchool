@@ -17,7 +17,8 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IWorkflowDbContext, WorkflowDbContext>();
+        services.AddScoped<IWorkflowDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<WorkflowDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

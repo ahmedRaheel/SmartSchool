@@ -40,14 +40,14 @@ public static class CreateReservation
         }
     }
 
-    public interface ICreateReservation
+    public interface ICreateReservationCommand
     {
         Task AddAsync(
                 ReservationEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateReservationPersistence(ILibraryDbContext dbContext) : ICreateReservation
+    internal sealed class CreateReservationCommand(ILibraryDbContext dbContext) : ICreateReservationCommand
     {
         public async Task AddAsync(
                 ReservationEntity entity,
@@ -60,21 +60,19 @@ public static class CreateReservation
             }
     }
 
-    public sealed class Handler(ICreateReservation dataAccess)
+    public sealed class Handler(ICreateReservationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ReservationEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

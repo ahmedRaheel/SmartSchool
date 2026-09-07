@@ -19,12 +19,11 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAIInquiryDbContext, AIInquiryDbContext>();
+        services.AddScoped<IAIInquiryDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<AIInquiryDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<IHumanHandoffCommand, HumanHandoffCommand>();
 
-        services.AddScoped<ILeadCaptureCommand, LeadCaptureCommand>();
 
 
         return services;

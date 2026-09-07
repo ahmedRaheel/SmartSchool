@@ -229,7 +229,10 @@ public sealed class IdentityAccountService : IIdentityAccountService
                 $"Identity service rejected the service access token while attempting to {operation}.");
         }
 
-        response.EnsureSuccessStatusCode();
+        throw new HttpRequestException(
+            $"Identity service failed to {operation}. HTTP {(int)response.StatusCode} ({response.StatusCode}). Response: {responseBody}",
+            inner: null,
+            response.StatusCode);
     }
 
     private sealed record CreateAccountResponse(

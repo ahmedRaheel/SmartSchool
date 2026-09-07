@@ -20,7 +20,7 @@ public static class DeleteKnowledgeDocument
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteKnowledgeDocument
+    public interface IDeleteKnowledgeDocumentCommand
     {
         Task DeleteAsync(
                 KnowledgeDocumentEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteKnowledgeDocument
 
     }
 
-    internal sealed class DeleteKnowledgeDocumentPersistence(IAICoreDbContext dbContext) : IDeleteKnowledgeDocument
+    internal sealed class DeleteKnowledgeDocumentCommand(IAICoreDbContext dbContext) : IDeleteKnowledgeDocumentCommand
     {
         public async Task DeleteAsync(
                 KnowledgeDocumentEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteKnowledgeDocument
             }
     }
 
-    public sealed class Handler(IDeleteKnowledgeDocument dataAccess)
+    public sealed class Handler(IDeleteKnowledgeDocumentCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeDocumentEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

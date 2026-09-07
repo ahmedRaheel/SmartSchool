@@ -20,7 +20,7 @@ public static class DeleteWorkflowDefinition
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteWorkflowDefinition
+    public interface IDeleteWorkflowDefinitionCommand
     {
         Task DeleteAsync(
                 WorkflowDefinitionEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteWorkflowDefinition
 
     }
 
-    internal sealed class DeleteWorkflowDefinitionPersistence(IWorkflowDbContext dbContext) : IDeleteWorkflowDefinition
+    internal sealed class DeleteWorkflowDefinitionCommand(IWorkflowDbContext dbContext) : IDeleteWorkflowDefinitionCommand
     {
         public async Task DeleteAsync(
                 WorkflowDefinitionEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteWorkflowDefinition
             }
     }
 
-    public sealed class Handler(IDeleteWorkflowDefinition dataAccess)
+    public sealed class Handler(IDeleteWorkflowDefinitionCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowDefinitionEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

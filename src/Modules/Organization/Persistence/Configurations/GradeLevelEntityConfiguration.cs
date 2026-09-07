@@ -23,7 +23,7 @@ public sealed class GradeLevelEntityConfiguration
             .Property(entity => entity.IsActive)
             .IsRequired();
 
-        builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => new { entity.TenantId, entity.CampusId });
 
         builder.Property(entity => entity.CreatedAt).IsRequired();
         builder.Property(entity => entity.UpdatedAt);
@@ -35,7 +35,7 @@ public sealed class GradeLevelEntityConfiguration
             .IsRequired();
 
         builder
-            .HasIndex(entity => new { entity.TenantId, entity.Code })
+            .HasIndex(entity => new { entity.TenantId, entity.CampusId, entity.Code })
             .IsUnique();
 
         builder
@@ -56,6 +56,18 @@ public sealed class GradeLevelEntityConfiguration
         builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
         // Database columns synchronized from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.CampusId).HasColumnName("campus_id").IsRequired();
+        builder.Property(entity => entity.AcademicSystemId).HasColumnName("academic_system_id");
         builder.Property(entity => entity.SortOrder).HasColumnName("sort_order");
+
+        builder.HasOne<CampusEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.CampusId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<AcademicSystemEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.AcademicSystemId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -20,7 +20,7 @@ public static class DeleteAuditLog
         Guid TenantId,
         long Id);
 
-    public interface IDeleteAuditLog
+    public interface IDeleteAuditLogCommand
     {
         Task DeleteAsync(
                 AuditLogEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteAuditLog
 
     }
 
-    internal sealed class DeleteAuditLogPersistence(IAuditDbContext dbContext) : IDeleteAuditLog
+    internal sealed class DeleteAuditLogCommand(IAuditDbContext dbContext) : IDeleteAuditLogCommand
     {
         public async Task DeleteAsync(
                 AuditLogEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteAuditLog
             }
     }
 
-    public sealed class Handler(IDeleteAuditLog dataAccess)
+    public sealed class Handler(IDeleteAuditLogCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(AuditLogEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

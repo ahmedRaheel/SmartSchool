@@ -40,14 +40,14 @@ public static class CreateApplication
         }
     }
 
-    public interface ICreateApplication
+    public interface ICreateApplicationCommand
     {
         Task AddAsync(
                 ApplicationEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateApplicationPersistence(IAdmissionsDbContext dbContext) : ICreateApplication
+    internal sealed class CreateApplicationCommand(IAdmissionsDbContext dbContext) : ICreateApplicationCommand
     {
         public async Task AddAsync(
                 ApplicationEntity entity,
@@ -60,21 +60,19 @@ public static class CreateApplication
             }
     }
 
-    public sealed class Handler(ICreateApplication dataAccess)
+    public sealed class Handler(ICreateApplicationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ApplicationEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

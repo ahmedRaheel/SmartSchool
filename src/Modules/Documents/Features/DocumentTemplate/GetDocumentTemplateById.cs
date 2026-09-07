@@ -29,7 +29,7 @@ public static class GetDocumentTemplateById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetDocumentTemplateById
+    public interface IGetDocumentTemplateByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetDocumentTemplateById
 
     }
 
-    internal sealed class GetDocumentTemplateByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetDocumentTemplateById
+    internal sealed class GetDocumentTemplateByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetDocumentTemplateByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetDocumentTemplateById
             }
     }
 
-    public sealed class Handler(IGetDocumentTemplateById dataAccess)
+    public sealed class Handler(IGetDocumentTemplateByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

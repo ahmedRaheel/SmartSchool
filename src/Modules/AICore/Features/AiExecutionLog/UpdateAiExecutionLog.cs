@@ -42,7 +42,7 @@ public static class UpdateAiExecutionLog
         }
     }
 
-    public interface IUpdateAiExecutionLog
+    public interface IUpdateAiExecutionLogCommand
     {
         Task UpdateAsync(
                 AiExecutionLogEntity entity,
@@ -54,7 +54,7 @@ Task<AiExecutionLogEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAiExecutionLogPersistence(IAICoreDbContext dbContext) : IUpdateAiExecutionLog
+    internal sealed class UpdateAiExecutionLogCommand(IAICoreDbContext dbContext) : IUpdateAiExecutionLogCommand
     {
         public async Task UpdateAsync(
                 AiExecutionLogEntity entity,
@@ -79,14 +79,14 @@ Task<AiExecutionLogEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateAiExecutionLog dataAccess)
+    public sealed class Handler(IUpdateAiExecutionLogCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<AiExecutionLogEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

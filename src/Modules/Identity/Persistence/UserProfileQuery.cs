@@ -35,22 +35,22 @@ public sealed class UserProfileQuery(
         CancellationToken cancellationToken)
     {
         const string countSql = """
-            SELECT COUNT(*)
-            FROM public.UserProfile
-            WHERE tenant_id = @TenantId
-              AND is_active = TRUE;
-            """;
+			SELECT COUNT(*)
+			FROM public.UserProfile
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE;
+			""";
 
         const string pageSql = """
-            SELECT
-                tenant_id AS "TenantId",
-                userprofile_id AS "Id"
-            FROM public.UserProfile
-            WHERE tenant_id = @TenantId
-              AND is_active = TRUE
-            ORDER BY userprofile_id
-            LIMIT @PageSize OFFSET @Offset;
-            """;
+			SELECT
+				tenant_id AS "TenantId",
+				userprofile_id AS "Id"
+			FROM public.UserProfile
+			WHERE tenant_id = @TenantId
+			  AND is_active = TRUE
+			ORDER BY userprofile_id
+			LIMIT @PageSize OFFSET @Offset;
+			""";
 
         await using var connection =
             await connectionFactory.OpenConnectionAsync(cancellationToken);

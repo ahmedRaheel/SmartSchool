@@ -29,7 +29,7 @@ public static class GetMessageReceiptById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetMessageReceiptById
+    public interface IGetMessageReceiptByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetMessageReceiptById
 
     }
 
-    internal sealed class GetMessageReceiptByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetMessageReceiptById
+    internal sealed class GetMessageReceiptByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetMessageReceiptByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetMessageReceiptById
             }
     }
 
-    public sealed class Handler(IGetMessageReceiptById dataAccess)
+    public sealed class Handler(IGetMessageReceiptByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

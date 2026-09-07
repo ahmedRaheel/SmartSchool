@@ -42,7 +42,7 @@ public static class UpdateParentToolExecution
         }
     }
 
-    public interface IUpdateParentToolExecution
+    public interface IUpdateParentToolExecutionCommand
     {
         Task UpdateAsync(
                 ParentToolExecutionEntity entity,
@@ -54,7 +54,7 @@ Task<ParentToolExecutionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateParentToolExecutionPersistence(IAIParentDbContext dbContext) : IUpdateParentToolExecution
+    internal sealed class UpdateParentToolExecutionCommand(IAIParentDbContext dbContext) : IUpdateParentToolExecutionCommand
     {
         public async Task UpdateAsync(
                 ParentToolExecutionEntity entity,
@@ -79,14 +79,14 @@ Task<ParentToolExecutionEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateParentToolExecution dataAccess)
+    public sealed class Handler(IUpdateParentToolExecutionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ParentToolExecutionEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -40,14 +40,14 @@ public static class CreateLoan
         }
     }
 
-    public interface ICreateLoan
+    public interface ICreateLoanCommand
     {
         Task AddAsync(
                 LoanEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLoanPersistence(ILibraryDbContext dbContext) : ICreateLoan
+    internal sealed class CreateLoanCommand(ILibraryDbContext dbContext) : ICreateLoanCommand
     {
         public async Task AddAsync(
                 LoanEntity entity,
@@ -60,21 +60,19 @@ public static class CreateLoan
             }
     }
 
-    public sealed class Handler(ICreateLoan dataAccess)
+    public sealed class Handler(ICreateLoanCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = LoanEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

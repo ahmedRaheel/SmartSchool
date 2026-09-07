@@ -40,14 +40,14 @@ public static class CreateEmployeeCompensation
         }
     }
 
-    public interface ICreateEmployeeCompensation
+    public interface ICreateEmployeeCompensationCommand
     {
         Task AddAsync(
                 EmployeeCompensationEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateEmployeeCompensationPersistence(IPayrollDbContext dbContext) : ICreateEmployeeCompensation
+    internal sealed class CreateEmployeeCompensationCommand(IPayrollDbContext dbContext) : ICreateEmployeeCompensationCommand
     {
         public async Task AddAsync(
                 EmployeeCompensationEntity entity,
@@ -60,21 +60,19 @@ public static class CreateEmployeeCompensation
             }
     }
 
-    public sealed class Handler(ICreateEmployeeCompensation dataAccess)
+    public sealed class Handler(ICreateEmployeeCompensationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = EmployeeCompensationEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

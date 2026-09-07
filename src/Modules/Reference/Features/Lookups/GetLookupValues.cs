@@ -9,8 +9,8 @@ public static class GetLookupValues
 {
     public sealed record Response(long Id, string TypeCode, string Code, string Name, int SortOrder, bool IsTenantScoped, bool CanManage);
     public sealed record Request(string TypeCode, Guid? TenantId = null) : IRequest<IReadOnlyList<Response>>;
-    public interface IGetLookupValues { Task<IReadOnlyList<Response>> ExecuteAsync(string typeCode, Guid? tenantId, CancellationToken cancellationToken); }
-    internal sealed class GetLookupValuesPersistence(IDbConnectionFactory connectionFactory) : IGetLookupValues
+    public interface IGetLookupValuesQuery { Task<IReadOnlyList<Response>> ExecuteAsync(string typeCode, Guid? tenantId, CancellationToken cancellationToken); }
+    internal sealed class GetLookupValuesQuery(IDbConnectionFactory connectionFactory) : IGetLookupValuesQuery
     {
         public async Task<IReadOnlyList<Response>> ExecuteAsync(string typeCode, Guid? tenantId, CancellationToken cancellationToken)
         {
@@ -30,7 +30,7 @@ public static class GetLookupValues
                 new { TypeCode = typeCode.Trim().ToUpperInvariant(), TenantId = tenantId }, cancellationToken: cancellationToken))).AsList();
         }
     }
-    public sealed class Handler(IGetLookupValues query, ITenantScope tenantScope) : IRequestHandler<Request, IReadOnlyList<Response>>
+    public sealed class Handler(IGetLookupValuesQuery query, ITenantScope tenantScope) : IRequestHandler<Request, IReadOnlyList<Response>>
     {
         public Task<IReadOnlyList<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
             => query.ExecuteAsync(request.TypeCode, tenantScope.Resolve(request.TenantId), cancellationToken);

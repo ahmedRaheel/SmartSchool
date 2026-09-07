@@ -1,63 +1,96 @@
 using System.Net.Http.Json;
+using Microsoft.Extensions.Options;
+using SmartSchool.Application.AI;
+using SmartSchool.Modules.AICore.Rag.Ollama;
 
 namespace SmartSchool.Modules.AICore.Cag;
 
-internal interface IOllamaClient
-{
-    /// <summary>Creates an embedding for the supplied text.</summary>
-    Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken);
-    /// <summary>Generates a model response for the supplied prompt.</summary>
-    Task<(string Answer, string Model)> GenerateAsync(string prompt, CancellationToken cancellationToken);
-}
-
-internal sealed class OllamaClient(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IOllamaClient
+internal sealed class OllamaClient(
+    IHttpClientFactory httpClientFactory,
+    IOptionsMonitor<OllamaRagOptions> options) : IOllamaClient
 {
     private sealed record EmbeddingResponse(float[][] Embeddings);
     private sealed record GenerateResponse(string Response);
 
-    /// <summary>Creates an embedding using the configured Ollama embedding model.</summary>
     public async Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken)
     {
-        var client = CreateClient();
-        var response = await client.PostAsJsonAsync("api/embed", new
-        {
-            model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text",
-            input = text
-        }, cancellationToken);
-
-        response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<EmbeddingResponse>(cancellationToken: cancellationToken);
-        return result?.Embeddings is { Length: > 0 } && result.Embeddings[0].Length > 0
-            ? result.Embeddings[0]
-            : throw new InvalidOperationException("Ollama returned an empty embedding.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(text);
+        var embeddings = await EmbedBatchAsync([text], cancellationToken).ConfigureAwait(false);
+        return embeddings[0];
     }
 
-    /// <summary>Generates a response using the configured Ollama chat model.</summary>
-    public async Task<(string Answer, string Model)> GenerateAsync(string prompt, CancellationToken cancellationToken)
+    public async Task<float[][]> EmbedBatchAsync(
+        IReadOnlyCollection<string> texts,
+        CancellationToken cancellationToken)
     {
-        var model = configuration["AI:Ollama:ChatModel"] ?? "qwen3:1.7b";
-        var client = CreateClient();
-        var response = await client.PostAsJsonAsync("api/generate", new
+        ArgumentNullException.ThrowIfNull(texts);
+        if (texts.Count == 0)
         {
-            model,
-            prompt = "/no_think\n" + prompt,
-            stream = false,
-            keep_alive = "30m",
-            options = new
-            {
-                temperature = 0.1,
-                num_predict = 256
-            }
-        }, cancellationToken);
-        response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<GenerateResponse>(cancellationToken: cancellationToken);
-        return (result?.Response ?? string.Empty, model);
-    }
+            return [];
+        }
 
-    private HttpClient CreateClient()
-    {
+        var current = options.CurrentValue;
         var client = httpClientFactory.CreateClient("Ollama");
-        client.BaseAddress = new Uri((configuration["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/') + "/");
-        return client;
+        using var response = await client.PostAsJsonAsync(
+            "api/embed",
+            new { model = current.EmbeddingModel, input = texts },
+            cancellationToken).ConfigureAwait(false);
+
+        await EnsureSuccessAsync(response, current.EmbeddingModel, "embedding", cancellationToken)
+            .ConfigureAwait(false);
+
+        var result = await response.Content.ReadFromJsonAsync<EmbeddingResponse>(
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        if (result?.Embeddings is not { Length: > 0 } embeddings || embeddings.Length != texts.Count)
+        {
+            throw new InvalidOperationException(
+                $"Ollama returned {result?.Embeddings?.Length ?? 0} embeddings for {texts.Count} inputs using model '{current.EmbeddingModel}'.");
+        }
+
+        return embeddings;
+    }
+
+    public async Task<(string Answer, string Model)> GenerateAsync(
+        string prompt,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(prompt);
+        var current = options.CurrentValue;
+        var client = httpClientFactory.CreateClient("Ollama");
+        using var response = await client.PostAsJsonAsync(
+            "api/generate",
+            new
+            {
+                model = current.ChatModel,
+                prompt = "/no_think\n" + prompt,
+                stream = false,
+                keep_alive = "30m",
+                options = new { temperature = 0.1, num_predict = 256 }
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        await EnsureSuccessAsync(response, current.ChatModel, "generation", cancellationToken)
+            .ConfigureAwait(false);
+
+        var result = await response.Content.ReadFromJsonAsync<GenerateResponse>(
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        return (result?.Response ?? string.Empty, current.ChatModel);
+    }
+
+    private static async Task EnsureSuccessAsync(
+        HttpResponseMessage response,
+        string model,
+        string operation,
+        CancellationToken cancellationToken)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        throw new InvalidOperationException(
+            $"Ollama {operation} failed for model '{model}'. HTTP {(int)response.StatusCode} ({response.StatusCode}). Response: {body}");
     }
 }

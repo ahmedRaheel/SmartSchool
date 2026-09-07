@@ -29,7 +29,7 @@ public static class GetStudentTransportById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetStudentTransportById
+    public interface IGetStudentTransportByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetStudentTransportById
 
     }
 
-    internal sealed class GetStudentTransportByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetStudentTransportById
+    internal sealed class GetStudentTransportByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetStudentTransportByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetStudentTransportById
             }
     }
 
-    public sealed class Handler(IGetStudentTransportById dataAccess)
+    public sealed class Handler(IGetStudentTransportByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

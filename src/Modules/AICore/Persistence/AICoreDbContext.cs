@@ -12,6 +12,7 @@ public interface IAICoreDbContext
     DbSet<KnowledgeChunkEntity> KnowledgeChunks { get; }
     DbSet<KnowledgeCollectionEntity> KnowledgeCollections { get; }
     DbSet<KnowledgeDocumentEntity> KnowledgeDocuments { get; }
+    DbSet<Features.KnowledgeDocument.RagKnowledgeChunkWriteEntity> RagKnowledgeChunks { get; }
     DbSet<ModelConfigurationEntity> ModelConfigurations { get; }
     DbSet<PromptTemplateEntity> PromptTemplates { get; }
     DbSet<ToolDefinitionEntity> ToolDefinitions { get; }
@@ -30,6 +31,7 @@ public sealed class AICoreDbContext(DbContextOptions<AICoreDbContext> options)
     public DbSet<KnowledgeChunkEntity> KnowledgeChunks => Set<KnowledgeChunkEntity>();
     public DbSet<KnowledgeCollectionEntity> KnowledgeCollections => Set<KnowledgeCollectionEntity>();
     public DbSet<KnowledgeDocumentEntity> KnowledgeDocuments => Set<KnowledgeDocumentEntity>();
+    public DbSet<Features.KnowledgeDocument.RagKnowledgeChunkWriteEntity> RagKnowledgeChunks => Set<Features.KnowledgeDocument.RagKnowledgeChunkWriteEntity>();
     public DbSet<ModelConfigurationEntity> ModelConfigurations => Set<ModelConfigurationEntity>();
     public DbSet<PromptTemplateEntity> PromptTemplates => Set<PromptTemplateEntity>();
     public DbSet<ToolDefinitionEntity> ToolDefinitions => Set<ToolDefinitionEntity>();

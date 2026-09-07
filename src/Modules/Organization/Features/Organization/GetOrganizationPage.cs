@@ -1,11 +1,11 @@
 using Dapper;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Organization.Features.Organization;
 
@@ -26,12 +26,12 @@ public static class GetOrganizationPage
         string? ContactPhoneNumber,
         int SchoolCount);
 
-    public interface IGetOrganizationPage
+    public interface IGetOrganizationPageQuery
     {
         Task<PagedResult<Response>> GetAsync(int page, int pageSize, CancellationToken cancellationToken);
     }
 
-    internal sealed class Persistence(IDbConnectionFactory connectionFactory) : IGetOrganizationPage
+    internal sealed class GetOrganizationPageQuery(IDbConnectionFactory connectionFactory) : IGetOrganizationPageQuery
     {
         public async Task<PagedResult<Response>> GetAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
@@ -90,7 +90,7 @@ public static class GetOrganizationPage
             int SchoolCount);
     }
 
-    public sealed class Handler(IGetOrganizationPage persistence)
+    public sealed class Handler(IGetOrganizationPageQuery persistence)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(Query request, CancellationToken cancellationToken)

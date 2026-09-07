@@ -42,7 +42,7 @@ public static class UpdateModelConfiguration
         }
     }
 
-    public interface IUpdateModelConfiguration
+    public interface IUpdateModelConfigurationCommand
     {
         Task UpdateAsync(
                 ModelConfigurationEntity entity,
@@ -54,7 +54,7 @@ Task<ModelConfigurationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateModelConfigurationPersistence(IAICoreDbContext dbContext) : IUpdateModelConfiguration
+    internal sealed class UpdateModelConfigurationCommand(IAICoreDbContext dbContext) : IUpdateModelConfigurationCommand
     {
         public async Task UpdateAsync(
                 ModelConfigurationEntity entity,
@@ -79,14 +79,14 @@ Task<ModelConfigurationEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateModelConfiguration dataAccess)
+    public sealed class Handler(IUpdateModelConfigurationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ModelConfigurationEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

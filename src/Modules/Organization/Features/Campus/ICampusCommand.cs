@@ -22,6 +22,13 @@ public interface ICampusCommand
         CampusEntity entity,
         CancellationToken cancellationToken);
 
+    /// <summary>Synchronizes campus grade levels from its selected academic system.</summary>
+    Task SyncGradeLevelsAsync(
+        Guid tenantId,
+        Guid campusId,
+        Guid? academicSystemId,
+        CancellationToken cancellationToken);
+
     /// <summary>
     /// Executes the persistence operation.
     /// </summary>

@@ -31,7 +31,7 @@ public static class GetSchoolLogoPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetSchoolLogoPage
+    public interface IGetSchoolLogoPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetSchoolLogoPage
 
     }
 
-    internal sealed class GetSchoolLogoPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetSchoolLogoPage
+    internal sealed class GetSchoolLogoPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetSchoolLogoPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetSchoolLogoPage
             }
     }
 
-    public sealed class Handler(IGetSchoolLogoPage dataAccess)
+    public sealed class Handler(IGetSchoolLogoPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetSchoolLogoPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

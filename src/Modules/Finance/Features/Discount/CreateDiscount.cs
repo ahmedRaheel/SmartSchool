@@ -40,14 +40,14 @@ public static class CreateDiscount
         }
     }
 
-    public interface ICreateDiscount
+    public interface ICreateDiscountCommand
     {
         Task AddAsync(
                 DiscountEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateDiscountPersistence(IFinanceDbContext dbContext) : ICreateDiscount
+    internal sealed class CreateDiscountCommand(IFinanceDbContext dbContext) : ICreateDiscountCommand
     {
         public async Task AddAsync(
                 DiscountEntity entity,
@@ -60,21 +60,19 @@ public static class CreateDiscount
             }
     }
 
-    public sealed class Handler(ICreateDiscount dataAccess)
+    public sealed class Handler(ICreateDiscountCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = DiscountEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

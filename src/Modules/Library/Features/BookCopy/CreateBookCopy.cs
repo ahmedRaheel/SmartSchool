@@ -40,14 +40,14 @@ public static class CreateBookCopy
         }
     }
 
-    public interface ICreateBookCopy
+    public interface ICreateBookCopyCommand
     {
         Task AddAsync(
                 BookCopyEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateBookCopyPersistence(ILibraryDbContext dbContext) : ICreateBookCopy
+    internal sealed class CreateBookCopyCommand(ILibraryDbContext dbContext) : ICreateBookCopyCommand
     {
         public async Task AddAsync(
                 BookCopyEntity entity,
@@ -60,21 +60,19 @@ public static class CreateBookCopy
             }
     }
 
-    public sealed class Handler(ICreateBookCopy dataAccess)
+    public sealed class Handler(ICreateBookCopyCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = BookCopyEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -40,14 +40,14 @@ public static class CreatePurchaseOrder
         }
     }
 
-    public interface ICreatePurchaseOrder
+    public interface ICreatePurchaseOrderCommand
     {
         Task AddAsync(
                 PurchaseOrderEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePurchaseOrderPersistence(IInventoryDbContext dbContext) : ICreatePurchaseOrder
+    internal sealed class CreatePurchaseOrderCommand(IInventoryDbContext dbContext) : ICreatePurchaseOrderCommand
     {
         public async Task AddAsync(
                 PurchaseOrderEntity entity,
@@ -60,21 +60,19 @@ public static class CreatePurchaseOrder
             }
     }
 
-    public sealed class Handler(ICreatePurchaseOrder dataAccess)
+    public sealed class Handler(ICreatePurchaseOrderCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = PurchaseOrderEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

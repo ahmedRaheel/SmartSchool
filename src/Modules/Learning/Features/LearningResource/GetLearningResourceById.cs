@@ -29,7 +29,7 @@ public static class GetLearningResourceById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetLearningResourceById
+    public interface IGetLearningResourceByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetLearningResourceById
 
     }
 
-    internal sealed class GetLearningResourceByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetLearningResourceById
+    internal sealed class GetLearningResourceByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetLearningResourceByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetLearningResourceById
             }
     }
 
-    public sealed class Handler(IGetLearningResourceById dataAccess)
+    public sealed class Handler(IGetLearningResourceByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

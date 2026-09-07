@@ -29,7 +29,7 @@ public static class GetPredictionEvaluationById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetPredictionEvaluationById
+    public interface IGetPredictionEvaluationByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetPredictionEvaluationById
 
     }
 
-    internal sealed class GetPredictionEvaluationByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetPredictionEvaluationById
+    internal sealed class GetPredictionEvaluationByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetPredictionEvaluationByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetPredictionEvaluationById
             }
     }
 
-    public sealed class Handler(IGetPredictionEvaluationById dataAccess)
+    public sealed class Handler(IGetPredictionEvaluationByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

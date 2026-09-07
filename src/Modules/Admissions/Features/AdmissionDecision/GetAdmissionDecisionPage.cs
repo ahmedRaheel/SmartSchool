@@ -31,7 +31,7 @@ public static class GetAdmissionDecisionPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetAdmissionDecisionPage
+    public interface IGetAdmissionDecisionPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetAdmissionDecisionPage
 
     }
 
-    internal sealed class GetAdmissionDecisionPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetAdmissionDecisionPage
+    internal sealed class GetAdmissionDecisionPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetAdmissionDecisionPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetAdmissionDecisionPage
             }
     }
 
-    public sealed class Handler(IGetAdmissionDecisionPage dataAccess)
+    public sealed class Handler(IGetAdmissionDecisionPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetAdmissionDecisionPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

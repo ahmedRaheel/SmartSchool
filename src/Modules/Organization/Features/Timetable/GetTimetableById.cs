@@ -29,7 +29,7 @@ public static class GetTimetableById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetTimetableById
+    public interface IGetTimetableByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetTimetableById
 
     }
 
-    internal sealed class GetTimetableByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetTimetableById
+    internal sealed class GetTimetableByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetTimetableByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetTimetableById
             }
     }
 
-    public sealed class Handler(IGetTimetableById dataAccess)
+    public sealed class Handler(IGetTimetableByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

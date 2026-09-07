@@ -20,7 +20,7 @@ public static class DeleteClassPerformanceInsight
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteClassPerformanceInsight
+    public interface IDeleteClassPerformanceInsightCommand
     {
         Task DeleteAsync(
                 ClassPerformanceInsightEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteClassPerformanceInsight
 
     }
 
-    internal sealed class DeleteClassPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : IDeleteClassPerformanceInsight
+    internal sealed class DeleteClassPerformanceInsightCommand(IAIPredictionDbContext dbContext) : IDeleteClassPerformanceInsightCommand
     {
         public async Task DeleteAsync(
                 ClassPerformanceInsightEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteClassPerformanceInsight
             }
     }
 
-    public sealed class Handler(IDeleteClassPerformanceInsight dataAccess)
+    public sealed class Handler(IDeleteClassPerformanceInsightCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ClassPerformanceInsightEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

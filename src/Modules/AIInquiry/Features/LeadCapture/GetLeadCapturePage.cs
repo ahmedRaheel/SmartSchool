@@ -31,7 +31,7 @@ public static class GetLeadCapturePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetLeadCapturePage
+    public interface IGetLeadCapturePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetLeadCapturePage
 
     }
 
-    internal sealed class GetLeadCapturePagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetLeadCapturePage
+    internal sealed class GetLeadCapturePageQuery(
+        IDbConnectionFactory connectionFactory) : IGetLeadCapturePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetLeadCapturePage
             }
     }
 
-    public sealed class Handler(IGetLeadCapturePage dataAccess)
+    public sealed class Handler(IGetLeadCapturePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetLeadCapturePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

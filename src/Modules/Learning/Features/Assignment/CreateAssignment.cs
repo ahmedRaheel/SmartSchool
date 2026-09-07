@@ -42,7 +42,7 @@ public static class CreateAssignment
         }
     }
 
-    public interface ICreateAssignment
+    public interface ICreateAssignmentCommand
     {
         Task AddAsync(
                 AssignmentEntity entity,
@@ -50,8 +50,8 @@ public static class CreateAssignment
 
     }
 
-    internal sealed class CreateAssignmentPersistence(
-        ILearningDbContext dbContext) : ICreateAssignment
+    internal sealed class CreateAssignmentCommand(
+        ILearningDbContext dbContext) : ICreateAssignmentCommand
     {
         public async Task AddAsync(
                 AssignmentEntity entity,
@@ -66,7 +66,7 @@ public static class CreateAssignment
 
     public sealed class Handler(IBusinessNumberGenerator numberGenerator,
         ILearningDbContext dbContext,
-        ICreateAssignment dataAccess)
+        ICreateAssignmentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -88,7 +88,7 @@ public static class CreateAssignment
                 code,
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

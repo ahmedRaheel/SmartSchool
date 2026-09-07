@@ -24,7 +24,7 @@ public sealed class ClassSectionEntity : Entity
     public Guid? ProgramGradeId { get; private set; }
 
     /// <summary>Gets the class/grade level for this section.</summary>
-    public Guid? GradeLevelId { get; private set; }
+    public Guid GradeLevelId { get; private set; }
 
     /// <summary>Gets the persisted section id value.</summary>
     public Guid SectionId { get; private set; }
@@ -61,8 +61,18 @@ public sealed class ClassSectionEntity : Entity
     /// <returns>The newly created entity.</returns>
     public static ClassSectionEntity Create(
         Guid tenantId,
+        Guid campusId,
+        Guid academicYearId,
+        Guid gradeLevelId,
+        Guid sectionId,
         string code,
         string name,
+        Guid? programGradeId = null,
+        Guid? classTeacherEmployeeId = null,
+        Guid? roomId = null,
+        string? roomNo = null,
+        int? capacity = null,
+        string status = "ACTIVE",
         string? metadataJson = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
@@ -71,6 +81,16 @@ public sealed class ClassSectionEntity : Entity
         return new ClassSectionEntity
         {
             TenantId = tenantId,
+            CampusId = campusId,
+            AcademicYearId = academicYearId,
+            GradeLevelId = gradeLevelId,
+            ProgramGradeId = programGradeId,
+            SectionId = sectionId,
+            ClassTeacherEmployeeId = classTeacherEmployeeId,
+            RoomId = roomId,
+            RoomNo = roomNo,
+            Capacity = capacity,
+            Status = status,
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

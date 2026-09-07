@@ -40,14 +40,14 @@ public static class CreateSalaryStructure
         }
     }
 
-    public interface ICreateSalaryStructure
+    public interface ICreateSalaryStructureCommand
     {
         Task AddAsync(
                 SalaryStructureEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateSalaryStructurePersistence(IPayrollDbContext dbContext) : ICreateSalaryStructure
+    internal sealed class CreateSalaryStructureCommand(IPayrollDbContext dbContext) : ICreateSalaryStructureCommand
     {
         public async Task AddAsync(
                 SalaryStructureEntity entity,
@@ -60,21 +60,19 @@ public static class CreateSalaryStructure
             }
     }
 
-    public sealed class Handler(ICreateSalaryStructure dataAccess)
+    public sealed class Handler(ICreateSalaryStructureCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = SalaryStructureEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

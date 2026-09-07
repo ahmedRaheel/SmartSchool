@@ -40,14 +40,14 @@ public static class CreateApproval
         }
     }
 
-    public interface ICreateApproval
+    public interface ICreateApprovalCommand
     {
         Task AddAsync(
                 ApprovalEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateApprovalPersistence(IWorkflowDbContext dbContext) : ICreateApproval
+    internal sealed class CreateApprovalCommand(IWorkflowDbContext dbContext) : ICreateApprovalCommand
     {
         public async Task AddAsync(
                 ApprovalEntity entity,
@@ -60,21 +60,19 @@ public static class CreateApproval
             }
     }
 
-    public sealed class Handler(ICreateApproval dataAccess)
+    public sealed class Handler(ICreateApprovalCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ApprovalEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

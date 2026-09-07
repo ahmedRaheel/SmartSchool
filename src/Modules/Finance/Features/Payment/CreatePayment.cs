@@ -40,14 +40,14 @@ public static class CreatePayment
         }
     }
 
-    public interface ICreatePayment
+    public interface ICreatePaymentCommand
     {
         Task AddAsync(
                 PaymentEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePaymentPersistence(IFinanceDbContext dbContext) : ICreatePayment
+    internal sealed class CreatePaymentCommand(IFinanceDbContext dbContext) : ICreatePaymentCommand
     {
         public async Task AddAsync(
                 PaymentEntity entity,
@@ -60,21 +60,19 @@ public static class CreatePayment
             }
     }
 
-    public sealed class Handler(ICreatePayment dataAccess)
+    public sealed class Handler(ICreatePaymentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = PaymentEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

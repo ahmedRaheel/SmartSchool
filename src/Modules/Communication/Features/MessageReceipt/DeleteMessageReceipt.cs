@@ -20,7 +20,7 @@ public static class DeleteMessageReceipt
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteMessageReceipt
+    public interface IDeleteMessageReceiptCommand
     {
         Task DeleteAsync(
                 MessageReceiptEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteMessageReceipt
 
     }
 
-    internal sealed class DeleteMessageReceiptPersistence(ICommunicationDbContext dbContext) : IDeleteMessageReceipt
+    internal sealed class DeleteMessageReceiptCommand(ICommunicationDbContext dbContext) : IDeleteMessageReceiptCommand
     {
         public async Task DeleteAsync(
                 MessageReceiptEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteMessageReceipt
             }
     }
 
-    public sealed class Handler(IDeleteMessageReceipt dataAccess)
+    public sealed class Handler(IDeleteMessageReceiptCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(MessageReceiptEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

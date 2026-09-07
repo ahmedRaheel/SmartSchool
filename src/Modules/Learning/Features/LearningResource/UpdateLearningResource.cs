@@ -42,7 +42,7 @@ public static class UpdateLearningResource
         }
     }
 
-    public interface IUpdateLearningResource
+    public interface IUpdateLearningResourceCommand
     {
         Task UpdateAsync(
                 LearningResourceEntity entity,
@@ -54,7 +54,7 @@ Task<LearningResourceEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLearningResourcePersistence(ILearningDbContext dbContext) : IUpdateLearningResource
+    internal sealed class UpdateLearningResourceCommand(ILearningDbContext dbContext) : IUpdateLearningResourceCommand
     {
         public async Task UpdateAsync(
                 LearningResourceEntity entity,
@@ -79,14 +79,14 @@ Task<LearningResourceEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateLearningResource dataAccess)
+    public sealed class Handler(IUpdateLearningResourceCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<LearningResourceEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

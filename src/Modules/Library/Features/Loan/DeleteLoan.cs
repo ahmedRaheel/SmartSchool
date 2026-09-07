@@ -20,7 +20,7 @@ public static class DeleteLoan
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteLoan
+    public interface IDeleteLoanCommand
     {
         Task DeleteAsync(
                 LoanEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteLoan
 
     }
 
-    internal sealed class DeleteLoanPersistence(ILibraryDbContext dbContext) : IDeleteLoan
+    internal sealed class DeleteLoanCommand(ILibraryDbContext dbContext) : IDeleteLoanCommand
     {
         public async Task DeleteAsync(
                 LoanEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteLoan
             }
     }
 
-    public sealed class Handler(IDeleteLoan dataAccess)
+    public sealed class Handler(IDeleteLoanCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(LoanEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

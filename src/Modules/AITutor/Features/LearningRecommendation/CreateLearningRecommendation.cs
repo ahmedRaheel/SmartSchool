@@ -41,14 +41,14 @@ public static class CreateLearningRecommendation
         }
     }
 
-    public interface ICreateLearningRecommendation
+    public interface ICreateLearningRecommendationCommand
     {
         Task AddAsync(
                 LearningRecommendationEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLearningRecommendationPersistence(IAITutorDbContext dbContext) : ICreateLearningRecommendation
+    internal sealed class CreateLearningRecommendationCommand(IAITutorDbContext dbContext) : ICreateLearningRecommendationCommand
     {
         public async Task AddAsync(
                 LearningRecommendationEntity entity,
@@ -61,22 +61,20 @@ public static class CreateLearningRecommendation
             }
     }
 
-    public sealed class Handler(ICreateLearningRecommendation dataAccess)
+    public sealed class Handler(ICreateLearningRecommendationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = LearningRecommendationEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

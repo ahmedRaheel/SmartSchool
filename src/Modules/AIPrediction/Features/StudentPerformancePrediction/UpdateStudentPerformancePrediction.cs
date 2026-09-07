@@ -42,7 +42,7 @@ public static class UpdateStudentPerformancePrediction
         }
     }
 
-    public interface IUpdateStudentPerformancePrediction
+    public interface IUpdateStudentPerformancePredictionCommand
     {
         Task UpdateAsync(
                 StudentPerformancePredictionEntity entity,
@@ -51,8 +51,8 @@ public static class UpdateStudentPerformancePrediction
         Task<StudentPerformancePredictionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
 }
 
-    internal sealed class UpdateStudentPerformancePredictionPersistence(
-        IAIPredictionDbContext dbContext) : IUpdateStudentPerformancePrediction
+    internal sealed class UpdateStudentPerformancePredictionCommand(
+        IAIPredictionDbContext dbContext) : IUpdateStudentPerformancePredictionCommand
     {
         public async Task UpdateAsync(
                 StudentPerformancePredictionEntity entity,
@@ -72,14 +72,14 @@ public static class UpdateStudentPerformancePrediction
         }
 }
 
-    public sealed class Handler(IUpdateStudentPerformancePrediction dataAccess)
+    public sealed class Handler(IUpdateStudentPerformancePredictionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -91,7 +91,7 @@ public static class UpdateStudentPerformancePrediction
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

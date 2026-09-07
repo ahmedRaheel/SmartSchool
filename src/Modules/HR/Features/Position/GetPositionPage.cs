@@ -31,7 +31,7 @@ public static class GetPositionPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetPositionPage
+    public interface IGetPositionPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetPositionPage
 
     }
 
-    internal sealed class GetPositionPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetPositionPage
+    internal sealed class GetPositionPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetPositionPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetPositionPage
             }
     }
 
-    public sealed class Handler(IGetPositionPage dataAccess)
+    public sealed class Handler(IGetPositionPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetPositionPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

@@ -46,7 +46,7 @@ public static class CreateAcademicYear
         }
     }
 
-    public interface ICreateAcademicYear
+    public interface ICreateAcademicYearCommand
     {
         Task AddAsync(
                 AcademicYearEntity entity,
@@ -58,7 +58,7 @@ public static class CreateAcademicYear
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAcademicYearPersistence(IOrganizationDbContext dbContext) : ICreateAcademicYear
+    internal sealed class CreateAcademicYearCommand(IOrganizationDbContext dbContext) : ICreateAcademicYearCommand
     {
         public async Task AddAsync(AcademicYearEntity entity, CancellationToken cancellationToken)
         {
@@ -74,14 +74,14 @@ public static class CreateAcademicYear
         }
     }
 
-    public sealed class Handler(ICreateAcademicYear dataAccess)
+    public sealed class Handler(ICreateAcademicYearCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var campusExists = await dataAccess.CampusExistsAsync(
+            var campusExists = await command.CampusExistsAsync(
                 request.TenantId, request.CampusId, cancellationToken);
             if (!campusExists)
             {
@@ -99,7 +99,7 @@ public static class CreateAcademicYear
                 request.EndDate,
                 request.IsCurrent);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

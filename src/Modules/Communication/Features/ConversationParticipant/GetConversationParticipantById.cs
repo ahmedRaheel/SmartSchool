@@ -29,7 +29,7 @@ public static class GetConversationParticipantById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetConversationParticipantById
+    public interface IGetConversationParticipantByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetConversationParticipantById
 
     }
 
-    internal sealed class GetConversationParticipantByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetConversationParticipantById
+    internal sealed class GetConversationParticipantByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetConversationParticipantByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetConversationParticipantById
             }
     }
 
-    public sealed class Handler(IGetConversationParticipantById dataAccess)
+    public sealed class Handler(IGetConversationParticipantByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

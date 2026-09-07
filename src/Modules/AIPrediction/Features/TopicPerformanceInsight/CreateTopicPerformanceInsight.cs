@@ -40,14 +40,14 @@ public static class CreateTopicPerformanceInsight
         }
     }
 
-    public interface ICreateTopicPerformanceInsight
+    public interface ICreateTopicPerformanceInsightCommand
     {
         Task AddAsync(
                 TopicPerformanceInsightEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTopicPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : ICreateTopicPerformanceInsight
+    internal sealed class CreateTopicPerformanceInsightCommand(IAIPredictionDbContext dbContext) : ICreateTopicPerformanceInsightCommand
     {
         public async Task AddAsync(
                 TopicPerformanceInsightEntity entity,
@@ -60,21 +60,19 @@ public static class CreateTopicPerformanceInsight
             }
     }
 
-    public sealed class Handler(ICreateTopicPerformanceInsight dataAccess)
+    public sealed class Handler(ICreateTopicPerformanceInsightCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = TopicPerformanceInsightEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

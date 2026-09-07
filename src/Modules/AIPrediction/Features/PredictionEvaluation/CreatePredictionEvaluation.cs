@@ -40,14 +40,14 @@ public static class CreatePredictionEvaluation
         }
     }
 
-    public interface ICreatePredictionEvaluation
+    public interface ICreatePredictionEvaluationCommand
     {
         Task AddAsync(
                 PredictionEvaluationEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePredictionEvaluationPersistence(IAIPredictionDbContext dbContext) : ICreatePredictionEvaluation
+    internal sealed class CreatePredictionEvaluationCommand(IAIPredictionDbContext dbContext) : ICreatePredictionEvaluationCommand
     {
         public async Task AddAsync(
                 PredictionEvaluationEntity entity,
@@ -60,21 +60,19 @@ public static class CreatePredictionEvaluation
             }
     }
 
-    public sealed class Handler(ICreatePredictionEvaluation dataAccess)
+    public sealed class Handler(ICreatePredictionEvaluationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = PredictionEvaluationEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

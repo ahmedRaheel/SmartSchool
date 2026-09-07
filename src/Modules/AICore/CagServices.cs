@@ -1,11 +1,13 @@
 using System.Globalization;
-using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using Dapper;
 using Microsoft.Extensions.Caching.Hybrid;
 using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.Modules.AICore.Rag.Ollama;
+using Microsoft.Extensions.Options;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AICore;
 
@@ -26,11 +28,10 @@ public interface IAiContextService
 public sealed class AiContextService(
     HybridCache cache,
     IDbConnectionFactory connectionFactory,
-    IHttpClientFactory httpClientFactory,
-    IConfiguration configuration) : IAiContextService
+    IOllamaClient ollamaClient,
+    IOptionsMonitor<OllamaRagOptions> options) : IAiContextService
 {
     private sealed record ContextRow(Guid Id, string DocumentName, string Collection, string Content, double Score);
-    private sealed record OllamaEmbeddingResponse(float[][] Embeddings);
 
     public async Task<AiKnowledgeContext> GetAsync(AiKnowledgeRequest request, CancellationToken cancellationToken)
     {
@@ -42,7 +43,7 @@ public sealed class AiContextService(
             async token => await BuildCachedContextAsync(request, version, token),
             new HybridCacheEntryOptions
             {
-                Expiration = TimeSpan.FromMinutes(configuration.GetValue("AI:CAG:ContextTtlMinutes", 30)),
+                Expiration = TimeSpan.FromMinutes(30),
                 LocalCacheExpiration = TimeSpan.FromMinutes(5)
             },
             cancellationToken: cancellationToken);
@@ -93,7 +94,7 @@ public sealed class AiContextService(
             {
                 request.TenantId,
                 request.Collections,
-                Limit = configuration.GetValue("AI:CAG:MaxCachedChunks", 20)
+                Limit = 20
             },
             cancellationToken: cancellationToken))).ToArray();
 
@@ -125,27 +126,15 @@ public sealed class AiContextService(
                 request.TenantId,
                 request.Collections,
                 Vector = VectorLiteral(embedding),
-                TopK = configuration.GetValue("AI:Ollama:TopK", 5)
+                topK = options.CurrentValue.TopK
             },
             cancellationToken: cancellationToken))).ToArray();
 
         return BuildContext(rows, "rag", version);
     }
 
-    private async Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken)
-    {
-        var client = httpClientFactory.CreateClient("Ollama");
-        client.BaseAddress = new Uri((configuration["AI:Ollama:BaseUrl"] ?? throw new InvalidOperationException("AI:Ollama:BaseUrl configuration is required.")).TrimEnd('/') + "/");
-        var response = await client.PostAsJsonAsync(
-            "api/embed",
-            new { model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text", input = text },
-            cancellationToken);
-        response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<OllamaEmbeddingResponse>(cancellationToken: cancellationToken);
-        return result?.Embeddings is { Length: > 0 } && result.Embeddings[0].Length > 0
-            ? result.Embeddings[0]
-            : throw new InvalidOperationException("Ollama returned no embedding.");
-    }
+    private Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken) =>
+        ollamaClient.EmbedAsync(text, cancellationToken);
 
     private static AiKnowledgeContext BuildContext(IEnumerable<ContextRow> rows, string source, string version)
     {

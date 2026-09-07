@@ -31,7 +31,7 @@ public static class GetPaymentPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetPaymentPage
+    public interface IGetPaymentPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetPaymentPage
 
     }
 
-    internal sealed class GetPaymentPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetPaymentPage
+    internal sealed class GetPaymentPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetPaymentPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetPaymentPage
             }
     }
 
-    public sealed class Handler(IGetPaymentPage dataAccess)
+    public sealed class Handler(IGetPaymentPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetPaymentPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

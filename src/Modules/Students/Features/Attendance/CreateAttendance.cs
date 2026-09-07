@@ -40,14 +40,14 @@ public static class CreateAttendance
         }
     }
 
-    public interface ICreateAttendance
+    public interface ICreateAttendanceCommand
     {
         Task AddAsync(
                 AttendanceEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAttendancePersistence(IStudentsDbContext dbContext) : ICreateAttendance
+    internal sealed class CreateAttendanceCommand(IStudentsDbContext dbContext) : ICreateAttendanceCommand
     {
         public async Task AddAsync(
                 AttendanceEntity entity,
@@ -60,21 +60,19 @@ public static class CreateAttendance
             }
     }
 
-    public sealed class Handler(ICreateAttendance dataAccess)
+    public sealed class Handler(ICreateAttendanceCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = AttendanceEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

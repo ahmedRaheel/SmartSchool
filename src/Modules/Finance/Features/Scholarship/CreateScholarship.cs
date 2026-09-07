@@ -40,14 +40,14 @@ public static class CreateScholarship
         }
     }
 
-    public interface ICreateScholarship
+    public interface ICreateScholarshipCommand
     {
         Task AddAsync(
                 ScholarshipEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateScholarshipPersistence(IFinanceDbContext dbContext) : ICreateScholarship
+    internal sealed class CreateScholarshipCommand(IFinanceDbContext dbContext) : ICreateScholarshipCommand
     {
         public async Task AddAsync(
                 ScholarshipEntity entity,
@@ -60,21 +60,19 @@ public static class CreateScholarship
             }
     }
 
-    public sealed class Handler(ICreateScholarship dataAccess)
+    public sealed class Handler(ICreateScholarshipCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ScholarshipEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

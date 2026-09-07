@@ -1,3 +1,5 @@
+using Dapper;
+using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -26,23 +28,51 @@ public static class GetStudentExamResultById
 
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<Response>>;
-
-    public sealed class Handler(IStudentExamResultQuery entityQuery)
-        : IRequestHandler<Query, Result<Response>>
+        Guid Id) : IRequest<Result<Response>>;    public interface IGetStudentExamResultByIdQuery
     {
-        public async Task<Result<Response>> HandleAsync(
+        Task<Result<Response>> ExecuteAsync(
+            Query request,
+            CancellationToken cancellationToken);
+    }
+
+
+
+    internal sealed class GetStudentExamResultByIdQuery(IDbConnectionFactory connectionFactory) : IGetStudentExamResultByIdQuery
+    {
+        public async Task<Result<Response>> ExecuteAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", student_exam_result_id AS "Id", code AS "Code", name AS "Name", metadata_json::text AS "MetadataJson"
+                FROM exam.student_exam_result
+                WHERE tenant_id = @TenantId
+                  AND student_exam_result_id = @Id
+                  AND is_active = TRUE;
+                """;
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var response = await connection.QuerySingleOrDefaultAsync<Response>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+
+            if (response is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentExamResultEntity))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+
+            return Result<Response>.Success(response);
+        }
+    }
+
+    public sealed class Handler(IGetStudentExamResultByIdQuery query)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            return query.ExecuteAsync(request, cancellationToken);
         }
     }
 
@@ -61,15 +91,5 @@ public static class GetStudentExamResultById
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
         return endpoints;
-    }
-
-    private static Response MapResponse(StudentExamResultEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.StudentExamResultId,
-            entity.Code,
-            entity.Name,
-            entity.MetadataJson);
     }
 }

@@ -20,7 +20,7 @@ public static class DeleteNotification
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteNotification
+    public interface IDeleteNotificationCommand
     {
         Task<NotificationEntity?> GetByIdAsync(
             Guid tenantId,
@@ -33,8 +33,8 @@ public static class DeleteNotification
 
     }
 
-    internal sealed class DeleteNotificationPersistence(
-        ICommunicationDbContext dbContext) : IDeleteNotification
+    internal sealed class DeleteNotificationCommand(
+        ICommunicationDbContext dbContext) : IDeleteNotificationCommand
     {
         public Task<NotificationEntity?> GetByIdAsync(
             Guid tenantId,
@@ -58,21 +58,21 @@ public static class DeleteNotification
             }
     }
 
-    public sealed class Handler(IDeleteNotification dataAccess)
+    public sealed class Handler(IDeleteNotificationCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(NotificationEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

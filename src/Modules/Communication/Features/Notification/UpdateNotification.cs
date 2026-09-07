@@ -57,7 +57,7 @@ public static class UpdateNotification
         }
     }
 
-    public interface IUpdateNotification
+    public interface IUpdateNotificationCommand
     {
         Task<NotificationEntity?> GetByIdAsync(
             Guid tenantId,
@@ -70,8 +70,8 @@ public static class UpdateNotification
 
     }
 
-    internal sealed class UpdateNotificationPersistence(
-        ICommunicationDbContext dbContext) : IUpdateNotification
+    internal sealed class UpdateNotificationCommand(
+        ICommunicationDbContext dbContext) : IUpdateNotificationCommand
     {
         public Task<NotificationEntity?> GetByIdAsync(
             Guid tenantId,
@@ -95,14 +95,14 @@ public static class UpdateNotification
             }
     }
 
-    public sealed class Handler(IUpdateNotification dataAccess)
+    public sealed class Handler(IUpdateNotificationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -119,7 +119,7 @@ public static class UpdateNotification
                 request.RelatedEntityType,
                 request.ActionUrl,
                 request.Priority);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(
                 entity.TenantId,
                 entity.NotificationId,

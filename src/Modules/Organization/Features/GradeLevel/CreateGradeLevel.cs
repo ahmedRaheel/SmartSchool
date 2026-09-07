@@ -28,25 +28,29 @@ public static class CreateGradeLevel
 
     public sealed record Request(
         Guid TenantId,
-        string Name) : IRequest<Result<Response>>;
+        Guid CampusId,
+        Guid? AcademicSystemId,
+        string Name,
+        int SortOrder = 0) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.CampusId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
-    public interface ICreateGradeLevel
+    public interface ICreateGradeLevelCommand
     {
         Task AddAsync(
                 GradeLevelEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateGradeLevelPersistence(IOrganizationDbContext dbContext) : ICreateGradeLevel
+    internal sealed class CreateGradeLevelCommand(IOrganizationDbContext dbContext) : ICreateGradeLevelCommand
     {
         public async Task AddAsync(
                 GradeLevelEntity entity,
@@ -60,21 +64,22 @@ public static class CreateGradeLevel
             }
     }
 
-    public sealed class Handler(ICreateGradeLevel dataAccess)
+    public sealed class Handler(ICreateGradeLevelCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = GradeLevelEntity.Create(
                 request.TenantId,
+                request.CampusId,
+                request.AcademicSystemId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
-                request.Name);
+                request.Name,
+                request.SortOrder);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

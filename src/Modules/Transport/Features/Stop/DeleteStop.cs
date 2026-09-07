@@ -20,7 +20,7 @@ public static class DeleteStop
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteStop
+    public interface IDeleteStopCommand
     {
         Task DeleteAsync(
                 StopEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteStop
 
     }
 
-    internal sealed class DeleteStopPersistence(ITransportDbContext dbContext) : IDeleteStop
+    internal sealed class DeleteStopCommand(ITransportDbContext dbContext) : IDeleteStopCommand
     {
         public async Task DeleteAsync(
                 StopEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteStop
             }
     }
 
-    public sealed class Handler(IDeleteStop dataAccess)
+    public sealed class Handler(IDeleteStopCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(StopEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

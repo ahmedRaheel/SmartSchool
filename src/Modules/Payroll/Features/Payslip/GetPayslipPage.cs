@@ -31,7 +31,7 @@ public static class GetPayslipPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetPayslipPage
+    public interface IGetPayslipPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetPayslipPage
 
     }
 
-    internal sealed class GetPayslipPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetPayslipPage
+    internal sealed class GetPayslipPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetPayslipPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetPayslipPage
             }
     }
 
-    public sealed class Handler(IGetPayslipPage dataAccess)
+    public sealed class Handler(IGetPayslipPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetPayslipPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

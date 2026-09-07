@@ -20,7 +20,7 @@ public static class DeleteAiExecutionLog
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteAiExecutionLog
+    public interface IDeleteAiExecutionLogCommand
     {
         Task DeleteAsync(
                 AiExecutionLogEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteAiExecutionLog
 
     }
 
-    internal sealed class DeleteAiExecutionLogPersistence(IAICoreDbContext dbContext) : IDeleteAiExecutionLog
+    internal sealed class DeleteAiExecutionLogCommand(IAICoreDbContext dbContext) : IDeleteAiExecutionLogCommand
     {
         public async Task DeleteAsync(
                 AiExecutionLogEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteAiExecutionLog
             }
     }
 
-    public sealed class Handler(IDeleteAiExecutionLog dataAccess)
+    public sealed class Handler(IDeleteAiExecutionLogCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(AiExecutionLogEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

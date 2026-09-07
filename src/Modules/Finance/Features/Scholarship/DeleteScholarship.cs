@@ -20,7 +20,7 @@ public static class DeleteScholarship
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteScholarship
+    public interface IDeleteScholarshipCommand
     {
         Task DeleteAsync(
                 ScholarshipEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteScholarship
 
     }
 
-    internal sealed class DeleteScholarshipPersistence(IFinanceDbContext dbContext) : IDeleteScholarship
+    internal sealed class DeleteScholarshipCommand(IFinanceDbContext dbContext) : IDeleteScholarshipCommand
     {
         public async Task DeleteAsync(
                 ScholarshipEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteScholarship
             }
     }
 
-    public sealed class Handler(IDeleteScholarship dataAccess)
+    public sealed class Handler(IDeleteScholarshipCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ScholarshipEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

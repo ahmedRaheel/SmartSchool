@@ -42,7 +42,7 @@ public static class UpdateLesson
         }
     }
 
-    public interface IUpdateLesson
+    public interface IUpdateLessonCommand
     {
         Task UpdateAsync(
                 LessonEntity entity,
@@ -54,7 +54,7 @@ Task<LessonEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLessonPersistence(ILearningDbContext dbContext) : IUpdateLesson
+    internal sealed class UpdateLessonCommand(ILearningDbContext dbContext) : IUpdateLessonCommand
     {
         public async Task UpdateAsync(
                 LessonEntity entity,
@@ -79,14 +79,14 @@ Task<LessonEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateLesson dataAccess)
+    public sealed class Handler(IUpdateLessonCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<LessonEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -29,7 +29,7 @@ public static class GetWorkflowInstanceById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetWorkflowInstanceById
+    public interface IGetWorkflowInstanceByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetWorkflowInstanceById
 
     }
 
-    internal sealed class GetWorkflowInstanceByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetWorkflowInstanceById
+    internal sealed class GetWorkflowInstanceByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetWorkflowInstanceByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetWorkflowInstanceById
             }
     }
 
-    public sealed class Handler(IGetWorkflowInstanceById dataAccess)
+    public sealed class Handler(IGetWorkflowInstanceByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

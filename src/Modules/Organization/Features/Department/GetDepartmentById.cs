@@ -31,7 +31,7 @@ public static class GetDepartmentById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetDepartmentById
+    public interface IGetDepartmentByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -40,8 +40,8 @@ public static class GetDepartmentById
 
     }
 
-    internal sealed class GetDepartmentByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetDepartmentById
+    internal sealed class GetDepartmentByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetDepartmentByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -74,14 +74,14 @@ public static class GetDepartmentById
             }
     }
 
-    public sealed class Handler(IGetDepartmentById dataAccess)
+    public sealed class Handler(IGetDepartmentByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

@@ -20,7 +20,7 @@ public static class DeleteExamSubject
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteExamSubject
+    public interface IDeleteExamSubjectCommand
     {
         Task DeleteAsync(
                 ExamSubjectEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteExamSubject
 
     }
 
-    internal sealed class DeleteExamSubjectPersistence(IExaminationsDbContext dbContext) : IDeleteExamSubject
+    internal sealed class DeleteExamSubjectCommand(IExaminationsDbContext dbContext) : IDeleteExamSubjectCommand
     {
         public async Task DeleteAsync(
                 ExamSubjectEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteExamSubject
             }
     }
 
-    public sealed class Handler(IDeleteExamSubject dataAccess)
+    public sealed class Handler(IDeleteExamSubjectCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ExamSubjectEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

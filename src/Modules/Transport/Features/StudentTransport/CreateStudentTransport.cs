@@ -40,14 +40,14 @@ public static class CreateStudentTransport
         }
     }
 
-    public interface ICreateStudentTransport
+    public interface ICreateStudentTransportCommand
     {
         Task AddAsync(
                 StudentTransportEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentTransportPersistence(ITransportDbContext dbContext) : ICreateStudentTransport
+    internal sealed class CreateStudentTransportCommand(ITransportDbContext dbContext) : ICreateStudentTransportCommand
     {
         public async Task AddAsync(
                 StudentTransportEntity entity,
@@ -60,21 +60,19 @@ public static class CreateStudentTransport
             }
     }
 
-    public sealed class Handler(ICreateStudentTransport dataAccess)
+    public sealed class Handler(ICreateStudentTransportCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StudentTransportEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

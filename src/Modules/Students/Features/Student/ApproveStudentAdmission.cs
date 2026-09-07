@@ -1,3 +1,7 @@
+using System.Threading.Tasks;
+using Dapper;
+using SmartSchool.Modules.Students.Persistence;
+using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -26,19 +30,19 @@ public static class ApproveStudentAdmission
     }
 
     public sealed class Handler(
-        IStudentQuery query,
-        IStudentCommand command,
-        IStudentOnboardingQuery onboardingQuery,
-        IStudentOnboardingCommand onboardingCommand,
+        IApproveStudentAdmissionCommand command,
+        ApproveStudentAdmissionStudentOnboardingQuery onboardingQuery,
+        ApproveStudentAdmissionStudentOnboardingCommand onboardingCommand,
         IIdentityAccountService accounts,
-        IBusinessNumberGenerator numberGenerator)
+        IBusinessNumberGenerator numberGenerator,
+        TimeProvider timeProvider)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var student = await query.GetByIdAsync(
+            var student = await command.GetByIdAsync(
                 request.TenantId,
                 request.StudentId,
                 cancellationToken);
@@ -126,7 +130,7 @@ public static class ApproveStudentAdmission
                 enrollmentNumber,
                 placement.AcademicYearId,
                 placement.ClassSectionId,
-                DateOnly.FromDateTime(DateTime.UtcNow),
+                DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime),
                 LifecycleStatuses.Active);
 
             await onboardingCommand.AddEnrollmentAndApprovePlacementAsync(
@@ -152,5 +156,116 @@ public static class ApproveStudentAdmission
             return (await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken)).ToHttpResult();
         }).WithName("ApproveStudentAdmission").WithTags("Students").RequireAuthorization();
         return endpoints;
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
+/// </summary>
+public sealed class ApproveStudentAdmissionStudentOnboardingCommand(IStudentsDbContext dbContext)
+{
+
+    public async Task AddEnrollmentAndApprovePlacementAsync(EnrollmentEntity enrollment, Guid tenantId, Guid studentId, Guid academicYearId, CancellationToken cancellationToken)
+    {
+        var placement = await dbContext.AdmissionPlacements
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.StudentId == studentId && x.AcademicYearId == academicYearId && x.Status == LifecycleStatuses.Pending, cancellationToken);
+        await dbContext.Enrollments.AddAsync(enrollment, cancellationToken);
+        placement?.Approve();
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
+/// </summary>
+public sealed class ApproveStudentAdmissionStudentOnboardingQuery(IDbConnectionFactory connectionFactory)
+{
+
+    public async Task<bool> HasGuardianAsync(Guid tenantId, Guid studentId, CancellationToken cancellationToken)
+    {
+        const string sql = "SELECT EXISTS(SELECT 1 FROM student.student_guardian WHERE tenant_id=@TenantId AND student_id=@StudentId AND is_active=true);";
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { TenantId = tenantId, StudentId = studentId }, cancellationToken: cancellationToken));
+    }
+
+
+    public async Task<IReadOnlyList<string>> GetMissingRequiredDocumentsAsync(Guid tenantId, Guid studentId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT r.display_name
+            FROM document.required_document r
+            WHERE r.is_active = true
+              AND r.is_required = true
+              AND r.actor_type = 'STUDENT'
+              AND (r.tenant_id IS NULL OR r.tenant_id = @TenantId)
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM document.document d
+                  JOIN document.student_document sd ON sd.document_id = d.document_id
+                  WHERE sd.tenant_id = @TenantId
+                    AND sd.student_id = @StudentId
+                    AND d.document_type = r.document_type
+                    AND d.status = 'ACTIVE'
+              );
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        var rows = await connection.QueryAsync<string>(new CommandDefinition(sql, new { TenantId = tenantId, StudentId = studentId }, cancellationToken: cancellationToken));
+        return rows.AsList();
+    }
+
+
+    public async Task<AdmissionPlacementReadModel?> GetPendingPlacementAsync(Guid tenantId, Guid studentId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT ap.academic_year_id AS AcademicYearId,
+                   ap.class_section_id AS ClassSectionId,
+                   cs.class_id AS ClassId
+            FROM student.admission_placement ap
+            JOIN academic.class_section cs ON cs.class_section_id = ap.class_section_id AND cs.tenant_id = ap.tenant_id
+            WHERE ap.tenant_id = @TenantId
+              AND ap.student_id = @StudentId
+              AND ap.status = 'PENDING'
+            ORDER BY ap.requested_at DESC
+            LIMIT 1;
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<AdmissionPlacementReadModel>(new CommandDefinition(sql, new { TenantId = tenantId, StudentId = studentId }, cancellationToken: cancellationToken));
+    }
+
+
+    public async Task<string?> GetCampusCodeAsync(Guid tenantId, Guid campusId, CancellationToken cancellationToken)
+    {
+        const string sql = "SELECT code FROM org.campus WHERE tenant_id=@TenantId AND campus_id=@CampusId;";
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<string?>(new CommandDefinition(sql, new { TenantId = tenantId, CampusId = campusId }, cancellationToken: cancellationToken));
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
+/// </summary>
+public interface IApproveStudentAdmissionCommand
+{
+    Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+    Task UpdateAsync(StudentEntity entity, CancellationToken cancellationToken);
+}
+
+internal sealed class ApproveStudentAdmissionCommand(IStudentsDbContext dbContext) : IApproveStudentAdmissionCommand
+{
+    public Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+    {
+        return dbContext.Students.SingleOrDefaultAsync(
+            entity => entity.TenantId == tenantId && entity.StudentId == id, cancellationToken);
+    }
+
+
+    public async Task UpdateAsync(
+        StudentEntity entity,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Students
+            .Update(entity);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

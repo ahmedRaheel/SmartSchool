@@ -29,7 +29,7 @@ public static class GetModelConfigurationById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetModelConfigurationById
+    public interface IGetModelConfigurationByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetModelConfigurationById
 
     }
 
-    internal sealed class GetModelConfigurationByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetModelConfigurationById
+    internal sealed class GetModelConfigurationByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetModelConfigurationByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetModelConfigurationById
             }
     }
 
-    public sealed class Handler(IGetModelConfigurationById dataAccess)
+    public sealed class Handler(IGetModelConfigurationByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

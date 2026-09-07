@@ -41,34 +41,18 @@ public static class CreateSubject
             RuleFor(x => x.BranchId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
+    }    public interface ICreateSubjectCommand
+    {
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
     }
 
-    public interface ISubjectCommand
+
+
+    internal sealed class CreateSubjectCommand(IOrganizationDbContext dbContext, IBusinessNumberGenerator numberGenerator) : ICreateSubjectCommand
     {
-        Task AddAsync(
-                SubjectEntity entity,
-                CancellationToken cancellationToken);
-
-    }
-
-    public sealed class SubjectCommand(OrganizationDbContext dbContext) : ISubjectCommand
-    {
-        public async Task AddAsync(
-                SubjectEntity entity,
-                CancellationToken cancellationToken)
-        {
-            await dbContext
-                .Subjects
-                .AddAsync(entity, cancellationToken);
-
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-
-    }
-
-    public sealed class Handler(ISubjectCommand command, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
-    {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var code = await numberGenerator.NextAsync(
                 "SUBJECT", "SUB", request.TenantId, 8, cancellationToken);
@@ -76,8 +60,20 @@ public static class CreateSubject
             var subject = SubjectEntity.Create(
                 request.TenantId, subjectId, code, request.Name);
 
-            await command.AddAsync(subject, cancellationToken);
+            await dbContext.Subjects.AddAsync(subject, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, subjectId, code, request.Name));
+        }
+    }
+
+    public sealed class Handler(ICreateSubjectCommand command)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
         }
     }
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)

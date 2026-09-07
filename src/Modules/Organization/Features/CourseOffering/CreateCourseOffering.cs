@@ -42,7 +42,7 @@ public static class CreateCourseOffering
         }
     }
 
-    public interface ICreateCourseOffering
+    public interface ICreateCourseOfferingCommand
     {
         Task AddAsync(
                 CourseOfferingEntity entity,
@@ -50,8 +50,8 @@ public static class CreateCourseOffering
 
     }
 
-    internal sealed class CreateCourseOfferingPersistence(
-        IOrganizationDbContext dbContext) : ICreateCourseOffering
+    internal sealed class CreateCourseOfferingCommand(
+        IOrganizationDbContext dbContext) : ICreateCourseOfferingCommand
     {
         public async Task AddAsync(
                 CourseOfferingEntity entity,
@@ -67,7 +67,7 @@ public static class CreateCourseOffering
 
     public sealed class Handler(IBusinessNumberGenerator numberGenerator,
         IOrganizationDbContext dbContext,
-        ICreateCourseOffering dataAccess)
+        ICreateCourseOfferingCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -89,7 +89,7 @@ public static class CreateCourseOffering
                 code,
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

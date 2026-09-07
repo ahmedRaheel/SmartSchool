@@ -41,14 +41,14 @@ public static class CreateTutorMessage
         }
     }
 
-    public interface ICreateTutorMessage
+    public interface ICreateTutorMessageCommand
     {
         Task AddAsync(
                 TutorMessageEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTutorMessagePersistence(IAITutorDbContext dbContext) : ICreateTutorMessage
+    internal sealed class CreateTutorMessageCommand(IAITutorDbContext dbContext) : ICreateTutorMessageCommand
     {
         public async Task AddAsync(
                 TutorMessageEntity entity,
@@ -61,22 +61,20 @@ public static class CreateTutorMessage
             }
     }
 
-    public sealed class Handler(ICreateTutorMessage dataAccess)
+    public sealed class Handler(ICreateTutorMessageCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = TutorMessageEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

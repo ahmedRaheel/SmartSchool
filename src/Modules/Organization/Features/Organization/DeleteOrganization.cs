@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
-using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Organization.Persistence;
 
 namespace SmartSchool.Modules.Organization.Features.Organization;
 
@@ -13,14 +13,14 @@ public static class DeleteOrganization
     public sealed record Command(Guid Id) : IRequest<Result<Response>>;
     public sealed record Response(Guid TenantId);
 
-    public interface IDeleteOrganization
+    public interface IDeleteOrganizationCommand
     {
         Task<TenantEntity?> GetAsync(Guid tenantId, CancellationToken cancellationToken);
         Task<bool> HasSchoolsAsync(Guid tenantId, CancellationToken cancellationToken);
         Task DeleteAsync(TenantEntity tenant, CancellationToken cancellationToken);
     }
 
-    internal sealed class Persistence(IOrganizationDbContext dbContext) : IDeleteOrganization
+    internal sealed class DeleteOrganizationCommand(IOrganizationDbContext dbContext) : IDeleteOrganizationCommand
     {
         public Task<TenantEntity?> GetAsync(Guid tenantId, CancellationToken cancellationToken) =>
             dbContext.Tenants.FirstOrDefaultAsync(
@@ -39,7 +39,7 @@ public static class DeleteOrganization
         }
     }
 
-    public sealed class Handler(IDeleteOrganization persistence)
+    public sealed class Handler(IDeleteOrganizationCommand persistence)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Command request, CancellationToken cancellationToken)

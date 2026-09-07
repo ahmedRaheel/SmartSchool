@@ -42,7 +42,7 @@ public static class UpdateStudentTransport
         }
     }
 
-    public interface IUpdateStudentTransport
+    public interface IUpdateStudentTransportCommand
     {
         Task UpdateAsync(
                 StudentTransportEntity entity,
@@ -54,7 +54,7 @@ Task<StudentTransportEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStudentTransportPersistence(ITransportDbContext dbContext) : IUpdateStudentTransport
+    internal sealed class UpdateStudentTransportCommand(ITransportDbContext dbContext) : IUpdateStudentTransportCommand
     {
         public async Task UpdateAsync(
                 StudentTransportEntity entity,
@@ -79,14 +79,14 @@ Task<StudentTransportEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateStudentTransport dataAccess)
+    public sealed class Handler(IUpdateStudentTransportCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<StudentTransportEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

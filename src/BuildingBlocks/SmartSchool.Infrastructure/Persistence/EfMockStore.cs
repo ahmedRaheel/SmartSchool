@@ -50,6 +50,25 @@ public sealed class EfMockStore(ApplicationDbContext dbContext) : IEfMockStore
         return new PagedResult<TEntity>(items, safePage, safePageSize, totalCount);
     }
 
+    public async Task<bool> ExistsByCodeAsync<TEntity>(
+        Guid tenantId,
+        string code,
+        Guid? excludingId,
+        CancellationToken cancellationToken)
+        where TEntity : Entity
+    {
+        var keyName = GetPrimaryKeyName<TEntity>();
+
+        return await dbContext
+            .Set<TEntity>()
+            .AsNoTracking()
+            .AnyAsync(
+                entity => entity.TenantId == tenantId
+                    && EF.Property<string>(entity, "Code") == code
+                    && (!excludingId.HasValue || EF.Property<Guid>(entity, keyName) != excludingId.Value),
+                cancellationToken);
+    }
+
     public async Task AddAsync<TEntity>(
         TEntity entity,
         CancellationToken cancellationToken)

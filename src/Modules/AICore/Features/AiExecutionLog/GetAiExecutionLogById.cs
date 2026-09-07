@@ -29,7 +29,7 @@ public static class GetAiExecutionLogById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetAiExecutionLogById
+    public interface IGetAiExecutionLogByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetAiExecutionLogById
 
     }
 
-    internal sealed class GetAiExecutionLogByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetAiExecutionLogById
+    internal sealed class GetAiExecutionLogByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetAiExecutionLogByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetAiExecutionLogById
             }
     }
 
-    public sealed class Handler(IGetAiExecutionLogById dataAccess)
+    public sealed class Handler(IGetAiExecutionLogByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

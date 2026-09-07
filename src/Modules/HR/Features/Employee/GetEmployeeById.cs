@@ -1,3 +1,6 @@
+using Dapper;
+using System.Threading.Tasks;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.HR.Models;
@@ -27,19 +30,49 @@ public static class GetEmployeeById
         string Status,
         Guid? SourceCandidateId);
 
-    public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
-
-    public sealed class Handler(IEmployeeQuery entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;    public interface IGetEmployeeByIdQuery
     {
-        public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
+        Task<Result<Response>> ExecuteAsync(
+            Query request,
+            CancellationToken cancellationToken);
+    }
+
+
+
+    internal sealed class GetEmployeeByIdQuery(IDbConnectionFactory connectionFactory) : IGetEmployeeByIdQuery
+    {
+        public async Task<Result<Response>> ExecuteAsync(Query request, CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", employee_id AS "Id", user_id AS "UserId", employee_number AS "EmployeeNumber", first_name AS "FirstName", last_name AS "LastName", cnic_number AS "CnicNumber", photo AS "Photo", photo_content_type AS "PhotoContentType", photo_file_name AS "PhotoFileName", email AS "Email", phone AS "Phone", hire_date AS "HireDate", employment_type_code AS "EmploymentTypeCode", status AS "Status", source_candidate_id AS "SourceCandidateId"
+                FROM hr.employee
+                WHERE tenant_id = @TenantId
+                  AND employee_id = @Id
+                  AND is_active = TRUE;
+                """;
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var response = await connection.QuerySingleOrDefaultAsync<Response>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+
+            if (response is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmployeeEntity))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+
+            return Result<Response>.Success(response);
+        }
+    }
+
+    public sealed class Handler(IGetEmployeeByIdQuery query)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            return query.ExecuteAsync(request, cancellationToken);
         }
     }
 
@@ -54,26 +87,5 @@ public static class GetEmployeeById
                 })
             .WithName("GetEmployeeById").WithTags(ModuleConstants.Name).RequireAuthorization();
         return endpoints;
-    }
-
-    private static Response MapResponse(EmployeeEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.EmployeeId,
-            entity.UserId,
-            entity.EmployeeNumber,
-            entity.FirstName,
-            entity.LastName,
-            entity.CnicNumber,
-            entity.Photo,
-            entity.PhotoContentType,
-            entity.PhotoFileName,
-            entity.Email,
-            entity.Phone,
-            entity.HireDate,
-            entity.EmploymentTypeCode,
-            entity.Status,
-            entity.SourceCandidateId);
     }
 }

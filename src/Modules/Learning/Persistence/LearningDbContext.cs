@@ -10,6 +10,7 @@ public interface ILearningDbContext
 
     DbSet<AssignmentEntity> Assignments { get; }
     DbSet<AssignmentSubmissionEntity> AssignmentSubmissions { get; }
+    DbSet<AssignmentStudentEntity> AssignmentStudents { get; }
     DbSet<LearningResourceEntity> LearningResources { get; }
     DbSet<LessonEntity> Lessons { get; }
 
@@ -25,6 +26,7 @@ public sealed class LearningDbContext(DbContextOptions<LearningDbContext> option
 {
     public DbSet<AssignmentEntity> Assignments => Set<AssignmentEntity>();
     public DbSet<AssignmentSubmissionEntity> AssignmentSubmissions => Set<AssignmentSubmissionEntity>();
+    public DbSet<AssignmentStudentEntity> AssignmentStudents => Set<AssignmentStudentEntity>();
     public DbSet<LearningResourceEntity> LearningResources => Set<LearningResourceEntity>();
     public DbSet<LessonEntity> Lessons => Set<LessonEntity>();
 

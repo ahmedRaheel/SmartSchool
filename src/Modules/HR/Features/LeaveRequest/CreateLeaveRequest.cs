@@ -40,14 +40,14 @@ public static class CreateLeaveRequest
         }
     }
 
-    public interface ICreateLeaveRequest
+    public interface ICreateLeaveRequestCommand
     {
         Task AddAsync(
                 LeaveRequestEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLeaveRequestPersistence(IHRDbContext dbContext) : ICreateLeaveRequest
+    internal sealed class CreateLeaveRequestCommand(IHRDbContext dbContext) : ICreateLeaveRequestCommand
     {
         public async Task AddAsync(
                 LeaveRequestEntity entity,
@@ -60,21 +60,19 @@ public static class CreateLeaveRequest
             }
     }
 
-    public sealed class Handler(ICreateLeaveRequest dataAccess)
+    public sealed class Handler(ICreateLeaveRequestCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = LeaveRequestEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

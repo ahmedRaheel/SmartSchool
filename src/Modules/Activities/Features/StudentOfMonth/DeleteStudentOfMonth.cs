@@ -20,7 +20,7 @@ public static class DeleteStudentOfMonth
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteStudentOfMonth
+    public interface IDeleteStudentOfMonthCommand
     {
         Task DeleteAsync(
                 StudentOfMonthEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteStudentOfMonth
 
     }
 
-    internal sealed class DeleteStudentOfMonthPersistence(IActivitiesDbContext dbContext) : IDeleteStudentOfMonth
+    internal sealed class DeleteStudentOfMonthCommand(IActivitiesDbContext dbContext) : IDeleteStudentOfMonthCommand
     {
         public async Task DeleteAsync(
                 StudentOfMonthEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteStudentOfMonth
             }
     }
 
-    public sealed class Handler(IDeleteStudentOfMonth dataAccess)
+    public sealed class Handler(IDeleteStudentOfMonthCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentOfMonthEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

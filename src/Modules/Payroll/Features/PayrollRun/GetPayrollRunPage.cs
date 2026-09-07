@@ -31,7 +31,7 @@ public static class GetPayrollRunPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetPayrollRunPage
+    public interface IGetPayrollRunPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetPayrollRunPage
 
     }
 
-    internal sealed class GetPayrollRunPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetPayrollRunPage
+    internal sealed class GetPayrollRunPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetPayrollRunPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetPayrollRunPage
             }
     }
 
-    public sealed class Handler(IGetPayrollRunPage dataAccess)
+    public sealed class Handler(IGetPayrollRunPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetPayrollRunPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

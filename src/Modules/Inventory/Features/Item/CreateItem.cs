@@ -40,14 +40,14 @@ public static class CreateItem
         }
     }
 
-    public interface ICreateItem
+    public interface ICreateItemCommand
     {
         Task AddAsync(
                 ItemEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateItemPersistence(IInventoryDbContext dbContext) : ICreateItem
+    internal sealed class CreateItemCommand(IInventoryDbContext dbContext) : ICreateItemCommand
     {
         public async Task AddAsync(
                 ItemEntity entity,
@@ -60,21 +60,19 @@ public static class CreateItem
             }
     }
 
-    public sealed class Handler(ICreateItem dataAccess)
+    public sealed class Handler(ICreateItemCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ItemEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -42,7 +42,7 @@ public static class UpdateStockTransaction
         }
     }
 
-    public interface IUpdateStockTransaction
+    public interface IUpdateStockTransactionCommand
     {
         Task UpdateAsync(
                 StockTransactionEntity entity,
@@ -54,7 +54,7 @@ Task<StockTransactionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStockTransactionPersistence(IInventoryDbContext dbContext) : IUpdateStockTransaction
+    internal sealed class UpdateStockTransactionCommand(IInventoryDbContext dbContext) : IUpdateStockTransactionCommand
     {
         public async Task UpdateAsync(
                 StockTransactionEntity entity,
@@ -79,14 +79,14 @@ Task<StockTransactionEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateStockTransaction dataAccess)
+    public sealed class Handler(IUpdateStockTransactionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<StockTransactionEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

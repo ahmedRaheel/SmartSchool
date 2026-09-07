@@ -39,14 +39,14 @@ public static class CreateAcademicSystem
         }
     }
 
-    public interface ICreateAcademicSystem
+    public interface ICreateAcademicSystemCommand
     {
         Task AddAsync(
                 AcademicSystemEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAcademicSystemPersistence(IOrganizationDbContext dbContext) : ICreateAcademicSystem
+    internal sealed class CreateAcademicSystemCommand(IOrganizationDbContext dbContext) : ICreateAcademicSystemCommand
     {
         public async Task AddAsync(
                 AcademicSystemEntity entity,
@@ -60,21 +60,19 @@ public static class CreateAcademicSystem
             }
     }
 
-    public sealed class Handler(ICreateAcademicSystem dataAccess)
+    public sealed class Handler(ICreateAcademicSystemCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = AcademicSystemEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

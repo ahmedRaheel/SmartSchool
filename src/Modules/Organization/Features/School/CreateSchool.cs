@@ -4,6 +4,7 @@ using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Models;
+using SmartSchool.Modules.Organization.Persistence;
 
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -43,11 +44,18 @@ public static class CreateSchool
             RuleFor(x => x.Province).MaximumLength(120);
             RuleFor(x => x.Website).MaximumLength(300);
         }
+    }    public interface ICreateSchoolCommand
+    {
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
     }
 
-    public sealed class Handler(ISchoolCommand command, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+
+
+    internal sealed class CreateSchoolCommand(IOrganizationDbContext dbContext, IBusinessNumberGenerator numberGenerator) : ICreateSchoolCommand
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var code = await numberGenerator.NextAsync(
                 "SCHOOL", "SCH", request.TenantId, 3, cancellationToken);
@@ -57,18 +65,23 @@ public static class CreateSchool
                 request.Phone, request.Fax, request.Website, request.Address, request.City, request.Province,
                 request.Country, request.LogoUrl);
 
-            await command.AddAsync(school, cancellationToken);
+            await dbContext.Schools.AddAsync(school, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             return Result<Response>.Success(Map(school));
         }
     }
 
-    public interface ITenantSchoolCommand
+    public sealed class Handler(ICreateSchoolCommand command)
+        : IRequestHandler<Request, Result<Response>>
     {
-        Task AddAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken);
-
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
+        }
     }
+
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school"),

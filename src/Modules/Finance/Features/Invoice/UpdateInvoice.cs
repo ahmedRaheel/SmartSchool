@@ -42,7 +42,7 @@ public static class UpdateInvoice
         }
     }
 
-    public interface IUpdateInvoice
+    public interface IUpdateInvoiceCommand
     {
         Task UpdateAsync(
                 InvoiceEntity entity,
@@ -54,7 +54,7 @@ Task<InvoiceEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateInvoicePersistence(IFinanceDbContext dbContext) : IUpdateInvoice
+    internal sealed class UpdateInvoiceCommand(IFinanceDbContext dbContext) : IUpdateInvoiceCommand
     {
         public async Task UpdateAsync(
                 InvoiceEntity entity,
@@ -79,14 +79,14 @@ Task<InvoiceEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateInvoice dataAccess)
+    public sealed class Handler(IUpdateInvoiceCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<InvoiceEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

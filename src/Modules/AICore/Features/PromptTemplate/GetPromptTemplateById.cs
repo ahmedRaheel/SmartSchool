@@ -29,7 +29,7 @@ public static class GetPromptTemplateById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetPromptTemplateById
+    public interface IGetPromptTemplateByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetPromptTemplateById
 
     }
 
-    internal sealed class GetPromptTemplateByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetPromptTemplateById
+    internal sealed class GetPromptTemplateByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetPromptTemplateByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetPromptTemplateById
             }
     }
 
-    public sealed class Handler(IGetPromptTemplateById dataAccess)
+    public sealed class Handler(IGetPromptTemplateByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

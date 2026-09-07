@@ -20,7 +20,7 @@ public static class DeleteHumanHandoff
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteHumanHandoff
+    public interface IDeleteHumanHandoffCommand
     {
         Task DeleteAsync(
                 HumanHandoffEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteHumanHandoff
 
     }
 
-    internal sealed class DeleteHumanHandoffPersistence(IAIInquiryDbContext dbContext) : IDeleteHumanHandoff
+    internal sealed class DeleteHumanHandoffCommand(IAIInquiryDbContext dbContext) : IDeleteHumanHandoffCommand
     {
         public async Task DeleteAsync(
                 HumanHandoffEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteHumanHandoff
             }
     }
 
-    public sealed class Handler(IDeleteHumanHandoff dataAccess)
+    public sealed class Handler(IDeleteHumanHandoffCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(HumanHandoffEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

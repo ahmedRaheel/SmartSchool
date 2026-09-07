@@ -20,7 +20,7 @@ public static class DeleteGeneratedQuiz
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteGeneratedQuiz
+    public interface IDeleteGeneratedQuizCommand
     {
         Task DeleteAsync(
                 GeneratedQuizEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteGeneratedQuiz
 
     }
 
-    internal sealed class DeleteGeneratedQuizPersistence(IAITutorDbContext dbContext) : IDeleteGeneratedQuiz
+    internal sealed class DeleteGeneratedQuizCommand(IAITutorDbContext dbContext) : IDeleteGeneratedQuizCommand
     {
         public async Task DeleteAsync(
                 GeneratedQuizEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteGeneratedQuiz
             }
     }
 
-    public sealed class Handler(IDeleteGeneratedQuiz dataAccess)
+    public sealed class Handler(IDeleteGeneratedQuizCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(GeneratedQuizEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

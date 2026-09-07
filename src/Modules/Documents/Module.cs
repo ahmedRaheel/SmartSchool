@@ -7,7 +7,12 @@ using SmartSchool.Modules.Documents.Features.DocumentTemplate;
 using SmartSchool.Modules.Documents.Features.GeneratedDocument;
 using SmartSchool.SharedKernel;
 
-using SmartSchool.Modules.Documents.Features;
+using SmartSchool.Modules.Documents.Features.UploadDocument;
+using SmartSchool.Modules.Documents.Features.DownloadDocument;
+using SmartSchool.Modules.Documents.Features.ListDocuments;
+using SmartSchool.Modules.Documents.Features.ArchiveDocument;
+using SmartSchool.Modules.Documents.Features.GetRequiredDocuments;
+using SmartSchool.Modules.Documents.Features.GetDocumentCompliance;
 using SmartSchool.Modules.Documents.Features.Certificate;
 using SmartSchool.Modules.Documents.Features.SchoolLogo;
 namespace SmartSchool.Modules.Documents;
@@ -18,7 +23,8 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IDocumentsDbContext, DocumentsDbContext>();
+        services.AddScoped<IDocumentsDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<DocumentsDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;
@@ -48,7 +54,12 @@ public static class Module
         GetSchoolLogoPage.MapEndpoint(endpoints);
         UpdateCertificate.MapEndpoint(endpoints);
         UpdateSchoolLogo.MapEndpoint(endpoints);
-        DocumentManagementEndpoints.MapDocumentManagement(endpoints);
+        UploadDocument.MapEndpoint(endpoints);
+        DownloadDocument.MapEndpoint(endpoints);
+        ListDocuments.MapEndpoint(endpoints);
+        ArchiveDocument.MapEndpoint(endpoints);
+        GetRequiredDocuments.MapEndpoint(endpoints);
+        GetDocumentCompliance.MapEndpoint(endpoints);
 
         return endpoints;
     }

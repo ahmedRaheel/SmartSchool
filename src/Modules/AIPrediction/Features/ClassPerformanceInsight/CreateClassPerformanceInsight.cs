@@ -40,14 +40,14 @@ public static class CreateClassPerformanceInsight
         }
     }
 
-    public interface ICreateClassPerformanceInsight
+    public interface ICreateClassPerformanceInsightCommand
     {
         Task AddAsync(
                 ClassPerformanceInsightEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateClassPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : ICreateClassPerformanceInsight
+    internal sealed class CreateClassPerformanceInsightCommand(IAIPredictionDbContext dbContext) : ICreateClassPerformanceInsightCommand
     {
         public async Task AddAsync(
                 ClassPerformanceInsightEntity entity,
@@ -60,21 +60,19 @@ public static class CreateClassPerformanceInsight
             }
     }
 
-    public sealed class Handler(ICreateClassPerformanceInsight dataAccess)
+    public sealed class Handler(ICreateClassPerformanceInsightCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ClassPerformanceInsightEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

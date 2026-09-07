@@ -12,14 +12,14 @@ public static class GetGeography
     public sealed record GetProvinces(int CountryId) : IRequest<IReadOnlyList<Response>>;
     public sealed record GetCities(int ProvinceId) : IRequest<IReadOnlyList<Response>>;
 
-    public interface IGetGeography
+    public interface IGetGeographyQuery
     {
         Task<IReadOnlyList<Response>> GetCountriesAsync(CancellationToken cancellationToken);
         Task<IReadOnlyList<Response>> GetProvincesAsync(int countryId, CancellationToken cancellationToken);
         Task<IReadOnlyList<Response>> GetCitiesAsync(int provinceId, CancellationToken cancellationToken);
     }
 
-    internal sealed class Persistence(IDbConnectionFactory connectionFactory) : IGetGeography
+    internal sealed class GetGeographyQuery(IDbConnectionFactory connectionFactory) : IGetGeographyQuery
     {
         public Task<IReadOnlyList<Response>> GetCountriesAsync(CancellationToken cancellationToken) =>
             QueryAsync("SELECT country_id AS \"Id\", code AS \"Code\", name AS \"Name\" FROM reference.country ORDER BY name", null, cancellationToken);
@@ -37,17 +37,17 @@ public static class GetGeography
         }
     }
 
-    public sealed class CountriesHandler(IGetGeography query) : IRequestHandler<GetCountries, IReadOnlyList<Response>>
+    public sealed class Handler(IGetGeographyQuery query) : IRequestHandler<GetCountries, IReadOnlyList<Response>>
     {
         public Task<IReadOnlyList<Response>> HandleAsync(GetCountries request, CancellationToken cancellationToken) => query.GetCountriesAsync(cancellationToken);
     }
 
-    public sealed class ProvincesHandler(IGetGeography query) : IRequestHandler<GetProvinces, IReadOnlyList<Response>>
+    public sealed class ProvincesHandler(IGetGeographyQuery query) : IRequestHandler<GetProvinces, IReadOnlyList<Response>>
     {
         public Task<IReadOnlyList<Response>> HandleAsync(GetProvinces request, CancellationToken cancellationToken) => query.GetProvincesAsync(request.CountryId, cancellationToken);
     }
 
-    public sealed class CitiesHandler(IGetGeography query) : IRequestHandler<GetCities, IReadOnlyList<Response>>
+    public sealed class CitiesHandler(IGetGeographyQuery query) : IRequestHandler<GetCities, IReadOnlyList<Response>>
     {
         public Task<IReadOnlyList<Response>> HandleAsync(GetCities request, CancellationToken cancellationToken) => query.GetCitiesAsync(request.ProvinceId, cancellationToken);
     }

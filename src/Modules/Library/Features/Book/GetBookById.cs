@@ -29,7 +29,7 @@ public static class GetBookById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetBookById
+    public interface IGetBookByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetBookById
 
     }
 
-    internal sealed class GetBookByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetBookById
+    internal sealed class GetBookByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetBookByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetBookById
             }
     }
 
-    public sealed class Handler(IGetBookById dataAccess)
+    public sealed class Handler(IGetBookByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

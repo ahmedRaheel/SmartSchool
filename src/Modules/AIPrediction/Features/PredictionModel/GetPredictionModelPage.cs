@@ -31,7 +31,7 @@ public static class GetPredictionModelPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetPredictionModelPage
+    public interface IGetPredictionModelPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetPredictionModelPage
 
     }
 
-    internal sealed class GetPredictionModelPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetPredictionModelPage
+    internal sealed class GetPredictionModelPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetPredictionModelPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetPredictionModelPage
             }
     }
 
-    public sealed class Handler(IGetPredictionModelPage dataAccess)
+    public sealed class Handler(IGetPredictionModelPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetPredictionModelPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

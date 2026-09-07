@@ -20,7 +20,7 @@ public static class DeleteStudentIntervention
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteStudentIntervention
+    public interface IDeleteStudentInterventionCommand
     {
         Task DeleteAsync(
                 StudentInterventionEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteStudentIntervention
 
     }
 
-    internal sealed class DeleteStudentInterventionPersistence(IAIPredictionDbContext dbContext) : IDeleteStudentIntervention
+    internal sealed class DeleteStudentInterventionCommand(IAIPredictionDbContext dbContext) : IDeleteStudentInterventionCommand
     {
         public async Task DeleteAsync(
                 StudentInterventionEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteStudentIntervention
             }
     }
 
-    public sealed class Handler(IDeleteStudentIntervention dataAccess)
+    public sealed class Handler(IDeleteStudentInterventionCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentInterventionEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

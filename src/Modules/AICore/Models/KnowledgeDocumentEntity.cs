@@ -88,4 +88,18 @@ public sealed class KnowledgeDocumentEntity : Entity
         MetadataJson = metadataJson;
         MarkAsUpdated();
     }
+    public static KnowledgeDocumentEntity CreateIndexed(
+        Guid tenantId, Guid collectionId, Guid? campusId, Guid? academicSystemId, string title, string metadata)
+    {
+        var entity = Create(tenantId, $"PDF-{Guid.NewGuid():N}", title, metadata);
+        entity.KnowledgeCollectionId = collectionId;
+        entity.CampusId = campusId;
+        entity.AcademicSystemId = academicSystemId;
+        entity.Title = title;
+        entity.DocumentType = "PDF";
+        entity.Metadata = metadata;
+        entity.Status = "INDEXED";
+        return entity;
+    }
+
 }

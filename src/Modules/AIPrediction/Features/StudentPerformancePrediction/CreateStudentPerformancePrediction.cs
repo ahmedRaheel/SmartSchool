@@ -40,15 +40,15 @@ public static class CreateStudentPerformancePrediction
         }
     }
 
-    public interface ICreateStudentPerformancePrediction
+    public interface ICreateStudentPerformancePredictionCommand
     {
         Task AddAsync(
                 StudentPerformancePredictionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentPerformancePredictionPersistence(
-        IAIPredictionDbContext dbContext) : ICreateStudentPerformancePrediction
+    internal sealed class CreateStudentPerformancePredictionCommand(
+        IAIPredictionDbContext dbContext) : ICreateStudentPerformancePredictionCommand
     {
         public async Task AddAsync(
                 StudentPerformancePredictionEntity entity,
@@ -61,21 +61,19 @@ public static class CreateStudentPerformancePrediction
             }
 }
 
-    public sealed class Handler(ICreateStudentPerformancePrediction dataAccess)
+    public sealed class Handler(ICreateStudentPerformancePredictionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StudentPerformancePredictionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

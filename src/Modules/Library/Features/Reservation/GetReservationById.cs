@@ -29,7 +29,7 @@ public static class GetReservationById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetReservationById
+    public interface IGetReservationByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetReservationById
 
     }
 
-    internal sealed class GetReservationByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetReservationById
+    internal sealed class GetReservationByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetReservationByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetReservationById
             }
     }
 
-    public sealed class Handler(IGetReservationById dataAccess)
+    public sealed class Handler(IGetReservationByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

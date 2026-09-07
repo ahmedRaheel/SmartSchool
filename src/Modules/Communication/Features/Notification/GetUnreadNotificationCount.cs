@@ -13,7 +13,7 @@ public static class GetUnreadNotificationCount
 {
     public sealed record Query(Guid TenantId, Guid RecipientUserId) : IRequest<Result<Response>>;
     public sealed record Response(Guid TenantId, Guid RecipientUserId, int UnreadCount);
-    public interface IGetUnreadNotificationCount
+    public interface IGetUnreadNotificationCountQuery
     {
         Task<int> GetUnreadCountAsync(
                 Guid tenantId,
@@ -22,8 +22,8 @@ public static class GetUnreadNotificationCount
 
     }
 
-    internal sealed class GetUnreadNotificationCountPersistence(
-        IDbConnectionFactory connectionFactory) : IGetUnreadNotificationCount
+    internal sealed class GetUnreadNotificationCountQuery(
+        IDbConnectionFactory connectionFactory) : IGetUnreadNotificationCountQuery
     {
         public async Task<int> GetUnreadCountAsync(
                 Guid tenantId,
@@ -53,11 +53,11 @@ public static class GetUnreadNotificationCount
             }
     }
 
-    public sealed class Handler(IGetUnreadNotificationCount dataAccess) : IRequestHandler<Query, Result<Response>>
+    public sealed class Handler(IGetUnreadNotificationCountQuery query) : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
-            var count = await dataAccess.GetUnreadCountAsync(request.TenantId, request.RecipientUserId, cancellationToken);
+            var count = await query.GetUnreadCountAsync(request.TenantId, request.RecipientUserId, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.RecipientUserId, count));
         }
     }

@@ -39,14 +39,14 @@ public static class CreateTerm
         }
     }
 
-    public interface ICreateTerm
+    public interface ICreateTermCommand
     {
         Task AddAsync(
                 TermEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTermPersistence(IOrganizationDbContext dbContext) : ICreateTerm
+    internal sealed class CreateTermCommand(IOrganizationDbContext dbContext) : ICreateTermCommand
     {
         public async Task AddAsync(
                 TermEntity entity,
@@ -60,21 +60,19 @@ public static class CreateTerm
             }
     }
 
-    public sealed class Handler(ICreateTerm dataAccess)
+    public sealed class Handler(ICreateTermCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = TermEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

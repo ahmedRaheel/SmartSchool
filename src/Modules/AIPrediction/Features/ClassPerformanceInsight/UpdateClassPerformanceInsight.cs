@@ -42,7 +42,7 @@ public static class UpdateClassPerformanceInsight
         }
     }
 
-    public interface IUpdateClassPerformanceInsight
+    public interface IUpdateClassPerformanceInsightCommand
     {
         Task UpdateAsync(
                 ClassPerformanceInsightEntity entity,
@@ -54,7 +54,7 @@ Task<ClassPerformanceInsightEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateClassPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : IUpdateClassPerformanceInsight
+    internal sealed class UpdateClassPerformanceInsightCommand(IAIPredictionDbContext dbContext) : IUpdateClassPerformanceInsightCommand
     {
         public async Task UpdateAsync(
                 ClassPerformanceInsightEntity entity,
@@ -79,14 +79,14 @@ Task<ClassPerformanceInsightEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateClassPerformanceInsight dataAccess)
+    public sealed class Handler(IUpdateClassPerformanceInsightCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ClassPerformanceInsightEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

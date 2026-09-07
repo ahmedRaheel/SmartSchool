@@ -40,14 +40,14 @@ public static class CreateLearningResource
         }
     }
 
-    public interface ICreateLearningResource
+    public interface ICreateLearningResourceCommand
     {
         Task AddAsync(
                 LearningResourceEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLearningResourcePersistence(ILearningDbContext dbContext) : ICreateLearningResource
+    internal sealed class CreateLearningResourceCommand(ILearningDbContext dbContext) : ICreateLearningResourceCommand
     {
         public async Task AddAsync(
                 LearningResourceEntity entity,
@@ -60,21 +60,19 @@ public static class CreateLearningResource
             }
     }
 
-    public sealed class Handler(ICreateLearningResource dataAccess)
+    public sealed class Handler(ICreateLearningResourceCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = LearningResourceEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

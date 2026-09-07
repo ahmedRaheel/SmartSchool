@@ -4,7 +4,6 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Admissions.Features;
 using SmartSchool.Modules.Admissions.Features.AdmissionDecision;
-using SmartSchool.Modules.Admissions.Features.AdmissionWorkflow;
 using SmartSchool.Modules.Admissions.Features.Applicant;
 using SmartSchool.Modules.Admissions.Features.Application;
 using SmartSchool.Modules.Admissions.Features.Inquiry;
@@ -18,11 +17,19 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAdmissionsDbContext, AdmissionsDbContext>();
+        services.AddScoped<IAdmissionsDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<AdmissionsDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<IAdmissionWorkflowCommand, AdmissionWorkflowCommand>();
-        services.AddScoped<IAdmissionWorkflowQuery, AdmissionWorkflowQuery>();
+        services.AddScoped<IGetAdmissionApplicationsQuery, GetAdmissionApplicationsQuery>();
+        services.AddScoped<ICreateAdmissionApplicationQuery, CreateAdmissionApplicationQuery>();
+        //services.AddScoped<ICreateAdmissionApplication, CreateAdmissionApplicationCommand>();
+        services.AddScoped<IChangeAdmissionStatusQuery, ChangeAdmissionStatusQuery>();
+        //services.AddScoped<IChangeAdmissionStatus, ChangeAdmissionStatusCommand>();
+        services.AddScoped<ICompleteAdmission, CompleteAdmissionCommand>();
+        services.AddScoped<IGetAdmissionCriteriaQuery, GetAdmissionCriteriaQuery>();
+        services.AddScoped<ICreateAdmissionCriteriaQuery, CreateAdmissionCriteriaQuery>();
+        //services.AddScoped<ICreateAdmissionCriteria, CreateAdmissionCriteriaCommand>();
         return services;
     }
 

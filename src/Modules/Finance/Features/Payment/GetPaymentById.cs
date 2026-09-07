@@ -29,7 +29,7 @@ public static class GetPaymentById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetPaymentById
+    public interface IGetPaymentByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetPaymentById
 
     }
 
-    internal sealed class GetPaymentByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetPaymentById
+    internal sealed class GetPaymentByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetPaymentByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetPaymentById
             }
     }
 
-    public sealed class Handler(IGetPaymentById dataAccess)
+    public sealed class Handler(IGetPaymentByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

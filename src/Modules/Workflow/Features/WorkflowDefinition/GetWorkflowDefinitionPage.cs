@@ -31,7 +31,7 @@ public static class GetWorkflowDefinitionPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetWorkflowDefinitionPage
+    public interface IGetWorkflowDefinitionPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetWorkflowDefinitionPage
 
     }
 
-    internal sealed class GetWorkflowDefinitionPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetWorkflowDefinitionPage
+    internal sealed class GetWorkflowDefinitionPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetWorkflowDefinitionPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetWorkflowDefinitionPage
             }
     }
 
-    public sealed class Handler(IGetWorkflowDefinitionPage dataAccess)
+    public sealed class Handler(IGetWorkflowDefinitionPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetWorkflowDefinitionPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

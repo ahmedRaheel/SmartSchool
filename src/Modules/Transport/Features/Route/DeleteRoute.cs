@@ -20,7 +20,7 @@ public static class DeleteRoute
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteRoute
+    public interface IDeleteRouteCommand
     {
         Task DeleteAsync(
                 RouteEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteRoute
 
     }
 
-    internal sealed class DeleteRoutePersistence(ITransportDbContext dbContext) : IDeleteRoute
+    internal sealed class DeleteRouteCommand(ITransportDbContext dbContext) : IDeleteRouteCommand
     {
         public async Task DeleteAsync(
                 RouteEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteRoute
             }
     }
 
-    public sealed class Handler(IDeleteRoute dataAccess)
+    public sealed class Handler(IDeleteRouteCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(RouteEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

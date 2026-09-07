@@ -43,13 +43,13 @@ public static class UpdateOrganization
         }
     }
 
-    public interface IUpdateOrganization
+    public interface IUpdateOrganizationCommand
     {
         Task<TenantEntity?> GetAsync(Guid tenantId, CancellationToken cancellationToken);
         Task SaveAsync(CancellationToken cancellationToken);
     }
 
-    internal sealed class Persistence(IOrganizationDbContext dbContext) : IUpdateOrganization
+    internal sealed class UpdateOrganizationCommand(IOrganizationDbContext dbContext) : IUpdateOrganizationCommand
     {
         public Task<TenantEntity?> GetAsync(Guid tenantId, CancellationToken cancellationToken) =>
             dbContext.Tenants
@@ -60,7 +60,7 @@ public static class UpdateOrganization
             dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public sealed class Handler(IUpdateOrganization persistence)
+    public sealed class Handler(IUpdateOrganizationCommand persistence)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)

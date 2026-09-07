@@ -31,7 +31,7 @@ public static class GetModelConfigurationPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetModelConfigurationPage
+    public interface IGetModelConfigurationPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetModelConfigurationPage
 
     }
 
-    internal sealed class GetModelConfigurationPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetModelConfigurationPage
+    internal sealed class GetModelConfigurationPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetModelConfigurationPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetModelConfigurationPage
             }
     }
 
-    public sealed class Handler(IGetModelConfigurationPage dataAccess)
+    public sealed class Handler(IGetModelConfigurationPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetModelConfigurationPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
@@ -128,9 +128,9 @@ public static class GetModelConfigurationPage
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "model-configuration"),
-                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+                async (Guid tenantId, int? page, int? pageSize, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var request = new Query(tenantId, page, pageSize);
+                    var request = new Query(tenantId, page ?? 1, pageSize ?? 25);
                     var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
                         request, cancellationToken);
                     return result.ToHttpResult();
@@ -138,6 +138,19 @@ public static class GetModelConfigurationPage
             .WithName("GetModelConfigurationPage")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
+        endpoints.MapGet(
+                "/api/ai/model-config",
+                async (Guid tenantId, int? page, int? pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+                {
+                    var request = new Query(tenantId, page ?? 1, pageSize ?? 25);
+                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
+                        request, cancellationToken);
+                    return result.ToHttpResult();
+                })
+            .WithName("GetAiModelConfig")
+            .WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
+
         return endpoints;
     }
 }

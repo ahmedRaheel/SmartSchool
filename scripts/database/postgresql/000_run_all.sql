@@ -10,3 +10,5 @@
 \i 009_prediction_suite.sql
 
 \i 019_academic_relationship_refinement.sql
+
+\i ../../../database/migrations/20260906_schema_ai_academic_alignment.sql

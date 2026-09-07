@@ -20,7 +20,7 @@ public static class DeleteModelConfiguration
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteModelConfiguration
+    public interface IDeleteModelConfigurationCommand
     {
         Task DeleteAsync(
                 ModelConfigurationEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteModelConfiguration
 
     }
 
-    internal sealed class DeleteModelConfigurationPersistence(IAICoreDbContext dbContext) : IDeleteModelConfiguration
+    internal sealed class DeleteModelConfigurationCommand(IAICoreDbContext dbContext) : IDeleteModelConfigurationCommand
     {
         public async Task DeleteAsync(
                 ModelConfigurationEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteModelConfiguration
             }
     }
 
-    public sealed class Handler(IDeleteModelConfiguration dataAccess)
+    public sealed class Handler(IDeleteModelConfigurationCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ModelConfigurationEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

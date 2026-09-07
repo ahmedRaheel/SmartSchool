@@ -74,6 +74,34 @@ public sealed class LeaveRequestEntity : Entity
         };
     }
 
+    public static LeaveRequestEntity CreateTeacherLeave(
+        Guid tenantId,
+        Guid employeeId,
+        string leaveType,
+        DateOnly fromDate,
+        DateOnly toDate,
+        string reason,
+        string status)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(leaveType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+
+        var leaveRequestId = Guid.NewGuid();
+        return new LeaveRequestEntity
+        {
+            LeaveRequestId = leaveRequestId,
+            TenantId = tenantId,
+            EmployeeId = employeeId,
+            LeaveType = leaveType.Trim(),
+            FromDate = fromDate,
+            ToDate = toDate,
+            Reason = reason.Trim(),
+            Status = status,
+            Code = $"LEAVE-{{leaveRequestId:N}}",
+            Name = $"{{leaveType.Trim()}} leave"
+        };
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

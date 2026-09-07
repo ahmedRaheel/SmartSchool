@@ -29,7 +29,7 @@ public static class GetTutorSessionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetTutorSessionById
+    public interface IGetTutorSessionByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetTutorSessionById
 
     }
 
-    internal sealed class GetTutorSessionByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetTutorSessionById
+    internal sealed class GetTutorSessionByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetTutorSessionByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetTutorSessionById
             }
     }
 
-    public sealed class Handler(IGetTutorSessionById dataAccess)
+    public sealed class Handler(IGetTutorSessionByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

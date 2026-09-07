@@ -42,7 +42,7 @@ public static class UpdateJob
         }
     }
 
-    public interface IUpdateJob
+    public interface IUpdateJobCommand
     {
         Task UpdateAsync(
                 JobEntity entity,
@@ -54,7 +54,7 @@ Task<JobEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateJobPersistence(IHRDbContext dbContext) : IUpdateJob
+    internal sealed class UpdateJobCommand(IHRDbContext dbContext) : IUpdateJobCommand
     {
         public async Task UpdateAsync(
                 JobEntity entity,
@@ -79,14 +79,14 @@ Task<JobEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateJob dataAccess)
+    public sealed class Handler(IUpdateJobCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<JobEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

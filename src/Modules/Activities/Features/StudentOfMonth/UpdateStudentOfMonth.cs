@@ -42,7 +42,7 @@ public static class UpdateStudentOfMonth
         }
     }
 
-    public interface IUpdateStudentOfMonth
+    public interface IUpdateStudentOfMonthCommand
     {
         Task UpdateAsync(
                 StudentOfMonthEntity entity,
@@ -54,7 +54,7 @@ Task<StudentOfMonthEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStudentOfMonthPersistence(IActivitiesDbContext dbContext) : IUpdateStudentOfMonth
+    internal sealed class UpdateStudentOfMonthCommand(IActivitiesDbContext dbContext) : IUpdateStudentOfMonthCommand
     {
         public async Task UpdateAsync(
                 StudentOfMonthEntity entity,
@@ -79,14 +79,14 @@ Task<StudentOfMonthEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateStudentOfMonth dataAccess)
+    public sealed class Handler(IUpdateStudentOfMonthCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<StudentOfMonthEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

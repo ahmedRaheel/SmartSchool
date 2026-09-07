@@ -42,7 +42,7 @@ public static class UpdateApplication
         }
     }
 
-    public interface IUpdateApplication
+    public interface IUpdateApplicationCommand
     {
         Task UpdateAsync(
                 ApplicationEntity entity,
@@ -54,7 +54,7 @@ Task<ApplicationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateApplicationPersistence(IAdmissionsDbContext dbContext) : IUpdateApplication
+    internal sealed class UpdateApplicationCommand(IAdmissionsDbContext dbContext) : IUpdateApplicationCommand
     {
         public async Task UpdateAsync(
                 ApplicationEntity entity,
@@ -79,14 +79,14 @@ Task<ApplicationEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateApplication dataAccess)
+    public sealed class Handler(IUpdateApplicationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ApplicationEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

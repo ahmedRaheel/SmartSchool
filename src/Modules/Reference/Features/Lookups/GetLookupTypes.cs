@@ -10,12 +10,12 @@ public static class GetLookupTypes
 
     public sealed record Request : IRequest<IReadOnlyList<Response>>;
 
-    public interface IGetLookupTypes
+    public interface IGetLookupTypesQuery
     {
         Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken);
     }
 
-    internal sealed class GetLookupTypesPersistence(IDbConnectionFactory connectionFactory) : IGetLookupTypes
+    internal sealed class GetLookupTypesQuery(IDbConnectionFactory connectionFactory) : IGetLookupTypesQuery
     {
         public async Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken)
         {
@@ -30,7 +30,7 @@ public static class GetLookupTypes
     }
 
 
-    public sealed class Handler(IGetLookupTypes query) : IRequestHandler<Request, IReadOnlyList<Response>>
+    public sealed class Handler(IGetLookupTypesQuery query) : IRequestHandler<Request, IReadOnlyList<Response>>
     {
         public Task<IReadOnlyList<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
             => query.ExecuteAsync(cancellationToken);

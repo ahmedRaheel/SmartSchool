@@ -20,7 +20,7 @@ public static class DeleteGuardian
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteGuardian
+    public interface IDeleteGuardianCommand
     {
         Task DeleteAsync(
                 GuardianEntity entity,
@@ -30,8 +30,8 @@ public static class DeleteGuardian
 
     }
 
-    internal sealed class DeleteGuardianPersistence(
-        IStudentsDbContext dbContext) : IDeleteGuardian
+    internal sealed class DeleteGuardianCommand(
+        IStudentsDbContext dbContext) : IDeleteGuardianCommand
     {
         public async Task DeleteAsync(
                 GuardianEntity entity,
@@ -51,21 +51,21 @@ public static class DeleteGuardian
         }
 }
 
-    public sealed class Handler(IDeleteGuardian dataAccess)
+    public sealed class Handler(IDeleteGuardianCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(GuardianEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

@@ -29,7 +29,7 @@ public static class GetFeeTypeById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetFeeTypeById
+    public interface IGetFeeTypeByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetFeeTypeById
 
     }
 
-    internal sealed class GetFeeTypeByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetFeeTypeById
+    internal sealed class GetFeeTypeByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetFeeTypeByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetFeeTypeById
             }
     }
 
-    public sealed class Handler(IGetFeeTypeById dataAccess)
+    public sealed class Handler(IGetFeeTypeByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

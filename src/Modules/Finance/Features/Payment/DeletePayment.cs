@@ -20,7 +20,7 @@ public static class DeletePayment
         Guid TenantId,
         Guid Id);
 
-    public interface IDeletePayment
+    public interface IDeletePaymentCommand
     {
         Task DeleteAsync(
                 PaymentEntity entity,
@@ -33,7 +33,7 @@ public static class DeletePayment
 
     }
 
-    internal sealed class DeletePaymentPersistence(IFinanceDbContext dbContext) : IDeletePayment
+    internal sealed class DeletePaymentCommand(IFinanceDbContext dbContext) : IDeletePaymentCommand
     {
         public async Task DeleteAsync(
                 PaymentEntity entity,
@@ -58,21 +58,21 @@ public static class DeletePayment
             }
     }
 
-    public sealed class Handler(IDeletePayment dataAccess)
+    public sealed class Handler(IDeletePaymentCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(PaymentEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

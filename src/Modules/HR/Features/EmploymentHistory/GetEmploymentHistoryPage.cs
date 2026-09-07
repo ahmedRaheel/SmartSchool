@@ -31,7 +31,7 @@ public static class GetEmploymentHistoryPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetEmploymentHistoryPage
+    public interface IGetEmploymentHistoryPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetEmploymentHistoryPage
 
     }
 
-    internal sealed class GetEmploymentHistoryPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetEmploymentHistoryPage
+    internal sealed class GetEmploymentHistoryPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetEmploymentHistoryPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetEmploymentHistoryPage
             }
     }
 
-    public sealed class Handler(IGetEmploymentHistoryPage dataAccess)
+    public sealed class Handler(IGetEmploymentHistoryPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetEmploymentHistoryPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

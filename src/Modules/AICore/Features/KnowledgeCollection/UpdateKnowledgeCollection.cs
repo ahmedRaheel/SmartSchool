@@ -42,7 +42,7 @@ public static class UpdateKnowledgeCollection
         }
     }
 
-    public interface IUpdateKnowledgeCollection
+    public interface IUpdateKnowledgeCollectionCommand
     {
         Task UpdateAsync(
                 KnowledgeCollectionEntity entity,
@@ -54,7 +54,7 @@ Task<KnowledgeCollectionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateKnowledgeCollectionPersistence(IAICoreDbContext dbContext) : IUpdateKnowledgeCollection
+    internal sealed class UpdateKnowledgeCollectionCommand(IAICoreDbContext dbContext) : IUpdateKnowledgeCollectionCommand
     {
         public async Task UpdateAsync(
                 KnowledgeCollectionEntity entity,
@@ -79,14 +79,14 @@ Task<KnowledgeCollectionEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateKnowledgeCollection dataAccess)
+    public sealed class Handler(IUpdateKnowledgeCollectionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<KnowledgeCollectionEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

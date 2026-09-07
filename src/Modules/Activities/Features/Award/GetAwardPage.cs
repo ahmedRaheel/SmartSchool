@@ -31,7 +31,7 @@ public static class GetAwardPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetAwardPage
+    public interface IGetAwardPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetAwardPage
 
     }
 
-    internal sealed class GetAwardPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetAwardPage
+    internal sealed class GetAwardPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetAwardPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetAwardPage
             }
     }
 
-    public sealed class Handler(IGetAwardPage dataAccess)
+    public sealed class Handler(IGetAwardPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetAwardPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

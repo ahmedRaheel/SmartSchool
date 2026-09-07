@@ -29,7 +29,7 @@ public static class GetIncrementById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetIncrementById
+    public interface IGetIncrementByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetIncrementById
 
     }
 
-    internal sealed class GetIncrementByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetIncrementById
+    internal sealed class GetIncrementByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetIncrementByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetIncrementById
             }
     }
 
-    public sealed class Handler(IGetIncrementById dataAccess)
+    public sealed class Handler(IGetIncrementByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

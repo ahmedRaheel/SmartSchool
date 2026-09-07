@@ -31,7 +31,7 @@ public static class GetPurchaseOrderPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetPurchaseOrderPage
+    public interface IGetPurchaseOrderPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetPurchaseOrderPage
 
     }
 
-    internal sealed class GetPurchaseOrderPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetPurchaseOrderPage
+    internal sealed class GetPurchaseOrderPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetPurchaseOrderPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetPurchaseOrderPage
             }
     }
 
-    public sealed class Handler(IGetPurchaseOrderPage dataAccess)
+    public sealed class Handler(IGetPurchaseOrderPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetPurchaseOrderPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

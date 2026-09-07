@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Rag;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AICore.Cag;
 
@@ -185,8 +186,11 @@ internal sealed class AiAssistantService(
         IReadOnlyCollection<string> collections,
         CancellationToken cancellationToken)
     {
-        var versions = new List<string>(collections.Count);
-        foreach (var collection in collections.OrderBy(value => value, StringComparer.OrdinalIgnoreCase))
+        var ordered = collections
+            .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var tasks = ordered.Select(async collection =>
         {
             var key = GetVersionKey(tenantId, collection);
             var version = await cache.GetStringAsync(key, cancellationToken);
@@ -199,9 +203,11 @@ internal sealed class AiAssistantService(
                     new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(30) },
                     cancellationToken);
             }
-            versions.Add($"{collection}:{version}");
-        }
-        return versions.ToArray();
+
+            return $"{collection}:{version}";
+        });
+
+        return await Task.WhenAll(tasks);
     }
 
     private static string BuildContextKey(AiAssistantRequest request, IReadOnlyCollection<string> versions)

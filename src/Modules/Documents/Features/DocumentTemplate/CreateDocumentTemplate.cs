@@ -40,14 +40,14 @@ public static class CreateDocumentTemplate
         }
     }
 
-    public interface ICreateDocumentTemplate
+    public interface ICreateDocumentTemplateCommand
     {
         Task AddAsync(
                 DocumentTemplateEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateDocumentTemplatePersistence(IDocumentsDbContext dbContext) : ICreateDocumentTemplate
+    internal sealed class CreateDocumentTemplateCommand(IDocumentsDbContext dbContext) : ICreateDocumentTemplateCommand
     {
         public async Task AddAsync(
                 DocumentTemplateEntity entity,
@@ -60,21 +60,19 @@ public static class CreateDocumentTemplate
             }
     }
 
-    public sealed class Handler(ICreateDocumentTemplate dataAccess)
+    public sealed class Handler(ICreateDocumentTemplateCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = DocumentTemplateEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

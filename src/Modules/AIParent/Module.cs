@@ -16,15 +16,10 @@ public static class Module
         this IServiceCollection services)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAIParentDbContext, AIParentDbContext>();
+        services.AddScoped<IAIParentDbContext>(serviceProvider =>
+            serviceProvider.GetRequiredService<AIParentDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<IParentConversationCommand, ParentConversationCommand>();
-        services.AddScoped<IParentConversationQuery, ParentConversationQuery>();
-        services.AddScoped<IParentMessageCommand, ParentMessageCommand>();
-        services.AddScoped<IParentMessageQuery, ParentMessageQuery>();
-        services.AddScoped<IParentToolExecutionCommand, ParentToolExecutionCommand>();
-        services.AddScoped<IParentToolExecutionQuery, ParentToolExecutionQuery>();
 
         return services;
     }

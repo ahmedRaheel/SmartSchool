@@ -29,7 +29,7 @@ public static class GetQuizAttemptById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetQuizAttemptById
+    public interface IGetQuizAttemptByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetQuizAttemptById
 
     }
 
-    internal sealed class GetQuizAttemptByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetQuizAttemptById
+    internal sealed class GetQuizAttemptByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetQuizAttemptByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetQuizAttemptById
             }
     }
 
-    public sealed class Handler(IGetQuizAttemptById dataAccess)
+    public sealed class Handler(IGetQuizAttemptByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

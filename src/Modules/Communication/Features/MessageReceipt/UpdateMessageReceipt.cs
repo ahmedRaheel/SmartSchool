@@ -42,7 +42,7 @@ public static class UpdateMessageReceipt
         }
     }
 
-    public interface IUpdateMessageReceipt
+    public interface IUpdateMessageReceiptCommand
     {
         Task UpdateAsync(
                 MessageReceiptEntity entity,
@@ -54,7 +54,7 @@ Task<MessageReceiptEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateMessageReceiptPersistence(ICommunicationDbContext dbContext) : IUpdateMessageReceipt
+    internal sealed class UpdateMessageReceiptCommand(ICommunicationDbContext dbContext) : IUpdateMessageReceiptCommand
     {
         public async Task UpdateAsync(
                 MessageReceiptEntity entity,
@@ -79,14 +79,14 @@ Task<MessageReceiptEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateMessageReceipt dataAccess)
+    public sealed class Handler(IUpdateMessageReceiptCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<MessageReceiptEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

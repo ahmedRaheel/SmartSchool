@@ -1,43 +1,48 @@
+using System.Threading.Tasks;
 using FluentValidation;
-using SmartSchool.Application.Messaging;
+using SmartSchool.SharedKernel;
 
+namespace SmartSchool.Application.Messaging;
+
+/// <summary>Executes feature validators before the request handler.</summary>
 public sealed class ValidationBehavior<TRequest, TResponse>(
-    IEnumerable<IValidator<TRequest>> validators)
-    : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+	IEnumerable<IValidator<TRequest>> validators)
+	: IPipelineBehavior<TRequest, TResponse>
+	where TRequest : IRequest<TResponse>
 {
-    public async Task<TResponse> HandleAsync(
-        TRequest request,
-        RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken)
-    {
-        var validatorList = validators.ToArray();
+	/// <inheritdoc />
+	public async Task<TResponse> HandleAsync(
+		TRequest request,
+		RequestHandlerDelegate<TResponse> next,
+		CancellationToken cancellationToken)
+	{
+		var registeredValidators = validators.ToArray();
 
-        if (validatorList.Length == 0)
-        {
-            return await next();
-        }
+		if (registeredValidators.Length == 0)
+		{
+			return await next();
+		}
 
-        var context = new ValidationContext<TRequest>(request);
+		var context = new ValidationContext<TRequest>(request);
+		var results = await Task.WhenAll(
+			registeredValidators.Select(
+				validator => validator.ValidateAsync(
+					context,
+					cancellationToken)));
 
-        var validationResults = await Task.WhenAll(
-            validatorList.Select(validator =>
-                validator.ValidateAsync(
-                    context,
-                    cancellationToken)));
+		var messages = results
+			.SelectMany(result => result.Errors)
+			.Where(error => error is not null)
+			.Select(error => error.ErrorMessage)
+			.Distinct(StringComparer.Ordinal)
+			.ToArray();
 
-        var failures = validationResults
-            .SelectMany(result => result.Errors)
-            .Where(failure => failure is not null)
-            .ToArray();
+		if (messages.Length == 0)
+		{
+			return await next();
+		}
 
-        if (failures.Length > 0)
-        {
-            throw new ValidationException(
-                "One or more validation errors occurred.",
-                failures);
-        }
-
-        return await next();
-    }
+		return ResultFactory.CreateValidationFailure<TResponse>(
+			string.Join("; ", messages));
+	}
 }

@@ -1,10 +1,13 @@
-using System.Globalization;
-using System.Net.Http.Json;
+using SmartSchool.Modules.AICore.Persistence;
+using SmartSchool.Modules.AICore.Models;
 using System.Text.RegularExpressions;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.SharedKernel.Constants;
 using UglyToad.PdfPig;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 
@@ -13,14 +16,49 @@ public static class UploadKnowledgePdf
     private const long MaxPdfSize = 25 * 1024 * 1024;
     private const int ChunkSize = 1200;
 
-    private sealed record EmbeddingResponse(float[][] Embeddings);
+
+    public sealed record Response(Guid KnowledgeDocumentId, string FileName, int Pages, int Chunks, bool Indexed);
+
+    public interface IUploadKnowledgePdfQuery
+    {
+        Task<string?> GetCollectionCodeAsync(Guid tenantId, Guid collectionId, CancellationToken cancellationToken);
+    }
+
+    internal sealed class UploadKnowledgePdfQuery(IDbConnectionFactory connectionFactory) : IUploadKnowledgePdfQuery
+    {
+        public async Task<string?> GetCollectionCodeAsync(Guid tenantId, Guid collectionId, CancellationToken cancellationToken)
+        {
+            const string sql = "SELECT code FROM ai_core.knowledge_collection WHERE tenant_id = @TenantId AND knowledge_collection_id = @CollectionId AND is_active = true;";
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            return await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(sql, new { TenantId = tenantId, CollectionId = collectionId }, cancellationToken: cancellationToken));
+        }
+    }
+
+    public interface IUploadKnowledgePdfCommand
+    {
+        Task SaveAsync(KnowledgeDocumentEntity document, IReadOnlyCollection<RagKnowledgeChunkWriteEntity> chunks, CancellationToken cancellationToken);
+    }
+
+    internal sealed class UploadKnowledgePdfCommand(AICoreDbContext dbContext) : IUploadKnowledgePdfCommand
+    {
+        public async Task SaveAsync(KnowledgeDocumentEntity document, IReadOnlyCollection<RagKnowledgeChunkWriteEntity> chunks, CancellationToken cancellationToken)
+        {
+                await dbContext.RagKnowledgeChunks.AddRangeAsync(chunks, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public sealed class Handler
+    {
+        // Endpoint orchestration remains in UploadAsync; all persistence is delegated to the feature-owned query/command.
+    }
 
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/api/aicore/knowledge/pdf", UploadAsync)
             .WithTags("AICore Knowledge")
             .WithName("UploadKnowledgePdf")
-            .RequireAuthorization()
+            .RequireAuthorization(SmartSchoolPolicies.AiKnowledgeContribution)
             .DisableAntiforgery();
     }
 
@@ -31,9 +69,10 @@ public static class UploadKnowledgePdf
         Guid? campusId,
         Guid? academicSystemId,
         ITenantScope tenantScope,
-        IDbConnectionFactory connectionFactory,
-        IHttpClientFactory httpClientFactory,
-        IConfiguration configuration,
+        IUploadKnowledgePdfQuery query,
+        IUploadKnowledgePdfCommand command,
+        IOllamaClient ollamaClient,
+        IAiAssistantService assistantService,
         CancellationToken cancellationToken)
     {
         var resolvedTenantId = tenantScope.Resolve(tenantId);
@@ -66,136 +105,33 @@ public static class UploadKnowledgePdf
                 new { message = "No extractable text was found. Scanned/image-only PDFs require OCR before ingestion." });
         }
 
-        var documentId = Guid.NewGuid();
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        var collectionCode = await query.GetCollectionCodeAsync(resolvedTenantId.Value, collectionId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(collectionCode)) return Results.BadRequest(new { message = "Knowledge collection does not belong to this tenant." });
 
-        const string verifyCollectionSql = """
-            SELECT count(1)
-            FROM ai_core.knowledge_collection
-            WHERE tenant_id = @TenantId
-              AND knowledge_collection_id = @CollectionId
-              AND is_active = true;
-            """;
-
-        var collectionExists = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(
-                verifyCollectionSql,
-                new
-                {
-                    TenantId = resolvedTenantId.Value,
-                    CollectionId = collectionId
-                },
-                cancellationToken: cancellationToken));
-
-        if (collectionExists == 0)
-        {
-            return Results.BadRequest(new { message = "Knowledge collection does not belong to this tenant." });
-        }
-
-        const string insertDocumentSql = """
-            INSERT INTO ai_core.knowledge_document
-            (
-                knowledge_document_id,
-                knowledge_collection_id,
-                tenant_id,
-                campus_id,
-                academic_system_id,
-                title,
-                document_type,
-                source_url,
-                metadata,
-                status,
-                is_active,
-                created_at,
-                row_version
-            )
-            VALUES
-            (
-                @DocumentId,
-                @CollectionId,
-                @TenantId,
-                @CampusId,
-                @AcademicSystemId,
-                @Title,
-                'PDF',
-                NULL,
-                CAST(@Metadata AS jsonb),
-                'INDEXED',
-                true,
-                CURRENT_TIMESTAMP,
-                gen_random_bytes(8)
-            );
-            """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertDocumentSql,
-                new
-                {
-                    DocumentId = documentId,
-                    CollectionId = collectionId,
-                    TenantId = resolvedTenantId.Value,
-                    CampusId = campusId,
-                    AcademicSystemId = academicSystemId,
-                    Title = Path.GetFileName(file.FileName),
-                    Metadata = "{\"source\":\"upload\"}"
-                },
-                cancellationToken: cancellationToken));
+        var title = Path.GetFileName(file.FileName);
+        var document = KnowledgeDocumentEntity.CreateIndexed(resolvedTenantId.Value, collectionId, campusId, academicSystemId, title, "{\"source\":\"upload\"}");
 
         var chunks = Chunk(pages, ChunkSize).ToArray();
-
-        const string insertChunkSql = """
-            INSERT INTO ai_core.rag_knowledge_chunk
-            (
-                knowledge_chunk_id,
-                tenant_id,
-                collection,
-                document_name,
-                content,
-                embedding,
-                created_at,
-                is_active
-            )
-            VALUES
-            (
-                @KnowledgeChunkId,
-                @TenantId,
-                @Collection,
-                @DocumentName,
-                @Content,
-                CAST(@Embedding AS vector),
-                CURRENT_TIMESTAMP,
-                true
-            );
-            """;
-
-        foreach (var content in chunks)
+        var chunkEntities = new List<RagKnowledgeChunkWriteEntity>(chunks.Length);
+        foreach (var batch in chunks.Chunk(32))
         {
-            var embedding = await EmbedAsync(
-                content,
-                httpClientFactory,
-                configuration,
-                cancellationToken);
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    insertChunkSql,
-                    new
-                    {
-                        KnowledgeChunkId = Guid.NewGuid(),
-                        TenantId = resolvedTenantId.Value,
-                        Collection = collectionId.ToString(),
-                        DocumentName = Path.GetFileName(file.FileName),
-                        Content = content,
-                        Embedding = ToVectorLiteral(embedding)
-                    },
-                    cancellationToken: cancellationToken));
+            var embeddings = await ollamaClient.EmbedBatchAsync(batch, cancellationToken);
+            for (var index = 0; index < batch.Length; index++)
+            {
+                chunkEntities.Add(RagKnowledgeChunkWriteEntity.Create(resolvedTenantId.Value, collectionCode.Trim().ToLowerInvariant(), title, batch[index], embeddings[index].ToArray()));
+            }
         }
+        await command.SaveAsync(document, chunkEntities, cancellationToken);
+
+        await assistantService.InvalidateKnowledgeAsync(
+            resolvedTenantId.Value,
+            collectionCode,
+            cancellationToken);
 
         return Results.Ok(
             new
             {
-                knowledgeDocumentId = documentId,
+                knowledgeDocumentId = document.KnowledgeDocumentId,
                 fileName = file.FileName,
                 pages = pages.Length,
                 chunks = chunks.Length,
@@ -214,39 +150,5 @@ public static class UploadKnowledgePdf
         }
     }
 
-    private static async Task<float[]> EmbedAsync(
-        string text,
-        IHttpClientFactory httpClientFactory,
-        IConfiguration configuration,
-        CancellationToken cancellationToken)
-    {
-        var client = httpClientFactory.CreateClient("Ollama");
-        var baseUrl = configuration["AI:Ollama:BaseUrl"]
-            ?? throw new InvalidOperationException("AI:Ollama:BaseUrl is required.");
 
-        client.BaseAddress = new Uri($"{baseUrl.TrimEnd('/')}/");
-
-        var response = await client.PostAsJsonAsync(
-            "api/embed",
-            new
-            {
-                model = configuration["AI:Ollama:EmbeddingModel"] ?? "nomic-embed-text",
-                input = text
-            },
-            cancellationToken);
-
-        response.EnsureSuccessStatusCode();
-
-        var embeddingResponse = await response.Content.ReadFromJsonAsync<EmbeddingResponse>(
-            cancellationToken: cancellationToken);
-
-        return embeddingResponse?.Embeddings is { Length: > 0 }
-            ? embeddingResponse.Embeddings[0]
-            : throw new InvalidOperationException("Ollama returned no embedding.");
-    }
-
-    private static string ToVectorLiteral(IEnumerable<float> values)
-    {
-        return $"[{string.Join(",", values.Select(value => value.ToString(CultureInfo.InvariantCulture)))}]";
-    }
 }

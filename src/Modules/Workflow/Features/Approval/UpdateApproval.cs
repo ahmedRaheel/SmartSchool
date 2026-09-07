@@ -42,7 +42,7 @@ public static class UpdateApproval
         }
     }
 
-    public interface IUpdateApproval
+    public interface IUpdateApprovalCommand
     {
         Task UpdateAsync(
                 ApprovalEntity entity,
@@ -54,7 +54,7 @@ Task<ApprovalEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateApprovalPersistence(IWorkflowDbContext dbContext) : IUpdateApproval
+    internal sealed class UpdateApprovalCommand(IWorkflowDbContext dbContext) : IUpdateApprovalCommand
     {
         public async Task UpdateAsync(
                 ApprovalEntity entity,
@@ -79,14 +79,14 @@ Task<ApprovalEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateApproval dataAccess)
+    public sealed class Handler(IUpdateApprovalCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ApprovalEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

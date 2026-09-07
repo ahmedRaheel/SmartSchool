@@ -40,14 +40,14 @@ public static class CreateStop
         }
     }
 
-    public interface ICreateStop
+    public interface ICreateStopCommand
     {
         Task AddAsync(
                 StopEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStopPersistence(ITransportDbContext dbContext) : ICreateStop
+    internal sealed class CreateStopCommand(ITransportDbContext dbContext) : ICreateStopCommand
     {
         public async Task AddAsync(
                 StopEntity entity,
@@ -60,21 +60,19 @@ public static class CreateStop
             }
     }
 
-    public sealed class Handler(ICreateStop dataAccess)
+    public sealed class Handler(ICreateStopCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StopEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

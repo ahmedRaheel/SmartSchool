@@ -40,14 +40,14 @@ public static class CreatePosition
         }
     }
 
-    public interface ICreatePosition
+    public interface ICreatePositionCommand
     {
         Task AddAsync(
                 PositionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePositionPersistence(IHRDbContext dbContext) : ICreatePosition
+    internal sealed class CreatePositionCommand(IHRDbContext dbContext) : ICreatePositionCommand
     {
         public async Task AddAsync(
                 PositionEntity entity,
@@ -60,21 +60,19 @@ public static class CreatePosition
             }
     }
 
-    public sealed class Handler(ICreatePosition dataAccess)
+    public sealed class Handler(ICreatePositionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = PositionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

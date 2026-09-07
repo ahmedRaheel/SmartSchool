@@ -29,7 +29,7 @@ public static class GetKnowledgeCollectionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetKnowledgeCollectionById
+    public interface IGetKnowledgeCollectionByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetKnowledgeCollectionById
 
     }
 
-    internal sealed class GetKnowledgeCollectionByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetKnowledgeCollectionById
+    internal sealed class GetKnowledgeCollectionByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetKnowledgeCollectionByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetKnowledgeCollectionById
             }
     }
 
-    public sealed class Handler(IGetKnowledgeCollectionById dataAccess)
+    public sealed class Handler(IGetKnowledgeCollectionByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

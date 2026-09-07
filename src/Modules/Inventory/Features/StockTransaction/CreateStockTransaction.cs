@@ -40,14 +40,14 @@ public static class CreateStockTransaction
         }
     }
 
-    public interface ICreateStockTransaction
+    public interface ICreateStockTransactionCommand
     {
         Task AddAsync(
                 StockTransactionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStockTransactionPersistence(IInventoryDbContext dbContext) : ICreateStockTransaction
+    internal sealed class CreateStockTransactionCommand(IInventoryDbContext dbContext) : ICreateStockTransactionCommand
     {
         public async Task AddAsync(
                 StockTransactionEntity entity,
@@ -60,21 +60,19 @@ public static class CreateStockTransaction
             }
     }
 
-    public sealed class Handler(ICreateStockTransaction dataAccess)
+    public sealed class Handler(ICreateStockTransactionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StockTransactionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

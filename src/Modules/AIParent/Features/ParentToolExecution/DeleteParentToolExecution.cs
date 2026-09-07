@@ -20,7 +20,7 @@ public static class DeleteParentToolExecution
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteParentToolExecution
+    public interface IDeleteParentToolExecutionCommand
     {
         Task DeleteAsync(
                 ParentToolExecutionEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteParentToolExecution
 
     }
 
-    internal sealed class DeleteParentToolExecutionPersistence(IAIParentDbContext dbContext) : IDeleteParentToolExecution
+    internal sealed class DeleteParentToolExecutionCommand(IAIParentDbContext dbContext) : IDeleteParentToolExecutionCommand
     {
         public async Task DeleteAsync(
                 ParentToolExecutionEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteParentToolExecution
             }
     }
 
-    public sealed class Handler(IDeleteParentToolExecution dataAccess)
+    public sealed class Handler(IDeleteParentToolExecutionCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ParentToolExecutionEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

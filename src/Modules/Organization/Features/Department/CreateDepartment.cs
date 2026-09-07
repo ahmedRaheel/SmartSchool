@@ -51,14 +51,14 @@ public static class CreateDepartment
         }
     }
 
-    public interface ICreateDepartment
+    public interface ICreateDepartmentCommand
     {
         Task AddAsync(
                 DepartmentEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateDepartmentPersistence(IOrganizationDbContext dbContext) : ICreateDepartment
+    internal sealed class CreateDepartmentCommand(IOrganizationDbContext dbContext) : ICreateDepartmentCommand
     {
         public async Task AddAsync(
                 DepartmentEntity entity,
@@ -71,8 +71,8 @@ public static class CreateDepartment
             }
     }
 
-    public sealed class Handler(SmartSchool.Application.Persistence.IBusinessNumberGenerator businessNumberGenerator,
-        ICreateDepartment dataAccess)
+    public sealed class Handler(IBusinessNumberGenerator businessNumberGenerator,
+        ICreateDepartmentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -92,7 +92,7 @@ public static class CreateDepartment
                 request.Telephone,
                 request.Email);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

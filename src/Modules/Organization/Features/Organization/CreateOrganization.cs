@@ -62,36 +62,29 @@ public static class CreateTenant
             RuleFor(x => x.AdminPhoneNumber).MaximumLength(50);
         }
     }
-    public interface ITenantCommand
+    public interface ICreateTenantCommand
     {
-        Task AddAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken);
-
-        Task DeleteAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken);
-
+        Task AddAsync(TenantEntity entity, CancellationToken cancellationToken);
+        Task RemoveAsync(TenantEntity entity, CancellationToken cancellationToken);
     }
-    public sealed class TenantCommand(IOrganizationDbContext dbContext) : ITenantCommand
+
+    internal sealed class CreateTenantCommand(IOrganizationDbContext dbContext) : ICreateTenantCommand
     {
-        public async Task AddAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken)
+        public async Task AddAsync(TenantEntity entity, CancellationToken cancellationToken)
         {
             await dbContext.Tenants.AddAsync(entity, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
-        public async Task DeleteAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken)
+
+        public async Task RemoveAsync(TenantEntity entity, CancellationToken cancellationToken)
         {
             dbContext.Tenants.Remove(entity);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
+
     public sealed class Handler(
-        ITenantCommand tenantCommand,
+        ICreateTenantCommand command,
         IIdentityAccountService identityAccountService,
         IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
@@ -122,7 +115,7 @@ public static class CreateTenant
                      request.ContactAddress)
                     );
             }
-            await tenantCommand.AddAsync(tenant, cancellationToken);
+            await command.AddAsync(tenant, cancellationToken);
             try
             {
                 var account = await identityAccountService.CreateAccountAsync(
@@ -160,7 +153,7 @@ public static class CreateTenant
             catch
             {
                 // Do not leave a tenant without its master account.
-                await tenantCommand.DeleteAsync(tenant, cancellationToken);
+                await command.RemoveAsync(tenant, cancellationToken);
                 throw;
             }
         }

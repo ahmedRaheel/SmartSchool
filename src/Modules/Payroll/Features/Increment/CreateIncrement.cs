@@ -40,14 +40,14 @@ public static class CreateIncrement
         }
     }
 
-    public interface ICreateIncrement
+    public interface ICreateIncrementCommand
     {
         Task AddAsync(
                 IncrementEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateIncrementPersistence(IPayrollDbContext dbContext) : ICreateIncrement
+    internal sealed class CreateIncrementCommand(IPayrollDbContext dbContext) : ICreateIncrementCommand
     {
         public async Task AddAsync(
                 IncrementEntity entity,
@@ -60,21 +60,19 @@ public static class CreateIncrement
             }
     }
 
-    public sealed class Handler(ICreateIncrement dataAccess)
+    public sealed class Handler(ICreateIncrementCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = IncrementEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

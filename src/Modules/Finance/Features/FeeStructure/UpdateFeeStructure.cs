@@ -46,7 +46,7 @@ public static class UpdateFeeStructure
         }
     }
 
-    public interface IUpdateFeeStructure
+    public interface IUpdateFeeStructureCommand
     {
         Task UpdateAsync(
                 FeeStructureEntity entity,
@@ -58,7 +58,7 @@ Task<FeeStructureEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateFeeStructurePersistence(IFinanceDbContext dbContext) : IUpdateFeeStructure
+    internal sealed class UpdateFeeStructureCommand(IFinanceDbContext dbContext) : IUpdateFeeStructureCommand
     {
         public async Task UpdateAsync(
                 FeeStructureEntity entity,
@@ -83,14 +83,14 @@ Task<FeeStructureEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateFeeStructure dataAccess)
+    public sealed class Handler(IUpdateFeeStructureCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -100,7 +100,7 @@ Task<FeeStructureEntity?> GetByIdAsync(
 
 
             entity.Update(request.Amount, request.Frequency, request.EffectiveFrom, request.EffectiveTo, request.IsActive);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

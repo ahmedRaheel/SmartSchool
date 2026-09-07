@@ -42,7 +42,7 @@ public static class UpdateParentMessage
         }
     }
 
-    public interface IUpdateParentMessage
+    public interface IUpdateParentMessageCommand
     {
         Task UpdateAsync(
                 ParentMessageEntity entity,
@@ -54,7 +54,7 @@ Task<ParentMessageEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateParentMessagePersistence(IAIParentDbContext dbContext) : IUpdateParentMessage
+    internal sealed class UpdateParentMessageCommand(IAIParentDbContext dbContext) : IUpdateParentMessageCommand
     {
         public async Task UpdateAsync(
                 ParentMessageEntity entity,
@@ -79,14 +79,14 @@ Task<ParentMessageEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateParentMessage dataAccess)
+    public sealed class Handler(IUpdateParentMessageCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ParentMessageEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

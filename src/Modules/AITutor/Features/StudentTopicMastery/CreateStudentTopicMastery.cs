@@ -41,14 +41,14 @@ public static class CreateStudentTopicMastery
         }
     }
 
-    public interface ICreateStudentTopicMastery
+    public interface ICreateStudentTopicMasteryCommand
     {
         Task AddAsync(
                 StudentTopicMasteryEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentTopicMasteryPersistence(IAITutorDbContext dbContext) : ICreateStudentTopicMastery
+    internal sealed class CreateStudentTopicMasteryCommand(IAITutorDbContext dbContext) : ICreateStudentTopicMasteryCommand
     {
         public async Task AddAsync(
                 StudentTopicMasteryEntity entity,
@@ -61,22 +61,20 @@ public static class CreateStudentTopicMastery
             }
     }
 
-    public sealed class Handler(ICreateStudentTopicMastery dataAccess)
+    public sealed class Handler(ICreateStudentTopicMasteryCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StudentTopicMasteryEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -39,14 +39,14 @@ public static class CreateProgram
         }
     }
 
-    public interface ICreateProgram
+    public interface ICreateProgramCommand
     {
         Task AddAsync(
                 ProgramEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateProgramPersistence(IOrganizationDbContext dbContext) : ICreateProgram
+    internal sealed class CreateProgramCommand(IOrganizationDbContext dbContext) : ICreateProgramCommand
     {
         public async Task AddAsync(
                 ProgramEntity entity,
@@ -60,21 +60,19 @@ public static class CreateProgram
             }
     }
 
-    public sealed class Handler(ICreateProgram dataAccess)
+    public sealed class Handler(ICreateProgramCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ProgramEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

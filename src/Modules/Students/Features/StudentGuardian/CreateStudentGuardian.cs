@@ -40,14 +40,14 @@ public static class CreateStudentGuardian
         }
     }
 
-    public interface ICreateStudentGuardian
+    public interface ICreateStudentGuardianCommand
     {
         Task AddAsync(
                 StudentGuardianEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentGuardianPersistence(IStudentsDbContext dbContext) : ICreateStudentGuardian
+    internal sealed class CreateStudentGuardianCommand(IStudentsDbContext dbContext) : ICreateStudentGuardianCommand
     {
         public async Task AddAsync(
                 StudentGuardianEntity entity,
@@ -60,21 +60,19 @@ public static class CreateStudentGuardian
             }
     }
 
-    public sealed class Handler(ICreateStudentGuardian dataAccess)
+    public sealed class Handler(ICreateStudentGuardianCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StudentGuardianEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

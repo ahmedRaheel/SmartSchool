@@ -42,7 +42,7 @@ public static class UpdateExam
         }
     }
 
-    public interface IUpdateExam
+    public interface IUpdateExamCommand
     {
         Task UpdateAsync(
                 ExamEntity entity,
@@ -54,7 +54,7 @@ Task<ExamEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateExamPersistence(IExaminationsDbContext dbContext) : IUpdateExam
+    internal sealed class UpdateExamCommand(IExaminationsDbContext dbContext) : IUpdateExamCommand
     {
         public async Task UpdateAsync(
                 ExamEntity entity,
@@ -79,14 +79,14 @@ Task<ExamEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateExam dataAccess)
+    public sealed class Handler(IUpdateExamCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ExamEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

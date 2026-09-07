@@ -29,7 +29,7 @@ public static class GetStockTransactionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetStockTransactionById
+    public interface IGetStockTransactionByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetStockTransactionById
 
     }
 
-    internal sealed class GetStockTransactionByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetStockTransactionById
+    internal sealed class GetStockTransactionByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetStockTransactionByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetStockTransactionById
             }
     }
 
-    public sealed class Handler(IGetStockTransactionById dataAccess)
+    public sealed class Handler(IGetStockTransactionByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

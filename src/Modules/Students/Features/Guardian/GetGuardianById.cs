@@ -1,3 +1,6 @@
+using Dapper;
+using System.Threading.Tasks;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
@@ -18,19 +21,49 @@ public static class GetGuardianById
         string? Email,
         string? Phone);
 
-    public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
-
-    public sealed class Handler(IGuardianQuery entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;    public interface IGetGuardianByIdQuery
     {
-        public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
+        Task<Result<Response>> ExecuteAsync(
+            Query request,
+            CancellationToken cancellationToken);
+    }
+
+
+
+    internal sealed class GetGuardianByIdQuery(IDbConnectionFactory connectionFactory) : IGetGuardianByIdQuery
+    {
+        public async Task<Result<Response>> ExecuteAsync(Query request, CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", guardian_id AS "Id", user_id AS "UserId", full_name AS "FullName", cnic_number AS "CnicNumber", email AS "Email", phone AS "Phone"
+                FROM student.guardian
+                WHERE tenant_id = @TenantId
+                  AND guardian_id = @Id
+                  AND is_active = TRUE;
+                """;
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var response = await connection.QuerySingleOrDefaultAsync<Response>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+
+            if (response is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(GuardianEntity))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+
+            return Result<Response>.Success(response);
+        }
+    }
+
+    public sealed class Handler(IGetGuardianByIdQuery query)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            return query.ExecuteAsync(request, cancellationToken);
         }
     }
 
@@ -45,17 +78,5 @@ public static class GetGuardianById
                 })
             .WithName("GetGuardianById").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
         return endpoints;
-    }
-
-    private static Response MapResponse(GuardianEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.GuardianId,
-            entity.UserId,
-            entity.FullName,
-            entity.CnicNumber,
-            entity.Email,
-            entity.Phone);
     }
 }

@@ -40,15 +40,15 @@ public static class CreateLookup
         }
     }
 
-    public interface ICreateLookup
+    public interface ICreateLookupCommand
     {
         Task<(long Id, bool TenantScoped)?> GetTypeAsync(string typeCode, CancellationToken cancellationToken);
         Task AddAsync(LookupValueEntity entity, CancellationToken cancellationToken);
     }
 
-    internal sealed class CreateLookupPersistence(
+    internal sealed class CreateLookupCommand(
         IReferenceDbContext dbContext,
-        IDbConnectionFactory connections) : ICreateLookup
+        IDbConnectionFactory connections) : ICreateLookupCommand
     {
         public async Task<(long Id, bool TenantScoped)?> GetTypeAsync(
             string typeCode,
@@ -78,7 +78,7 @@ public static class CreateLookup
     }
 
     public sealed class Handler(
-        ICreateLookup persistence,
+        ICreateLookupCommand persistence,
         ITenantScope tenantScope) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(

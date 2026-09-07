@@ -29,7 +29,7 @@ public static class GetAssignmentSubmissionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetAssignmentSubmissionById
+    public interface IGetAssignmentSubmissionByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetAssignmentSubmissionById
 
     }
 
-    internal sealed class GetAssignmentSubmissionByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetAssignmentSubmissionById
+    internal sealed class GetAssignmentSubmissionByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetAssignmentSubmissionByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetAssignmentSubmissionById
             }
     }
 
-    public sealed class Handler(IGetAssignmentSubmissionById dataAccess)
+    public sealed class Handler(IGetAssignmentSubmissionByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

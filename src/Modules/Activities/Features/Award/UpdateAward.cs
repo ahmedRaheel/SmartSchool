@@ -42,7 +42,7 @@ public static class UpdateAward
         }
     }
 
-    public interface IUpdateAward
+    public interface IUpdateAwardCommand
     {
         Task UpdateAsync(
                 AwardEntity entity,
@@ -54,7 +54,7 @@ Task<AwardEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAwardPersistence(IActivitiesDbContext dbContext) : IUpdateAward
+    internal sealed class UpdateAwardCommand(IActivitiesDbContext dbContext) : IUpdateAwardCommand
     {
         public async Task UpdateAsync(
                 AwardEntity entity,
@@ -79,14 +79,14 @@ Task<AwardEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateAward dataAccess)
+    public sealed class Handler(IUpdateAwardCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<AwardEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

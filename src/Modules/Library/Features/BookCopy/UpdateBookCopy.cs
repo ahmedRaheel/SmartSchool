@@ -42,7 +42,7 @@ public static class UpdateBookCopy
         }
     }
 
-    public interface IUpdateBookCopy
+    public interface IUpdateBookCopyCommand
     {
         Task UpdateAsync(
                 BookCopyEntity entity,
@@ -54,7 +54,7 @@ Task<BookCopyEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateBookCopyPersistence(ILibraryDbContext dbContext) : IUpdateBookCopy
+    internal sealed class UpdateBookCopyCommand(ILibraryDbContext dbContext) : IUpdateBookCopyCommand
     {
         public async Task UpdateAsync(
                 BookCopyEntity entity,
@@ -79,14 +79,14 @@ Task<BookCopyEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateBookCopy dataAccess)
+    public sealed class Handler(IUpdateBookCopyCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<BookCopyEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

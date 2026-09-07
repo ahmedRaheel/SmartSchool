@@ -42,7 +42,7 @@ public static class UpdateCertificate
         }
     }
 
-    public interface IUpdateCertificate
+    public interface IUpdateCertificateCommand
     {
         Task UpdateAsync(
                 CertificateEntity entity,
@@ -54,7 +54,7 @@ Task<CertificateEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateCertificatePersistence(IDocumentsDbContext dbContext) : IUpdateCertificate
+    internal sealed class UpdateCertificateCommand(IDocumentsDbContext dbContext) : IUpdateCertificateCommand
     {
         public async Task UpdateAsync(
                 CertificateEntity entity,
@@ -79,14 +79,14 @@ Task<CertificateEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateCertificate dataAccess)
+    public sealed class Handler(IUpdateCertificateCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<CertificateEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

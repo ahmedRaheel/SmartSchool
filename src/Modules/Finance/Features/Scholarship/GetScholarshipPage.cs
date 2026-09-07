@@ -31,7 +31,7 @@ public static class GetScholarshipPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetScholarshipPage
+    public interface IGetScholarshipPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetScholarshipPage
 
     }
 
-    internal sealed class GetScholarshipPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetScholarshipPage
+    internal sealed class GetScholarshipPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetScholarshipPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetScholarshipPage
             }
     }
 
-    public sealed class Handler(IGetScholarshipPage dataAccess)
+    public sealed class Handler(IGetScholarshipPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetScholarshipPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

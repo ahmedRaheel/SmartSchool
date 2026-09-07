@@ -41,14 +41,14 @@ public static class CreateKnowledgeDocument
         }
     }
 
-    public interface ICreateKnowledgeDocument
+    public interface ICreateKnowledgeDocumentCommand
     {
         Task AddAsync(
                 KnowledgeDocumentEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateKnowledgeDocumentPersistence(IAICoreDbContext dbContext) : ICreateKnowledgeDocument
+    internal sealed class CreateKnowledgeDocumentCommand(IAICoreDbContext dbContext) : ICreateKnowledgeDocumentCommand
     {
         public async Task AddAsync(
                 KnowledgeDocumentEntity entity,
@@ -61,22 +61,20 @@ public static class CreateKnowledgeDocument
             }
     }
 
-    public sealed class Handler(ICreateKnowledgeDocument dataAccess)
+    public sealed class Handler(ICreateKnowledgeDocumentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = KnowledgeDocumentEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

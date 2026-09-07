@@ -42,7 +42,7 @@ public static class UpdateLeadCapture
         }
     }
 
-    public interface IUpdateLeadCapture
+    public interface IUpdateLeadCaptureCommand
     {
         Task UpdateAsync(
                 LeadCaptureEntity entity,
@@ -54,7 +54,7 @@ Task<LeadCaptureEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLeadCapturePersistence(IAIInquiryDbContext dbContext) : IUpdateLeadCapture
+    internal sealed class UpdateLeadCaptureCommand(IAIInquiryDbContext dbContext) : IUpdateLeadCaptureCommand
     {
         public async Task UpdateAsync(
                 LeadCaptureEntity entity,
@@ -79,14 +79,14 @@ Task<LeadCaptureEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateLeadCapture dataAccess)
+    public sealed class Handler(IUpdateLeadCaptureCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<LeadCaptureEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

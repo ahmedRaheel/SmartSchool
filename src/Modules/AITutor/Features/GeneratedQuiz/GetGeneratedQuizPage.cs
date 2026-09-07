@@ -31,7 +31,7 @@ public static class GetGeneratedQuizPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetGeneratedQuizPage
+    public interface IGetGeneratedQuizPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetGeneratedQuizPage
 
     }
 
-    internal sealed class GetGeneratedQuizPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetGeneratedQuizPage
+    internal sealed class GetGeneratedQuizPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetGeneratedQuizPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetGeneratedQuizPage
             }
     }
 
-    public sealed class Handler(IGetGeneratedQuizPage dataAccess)
+    public sealed class Handler(IGetGeneratedQuizPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetGeneratedQuizPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

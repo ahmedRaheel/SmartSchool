@@ -40,14 +40,14 @@ public static class CreateAdmissionDecision
         }
     }
 
-    public interface ICreateAdmissionDecision
+    public interface ICreateAdmissionDecisionCommand
     {
         Task AddAsync(
                 AdmissionDecisionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAdmissionDecisionPersistence(IAdmissionsDbContext dbContext) : ICreateAdmissionDecision
+    internal sealed class CreateAdmissionDecisionCommand(IAdmissionsDbContext dbContext) : ICreateAdmissionDecisionCommand
     {
         public async Task AddAsync(
                 AdmissionDecisionEntity entity,
@@ -60,21 +60,19 @@ public static class CreateAdmissionDecision
             }
     }
 
-    public sealed class Handler(ICreateAdmissionDecision dataAccess)
+    public sealed class Handler(ICreateAdmissionDecisionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = AdmissionDecisionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

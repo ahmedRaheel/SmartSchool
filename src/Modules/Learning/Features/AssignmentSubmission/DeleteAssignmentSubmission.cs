@@ -20,7 +20,7 @@ public static class DeleteAssignmentSubmission
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteAssignmentSubmission
+    public interface IDeleteAssignmentSubmissionCommand
     {
         Task DeleteAsync(
                 AssignmentSubmissionEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteAssignmentSubmission
 
     }
 
-    internal sealed class DeleteAssignmentSubmissionPersistence(ILearningDbContext dbContext) : IDeleteAssignmentSubmission
+    internal sealed class DeleteAssignmentSubmissionCommand(ILearningDbContext dbContext) : IDeleteAssignmentSubmissionCommand
     {
         public async Task DeleteAsync(
                 AssignmentSubmissionEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteAssignmentSubmission
             }
     }
 
-    public sealed class Handler(IDeleteAssignmentSubmission dataAccess)
+    public sealed class Handler(IDeleteAssignmentSubmissionCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(AssignmentSubmissionEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

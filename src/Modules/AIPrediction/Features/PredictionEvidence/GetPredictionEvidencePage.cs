@@ -31,7 +31,7 @@ public static class GetPredictionEvidencePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetPredictionEvidencePage
+    public interface IGetPredictionEvidencePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetPredictionEvidencePage
 
     }
 
-    internal sealed class GetPredictionEvidencePagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetPredictionEvidencePage
+    internal sealed class GetPredictionEvidencePageQuery(
+        IDbConnectionFactory connectionFactory) : IGetPredictionEvidencePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetPredictionEvidencePage
             }
     }
 
-    public sealed class Handler(IGetPredictionEvidencePage dataAccess)
+    public sealed class Handler(IGetPredictionEvidencePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetPredictionEvidencePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

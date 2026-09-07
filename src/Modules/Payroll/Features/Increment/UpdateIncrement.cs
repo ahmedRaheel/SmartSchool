@@ -42,7 +42,7 @@ public static class UpdateIncrement
         }
     }
 
-    public interface IUpdateIncrement
+    public interface IUpdateIncrementCommand
     {
         Task UpdateAsync(
                 IncrementEntity entity,
@@ -54,7 +54,7 @@ Task<IncrementEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateIncrementPersistence(IPayrollDbContext dbContext) : IUpdateIncrement
+    internal sealed class UpdateIncrementCommand(IPayrollDbContext dbContext) : IUpdateIncrementCommand
     {
         public async Task UpdateAsync(
                 IncrementEntity entity,
@@ -79,14 +79,14 @@ Task<IncrementEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateIncrement dataAccess)
+    public sealed class Handler(IUpdateIncrementCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<IncrementEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

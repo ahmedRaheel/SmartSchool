@@ -29,7 +29,7 @@ public static class GetSchoolLogoById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetSchoolLogoById
+    public interface IGetSchoolLogoByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetSchoolLogoById
 
     }
 
-    internal sealed class GetSchoolLogoByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetSchoolLogoById
+    internal sealed class GetSchoolLogoByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetSchoolLogoByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetSchoolLogoById
             }
     }
 
-    public sealed class Handler(IGetSchoolLogoById dataAccess)
+    public sealed class Handler(IGetSchoolLogoByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

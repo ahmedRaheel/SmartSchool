@@ -20,7 +20,7 @@ public static class DeleteJob
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteJob
+    public interface IDeleteJobCommand
     {
         Task DeleteAsync(
                 JobEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteJob
 
     }
 
-    internal sealed class DeleteJobPersistence(IHRDbContext dbContext) : IDeleteJob
+    internal sealed class DeleteJobCommand(IHRDbContext dbContext) : IDeleteJobCommand
     {
         public async Task DeleteAsync(
                 JobEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteJob
             }
     }
 
-    public sealed class Handler(IDeleteJob dataAccess)
+    public sealed class Handler(IDeleteJobCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(JobEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

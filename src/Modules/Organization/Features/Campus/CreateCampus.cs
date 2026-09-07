@@ -1,3 +1,7 @@
+using SmartSchool.Modules.Organization.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Dapper;
+using System.Threading.Tasks;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -27,28 +31,55 @@ public static class CreateCampus
 
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
         }
+    }    public interface ICreateCampusCommand
+    {
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
     }
 
-    public sealed class Handler(ITenantScope tenantScope, ICampusCommand command, ISchoolQuery schoolQuery, IBranchPolicyCommand policyCommand, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+
+
+    internal sealed class CreateCampusCommand(ITenantScope tenantScope, CreateCampusCampusCommand command, CreateCampusSchoolQuery schoolQuery, CreateCampusBranchPolicyQuery policyQuery, CreateCampusBranchPolicyCommand policyCommand, IBusinessNumberGenerator numberGenerator) : ICreateCampusCommand
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var tenantId = tenantScope.Resolve(request.TenantId);
             if (!tenantId.HasValue)
+            {
                 return Result<Response>.Failure(Error.Validation("Tenant context is required."));
+            }
             if (await schoolQuery.GetByIdAsync(tenantId.Value, request.SchoolId, cancellationToken) is null)
+            {
                 return Result<Response>.Failure(Error.NotFound("The selected school was not found in this tenant."));
-            if (!await policyCommand.GenderTypeExistsAsync(request.BranchGenderTypeId, cancellationToken))
+            }
+            if (!await policyQuery.GenderTypeExistsAsync(request.BranchGenderTypeId, cancellationToken))
+            {
                 return Result<Response>.Failure(Error.Validation("Select a valid branch gender type."));
+            }
             var educationLevelIds = request.EducationLevelIds ?? Array.Empty<Guid>();
-            if (educationLevelIds.Count > 0 && !await policyCommand.EducationLevelsExistAsync(educationLevelIds, cancellationToken))
+            if (educationLevelIds.Count > 0 && !await policyQuery.EducationLevelsExistAsync(educationLevelIds, cancellationToken))
+            {
                 return Result<Response>.Failure(Error.Validation("One or more education levels are invalid."));
+            }
 
             var code = await numberGenerator.NextAsync("BRANCH", "BR", tenantId.Value, 3, cancellationToken);
             var campus = CampusEntity.Create(tenantId.Value, request.SchoolId, code, request.Name, request.BranchType, request.BranchGenderTypeId, request.AcademicSystemId, request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);
             await command.AddAsync(campus, cancellationToken);
-            await policyCommand.SetEducationLevelsAsync(request.TenantId, campus.CampusId, educationLevelIds, cancellationToken);
+            await policyCommand.SetEducationLevelsAsync(tenantId.Value, campus.CampusId, educationLevelIds, cancellationToken);
+            await command.SyncGradeLevelsAsync(tenantId.Value, campus.CampusId, request.AcademicSystemId, cancellationToken);
             return Result<Response>.Success(Map(campus, educationLevelIds));
+        }
+    }
+
+    public sealed class Handler(ICreateCampusCommand command)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
         }
     }
 
@@ -60,4 +91,152 @@ public static class CreateCampus
     }
 
     private static Response Map(CampusEntity campus, IReadOnlyCollection<Guid> levels) => new(campus.CampusId, campus.SchoolId, campus.Code, campus.Name, campus.BranchType, campus.BranchGenderTypeId, campus.AcademicSystemId, levels, campus.Address, campus.City, campus.Province, campus.Country, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl);
+}
+
+/// <summary>
+/// Feature-owned data access for CreateCampus. Do not share across slices.
+/// </summary>
+public sealed class CreateCampusSchoolQuery(IDbConnectionFactory connectionFactory)
+{
+    public sealed record SchoolRow(Guid Id);
+
+    public async Task<SchoolRow?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT school_id AS "Id"
+            FROM org.school
+            WHERE tenant_id = @TenantId
+              AND school_id = @Id
+              AND is_active = TRUE;
+            """;
+
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<SchoolRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    Id = id
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for CreateCampus. Do not share across slices.
+/// </summary>
+public sealed class CreateCampusBranchPolicyQuery(IDbConnectionFactory connectionFactory)
+{
+    public async Task<bool> GenderTypeExistsAsync(Guid genderTypeId, CancellationToken cancellationToken)
+    {
+        const string sql = "SELECT EXISTS(SELECT 1 FROM reference.branch_gender_type WHERE branch_gender_type_id=@Id AND is_active=TRUE);";
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { Id = genderTypeId }, cancellationToken: cancellationToken));
+    }
+
+
+    public async Task<bool> EducationLevelsExistAsync(IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
+    {
+        if (educationLevelIds.Count == 0) return false;
+        const string sql = "SELECT COUNT(*) FROM reference.education_level WHERE education_level_id = ANY(@Ids) AND is_active=TRUE;";
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        var count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, new { Ids = educationLevelIds.ToArray() }, cancellationToken: cancellationToken));
+        return count == educationLevelIds.Distinct().Count();
+    }
+
+
+
+}
+
+public sealed class CreateCampusBranchPolicyCommand(IOrganizationDbContext dbContext)
+{
+    public async Task SetEducationLevelsAsync(
+        Guid tenantId,
+        Guid campusId,
+        IReadOnlyCollection<Guid> educationLevelIds,
+        CancellationToken cancellationToken)
+    {
+        var existing = await dbContext.CampusEducationLevels
+            .Where(x => x.TenantId == tenantId && x.CampusId == campusId)
+            .ToListAsync(cancellationToken);
+
+        dbContext.CampusEducationLevels.RemoveRange(existing);
+
+        var entities = educationLevelIds
+            .Distinct()
+            .Select(educationLevelId => CampusEducationLevelEntity.Create(tenantId, campusId, educationLevelId));
+
+        await dbContext.CampusEducationLevels.AddRangeAsync(entities, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for CreateCampus. Do not share across slices.
+/// </summary>
+public sealed class CreateCampusCampusCommand(IOrganizationDbContext dbContext)
+{
+    public async Task AddAsync(
+        CampusEntity entity,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Campuses
+            .AddAsync(entity, cancellationToken);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+
+    public async Task SyncGradeLevelsAsync(
+        Guid tenantId,
+        Guid campusId,
+        Guid? academicSystemId,
+        CancellationToken cancellationToken)
+    {
+        if (!academicSystemId.HasValue)
+        {
+            return;
+        }
+
+        var academicSystem = await dbContext.AcademicSystems
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                x => x.TenantId == tenantId && x.AcademicSystemId == academicSystemId.Value,
+                cancellationToken);
+
+        if (academicSystem is null)
+        {
+            throw new InvalidOperationException("The selected academic system does not belong to the tenant.");
+        }
+
+        var presets = CampusGradeLevelPresets.Resolve(academicSystem.Code, academicSystem.Name);
+        var existingCodes = await dbContext.GradeLevels
+            .AsNoTracking()
+            .Where(x => x.TenantId == tenantId && x.CampusId == campusId)
+            .Select(x => x.Code)
+            .ToListAsync(cancellationToken);
+
+        var existing = existingCodes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var preset in presets.Where(x => !existing.Contains(x.Code)))
+        {
+            await dbContext.GradeLevels.AddAsync(
+                GradeLevelEntity.Create(
+                    tenantId,
+                    campusId,
+                    academicSystemId,
+                    preset.Code,
+                    preset.Name,
+                    preset.SortOrder,
+                    "{\"source\":\"campus-academic-system\"}"),
+                cancellationToken);
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

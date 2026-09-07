@@ -6,8 +6,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 <ItemGroup>
-    <ProjectReference Include="../SmartSchool.Application/SmartSchool.Application.csproj" />
     <ProjectReference Include="../SmartSchool.SharedKernel/SmartSchool.SharedKernel.csproj" />
+    <ProjectReference Include="..\SmartSchool.Application\SmartSchool.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

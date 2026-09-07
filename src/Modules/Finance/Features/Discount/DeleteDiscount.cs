@@ -20,7 +20,7 @@ public static class DeleteDiscount
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteDiscount
+    public interface IDeleteDiscountCommand
     {
         Task DeleteAsync(
                 DiscountEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteDiscount
 
     }
 
-    internal sealed class DeleteDiscountPersistence(IFinanceDbContext dbContext) : IDeleteDiscount
+    internal sealed class DeleteDiscountCommand(IFinanceDbContext dbContext) : IDeleteDiscountCommand
     {
         public async Task DeleteAsync(
                 DiscountEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteDiscount
             }
     }
 
-    public sealed class Handler(IDeleteDiscount dataAccess)
+    public sealed class Handler(IDeleteDiscountCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(DiscountEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

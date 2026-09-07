@@ -40,14 +40,14 @@ public static class CreateLesson
         }
     }
 
-    public interface ICreateLesson
+    public interface ICreateLessonCommand
     {
         Task AddAsync(
                 LessonEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLessonPersistence(ILearningDbContext dbContext) : ICreateLesson
+    internal sealed class CreateLessonCommand(ILearningDbContext dbContext) : ICreateLessonCommand
     {
         public async Task AddAsync(
                 LessonEntity entity,
@@ -60,21 +60,19 @@ public static class CreateLesson
             }
     }
 
-    public sealed class Handler(ICreateLesson dataAccess)
+    public sealed class Handler(ICreateLessonCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = LessonEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

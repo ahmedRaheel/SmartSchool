@@ -31,7 +31,7 @@ public static class GetVehiclePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetVehiclePage
+    public interface IGetVehiclePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetVehiclePage
 
     }
 
-    internal sealed class GetVehiclePagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetVehiclePage
+    internal sealed class GetVehiclePageQuery(
+        IDbConnectionFactory connectionFactory) : IGetVehiclePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetVehiclePage
             }
     }
 
-    public sealed class Handler(IGetVehiclePage dataAccess)
+    public sealed class Handler(IGetVehiclePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetVehiclePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

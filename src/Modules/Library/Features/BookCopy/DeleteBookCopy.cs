@@ -20,7 +20,7 @@ public static class DeleteBookCopy
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteBookCopy
+    public interface IDeleteBookCopyCommand
     {
         Task DeleteAsync(
                 BookCopyEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteBookCopy
 
     }
 
-    internal sealed class DeleteBookCopyPersistence(ILibraryDbContext dbContext) : IDeleteBookCopy
+    internal sealed class DeleteBookCopyCommand(ILibraryDbContext dbContext) : IDeleteBookCopyCommand
     {
         public async Task DeleteAsync(
                 BookCopyEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteBookCopy
             }
     }
 
-    public sealed class Handler(IDeleteBookCopy dataAccess)
+    public sealed class Handler(IDeleteBookCopyCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(BookCopyEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

@@ -42,7 +42,7 @@ public static class UpdateScholarship
         }
     }
 
-    public interface IUpdateScholarship
+    public interface IUpdateScholarshipCommand
     {
         Task UpdateAsync(
                 ScholarshipEntity entity,
@@ -54,7 +54,7 @@ Task<ScholarshipEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateScholarshipPersistence(IFinanceDbContext dbContext) : IUpdateScholarship
+    internal sealed class UpdateScholarshipCommand(IFinanceDbContext dbContext) : IUpdateScholarshipCommand
     {
         public async Task UpdateAsync(
                 ScholarshipEntity entity,
@@ -79,14 +79,14 @@ Task<ScholarshipEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateScholarship dataAccess)
+    public sealed class Handler(IUpdateScholarshipCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ScholarshipEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

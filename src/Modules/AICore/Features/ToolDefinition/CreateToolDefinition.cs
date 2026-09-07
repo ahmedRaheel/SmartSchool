@@ -41,14 +41,14 @@ public static class CreateToolDefinition
         }
     }
 
-    public interface ICreateToolDefinition
+    public interface ICreateToolDefinitionCommand
     {
         Task AddAsync(
                 ToolDefinitionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateToolDefinitionPersistence(IAICoreDbContext dbContext) : ICreateToolDefinition
+    internal sealed class CreateToolDefinitionCommand(IAICoreDbContext dbContext) : ICreateToolDefinitionCommand
     {
         public async Task AddAsync(
                 ToolDefinitionEntity entity,
@@ -61,22 +61,20 @@ public static class CreateToolDefinition
             }
     }
 
-    public sealed class Handler(ICreateToolDefinition dataAccess)
+    public sealed class Handler(ICreateToolDefinitionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ToolDefinitionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

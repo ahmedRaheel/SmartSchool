@@ -31,7 +31,7 @@ public static class GetToolDefinitionPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetToolDefinitionPage
+    public interface IGetToolDefinitionPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetToolDefinitionPage
 
     }
 
-    internal sealed class GetToolDefinitionPagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetToolDefinitionPage
+    internal sealed class GetToolDefinitionPageQuery(
+        IDbConnectionFactory connectionFactory) : IGetToolDefinitionPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetToolDefinitionPage
             }
     }
 
-    public sealed class Handler(IGetToolDefinitionPage dataAccess)
+    public sealed class Handler(IGetToolDefinitionPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetToolDefinitionPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

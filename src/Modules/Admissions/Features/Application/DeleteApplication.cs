@@ -20,7 +20,7 @@ public static class DeleteApplication
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteApplication
+    public interface IDeleteApplicationCommand
     {
         Task DeleteAsync(
                 ApplicationEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteApplication
 
     }
 
-    internal sealed class DeleteApplicationPersistence(IAdmissionsDbContext dbContext) : IDeleteApplication
+    internal sealed class DeleteApplicationCommand(IAdmissionsDbContext dbContext) : IDeleteApplicationCommand
     {
         public async Task DeleteAsync(
                 ApplicationEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteApplication
             }
     }
 
-    public sealed class Handler(IDeleteApplication dataAccess)
+    public sealed class Handler(IDeleteApplicationCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ApplicationEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

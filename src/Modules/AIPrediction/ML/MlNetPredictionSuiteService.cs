@@ -10,11 +10,22 @@ namespace SmartSchool.Modules.AIPrediction.ML;
 /// ML.NET is used when sufficient labelled history exists; otherwise the API
 /// returns an explainable cold-start score with UsedMachineLearning=false.
 /// </summary>
-public sealed class MlNetPredictionSuiteService(
-    IDbConnectionFactory connectionFactory
-    ) : IPredictionSuiteService
+public sealed class MlNetPredictionSuiteService  
+     : IPredictionSuiteService
 {
     private const int MinimumRows = 12;
+    private readonly TimeProvider _timeProvider;
+    private readonly IDbConnectionFactory _connectionFactory;
+
+    public MlNetPredictionSuiteService(
+        TimeProvider timeProvider,
+        IDbConnectionFactory connectionFactory)
+    {
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+    }
+
+
     private const string ModelVersion = "mlnet-smartschool-suite-v1";
     //private static readonly MLContext Ml = new(seed: 42);
 
@@ -57,7 +68,7 @@ public sealed class MlNetPredictionSuiteService(
             FROM admission.application
             WHERE tenant_id=@TenantId;
             """;
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
         var row = await connection.QuerySingleOrDefaultAsync<RateRow>(
             new CommandDefinition(sql, new { request.TenantId }, cancellationToken: cancellationToken));
         var probability = row is null || row.Total <= 0 ? 50f : row.Positive / row.Total * 100f;
@@ -79,7 +90,7 @@ public sealed class MlNetPredictionSuiteService(
               ON te.teacher_course_assignment_id=tca.teacher_course_assignment_id
             WHERE tca.tenant_id=@TenantId AND tca.employee_id=@TeacherEmployeeId;
             """;
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
         var f = await connection.QuerySingleOrDefaultAsync<TeacherFeatureRow>(
             new CommandDefinition(sql, request, cancellationToken: cancellationToken)) ?? new();
         var score = kind == PredictionKind.TeacherWorkloadRisk
@@ -100,7 +111,7 @@ public sealed class MlNetPredictionSuiteService(
             WHERE tenant_id=@TenantId
               AND (@EmployeeId IS NULL OR employee_id=@EmployeeId);
             """;
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
         var f = await connection.QuerySingleOrDefaultAsync<PayrollFeatureRow>(
             new CommandDefinition(sql, request, cancellationToken: cancellationToken)) ?? new();
         var z = f.Deviation <= 0 ? 0 : Math.Abs(f.Latest - f.Average) / f.Deviation;
@@ -130,7 +141,7 @@ public sealed class MlNetPredictionSuiteService(
             FROM library.book_loan
             WHERE tenant_id=@TenantId AND student_id=@StudentId;
             """;
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
         var f = await connection.QuerySingleOrDefaultAsync<LoanFeatureRow>(
             new CommandDefinition(sql, request, cancellationToken: cancellationToken)) ?? new();
         var score = f.Total <= 0 ? 25 : f.Overdue / f.Total * 100;
@@ -213,7 +224,7 @@ public sealed class MlNetPredictionSuiteService(
                 COALESCE((SELECT CASE WHEN total=0 THEN 0 ELSE overdue/total*100 END FROM fee_stats),0)::float AS "OverdueFeePercentage",
                 100::float AS "AttendancePercentage";
             """;
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
         return await connection.QuerySingleAsync<StudentFeatureRow>(
             new CommandDefinition(sql, request, cancellationToken: cancellationToken));
     }
@@ -235,17 +246,17 @@ public sealed class MlNetPredictionSuiteService(
                 """,
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
         };
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
         return (await connection.QueryAsync<MonthlyPoint>(
             new CommandDefinition(sql,new { TenantId=tenantId },cancellationToken:cancellationToken))).AsList();
     }
 
-    private static IReadOnlyList<ForecastPoint> ForecastLinear(IReadOnlyList<MonthlyPoint> history, int horizon)
+    private  IReadOnlyList<ForecastPoint> ForecastLinear(IReadOnlyList<MonthlyPoint> history, int horizon)
     {
         var values = history.Select(x => x.Value).ToArray();
         var baseline = values.Length == 0 ? 0f : values.Average();
         var trend = values.Length < 2 ? 0f : (values[^1]-values[0])/(values.Length-1);
-        var start = history.Count == 0 ? DateOnly.FromDateTime(DateTime.UtcNow) : history[^1].Period;
+        var start = history.Count == 0 ? DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime) : history[^1].Period;
         var points = new List<ForecastPoint>();
         for (var i=1;i<=horizon;i++)
         {

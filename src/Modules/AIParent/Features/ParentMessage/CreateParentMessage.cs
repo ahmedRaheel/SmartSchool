@@ -40,14 +40,14 @@ public static class CreateParentMessage
         }
     }
 
-    public interface ICreateParentMessage
+    public interface ICreateParentMessageCommand
     {
         Task AddAsync(
                 ParentMessageEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateParentMessagePersistence(IAIParentDbContext dbContext) : ICreateParentMessage
+    internal sealed class CreateParentMessageCommand(IAIParentDbContext dbContext) : ICreateParentMessageCommand
     {
         public async Task AddAsync(
                 ParentMessageEntity entity,
@@ -60,21 +60,19 @@ public static class CreateParentMessage
             }
     }
 
-    public sealed class Handler(ICreateParentMessage dataAccess)
+    public sealed class Handler(ICreateParentMessageCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ParentMessageEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

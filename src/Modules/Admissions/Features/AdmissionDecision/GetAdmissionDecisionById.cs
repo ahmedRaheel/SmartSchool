@@ -29,7 +29,7 @@ public static class GetAdmissionDecisionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetAdmissionDecisionById
+    public interface IGetAdmissionDecisionByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -38,8 +38,8 @@ public static class GetAdmissionDecisionById
 
     }
 
-    internal sealed class GetAdmissionDecisionByIdPersistence(
-        IDbConnectionFactory connectionFactory) : IGetAdmissionDecisionById
+    internal sealed class GetAdmissionDecisionByIdQuery(
+        IDbConnectionFactory connectionFactory) : IGetAdmissionDecisionByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetAdmissionDecisionById
             }
     }
 
-    public sealed class Handler(IGetAdmissionDecisionById dataAccess)
+    public sealed class Handler(IGetAdmissionDecisionByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

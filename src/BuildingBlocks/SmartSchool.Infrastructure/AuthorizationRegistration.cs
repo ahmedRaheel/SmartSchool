@@ -10,8 +10,8 @@ public static class AuthorizationRegistration
     public static IServiceCollection AddSmartSchoolAuthorization(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-        services.AddScoped<SmartSchool.Application.Identity.ICurrentUser, SmartSchool.Application.Identity.CurrentUser>();
-        services.AddScoped<SmartSchool.Application.Identity.ITenantScope, SmartSchool.Application.Identity.TenantScope>();
+        services.AddScoped<Application.Identity.ICurrentUser, Application.Identity.CurrentUser>();
+        services.AddScoped<ITenantScope, Application.Identity.TenantScope>();
 
         services.AddAuthorization(options =>
         {
@@ -33,6 +33,9 @@ public static class AuthorizationRegistration
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Admin, SmartSchoolRoles.Accountant);
             AddPolicy(options, SmartSchoolPolicies.HumanResourcesManagement,
                 SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.SchoolAdmin, SmartSchoolRoles.Admin, SmartSchoolRoles.HrManager);
+            AddPolicy(options, SmartSchoolPolicies.AiKnowledgeContribution,
+                SmartSchoolRoles.SuperAdmin, SmartSchoolRoles.Tenant, SmartSchoolRoles.Principal,
+                SmartSchoolRoles.Teacher, SmartSchoolRoles.Examiner, SmartSchoolRoles.HrManager, SmartSchoolRoles.Accountant);
             AddPolicy(options, SmartSchoolPolicies.SuperAdminOnly,
                 SmartSchoolRoles.SuperAdmin);
             AddPolicy(options, SmartSchoolPolicies.SuperAdminTenantOnly,

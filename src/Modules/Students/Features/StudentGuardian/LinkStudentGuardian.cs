@@ -1,3 +1,8 @@
+using Dapper;
+using SmartSchool.Modules.Students.Persistence;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
+using SmartSchool.SharedKernel.Constants;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -25,8 +30,8 @@ public static class LinkStudentGuardian
     }
 
     public sealed class Handler(
-        IStudentOnboardingQuery query,
-        IStudentOnboardingCommand command)
+        LinkStudentGuardianStudentOnboardingQuery query,
+        LinkStudentGuardianStudentOnboardingCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -74,5 +79,41 @@ public static class LinkStudentGuardian
             return (await mediator.SendAsync<Request, Result<Response>>(request with { TenantId=tenantId.Value }, ct)).ToHttpResult();
         }).WithName("LinkStudentGuardian").WithTags("Students").RequireAuthorization();
         return endpoints;
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for LinkStudentGuardian. Do not share across slices.
+/// </summary>
+public sealed class LinkStudentGuardianStudentOnboardingCommand(IStudentsDbContext dbContext)
+{
+
+    public async Task AddGuardianLinkAsync(StudentGuardianEntity link, CancellationToken cancellationToken)
+    {
+        await dbContext.StudentGuardians.AddAsync(link, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Feature-owned data access for LinkStudentGuardian. Do not share across slices.
+/// </summary>
+public sealed class LinkStudentGuardianStudentOnboardingQuery(IDbConnectionFactory connectionFactory)
+{
+
+    public async Task<bool> StudentAndGuardianBelongToTenantAsync(Guid tenantId, Guid studentId, Guid guardianId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM student.student s
+                JOIN student.guardian g ON g.tenant_id = s.tenant_id
+                WHERE s.tenant_id = @TenantId
+                  AND s.student_id = @StudentId
+                  AND g.guardian_id = @GuardianId
+            );
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql, new { TenantId = tenantId, StudentId = studentId, GuardianId = guardianId }, cancellationToken: cancellationToken));
     }
 }

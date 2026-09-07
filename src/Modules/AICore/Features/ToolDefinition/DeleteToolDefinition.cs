@@ -20,7 +20,7 @@ public static class DeleteToolDefinition
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteToolDefinition
+    public interface IDeleteToolDefinitionCommand
     {
         Task DeleteAsync(
                 ToolDefinitionEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteToolDefinition
 
     }
 
-    internal sealed class DeleteToolDefinitionPersistence(IAICoreDbContext dbContext) : IDeleteToolDefinition
+    internal sealed class DeleteToolDefinitionCommand(IAICoreDbContext dbContext) : IDeleteToolDefinitionCommand
     {
         public async Task DeleteAsync(
                 ToolDefinitionEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteToolDefinition
             }
     }
 
-    public sealed class Handler(IDeleteToolDefinition dataAccess)
+    public sealed class Handler(IDeleteToolDefinitionCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ToolDefinitionEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

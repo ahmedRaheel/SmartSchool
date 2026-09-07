@@ -20,7 +20,7 @@ public static class DeletePurchaseOrder
         Guid TenantId,
         Guid Id);
 
-    public interface IDeletePurchaseOrder
+    public interface IDeletePurchaseOrderCommand
     {
         Task DeleteAsync(
                 PurchaseOrderEntity entity,
@@ -33,7 +33,7 @@ public static class DeletePurchaseOrder
 
     }
 
-    internal sealed class DeletePurchaseOrderPersistence(IInventoryDbContext dbContext) : IDeletePurchaseOrder
+    internal sealed class DeletePurchaseOrderCommand(IInventoryDbContext dbContext) : IDeletePurchaseOrderCommand
     {
         public async Task DeleteAsync(
                 PurchaseOrderEntity entity,
@@ -58,21 +58,21 @@ public static class DeletePurchaseOrder
             }
     }
 
-    public sealed class Handler(IDeletePurchaseOrder dataAccess)
+    public sealed class Handler(IDeletePurchaseOrderCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(PurchaseOrderEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

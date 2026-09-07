@@ -31,7 +31,7 @@ public static class GetLearningResourcePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetLearningResourcePage
+    public interface IGetLearningResourcePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -41,8 +41,8 @@ public static class GetLearningResourcePage
 
     }
 
-    internal sealed class GetLearningResourcePagePersistence(
-        IDbConnectionFactory connectionFactory) : IGetLearningResourcePage
+    internal sealed class GetLearningResourcePageQuery(
+        IDbConnectionFactory connectionFactory) : IGetLearningResourcePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetLearningResourcePage
             }
     }
 
-    public sealed class Handler(IGetLearningResourcePage dataAccess)
+    public sealed class Handler(IGetLearningResourcePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetLearningResourcePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,
