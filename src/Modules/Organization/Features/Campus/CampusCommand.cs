@@ -89,41 +89,5 @@ public sealed class CampusCommand(IOrganizationDbContext dbContext) : ICampusCom
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private static class CampusGradeLevelPresets
-    {
-        internal sealed record Preset(string Code, string Name, int SortOrder);
 
-        internal static IReadOnlyCollection<Preset> Resolve(string code, string name)
-        {
-            var key = $"{code} {name}".ToUpperInvariant();
-            if (key.Contains("MIDDLE", StringComparison.Ordinal))
-            {
-                return RomanGrades(5);
-            }
-
-            if (key.Contains("MATRIC", StringComparison.Ordinal) ||
-                key.Contains("SSC", StringComparison.Ordinal) ||
-                key.Contains("SECONDARY", StringComparison.Ordinal))
-            {
-                return RomanGrades(10);
-            }
-
-            if (key.Contains("CAMBRIDGE", StringComparison.Ordinal) ||
-                key.Contains("O LEVEL", StringComparison.Ordinal))
-            {
-                return RomanGrades(11);
-            }
-
-            // Default school hierarchy; custom systems can still add/edit grades explicitly.
-            return RomanGrades(12);
-        }
-
-        private static IReadOnlyCollection<Preset> RomanGrades(int count)
-        {
-            string[] roman = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-            return Enumerable.Range(0, count)
-                .Select(i => new Preset($"GRADE_{roman[i]}", $"Grade {roman[i]}", i + 1))
-                .ToArray();
-        }
-    }
 }

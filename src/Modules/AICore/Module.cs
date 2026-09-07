@@ -6,6 +6,7 @@ using SmartSchool.Modules.AICore.Agents;
 using ModelContextProtocol.Server;
 using SmartSchool.Modules.AICore.Features;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSchool.Application.AI;
 
 using SmartSchool.SharedKernel;
 using SmartSchool.Application.Messaging;

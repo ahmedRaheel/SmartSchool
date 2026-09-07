@@ -35,7 +35,6 @@ public static class Module
         services.AddScoped<CreateCampusCampusCommand>();
         services.AddScoped<CreateCampusSchoolQuery>();
         services.AddScoped<UpdateCampusBranchPolicyCommand>();
-        services.AddScoped<UpdateCampusCampusQuery>();
         services.AddScoped<UpdateCampusCampusCommand>();
         services.AddScoped<UpdateCampusSchoolQuery>();
         services.AddScoped<UpdateSchoolSchoolQuery>();

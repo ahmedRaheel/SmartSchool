@@ -8,6 +8,7 @@ using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Cag;
 using SmartSchool.SharedKernel.Constants;
 using UglyToad.PdfPig;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 

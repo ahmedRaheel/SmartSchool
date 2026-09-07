@@ -7,6 +7,7 @@ using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Cag;
 using SmartSchool.Modules.AICore.Rag.Ollama;
 using Microsoft.Extensions.Options;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AICore;
 

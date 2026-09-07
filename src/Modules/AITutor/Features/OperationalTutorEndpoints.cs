@@ -12,7 +12,7 @@ using SmartSchool.Modules.AITutor.Features.TutorMessage;
 using SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
 using SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AITutor.Features;
 

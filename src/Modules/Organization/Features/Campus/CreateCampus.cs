@@ -39,14 +39,22 @@ public static class CreateCampus
         {
             var tenantId = tenantScope.Resolve(request.TenantId);
             if (!tenantId.HasValue)
+            {
                 return Result<Response>.Failure(Error.Validation("Tenant context is required."));
+            }
             if (await schoolQuery.GetByIdAsync(tenantId.Value, request.SchoolId, cancellationToken) is null)
+            {
                 return Result<Response>.Failure(Error.NotFound("The selected school was not found in this tenant."));
+            }
             if (!await policyCommand.GenderTypeExistsAsync(request.BranchGenderTypeId, cancellationToken))
+            {
                 return Result<Response>.Failure(Error.Validation("Select a valid branch gender type."));
+            }
             var educationLevelIds = request.EducationLevelIds ?? Array.Empty<Guid>();
             if (educationLevelIds.Count > 0 && !await policyCommand.EducationLevelsExistAsync(educationLevelIds, cancellationToken))
+            {
                 return Result<Response>.Failure(Error.Validation("One or more education levels are invalid."));
+            }
 
             var code = await numberGenerator.NextAsync("BRANCH", "BR", tenantId.Value, 3, cancellationToken);
             var campus = CampusEntity.Create(tenantId.Value, request.SchoolId, code, request.Name, request.BranchType, request.BranchGenderTypeId, request.AcademicSystemId, request.Address, request.City, request.Province, request.Country, request.Phone, request.Fax, request.Mobile, request.Email, request.LogoUrl);

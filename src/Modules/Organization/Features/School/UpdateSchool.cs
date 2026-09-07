@@ -31,7 +31,7 @@ public static class UpdateSchool
         {
             RuleFor(x => x.TenantId).NotEmpty();
             RuleFor(x => x.Id).NotEmpty();
-                        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
         }
     }
@@ -48,10 +48,20 @@ public static class UpdateSchool
 
 
 
-            school.UpdateDetails(school.Code, request.Name, request.RegistrationNumber, request.Email, request.Phone,
-                request.Fax, request.Website, request.Address, request.City, request.Province, request.Country, request.LogoUrl);
-            await command.UpdateAsync(school, cancellationToken);
-            return Result<Response>.Success(Map(school));
+            var updatedSchool = await command.UpdateAsync(
+                request.TenantId,
+                request.Id,
+                school.Code,
+                request,
+                cancellationToken);
+
+            if (updatedSchool is null)
+            {
+                return Result<Response>.Failure(
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolEntity))));
+            }
+
+            return Result<Response>.Success(Map(updatedSchool));
         }
     }
 
@@ -122,14 +132,37 @@ public sealed class UpdateSchoolSchoolQuery(IDbConnectionFactory connectionFacto
 /// </summary>
 public sealed class UpdateSchoolSchoolCommand(IOrganizationDbContext dbContext)
 {
-
-    public async Task UpdateAsync(
-        SchoolEntity entity,
+    public async Task<SchoolEntity?> UpdateAsync(
+        Guid tenantId,
+        Guid schoolId,
+        string code,
+        UpdateSchool.Request request,
         CancellationToken cancellationToken)
     {
-        dbContext.Schools
-            .Update(entity);
+        var school = await dbContext.Schools.SingleOrDefaultAsync(
+            entity => entity.TenantId == tenantId && entity.SchoolId == schoolId,
+            cancellationToken);
+
+        if (school is null)
+        {
+            return null;
+        }
+
+        school.UpdateDetails(
+            code,
+            request.Name,
+            request.RegistrationNumber,
+            request.Email,
+            request.Phone,
+            request.Fax,
+            request.Website,
+            request.Address,
+            request.City,
+            request.Province,
+            request.Country,
+            request.LogoUrl);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        return school;
     }
 }

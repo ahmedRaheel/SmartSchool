@@ -108,8 +108,6 @@ public static class Module
         g.MapGet("/{employeeId:guid}/assignments", GetAssignments);
         g.MapGet("/{employeeId:guid}/workload", GetWorkload);
         g.MapGet("/{employeeId:guid}/dashboard", GetDashboard);
-        g.MapPost("/{employeeId:guid}/assignments", CreateAssignment).RequireAuthorization(SmartSchoolPolicies.TeacherWorkspace);
-        g.MapPut("/{employeeId:guid}/submissions/{submissionId:guid}/grade", GradeSubmission).RequireAuthorization(SmartSchoolPolicies.TeacherWorkspace);
         g.MapPost("/{employeeId:guid}/leave", ApplyLeave).RequireAuthorization(SmartSchoolPolicies.TeacherWorkspace);
         return endpoints;
     }
@@ -141,57 +139,19 @@ public static class Module
     public sealed record CreateAssignmentRequest(Guid? TenantId, Guid CourseOfferingId, Guid? ClassSectionId, string Type, string Title, string? Description, string? Instructions, DateTimeOffset? DueAt, decimal? TotalMarks, bool AllowLateSubmission = false, int MaxAttempts = 1);
     public sealed record GradeRequest(Guid? TenantId, decimal Marks, string? Feedback);
     public sealed record LeaveRequest(Guid? TenantId, DateOnly FromDate, DateOnly ToDate, string LeaveType, string Reason);
-    private static async Task<IResult> CreateAssignment(Guid employeeId, CreateAssignmentRequest r, ITenantScope scope, LearningDbContext dbContext, CancellationToken ct)
-    {
-        var tenant = Tenant(scope, r.TenantId);
-        if (!tenant.HasValue)
-        {
-            return Results.BadRequest(new
-            {
-                message = "Tenant is required."
-            });
-        }
 
-        var id = Guid.NewGuid();
-        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
-            INSERT INTO lms.academic_assignment(academic_assignment_id,tenant_id,course_offering_id,class_section_id,teacher_employee_id,assignment_type_code,title,description,instructions,assigned_at,due_at,total_marks,allow_late_submission,max_attempts,status)
-            VALUES({id},{tenant.Value},{r.CourseOfferingId},{r.ClassSectionId},{employeeId},{r.Type},{r.Title},{r.Description},{r.Instructions},CURRENT_TIMESTAMP,{r.DueAt},{r.TotalMarks},{r.AllowLateSubmission},{r.MaxAttempts},'PUBLISHED');
-            """, ct);
-        return Results.Created($"/api/teachers/{employeeId}/assignments/{id}", new
-        {
-            assignmentId = id
-        });
-    }
-    private static async Task<IResult> GradeSubmission(Guid employeeId, Guid submissionId, GradeRequest r, ITenantScope scope, LearningDbContext dbContext, CancellationToken ct)
-    {
-        var tenant = Tenant(scope, r.TenantId);
-        if (!tenant.HasValue)
-        {
-            return Results.BadRequest(new
-            {
-                message = "Tenant is required."
-            });
-        }
 
-        var n = await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
-            UPDATE lms.student_assignment_submission s SET marks_obtained={r.Marks},teacher_feedback={r.Feedback},status='GRADED'
-            FROM lms.academic_assignment a WHERE s.academic_assignment_id=a.academic_assignment_id AND s.submission_id={submissionId}
-              AND a.tenant_id={tenant.Value} AND a.teacher_employee_id={employeeId};
-            """, ct);
-        return n == 0 ? Results.NotFound() : Results.Ok(new
-        {
-            submissionId,
-            status = "GRADED"
-        });
-    }
     private static async Task<IResult> ApplyLeave(Guid employeeId, LeaveRequest r, ITenantScope scope, HRDbContext dbContext, CancellationToken ct)
     {
         var tenant = Tenant(scope, r.TenantId);
         if (!tenant.HasValue)
+        {
             return Results.BadRequest(new
             {
                 message = "Tenant is required."
             });
+        }
+
         if (r.ToDate < r.FromDate)
         {
             return Results.BadRequest(new
@@ -215,10 +175,13 @@ public static class Module
     private static async Task<IResult> One(string sql, Guid employeeId, Guid? tenant, IDbConnectionFactory f, CancellationToken ct)
     {
         if (!tenant.HasValue)
+        {
             return Results.BadRequest(new
             {
                 message = "Tenant is required."
             });
+        }
+
         await using var c = await f.OpenConnectionAsync(ct);
         var x = await c.QuerySingleOrDefaultAsync(new CommandDefinition(sql, new
         {

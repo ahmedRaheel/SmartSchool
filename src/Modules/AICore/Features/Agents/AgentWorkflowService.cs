@@ -9,6 +9,7 @@ using SmartSchool.Modules.AICore.Models;
 using SmartSchool.Modules.AICore.Features.AiExecutionLog;
 using SmartSchool.Application.Identity;
 using SmartSchool.Modules.AICore.Cag;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AICore.Agents;
 

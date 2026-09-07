@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SmartSchool.Modules.Payroll.Models;
 
 namespace SmartSchool.Modules.Finance.Persistence.Configurations;
 

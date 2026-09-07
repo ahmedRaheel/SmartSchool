@@ -1,15 +1,9 @@
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
+using SmartSchool.Application.AI;
 using SmartSchool.Modules.AICore.Rag.Ollama;
 
 namespace SmartSchool.Modules.AICore.Cag;
-
-public interface IOllamaClient
-{
-    Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken);
-    Task<float[][]> EmbedBatchAsync(IReadOnlyCollection<string> texts, CancellationToken cancellationToken);
-    Task<(string Answer, string Model)> GenerateAsync(string prompt, CancellationToken cancellationToken);
-}
 
 internal sealed class OllamaClient(
     IHttpClientFactory httpClientFactory,

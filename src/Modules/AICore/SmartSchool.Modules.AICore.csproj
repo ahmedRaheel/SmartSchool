@@ -11,8 +11,5 @@
    
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../Students/SmartSchool.Modules.Students.csproj" />
-    <ProjectReference Include="../Examinations/SmartSchool.Modules.Examinations.csproj" />
-    <ProjectReference Include="../AIPrediction/SmartSchool.Modules.AIPrediction.csproj" />
   </ItemGroup>
 </Project>

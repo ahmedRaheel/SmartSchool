@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using SmartSchool.Modules.AICore.Features.AiExecutionLog;
 using SmartSchool.Modules.AICore.Features.KnowledgeChunk;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AICore.Features;
 

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.AICore.Rag;
+using SmartSchool.Application.AI;
 
 namespace SmartSchool.Modules.AICore.Cag;
 

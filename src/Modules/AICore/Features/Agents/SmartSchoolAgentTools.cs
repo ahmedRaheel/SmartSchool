@@ -1,21 +1,11 @@
-using SmartSchool.Modules.Examinations.Persistence;
-using SmartSchool.Modules.Examinations.Models;
-using SmartSchool.Modules.AIPrediction.Persistence;
-using SmartSchool.Modules.AIPrediction.Models;
-using SmartSchool.Modules.Students.Persistence;
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
-using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
 using System.ComponentModel;
 using System.Text.Json;
 using ModelContextProtocol.Server;
 using SmartSchool.Application.Identity;
-using SmartSchool.Modules.AIPrediction.Features.StudentPerformancePrediction;
-using SmartSchool.Modules.Examinations.Features.StudentExamResult;
-using SmartSchool.Modules.Students.Features.Student;
 
 namespace SmartSchool.Modules.AICore.Agents;
 
