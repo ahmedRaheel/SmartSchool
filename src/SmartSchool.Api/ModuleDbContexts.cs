@@ -65,8 +65,9 @@ internal static class ModuleDbContexts
         var connectionString = configuration.GetConnectionString(
             persistence.ConnectionStringName);
 
-        services.AddDbContext<TContext>(options =>
+        services.AddDbContext<TContext>((serviceProvider, options) =>
         {
+            options.AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
             switch (persistence.Provider)
             {
                 case PersistenceProvider.Mock:

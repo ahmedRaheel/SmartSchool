@@ -4,6 +4,7 @@ using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Models;
+using SmartSchool.Modules.Organization.Persistence;
 
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -45,7 +46,7 @@ public static class CreateSchool
         }
     }
 
-    public sealed class Handler(ISchoolCommand command, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(IOrganizationDbContext dbContext, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
@@ -57,18 +58,12 @@ public static class CreateSchool
                 request.Phone, request.Fax, request.Website, request.Address, request.City, request.Province,
                 request.Country, request.LogoUrl);
 
-            await command.AddAsync(school, cancellationToken);
+            await dbContext.Schools.AddAsync(school, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             return Result<Response>.Success(Map(school));
         }
     }
 
-    public interface ITenantSchoolCommand
-    {
-        Task AddAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken);
-
-    }
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school"),

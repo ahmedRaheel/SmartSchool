@@ -21,7 +21,6 @@ public static class Module
             serviceProvider.GetRequiredService<ExaminationsDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<GetStudentExamResultByIdStudentExamResultReadData>();
         return services;
     }
 

@@ -33,14 +33,14 @@ public static class OperationalTutorEndpoints
         return e;
     }
     private static Guid? Tenant(ITenantScope s,Guid? t)=>s.IsSuperAdmin?t:s.Resolve(t);
-    private static async Task<IResult> Start(StartSessionRequest r,ITenantScope scope,OperationalTutorEndpointsTutorSessionWriteData sessions,OperationalTutorEndpointsTutorConversationWriteData conversations,CancellationToken ct)
+    private static async Task<IResult> Start(StartSessionRequest r,ITenantScope scope,OperationalTutorEndpointsTutorSessionCommand sessions,OperationalTutorEndpointsTutorConversationCommand conversations,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var s=TutorSessionEntity.Create(t.Value,$"SESSION-{Guid.NewGuid():N}",$"{r.Subject}: {r.Topic}",JsonSerializer.Serialize(r));await sessions.AddAsync(s,ct);
         var c=TutorConversationEntity.Create(t.Value,$"CONV-{Guid.NewGuid():N}",$"{r.Subject} tutoring",JsonSerializer.Serialize(new{sessionId=s.TutorSessionId,r.StudentId,r.Subject,r.Topic}));await conversations.AddAsync(c,ct);
         return Results.Created($"/api/aitutor/tutor-session/{s.TutorSessionId}",new{sessionId=s.TutorSessionId,conversationId=c.TutorConversationId});
     }
-    private static async Task<IResult> Ask(AskRequest r,ITenantScope scope,OperationalTutorEndpointsTutorMessageWriteData messages,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
+    private static async Task<IResult> Ask(AskRequest r,ITenantScope scope,OperationalTutorEndpointsTutorMessageCommand messages,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var u=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}",SmartSchoolRoles.Student,JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="user",content=r.Message,r.Subject,r.Topic}));await messages.AddAsync(u,ct);
@@ -57,7 +57,7 @@ Student: {r.Message}
         await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked,new{tenantId=t.Value,bot="student-tutor",r.StudentId,r.SessionId},ct);
         return Results.Ok(new{messageId=a.TutorMessageId,answer,model=generated.Model});
     }
-    private static async Task<IResult> Quiz(QuizRequest r,ITenantScope scope,OperationalTutorEndpointsGeneratedQuizWriteData quizzes,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
+    private static async Task<IResult> Quiz(QuizRequest r,ITenantScope scope,OperationalTutorEndpointsGeneratedQuizCommand quizzes,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var count=Math.Clamp(r.QuestionCount,1,20);
@@ -71,7 +71,7 @@ Return ONLY valid JSON array. Each object: question, options (4 strings), correc
         await quizzes.AddAsync(e,ct);await events.PublishAsync("smartschool.aitutor.quiz-generated",new{tenantId=t.Value,quizId=e.GeneratedQuizId,r.StudentId},ct);
         return Results.Created($"/api/aitutor/generated-quiz/{e.GeneratedQuizId}",new{quizId=e.GeneratedQuizId,questions=TryJson(raw)});
     }
-    private static async Task<IResult> Recommend(RecommendationRequest r,ITenantScope scope,OperationalTutorEndpointsLearningRecommendationWriteData recommendations,IOllamaClient ollama,CancellationToken ct)
+    private static async Task<IResult> Recommend(RecommendationRequest r,ITenantScope scope,OperationalTutorEndpointsLearningRecommendationCommand recommendations,IOllamaClient ollama,CancellationToken ct)
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var prompt=$"Create a concise learning plan for {r.Subject}/{r.Topic}. Current mastery is {r.MasteryScore:P0}. Include next concept, practice type, revision frequency and success criterion.";
@@ -86,7 +86,7 @@ Return ONLY valid JSON array. Each object: question, options (4 strings), correc
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-public sealed class OperationalTutorEndpointsTutorMessageWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsTutorMessageCommand(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         TutorMessageEntity entity,
@@ -102,7 +102,7 @@ public sealed class OperationalTutorEndpointsTutorMessageWriteData(IAITutorDbCon
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-public sealed class OperationalTutorEndpointsTutorSessionWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsTutorSessionCommand(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         TutorSessionEntity entity,
@@ -118,7 +118,7 @@ public sealed class OperationalTutorEndpointsTutorSessionWriteData(IAITutorDbCon
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-public sealed class OperationalTutorEndpointsLearningRecommendationWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsLearningRecommendationCommand(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         LearningRecommendationEntity entity,
@@ -134,7 +134,7 @@ public sealed class OperationalTutorEndpointsLearningRecommendationWriteData(IAI
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-public sealed class OperationalTutorEndpointsTutorConversationWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsTutorConversationCommand(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         TutorConversationEntity entity,
@@ -150,7 +150,7 @@ public sealed class OperationalTutorEndpointsTutorConversationWriteData(IAITutor
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-public sealed class OperationalTutorEndpointsGeneratedQuizWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsGeneratedQuizCommand(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         GeneratedQuizEntity entity,

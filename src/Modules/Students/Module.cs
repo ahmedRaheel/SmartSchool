@@ -27,17 +27,14 @@ public static class Module
             serviceProvider.GetRequiredService<StudentsDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<ApproveStudentAdmissionStudentOnboardingReadData>();
-        services.AddScoped<ApproveStudentAdmissionStudentOnboardingWriteData>();
-        services.AddScoped<ApproveStudentAdmissionStudentReadData>();
-        services.AddScoped<ApproveStudentAdmissionStudentWriteData>();
-        services.AddScoped<GetEnrollmentByIdEnrollmentReadData>();
-        services.AddScoped<GetGuardianByIdGuardianReadData>();
-        services.AddScoped<GetStudentByIdStudentReadData>();
-        services.AddScoped<LinkStudentGuardianStudentOnboardingReadData>();
-        services.AddScoped<LinkStudentGuardianStudentOnboardingWriteData>();
-        services.AddScoped<StrikeOffStudentStudentReadData>();
-        services.AddScoped<StrikeOffStudentStudentWriteData>();
+        services.AddScoped<ApproveStudentAdmissionStudentOnboardingQuery>();
+        services.AddScoped<ApproveStudentAdmissionStudentOnboardingCommand>();
+        services.AddScoped<ApproveStudentAdmissionStudentQuery>();
+        services.AddScoped<ApproveStudentAdmissionStudentCommand>();
+        services.AddScoped<LinkStudentGuardianStudentOnboardingQuery>();
+        services.AddScoped<LinkStudentGuardianStudentOnboardingCommand>();
+        services.AddScoped<StrikeOffStudentStudentQuery>();
+        services.AddScoped<StrikeOffStudentStudentCommand>();
         return services;
     }
 

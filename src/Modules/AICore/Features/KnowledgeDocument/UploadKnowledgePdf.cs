@@ -1,3 +1,5 @@
+using SmartSchool.Modules.AICore.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Dapper;
@@ -31,6 +33,7 @@ public static class UploadKnowledgePdf
         Guid? academicSystemId,
         ITenantScope tenantScope,
         IDbConnectionFactory connectionFactory,
+        AICoreDbContext dbContext,
         IOllamaClient ollamaClient,
         IAiAssistantService assistantService,
         CancellationToken cancellationToken)
@@ -91,99 +94,31 @@ public static class UploadKnowledgePdf
             return Results.BadRequest(new { message = "Knowledge collection does not belong to this tenant." });
         }
 
-        const string insertDocumentSql = """
+        var title = Path.GetFileName(file.FileName);
+        var metadata = "{\"source\":\"upload\"}";
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO ai_core.knowledge_document
-            (
-                knowledge_document_id,
-                knowledge_collection_id,
-                tenant_id,
-                campus_id,
-                academic_system_id,
-                title,
-                document_type,
-                source_url,
-                metadata,
-                status,
-                is_active,
-                created_at,
-                row_version
-            )
-            VALUES
-            (
-                @DocumentId,
-                @CollectionId,
-                @TenantId,
-                @CampusId,
-                @AcademicSystemId,
-                @Title,
-                'PDF',
-                NULL,
-                CAST(@Metadata AS jsonb),
-                'INDEXED',
-                true,
-                CURRENT_TIMESTAMP,
-                gen_random_bytes(8)
-            );
-            """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertDocumentSql,
-                new
-                {
-                    DocumentId = documentId,
-                    CollectionId = collectionId,
-                    TenantId = resolvedTenantId.Value,
-                    CampusId = campusId,
-                    AcademicSystemId = academicSystemId,
-                    Title = Path.GetFileName(file.FileName),
-                    Metadata = "{\"source\":\"upload\"}"
-                },
-                cancellationToken: cancellationToken));
+                (knowledge_document_id, knowledge_collection_id, tenant_id, campus_id, academic_system_id, title, document_type, source_url, metadata, status, is_active, created_at, row_version)
+            VALUES ({documentId}, {collectionId}, {resolvedTenantId.Value}, {campusId}, {academicSystemId}, {title}, 'PDF', NULL, CAST({metadata} AS jsonb), 'INDEXED', true, CURRENT_TIMESTAMP, gen_random_bytes(8));
+            """, cancellationToken);
 
         var chunks = Chunk(pages, ChunkSize).ToArray();
-
-        const string insertChunkSql = """
-            INSERT INTO ai_core.rag_knowledge_chunk
-            (
-                id,
-                tenant_id,
-                collection,
-                document_name,
-                content,
-                embedding,
-                created_at,
-                is_active
-            )
-            VALUES
-            (
-                @Id,
-                @TenantId,
-                @Collection,
-                @DocumentName,
-                @Content,
-                CAST(@Embedding AS vector),
-                CURRENT_TIMESTAMP,
-                true
-            );
-            """;
 
         foreach (var batch in chunks.Chunk(32))
         {
             var embeddings = await ollamaClient.EmbedBatchAsync(batch, cancellationToken);
-
-            var rows = batch.Select((content, index) => new
+            for (var index = 0; index < batch.Length; index++)
             {
-                Id = Guid.NewGuid(),
-                TenantId = resolvedTenantId.Value,
-                Collection = collectionCode.Trim().ToLowerInvariant(),
-                DocumentName = Path.GetFileName(file.FileName),
-                Content = content,
-                Embedding = ToVectorLiteral(embeddings[index])
-            }).ToArray();
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(insertChunkSql, rows, cancellationToken: cancellationToken));
+                var id = Guid.NewGuid();
+                var collection = collectionCode.Trim().ToLowerInvariant();
+                var documentName = Path.GetFileName(file.FileName);
+                var content = batch[index];
+                var embedding = ToVectorLiteral(embeddings[index]);
+                await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+                    INSERT INTO ai_core.rag_knowledge_chunk(id, tenant_id, collection, document_name, content, embedding, created_at, is_active)
+                    VALUES ({id}, {resolvedTenantId.Value}, {collection}, {documentName}, {content}, CAST({embedding} AS vector), CURRENT_TIMESTAMP, true);
+                    """, cancellationToken);
+            }
         }
 
         await assistantService.InvalidateKnowledgeAsync(

@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Modules.Learning.Persistence;
+using SmartSchool.Modules.HR.Persistence;
 using SmartSchool.Modules.HR.Persistence;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,12 +33,11 @@ public static class Module
             serviceProvider.GetRequiredService<HRDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<ApproveEmployeeEmployeeOnboardingReadData>();
-        services.AddScoped<ApproveEmployeeEmployeeReadData>();
-        services.AddScoped<ApproveEmployeeEmployeeWriteData>();
-        services.AddScoped<GetEmployeeByIdEmployeeReadData>();
-        services.AddScoped<TerminateEmployeeEmployeeReadData>();
-        services.AddScoped<TerminateEmployeeEmployeeWriteData>();
+        services.AddScoped<ApproveEmployeeEmployeeOnboardingQuery>();
+        services.AddScoped<ApproveEmployeeEmployeeQuery>();
+        services.AddScoped<ApproveEmployeeEmployeeCommand>();
+        services.AddScoped<TerminateEmployeeEmployeeQuery>();
+        services.AddScoped<TerminateEmployeeEmployeeCommand>();
         return services;
     }
 
@@ -140,7 +142,7 @@ public static class Module
     public sealed record CreateAssignmentRequest(Guid? TenantId, Guid CourseOfferingId, Guid? ClassSectionId, string Type, string Title, string? Description, string? Instructions, DateTimeOffset? DueAt, decimal? TotalMarks, bool AllowLateSubmission = false, int MaxAttempts = 1);
     public sealed record GradeRequest(Guid? TenantId, decimal Marks, string? Feedback);
     public sealed record LeaveRequest(Guid? TenantId, DateOnly FromDate, DateOnly ToDate, string LeaveType, string Reason);
-    private static async Task<IResult> CreateAssignment(Guid employeeId, CreateAssignmentRequest r, ITenantScope scope, IDbConnectionFactory f, CancellationToken ct)
+    private static async Task<IResult> CreateAssignment(Guid employeeId, CreateAssignmentRequest r, ITenantScope scope, LearningDbContext dbContext, CancellationToken ct)
     {
         var tenant = Tenant(scope, r.TenantId);
         if (!tenant.HasValue)
@@ -148,31 +150,17 @@ public static class Module
             {
                 message = "Tenant is required."
             });
-        const string sql = """INSERT INTO lms.academic_assignment(academic_assignment_id,tenant_id,course_offering_id,class_section_id,teacher_employee_id,assignment_type_code,title,description,instructions,assigned_at,due_at,total_marks,allow_late_submission,max_attempts,status) VALUES(@Id,@TenantId,@CourseOfferingId,@ClassSectionId,@EmployeeId,@Type,@Title,@Description,@Instructions,CURRENT_TIMESTAMP,@DueAt,@TotalMarks,@AllowLateSubmission,@MaxAttempts,'PUBLISHED');""";
         var id = Guid.NewGuid();
-        await using var c = await f.OpenConnectionAsync(ct);
-        await c.ExecuteAsync(new CommandDefinition(sql, new
-        {
-            Id = id,
-            TenantId = tenant.Value,
-            r.CourseOfferingId,
-            r.ClassSectionId,
-            EmployeeId = employeeId,
-            r.Type,
-            r.Title,
-            r.Description,
-            r.Instructions,
-            r.DueAt,
-            r.TotalMarks,
-            r.AllowLateSubmission,
-            r.MaxAttempts
-        }, cancellationToken: ct));
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO lms.academic_assignment(academic_assignment_id,tenant_id,course_offering_id,class_section_id,teacher_employee_id,assignment_type_code,title,description,instructions,assigned_at,due_at,total_marks,allow_late_submission,max_attempts,status)
+            VALUES({id},{tenant.Value},{r.CourseOfferingId},{r.ClassSectionId},{employeeId},{r.Type},{r.Title},{r.Description},{r.Instructions},CURRENT_TIMESTAMP,{r.DueAt},{r.TotalMarks},{r.AllowLateSubmission},{r.MaxAttempts},'PUBLISHED');
+            """, ct);
         return Results.Created($"/api/teachers/{employeeId}/assignments/{id}", new
         {
             assignmentId = id
         });
     }
-    private static async Task<IResult> GradeSubmission(Guid employeeId, Guid submissionId, GradeRequest r, ITenantScope scope, IDbConnectionFactory f, CancellationToken ct)
+    private static async Task<IResult> GradeSubmission(Guid employeeId, Guid submissionId, GradeRequest r, ITenantScope scope, LearningDbContext dbContext, CancellationToken ct)
     {
         var tenant = Tenant(scope, r.TenantId);
         if (!tenant.HasValue)
@@ -180,23 +168,18 @@ public static class Module
             {
                 message = "Tenant is required."
             });
-        const string sql = """UPDATE lms.student_assignment_submission s SET marks_obtained=@Marks,teacher_feedback=@Feedback,status='GRADED' FROM lms.academic_assignment a WHERE s.academic_assignment_id=a.academic_assignment_id AND s.submission_id=@SubmissionId AND a.tenant_id=@TenantId AND a.teacher_employee_id=@EmployeeId;""";
-        await using var c = await f.OpenConnectionAsync(ct);
-        var n = await c.ExecuteAsync(new CommandDefinition(sql, new
-        {
-            r.Marks,
-            r.Feedback,
-            SubmissionId = submissionId,
-            TenantId = tenant.Value,
-            EmployeeId = employeeId
-        }, cancellationToken: ct));
+        var n = await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            UPDATE lms.student_assignment_submission s SET marks_obtained={r.Marks},teacher_feedback={r.Feedback},status='GRADED'
+            FROM lms.academic_assignment a WHERE s.academic_assignment_id=a.academic_assignment_id AND s.submission_id={submissionId}
+              AND a.tenant_id={tenant.Value} AND a.teacher_employee_id={employeeId};
+            """, ct);
         return n == 0 ? Results.NotFound() : Results.Ok(new
         {
             submissionId,
             status = "GRADED"
         });
     }
-    private static async Task<IResult> ApplyLeave(Guid employeeId, LeaveRequest r, ITenantScope scope, IDbConnectionFactory f, CancellationToken ct)
+    private static async Task<IResult> ApplyLeave(Guid employeeId, LeaveRequest r, ITenantScope scope, HRDbContext dbContext, CancellationToken ct)
     {
         var tenant = Tenant(scope, r.TenantId);
         if (!tenant.HasValue)
@@ -209,19 +192,11 @@ public static class Module
             {
                 message = "ToDate must be on or after FromDate."
             });
-        const string sql = """INSERT INTO teacher.leave_request(leave_request_id,tenant_id,employee_id,leave_type,from_date,to_date,reason,status,created_at) VALUES(@Id,@TenantId,@EmployeeId,@LeaveType,@FromDate,@ToDate,@Reason,'PENDING',CURRENT_TIMESTAMP);""";
         var id = Guid.NewGuid();
-        await using var c = await f.OpenConnectionAsync(ct);
-        await c.ExecuteAsync(new CommandDefinition(sql, new
-        {
-            Id = id,
-            TenantId = tenant.Value,
-            EmployeeId = employeeId,
-            r.LeaveType,
-            r.FromDate,
-            r.ToDate,
-            r.Reason
-        }, cancellationToken: ct));
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO teacher.leave_request(leave_request_id,tenant_id,employee_id,leave_type,from_date,to_date,reason,status,created_at)
+            VALUES({id},{tenant.Value},{employeeId},{r.LeaveType},{r.FromDate},{r.ToDate},{r.Reason},'PENDING',CURRENT_TIMESTAMP);
+            """, ct);
         return Results.Accepted($"/api/teachers/{employeeId}/leave/{id}", new
         {
             leaveRequestId = id,

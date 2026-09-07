@@ -27,9 +27,9 @@ namespace SmartSchool.Modules.AICore.Agents;
 public sealed class SmartSchoolAgentTools(
     ICurrentUser currentUser,
     ITenantScope tenantScope,
-    SmartSchoolAgentToolsStudentReadData studentQuery,
-    SmartSchoolAgentToolsStudentExamResultReadData examResultQuery,
-    SmartSchoolAgentToolsStudentPerformancePredictionReadData predictionQuery)
+    SmartSchoolAgentToolsStudentQuery studentQuery,
+    SmartSchoolAgentToolsStudentExamResultQuery examResultQuery,
+    SmartSchoolAgentToolsStudentPerformancePredictionQuery predictionQuery)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -184,66 +184,57 @@ public sealed class SmartSchoolAgentTools(
 /// <summary>
 /// Feature-owned data access for SmartSchoolAgentTools. Do not share across slices.
 /// </summary>
-public sealed class SmartSchoolAgentToolsStudentReadData(IStudentsDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
+public sealed class SmartSchoolAgentToolsStudentQuery(IDbConnectionFactory connectionFactory)
 {
-    public Task<StudentEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
+    public sealed record Row(Guid StudentId, string? StudentNumber, string FirstName, string? LastName, string? Gender, Guid SchoolId, Guid BranchId, string Status);
+
+    public async Task<Row?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {
-        return dbContext.Students
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.StudentId == id,
-                cancellationToken);
+        const string sql = """
+            SELECT student_id AS "StudentId", student_number AS "StudentNumber", first_name AS "FirstName",
+                   last_name AS "LastName", gender AS "Gender", school_id AS "SchoolId", branch_id AS "BranchId", status AS "Status"
+            FROM student.student
+            WHERE tenant_id=@TenantId AND student_id=@Id AND is_active=TRUE;
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<Row>(new CommandDefinition(sql, new { TenantId=tenantId, Id=id }, cancellationToken:cancellationToken));
     }
 }
 
-/// <summary>
-/// Feature-owned data access for SmartSchoolAgentTools. Do not share across slices.
-/// </summary>
-public sealed class SmartSchoolAgentToolsStudentPerformancePredictionReadData(IAIPredictionDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
+public sealed class SmartSchoolAgentToolsStudentPerformancePredictionQuery(IDbConnectionFactory connectionFactory)
 {
+    public sealed record Row(Guid StudentPerformancePredictionId, Guid? SubjectId, decimal? PredictedPercentage, string? PredictedGrade, decimal? ConfidenceScore, decimal? PassProbability, decimal? FailProbability, string? Trend, string? RiskLevel, string? ExplanationSummary, DateTimeOffset GeneratedAt);
 
-    public async Task<IReadOnlyCollection<StudentPerformancePredictionEntity>> GetByStudentIdAsync(
-        Guid tenantId,
-        Guid studentId,
-        int limit,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<Row>> GetByStudentIdAsync(Guid tenantId, Guid studentId, int limit, CancellationToken cancellationToken)
     {
-        var pageSize = Math.Clamp(limit, 1, 100);
-
-        return await dbContext.StudentPerformancePredictions
-            .AsNoTracking()
-            .Where(entity => entity.TenantId == tenantId && entity.StudentId == studentId)
-            .OrderByDescending(entity => entity.GeneratedAt)
-            .Take(pageSize)
-            .ToArrayAsync(cancellationToken);
+        const string sql = """
+            SELECT student_performance_prediction_id AS "StudentPerformancePredictionId", subject_id AS "SubjectId",
+                   predicted_percentage AS "PredictedPercentage", predicted_grade AS "PredictedGrade", confidence_score AS "ConfidenceScore",
+                   pass_probability AS "PassProbability", fail_probability AS "FailProbability", trend AS "Trend", risk_level AS "RiskLevel",
+                   explanation_summary AS "ExplanationSummary", generated_at AS "GeneratedAt"
+            FROM ai.student_performance_prediction
+            WHERE tenant_id=@TenantId AND student_id=@StudentId AND is_active=TRUE
+            ORDER BY generated_at DESC LIMIT @Limit;
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return (await connection.QueryAsync<Row>(new CommandDefinition(sql, new { TenantId=tenantId, StudentId=studentId, Limit=Math.Clamp(limit,1,100) }, cancellationToken:cancellationToken))).AsList();
     }
 }
 
-/// <summary>
-/// Feature-owned data access for SmartSchoolAgentTools. Do not share across slices.
-/// </summary>
-public sealed class SmartSchoolAgentToolsStudentExamResultReadData(IExaminationsDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
+public sealed class SmartSchoolAgentToolsStudentExamResultQuery(IDbConnectionFactory connectionFactory)
 {
+    public sealed record Row(Guid StudentExamResultId, Guid ExamSubjectId, decimal? MarksObtained, decimal? Percentage, string? Grade, bool IsAbsent, string? Remarks);
 
-    public async Task<IReadOnlyCollection<StudentExamResultEntity>> GetByStudentIdAsync(
-        Guid tenantId,
-        Guid studentId,
-        int limit,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<Row>> GetByStudentIdAsync(Guid tenantId, Guid studentId, int limit, CancellationToken cancellationToken)
     {
-        var pageSize = Math.Clamp(limit, 1, 100);
-
-        return await dbContext.StudentExamResults
-            .AsNoTracking()
-            .Where(entity => entity.TenantId == tenantId && entity.StudentId == studentId)
-            .OrderByDescending(entity => entity.CreatedAt)
-            .Take(pageSize)
-            .ToArrayAsync(cancellationToken);
+        const string sql = """
+            SELECT student_exam_result_id AS "StudentExamResultId", exam_subject_id AS "ExamSubjectId", marks_obtained AS "MarksObtained",
+                   percentage AS "Percentage", grade AS "Grade", is_absent AS "IsAbsent", remarks AS "Remarks"
+            FROM exam.student_exam_result
+            WHERE tenant_id=@TenantId AND student_id=@StudentId AND is_active=TRUE
+            ORDER BY created_at DESC LIMIT @Limit;
+            """;
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+        return (await connection.QueryAsync<Row>(new CommandDefinition(sql, new { TenantId=tenantId, StudentId=studentId, Limit=Math.Clamp(limit,1,100) }, cancellationToken:cancellationToken))).AsList();
     }
 }

@@ -1,7 +1,5 @@
-using SmartSchool.Modules.HR.Persistence;
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -34,17 +32,29 @@ public static class GetEmployeeById
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(GetEmployeeByIdEmployeeReadData entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed class Handler(IDbConnectionFactory connectionFactory) : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", employee_id AS "Id", user_id AS "UserId", employee_number AS "EmployeeNumber", first_name AS "FirstName", last_name AS "LastName", cnic_number AS "CnicNumber", photo AS "Photo", photo_content_type AS "PhotoContentType", photo_file_name AS "PhotoFileName", email AS "Email", phone AS "Phone", hire_date AS "HireDate", employment_type_code AS "EmploymentTypeCode", status AS "Status", source_candidate_id AS "SourceCandidateId"
+                FROM hr.employee
+                WHERE tenant_id = @TenantId
+                  AND employee_id = @Id
+                  AND is_active = TRUE;
+                """;
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var response = await connection.QuerySingleOrDefaultAsync<Response>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+
+            if (response is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmployeeEntity))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+
+            return Result<Response>.Success(response);
         }
     }
 
@@ -59,45 +69,5 @@ public static class GetEmployeeById
                 })
             .WithName("GetEmployeeById").WithTags(ModuleConstants.Name).RequireAuthorization();
         return endpoints;
-    }
-
-    private static Response MapResponse(EmployeeEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.EmployeeId,
-            entity.UserId,
-            entity.EmployeeNumber,
-            entity.FirstName,
-            entity.LastName,
-            entity.CnicNumber,
-            entity.Photo,
-            entity.PhotoContentType,
-            entity.PhotoFileName,
-            entity.Email,
-            entity.Phone,
-            entity.HireDate,
-            entity.EmploymentTypeCode,
-            entity.Status,
-            entity.SourceCandidateId);
-    }
-}
-
-/// <summary>
-/// Feature-owned data access for GetEmployeeById. Do not share across slices.
-/// </summary>
-public sealed class GetEmployeeByIdEmployeeReadData(IHRDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
-{
-    public Task<EmployeeEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Employees
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.EmployeeId == id,
-                cancellationToken);
     }
 }

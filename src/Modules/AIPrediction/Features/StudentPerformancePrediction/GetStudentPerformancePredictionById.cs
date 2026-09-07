@@ -1,6 +1,4 @@
-using SmartSchool.Modules.AIPrediction.Persistence;
 using Dapper;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -32,21 +30,32 @@ public static class GetStudentPerformancePredictionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(GetStudentPerformancePredictionByIdStudentPerformancePredictionReadData entityQuery)
+    public sealed class Handler(IDbConnectionFactory connectionFactory)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", student_performance_prediction_id AS "Id", code AS "Code", name AS "Name", metadata_json::text AS "MetadataJson"
+                FROM ai.student_performance_prediction
+                WHERE tenant_id = @TenantId
+                  AND student_performance_prediction_id = @Id
+                  AND is_active = TRUE;
+                """;
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var response = await connection.QuerySingleOrDefaultAsync<Response>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+
+            if (response is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentPerformancePredictionEntity))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+
+            return Result<Response>.Success(response);
         }
     }
 
@@ -65,33 +74,5 @@ public static class GetStudentPerformancePredictionById
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
         return endpoints;
-    }
-
-    private static Response MapResponse(StudentPerformancePredictionEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.StudentPerformancePredictionId,
-            entity.Code,
-            entity.Name,
-            entity.MetadataJson);
-    }
-}
-
-/// <summary>
-/// Feature-owned data access for GetStudentPerformancePredictionById. Do not share across slices.
-/// </summary>
-public sealed class GetStudentPerformancePredictionByIdStudentPerformancePredictionReadData(IAIPredictionDbContext dbContext)
-{
-    public Task<StudentPerformancePredictionEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.StudentPerformancePredictions
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.StudentPerformancePredictionId == id,
-                cancellationToken);
     }
 }

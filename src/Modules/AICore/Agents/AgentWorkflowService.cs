@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using SmartSchool.Modules.AICore.Models;
-using SmartSchool.Modules.AICore.Features.AiExecutionLog;
+using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Application.Identity;
 using SmartSchool.Modules.AICore.Cag;
 
@@ -33,7 +33,7 @@ internal sealed class AgentWorkflowService(
     SmartSchoolAgentTools tools,
     IOllamaClient ollamaClient,
     ITenantScope tenantScope,
-    AiExecutionLogWriter executionLogCommand) : IAgentWorkflowService
+    IAICoreDbContext dbContext) : IAgentWorkflowService
 {
     public async Task<AgentRunResponse> RunAsync(
         AgentRunRequest request,
@@ -93,7 +93,8 @@ internal sealed class AgentWorkflowService(
             $"{request.Agent.Trim()} agent execution",
             metadata);
 
-        await executionLogCommand.AddAsync(executionLog, cancellationToken);
+        await dbContext.AiExecutionLogs.AddAsync(executionLog, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return new AgentRunResponse(
             request.Agent.Trim(),

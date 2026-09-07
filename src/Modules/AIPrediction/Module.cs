@@ -28,7 +28,6 @@ public static class Module
             serviceProvider.GetRequiredService<AIPredictionDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<GetStudentPerformancePredictionByIdStudentPerformancePredictionReadData>();
         services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
         services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
         services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();

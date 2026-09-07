@@ -30,16 +30,16 @@ public static class ApproveEmployee
     }
 
     public sealed class Handler(
-        ApproveEmployeeEmployeeReadData query,
-        ApproveEmployeeEmployeeWriteData command,
-        ApproveEmployeeEmployeeOnboardingReadData onboardingQuery,
+        ApproveEmployeeEmployeeQuery query,
+        ApproveEmployeeEmployeeCommand command,
+        ApproveEmployeeEmployeeOnboardingQuery onboardingQuery,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var employee = await query.GetByIdAsync(request.TenantId, request.EmployeeId, cancellationToken);
+            var employee = await command.GetByIdAsync(request.TenantId, request.EmployeeId, cancellationToken);
             if (employee is null) return Result<Response>.Failure(Error.NotFound("Employee was not found."));
             if (employee.UserId.HasValue) return Result<Response>.Failure(Error.Conflict("Employee already has a login account."));
             if (string.IsNullOrWhiteSpace(employee.Email)) return Result<Response>.Failure(Error.Validation("Employee email is required before approval."));
@@ -103,8 +103,14 @@ public static class ApproveEmployee
 /// <summary>
 /// Feature-owned data access for ApproveEmployee. Do not share across slices.
 /// </summary>
-public sealed class ApproveEmployeeEmployeeWriteData(IHRDbContext dbContext)
+public sealed class ApproveEmployeeEmployeeCommand(IHRDbContext dbContext)
 {
+    public Task<EmployeeEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+    {
+        return dbContext.Employees.SingleOrDefaultAsync(
+            entity => entity.TenantId == tenantId && entity.EmployeeId == id, cancellationToken);
+    }
+
 
     public async Task UpdateAsync(
         EmployeeEntity entity,
@@ -120,23 +126,9 @@ public sealed class ApproveEmployeeEmployeeWriteData(IHRDbContext dbContext)
 /// <summary>
 /// Feature-owned data access for ApproveEmployee. Do not share across slices.
 /// </summary>
-public sealed class ApproveEmployeeEmployeeReadData(IHRDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
+public sealed class ApproveEmployeeEmployeeQuery(IDbConnectionFactory connectionFactory)
 {
-    public Task<EmployeeEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Employees
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.EmployeeId == id,
-                cancellationToken);
-    }
-
-
-    public async Task<string?> GetBranchCodeAsync(
+        public async Task<string?> GetBranchCodeAsync(
         Guid tenantId,
         Guid branchId,
         CancellationToken cancellationToken)
@@ -158,7 +150,7 @@ public sealed class ApproveEmployeeEmployeeReadData(IHRDbContext dbContext,
 /// <summary>
 /// Feature-owned data access for ApproveEmployee. Do not share across slices.
 /// </summary>
-public sealed class ApproveEmployeeEmployeeOnboardingReadData(IDbConnectionFactory connectionFactory)
+public sealed class ApproveEmployeeEmployeeOnboardingQuery(IDbConnectionFactory connectionFactory)
 {
 
     public async Task<IReadOnlyList<string>> GetMissingRequiredDocumentsAsync(Guid tenantId, Guid employeeId, string staffType, CancellationToken cancellationToken)

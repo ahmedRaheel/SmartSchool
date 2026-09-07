@@ -33,12 +33,12 @@ public static class Module
             serviceProvider.GetRequiredService<AICoreDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<AgentWorkflowServiceAiExecutionLogWriteData>();
-        services.AddScoped<OperationalAiCoreEndpointsAiExecutionLogWriteData>();
-        services.AddScoped<OperationalAiCoreEndpointsKnowledgeChunkWriteData>();
-        services.AddScoped<SmartSchoolAgentToolsStudentExamResultReadData>();
-        services.AddScoped<SmartSchoolAgentToolsStudentPerformancePredictionReadData>();
-        services.AddScoped<SmartSchoolAgentToolsStudentReadData>();
+        services.AddScoped<AgentWorkflowServiceAiExecutionLogCommand>();
+        services.AddScoped<OperationalAiCoreEndpointsAiExecutionLogCommand>();
+        services.AddScoped<OperationalAiCoreEndpointsKnowledgeChunkCommand>();
+        services.AddScoped<SmartSchoolAgentToolsStudentExamResultQuery>();
+        services.AddScoped<SmartSchoolAgentToolsStudentPerformancePredictionQuery>();
+        services.AddScoped<SmartSchoolAgentToolsStudentQuery>();
 
         services.Configure<AiAssistantOptions>(configuration.GetSection(AiAssistantOptions.SectionName));
         services.AddOptions<OllamaRagOptions>()

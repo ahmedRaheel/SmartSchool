@@ -25,11 +25,11 @@ public static class Module
             serviceProvider.GetRequiredService<AITutorDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<OperationalTutorEndpointsGeneratedQuizWriteData>();
-        services.AddScoped<OperationalTutorEndpointsLearningRecommendationWriteData>();
-        services.AddScoped<OperationalTutorEndpointsTutorConversationWriteData>();
-        services.AddScoped<OperationalTutorEndpointsTutorMessageWriteData>();
-        services.AddScoped<OperationalTutorEndpointsTutorSessionWriteData>();
+        services.AddScoped<OperationalTutorEndpointsGeneratedQuizCommand>();
+        services.AddScoped<OperationalTutorEndpointsLearningRecommendationCommand>();
+        services.AddScoped<OperationalTutorEndpointsTutorConversationCommand>();
+        services.AddScoped<OperationalTutorEndpointsTutorMessageCommand>();
+        services.AddScoped<OperationalTutorEndpointsTutorSessionCommand>();
         return services;
     }
 

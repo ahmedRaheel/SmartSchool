@@ -1,6 +1,4 @@
-using SmartSchool.Modules.Communication.Persistence;
 using Dapper;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -38,21 +36,32 @@ public static class GetNotificationById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(GetNotificationByIdNotificationReadData entityQuery)
+    public sealed class Handler(IDbConnectionFactory connectionFactory)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", notification_id AS "Id", recipient_user_id AS "RecipientUserId",
+                       type AS "Type", title AS "Title", message AS "Message", related_entity_id AS "RelatedEntityId",
+                       related_entity_type AS "RelatedEntityType", action_url AS "ActionUrl", priority AS "Priority",
+                       is_read AS "IsRead", read_at AS "ReadAt", occurred_at AS "OccurredAt"
+                FROM communication.notification
+                WHERE tenant_id = @TenantId AND notification_id = @Id AND is_active = TRUE;
+                """;
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var row = await connection.QuerySingleOrDefaultAsync<NotificationRow>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+            if (row is null)
             {
-                return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(NotificationEntity))));
+                return Result<Response>.Failure(Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+            var response = new Response(row.TenantId, row.Id, row.RecipientUserId,
+                Enum.Parse<NotificationType>(row.Type, true), row.Title, row.Message, row.RelatedEntityId,
+                row.RelatedEntityType, row.ActionUrl, row.Priority, row.IsRead, row.ReadAt, row.OccurredAt);
+            return Result<Response>.Success(response);
         }
     }
 
@@ -72,44 +81,5 @@ public static class GetNotificationById
             .RequireAuthorization(SmartSchoolPolicies.AllAuthenticatedActors);
         return endpoints;
     }
-
-    private static Response MapResponse(
-        NotificationEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.NotificationId,
-            entity.RecipientUserId,
-            entity.Type,
-            entity.Title,
-            entity.Message,
-            entity.RelatedEntityId,
-            entity.RelatedEntityType,
-            entity.ActionUrl,
-            entity.Priority,
-            entity.IsRead,
-            entity.ReadAt,
-            entity.OccurredAt);
-    }
-}
-
-/// <summary>
-/// Feature-owned data access for GetNotificationById. Do not share across slices.
-/// </summary>
-public sealed class GetNotificationByIdNotificationReadData(ICommunicationDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
-{
-
-    public Task<NotificationEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Notifications
-            .SingleOrDefaultAsync(
-                entity =>
-                    entity.TenantId == tenantId &&
-                    entity.NotificationId == id,
-                cancellationToken);
-    }
+    private sealed record NotificationRow(Guid TenantId, Guid Id, Guid RecipientUserId, string Type, string Title, string Message, Guid? RelatedEntityId, string? RelatedEntityType, string? ActionUrl, string Priority, bool IsRead, DateTimeOffset? ReadAt, DateTimeOffset OccurredAt);
 }

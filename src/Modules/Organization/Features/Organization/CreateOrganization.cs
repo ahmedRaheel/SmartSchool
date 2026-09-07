@@ -62,36 +62,8 @@ public static class CreateTenant
             RuleFor(x => x.AdminPhoneNumber).MaximumLength(50);
         }
     }
-    public interface ITenantCommand
-    {
-        Task AddAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken);
-
-        Task DeleteAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken);
-
-    }
-    public sealed class TenantCommand(IOrganizationDbContext dbContext) : ITenantCommand
-    {
-        public async Task AddAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken)
-        {
-            await dbContext.Tenants.AddAsync(entity, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-        public async Task DeleteAsync(
-                TenantEntity entity,
-                CancellationToken cancellationToken)
-        {
-            dbContext.Tenants.Remove(entity);
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-    }
     public sealed class Handler(
-        ITenantCommand tenantCommand,
+        IOrganizationDbContext dbContext,
         IIdentityAccountService identityAccountService,
         IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
@@ -122,7 +94,8 @@ public static class CreateTenant
                      request.ContactAddress)
                     );
             }
-            await tenantCommand.AddAsync(tenant, cancellationToken);
+            await dbContext.Tenants.AddAsync(tenant, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             try
             {
                 var account = await identityAccountService.CreateAccountAsync(
@@ -160,7 +133,8 @@ public static class CreateTenant
             catch
             {
                 // Do not leave a tenant without its master account.
-                await tenantCommand.DeleteAsync(tenant, cancellationToken);
+                dbContext.Tenants.Remove(tenant);
+                await dbContext.SaveChangesAsync(cancellationToken);
                 throw;
             }
         }

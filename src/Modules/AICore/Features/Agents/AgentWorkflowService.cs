@@ -37,7 +37,7 @@ internal sealed class AgentWorkflowService(
     SmartSchoolAgentTools tools,
     IOllamaClient ollamaClient,
     ITenantScope tenantScope,
-    AgentWorkflowServiceAiExecutionLogWriteData executionLogCommand) : IAgentWorkflowService
+    AgentWorkflowServiceAiExecutionLogCommand executionLogCommand) : IAgentWorkflowService
 {
     public async Task<AgentRunResponse> RunAsync(
         AgentRunRequest request,
@@ -143,7 +143,7 @@ internal sealed class AgentWorkflowService(
 /// <summary>
 /// Feature-owned data access for AgentWorkflowService. Do not share across slices.
 /// </summary>
-public sealed class AgentWorkflowServiceAiExecutionLogWriteData(IAICoreDbContext dbContext)
+public sealed class AgentWorkflowServiceAiExecutionLogCommand(IAICoreDbContext dbContext)
 {
     public async Task AddAsync(
         AiExecutionLogEntity entity,

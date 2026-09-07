@@ -43,30 +43,7 @@ public static class CreateSubject
         }
     }
 
-    public interface ISubjectCommand
-    {
-        Task AddAsync(
-                SubjectEntity entity,
-                CancellationToken cancellationToken);
-
-    }
-
-    public sealed class SubjectCommand(OrganizationDbContext dbContext) : ISubjectCommand
-    {
-        public async Task AddAsync(
-                SubjectEntity entity,
-                CancellationToken cancellationToken)
-        {
-            await dbContext
-                .Subjects
-                .AddAsync(entity, cancellationToken);
-
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-
-    }
-
-    public sealed class Handler(ISubjectCommand command, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(IOrganizationDbContext dbContext, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
@@ -76,7 +53,8 @@ public static class CreateSubject
             var subject = SubjectEntity.Create(
                 request.TenantId, subjectId, code, request.Name);
 
-            await command.AddAsync(subject, cancellationToken);
+            await dbContext.Subjects.AddAsync(subject, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, subjectId, code, request.Name));
         }
     }

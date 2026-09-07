@@ -1,6 +1,4 @@
-using SmartSchool.Modules.Students.Persistence;
 using Dapper;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using System.Threading.Tasks;
 using SmartSchool.Application.Http;
@@ -34,21 +32,32 @@ public static class GetEnrollmentById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(GetEnrollmentByIdEnrollmentReadData entityQuery)
+    public sealed class Handler(IDbConnectionFactory connectionFactory)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", student_enrollment_id AS "Id", student_id AS "StudentId", academic_year_id AS "AcademicYearId", class_section_id AS "ClassSectionId", enrollment_date AS "EnrollmentDate", status AS "Status"
+                FROM student.student_enrollment
+                WHERE tenant_id = @TenantId
+                  AND student_enrollment_id = @Id
+                  AND is_active = TRUE;
+                """;
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var response = await connection.QuerySingleOrDefaultAsync<Response>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+
+            if (response is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(EnrollmentEntity))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+
+            return Result<Response>.Success(response);
         }
     }
 
@@ -67,36 +76,5 @@ public static class GetEnrollmentById
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
         return endpoints;
-    }
-
-    private static Response MapResponse(EnrollmentEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.StudentEnrollmentId,
-            entity.StudentId,
-            entity.AcademicYearId,
-            entity.ClassSectionId,
-            entity.EnrollmentDate,
-            entity.Status);
-    }
-}
-
-/// <summary>
-/// Feature-owned data access for GetEnrollmentById. Do not share across slices.
-/// </summary>
-public sealed class GetEnrollmentByIdEnrollmentReadData(IStudentsDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
-{
-    public Task<EnrollmentEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Enrollments
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.StudentEnrollmentId == id,
-                cancellationToken);
     }
 }

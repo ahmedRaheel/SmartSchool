@@ -1,6 +1,4 @@
-using SmartSchool.Modules.Organization.Persistence;
 using Dapper;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Enums;
 using System.Threading.Tasks;
@@ -31,21 +29,32 @@ public static class GetCampusById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(GetCampusByIdCampusReadData entityQuery)
+    public sealed class Handler(IDbConnectionFactory connectionFactory)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", school_id AS "SchoolId", code AS "Code", name AS "Name", branch_type AS "BranchType", branch_gender_type_id AS "BranchGenderTypeId", academic_system_id AS "AcademicSystemId", address AS "Address", city AS "City", province AS "Province", country AS "Country", phone AS "Phone", fax AS "Fax", mobile AS "Mobile", email AS "Email", logo_url AS "LogoUrl"
+                FROM org.campus
+                WHERE tenant_id = @TenantId
+                  AND campus_id = @Id
+                  AND is_active = TRUE;
+                """;
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var response = await connection.QuerySingleOrDefaultAsync<Response>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+
+            if (response is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(CampusEntity))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+
+            return Result<Response>.Success(response);
         }
     }
 
@@ -64,34 +73,5 @@ public static class GetCampusById
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantAdmin);
         return endpoints;
-    }
-
-    private static Response MapResponse(CampusEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.SchoolId, entity.Code, entity.Name, entity.BranchType, entity.BranchGenderTypeId, entity.AcademicSystemId,
-            entity.Address, entity.City, entity.Province, entity.Country, entity.Phone, entity.Fax, entity.Mobile,
-            entity.Email, entity.LogoUrl
-            );
-    }
-}
-
-/// <summary>
-/// Feature-owned data access for GetCampusById. Do not share across slices.
-/// </summary>
-public sealed class GetCampusByIdCampusReadData(IOrganizationDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
-{
-    public Task<CampusEntity?> GetByIdAsync(
-        Guid? tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Campuses
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id,
-                cancellationToken);
     }
 }

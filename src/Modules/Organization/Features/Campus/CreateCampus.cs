@@ -33,7 +33,7 @@ public static class CreateCampus
         }
     }
 
-    public sealed class Handler(ITenantScope tenantScope, CreateCampusCampusWriteData command, CreateCampusSchoolReadData schoolQuery, CreateCampusBranchPolicyWriteData policyCommand, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(ITenantScope tenantScope, CreateCampusCampusCommand command, CreateCampusSchoolQuery schoolQuery, CreateCampusBranchPolicyCommand policyCommand, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
@@ -70,15 +70,17 @@ public static class CreateCampus
 /// <summary>
 /// Feature-owned data access for CreateCampus. Do not share across slices.
 /// </summary>
-public sealed class CreateCampusSchoolReadData(IDbConnectionFactory connectionFactory)
+public sealed class CreateCampusSchoolQuery(IDbConnectionFactory connectionFactory)
 {
-    public async Task<SchoolEntity?> GetByIdAsync(
+    public sealed record SchoolRow(Guid Id);
+
+    public async Task<SchoolRow?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT *
+            SELECT school_id AS "Id"
             FROM org.school
             WHERE tenant_id = @TenantId
               AND school_id = @Id
@@ -88,7 +90,7 @@ public sealed class CreateCampusSchoolReadData(IDbConnectionFactory connectionFa
         await using var connection =
             await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
-        return await connection.QuerySingleOrDefaultAsync<SchoolEntity>(
+        return await connection.QuerySingleOrDefaultAsync<SchoolRow>(
             new CommandDefinition(
                 sql,
                 new
@@ -103,7 +105,7 @@ public sealed class CreateCampusSchoolReadData(IDbConnectionFactory connectionFa
 /// <summary>
 /// Feature-owned data access for CreateCampus. Do not share across slices.
 /// </summary>
-public sealed class CreateCampusBranchPolicyWriteData(IDbConnectionFactory connectionFactory)
+public sealed class CreateCampusBranchPolicyCommand(IDbConnectionFactory connectionFactory, OrganizationDbContext dbContext)
 {
     public async Task<bool> GenderTypeExistsAsync(Guid genderTypeId, CancellationToken cancellationToken)
     {
@@ -125,13 +127,14 @@ public sealed class CreateCampusBranchPolicyWriteData(IDbConnectionFactory conne
 
     public async Task SetEducationLevelsAsync(Guid tenantId, Guid branchId, IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
     {
-        const string deleteSql = "DELETE FROM org.campus_education_level WHERE tenant_id=@TenantId AND campus_id=@CampusId;";
-        const string insertSql = "INSERT INTO org.campus_education_level(tenant_id, campus_id, education_level_id) VALUES(@TenantId, @CampusId, @EducationLevelId);";
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
-        await connection.ExecuteAsync(new CommandDefinition(deleteSql, new { TenantId = tenantId, CampusId = branchId }, transaction, cancellationToken: cancellationToken));
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"DELETE FROM org.campus_education_level WHERE tenant_id={tenantId} AND campus_id={branchId};", cancellationToken);
         foreach (var levelId in educationLevelIds.Distinct())
-            await connection.ExecuteAsync(new CommandDefinition(insertSql, new { TenantId = tenantId, CampusId = branchId, EducationLevelId = levelId }, transaction, cancellationToken: cancellationToken));
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"INSERT INTO org.campus_education_level(tenant_id, campus_id, education_level_id) VALUES({tenantId}, {branchId}, {levelId});", cancellationToken);
+        }
         await transaction.CommitAsync(cancellationToken);
     }
 }
@@ -139,7 +142,7 @@ public sealed class CreateCampusBranchPolicyWriteData(IDbConnectionFactory conne
 /// <summary>
 /// Feature-owned data access for CreateCampus. Do not share across slices.
 /// </summary>
-public sealed class CreateCampusCampusWriteData(IOrganizationDbContext dbContext)
+public sealed class CreateCampusCampusCommand(IOrganizationDbContext dbContext)
 {
     public async Task AddAsync(
         CampusEntity entity,

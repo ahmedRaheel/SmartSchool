@@ -30,10 +30,10 @@ public static class ApproveStudentAdmission
     }
 
     public sealed class Handler(
-        ApproveStudentAdmissionStudentReadData query,
-        ApproveStudentAdmissionStudentWriteData command,
-        ApproveStudentAdmissionStudentOnboardingReadData onboardingQuery,
-        ApproveStudentAdmissionStudentOnboardingWriteData onboardingCommand,
+        ApproveStudentAdmissionStudentQuery query,
+        ApproveStudentAdmissionStudentCommand command,
+        ApproveStudentAdmissionStudentOnboardingQuery onboardingQuery,
+        ApproveStudentAdmissionStudentOnboardingCommand onboardingCommand,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numberGenerator,
         TimeProvider timeProvider)
@@ -43,7 +43,7 @@ public static class ApproveStudentAdmission
             Request request,
             CancellationToken cancellationToken)
         {
-            var student = await query.GetByIdAsync(
+            var student = await command.GetByIdAsync(
                 request.TenantId,
                 request.StudentId,
                 cancellationToken);
@@ -163,7 +163,7 @@ public static class ApproveStudentAdmission
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-public sealed class ApproveStudentAdmissionStudentOnboardingWriteData(IStudentsDbContext dbContext)
+public sealed class ApproveStudentAdmissionStudentOnboardingCommand(IStudentsDbContext dbContext)
 {
 
     public async Task AddEnrollmentAndApprovePlacementAsync(EnrollmentEntity enrollment, Guid tenantId, Guid studentId, Guid academicYearId, CancellationToken cancellationToken)
@@ -179,7 +179,7 @@ public sealed class ApproveStudentAdmissionStudentOnboardingWriteData(IStudentsD
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-public sealed class ApproveStudentAdmissionStudentOnboardingReadData(IDbConnectionFactory connectionFactory)
+public sealed class ApproveStudentAdmissionStudentOnboardingQuery(IDbConnectionFactory connectionFactory)
 {
 
     public async Task<bool> HasGuardianAsync(Guid tenantId, Guid studentId, CancellationToken cancellationToken)
@@ -245,8 +245,14 @@ public sealed class ApproveStudentAdmissionStudentOnboardingReadData(IDbConnecti
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-public sealed class ApproveStudentAdmissionStudentWriteData(IStudentsDbContext dbContext)
+public sealed class ApproveStudentAdmissionStudentCommand(IStudentsDbContext dbContext)
 {
+    public Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+    {
+        return dbContext.Students.SingleOrDefaultAsync(
+            entity => entity.TenantId == tenantId && entity.StudentId == id, cancellationToken);
+    }
+
 
     public async Task UpdateAsync(
         StudentEntity entity,
@@ -262,18 +268,6 @@ public sealed class ApproveStudentAdmissionStudentWriteData(IStudentsDbContext d
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-public sealed class ApproveStudentAdmissionStudentReadData(IStudentsDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
+public sealed class ApproveStudentAdmissionStudentQuery(IDbConnectionFactory connectionFactory)
 {
-    public Task<StudentEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Students
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.StudentId == id,
-                cancellationToken);
-    }
-}
+    

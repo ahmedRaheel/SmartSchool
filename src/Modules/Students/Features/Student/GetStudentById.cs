@@ -1,7 +1,5 @@
-using SmartSchool.Modules.Students.Persistence;
 using Dapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -31,17 +29,29 @@ public static class GetStudentById
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
 
-    public sealed class Handler(GetStudentByIdStudentReadData entityQuery) : IRequestHandler<Query, Result<Response>>
+    public sealed class Handler(IDbConnectionFactory connectionFactory) : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
-            var entity = await entityQuery.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
+            const string sql = """
+                SELECT tenant_id AS "TenantId", student_id AS "Id", user_id AS "UserId", student_number AS "StudentNumber", first_name AS "FirstName", last_name AS "LastName", date_of_birth AS "DateOfBirth", gender AS "Gender", photo AS "Photo", photo_content_type AS "PhotoContentType", photo_file_name AS "PhotoFileName", admission_date AS "AdmissionDate", status AS "Status"
+                FROM student.student
+                WHERE tenant_id = @TenantId
+                  AND student_id = @Id
+                  AND is_active = TRUE;
+                """;
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var response = await connection.QuerySingleOrDefaultAsync<Response>(
+                new CommandDefinition(sql, new { request.TenantId, request.Id }, cancellationToken: cancellationToken));
+
+            if (response is null)
             {
                 return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentEntity))));
+                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(Response))));
             }
-            return Result<Response>.Success(MapResponse(entity));
+
+            return Result<Response>.Success(response);
         }
     }
 
@@ -56,42 +66,5 @@ public static class GetStudentById
                 })
             .WithName("GetStudentById").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
         return endpoints;
-    }
-
-    private static Response MapResponse(StudentEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.StudentId,
-            entity.UserId,
-            entity.StudentNumber,
-            entity.FirstName,
-            entity.LastName,
-            entity.DateOfBirth,
-            entity.Gender,
-            entity.Photo,
-            entity.PhotoContentType,
-            entity.PhotoFileName,
-            entity.AdmissionDate,
-            entity.Status);
-    }
-}
-
-/// <summary>
-/// Feature-owned data access for GetStudentById. Do not share across slices.
-/// </summary>
-public sealed class GetStudentByIdStudentReadData(IStudentsDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
-{
-    public Task<StudentEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Students
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.StudentId == id,
-                cancellationToken);
     }
 }

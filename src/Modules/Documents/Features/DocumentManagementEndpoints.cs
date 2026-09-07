@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Modules.Documents.Persistence;
 using System.Security.Cryptography;
 using Dapper;
 using Microsoft.AspNetCore.Http;
@@ -25,7 +27,7 @@ public static class DocumentManagementEndpoints
     }
 
     private static async Task<IResult> UploadAsync(
-        HttpRequest request, Guid? tenantId, ITenantScope tenantScope, IDbConnectionFactory factory, TimeProvider timeProvider, CancellationToken ct)
+        HttpRequest request, Guid? tenantId, ITenantScope tenantScope, IDbConnectionFactory factory, DocumentsDbContext dbContext, TimeProvider timeProvider, CancellationToken ct)
     {
         var resolvedTenant = tenantScope.Resolve(tenantId);
         if (!resolvedTenant.HasValue) return Results.BadRequest(new { message = "Tenant is required for SuperAdmin." });
@@ -66,21 +68,26 @@ public static class DocumentManagementEndpoints
         var documentNumber = $"DOC-{timeProvider.GetUtcNow():yyyyMMdd}-{documentId.ToString("N")[..8].ToUpperInvariant()}";
         var extension = Path.GetExtension(file.FileName);
 
-        const string sql = """
-        INSERT INTO document.document(document_id,tenant_id,school_id,branch_id,document_number,original_file_name,stored_file_name,extension,mime_type,size_bytes,sha256,storage_provider,blob_data,category,document_type,title,status,is_confidential,uploaded_by)
-        VALUES(@DocumentId,@TenantId,@SchoolId,@BranchId,@DocumentNumber,@OriginalFileName,@StoredFileName,@Extension,@MimeType,@SizeBytes,@Sha256,'DATABASE',@BlobData,@Category,@DocumentType,@Title,'ACTIVE',@IsConfidential,@UploadedBy);
-        INSERT INTO document.document_link(document_link_id,tenant_id,document_id,entity_type,entity_id,purpose,is_primary)
-        VALUES(@LinkId,@TenantId,@DocumentId,@EntityType,@EntityId,@Purpose,@IsPrimary);
-        """;
-        await using var connection = await factory.OpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, new {
-            DocumentId=documentId, LinkId=linkId, TenantId=resolvedTenant.Value, SchoolId=schoolId, BranchId=branchId,
-            DocumentNumber=documentNumber, OriginalFileName=Path.GetFileName(file.FileName), StoredFileName=$"{documentId:N}{extension}", Extension=extension,
-            MimeType=string.IsNullOrWhiteSpace(file.ContentType)?"application/octet-stream":file.ContentType, SizeBytes=file.Length, Sha256=checksum,
-            BlobData=bytes, Category=category, DocumentType=documentType, Title=(string?)form["title"], IsConfidential=bool.TryParse(form["isConfidential"],out var c)&&c,
-            UploadedBy=tenantScope.UserId, EntityType=entityType.ToUpperInvariant(), EntityId=entityId, Purpose=purpose.ToUpperInvariant(), IsPrimary=bool.TryParse(form["isPrimary"],out var p)&&p
-        }, cancellationToken:ct));
-        await CreateTypedDocumentLinkAsync(connection, resolvedTenant.Value, entityType, entityId, documentId, documentType, ct);
+        var originalFileName = Path.GetFileName(file.FileName);
+        var storedFileName = $"{documentId:N}{extension}";
+        var mimeType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType;
+        var title = (string?)form["title"];
+        var isConfidential = bool.TryParse(form["isConfidential"], out var confidential) && confidential;
+        var uploadedBy = tenantScope.UserId;
+        var normalizedEntityType = entityType.ToUpperInvariant();
+        var normalizedPurpose = purpose.ToUpperInvariant();
+        var isPrimary = bool.TryParse(form["isPrimary"], out var primary) && primary;
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO document.document(document_id,tenant_id,school_id,branch_id,document_number,original_file_name,stored_file_name,extension,mime_type,size_bytes,sha256,storage_provider,blob_data,category,document_type,title,status,is_confidential,uploaded_by)
+            VALUES({documentId},{resolvedTenant.Value},{schoolId},{branchId},{documentNumber},{originalFileName},{storedFileName},{extension},{mimeType},{file.Length},{checksum},'DATABASE',{bytes},{category},{documentType},{title},'ACTIVE',{isConfidential},{uploadedBy});
+            """, ct);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO document.document_link(document_link_id,tenant_id,document_id,entity_type,entity_id,purpose,is_primary)
+            VALUES({linkId},{resolvedTenant.Value},{documentId},{normalizedEntityType},{entityId},{normalizedPurpose},{isPrimary});
+            """, ct);
+        await CreateTypedDocumentLinkAsync(dbContext, resolvedTenant.Value, entityType, entityId, documentId, documentType, ct);
+        await transaction.CommitAsync(ct);
         return Results.Created($"/api/documents/files/{documentId}", new { documentNumber, fileName=file.FileName, file.Length, category, documentType });
     }
 
@@ -99,10 +106,11 @@ public static class DocumentManagementEndpoints
         await using var c=await factory.OpenConnectionAsync(ct); return Results.Ok(await c.QueryAsync(new CommandDefinition(sql,new{TenantId=resolved.Value,EntityType=entityType.ToUpperInvariant(),EntityId=entityId},cancellationToken:ct)));
     }
 
-    private static async Task<IResult> ArchiveAsync(Guid documentId, Guid? tenantId, ITenantScope scope, IDbConnectionFactory factory, CancellationToken ct)
+    private static async Task<IResult> ArchiveAsync(Guid documentId, Guid? tenantId, ITenantScope scope, DocumentsDbContext dbContext, CancellationToken ct)
     {
-        var resolved=scope.Resolve(tenantId); if(!resolved.HasValue)return Results.BadRequest(); await using var c=await factory.OpenConnectionAsync(ct);
-        var n=await c.ExecuteAsync(new CommandDefinition("UPDATE document.document SET status='ARCHIVED',updated_at=now(),row_version=row_version+1 WHERE tenant_id=@TenantId AND document_id=@DocumentId",new{TenantId=resolved.Value,DocumentId=documentId},cancellationToken:ct)); return n==0?Results.NotFound():Results.NoContent();
+        var resolved=scope.Resolve(tenantId); if(!resolved.HasValue)return Results.BadRequest();
+        var n=await dbContext.Database.ExecuteSqlInterpolatedAsync($"UPDATE document.document SET status='ARCHIVED',updated_at=now(),row_version=row_version+1 WHERE tenant_id={resolved.Value} AND document_id={documentId}", ct);
+        return n==0?Results.NotFound():Results.NoContent();
     }
     private static async Task<IResult> RequiredDocumentsAsync(string actorType, string? staffType, Guid? tenantId, ITenantScope scope, IDbConnectionFactory factory, CancellationToken ct)
     {
@@ -148,23 +156,23 @@ public static class DocumentManagementEndpoints
         return Results.Ok(new { compliant = rows.All(x => (bool)x.Satisfied), requirements = rows });
     }
 
-    private static async Task CreateTypedDocumentLinkAsync(System.Data.Common.DbConnection connection, Guid tenantId, string entityType, Guid entityId, Guid documentId, string documentType, CancellationToken ct)
+    private static async Task CreateTypedDocumentLinkAsync(DocumentsDbContext dbContext, Guid tenantId, string entityType, Guid entityId, Guid documentId, string documentType, CancellationToken ct)
     {
         var type = entityType.Trim().ToUpperInvariant();
-        string? sql = type switch
+        var table = type switch
         {
-            "TENANT" => "INSERT INTO document.tenant_document(tenant_id,document_id) VALUES(@TenantId,@DocumentId) ON CONFLICT DO NOTHING",
-            "STUDENT" => "INSERT INTO document.student_document(tenant_id,student_id,document_id) VALUES(@TenantId,@EntityId,@DocumentId) ON CONFLICT DO NOTHING",
-            "TEACHER" => "INSERT INTO document.teacher_document(tenant_id,teacher_id,document_id) VALUES(@TenantId,@EntityId,@DocumentId) ON CONFLICT DO NOTHING",
-            "ADMIN_OFFICER" => "INSERT INTO document.admin_officer_document(tenant_id,employee_id,document_id) VALUES(@TenantId,@EntityId,@DocumentId) ON CONFLICT DO NOTHING",
-            "EMPLOYEE" or "STAFF" => "INSERT INTO document.staff_document(tenant_id,employee_id,document_id) VALUES(@TenantId,@EntityId,@DocumentId) ON CONFLICT DO NOTHING",
-            "DRIVER" => "INSERT INTO document.driver_document(tenant_id,driver_id,document_id) VALUES(@TenantId,@EntityId,@DocumentId) ON CONFLICT DO NOTHING",
-            "GUARDIAN" or "PARENT" => "INSERT INTO document.guardian_document(tenant_id,guardian_id,document_id) VALUES(@TenantId,@EntityId,@DocumentId) ON CONFLICT DO NOTHING",
-            "CAMPUS" or "BRANCH" => "INSERT INTO document.campus_document(tenant_id,campus_id,document_id) VALUES(@TenantId,@EntityId,@DocumentId) ON CONFLICT DO NOTHING",
-            _ => null
+            "TENANT" => "tenant_document", "STUDENT" => "student_document", "TEACHER" => "teacher_document",
+            "ADMIN_OFFICER" => "admin_officer_document", "EMPLOYEE" or "STAFF" => "staff_document",
+            "DRIVER" => "driver_document", "GUARDIAN" or "PARENT" => "guardian_document", "CAMPUS" or "BRANCH" => "campus_document", _ => null
         };
-        if (sql is not null)
-            await connection.ExecuteAsync(new CommandDefinition(sql, new { TenantId=tenantId, EntityId=entityId, DocumentId=documentId, DocumentType=documentType }, cancellationToken:ct));
+        if (table is null) return;
+        var entityColumn = type switch
+        {
+            "TENANT" => "tenant_id", "STUDENT" => "student_id", "TEACHER" => "teacher_id", "ADMIN_OFFICER" => "employee_id",
+            "EMPLOYEE" or "STAFF" => "employee_id", "DRIVER" => "driver_id", "GUARDIAN" or "PARENT" => "guardian_id", "CAMPUS" or "BRANCH" => "campus_id", _ => "entity_id"
+        };
+        var sql = $"INSERT INTO document.{table}(tenant_id,{entityColumn},document_id) VALUES ({{0}},{{1}},{{2}}) ON CONFLICT DO NOTHING";
+        await dbContext.Database.ExecuteSqlRawAsync(sql, new object[] { tenantId, entityId, documentId }, ct);
     }
 
     private static string Clean(string value, string name) => string.IsNullOrWhiteSpace(value) ? throw new BadHttpRequestException($"{name} is required.") : value.Trim();

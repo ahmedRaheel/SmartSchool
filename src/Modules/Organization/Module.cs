@@ -30,17 +30,16 @@ public static class Module
             serviceProvider.GetRequiredService<OrganizationDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<BranchPolicyBranchPolicyReadData>();
-        services.AddScoped<CreateCampusBranchPolicyWriteData>();
-        services.AddScoped<CreateCampusCampusWriteData>();
-        services.AddScoped<CreateCampusSchoolReadData>();
-        services.AddScoped<GetCampusByIdCampusReadData>();
-        services.AddScoped<UpdateCampusBranchPolicyWriteData>();
-        services.AddScoped<UpdateCampusCampusReadData>();
-        services.AddScoped<UpdateCampusCampusWriteData>();
-        services.AddScoped<UpdateCampusSchoolReadData>();
-        services.AddScoped<UpdateSchoolSchoolReadData>();
-        services.AddScoped<UpdateSchoolSchoolWriteData>();
+        services.AddScoped<BranchPolicyBranchPolicyQuery>();
+        services.AddScoped<CreateCampusBranchPolicyCommand>();
+        services.AddScoped<CreateCampusCampusCommand>();
+        services.AddScoped<CreateCampusSchoolQuery>();
+        services.AddScoped<UpdateCampusBranchPolicyCommand>();
+        services.AddScoped<UpdateCampusCampusQuery>();
+        services.AddScoped<UpdateCampusCampusCommand>();
+        services.AddScoped<UpdateCampusSchoolQuery>();
+        services.AddScoped<UpdateSchoolSchoolQuery>();
+        services.AddScoped<UpdateSchoolSchoolCommand>();
         return services;
     }
 

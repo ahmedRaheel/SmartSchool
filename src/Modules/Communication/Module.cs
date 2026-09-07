@@ -27,7 +27,6 @@ public static class Module
             serviceProvider.GetRequiredService<CommunicationDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<GetNotificationByIdNotificationReadData>();
         services.AddSignalR();
         return services;
     }

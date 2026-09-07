@@ -34,14 +34,14 @@ public static class UpdateCampus
         }
     }
 
-    public sealed class Handler(ITenantScope tenantScope, UpdateCampusCampusReadData query, UpdateCampusCampusWriteData command, UpdateCampusSchoolReadData schoolQuery, UpdateCampusBranchPolicyWriteData policyCommand) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(ITenantScope tenantScope, UpdateCampusCampusCommand command, UpdateCampusSchoolQuery schoolQuery, UpdateCampusBranchPolicyCommand policyCommand) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
             var tenantId = tenantScope.Resolve(request.TenantId);
             if (!tenantId.HasValue)
                 return Result<Response>.Failure(Error.Validation("Tenant context is required."));
-            var campus = await query.GetByIdAsync(tenantId.Value, request.CampusId, cancellationToken);
+            var campus = await command.GetByIdAsync(tenantId.Value, request.CampusId, cancellationToken);
             if (campus is null)
                 return Result<Response>.Failure(Error.NotFound("Branch was not found."));
             if (await schoolQuery.GetByIdAsync(tenantId.Value, request.SchoolId, cancellationToken) is null)
@@ -70,15 +70,17 @@ public static class UpdateCampus
 /// <summary>
 /// Feature-owned data access for UpdateCampus. Do not share across slices.
 /// </summary>
-public sealed class UpdateCampusSchoolReadData(IDbConnectionFactory connectionFactory)
+public sealed class UpdateCampusSchoolQuery(IDbConnectionFactory connectionFactory)
 {
-    public async Task<SchoolEntity?> GetByIdAsync(
+    public sealed record SchoolRow(Guid Id);
+
+    public async Task<SchoolRow?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT *
+            SELECT school_id AS "Id"
             FROM org.school
             WHERE tenant_id = @TenantId
               AND school_id = @Id
@@ -88,7 +90,7 @@ public sealed class UpdateCampusSchoolReadData(IDbConnectionFactory connectionFa
         await using var connection =
             await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
-        return await connection.QuerySingleOrDefaultAsync<SchoolEntity>(
+        return await connection.QuerySingleOrDefaultAsync<SchoolRow>(
             new CommandDefinition(
                 sql,
                 new
@@ -103,7 +105,7 @@ public sealed class UpdateCampusSchoolReadData(IDbConnectionFactory connectionFa
 /// <summary>
 /// Feature-owned data access for UpdateCampus. Do not share across slices.
 /// </summary>
-public sealed class UpdateCampusBranchPolicyWriteData(IDbConnectionFactory connectionFactory)
+public sealed class UpdateCampusBranchPolicyCommand(IDbConnectionFactory connectionFactory, OrganizationDbContext dbContext)
 {
     public async Task<bool> GenderTypeExistsAsync(Guid genderTypeId, CancellationToken cancellationToken)
     {
@@ -125,13 +127,14 @@ public sealed class UpdateCampusBranchPolicyWriteData(IDbConnectionFactory conne
 
     public async Task SetEducationLevelsAsync(Guid tenantId, Guid branchId, IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
     {
-        const string deleteSql = "DELETE FROM org.campus_education_level WHERE tenant_id=@TenantId AND campus_id=@CampusId;";
-        const string insertSql = "INSERT INTO org.campus_education_level(tenant_id, campus_id, education_level_id) VALUES(@TenantId, @CampusId, @EducationLevelId);";
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
-        await connection.ExecuteAsync(new CommandDefinition(deleteSql, new { TenantId = tenantId, CampusId = branchId }, transaction, cancellationToken: cancellationToken));
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"DELETE FROM org.campus_education_level WHERE tenant_id={tenantId} AND campus_id={branchId};", cancellationToken);
         foreach (var levelId in educationLevelIds.Distinct())
-            await connection.ExecuteAsync(new CommandDefinition(insertSql, new { TenantId = tenantId, CampusId = branchId, EducationLevelId = levelId }, transaction, cancellationToken: cancellationToken));
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"INSERT INTO org.campus_education_level(tenant_id, campus_id, education_level_id) VALUES({tenantId}, {branchId}, {levelId});", cancellationToken);
+        }
         await transaction.CommitAsync(cancellationToken);
     }
 }
@@ -139,27 +142,17 @@ public sealed class UpdateCampusBranchPolicyWriteData(IDbConnectionFactory conne
 /// <summary>
 /// Feature-owned data access for UpdateCampus. Do not share across slices.
 /// </summary>
-public sealed class UpdateCampusCampusReadData(IOrganizationDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
-{
-    public Task<CampusEntity?> GetByIdAsync(
-        Guid? tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Campuses
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id,
-                cancellationToken);
-    }
-}
-
 /// <summary>
 /// Feature-owned data access for UpdateCampus. Do not share across slices.
 /// </summary>
-public sealed class UpdateCampusCampusWriteData(IOrganizationDbContext dbContext)
+public sealed class UpdateCampusCampusCommand(IOrganizationDbContext dbContext)
 {
+    public Task<CampusEntity?> GetByIdAsync(Guid? tenantId, Guid id, CancellationToken cancellationToken)
+    {
+        return dbContext.Campuses.SingleOrDefaultAsync(
+            entity => (!tenantId.HasValue || entity.TenantId == tenantId.Value) && entity.CampusId == id, cancellationToken);
+    }
+
 
     public async Task UpdateAsync(
         CampusEntity entity,

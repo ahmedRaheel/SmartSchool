@@ -15,7 +15,7 @@ public static class BranchPolicyEndpoints
     public sealed record PolicyResponse(Guid BranchGenderTypeId, string GenderCode, IReadOnlyCollection<LookupResponse> EducationLevels);
 
     public sealed record GetLookupsRequest(bool GenderTypes) : IRequest<Result<IReadOnlyCollection<LookupResponse>>>;
-    public sealed class GetLookupsHandler(BranchPolicyBranchPolicyReadData query) : IRequestHandler<GetLookupsRequest, Result<IReadOnlyCollection<LookupResponse>>>
+    public sealed class GetLookupsHandler(BranchPolicyBranchPolicyQuery query) : IRequestHandler<GetLookupsRequest, Result<IReadOnlyCollection<LookupResponse>>>
     {
         public async Task<Result<IReadOnlyCollection<LookupResponse>>> HandleAsync(GetLookupsRequest request, CancellationToken cancellationToken)
         {
@@ -27,7 +27,7 @@ public static class BranchPolicyEndpoints
     }
 
     public sealed record GetPolicyRequest(Guid? TenantId, Guid BranchId) : IRequest<Result<PolicyResponse>>;
-    public sealed class GetPolicyHandler(ITenantScope tenantScope, BranchPolicyBranchPolicyReadData query) : IRequestHandler<GetPolicyRequest, Result<PolicyResponse>>
+    public sealed class GetPolicyHandler(ITenantScope tenantScope, BranchPolicyBranchPolicyQuery query) : IRequestHandler<GetPolicyRequest, Result<PolicyResponse>>
     {
         public async Task<Result<PolicyResponse>> HandleAsync(GetPolicyRequest request, CancellationToken cancellationToken)
         {
@@ -56,7 +56,7 @@ public static class BranchPolicyEndpoints
 /// <summary>
 /// Feature-owned data access for BranchPolicy. Do not share across slices.
 /// </summary>
-public sealed class BranchPolicyBranchPolicyReadData(IDbConnectionFactory connectionFactory)
+public sealed class BranchPolicyBranchPolicyQuery(IDbConnectionFactory connectionFactory)
 {
     public Task<IReadOnlyCollection<LookupItem>> GetGenderTypesAsync(CancellationToken cancellationToken) =>
         GetLookupsAsync("SELECT branch_gender_type_id AS Id, code AS Code, name AS Name FROM reference.branch_gender_type WHERE is_active = TRUE ORDER BY sort_order, name;", cancellationToken);

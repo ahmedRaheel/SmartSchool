@@ -32,8 +32,8 @@ public static class OperationalAiCoreEndpoints
         return e;
     }
 
-    private static async Task<IResult> IndexAsync(IndexKnowledgeRequest r,ITenantScope scope,OperationalAiCoreEndpointsKnowledgeChunkWriteData command,
-        IDbConnectionFactory db,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
+    private static async Task<IResult> IndexAsync(IndexKnowledgeRequest r,ITenantScope scope,OperationalAiCoreEndpointsKnowledgeChunkCommand command,
+        IDbConnectionFactory db,AICoreDbContext dbContext,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
     {
         var tenant = scope.IsSuperAdmin? r.TenantId:
                      scope.Resolve(r.TenantId);
@@ -45,33 +45,18 @@ public static class OperationalAiCoreEndpoints
         var vector = await ollama.EmbedAsync(r.Content,ct);
         var entity= KnowledgeChunkEntity.Create(tenant.Value,r.Code,r.Name,JsonSerializer.Serialize(new{r.CollectionId,r.DocumentId,r.Content,r.Tags}));
         await command.AddAsync(entity,ct);
-        const string sql="""
-
-            INSERT INTO ai_core.rag_knowledge_chunk(id,
-                       tenant_id,
-                       collection,document_name,
-                       content,embedding,
-                       created_at,is_active
-                       )
-            VALUES(
-                 @Id,
-                 @Tenant,
-                 @Collection,
-                 @Name,
-                 @Content,
-                 CAST(@Vector AS vector),
-                 CURRENT_TIMESTAMP,TRUE)
-                 ON CONFLICT (id) DO UPDATE SET content=EXCLUDED.content,embedding=EXCLUDED.embedding;
-
-            """;
-        await using var cn=await db.OpenConnectionAsync(ct);
-        await cn.ExecuteAsync(new CommandDefinition(sql,new{Id=entity.KnowledgeChunkId,Tenant=tenant.Value,Collection=r.CollectionId.ToString(),r.Name,r.Content,Vector=Literal(vector)},cancellationToken:ct));
+        var vectorLiteral = Literal(vector);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO ai_core.rag_knowledge_chunk(id, tenant_id, collection, document_name, content, embedding, created_at, is_active)
+            VALUES({entity.KnowledgeChunkId}, {tenant.Value}, {r.CollectionId.ToString()}, {r.Name}, {r.Content}, CAST({vectorLiteral} AS vector), CURRENT_TIMESTAMP, TRUE)
+            ON CONFLICT (id) DO UPDATE SET content=EXCLUDED.content, embedding=EXCLUDED.embedding;
+            """, ct);
         await events.PublishAsync(KafkaTopics.RagDocumentIngestionRequested,new{tenantId=tenant.Value,chunkId=entity.KnowledgeChunkId,r.CollectionId,r.DocumentId},ct);
         return Results.Created($"/api/aicore/knowledge-chunk/{entity.KnowledgeChunkId}",new{Id=entity.KnowledgeChunkId,TenantId=tenant.Value,indexed=true});
     }
 
     private static async Task<IResult> ExecuteAsync(ExecuteRequest r,ITenantScope scope,IDbConnectionFactory db,
-        IOllamaClient ollama,IOptionsMonitor<OllamaRagOptions> options,OperationalAiCoreEndpointsAiExecutionLogWriteData logs,IIntegrationEventPublisher events,TimeProvider timeProvider,CancellationToken ct)
+        IOllamaClient ollama,IOptionsMonitor<OllamaRagOptions> options,OperationalAiCoreEndpointsAiExecutionLogCommand logs,IIntegrationEventPublisher events,TimeProvider timeProvider,CancellationToken ct)
     {
         var tenant = scope.IsSuperAdmin ? r.TenantId:scope.Resolve(r.TenantId);
         if(!tenant.HasValue)
@@ -124,7 +109,7 @@ public static class OperationalAiCoreEndpoints
 /// <summary>
 /// Feature-owned data access for OperationalAiCoreEndpoints. Do not share across slices.
 /// </summary>
-public sealed class OperationalAiCoreEndpointsKnowledgeChunkWriteData(IAICoreDbContext dbContext)
+public sealed class OperationalAiCoreEndpointsKnowledgeChunkCommand(IAICoreDbContext dbContext)
 {
     public async Task AddAsync(
         KnowledgeChunkEntity entity,
@@ -140,7 +125,7 @@ public sealed class OperationalAiCoreEndpointsKnowledgeChunkWriteData(IAICoreDbC
 /// <summary>
 /// Feature-owned data access for OperationalAiCoreEndpoints. Do not share across slices.
 /// </summary>
-public sealed class OperationalAiCoreEndpointsAiExecutionLogWriteData(IAICoreDbContext dbContext)
+public sealed class OperationalAiCoreEndpointsAiExecutionLogCommand(IAICoreDbContext dbContext)
 {
     public async Task AddAsync(
         AiExecutionLogEntity entity,

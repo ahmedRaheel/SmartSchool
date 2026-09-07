@@ -30,8 +30,8 @@ public static class LinkStudentGuardian
     }
 
     public sealed class Handler(
-        LinkStudentGuardianStudentOnboardingReadData query,
-        LinkStudentGuardianStudentOnboardingWriteData command)
+        LinkStudentGuardianStudentOnboardingQuery query,
+        LinkStudentGuardianStudentOnboardingCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -85,7 +85,7 @@ public static class LinkStudentGuardian
 /// <summary>
 /// Feature-owned data access for LinkStudentGuardian. Do not share across slices.
 /// </summary>
-public sealed class LinkStudentGuardianStudentOnboardingWriteData(IStudentsDbContext dbContext)
+public sealed class LinkStudentGuardianStudentOnboardingCommand(IStudentsDbContext dbContext)
 {
 
     public async Task AddGuardianLinkAsync(StudentGuardianEntity link, CancellationToken cancellationToken)
@@ -98,7 +98,7 @@ public sealed class LinkStudentGuardianStudentOnboardingWriteData(IStudentsDbCon
 /// <summary>
 /// Feature-owned data access for LinkStudentGuardian. Do not share across slices.
 /// </summary>
-public sealed class LinkStudentGuardianStudentOnboardingReadData(IDbConnectionFactory connectionFactory)
+public sealed class LinkStudentGuardianStudentOnboardingQuery(IDbConnectionFactory connectionFactory)
 {
 
     public async Task<bool> StudentAndGuardianBelongToTenantAsync(Guid tenantId, Guid studentId, Guid guardianId, CancellationToken cancellationToken)

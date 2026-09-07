@@ -36,7 +36,7 @@ public static class UpdateSchool
         }
     }
 
-    public sealed class Handler(UpdateSchoolSchoolReadData query, UpdateSchoolSchoolWriteData command) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(UpdateSchoolSchoolQuery query, UpdateSchoolSchoolCommand command) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
@@ -85,15 +85,17 @@ public static class UpdateSchool
 /// <summary>
 /// Feature-owned data access for UpdateSchool. Do not share across slices.
 /// </summary>
-public sealed class UpdateSchoolSchoolReadData(IDbConnectionFactory connectionFactory)
+public sealed class UpdateSchoolSchoolQuery(IDbConnectionFactory connectionFactory)
 {
-    public async Task<SchoolEntity?> GetByIdAsync(
+    public sealed record SchoolRow(Guid Id, string Code, string Name);
+
+    public async Task<SchoolRow?> GetByIdAsync(
         Guid tenantId,
         Guid id,
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT *
+            SELECT school_id AS "Id", code AS "Code", name AS "Name"
             FROM org.school
             WHERE tenant_id = @TenantId
               AND school_id = @Id
@@ -103,7 +105,7 @@ public sealed class UpdateSchoolSchoolReadData(IDbConnectionFactory connectionFa
         await using var connection =
             await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
-        return await connection.QuerySingleOrDefaultAsync<SchoolEntity>(
+        return await connection.QuerySingleOrDefaultAsync<SchoolRow>(
             new CommandDefinition(
                 sql,
                 new
@@ -118,7 +120,7 @@ public sealed class UpdateSchoolSchoolReadData(IDbConnectionFactory connectionFa
 /// <summary>
 /// Feature-owned data access for UpdateSchool. Do not share across slices.
 /// </summary>
-public sealed class UpdateSchoolSchoolWriteData(IOrganizationDbContext dbContext)
+public sealed class UpdateSchoolSchoolCommand(IOrganizationDbContext dbContext)
 {
 
     public async Task UpdateAsync(

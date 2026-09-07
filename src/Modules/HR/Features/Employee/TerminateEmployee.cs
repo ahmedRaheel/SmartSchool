@@ -17,12 +17,12 @@ public static class TerminateEmployee
     public sealed record Request(Guid TenantId, Guid EmployeeId, string Reason) : IRequest<Result<Response>>;
     public sealed record Response(Guid EmployeeId, string Status);
 
-    public sealed class Handler(TerminateEmployeeEmployeeReadData query, TerminateEmployeeEmployeeWriteData command, IIdentityAccountService accounts)
+    public sealed class Handler(TerminateEmployeeEmployeeQuery query, TerminateEmployeeEmployeeCommand command, IIdentityAccountService accounts)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var employee = await query.GetByIdAsync(request.TenantId, request.EmployeeId, cancellationToken);
+            var employee = await command.GetByIdAsync(request.TenantId, request.EmployeeId, cancellationToken);
             if (employee is null) return Result<Response>.Failure(Error.NotFound("Employee was not found."));
             if (employee.UserId.HasValue) await accounts.DeactivateAccountAsync(employee.UserId.Value, cancellationToken);
             employee.Terminate();
@@ -45,8 +45,14 @@ public static class TerminateEmployee
 /// <summary>
 /// Feature-owned data access for TerminateEmployee. Do not share across slices.
 /// </summary>
-public sealed class TerminateEmployeeEmployeeWriteData(IHRDbContext dbContext)
+public sealed class TerminateEmployeeEmployeeCommand(IHRDbContext dbContext)
 {
+    public Task<EmployeeEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+    {
+        return dbContext.Employees.SingleOrDefaultAsync(
+            entity => entity.TenantId == tenantId && entity.EmployeeId == id, cancellationToken);
+    }
+
 
     public async Task UpdateAsync(
         EmployeeEntity entity,
@@ -62,18 +68,6 @@ public sealed class TerminateEmployeeEmployeeWriteData(IHRDbContext dbContext)
 /// <summary>
 /// Feature-owned data access for TerminateEmployee. Do not share across slices.
 /// </summary>
-public sealed class TerminateEmployeeEmployeeReadData(IHRDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
+public sealed class TerminateEmployeeEmployeeQuery(IDbConnectionFactory connectionFactory)
 {
-    public Task<EmployeeEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Employees
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.EmployeeId == id,
-                cancellationToken);
-    }
-}
+    

@@ -36,6 +36,7 @@ public static class DataPlatformServiceCollectionExtensions
             .Bind(configuration.GetSection(Options.AuthenticationOptions.SectionName))
             .ValidateOnStart();
 
+        services.AddScoped<AuditSaveChangesInterceptor>();
         AddPersistence(services, configuration);
         AddCaching(services, configuration);
         AddAuthentication(services, configuration);
@@ -82,8 +83,9 @@ public static class DataPlatformServiceCollectionExtensions
         var connectionString = configuration.GetConnectionString(
             persistenceOptions.ConnectionStringName);
 
-        services.AddDbContext<ApplicationDbContext>(dbContextOptions =>
+        services.AddDbContext<ApplicationDbContext>((serviceProvider, dbContextOptions) =>
         {
+            dbContextOptions.AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
             switch (persistenceOptions.Provider)
             {
                 case PersistenceProvider.Mock:

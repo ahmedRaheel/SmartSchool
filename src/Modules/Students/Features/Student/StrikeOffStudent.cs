@@ -17,12 +17,12 @@ public static class StrikeOffStudent
     public sealed record Request(Guid TenantId, Guid StudentId, string Reason) : IRequest<Result<Response>>;
     public sealed record Response(Guid StudentId, string Status);
 
-    public sealed class Handler(StrikeOffStudentStudentReadData query, StrikeOffStudentStudentWriteData command, IIdentityAccountService accounts)
+    public sealed class Handler(StrikeOffStudentStudentQuery query, StrikeOffStudentStudentCommand command, IIdentityAccountService accounts)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var student = await query.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
+            var student = await command.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
             if (student is null) return Result<Response>.Failure(Error.NotFound("Student was not found."));
             if (student.UserId.HasValue) await accounts.DeactivateAccountAsync(student.UserId.Value, cancellationToken);
             student.StrikeOff();
@@ -45,8 +45,14 @@ public static class StrikeOffStudent
 /// <summary>
 /// Feature-owned data access for StrikeOffStudent. Do not share across slices.
 /// </summary>
-public sealed class StrikeOffStudentStudentWriteData(IStudentsDbContext dbContext)
+public sealed class StrikeOffStudentStudentCommand(IStudentsDbContext dbContext)
 {
+    public Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+    {
+        return dbContext.Students.SingleOrDefaultAsync(
+            entity => entity.TenantId == tenantId && entity.StudentId == id, cancellationToken);
+    }
+
 
     public async Task UpdateAsync(
         StudentEntity entity,
@@ -62,18 +68,6 @@ public sealed class StrikeOffStudentStudentWriteData(IStudentsDbContext dbContex
 /// <summary>
 /// Feature-owned data access for StrikeOffStudent. Do not share across slices.
 /// </summary>
-public sealed class StrikeOffStudentStudentReadData(IStudentsDbContext dbContext,
-    IDbConnectionFactory connectionFactory)
+public sealed class StrikeOffStudentStudentQuery(IDbConnectionFactory connectionFactory)
 {
-    public Task<StudentEntity?> GetByIdAsync(
-        Guid tenantId,
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        return dbContext.Students
-            .AsNoTracking()
-            .SingleOrDefaultAsync(
-                entity => entity.TenantId == tenantId && entity.StudentId == id,
-                cancellationToken);
-    }
-}
+    
