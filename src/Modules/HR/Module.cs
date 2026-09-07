@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SmartSchool.Modules.Learning.Persistence;
-using SmartSchool.Modules.HR.Persistence;
-using SmartSchool.Modules.HR.Persistence;
+
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
@@ -20,6 +18,7 @@ using SmartSchool.Modules.HR.Features.Position;
 using SmartSchool.Modules.HR.Features.Resume;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.HR.Persistence;
 
 namespace SmartSchool.Modules.HR;
 
@@ -36,7 +35,7 @@ public static class Module
         services.AddScoped<ApproveEmployeeEmployeeOnboardingQuery>();
         services.AddScoped<ApproveEmployeeEmployeeQuery>();
         services.AddScoped<ApproveEmployeeEmployeeCommand>();
-        services.AddScoped<TerminateEmployeeEmployeeQuery>();
+      
         services.AddScoped<TerminateEmployeeEmployeeCommand>();
         return services;
     }
@@ -146,10 +145,13 @@ public static class Module
     {
         var tenant = Tenant(scope, r.TenantId);
         if (!tenant.HasValue)
+        {
             return Results.BadRequest(new
             {
                 message = "Tenant is required."
             });
+        }
+
         var id = Guid.NewGuid();
         await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO lms.academic_assignment(academic_assignment_id,tenant_id,course_offering_id,class_section_id,teacher_employee_id,assignment_type_code,title,description,instructions,assigned_at,due_at,total_marks,allow_late_submission,max_attempts,status)
@@ -164,10 +166,13 @@ public static class Module
     {
         var tenant = Tenant(scope, r.TenantId);
         if (!tenant.HasValue)
+        {
             return Results.BadRequest(new
             {
                 message = "Tenant is required."
             });
+        }
+
         var n = await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
             UPDATE lms.student_assignment_submission s SET marks_obtained={r.Marks},teacher_feedback={r.Feedback},status='GRADED'
             FROM lms.academic_assignment a WHERE s.academic_assignment_id=a.academic_assignment_id AND s.submission_id={submissionId}
@@ -188,10 +193,13 @@ public static class Module
                 message = "Tenant is required."
             });
         if (r.ToDate < r.FromDate)
+        {
             return Results.BadRequest(new
             {
                 message = "ToDate must be on or after FromDate."
             });
+        }
+
         var id = Guid.NewGuid();
         await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO teacher.leave_request(leave_request_id,tenant_id,employee_id,leave_type,from_date,to_date,reason,status,created_at)
@@ -222,10 +230,13 @@ public static class Module
     private static async Task<IResult> Many(string sql, Guid employeeId, Guid? tenant, IDbConnectionFactory f, CancellationToken ct)
     {
         if (!tenant.HasValue)
+        {
             return Results.BadRequest(new
             {
                 message = "Tenant is required."
             });
+        }
+
         await using var c = await f.OpenConnectionAsync(ct);
         return Results.Ok(await c.QueryAsync(new CommandDefinition(sql, new
         {
