@@ -23,7 +23,10 @@ public static class GetPredictionEvidenceById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid StudentPerformancePredictionId,
+    string? StudentPerformancePredictionCode,
+    string? StudentPerformancePredictionName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +52,18 @@ public static class GetPredictionEvidenceById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        prediction_evidence_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM ai.prediction_evidence
+                        entity.prediction_evidence_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.student_performance_prediction_id AS "StudentPerformancePredictionId",
+                        p1.code AS "StudentPerformancePredictionCode",
+                        p1.name AS "StudentPerformancePredictionName"
+                    FROM ai.prediction_evidence AS entity
+                    LEFT JOIN ai.student_performance_prediction AS p1
+                        ON p1.student_performance_prediction_id = entity.student_performance_prediction_id
                     WHERE tenant_id = @TenantId
-                      AND prediction_evidence_id = @Id
+                      AND entity.prediction_evidence_id = @Id
                       AND is_active = TRUE;
                     """;
 

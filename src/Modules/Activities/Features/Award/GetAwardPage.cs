@@ -24,7 +24,10 @@ public static class GetAwardPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? GeneratedDocumentId,
+    string? GeneratedDocumentCode,
+    string? GeneratedDocumentName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +55,27 @@ public static class GetAwardPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM activity.student_award
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM activity.student_award AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    student_award_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM activity.student_award
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY student_award_id
+                    entity.tenant_id AS "TenantId",
+                    entity.student_award_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.generated_document_id AS "GeneratedDocumentId",
+                        p1.code AS "GeneratedDocumentCode",
+                        p1.name AS "GeneratedDocumentName"
+                    FROM activity.student_award AS entity
+                    LEFT JOIN document.generated_document AS p1
+                        ON p1.generated_document_id = entity.generated_document_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.student_award_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

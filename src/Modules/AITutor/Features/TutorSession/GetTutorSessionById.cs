@@ -23,7 +23,10 @@ public static class GetTutorSessionById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid TutorConversationId,
+    string? TutorConversationCode,
+    string? TutorConversationName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +52,18 @@ public static class GetTutorSessionById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        tutor_session_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM ai_tutor.tutor_session
+                        entity.tutor_session_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.tutor_conversation_id AS "TutorConversationId",
+                        p1.code AS "TutorConversationCode",
+                        p1.name AS "TutorConversationName"
+                    FROM ai_tutor.tutor_session AS entity
+                    LEFT JOIN ai_tutor.tutor_conversation AS p1
+                        ON p1.tutor_conversation_id = entity.tutor_conversation_id
                     WHERE tenant_id = @TenantId
-                      AND tutor_session_id = @Id
+                      AND entity.tutor_session_id = @Id
                       AND is_active = TRUE;
                     """;
 

@@ -24,7 +24,13 @@ public static class GetGeneratedQuizPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid SubjectId,
+    string? SubjectCode,
+    string? SubjectName,
+    Guid? TutorConversationId,
+    string? TutorConversationCode,
+    string? TutorConversationName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +58,32 @@ public static class GetGeneratedQuizPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM ai_tutor.generated_quiz
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM ai_tutor.generated_quiz AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    generated_quiz_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM ai_tutor.generated_quiz
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY generated_quiz_id
+                    entity.tenant_id AS "TenantId",
+                    entity.generated_quiz_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.subject_id AS "SubjectId",
+                        p1.code AS "SubjectCode",
+                        p1.name AS "SubjectName",
+                        p2.tutor_conversation_id AS "TutorConversationId",
+                        p2.code AS "TutorConversationCode",
+                        p2.name AS "TutorConversationName"
+                    FROM ai_tutor.generated_quiz AS entity
+                    LEFT JOIN academic.subject AS p1
+                        ON p1.subject_id = entity.subject_id
+                    LEFT JOIN ai_tutor.tutor_conversation AS p2
+                        ON p2.tutor_conversation_id = entity.tutor_conversation_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.generated_quiz_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

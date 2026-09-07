@@ -24,7 +24,22 @@ public static class GetClassSectionPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid AcademicYearId,
+    string? AcademicYearCode,
+    string? AcademicYearName,
+    Guid CampusId,
+    string? CampusCode,
+    string? CampusName,
+    Guid? RoomId,
+    string? RoomCode,
+    string? RoomName,
+    Guid SectionId,
+    string? SectionCode,
+    string? SectionName,
+    Guid GradeLevelId,
+    string? GradeLevelCode,
+    string? GradeLevelName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +67,47 @@ public static class GetClassSectionPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM academic.class_section
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM academic.class_section AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    class_section_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM academic.class_section
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY class_section_id
+                    entity.tenant_id AS "TenantId",
+                    entity.class_section_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.academic_year_id AS "AcademicYearId",
+                        p1.code AS "AcademicYearCode",
+                        p1.name AS "AcademicYearName",
+                        p2.campus_id AS "CampusId",
+                        p2.code AS "CampusCode",
+                        p2.name AS "CampusName",
+                        p3.room_id AS "RoomId",
+                        p3.code AS "RoomCode",
+                        p3.name AS "RoomName",
+                        p4.section_id AS "SectionId",
+                        p4.code AS "SectionCode",
+                        p4.name AS "SectionName",
+                        p5.grade_level_id AS "GradeLevelId",
+                        p5.code AS "GradeLevelCode",
+                        p5.name AS "GradeLevelName"
+                    FROM academic.class_section AS entity
+                    LEFT JOIN academic.academic_year AS p1
+                        ON p1.academic_year_id = entity.academic_year_id
+                    LEFT JOIN org.campus AS p2
+                        ON p2.campus_id = entity.campus_id
+                    LEFT JOIN org.room AS p3
+                        ON p3.room_id = entity.room_id
+                    LEFT JOIN academic.section AS p4
+                        ON p4.section_id = entity.section_id
+                    LEFT JOIN academic.grade_level AS p5
+                        ON p5.grade_level_id = entity.grade_level_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.class_section_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

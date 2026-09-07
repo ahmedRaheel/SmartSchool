@@ -23,7 +23,10 @@ public static class GetTermById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid AcademicYearId,
+    string? AcademicYearCode,
+    string? AcademicYearName);
 
     public sealed record Query(
         Guid TenantId,
@@ -48,15 +51,20 @@ public static class GetTermById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        term_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM academic.term
-                    WHERE tenant_id = @TenantId
-                      AND term_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.term_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.academic_year_id AS "AcademicYearId",
+                        p1.code AS "AcademicYearCode",
+                        p1.name AS "AcademicYearName"
+                    FROM academic.term AS entity
+                    LEFT JOIN academic.academic_year AS p1
+                        ON p1.academic_year_id = entity.academic_year_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.term_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

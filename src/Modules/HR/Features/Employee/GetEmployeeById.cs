@@ -28,7 +28,13 @@ public static class GetEmployeeById
         DateOnly HireDate,
         string EmploymentTypeCode,
         string Status,
-        Guid? SourceCandidateId);
+        Guid? SourceCandidateId,
+    Guid? SchoolId,
+    string? SchoolCode,
+    string? SchoolName,
+    Guid? DepartmentId,
+    string? DepartmentCode,
+    string? DepartmentName);
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;    public interface IGetEmployeeByIdQuery
     {
@@ -44,11 +50,21 @@ public static class GetEmployeeById
         public async Task<Result<Response>> ExecuteAsync(Query request, CancellationToken cancellationToken)
         {
             const string sql = """
-                SELECT tenant_id AS "TenantId", employee_id AS "Id", user_id AS "UserId", employee_number AS "EmployeeNumber", first_name AS "FirstName", last_name AS "LastName", cnic_number AS "CnicNumber", photo AS "Photo", photo_content_type AS "PhotoContentType", photo_file_name AS "PhotoFileName", email AS "Email", phone AS "Phone", hire_date AS "HireDate", employment_type_code AS "EmploymentTypeCode", status AS "Status", source_candidate_id AS "SourceCandidateId"
-                FROM hr.employee
-                WHERE tenant_id = @TenantId
-                  AND employee_id = @Id
-                  AND is_active = TRUE;
+                SELECT entity.tenant_id AS "TenantId", entity.employee_id AS "Id", entity.user_id AS "UserId", entity.employee_number AS "EmployeeNumber", entity.first_name AS "FirstName", entity.last_name AS "LastName", entity.cnic_number AS "CnicNumber", entity.photo AS "Photo", entity.photo_content_type AS "PhotoContentType", entity.photo_file_name AS "PhotoFileName", entity.email AS "Email", entity.phone AS "Phone", entity.hire_date AS "HireDate", entity.employment_type_code AS "EmploymentTypeCode", entity.status AS "Status", entity.source_candidate_id AS "SourceCandidateId",
+                        p1.school_id AS "SchoolId",
+                        p1.code AS "SchoolCode",
+                        p1.name AS "SchoolName",
+                        p2.department_id AS "DepartmentId",
+                        p2.code AS "DepartmentCode",
+                        p2.name AS "DepartmentName"
+                FROM hr.employee AS entity
+                    LEFT JOIN org.school AS p1
+                        ON p1.school_id = entity.school_id
+                    LEFT JOIN org.department AS p2
+                        ON p2.department_id = entity.department_id
+                WHERE entity.tenant_id = @TenantId
+                  AND entity.employee_id = @Id
+                  AND entity.is_active = TRUE;
                 """;
 
             await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);

@@ -24,7 +24,10 @@ public static class GetQuizAttemptPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid GeneratedQuizId,
+    string? GeneratedQuizCode,
+    string? GeneratedQuizName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,7 +55,7 @@ public static class GetQuizAttemptPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM ai_tutor.student_quiz_attempt
+                    FROM ai_tutor.student_quiz_attempt AS entity
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -60,14 +63,19 @@ public static class GetQuizAttemptPage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
-                    student_quiz_attempt_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM ai_tutor.student_quiz_attempt
+                    entity.student_quiz_attempt_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.generated_quiz_id AS "GeneratedQuizId",
+                        p1.code AS "GeneratedQuizCode",
+                        p1.name AS "GeneratedQuizName"
+                    FROM ai_tutor.student_quiz_attempt AS entity
+                    LEFT JOIN ai_tutor.generated_quiz AS p1
+                        ON p1.generated_quiz_id = entity.generated_quiz_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                    ORDER BY student_quiz_attempt_id
+                    ORDER BY entity.student_quiz_attempt_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

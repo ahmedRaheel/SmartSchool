@@ -24,7 +24,10 @@ public static class GetLoanPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid BookCopyId,
+    string? BookCopyCode,
+    string? BookCopyName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,7 +55,7 @@ public static class GetLoanPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM library.book_loan
+                    FROM library.book_loan AS entity
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -60,14 +63,19 @@ public static class GetLoanPage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
-                    book_loan_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM library.book_loan
+                    entity.book_loan_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.book_copy_id AS "BookCopyId",
+                        p1.code AS "BookCopyCode",
+                        p1.name AS "BookCopyName"
+                    FROM library.book_loan AS entity
+                    LEFT JOIN library.book_copy AS p1
+                        ON p1.book_copy_id = entity.book_copy_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                    ORDER BY book_loan_id
+                    ORDER BY entity.book_loan_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

@@ -23,7 +23,10 @@ public static class GetKnowledgeChunkById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid KnowledgeDocumentId,
+    string? KnowledgeDocumentCode,
+    string? KnowledgeDocumentName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +52,18 @@ public static class GetKnowledgeChunkById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        knowledge_chunk_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM ai_core.knowledge_chunk
+                        entity.knowledge_chunk_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.knowledge_document_id AS "KnowledgeDocumentId",
+                        p1.code AS "KnowledgeDocumentCode",
+                        p1.name AS "KnowledgeDocumentName"
+                    FROM ai_core.knowledge_chunk AS entity
+                    LEFT JOIN ai_core.knowledge_document AS p1
+                        ON p1.knowledge_document_id = entity.knowledge_document_id
                     WHERE tenant_id = @TenantId
-                      AND knowledge_chunk_id = @Id
+                      AND entity.knowledge_chunk_id = @Id
                       AND is_active = TRUE;
                     """;
 

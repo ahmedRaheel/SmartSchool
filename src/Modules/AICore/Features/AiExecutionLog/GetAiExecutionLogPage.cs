@@ -24,7 +24,10 @@ public static class GetAiExecutionLogPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? ModelConfigurationId,
+    string? ModelConfigurationCode,
+    string? ModelConfigurationName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +55,27 @@ public static class GetAiExecutionLogPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM ai_core.ai_execution_log
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM ai_core.ai_execution_log AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    ai_execution_log_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM ai_core.ai_execution_log
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY ai_execution_log_id
+                    entity.tenant_id AS "TenantId",
+                    entity.ai_execution_log_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.model_configuration_id AS "ModelConfigurationId",
+                        p1.code AS "ModelConfigurationCode",
+                        p1.name AS "ModelConfigurationName"
+                    FROM ai_core.ai_execution_log AS entity
+                    LEFT JOIN ai_core.model_configuration AS p1
+                        ON p1.model_configuration_id = entity.model_configuration_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.ai_execution_log_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

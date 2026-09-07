@@ -21,7 +21,10 @@ public static class GetStudentPage
         DateOnly? DateOfBirth,
         string? Gender,
         DateOnly? AdmissionDate,
-        string Status);
+        string Status,
+    Guid? SchoolId,
+    string? SchoolCode,
+    string? SchoolName);
 
     public sealed record Query(Guid TenantId, int Page = 1, int PageSize = 25)
         : IRequest<Result<PagedResult<Response>>>;
@@ -47,26 +50,31 @@ public static class GetStudentPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM student.student
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM student.student AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    student_id AS "Id",
-                    student_number AS "StudentNumber",
-                    first_name AS "FirstName",
-                    last_name AS "LastName",
-                    date_of_birth AS "DateOfBirth",
-                    gender AS "Gender",
-                    admission_date AS "AdmissionDate",
-                    status AS "Status"
-                    FROM student.student
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY student_id
+                    entity.tenant_id AS "TenantId",
+                    entity.student_id AS "Id",
+                    entity.student_number AS "StudentNumber",
+                    entity.first_name AS "FirstName",
+                    entity.last_name AS "LastName",
+                    entity.date_of_birth AS "DateOfBirth",
+                    entity.gender AS "Gender",
+                    entity.admission_date AS "AdmissionDate",
+                    entity.status AS "Status",
+                        p1.school_id AS "SchoolId",
+                        p1.code AS "SchoolCode",
+                        p1.name AS "SchoolName"
+                    FROM student.student AS entity
+                    LEFT JOIN org.school AS p1
+                        ON p1.school_id = entity.school_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.student_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

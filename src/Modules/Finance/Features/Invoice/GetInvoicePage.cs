@@ -24,7 +24,13 @@ public static class GetInvoicePage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? AcademicYearId,
+    string? AcademicYearCode,
+    string? AcademicYearName,
+    Guid? FeeTypeId,
+    string? FeeTypeCode,
+    string? FeeTypeName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +58,32 @@ public static class GetInvoicePage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM finance.student_invoice
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM finance.student_invoice AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    student_invoice_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM finance.student_invoice
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY student_invoice_id
+                    entity.tenant_id AS "TenantId",
+                    entity.student_invoice_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.academic_year_id AS "AcademicYearId",
+                        p1.code AS "AcademicYearCode",
+                        p1.name AS "AcademicYearName",
+                        p2.fee_type_id AS "FeeTypeId",
+                        p2.code AS "FeeTypeCode",
+                        p2.name AS "FeeTypeName"
+                    FROM finance.student_invoice AS entity
+                    LEFT JOIN academic.academic_year AS p1
+                        ON p1.academic_year_id = entity.academic_year_id
+                    LEFT JOIN finance.fee_type AS p2
+                        ON p2.fee_type_id = entity.fee_type_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.student_invoice_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

@@ -24,7 +24,10 @@ public static class GetStudentActivityPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid ActivityId,
+    string? ActivityCode,
+    string? ActivityName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,7 +55,7 @@ public static class GetStudentActivityPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM activity.student_activity
+                    FROM activity.student_activity AS entity
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -61,10 +64,15 @@ public static class GetStudentActivityPage
                     SELECT
                     tenant_id AS "TenantId",
                     id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM activity.student_activity
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.activity_id AS "ActivityId",
+                        p1.code AS "ActivityCode",
+                        p1.name AS "ActivityName"
+                    FROM activity.student_activity AS entity
+                    LEFT JOIN activity.activity AS p1
+                        ON p1.activity_id = entity.activity_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
                     ORDER BY id

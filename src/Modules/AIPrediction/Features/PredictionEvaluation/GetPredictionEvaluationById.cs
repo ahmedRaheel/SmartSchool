@@ -23,7 +23,13 @@ public static class GetPredictionEvaluationById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid StudentExamResultId,
+    string? StudentExamResultCode,
+    string? StudentExamResultName,
+    Guid StudentPerformancePredictionId,
+    string? StudentPerformancePredictionCode,
+    string? StudentPerformancePredictionName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +55,23 @@ public static class GetPredictionEvaluationById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        prediction_evaluation_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM ai.prediction_evaluation
+                        entity.prediction_evaluation_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.student_exam_result_id AS "StudentExamResultId",
+                        p1.code AS "StudentExamResultCode",
+                        p1.name AS "StudentExamResultName",
+                        p2.student_performance_prediction_id AS "StudentPerformancePredictionId",
+                        p2.code AS "StudentPerformancePredictionCode",
+                        p2.name AS "StudentPerformancePredictionName"
+                    FROM ai.prediction_evaluation AS entity
+                    LEFT JOIN exam.student_exam_result AS p1
+                        ON p1.student_exam_result_id = entity.student_exam_result_id
+                    LEFT JOIN ai.student_performance_prediction AS p2
+                        ON p2.student_performance_prediction_id = entity.student_performance_prediction_id
                     WHERE tenant_id = @TenantId
-                      AND prediction_evaluation_id = @Id
+                      AND entity.prediction_evaluation_id = @Id
                       AND is_active = TRUE;
                     """;
 

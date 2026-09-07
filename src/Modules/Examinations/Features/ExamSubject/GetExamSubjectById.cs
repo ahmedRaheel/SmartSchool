@@ -23,7 +23,16 @@ public static class GetExamSubjectById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid CourseOfferingId,
+    string? CourseOfferingCode,
+    string? CourseOfferingName,
+    Guid ExamId,
+    string? ExamCode,
+    string? ExamName,
+    Guid? RoomId,
+    string? RoomCode,
+    string? RoomName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +58,28 @@ public static class GetExamSubjectById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        exam_subject_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM exam.exam_subject
+                        entity.exam_subject_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.course_offering_id AS "CourseOfferingId",
+                        p1.code AS "CourseOfferingCode",
+                        p1.name AS "CourseOfferingName",
+                        p2.exam_id AS "ExamId",
+                        p2.code AS "ExamCode",
+                        p2.name AS "ExamName",
+                        p3.room_id AS "RoomId",
+                        p3.code AS "RoomCode",
+                        p3.name AS "RoomName"
+                    FROM exam.exam_subject AS entity
+                    LEFT JOIN academic.course_offering AS p1
+                        ON p1.course_offering_id = entity.course_offering_id
+                    LEFT JOIN exam.exam AS p2
+                        ON p2.exam_id = entity.exam_id
+                    LEFT JOIN org.room AS p3
+                        ON p3.room_id = entity.room_id
                     WHERE tenant_id = @TenantId
-                      AND exam_subject_id = @Id
+                      AND entity.exam_subject_id = @Id
                       AND is_active = TRUE;
                     """;
 

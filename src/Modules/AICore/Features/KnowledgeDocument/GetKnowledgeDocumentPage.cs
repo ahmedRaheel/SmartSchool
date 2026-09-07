@@ -24,7 +24,16 @@ public static class GetKnowledgeDocumentPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? AcademicSystemId,
+    string? AcademicSystemCode,
+    string? AcademicSystemName,
+    Guid? CampusId,
+    string? CampusCode,
+    string? CampusName,
+    Guid KnowledgeCollectionId,
+    string? KnowledgeCollectionCode,
+    string? KnowledgeCollectionName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +61,37 @@ public static class GetKnowledgeDocumentPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM ai_core.knowledge_document
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM ai_core.knowledge_document AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    knowledge_document_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM ai_core.knowledge_document
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY knowledge_document_id
+                    entity.tenant_id AS "TenantId",
+                    entity.knowledge_document_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.academic_system_id AS "AcademicSystemId",
+                        p1.code AS "AcademicSystemCode",
+                        p1.name AS "AcademicSystemName",
+                        p2.campus_id AS "CampusId",
+                        p2.code AS "CampusCode",
+                        p2.name AS "CampusName",
+                        p3.knowledge_collection_id AS "KnowledgeCollectionId",
+                        p3.code AS "KnowledgeCollectionCode",
+                        p3.name AS "KnowledgeCollectionName"
+                    FROM ai_core.knowledge_document AS entity
+                    LEFT JOIN academic.academic_system AS p1
+                        ON p1.academic_system_id = entity.academic_system_id
+                    LEFT JOIN org.campus AS p2
+                        ON p2.campus_id = entity.campus_id
+                    LEFT JOIN ai_core.knowledge_collection AS p3
+                        ON p3.knowledge_collection_id = entity.knowledge_collection_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.knowledge_document_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

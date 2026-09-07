@@ -23,7 +23,10 @@ public static class GetMessageReceiptById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid MessageId,
+    string? MessageCode,
+    string? MessageName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +52,18 @@ public static class GetMessageReceiptById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        message_receipt_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM communication.message_receipt
+                        entity.message_receipt_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.message_id AS "MessageId",
+                        p1.code AS "MessageCode",
+                        p1.name AS "MessageName"
+                    FROM communication.message_receipt AS entity
+                    LEFT JOIN communication.message AS p1
+                        ON p1.message_id = entity.message_id
                     WHERE tenant_id = @TenantId
-                      AND message_receipt_id = @Id
+                      AND entity.message_receipt_id = @Id
                       AND is_active = TRUE;
                     """;
 

@@ -24,7 +24,10 @@ public static class GetTutorSessionPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid TutorConversationId,
+    string? TutorConversationCode,
+    string? TutorConversationName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,7 +55,7 @@ public static class GetTutorSessionPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM ai_tutor.tutor_session
+                    FROM ai_tutor.tutor_session AS entity
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -60,14 +63,19 @@ public static class GetTutorSessionPage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
-                    tutor_session_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM ai_tutor.tutor_session
+                    entity.tutor_session_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.tutor_conversation_id AS "TutorConversationId",
+                        p1.code AS "TutorConversationCode",
+                        p1.name AS "TutorConversationName"
+                    FROM ai_tutor.tutor_session AS entity
+                    LEFT JOIN ai_tutor.tutor_conversation AS p1
+                        ON p1.tutor_conversation_id = entity.tutor_conversation_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                    ORDER BY tutor_session_id
+                    ORDER BY entity.tutor_session_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

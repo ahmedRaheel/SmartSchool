@@ -24,7 +24,13 @@ public static class GetTopicPerformanceInsightPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid ClassPerformanceInsightId,
+    string? ClassPerformanceInsightCode,
+    string? ClassPerformanceInsightName,
+    Guid SubjectId,
+    string? SubjectCode,
+    string? SubjectName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,7 +58,7 @@ public static class GetTopicPerformanceInsightPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM ai.topic_performance_insight
+                    FROM ai.topic_performance_insight AS entity
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -60,14 +66,24 @@ public static class GetTopicPerformanceInsightPage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
-                    topic_performance_insight_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM ai.topic_performance_insight
+                    entity.topic_performance_insight_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.class_performance_insight_id AS "ClassPerformanceInsightId",
+                        p1.code AS "ClassPerformanceInsightCode",
+                        p1.name AS "ClassPerformanceInsightName",
+                        p2.subject_id AS "SubjectId",
+                        p2.code AS "SubjectCode",
+                        p2.name AS "SubjectName"
+                    FROM ai.topic_performance_insight AS entity
+                    LEFT JOIN ai.class_performance_insight AS p1
+                        ON p1.class_performance_insight_id = entity.class_performance_insight_id
+                    LEFT JOIN academic.subject AS p2
+                        ON p2.subject_id = entity.subject_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                    ORDER BY topic_performance_insight_id
+                    ORDER BY entity.topic_performance_insight_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

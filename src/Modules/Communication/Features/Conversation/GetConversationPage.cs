@@ -24,7 +24,16 @@ public static class GetConversationPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? CampusId,
+    string? CampusCode,
+    string? CampusName,
+    Guid? ClassSectionId,
+    string? ClassSectionCode,
+    string? ClassSectionName,
+    Guid? SubjectId,
+    string? SubjectCode,
+    string? SubjectName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +61,37 @@ public static class GetConversationPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM communication.conversation
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM communication.conversation AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    conversation_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM communication.conversation
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY conversation_id
+                    entity.tenant_id AS "TenantId",
+                    entity.conversation_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.campus_id AS "CampusId",
+                        p1.code AS "CampusCode",
+                        p1.name AS "CampusName",
+                        p2.class_section_id AS "ClassSectionId",
+                        p2.code AS "ClassSectionCode",
+                        p2.name AS "ClassSectionName",
+                        p3.subject_id AS "SubjectId",
+                        p3.code AS "SubjectCode",
+                        p3.name AS "SubjectName"
+                    FROM communication.conversation AS entity
+                    LEFT JOIN org.campus AS p1
+                        ON p1.campus_id = entity.campus_id
+                    LEFT JOIN academic.class_section AS p2
+                        ON p2.class_section_id = entity.class_section_id
+                    LEFT JOIN academic.subject AS p3
+                        ON p3.subject_id = entity.subject_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.conversation_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

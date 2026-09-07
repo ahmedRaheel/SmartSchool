@@ -23,7 +23,10 @@ public static class GetConversationParticipantById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid ConversationId,
+    string? ConversationCode,
+    string? ConversationName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +52,18 @@ public static class GetConversationParticipantById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        conversation_participant_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM communication.conversation_participant
+                        entity.conversation_participant_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.conversation_id AS "ConversationId",
+                        p1.code AS "ConversationCode",
+                        p1.name AS "ConversationName"
+                    FROM communication.conversation_participant AS entity
+                    LEFT JOIN communication.conversation AS p1
+                        ON p1.conversation_id = entity.conversation_id
                     WHERE tenant_id = @TenantId
-                      AND conversation_participant_id = @Id
+                      AND entity.conversation_participant_id = @Id
                       AND is_active = TRUE;
                     """;
 

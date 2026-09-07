@@ -23,7 +23,16 @@ public static class GetTutorConversationById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? AcademicYearId,
+    string? AcademicYearCode,
+    string? AcademicYearName,
+    Guid? CourseOfferingId,
+    string? CourseOfferingCode,
+    string? CourseOfferingName,
+    Guid? SubjectId,
+    string? SubjectCode,
+    string? SubjectName);
 
     public sealed record Query(
         Guid TenantId,
@@ -48,15 +57,30 @@ public static class GetTutorConversationById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        tutor_conversation_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM ai_tutor.tutor_conversation
-                    WHERE tenant_id = @TenantId
-                      AND tutor_conversation_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.tutor_conversation_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.academic_year_id AS "AcademicYearId",
+                        p1.code AS "AcademicYearCode",
+                        p1.name AS "AcademicYearName",
+                        p2.course_offering_id AS "CourseOfferingId",
+                        p2.code AS "CourseOfferingCode",
+                        p2.name AS "CourseOfferingName",
+                        p3.subject_id AS "SubjectId",
+                        p3.code AS "SubjectCode",
+                        p3.name AS "SubjectName"
+                    FROM ai_tutor.tutor_conversation AS entity
+                    LEFT JOIN academic.academic_year AS p1
+                        ON p1.academic_year_id = entity.academic_year_id
+                    LEFT JOIN academic.course_offering AS p2
+                        ON p2.course_offering_id = entity.course_offering_id
+                    LEFT JOIN academic.subject AS p3
+                        ON p3.subject_id = entity.subject_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.tutor_conversation_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =
