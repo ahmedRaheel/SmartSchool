@@ -16,6 +16,43 @@ public static class UploadKnowledgePdf
     private const long MaxPdfSize = 25 * 1024 * 1024;
     private const int ChunkSize = 1200;
 
+
+    public sealed record Response(Guid KnowledgeDocumentId, string FileName, int Pages, int Chunks, bool Indexed);
+
+    public interface IUploadKnowledgePdfQuery
+    {
+        Task<string?> GetCollectionCodeAsync(Guid tenantId, Guid collectionId, CancellationToken cancellationToken);
+    }
+
+    internal sealed class UploadKnowledgePdfQuery(IDbConnectionFactory connectionFactory) : IUploadKnowledgePdfQuery
+    {
+        public async Task<string?> GetCollectionCodeAsync(Guid tenantId, Guid collectionId, CancellationToken cancellationToken)
+        {
+            const string sql = "SELECT code FROM ai_core.knowledge_collection WHERE tenant_id = @TenantId AND knowledge_collection_id = @CollectionId AND is_active = true;";
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            return await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(sql, new { TenantId = tenantId, CollectionId = collectionId }, cancellationToken: cancellationToken));
+        }
+    }
+
+    public interface IUploadKnowledgePdfCommand
+    {
+        Task SaveAsync(KnowledgeDocumentEntity document, IReadOnlyCollection<RagKnowledgeChunkWriteEntity> chunks, CancellationToken cancellationToken);
+    }
+
+    internal sealed class UploadKnowledgePdfCommand(AICoreDbContext dbContext) : IUploadKnowledgePdfCommand
+    {
+        public async Task SaveAsync(KnowledgeDocumentEntity document, IReadOnlyCollection<RagKnowledgeChunkWriteEntity> chunks, CancellationToken cancellationToken)
+        {
+                await dbContext.RagKnowledgeChunks.AddRangeAsync(chunks, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public sealed class Handler
+    {
+        // Endpoint orchestration remains in UploadAsync; all persistence is delegated to the feature-owned query/command.
+    }
+
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/api/aicore/knowledge/pdf", UploadAsync)
@@ -32,8 +69,8 @@ public static class UploadKnowledgePdf
         Guid? campusId,
         Guid? academicSystemId,
         ITenantScope tenantScope,
-        IDbConnectionFactory connectionFactory,
-        AICoreDbContext dbContext,
+        IUploadKnowledgePdfQuery query,
+        IUploadKnowledgePdfCommand command,
         IOllamaClient ollamaClient,
         IAiAssistantService assistantService,
         CancellationToken cancellationToken)
@@ -68,17 +105,11 @@ public static class UploadKnowledgePdf
                 new { message = "No extractable text was found. Scanned/image-only PDFs require OCR before ingestion." });
         }
 
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-        const string verifyCollectionSql = """
-            SELECT code FROM ai_core.knowledge_collection
-            WHERE tenant_id = @TenantId AND knowledge_collection_id = @CollectionId AND is_active = true;
-            """;
-        var collectionCode = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(verifyCollectionSql, new { TenantId = resolvedTenantId.Value, CollectionId = collectionId }, cancellationToken: cancellationToken));
+        var collectionCode = await query.GetCollectionCodeAsync(resolvedTenantId.Value, collectionId, cancellationToken);
         if (string.IsNullOrWhiteSpace(collectionCode)) return Results.BadRequest(new { message = "Knowledge collection does not belong to this tenant." });
 
         var title = Path.GetFileName(file.FileName);
         var document = KnowledgeDocumentEntity.CreateIndexed(resolvedTenantId.Value, collectionId, campusId, academicSystemId, title, "{\"source\":\"upload\"}");
-        await dbContext.KnowledgeDocuments.AddAsync(document, cancellationToken);
 
         var chunks = Chunk(pages, ChunkSize).ToArray();
         var chunkEntities = new List<RagKnowledgeChunkWriteEntity>(chunks.Length);
@@ -90,8 +121,7 @@ public static class UploadKnowledgePdf
                 chunkEntities.Add(RagKnowledgeChunkWriteEntity.Create(resolvedTenantId.Value, collectionCode.Trim().ToLowerInvariant(), title, batch[index], embeddings[index].ToArray()));
             }
         }
-        await dbContext.RagKnowledgeChunks.AddRangeAsync(chunkEntities, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await command.SaveAsync(document, chunkEntities, cancellationToken);
 
         await assistantService.InvalidateKnowledgeAsync(
             resolvedTenantId.Value,

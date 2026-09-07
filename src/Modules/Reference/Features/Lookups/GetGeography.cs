@@ -37,7 +37,7 @@ public static class GetGeography
         }
     }
 
-    public sealed class CountriesHandler(IGetGeographyQuery query) : IRequestHandler<GetCountries, IReadOnlyList<Response>>
+    public sealed class Handler(IGetGeographyQuery query) : IRequestHandler<GetCountries, IReadOnlyList<Response>>
     {
         public Task<IReadOnlyList<Response>> HandleAsync(GetCountries request, CancellationToken cancellationToken) => query.GetCountriesAsync(cancellationToken);
     }

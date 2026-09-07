@@ -62,8 +62,29 @@ public static class CreateTenant
             RuleFor(x => x.AdminPhoneNumber).MaximumLength(50);
         }
     }
+    public interface ICreateTenantCommand
+    {
+        Task AddAsync(TenantEntity entity, CancellationToken cancellationToken);
+        Task RemoveAsync(TenantEntity entity, CancellationToken cancellationToken);
+    }
+
+    internal sealed class CreateTenantCommand(IOrganizationDbContext dbContext) : ICreateTenantCommand
+    {
+        public async Task AddAsync(TenantEntity entity, CancellationToken cancellationToken)
+        {
+            await dbContext.Tenants.AddAsync(entity, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task RemoveAsync(TenantEntity entity, CancellationToken cancellationToken)
+        {
+            dbContext.Tenants.Remove(entity);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
     public sealed class Handler(
-        IOrganizationDbContext dbContext,
+        ICreateTenantCommand command,
         IIdentityAccountService identityAccountService,
         IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
@@ -94,8 +115,7 @@ public static class CreateTenant
                      request.ContactAddress)
                     );
             }
-            await dbContext.Tenants.AddAsync(tenant, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await command.AddAsync(tenant, cancellationToken);
             try
             {
                 var account = await identityAccountService.CreateAccountAsync(
@@ -133,8 +153,7 @@ public static class CreateTenant
             catch
             {
                 // Do not leave a tenant without its master account.
-                dbContext.Tenants.Remove(tenant);
-                await dbContext.SaveChangesAsync(cancellationToken);
+                await command.RemoveAsync(tenant, cancellationToken);
                 throw;
             }
         }

@@ -29,7 +29,7 @@ public static class ApplyTeacherLeave
         }
     }
 
-    public interface ICommand
+    public interface IApplyTeacherLeaveCommand
     {
         Task<LeaveRequestEntity> ExecuteAsync(
             Guid tenantId,
@@ -38,7 +38,7 @@ public static class ApplyTeacherLeave
             CancellationToken cancellationToken);
     }
 
-    internal sealed class Command(IHRDbContext dbContext) : ICommand
+    internal sealed class ApplyTeacherLeaveCommand(IHRDbContext dbContext) : IApplyTeacherLeaveCommand
     {
         public async Task<LeaveRequestEntity> ExecuteAsync(
             Guid tenantId,
@@ -61,6 +61,15 @@ public static class ApplyTeacherLeave
         }
     }
 
+    public sealed class Handler(IApplyTeacherLeaveCommand command)
+    {
+        public async Task<Response> HandleAsync(Guid tenantId, Guid employeeId, Request request, CancellationToken cancellationToken)
+        {
+            var entity = await command.ExecuteAsync(tenantId, employeeId, request, cancellationToken);
+            return new Response(entity.LeaveRequestId, entity.Status);
+        }
+    }
+
     public static void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/{employeeId:guid}/leave", HandleAsync)
@@ -71,7 +80,7 @@ public static class ApplyTeacherLeave
         Guid employeeId,
         Request request,
         ITenantScope tenantScope,
-        ICommand command,
+        Handler handler,
         CancellationToken cancellationToken)
     {
         var tenantId = tenantScope.IsSuperAdmin
@@ -83,13 +92,12 @@ public static class ApplyTeacherLeave
             return Results.BadRequest(new { message = "Tenant is required." });
         }
 
-        var entity = await command.ExecuteAsync(
+        var response = await handler.HandleAsync(
             tenantId.Value,
             employeeId,
             request,
             cancellationToken);
 
-        var response = new Response(entity.LeaveRequestId, entity.Status);
-        return Results.Accepted($"/api/teachers/{employeeId}/leave/{entity.LeaveRequestId}", response);
+        return Results.Accepted($"/api/teachers/{employeeId}/leave/{response.LeaveRequestId}", response);
     }
 }

@@ -30,8 +30,8 @@ public static class ApproveEmployee
     }
 
     public sealed class Handler(
-        ApproveEmployeeEmployeeQuery query,
-        ApproveEmployeeEmployeeCommand command,
+        IApproveEmployeeQuery query,
+        IApproveEmployeeCommand command,
         ApproveEmployeeEmployeeOnboardingQuery onboardingQuery,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numberGenerator)
@@ -103,7 +103,13 @@ public static class ApproveEmployee
 /// <summary>
 /// Feature-owned data access for ApproveEmployee. Do not share across slices.
 /// </summary>
-public sealed class ApproveEmployeeEmployeeCommand(IHRDbContext dbContext)
+public interface IApproveEmployeeCommand
+{
+    Task<EmployeeEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+    Task UpdateAsync(EmployeeEntity entity, CancellationToken cancellationToken);
+}
+
+internal sealed class ApproveEmployeeCommand(IHRDbContext dbContext) : IApproveEmployeeCommand
 {
     public Task<EmployeeEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {
@@ -126,7 +132,12 @@ public sealed class ApproveEmployeeEmployeeCommand(IHRDbContext dbContext)
 /// <summary>
 /// Feature-owned data access for ApproveEmployee. Do not share across slices.
 /// </summary>
-public sealed class ApproveEmployeeEmployeeQuery(IDbConnectionFactory connectionFactory)
+public interface IApproveEmployeeQuery
+{
+    Task<string?> GetBranchCodeAsync(Guid tenantId, Guid branchId, CancellationToken cancellationToken);
+}
+
+internal sealed class ApproveEmployeeQuery(IDbConnectionFactory connectionFactory) : IApproveEmployeeQuery
 {
         public async Task<string?> GetBranchCodeAsync(
         Guid tenantId,

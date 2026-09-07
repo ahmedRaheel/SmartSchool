@@ -30,7 +30,7 @@ public static class ApproveStudentAdmission
     }
 
     public sealed class Handler(
-        ApproveStudentAdmissionStudentCommand command,
+        IApproveStudentAdmissionCommand command,
         ApproveStudentAdmissionStudentOnboardingQuery onboardingQuery,
         ApproveStudentAdmissionStudentOnboardingCommand onboardingCommand,
         IIdentityAccountService accounts,
@@ -244,7 +244,13 @@ public sealed class ApproveStudentAdmissionStudentOnboardingQuery(IDbConnectionF
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-public sealed class ApproveStudentAdmissionStudentCommand(IStudentsDbContext dbContext)
+public interface IApproveStudentAdmissionCommand
+{
+    Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+    Task UpdateAsync(StudentEntity entity, CancellationToken cancellationToken);
+}
+
+internal sealed class ApproveStudentAdmissionCommand(IStudentsDbContext dbContext) : IApproveStudentAdmissionCommand
 {
     public Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {

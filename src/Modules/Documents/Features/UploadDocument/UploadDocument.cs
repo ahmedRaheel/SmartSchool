@@ -9,9 +9,31 @@ public static class UploadDocument
 {
     private const long MaxFileSize = 25 * 1024 * 1024;
 
+    public sealed record Response(string DocumentNumber, string FileName, long SizeBytes, string Category, string DocumentType);
+
+    public interface IUploadDocumentCommand
+    {
+        Task ExecuteAsync(DocumentFileEntity document, DocumentLinkEntity link, CancellationToken cancellationToken);
+    }
+
+    internal sealed class UploadDocumentCommand(IDocumentsDbContext dbContext) : IUploadDocumentCommand
+    {
+        public async Task ExecuteAsync(DocumentFileEntity document, DocumentLinkEntity link, CancellationToken cancellationToken)
+        {
+            await dbContext.DocumentFiles.AddAsync(document, cancellationToken);
+            await dbContext.DocumentLinks.AddAsync(link, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public sealed class Handler(IUploadDocumentCommand command)
+    {
+        public Task ExecuteAsync(DocumentFileEntity document, DocumentLinkEntity link, CancellationToken cancellationToken) => command.ExecuteAsync(document, link, cancellationToken);
+    }
+
     public static void MapEndpoint(IEndpointRouteBuilder endpoints) => endpoints.MapPost("/api/documents/files", HandleAsync).WithTags("Documents").RequireAuthorization().DisableAntiforgery();
 
-    private static async Task<IResult> HandleAsync(HttpRequest request, Guid? tenantId, ITenantScope tenantScope, IDocumentsDbContext dbContext, TimeProvider timeProvider, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(HttpRequest request, Guid? tenantId, ITenantScope tenantScope, Handler handler, TimeProvider timeProvider, CancellationToken cancellationToken)
     {
         var resolvedTenantId = tenantScope.Resolve(tenantId);
         if (!resolvedTenantId.HasValue) return Results.BadRequest(new { message = "Tenant is required for SuperAdmin." });
@@ -44,11 +66,9 @@ public static class UploadDocument
         var document = DocumentFileEntity.Create(resolvedTenantId.Value, schoolId, branchId, documentNumber, originalFileName, $"{documentId:N}{extension}", extension, mimeType, file.Length, checksum, bytes, category, documentType, form["title"], bool.TryParse(form["isConfidential"], out var confidential) && confidential, tenantScope.UserId);
         var link = DocumentLinkEntity.Create(resolvedTenantId.Value, document.DocumentId, entityType, entityId, purpose, bool.TryParse(form["isPrimary"], out var primary) && primary);
 
-        await dbContext.DocumentFiles.AddAsync(document, cancellationToken);
-        await dbContext.DocumentLinks.AddAsync(link, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await handler.ExecuteAsync(document, link, cancellationToken);
 
-        return Results.Created($"/api/documents/files/{document.DocumentId}", new { documentNumber, fileName = originalFileName, file.Length, category, documentType });
+        return Results.Created($"/api/documents/files/{document.DocumentId}", new Response(documentNumber, originalFileName, file.Length, category, documentType));
     }
 
     private static string Required(string value, string name) => string.IsNullOrWhiteSpace(value) ? throw new BadHttpRequestException($"{name} is required.") : value.Trim();
