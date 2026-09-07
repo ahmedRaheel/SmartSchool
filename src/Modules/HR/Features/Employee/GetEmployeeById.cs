@@ -86,7 +86,7 @@ public static class GetEmployeeById
 /// <summary>
 /// Feature-owned data access for GetEmployeeById. Do not share across slices.
 /// </summary>
-internal sealed class GetEmployeeByIdEmployeeReadData(IHRDbContext dbContext,
+public sealed class GetEmployeeByIdEmployeeReadData(IHRDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<EmployeeEntity?> GetByIdAsync(

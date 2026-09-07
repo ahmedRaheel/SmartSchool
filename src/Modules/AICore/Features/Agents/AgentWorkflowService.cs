@@ -143,7 +143,7 @@ internal sealed class AgentWorkflowService(
 /// <summary>
 /// Feature-owned data access for AgentWorkflowService. Do not share across slices.
 /// </summary>
-internal sealed class AgentWorkflowServiceAiExecutionLogWriteData(IAICoreDbContext dbContext)
+public sealed class AgentWorkflowServiceAiExecutionLogWriteData(IAICoreDbContext dbContext)
 {
     public async Task AddAsync(
         AiExecutionLogEntity entity,

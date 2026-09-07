@@ -86,7 +86,7 @@ Return ONLY valid JSON array. Each object: question, options (4 strings), correc
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-internal sealed class OperationalTutorEndpointsTutorMessageWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsTutorMessageWriteData(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         TutorMessageEntity entity,
@@ -102,7 +102,7 @@ internal sealed class OperationalTutorEndpointsTutorMessageWriteData(IAITutorDbC
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-internal sealed class OperationalTutorEndpointsTutorSessionWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsTutorSessionWriteData(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         TutorSessionEntity entity,
@@ -118,7 +118,7 @@ internal sealed class OperationalTutorEndpointsTutorSessionWriteData(IAITutorDbC
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-internal sealed class OperationalTutorEndpointsLearningRecommendationWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsLearningRecommendationWriteData(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         LearningRecommendationEntity entity,
@@ -134,7 +134,7 @@ internal sealed class OperationalTutorEndpointsLearningRecommendationWriteData(I
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-internal sealed class OperationalTutorEndpointsTutorConversationWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsTutorConversationWriteData(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         TutorConversationEntity entity,
@@ -150,7 +150,7 @@ internal sealed class OperationalTutorEndpointsTutorConversationWriteData(IAITut
 /// <summary>
 /// Feature-owned data access for OperationalTutorEndpoints. Do not share across slices.
 /// </summary>
-internal sealed class OperationalTutorEndpointsGeneratedQuizWriteData(IAITutorDbContext dbContext)
+public sealed class OperationalTutorEndpointsGeneratedQuizWriteData(IAITutorDbContext dbContext)
 {
     public async Task AddAsync(
         GeneratedQuizEntity entity,

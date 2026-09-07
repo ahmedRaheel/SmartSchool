@@ -85,7 +85,7 @@ public static class LinkStudentGuardian
 /// <summary>
 /// Feature-owned data access for LinkStudentGuardian. Do not share across slices.
 /// </summary>
-internal sealed class LinkStudentGuardianStudentOnboardingWriteData(IStudentsDbContext dbContext)
+public sealed class LinkStudentGuardianStudentOnboardingWriteData(IStudentsDbContext dbContext)
 {
 
     public async Task AddGuardianLinkAsync(StudentGuardianEntity link, CancellationToken cancellationToken)
@@ -98,7 +98,7 @@ internal sealed class LinkStudentGuardianStudentOnboardingWriteData(IStudentsDbC
 /// <summary>
 /// Feature-owned data access for LinkStudentGuardian. Do not share across slices.
 /// </summary>
-internal sealed class LinkStudentGuardianStudentOnboardingReadData(IDbConnectionFactory connectionFactory)
+public sealed class LinkStudentGuardianStudentOnboardingReadData(IDbConnectionFactory connectionFactory)
 {
 
     public async Task<bool> StudentAndGuardianBelongToTenantAsync(Guid tenantId, Guid studentId, Guid guardianId, CancellationToken cancellationToken)

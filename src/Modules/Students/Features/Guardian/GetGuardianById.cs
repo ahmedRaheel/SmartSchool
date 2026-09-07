@@ -68,7 +68,7 @@ public static class GetGuardianById
 /// <summary>
 /// Feature-owned data access for GetGuardianById. Do not share across slices.
 /// </summary>
-internal sealed class GetGuardianByIdGuardianReadData(IStudentsDbContext dbContext,
+public sealed class GetGuardianByIdGuardianReadData(IStudentsDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<GuardianEntity?> GetByIdAsync(

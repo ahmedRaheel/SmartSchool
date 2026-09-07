@@ -45,7 +45,7 @@ public static class TerminateEmployee
 /// <summary>
 /// Feature-owned data access for TerminateEmployee. Do not share across slices.
 /// </summary>
-internal sealed class TerminateEmployeeEmployeeWriteData(IHRDbContext dbContext)
+public sealed class TerminateEmployeeEmployeeWriteData(IHRDbContext dbContext)
 {
 
     public async Task UpdateAsync(
@@ -62,7 +62,7 @@ internal sealed class TerminateEmployeeEmployeeWriteData(IHRDbContext dbContext)
 /// <summary>
 /// Feature-owned data access for TerminateEmployee. Do not share across slices.
 /// </summary>
-internal sealed class TerminateEmployeeEmployeeReadData(IHRDbContext dbContext,
+public sealed class TerminateEmployeeEmployeeReadData(IHRDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<EmployeeEntity?> GetByIdAsync(

@@ -81,7 +81,7 @@ public static class GetStudentExamResultById
 /// <summary>
 /// Feature-owned data access for GetStudentExamResultById. Do not share across slices.
 /// </summary>
-internal sealed class GetStudentExamResultByIdStudentExamResultReadData(IExaminationsDbContext dbContext,
+public sealed class GetStudentExamResultByIdStudentExamResultReadData(IExaminationsDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<StudentExamResultEntity?> GetByIdAsync(

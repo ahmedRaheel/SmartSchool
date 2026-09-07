@@ -549,7 +549,7 @@ public static class CreateAdmissionCriteria
 /// <summary>
 /// Feature-owned data access for AdmissionWorkflowSlices. Do not share across slices.
 /// </summary>
-internal sealed class AdmissionWorkflowSlicesAdmissionWorkflowWriteData(IDbConnectionFactory connectionFactory)
+public sealed class AdmissionWorkflowSlicesAdmissionWorkflowWriteData(IDbConnectionFactory connectionFactory)
 {
     public async Task<Guid> CreateApplicationAsync(
         Guid tenantId,
@@ -770,7 +770,7 @@ internal sealed class AdmissionWorkflowSlicesAdmissionWorkflowWriteData(IDbConne
 /// <summary>
 /// Feature-owned data access for AdmissionWorkflowSlices. Do not share across slices.
 /// </summary>
-internal sealed class AdmissionWorkflowSlicesAdmissionWorkflowReadData(IDbConnectionFactory connectionFactory)
+public sealed class AdmissionWorkflowSlicesAdmissionWorkflowReadData(IDbConnectionFactory connectionFactory)
 {
     public async Task<IReadOnlyList<AdmissionApplicationDto>> GetApplicationsAsync(
         Guid tenantId,

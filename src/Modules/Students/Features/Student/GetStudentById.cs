@@ -80,7 +80,7 @@ public static class GetStudentById
 /// <summary>
 /// Feature-owned data access for GetStudentById. Do not share across slices.
 /// </summary>
-internal sealed class GetStudentByIdStudentReadData(IStudentsDbContext dbContext,
+public sealed class GetStudentByIdStudentReadData(IStudentsDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<StudentEntity?> GetByIdAsync(

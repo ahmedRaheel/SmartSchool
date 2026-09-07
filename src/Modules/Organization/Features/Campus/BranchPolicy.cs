@@ -56,15 +56,23 @@ public static class BranchPolicyEndpoints
 /// <summary>
 /// Feature-owned data access for BranchPolicy. Do not share across slices.
 /// </summary>
-internal sealed class BranchPolicyBranchPolicyReadData(IDbConnectionFactory connectionFactory)
+public sealed class BranchPolicyBranchPolicyReadData(IDbConnectionFactory connectionFactory)
 {
     public Task<IReadOnlyCollection<LookupItem>> GetGenderTypesAsync(CancellationToken cancellationToken) =>
-        GetLookupsAsync("SELECT branch_gender_type_id AS Id, code AS Code, name AS Name FROM reference.branch_gender_type WHERE is_active = TRUE ORDER BY sort_order, name;
+        GetLookupsAsync("SELECT branch_gender_type_id AS Id, code AS Code, name AS Name FROM reference.branch_gender_type WHERE is_active = TRUE ORDER BY sort_order, name;", cancellationToken);
 
 
     public Task<IReadOnlyCollection<LookupItem>> GetEducationLevelsAsync(CancellationToken cancellationToken) =>
-        GetLookupsAsync("SELECT education_level_id AS Id, code AS Code, name AS Name FROM reference.education_level WHERE is_active = TRUE ORDER BY sort_order, name;
+        GetLookupsAsync("SELECT education_level_id AS Id, code AS Code, name AS Name FROM reference.education_level WHERE is_active = TRUE ORDER BY sort_order, name;", cancellationToken);
 
+
+    private async Task<IReadOnlyCollection<LookupItem>> GetLookupsAsync(string sql, CancellationToken cancellationToken)
+    {
+        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        var items = await connection.QueryAsync<LookupItem>(
+            new CommandDefinition(sql, cancellationToken: cancellationToken)).ConfigureAwait(false);
+        return items.AsList();
+    }
 
     public async Task<BranchPolicy?> GetBranchPolicyAsync(Guid tenantId, Guid branchId, CancellationToken cancellationToken)
     {

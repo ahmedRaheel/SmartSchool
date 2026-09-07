@@ -85,7 +85,7 @@ public static class UpdateSchool
 /// <summary>
 /// Feature-owned data access for UpdateSchool. Do not share across slices.
 /// </summary>
-internal sealed class UpdateSchoolSchoolReadData(IDbConnectionFactory connectionFactory)
+public sealed class UpdateSchoolSchoolReadData(IDbConnectionFactory connectionFactory)
 {
     public async Task<SchoolEntity?> GetByIdAsync(
         Guid tenantId,
@@ -118,7 +118,7 @@ internal sealed class UpdateSchoolSchoolReadData(IDbConnectionFactory connection
 /// <summary>
 /// Feature-owned data access for UpdateSchool. Do not share across slices.
 /// </summary>
-internal sealed class UpdateSchoolSchoolWriteData(IOrganizationDbContext dbContext)
+public sealed class UpdateSchoolSchoolWriteData(IOrganizationDbContext dbContext)
 {
 
     public async Task UpdateAsync(

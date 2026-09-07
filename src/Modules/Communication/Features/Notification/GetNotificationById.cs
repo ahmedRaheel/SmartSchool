@@ -96,7 +96,7 @@ public static class GetNotificationById
 /// <summary>
 /// Feature-owned data access for GetNotificationById. Do not share across slices.
 /// </summary>
-internal sealed class GetNotificationByIdNotificationReadData(ICommunicationDbContext dbContext,
+public sealed class GetNotificationByIdNotificationReadData(ICommunicationDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
 

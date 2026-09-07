@@ -103,7 +103,7 @@ public static class ApproveEmployee
 /// <summary>
 /// Feature-owned data access for ApproveEmployee. Do not share across slices.
 /// </summary>
-internal sealed class ApproveEmployeeEmployeeWriteData(IHRDbContext dbContext)
+public sealed class ApproveEmployeeEmployeeWriteData(IHRDbContext dbContext)
 {
 
     public async Task UpdateAsync(
@@ -120,7 +120,7 @@ internal sealed class ApproveEmployeeEmployeeWriteData(IHRDbContext dbContext)
 /// <summary>
 /// Feature-owned data access for ApproveEmployee. Do not share across slices.
 /// </summary>
-internal sealed class ApproveEmployeeEmployeeReadData(IHRDbContext dbContext,
+public sealed class ApproveEmployeeEmployeeReadData(IHRDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<EmployeeEntity?> GetByIdAsync(
@@ -158,7 +158,7 @@ internal sealed class ApproveEmployeeEmployeeReadData(IHRDbContext dbContext,
 /// <summary>
 /// Feature-owned data access for ApproveEmployee. Do not share across slices.
 /// </summary>
-internal sealed class ApproveEmployeeEmployeeOnboardingReadData(IDbConnectionFactory connectionFactory)
+public sealed class ApproveEmployeeEmployeeOnboardingReadData(IDbConnectionFactory connectionFactory)
 {
 
     public async Task<IReadOnlyList<string>> GetMissingRequiredDocumentsAsync(Guid tenantId, Guid employeeId, string staffType, CancellationToken cancellationToken)

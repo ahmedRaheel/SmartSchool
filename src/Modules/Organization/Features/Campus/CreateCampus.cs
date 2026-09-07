@@ -70,7 +70,7 @@ public static class CreateCampus
 /// <summary>
 /// Feature-owned data access for CreateCampus. Do not share across slices.
 /// </summary>
-internal sealed class CreateCampusSchoolReadData(IDbConnectionFactory connectionFactory)
+public sealed class CreateCampusSchoolReadData(IDbConnectionFactory connectionFactory)
 {
     public async Task<SchoolEntity?> GetByIdAsync(
         Guid tenantId,
@@ -103,7 +103,7 @@ internal sealed class CreateCampusSchoolReadData(IDbConnectionFactory connection
 /// <summary>
 /// Feature-owned data access for CreateCampus. Do not share across slices.
 /// </summary>
-internal sealed class CreateCampusBranchPolicyWriteData(IDbConnectionFactory connectionFactory)
+public sealed class CreateCampusBranchPolicyWriteData(IDbConnectionFactory connectionFactory)
 {
     public async Task<bool> GenderTypeExistsAsync(Guid genderTypeId, CancellationToken cancellationToken)
     {
@@ -139,7 +139,7 @@ internal sealed class CreateCampusBranchPolicyWriteData(IDbConnectionFactory con
 /// <summary>
 /// Feature-owned data access for CreateCampus. Do not share across slices.
 /// </summary>
-internal sealed class CreateCampusCampusWriteData(IOrganizationDbContext dbContext)
+public sealed class CreateCampusCampusWriteData(IOrganizationDbContext dbContext)
 {
     public async Task AddAsync(
         CampusEntity entity,

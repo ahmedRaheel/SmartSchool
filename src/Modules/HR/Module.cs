@@ -33,7 +33,6 @@ public static class Module
         services.AddScoped<ApproveEmployeeEmployeeOnboardingReadData>();
         services.AddScoped<ApproveEmployeeEmployeeReadData>();
         services.AddScoped<ApproveEmployeeEmployeeWriteData>();
-        services.AddScoped<EmployeeEvidenceEndpointsEmployeeEvidenceWriteData>();
         services.AddScoped<GetEmployeeByIdEmployeeReadData>();
         services.AddScoped<TerminateEmployeeEmployeeReadData>();
         services.AddScoped<TerminateEmployeeEmployeeWriteData>();

@@ -184,7 +184,7 @@ public sealed class SmartSchoolAgentTools(
 /// <summary>
 /// Feature-owned data access for SmartSchoolAgentTools. Do not share across slices.
 /// </summary>
-internal sealed class SmartSchoolAgentToolsStudentReadData(IStudentsDbContext dbContext,
+public sealed class SmartSchoolAgentToolsStudentReadData(IStudentsDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<StudentEntity?> GetByIdAsync(
@@ -203,7 +203,7 @@ internal sealed class SmartSchoolAgentToolsStudentReadData(IStudentsDbContext db
 /// <summary>
 /// Feature-owned data access for SmartSchoolAgentTools. Do not share across slices.
 /// </summary>
-internal sealed class SmartSchoolAgentToolsStudentPerformancePredictionReadData(IAIPredictionDbContext dbContext,
+public sealed class SmartSchoolAgentToolsStudentPerformancePredictionReadData(IAIPredictionDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
 
@@ -227,7 +227,7 @@ internal sealed class SmartSchoolAgentToolsStudentPerformancePredictionReadData(
 /// <summary>
 /// Feature-owned data access for SmartSchoolAgentTools. Do not share across slices.
 /// </summary>
-internal sealed class SmartSchoolAgentToolsStudentExamResultReadData(IExaminationsDbContext dbContext,
+public sealed class SmartSchoolAgentToolsStudentExamResultReadData(IExaminationsDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
 

@@ -163,7 +163,7 @@ public static class ApproveStudentAdmission
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-internal sealed class ApproveStudentAdmissionStudentOnboardingWriteData(IStudentsDbContext dbContext)
+public sealed class ApproveStudentAdmissionStudentOnboardingWriteData(IStudentsDbContext dbContext)
 {
 
     public async Task AddEnrollmentAndApprovePlacementAsync(EnrollmentEntity enrollment, Guid tenantId, Guid studentId, Guid academicYearId, CancellationToken cancellationToken)
@@ -179,7 +179,7 @@ internal sealed class ApproveStudentAdmissionStudentOnboardingWriteData(IStudent
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-internal sealed class ApproveStudentAdmissionStudentOnboardingReadData(IDbConnectionFactory connectionFactory)
+public sealed class ApproveStudentAdmissionStudentOnboardingReadData(IDbConnectionFactory connectionFactory)
 {
 
     public async Task<bool> HasGuardianAsync(Guid tenantId, Guid studentId, CancellationToken cancellationToken)
@@ -245,7 +245,7 @@ internal sealed class ApproveStudentAdmissionStudentOnboardingReadData(IDbConnec
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-internal sealed class ApproveStudentAdmissionStudentWriteData(IStudentsDbContext dbContext)
+public sealed class ApproveStudentAdmissionStudentWriteData(IStudentsDbContext dbContext)
 {
 
     public async Task UpdateAsync(
@@ -262,7 +262,7 @@ internal sealed class ApproveStudentAdmissionStudentWriteData(IStudentsDbContext
 /// <summary>
 /// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
 /// </summary>
-internal sealed class ApproveStudentAdmissionStudentReadData(IStudentsDbContext dbContext,
+public sealed class ApproveStudentAdmissionStudentReadData(IStudentsDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<StudentEntity?> GetByIdAsync(

@@ -85,7 +85,7 @@ public static class GetEnrollmentById
 /// <summary>
 /// Feature-owned data access for GetEnrollmentById. Do not share across slices.
 /// </summary>
-internal sealed class GetEnrollmentByIdEnrollmentReadData(IStudentsDbContext dbContext,
+public sealed class GetEnrollmentByIdEnrollmentReadData(IStudentsDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<EnrollmentEntity?> GetByIdAsync(

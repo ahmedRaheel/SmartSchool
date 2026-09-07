@@ -45,7 +45,7 @@ public static class StrikeOffStudent
 /// <summary>
 /// Feature-owned data access for StrikeOffStudent. Do not share across slices.
 /// </summary>
-internal sealed class StrikeOffStudentStudentWriteData(IStudentsDbContext dbContext)
+public sealed class StrikeOffStudentStudentWriteData(IStudentsDbContext dbContext)
 {
 
     public async Task UpdateAsync(
@@ -62,7 +62,7 @@ internal sealed class StrikeOffStudentStudentWriteData(IStudentsDbContext dbCont
 /// <summary>
 /// Feature-owned data access for StrikeOffStudent. Do not share across slices.
 /// </summary>
-internal sealed class StrikeOffStudentStudentReadData(IStudentsDbContext dbContext,
+public sealed class StrikeOffStudentStudentReadData(IStudentsDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<StudentEntity?> GetByIdAsync(

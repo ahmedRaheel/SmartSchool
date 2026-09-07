@@ -124,7 +124,7 @@ public static class OperationalAiCoreEndpoints
 /// <summary>
 /// Feature-owned data access for OperationalAiCoreEndpoints. Do not share across slices.
 /// </summary>
-internal sealed class OperationalAiCoreEndpointsKnowledgeChunkWriteData(IAICoreDbContext dbContext)
+public sealed class OperationalAiCoreEndpointsKnowledgeChunkWriteData(IAICoreDbContext dbContext)
 {
     public async Task AddAsync(
         KnowledgeChunkEntity entity,
@@ -140,7 +140,7 @@ internal sealed class OperationalAiCoreEndpointsKnowledgeChunkWriteData(IAICoreD
 /// <summary>
 /// Feature-owned data access for OperationalAiCoreEndpoints. Do not share across slices.
 /// </summary>
-internal sealed class OperationalAiCoreEndpointsAiExecutionLogWriteData(IAICoreDbContext dbContext)
+public sealed class OperationalAiCoreEndpointsAiExecutionLogWriteData(IAICoreDbContext dbContext)
 {
     public async Task AddAsync(
         AiExecutionLogEntity entity,

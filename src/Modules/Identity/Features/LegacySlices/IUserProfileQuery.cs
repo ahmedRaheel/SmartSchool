@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using SmartSchool.Modules.Identity.Models;
 using SmartSchool.SharedKernel;
 
-namespace SmartSchool.Modules.Identity.Persistence;
+namespace SmartSchool.Modules.Identity.Features.UserProfile;
 
 /// <summary>
 /// Defines query persistence operations for UserProfileEntity.

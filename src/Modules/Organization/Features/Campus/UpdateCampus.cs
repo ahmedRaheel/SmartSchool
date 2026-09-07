@@ -70,7 +70,7 @@ public static class UpdateCampus
 /// <summary>
 /// Feature-owned data access for UpdateCampus. Do not share across slices.
 /// </summary>
-internal sealed class UpdateCampusSchoolReadData(IDbConnectionFactory connectionFactory)
+public sealed class UpdateCampusSchoolReadData(IDbConnectionFactory connectionFactory)
 {
     public async Task<SchoolEntity?> GetByIdAsync(
         Guid tenantId,
@@ -103,7 +103,7 @@ internal sealed class UpdateCampusSchoolReadData(IDbConnectionFactory connection
 /// <summary>
 /// Feature-owned data access for UpdateCampus. Do not share across slices.
 /// </summary>
-internal sealed class UpdateCampusBranchPolicyWriteData(IDbConnectionFactory connectionFactory)
+public sealed class UpdateCampusBranchPolicyWriteData(IDbConnectionFactory connectionFactory)
 {
     public async Task<bool> GenderTypeExistsAsync(Guid genderTypeId, CancellationToken cancellationToken)
     {
@@ -139,7 +139,7 @@ internal sealed class UpdateCampusBranchPolicyWriteData(IDbConnectionFactory con
 /// <summary>
 /// Feature-owned data access for UpdateCampus. Do not share across slices.
 /// </summary>
-internal sealed class UpdateCampusCampusReadData(IOrganizationDbContext dbContext,
+public sealed class UpdateCampusCampusReadData(IOrganizationDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<CampusEntity?> GetByIdAsync(
@@ -158,7 +158,7 @@ internal sealed class UpdateCampusCampusReadData(IOrganizationDbContext dbContex
 /// <summary>
 /// Feature-owned data access for UpdateCampus. Do not share across slices.
 /// </summary>
-internal sealed class UpdateCampusCampusWriteData(IOrganizationDbContext dbContext)
+public sealed class UpdateCampusCampusWriteData(IOrganizationDbContext dbContext)
 {
 
     public async Task UpdateAsync(

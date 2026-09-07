@@ -80,7 +80,7 @@ public static class GetCampusById
 /// <summary>
 /// Feature-owned data access for GetCampusById. Do not share across slices.
 /// </summary>
-internal sealed class GetCampusByIdCampusReadData(IOrganizationDbContext dbContext,
+public sealed class GetCampusByIdCampusReadData(IOrganizationDbContext dbContext,
     IDbConnectionFactory connectionFactory)
 {
     public Task<CampusEntity?> GetByIdAsync(
