@@ -1,0 +1,11 @@
+using Dapper;
+using SmartSchool.Application.Identity;
+using SmartSchool.Application.Persistence;
+
+namespace SmartSchool.Modules.Documents.Features.GetDocumentCompliance;
+public static class GetDocumentCompliance
+{
+ public sealed record Requirement(string DocumentType,string DisplayName,int RequiredCount,int UploadedCount,bool Satisfied,string? ConditionCode);
+ public static void MapEndpoint(IEndpointRouteBuilder e)=>e.MapGet("/api/documents/files/compliance/{actorType}/{entityId:guid}",HandleAsync).WithTags("Documents").RequireAuthorization();
+ private static async Task<IResult> HandleAsync(string actorType,Guid entityId,string? staffType,Guid? tenantId,ITenantScope scope,IDbConnectionFactory factory,CancellationToken cancellationToken){var tenant=scope.Resolve(tenantId);if(!tenant.HasValue)return Results.BadRequest(new{message="Tenant is required for SuperAdmin."});const string sql="""WITH requirements AS (SELECT DISTINCT ON (document_type) document_type,display_name,min_count,condition_code FROM document.required_document WHERE is_active=true AND is_required=true AND actor_type=@ActorType AND (tenant_id IS NULL OR tenant_id=@TenantId) AND (staff_type IS NULL OR staff_type=@StaffType) ORDER BY document_type,CASE WHEN tenant_id=@TenantId THEN 0 ELSE 1 END),uploaded AS (SELECT d.document_type,count(*)::int AS uploaded_count FROM document.document d JOIN document.document_link l ON l.document_id=d.document_id AND l.tenant_id=d.tenant_id WHERE d.tenant_id=@TenantId AND l.entity_type=@ActorType AND l.entity_id=@EntityId AND d.status='ACTIVE' GROUP BY d.document_type) SELECT r.document_type AS "DocumentType",r.display_name AS "DisplayName",r.min_count AS "RequiredCount",COALESCE(u.uploaded_count,0) AS "UploadedCount",(COALESCE(u.uploaded_count,0)>=r.min_count) AS "Satisfied",r.condition_code AS "ConditionCode" FROM requirements r LEFT JOIN uploaded u ON u.document_type=r.document_type ORDER BY r.display_name""";await using var connection=await factory.OpenConnectionAsync(cancellationToken);var rows=(await connection.QueryAsync<Requirement>(new CommandDefinition(sql,new{TenantId=tenant.Value,ActorType=actorType.ToUpperInvariant(),EntityId=entityId,StaffType=staffType?.ToUpperInvariant()},cancellationToken:cancellationToken))).ToList();return Results.Ok(new{compliant=rows.All(x=>x.Satisfied),requirements=rows});}
+}

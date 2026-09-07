@@ -33,7 +33,7 @@ public static class CreateCampus
         }
     }
 
-    public sealed class Handler(ITenantScope tenantScope, CreateCampusCampusCommand command, CreateCampusSchoolQuery schoolQuery, CreateCampusBranchPolicyCommand policyCommand, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(ITenantScope tenantScope, CreateCampusCampusCommand command, CreateCampusSchoolQuery schoolQuery, CreateCampusBranchPolicyQuery policyQuery, CreateCampusBranchPolicyCommand policyCommand, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
@@ -46,12 +46,12 @@ public static class CreateCampus
             {
                 return Result<Response>.Failure(Error.NotFound("The selected school was not found in this tenant."));
             }
-            if (!await policyCommand.GenderTypeExistsAsync(request.BranchGenderTypeId, cancellationToken))
+            if (!await policyQuery.GenderTypeExistsAsync(request.BranchGenderTypeId, cancellationToken))
             {
                 return Result<Response>.Failure(Error.Validation("Select a valid branch gender type."));
             }
             var educationLevelIds = request.EducationLevelIds ?? Array.Empty<Guid>();
-            if (educationLevelIds.Count > 0 && !await policyCommand.EducationLevelsExistAsync(educationLevelIds, cancellationToken))
+            if (educationLevelIds.Count > 0 && !await policyQuery.EducationLevelsExistAsync(educationLevelIds, cancellationToken))
             {
                 return Result<Response>.Failure(Error.Validation("One or more education levels are invalid."));
             }
@@ -113,7 +113,7 @@ public sealed class CreateCampusSchoolQuery(IDbConnectionFactory connectionFacto
 /// <summary>
 /// Feature-owned data access for CreateCampus. Do not share across slices.
 /// </summary>
-public sealed class CreateCampusBranchPolicyCommand(IDbConnectionFactory connectionFactory, OrganizationDbContext dbContext)
+public sealed class CreateCampusBranchPolicyQuery(IDbConnectionFactory connectionFactory)
 {
     public async Task<bool> GenderTypeExistsAsync(Guid genderTypeId, CancellationToken cancellationToken)
     {
@@ -133,17 +133,29 @@ public sealed class CreateCampusBranchPolicyCommand(IDbConnectionFactory connect
     }
 
 
-    public async Task SetEducationLevelsAsync(Guid tenantId, Guid branchId, IReadOnlyCollection<Guid> educationLevelIds, CancellationToken cancellationToken)
+
+}
+
+public sealed class CreateCampusBranchPolicyCommand(IOrganizationDbContext dbContext)
+{
+    public async Task SetEducationLevelsAsync(
+        Guid tenantId,
+        Guid campusId,
+        IReadOnlyCollection<Guid> educationLevelIds,
+        CancellationToken cancellationToken)
     {
-        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        await dbContext.Database.ExecuteSqlInterpolatedAsync(
-            $"DELETE FROM org.campus_education_level WHERE tenant_id={tenantId} AND campus_id={branchId};", cancellationToken);
-        foreach (var levelId in educationLevelIds.Distinct())
-        {
-            await dbContext.Database.ExecuteSqlInterpolatedAsync(
-                $"INSERT INTO org.campus_education_level(tenant_id, campus_id, education_level_id) VALUES({tenantId}, {branchId}, {levelId});", cancellationToken);
-        }
-        await transaction.CommitAsync(cancellationToken);
+        var existing = await dbContext.CampusEducationLevels
+            .Where(x => x.TenantId == tenantId && x.CampusId == campusId)
+            .ToListAsync(cancellationToken);
+
+        dbContext.CampusEducationLevels.RemoveRange(existing);
+
+        var entities = educationLevelIds
+            .Distinct()
+            .Select(educationLevelId => CampusEducationLevelEntity.Create(tenantId, campusId, educationLevelId));
+
+        await dbContext.CampusEducationLevels.AddRangeAsync(entities, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
 

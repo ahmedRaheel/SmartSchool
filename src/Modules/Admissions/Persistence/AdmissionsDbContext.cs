@@ -13,6 +13,7 @@ public interface IAdmissionsDbContext
     DbSet<ApplicationEntity> Applications { get; }
     DbSet<InquiryEntity> Inquiries { get; }
     DbSet<Features.AdmissionCriteriaWriteEntity> AdmissionCriteria { get; }
+    DbSet<Features.AdmissionApplicationWriteEntity> AdmissionApplications { get; }
     DbSet<Features.CompleteAdmissionApplication> CompleteAdmissionApplications { get; }
     DbSet<Features.CompleteAdmissionStudent> CompleteAdmissionStudents { get; }
     DbSet<Features.CompleteAdmissionGuardian> CompleteAdmissionGuardians { get; }
@@ -34,6 +35,7 @@ public sealed class AdmissionsDbContext(DbContextOptions<AdmissionsDbContext> op
     public DbSet<ApplicationEntity> Applications => Set<ApplicationEntity>();
     public DbSet<InquiryEntity> Inquiries => Set<InquiryEntity>();
     public DbSet<Features.AdmissionCriteriaWriteEntity> AdmissionCriteria => Set<Features.AdmissionCriteriaWriteEntity>();
+    public DbSet<Features.AdmissionApplicationWriteEntity> AdmissionApplications => Set<Features.AdmissionApplicationWriteEntity>();
     public DbSet<Features.CompleteAdmissionApplication> CompleteAdmissionApplications => Set<Features.CompleteAdmissionApplication>();
     public DbSet<Features.CompleteAdmissionStudent> CompleteAdmissionStudents => Set<Features.CompleteAdmissionStudent>();
     public DbSet<Features.CompleteAdmissionGuardian> CompleteAdmissionGuardians => Set<Features.CompleteAdmissionGuardian>();

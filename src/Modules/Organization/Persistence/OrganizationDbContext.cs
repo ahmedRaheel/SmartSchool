@@ -12,6 +12,7 @@ public interface IOrganizationDbContext
     DbSet<AcademicYearEntity> AcademicYears { get; }
     DbSet<CampusBrandingEntity> CampusBrandings { get; }
     DbSet<CampusEntity> Campuses { get; }
+    DbSet<CampusEducationLevelEntity> CampusEducationLevels { get; }
     DbSet<ClassSectionEntity> ClassSections { get; }
     DbSet<CourseOfferingEntity> CourseOfferings { get; }
     DbSet<CourseSelectionEntity> CourseSelections { get; }
@@ -44,6 +45,7 @@ public sealed class OrganizationDbContext(DbContextOptions<OrganizationDbContext
     public DbSet<AcademicYearEntity> AcademicYears => Set<AcademicYearEntity>();
     public DbSet<CampusBrandingEntity> CampusBrandings => Set<CampusBrandingEntity>();
     public DbSet<CampusEntity> Campuses => Set<CampusEntity>();
+    public DbSet<CampusEducationLevelEntity> CampusEducationLevels => Set<CampusEducationLevelEntity>();
     public DbSet<ClassSectionEntity> ClassSections => Set<ClassSectionEntity>();
     public DbSet<CourseOfferingEntity> CourseOfferings => Set<CourseOfferingEntity>();
     public DbSet<CourseSelectionEntity> CourseSelections => Set<CourseSelectionEntity>();

@@ -1,6 +1,5 @@
 using SmartSchool.Modules.AICore.Persistence;
-using Microsoft.EntityFrameworkCore;
-using System.Globalization;
+using SmartSchool.Modules.AICore.Models;
 using System.Text.RegularExpressions;
 using Dapper;
 using SmartSchool.Application.Identity;
@@ -69,58 +68,30 @@ public static class UploadKnowledgePdf
                 new { message = "No extractable text was found. Scanned/image-only PDFs require OCR before ingestion." });
         }
 
-        var documentId = Guid.NewGuid();
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-
         const string verifyCollectionSql = """
-            SELECT code
-            FROM ai_core.knowledge_collection
-            WHERE tenant_id = @TenantId
-              AND knowledge_collection_id = @CollectionId
-              AND is_active = true;
+            SELECT code FROM ai_core.knowledge_collection
+            WHERE tenant_id = @TenantId AND knowledge_collection_id = @CollectionId AND is_active = true;
             """;
-
-        var collectionCode = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(
-                verifyCollectionSql,
-                new
-                {
-                    TenantId = resolvedTenantId.Value,
-                    CollectionId = collectionId
-                },
-                cancellationToken: cancellationToken));
-
-        if (string.IsNullOrWhiteSpace(collectionCode))
-        {
-            return Results.BadRequest(new { message = "Knowledge collection does not belong to this tenant." });
-        }
+        var collectionCode = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(verifyCollectionSql, new { TenantId = resolvedTenantId.Value, CollectionId = collectionId }, cancellationToken: cancellationToken));
+        if (string.IsNullOrWhiteSpace(collectionCode)) return Results.BadRequest(new { message = "Knowledge collection does not belong to this tenant." });
 
         var title = Path.GetFileName(file.FileName);
-        var metadata = "{\"source\":\"upload\"}";
-        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
-            INSERT INTO ai_core.knowledge_document
-                (knowledge_document_id, knowledge_collection_id, tenant_id, campus_id, academic_system_id, title, document_type, source_url, metadata, status, is_active, created_at, row_version)
-            VALUES ({documentId}, {collectionId}, {resolvedTenantId.Value}, {campusId}, {academicSystemId}, {title}, 'PDF', NULL, CAST({metadata} AS jsonb), 'INDEXED', true, CURRENT_TIMESTAMP, gen_random_bytes(8));
-            """, cancellationToken);
+        var document = KnowledgeDocumentEntity.CreateIndexed(resolvedTenantId.Value, collectionId, campusId, academicSystemId, title, "{\"source\":\"upload\"}");
+        await dbContext.KnowledgeDocuments.AddAsync(document, cancellationToken);
 
         var chunks = Chunk(pages, ChunkSize).ToArray();
-
+        var chunkEntities = new List<RagKnowledgeChunkWriteEntity>(chunks.Length);
         foreach (var batch in chunks.Chunk(32))
         {
             var embeddings = await ollamaClient.EmbedBatchAsync(batch, cancellationToken);
             for (var index = 0; index < batch.Length; index++)
             {
-                var id = Guid.NewGuid();
-                var collection = collectionCode.Trim().ToLowerInvariant();
-                var documentName = Path.GetFileName(file.FileName);
-                var content = batch[index];
-                var embedding = ToVectorLiteral(embeddings[index]);
-                await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
-                    INSERT INTO ai_core.rag_knowledge_chunk(id, tenant_id, collection, document_name, content, embedding, created_at, is_active)
-                    VALUES ({id}, {resolvedTenantId.Value}, {collection}, {documentName}, {content}, CAST({embedding} AS vector), CURRENT_TIMESTAMP, true);
-                    """, cancellationToken);
+                chunkEntities.Add(RagKnowledgeChunkWriteEntity.Create(resolvedTenantId.Value, collectionCode.Trim().ToLowerInvariant(), title, batch[index], embeddings[index].ToArray()));
             }
         }
+        await dbContext.RagKnowledgeChunks.AddRangeAsync(chunkEntities, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         await assistantService.InvalidateKnowledgeAsync(
             resolvedTenantId.Value,
@@ -130,7 +101,7 @@ public static class UploadKnowledgePdf
         return Results.Ok(
             new
             {
-                knowledgeDocumentId = documentId,
+                knowledgeDocumentId = document.KnowledgeDocumentId,
                 fileName = file.FileName,
                 pages = pages.Length,
                 chunks = chunks.Length,
@@ -149,8 +120,5 @@ public static class UploadKnowledgePdf
         }
     }
 
-    private static string ToVectorLiteral(IEnumerable<float> values)
-    {
-        return $"[{string.Join(",", values.Select(value => value.ToString(CultureInfo.InvariantCulture)))}]";
-    }
+
 }

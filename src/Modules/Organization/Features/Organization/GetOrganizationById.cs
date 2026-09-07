@@ -1,6 +1,7 @@
 using Dapper;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.GetOrganizationByIdQuery;
 using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;

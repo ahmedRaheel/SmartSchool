@@ -1,5 +1,6 @@
 using Dapper;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.GetGeographyQuery;
 using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Reference.Features.Lookups;

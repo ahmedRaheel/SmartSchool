@@ -1,5 +1,4 @@
 using Dapper;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
@@ -172,32 +171,12 @@ public sealed class CreateAdmissionApplicationCommand(IAdmissionsDbContext dbCon
         CreateAdmissionApplication.Request request,
         CancellationToken cancellationToken)
     {
-        var applicationId = Guid.NewGuid();
-        var status = AdmissionApplicationStatus.SubmittedApplication.ToDatabaseValue();
+        var entity = AdmissionApplicationWriteEntity.Create(tenantId, request);
 
-        await dbContext.Database.ExecuteSqlInterpolatedAsync(
-            $"""
-            INSERT INTO admission.student_application
-            (
-                application_id, tenant_id, school_id, branch_id, academic_year_id,
-                class_id, section_id, first_name, last_name, date_of_birth, gender,
-                email, phone, address, guardian_name, guardian_cnic, guardian_email,
-                guardian_phone, relationship, previous_school, previous_marks, status
-            )
-            VALUES
-            (
-                {applicationId}, {tenantId}, {request.SchoolId}, {request.BranchId},
-                {request.AcademicYearId}, {request.ClassId}, {request.SectionId},
-                {request.FirstName}, {request.LastName}, {request.DateOfBirth},
-                {request.Gender}, {request.Email}, {request.Phone}, {request.Address},
-                {request.GuardianName}, {request.GuardianCnic}, {request.GuardianEmail},
-                {request.GuardianPhone}, {request.Relationship}, {request.PreviousSchool},
-                {request.PreviousMarks}, {status}
-            );
-            """,
-            cancellationToken);
+        await dbContext.AdmissionApplications.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
-        return applicationId;
+        return entity.ApplicationId;
     }
 }
 

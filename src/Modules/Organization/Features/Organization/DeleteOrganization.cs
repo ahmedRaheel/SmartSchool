@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
+using SmartSchool.Modules.Organization.DeleteOrganizationCommand;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Organization.Persistence;
