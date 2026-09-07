@@ -40,14 +40,14 @@ public static class CreateStudentFee
         }
     }
 
-    public interface ICreateStudentFee
+    public interface ICreateStudentFeeCommand
     {
         Task AddAsync(
                 StudentFeeEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentFeeCommand(IFinanceDbContext dbContext) : ICreateStudentFee
+    internal sealed class CreateStudentFeeCommand(IFinanceDbContext dbContext) : ICreateStudentFeeCommand
     {
         public async Task AddAsync(
                 StudentFeeEntity entity,
@@ -60,21 +60,19 @@ public static class CreateStudentFee
             }
     }
 
-    public sealed class Handler(ICreateStudentFee dataAccess)
+    public sealed class Handler(ICreateStudentFeeCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StudentFeeEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

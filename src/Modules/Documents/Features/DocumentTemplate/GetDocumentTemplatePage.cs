@@ -31,7 +31,7 @@ public static class GetDocumentTemplatePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetDocumentTemplatePage
+    public interface IGetDocumentTemplatePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetDocumentTemplatePage
     }
 
     internal sealed class GetDocumentTemplatePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetDocumentTemplatePage
+        IDbConnectionFactory connectionFactory) : IGetDocumentTemplatePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetDocumentTemplatePage
             }
     }
 
-    public sealed class Handler(IGetDocumentTemplatePage dataAccess)
+    public sealed class Handler(IGetDocumentTemplatePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetDocumentTemplatePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

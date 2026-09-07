@@ -29,7 +29,7 @@ public static class GetLoanById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetLoanById
+    public interface IGetLoanByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetLoanById
     }
 
     internal sealed class GetLoanByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetLoanById
+        IDbConnectionFactory connectionFactory) : IGetLoanByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetLoanById
             }
     }
 
-    public sealed class Handler(IGetLoanById dataAccess)
+    public sealed class Handler(IGetLoanByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

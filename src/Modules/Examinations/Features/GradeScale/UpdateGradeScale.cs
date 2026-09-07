@@ -42,7 +42,7 @@ public static class UpdateGradeScale
         }
     }
 
-    public interface IUpdateGradeScale
+    public interface IUpdateGradeScaleCommand
     {
         Task UpdateAsync(
                 GradeScaleEntity entity,
@@ -54,7 +54,7 @@ Task<GradeScaleEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateGradeScaleCommand(IExaminationsDbContext dbContext) : IUpdateGradeScale
+    internal sealed class UpdateGradeScaleCommand(IExaminationsDbContext dbContext) : IUpdateGradeScaleCommand
     {
         public async Task UpdateAsync(
                 GradeScaleEntity entity,
@@ -79,14 +79,14 @@ Task<GradeScaleEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateGradeScale dataAccess)
+    public sealed class Handler(IUpdateGradeScaleCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<GradeScaleEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

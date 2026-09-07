@@ -31,7 +31,7 @@ public static class GetModelConfigurationPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetModelConfigurationPage
+    public interface IGetModelConfigurationPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetModelConfigurationPage
     }
 
     internal sealed class GetModelConfigurationPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetModelConfigurationPage
+        IDbConnectionFactory connectionFactory) : IGetModelConfigurationPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetModelConfigurationPage
             }
     }
 
-    public sealed class Handler(IGetModelConfigurationPage dataAccess)
+    public sealed class Handler(IGetModelConfigurationPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetModelConfigurationPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

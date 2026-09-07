@@ -31,7 +31,7 @@ public static class GetActivityPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetActivityPage
+    public interface IGetActivityPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetActivityPage
     }
 
     internal sealed class GetActivityPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetActivityPage
+        IDbConnectionFactory connectionFactory) : IGetActivityPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetActivityPage
             }
     }
 
-    public sealed class Handler(IGetActivityPage dataAccess)
+    public sealed class Handler(IGetActivityPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetActivityPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

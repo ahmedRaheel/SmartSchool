@@ -29,7 +29,7 @@ public static class GetParentConversationById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetParentConversationById
+    public interface IGetParentConversationByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetParentConversationById
     }
 
     internal sealed class GetParentConversationByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetParentConversationById
+        IDbConnectionFactory connectionFactory) : IGetParentConversationByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetParentConversationById
             }
     }
 
-    public sealed class Handler(IGetParentConversationById dataAccess)
+    public sealed class Handler(IGetParentConversationByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

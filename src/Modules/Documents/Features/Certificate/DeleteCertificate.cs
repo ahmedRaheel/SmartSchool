@@ -20,7 +20,7 @@ public static class DeleteCertificate
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteCertificate
+    public interface IDeleteCertificateCommand
     {
         Task DeleteAsync(
                 CertificateEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteCertificate
 
     }
 
-    internal sealed class DeleteCertificateCommand(IDocumentsDbContext dbContext) : IDeleteCertificate
+    internal sealed class DeleteCertificateCommand(IDocumentsDbContext dbContext) : IDeleteCertificateCommand
     {
         public async Task DeleteAsync(
                 CertificateEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteCertificate
             }
     }
 
-    public sealed class Handler(IDeleteCertificate dataAccess)
+    public sealed class Handler(IDeleteCertificateCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(CertificateEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

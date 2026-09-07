@@ -42,7 +42,7 @@ public static class UpdateEmploymentHistory
         }
     }
 
-    public interface IUpdateEmploymentHistory
+    public interface IUpdateEmploymentHistoryCommand
     {
         Task UpdateAsync(
                 EmploymentHistoryEntity entity,
@@ -54,7 +54,7 @@ Task<EmploymentHistoryEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateEmploymentHistoryCommand(IHRDbContext dbContext) : IUpdateEmploymentHistory
+    internal sealed class UpdateEmploymentHistoryCommand(IHRDbContext dbContext) : IUpdateEmploymentHistoryCommand
     {
         public async Task UpdateAsync(
                 EmploymentHistoryEntity entity,
@@ -79,14 +79,14 @@ Task<EmploymentHistoryEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateEmploymentHistory dataAccess)
+    public sealed class Handler(IUpdateEmploymentHistoryCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<EmploymentHistoryEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

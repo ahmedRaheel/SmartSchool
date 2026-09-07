@@ -31,7 +31,7 @@ public static class GetReservationPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetReservationPage
+    public interface IGetReservationPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetReservationPage
     }
 
     internal sealed class GetReservationPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetReservationPage
+        IDbConnectionFactory connectionFactory) : IGetReservationPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetReservationPage
             }
     }
 
-    public sealed class Handler(IGetReservationPage dataAccess)
+    public sealed class Handler(IGetReservationPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetReservationPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

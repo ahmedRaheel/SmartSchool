@@ -41,14 +41,14 @@ public static class CreateLeadCapture
         }
     }
 
-    public interface ICreateLeadCapture
+    public interface ICreateLeadCaptureCommand
     {
         Task AddAsync(
                 LeadCaptureEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLeadCaptureCommand(IAIInquiryDbContext dbContext) : ICreateLeadCapture
+    internal sealed class CreateLeadCaptureCommand(IAIInquiryDbContext dbContext) : ICreateLeadCaptureCommand
     {
         public async Task AddAsync(
                 LeadCaptureEntity entity,
@@ -61,22 +61,20 @@ public static class CreateLeadCapture
             }
     }
 
-    public sealed class Handler(ICreateLeadCapture dataAccess)
+    public sealed class Handler(ICreateLeadCaptureCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = LeadCaptureEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

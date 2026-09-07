@@ -40,14 +40,14 @@ public static class CreateAssignmentSubmission
         }
     }
 
-    public interface ICreateAssignmentSubmission
+    public interface ICreateAssignmentSubmissionCommand
     {
         Task AddAsync(
                 AssignmentSubmissionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAssignmentSubmissionCommand(ILearningDbContext dbContext) : ICreateAssignmentSubmission
+    internal sealed class CreateAssignmentSubmissionCommand(ILearningDbContext dbContext) : ICreateAssignmentSubmissionCommand
     {
         public async Task AddAsync(
                 AssignmentSubmissionEntity entity,
@@ -60,21 +60,19 @@ public static class CreateAssignmentSubmission
             }
     }
 
-    public sealed class Handler(ICreateAssignmentSubmission dataAccess)
+    public sealed class Handler(ICreateAssignmentSubmissionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = AssignmentSubmissionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

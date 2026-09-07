@@ -30,12 +30,18 @@ public static class GetEnrollmentById
 
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<Response>>;
-
-    public sealed class Handler(IDbConnectionFactory connectionFactory)
-        : IRequestHandler<Query, Result<Response>>
+        Guid Id) : IRequest<Result<Response>>;    public interface IGetEnrollmentByIdQuery
     {
-        public async Task<Result<Response>> HandleAsync(
+        Task<Result<Response>> ExecuteAsync(
+            Query request,
+            CancellationToken cancellationToken);
+    }
+
+
+
+    internal sealed class GetEnrollmentByIdQuery(IDbConnectionFactory connectionFactory) : IGetEnrollmentByIdQuery
+    {
+        public async Task<Result<Response>> ExecuteAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -58,6 +64,17 @@ public static class GetEnrollmentById
             }
 
             return Result<Response>.Success(response);
+        }
+    }
+
+    public sealed class Handler(IGetEnrollmentByIdQuery query)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            return query.ExecuteAsync(request, cancellationToken);
         }
     }
 

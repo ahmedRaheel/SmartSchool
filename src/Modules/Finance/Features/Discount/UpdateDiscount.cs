@@ -42,7 +42,7 @@ public static class UpdateDiscount
         }
     }
 
-    public interface IUpdateDiscount
+    public interface IUpdateDiscountCommand
     {
         Task UpdateAsync(
                 DiscountEntity entity,
@@ -54,7 +54,7 @@ Task<DiscountEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateDiscountCommand(IFinanceDbContext dbContext) : IUpdateDiscount
+    internal sealed class UpdateDiscountCommand(IFinanceDbContext dbContext) : IUpdateDiscountCommand
     {
         public async Task UpdateAsync(
                 DiscountEntity entity,
@@ -79,14 +79,14 @@ Task<DiscountEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateDiscount dataAccess)
+    public sealed class Handler(IUpdateDiscountCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<DiscountEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

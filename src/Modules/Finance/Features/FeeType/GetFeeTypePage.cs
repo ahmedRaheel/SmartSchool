@@ -33,7 +33,7 @@ public static class GetFeeTypePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetFeeTypePage
+    public interface IGetFeeTypePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -44,7 +44,7 @@ public static class GetFeeTypePage
     }
 
     internal sealed class GetFeeTypePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetFeeTypePage
+        IDbConnectionFactory connectionFactory) : IGetFeeTypePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -106,7 +106,7 @@ public static class GetFeeTypePage
             }
     }
 
-    public sealed class Handler(IGetFeeTypePage dataAccess)
+    public sealed class Handler(IGetFeeTypePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -114,7 +114,7 @@ public static class GetFeeTypePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

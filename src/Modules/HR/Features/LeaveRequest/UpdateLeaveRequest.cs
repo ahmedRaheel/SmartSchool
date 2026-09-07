@@ -42,7 +42,7 @@ public static class UpdateLeaveRequest
         }
     }
 
-    public interface IUpdateLeaveRequest
+    public interface IUpdateLeaveRequestCommand
     {
         Task UpdateAsync(
                 LeaveRequestEntity entity,
@@ -54,7 +54,7 @@ Task<LeaveRequestEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLeaveRequestCommand(IHRDbContext dbContext) : IUpdateLeaveRequest
+    internal sealed class UpdateLeaveRequestCommand(IHRDbContext dbContext) : IUpdateLeaveRequestCommand
     {
         public async Task UpdateAsync(
                 LeaveRequestEntity entity,
@@ -79,14 +79,14 @@ Task<LeaveRequestEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateLeaveRequest dataAccess)
+    public sealed class Handler(IUpdateLeaveRequestCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<LeaveRequestEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -40,14 +40,14 @@ public static class CreatePayslip
         }
     }
 
-    public interface ICreatePayslip
+    public interface ICreatePayslipCommand
     {
         Task AddAsync(
                 PayslipEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePayslipCommand(IPayrollDbContext dbContext) : ICreatePayslip
+    internal sealed class CreatePayslipCommand(IPayrollDbContext dbContext) : ICreatePayslipCommand
     {
         public async Task AddAsync(
                 PayslipEntity entity,
@@ -60,21 +60,19 @@ public static class CreatePayslip
             }
     }
 
-    public sealed class Handler(ICreatePayslip dataAccess)
+    public sealed class Handler(ICreatePayslipCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = PayslipEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

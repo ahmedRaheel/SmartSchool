@@ -42,7 +42,7 @@ public static class UpdateResume
         }
     }
 
-    public interface IUpdateResume
+    public interface IUpdateResumeCommand
     {
         Task UpdateAsync(
                 ResumeEntity entity,
@@ -54,7 +54,7 @@ Task<ResumeEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateResumeCommand(IHRDbContext dbContext) : IUpdateResume
+    internal sealed class UpdateResumeCommand(IHRDbContext dbContext) : IUpdateResumeCommand
     {
         public async Task UpdateAsync(
                 ResumeEntity entity,
@@ -79,14 +79,14 @@ Task<ResumeEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateResume dataAccess)
+    public sealed class Handler(IUpdateResumeCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ResumeEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

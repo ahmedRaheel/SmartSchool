@@ -40,14 +40,14 @@ public static class CreateInterview
         }
     }
 
-    public interface ICreateInterview
+    public interface ICreateInterviewCommand
     {
         Task AddAsync(
                 InterviewEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateInterviewCommand(IHRDbContext dbContext) : ICreateInterview
+    internal sealed class CreateInterviewCommand(IHRDbContext dbContext) : ICreateInterviewCommand
     {
         public async Task AddAsync(
                 InterviewEntity entity,
@@ -60,21 +60,19 @@ public static class CreateInterview
             }
     }
 
-    public sealed class Handler(ICreateInterview dataAccess)
+    public sealed class Handler(ICreateInterviewCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = InterviewEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

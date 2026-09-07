@@ -19,7 +19,7 @@ public static class DeleteTimetable
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteTimetable
+    public interface IDeleteTimetableCommand
     {
         Task DeleteAsync(
                 TimetableEntity entity,
@@ -32,7 +32,7 @@ public static class DeleteTimetable
 
     }
 
-    internal sealed class DeleteTimetableCommand(IOrganizationDbContext dbContext) : IDeleteTimetable
+    internal sealed class DeleteTimetableCommand(IOrganizationDbContext dbContext) : IDeleteTimetableCommand
     {
         public async Task DeleteAsync(
                 TimetableEntity entity,
@@ -59,21 +59,21 @@ public static class DeleteTimetable
             }
     }
 
-    public sealed class Handler(IDeleteTimetable dataAccess)
+    public sealed class Handler(IDeleteTimetableCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(TimetableEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

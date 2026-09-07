@@ -42,7 +42,7 @@ public static class UpdateGeneratedDocument
         }
     }
 
-    public interface IUpdateGeneratedDocument
+    public interface IUpdateGeneratedDocumentCommand
     {
         Task UpdateAsync(
                 GeneratedDocumentEntity entity,
@@ -54,7 +54,7 @@ Task<GeneratedDocumentEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateGeneratedDocumentCommand(IDocumentsDbContext dbContext) : IUpdateGeneratedDocument
+    internal sealed class UpdateGeneratedDocumentCommand(IDocumentsDbContext dbContext) : IUpdateGeneratedDocumentCommand
     {
         public async Task UpdateAsync(
                 GeneratedDocumentEntity entity,
@@ -79,14 +79,14 @@ Task<GeneratedDocumentEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateGeneratedDocument dataAccess)
+    public sealed class Handler(IUpdateGeneratedDocumentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<GeneratedDocumentEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

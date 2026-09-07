@@ -42,7 +42,7 @@ public static class UpdateAuditLog
         }
     }
 
-    public interface IUpdateAuditLog
+    public interface IUpdateAuditLogCommand
     {
         Task UpdateAsync(
                 AuditLogEntity entity,
@@ -54,7 +54,7 @@ Task<AuditLogEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAuditLogCommand(IAuditDbContext dbContext) : IUpdateAuditLog
+    internal sealed class UpdateAuditLogCommand(IAuditDbContext dbContext) : IUpdateAuditLogCommand
     {
         public async Task UpdateAsync(
                 AuditLogEntity entity,
@@ -79,14 +79,14 @@ Task<AuditLogEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateAuditLog dataAccess)
+    public sealed class Handler(IUpdateAuditLogCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<AuditLogEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

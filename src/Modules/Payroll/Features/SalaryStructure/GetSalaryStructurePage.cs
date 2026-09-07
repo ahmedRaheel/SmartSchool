@@ -31,7 +31,7 @@ public static class GetSalaryStructurePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetSalaryStructurePage
+    public interface IGetSalaryStructurePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetSalaryStructurePage
     }
 
     internal sealed class GetSalaryStructurePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetSalaryStructurePage
+        IDbConnectionFactory connectionFactory) : IGetSalaryStructurePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetSalaryStructurePage
             }
     }
 
-    public sealed class Handler(IGetSalaryStructurePage dataAccess)
+    public sealed class Handler(IGetSalaryStructurePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetSalaryStructurePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

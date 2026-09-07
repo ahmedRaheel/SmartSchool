@@ -40,14 +40,14 @@ public static class CreateParentToolExecution
         }
     }
 
-    public interface ICreateParentToolExecution
+    public interface ICreateParentToolExecutionCommand
     {
         Task AddAsync(
                 ParentToolExecutionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateParentToolExecutionCommand(IAIParentDbContext dbContext) : ICreateParentToolExecution
+    internal sealed class CreateParentToolExecutionCommand(IAIParentDbContext dbContext) : ICreateParentToolExecutionCommand
     {
         public async Task AddAsync(
                 ParentToolExecutionEntity entity,
@@ -60,21 +60,19 @@ public static class CreateParentToolExecution
             }
     }
 
-    public sealed class Handler(ICreateParentToolExecution dataAccess)
+    public sealed class Handler(ICreateParentToolExecutionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ParentToolExecutionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

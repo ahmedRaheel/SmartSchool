@@ -20,7 +20,7 @@ public static class DeleteEmploymentHistory
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteEmploymentHistory
+    public interface IDeleteEmploymentHistoryCommand
     {
         Task DeleteAsync(
                 EmploymentHistoryEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteEmploymentHistory
 
     }
 
-    internal sealed class DeleteEmploymentHistoryCommand(IHRDbContext dbContext) : IDeleteEmploymentHistory
+    internal sealed class DeleteEmploymentHistoryCommand(IHRDbContext dbContext) : IDeleteEmploymentHistoryCommand
     {
         public async Task DeleteAsync(
                 EmploymentHistoryEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteEmploymentHistory
             }
     }
 
-    public sealed class Handler(IDeleteEmploymentHistory dataAccess)
+    public sealed class Handler(IDeleteEmploymentHistoryCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(EmploymentHistoryEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

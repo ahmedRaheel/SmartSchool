@@ -40,14 +40,14 @@ public static class CreateCertificate
         }
     }
 
-    public interface ICreateCertificate
+    public interface ICreateCertificateCommand
     {
         Task AddAsync(
                 CertificateEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateCertificateCommand(IDocumentsDbContext dbContext) : ICreateCertificate
+    internal sealed class CreateCertificateCommand(IDocumentsDbContext dbContext) : ICreateCertificateCommand
     {
         public async Task AddAsync(
                 CertificateEntity entity,
@@ -60,21 +60,19 @@ public static class CreateCertificate
             }
     }
 
-    public sealed class Handler(ICreateCertificate dataAccess)
+    public sealed class Handler(ICreateCertificateCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = CertificateEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

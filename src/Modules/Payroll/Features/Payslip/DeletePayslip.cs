@@ -20,7 +20,7 @@ public static class DeletePayslip
         Guid TenantId,
         Guid Id);
 
-    public interface IDeletePayslip
+    public interface IDeletePayslipCommand
     {
         Task DeleteAsync(
                 PayslipEntity entity,
@@ -33,7 +33,7 @@ public static class DeletePayslip
 
     }
 
-    internal sealed class DeletePayslipCommand(IPayrollDbContext dbContext) : IDeletePayslip
+    internal sealed class DeletePayslipCommand(IPayrollDbContext dbContext) : IDeletePayslipCommand
     {
         public async Task DeleteAsync(
                 PayslipEntity entity,
@@ -58,21 +58,21 @@ public static class DeletePayslip
             }
     }
 
-    public sealed class Handler(IDeletePayslip dataAccess)
+    public sealed class Handler(IDeletePayslipCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(PayslipEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

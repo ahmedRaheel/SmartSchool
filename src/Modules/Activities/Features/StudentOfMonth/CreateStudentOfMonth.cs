@@ -40,14 +40,14 @@ public static class CreateStudentOfMonth
         }
     }
 
-    public interface ICreateStudentOfMonth
+    public interface ICreateStudentOfMonthCommand
     {
         Task AddAsync(
                 StudentOfMonthEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentOfMonthCommand(IActivitiesDbContext dbContext) : ICreateStudentOfMonth
+    internal sealed class CreateStudentOfMonthCommand(IActivitiesDbContext dbContext) : ICreateStudentOfMonthCommand
     {
         public async Task AddAsync(
                 StudentOfMonthEntity entity,
@@ -60,21 +60,19 @@ public static class CreateStudentOfMonth
             }
     }
 
-    public sealed class Handler(ICreateStudentOfMonth dataAccess)
+    public sealed class Handler(ICreateStudentOfMonthCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StudentOfMonthEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

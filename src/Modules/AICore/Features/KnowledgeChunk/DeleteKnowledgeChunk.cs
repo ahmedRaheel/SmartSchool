@@ -20,7 +20,7 @@ public static class DeleteKnowledgeChunk
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteKnowledgeChunk
+    public interface IDeleteKnowledgeChunkCommand
     {
         Task DeleteAsync(
                 KnowledgeChunkEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteKnowledgeChunk
 
     }
 
-    internal sealed class DeleteKnowledgeChunkCommand(IAICoreDbContext dbContext) : IDeleteKnowledgeChunk
+    internal sealed class DeleteKnowledgeChunkCommand(IAICoreDbContext dbContext) : IDeleteKnowledgeChunkCommand
     {
         public async Task DeleteAsync(
                 KnowledgeChunkEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteKnowledgeChunk
             }
     }
 
-    public sealed class Handler(IDeleteKnowledgeChunk dataAccess)
+    public sealed class Handler(IDeleteKnowledgeChunkCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(KnowledgeChunkEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

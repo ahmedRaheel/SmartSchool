@@ -20,7 +20,7 @@ public static class DeleteAward
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteAward
+    public interface IDeleteAwardCommand
     {
         Task DeleteAsync(
                 AwardEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteAward
 
     }
 
-    internal sealed class DeleteAwardCommand(IActivitiesDbContext dbContext) : IDeleteAward
+    internal sealed class DeleteAwardCommand(IActivitiesDbContext dbContext) : IDeleteAwardCommand
     {
         public async Task DeleteAsync(
                 AwardEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteAward
             }
     }
 
-    public sealed class Handler(IDeleteAward dataAccess)
+    public sealed class Handler(IDeleteAwardCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(AwardEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

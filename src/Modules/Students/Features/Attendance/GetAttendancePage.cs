@@ -31,7 +31,7 @@ public static class GetAttendancePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetAttendancePage
+    public interface IGetAttendancePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetAttendancePage
     }
 
     internal sealed class GetAttendancePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetAttendancePage
+        IDbConnectionFactory connectionFactory) : IGetAttendancePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetAttendancePage
             }
     }
 
-    public sealed class Handler(IGetAttendancePage dataAccess)
+    public sealed class Handler(IGetAttendancePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetAttendancePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

@@ -41,7 +41,7 @@ public static class UpdateAcademicSystem
         }
     }
 
-    public interface IUpdateAcademicSystem
+    public interface IUpdateAcademicSystemCommand
     {
         Task UpdateAsync(
                 AcademicSystemEntity entity,
@@ -53,7 +53,7 @@ Task<AcademicSystemEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAcademicSystemCommand(IOrganizationDbContext dbContext) : IUpdateAcademicSystem
+    internal sealed class UpdateAcademicSystemCommand(IOrganizationDbContext dbContext) : IUpdateAcademicSystemCommand
     {
         public async Task UpdateAsync(
                 AcademicSystemEntity entity,
@@ -80,14 +80,14 @@ Task<AcademicSystemEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateAcademicSystem dataAccess)
+    public sealed class Handler(IUpdateAcademicSystemCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -99,7 +99,7 @@ Task<AcademicSystemEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

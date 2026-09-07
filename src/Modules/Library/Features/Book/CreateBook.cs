@@ -40,14 +40,14 @@ public static class CreateBook
         }
     }
 
-    public interface ICreateBook
+    public interface ICreateBookCommand
     {
         Task AddAsync(
                 BookEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateBookCommand(ILibraryDbContext dbContext) : ICreateBook
+    internal sealed class CreateBookCommand(ILibraryDbContext dbContext) : ICreateBookCommand
     {
         public async Task AddAsync(
                 BookEntity entity,
@@ -60,21 +60,19 @@ public static class CreateBook
             }
     }
 
-    public sealed class Handler(ICreateBook dataAccess)
+    public sealed class Handler(ICreateBookCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = BookEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

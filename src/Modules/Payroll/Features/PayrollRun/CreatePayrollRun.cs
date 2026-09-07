@@ -40,14 +40,14 @@ public static class CreatePayrollRun
         }
     }
 
-    public interface ICreatePayrollRun
+    public interface ICreatePayrollRunCommand
     {
         Task AddAsync(
                 PayrollRunEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePayrollRunCommand(IPayrollDbContext dbContext) : ICreatePayrollRun
+    internal sealed class CreatePayrollRunCommand(IPayrollDbContext dbContext) : ICreatePayrollRunCommand
     {
         public async Task AddAsync(
                 PayrollRunEntity entity,
@@ -60,21 +60,19 @@ public static class CreatePayrollRun
             }
     }
 
-    public sealed class Handler(ICreatePayrollRun dataAccess)
+    public sealed class Handler(ICreatePayrollRunCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = PayrollRunEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -41,14 +41,14 @@ public static class CreatePromptTemplate
         }
     }
 
-    public interface ICreatePromptTemplate
+    public interface ICreatePromptTemplateCommand
     {
         Task AddAsync(
                 PromptTemplateEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePromptTemplateCommand(IAICoreDbContext dbContext) : ICreatePromptTemplate
+    internal sealed class CreatePromptTemplateCommand(IAICoreDbContext dbContext) : ICreatePromptTemplateCommand
     {
         public async Task AddAsync(
                 PromptTemplateEntity entity,
@@ -61,22 +61,20 @@ public static class CreatePromptTemplate
             }
     }
 
-    public sealed class Handler(ICreatePromptTemplate dataAccess)
+    public sealed class Handler(ICreatePromptTemplateCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = PromptTemplateEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

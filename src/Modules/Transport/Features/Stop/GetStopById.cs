@@ -29,7 +29,7 @@ public static class GetStopById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetStopById
+    public interface IGetStopByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetStopById
     }
 
     internal sealed class GetStopByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetStopById
+        IDbConnectionFactory connectionFactory) : IGetStopByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetStopById
             }
     }
 
-    public sealed class Handler(IGetStopById dataAccess)
+    public sealed class Handler(IGetStopByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

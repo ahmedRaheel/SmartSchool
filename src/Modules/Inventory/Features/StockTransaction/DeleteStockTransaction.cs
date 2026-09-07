@@ -20,7 +20,7 @@ public static class DeleteStockTransaction
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteStockTransaction
+    public interface IDeleteStockTransactionCommand
     {
         Task DeleteAsync(
                 StockTransactionEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteStockTransaction
 
     }
 
-    internal sealed class DeleteStockTransactionCommand(IInventoryDbContext dbContext) : IDeleteStockTransaction
+    internal sealed class DeleteStockTransactionCommand(IInventoryDbContext dbContext) : IDeleteStockTransactionCommand
     {
         public async Task DeleteAsync(
                 StockTransactionEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteStockTransaction
             }
     }
 
-    public sealed class Handler(IDeleteStockTransaction dataAccess)
+    public sealed class Handler(IDeleteStockTransactionCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(StockTransactionEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

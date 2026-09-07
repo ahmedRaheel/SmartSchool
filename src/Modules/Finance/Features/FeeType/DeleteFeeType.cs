@@ -20,7 +20,7 @@ public static class DeleteFeeType
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteFeeType
+    public interface IDeleteFeeTypeCommand
     {
         Task DeleteAsync(
                 FeeTypeEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteFeeType
 
     }
 
-    internal sealed class DeleteFeeTypeCommand(IFinanceDbContext dbContext) : IDeleteFeeType
+    internal sealed class DeleteFeeTypeCommand(IFinanceDbContext dbContext) : IDeleteFeeTypeCommand
     {
         public async Task DeleteAsync(
                 FeeTypeEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteFeeType
             }
     }
 
-    public sealed class Handler(IDeleteFeeType dataAccess)
+    public sealed class Handler(IDeleteFeeTypeCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(FeeTypeEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

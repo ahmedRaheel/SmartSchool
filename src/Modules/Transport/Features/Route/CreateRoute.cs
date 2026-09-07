@@ -40,14 +40,14 @@ public static class CreateRoute
         }
     }
 
-    public interface ICreateRoute
+    public interface ICreateRouteCommand
     {
         Task AddAsync(
                 RouteEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateRouteCommand(ITransportDbContext dbContext) : ICreateRoute
+    internal sealed class CreateRouteCommand(ITransportDbContext dbContext) : ICreateRouteCommand
     {
         public async Task AddAsync(
                 RouteEntity entity,
@@ -60,21 +60,19 @@ public static class CreateRoute
             }
     }
 
-    public sealed class Handler(ICreateRoute dataAccess)
+    public sealed class Handler(ICreateRouteCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = RouteEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

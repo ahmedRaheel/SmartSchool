@@ -1,7 +1,6 @@
 using Dapper;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Application.GetOrganizationByIdQuery;
 using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
@@ -34,12 +33,12 @@ public static class GetOrganizationById
         string? AddressLine1,
         bool IsPrimary);
 
-    public interface IGetOrganizationById
+    public interface IGetOrganizationByIdQuery
     {
         Task<Response?> GetAsync(Guid tenantId, CancellationToken cancellationToken);
     }
 
-    internal sealed class GetOrganizationByIdQuery(IDbConnectionFactory connectionFactory) : IGetOrganizationById
+    internal sealed class GetOrganizationByIdQuery(IDbConnectionFactory connectionFactory) : IGetOrganizationByIdQuery
     {
         public async Task<Response?> GetAsync(Guid tenantId, CancellationToken cancellationToken)
         {
@@ -123,7 +122,7 @@ public static class GetOrganizationById
             int SchoolCount);
     }
 
-    public sealed class Handler(IGetOrganizationById persistence)
+    public sealed class Handler(IGetOrganizationByIdQuery persistence)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)

@@ -42,7 +42,7 @@ public static class UpdateAdmissionDecision
         }
     }
 
-    public interface IUpdateAdmissionDecision
+    public interface IUpdateAdmissionDecisionCommand
     {
         Task UpdateAsync(
                 AdmissionDecisionEntity entity,
@@ -54,7 +54,7 @@ Task<AdmissionDecisionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAdmissionDecisionCommand(IAdmissionsDbContext dbContext) : IUpdateAdmissionDecision
+    internal sealed class UpdateAdmissionDecisionCommand(IAdmissionsDbContext dbContext) : IUpdateAdmissionDecisionCommand
     {
         public async Task UpdateAsync(
                 AdmissionDecisionEntity entity,
@@ -79,14 +79,14 @@ Task<AdmissionDecisionEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateAdmissionDecision dataAccess)
+    public sealed class Handler(IUpdateAdmissionDecisionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<AdmissionDecisionEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

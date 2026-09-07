@@ -41,7 +41,7 @@ public static class UpdateCourseOffering
         }
     }
 
-    public interface IUpdateCourseOffering
+    public interface IUpdateCourseOfferingCommand
     {
         Task UpdateAsync(
                 CourseOfferingEntity entity,
@@ -53,7 +53,7 @@ Task<CourseOfferingEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateCourseOfferingCommand(IOrganizationDbContext dbContext) : IUpdateCourseOffering
+    internal sealed class UpdateCourseOfferingCommand(IOrganizationDbContext dbContext) : IUpdateCourseOfferingCommand
     {
         public async Task UpdateAsync(
                 CourseOfferingEntity entity,
@@ -80,14 +80,14 @@ Task<CourseOfferingEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateCourseOffering dataAccess)
+    public sealed class Handler(IUpdateCourseOfferingCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -99,7 +99,7 @@ Task<CourseOfferingEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

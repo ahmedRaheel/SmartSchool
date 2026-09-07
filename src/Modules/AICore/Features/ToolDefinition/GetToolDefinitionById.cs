@@ -29,7 +29,7 @@ public static class GetToolDefinitionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetToolDefinitionById
+    public interface IGetToolDefinitionByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetToolDefinitionById
     }
 
     internal sealed class GetToolDefinitionByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetToolDefinitionById
+        IDbConnectionFactory connectionFactory) : IGetToolDefinitionByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetToolDefinitionById
             }
     }
 
-    public sealed class Handler(IGetToolDefinitionById dataAccess)
+    public sealed class Handler(IGetToolDefinitionByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

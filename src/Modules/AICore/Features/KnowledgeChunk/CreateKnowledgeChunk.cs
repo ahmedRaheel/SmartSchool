@@ -41,14 +41,14 @@ public static class CreateKnowledgeChunk
         }
     }
 
-    public interface ICreateKnowledgeChunk
+    public interface ICreateKnowledgeChunkCommand
     {
         Task AddAsync(
                 KnowledgeChunkEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateKnowledgeChunkCommand(IAICoreDbContext dbContext) : ICreateKnowledgeChunk
+    internal sealed class CreateKnowledgeChunkCommand(IAICoreDbContext dbContext) : ICreateKnowledgeChunkCommand
     {
         public async Task AddAsync(
                 KnowledgeChunkEntity entity,
@@ -61,22 +61,20 @@ public static class CreateKnowledgeChunk
             }
     }
 
-    public sealed class Handler(ICreateKnowledgeChunk dataAccess)
+    public sealed class Handler(ICreateKnowledgeChunkCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = KnowledgeChunkEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

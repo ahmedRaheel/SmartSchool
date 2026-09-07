@@ -40,14 +40,14 @@ public static class CreateJobGrade
         }
     }
 
-    public interface ICreateJobGrade
+    public interface ICreateJobGradeCommand
     {
         Task AddAsync(
                 JobGradeEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateJobGradeCommand(IHRDbContext dbContext) : ICreateJobGrade
+    internal sealed class CreateJobGradeCommand(IHRDbContext dbContext) : ICreateJobGradeCommand
     {
         public async Task AddAsync(
                 JobGradeEntity entity,
@@ -60,21 +60,19 @@ public static class CreateJobGrade
             }
     }
 
-    public sealed class Handler(ICreateJobGrade dataAccess)
+    public sealed class Handler(ICreateJobGradeCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = JobGradeEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

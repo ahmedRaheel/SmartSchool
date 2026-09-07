@@ -38,7 +38,7 @@ public static class GetAuditLogPage
         string Name,
         string? MetadataJson);
 
-    public interface IGetAuditLogPage
+    public interface IGetAuditLogPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -49,7 +49,7 @@ public static class GetAuditLogPage
     }
 
     internal sealed class GetAuditLogPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetAuditLogPage
+        IDbConnectionFactory connectionFactory) : IGetAuditLogPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -118,7 +118,7 @@ public static class GetAuditLogPage
             }
     }
 
-    public sealed class Handler(IGetAuditLogPage dataAccess)
+    public sealed class Handler(IGetAuditLogPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -126,7 +126,7 @@ public static class GetAuditLogPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

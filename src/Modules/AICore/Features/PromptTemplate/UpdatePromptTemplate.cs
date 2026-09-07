@@ -42,7 +42,7 @@ public static class UpdatePromptTemplate
         }
     }
 
-    public interface IUpdatePromptTemplate
+    public interface IUpdatePromptTemplateCommand
     {
         Task UpdateAsync(
                 PromptTemplateEntity entity,
@@ -54,7 +54,7 @@ Task<PromptTemplateEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePromptTemplateCommand(IAICoreDbContext dbContext) : IUpdatePromptTemplate
+    internal sealed class UpdatePromptTemplateCommand(IAICoreDbContext dbContext) : IUpdatePromptTemplateCommand
     {
         public async Task UpdateAsync(
                 PromptTemplateEntity entity,
@@ -79,14 +79,14 @@ Task<PromptTemplateEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdatePromptTemplate dataAccess)
+    public sealed class Handler(IUpdatePromptTemplateCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<PromptTemplateEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

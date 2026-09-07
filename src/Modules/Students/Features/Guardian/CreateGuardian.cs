@@ -39,7 +39,7 @@ public static class CreateGuardian
         }
     }
 
-    public interface ICreateGuardian
+    public interface ICreateGuardianCommand
     {
         Task AddAsync(
                 GuardianEntity entity,
@@ -50,7 +50,7 @@ public static class CreateGuardian
     }
 
     internal sealed class CreateGuardianCommand(
-        IStudentsDbContext dbContext) : ICreateGuardian
+        IStudentsDbContext dbContext) : ICreateGuardianCommand
     {
         public async Task AddAsync(
                 GuardianEntity entity,
@@ -71,13 +71,13 @@ public static class CreateGuardian
         }
 }
 
-    public sealed class Handler(ICreateGuardian dataAccess)
+    public sealed class Handler(ICreateGuardianCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
             var exists = !string.IsNullOrWhiteSpace(request.CnicNumber)
-                && await dataAccess.ExistsByCnicNumberAsync(
+                && await command.ExistsByCnicNumberAsync(
                     request.TenantId, request.CnicNumber, null, cancellationToken);
             if (exists)
             {
@@ -93,7 +93,7 @@ public static class CreateGuardian
                 request.Email,
                 request.Phone);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

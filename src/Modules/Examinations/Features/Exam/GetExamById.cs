@@ -29,7 +29,7 @@ public static class GetExamById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetExamById
+    public interface IGetExamByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetExamById
     }
 
     internal sealed class GetExamByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetExamById
+        IDbConnectionFactory connectionFactory) : IGetExamByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetExamById
             }
     }
 
-    public sealed class Handler(IGetExamById dataAccess)
+    public sealed class Handler(IGetExamByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

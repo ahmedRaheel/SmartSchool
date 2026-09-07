@@ -40,14 +40,14 @@ public static class CreateSchoolLogo
         }
     }
 
-    public interface ICreateSchoolLogo
+    public interface ICreateSchoolLogoCommand
     {
         Task AddAsync(
                 SchoolLogoEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateSchoolLogoCommand(IDocumentsDbContext dbContext) : ICreateSchoolLogo
+    internal sealed class CreateSchoolLogoCommand(IDocumentsDbContext dbContext) : ICreateSchoolLogoCommand
     {
         public async Task AddAsync(
                 SchoolLogoEntity entity,
@@ -60,21 +60,19 @@ public static class CreateSchoolLogo
             }
     }
 
-    public sealed class Handler(ICreateSchoolLogo dataAccess)
+    public sealed class Handler(ICreateSchoolLogoCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = SchoolLogoEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

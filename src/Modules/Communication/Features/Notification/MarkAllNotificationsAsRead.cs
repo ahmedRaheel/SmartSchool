@@ -15,7 +15,7 @@ public static class MarkAllNotificationsAsRead
 {
     public sealed record Command(Guid TenantId, Guid RecipientUserId) : IRequest<Result<Response>>;
     public sealed record Response(Guid TenantId, Guid RecipientUserId, int UpdatedCount);
-    public interface IMarkAllNotificationsAsRead
+    public interface IMarkAllNotificationsAsReadCommand
     {
         Task UpdateAsync(
                 NotificationEntity entity,
@@ -29,7 +29,7 @@ public static class MarkAllNotificationsAsRead
     }
 
     internal sealed class MarkAllNotificationsAsReadCommand(
-        ICommunicationDbContext dbContext) : IMarkAllNotificationsAsRead
+        ICommunicationDbContext dbContext) : IMarkAllNotificationsAsReadCommand
     {
         public async Task UpdateAsync(
                 NotificationEntity entity,
@@ -57,12 +57,12 @@ public static class MarkAllNotificationsAsRead
             }
     }
 
-    public sealed class Handler(IMarkAllNotificationsAsRead dataAccess) : IRequestHandler<Command, Result<Response>>
+    public sealed class Handler(IMarkAllNotificationsAsReadCommand command) : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Command request, CancellationToken cancellationToken)
         {
-            var items = await dataAccess.GetUnreadAsync(request.TenantId, request.RecipientUserId, cancellationToken);
-            foreach (var entity in items) { entity.MarkAsRead(); await dataAccess.UpdateAsync(entity, cancellationToken); }
+            var items = await command.GetUnreadAsync(request.TenantId, request.RecipientUserId, cancellationToken);
+            foreach (var entity in items) { entity.MarkAsRead(); await command.UpdateAsync(entity, cancellationToken); }
             return Result<Response>.Success(new Response(request.TenantId, request.RecipientUserId, items.Count));
         }
     }

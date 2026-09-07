@@ -50,7 +50,7 @@ public static class UpdateEmployee
         }
     }
 
-    public interface IUpdateEmployee
+    public interface IUpdateEmployeeCommand
     {
         Task<EmployeeEntity?> GetByIdAsync(
             Guid tenantId,
@@ -64,7 +64,7 @@ public static class UpdateEmployee
     }
 
     internal sealed class UpdateEmployeeCommand(
-        IHRDbContext dbContext) : IUpdateEmployee
+        IHRDbContext dbContext) : IUpdateEmployeeCommand
     {
         public Task<EmployeeEntity?> GetByIdAsync(
             Guid tenantId,
@@ -88,12 +88,12 @@ public static class UpdateEmployee
             }
     }
 
-    public sealed class Handler(IUpdateEmployee dataAccess)
+    public sealed class Handler(IUpdateEmployeeCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+            var entity = await command.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
@@ -110,7 +110,7 @@ public static class UpdateEmployee
                 request.EmploymentTypeCode,
                 request.Status);
 
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(
                 entity.TenantId,
                 entity.EmployeeId,

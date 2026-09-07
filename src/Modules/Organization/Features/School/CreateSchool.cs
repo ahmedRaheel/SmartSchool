@@ -44,11 +44,18 @@ public static class CreateSchool
             RuleFor(x => x.Province).MaximumLength(120);
             RuleFor(x => x.Website).MaximumLength(300);
         }
+    }    public interface ICreateSchoolCommand
+    {
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
     }
 
-    public sealed class Handler(IOrganizationDbContext dbContext, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+
+
+    internal sealed class CreateSchoolCommand(IOrganizationDbContext dbContext, IBusinessNumberGenerator numberGenerator) : ICreateSchoolCommand
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var code = await numberGenerator.NextAsync(
                 "SCHOOL", "SCH", request.TenantId, 3, cancellationToken);
@@ -61,6 +68,17 @@ public static class CreateSchool
             await dbContext.Schools.AddAsync(school, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result<Response>.Success(Map(school));
+        }
+    }
+
+    public sealed class Handler(ICreateSchoolCommand command)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
         }
     }
 

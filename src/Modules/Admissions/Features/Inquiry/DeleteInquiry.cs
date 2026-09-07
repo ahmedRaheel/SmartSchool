@@ -20,7 +20,7 @@ public static class DeleteInquiry
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteInquiry
+    public interface IDeleteInquiryCommand
     {
         Task DeleteAsync(
                 InquiryEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteInquiry
 
     }
 
-    internal sealed class DeleteInquiryCommand(IAdmissionsDbContext dbContext) : IDeleteInquiry
+    internal sealed class DeleteInquiryCommand(IAdmissionsDbContext dbContext) : IDeleteInquiryCommand
     {
         public async Task DeleteAsync(
                 InquiryEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteInquiry
             }
     }
 
-    public sealed class Handler(IDeleteInquiry dataAccess)
+    public sealed class Handler(IDeleteInquiryCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(InquiryEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

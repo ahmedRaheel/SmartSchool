@@ -29,7 +29,7 @@ public static class GetApprovalById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetApprovalById
+    public interface IGetApprovalByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetApprovalById
     }
 
     internal sealed class GetApprovalByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetApprovalById
+        IDbConnectionFactory connectionFactory) : IGetApprovalByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetApprovalById
             }
     }
 
-    public sealed class Handler(IGetApprovalById dataAccess)
+    public sealed class Handler(IGetApprovalByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

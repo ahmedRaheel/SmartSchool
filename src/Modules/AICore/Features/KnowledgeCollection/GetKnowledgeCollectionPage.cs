@@ -31,7 +31,7 @@ public static class GetKnowledgeCollectionPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetKnowledgeCollectionPage
+    public interface IGetKnowledgeCollectionPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetKnowledgeCollectionPage
     }
 
     internal sealed class GetKnowledgeCollectionPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetKnowledgeCollectionPage
+        IDbConnectionFactory connectionFactory) : IGetKnowledgeCollectionPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetKnowledgeCollectionPage
             }
     }
 
-    public sealed class Handler(IGetKnowledgeCollectionPage dataAccess)
+    public sealed class Handler(IGetKnowledgeCollectionPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetKnowledgeCollectionPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

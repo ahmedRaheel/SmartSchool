@@ -29,7 +29,7 @@ public static class GetInterviewById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetInterviewById
+    public interface IGetInterviewByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetInterviewById
     }
 
     internal sealed class GetInterviewByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetInterviewById
+        IDbConnectionFactory connectionFactory) : IGetInterviewByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetInterviewById
             }
     }
 
-    public sealed class Handler(IGetInterviewById dataAccess)
+    public sealed class Handler(IGetInterviewByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

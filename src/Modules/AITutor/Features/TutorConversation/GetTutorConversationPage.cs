@@ -31,7 +31,7 @@ public static class GetTutorConversationPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetTutorConversationPage
+    public interface IGetTutorConversationPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetTutorConversationPage
     }
 
     internal sealed class GetTutorConversationPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetTutorConversationPage
+        IDbConnectionFactory connectionFactory) : IGetTutorConversationPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetTutorConversationPage
             }
     }
 
-    public sealed class Handler(IGetTutorConversationPage dataAccess)
+    public sealed class Handler(IGetTutorConversationPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetTutorConversationPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

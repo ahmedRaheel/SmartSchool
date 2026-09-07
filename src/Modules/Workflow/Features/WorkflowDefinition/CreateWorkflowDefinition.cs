@@ -40,14 +40,14 @@ public static class CreateWorkflowDefinition
         }
     }
 
-    public interface ICreateWorkflowDefinition
+    public interface ICreateWorkflowDefinitionCommand
     {
         Task AddAsync(
                 WorkflowDefinitionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateWorkflowDefinitionCommand(IWorkflowDbContext dbContext) : ICreateWorkflowDefinition
+    internal sealed class CreateWorkflowDefinitionCommand(IWorkflowDbContext dbContext) : ICreateWorkflowDefinitionCommand
     {
         public async Task AddAsync(
                 WorkflowDefinitionEntity entity,
@@ -60,21 +60,19 @@ public static class CreateWorkflowDefinition
             }
     }
 
-    public sealed class Handler(ICreateWorkflowDefinition dataAccess)
+    public sealed class Handler(ICreateWorkflowDefinitionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = WorkflowDefinitionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

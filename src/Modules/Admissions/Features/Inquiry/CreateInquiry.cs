@@ -40,14 +40,14 @@ public static class CreateInquiry
         }
     }
 
-    public interface ICreateInquiry
+    public interface ICreateInquiryCommand
     {
         Task AddAsync(
                 InquiryEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateInquiryCommand(IAdmissionsDbContext dbContext) : ICreateInquiry
+    internal sealed class CreateInquiryCommand(IAdmissionsDbContext dbContext) : ICreateInquiryCommand
     {
         public async Task AddAsync(
                 InquiryEntity entity,
@@ -60,21 +60,19 @@ public static class CreateInquiry
             }
     }
 
-    public sealed class Handler(ICreateInquiry dataAccess)
+    public sealed class Handler(ICreateInquiryCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = InquiryEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

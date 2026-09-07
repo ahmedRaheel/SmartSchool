@@ -72,7 +72,7 @@ public sealed class CreateAdmissionCriteriaQuery(IDbConnectionFactory connection
     }
 }
 
-public interface ICreateAdmissionCriteria
+public interface ICreateAdmissionCriteriaCommand
 {
     Task<Guid> CreateCriteriaAsync(
         Guid tenantId,
@@ -81,7 +81,7 @@ public interface ICreateAdmissionCriteria
 }
 
 public sealed class CreateAdmissionCriteriaCommand(IAdmissionsDbContext dbContext)
-    : ICreateAdmissionCriteria
+    : ICreateAdmissionCriteriaCommand
 {
     public async Task<Guid> CreateCriteriaAsync(
         Guid tenantId,
@@ -159,7 +159,7 @@ public static class CreateAdmissionCriteria
     public sealed class Handler(
         ITenantScope tenantScope,
         ICreateAdmissionCriteriaQuery query,
-        ICreateAdmissionCriteria command)
+        ICreateAdmissionCriteriaCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(

@@ -42,7 +42,7 @@ public static class UpdateSalaryStructure
         }
     }
 
-    public interface IUpdateSalaryStructure
+    public interface IUpdateSalaryStructureCommand
     {
         Task UpdateAsync(
                 SalaryStructureEntity entity,
@@ -54,7 +54,7 @@ Task<SalaryStructureEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateSalaryStructureCommand(IPayrollDbContext dbContext) : IUpdateSalaryStructure
+    internal sealed class UpdateSalaryStructureCommand(IPayrollDbContext dbContext) : IUpdateSalaryStructureCommand
     {
         public async Task UpdateAsync(
                 SalaryStructureEntity entity,
@@ -79,14 +79,14 @@ Task<SalaryStructureEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateSalaryStructure dataAccess)
+    public sealed class Handler(IUpdateSalaryStructureCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<SalaryStructureEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

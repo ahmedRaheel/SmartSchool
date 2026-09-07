@@ -31,7 +31,7 @@ public static class GetStudentTopicMasteryPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetStudentTopicMasteryPage
+    public interface IGetStudentTopicMasteryPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetStudentTopicMasteryPage
     }
 
     internal sealed class GetStudentTopicMasteryPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetStudentTopicMasteryPage
+        IDbConnectionFactory connectionFactory) : IGetStudentTopicMasteryPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetStudentTopicMasteryPage
             }
     }
 
-    public sealed class Handler(IGetStudentTopicMasteryPage dataAccess)
+    public sealed class Handler(IGetStudentTopicMasteryPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetStudentTopicMasteryPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

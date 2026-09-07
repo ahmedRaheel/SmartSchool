@@ -20,7 +20,7 @@ public static class DeleteLesson
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteLesson
+    public interface IDeleteLessonCommand
     {
         Task DeleteAsync(
                 LessonEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteLesson
 
     }
 
-    internal sealed class DeleteLessonCommand(ILearningDbContext dbContext) : IDeleteLesson
+    internal sealed class DeleteLessonCommand(ILearningDbContext dbContext) : IDeleteLessonCommand
     {
         public async Task DeleteAsync(
                 LessonEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteLesson
             }
     }
 
-    public sealed class Handler(IDeleteLesson dataAccess)
+    public sealed class Handler(IDeleteLessonCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(LessonEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

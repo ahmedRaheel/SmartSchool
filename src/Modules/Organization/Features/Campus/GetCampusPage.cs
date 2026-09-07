@@ -31,7 +31,7 @@ public static class GetCampusPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetCampusPage
+    public interface IGetCampusPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid? tenantId,
@@ -42,7 +42,7 @@ public static class GetCampusPage
     }
 
     internal sealed class GetCampusPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetCampusPage
+        IDbConnectionFactory connectionFactory) : IGetCampusPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid? tenantId,
@@ -114,7 +114,7 @@ public static class GetCampusPage
             }
     }
 
-    public sealed class Handler(IGetCampusPage dataAccess)
+    public sealed class Handler(IGetCampusPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -122,7 +122,7 @@ public static class GetCampusPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

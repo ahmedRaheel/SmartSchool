@@ -40,14 +40,14 @@ public static class CreateAward
         }
     }
 
-    public interface ICreateAward
+    public interface ICreateAwardCommand
     {
         Task AddAsync(
                 AwardEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAwardCommand(IActivitiesDbContext dbContext) : ICreateAward
+    internal sealed class CreateAwardCommand(IActivitiesDbContext dbContext) : ICreateAwardCommand
     {
         public async Task AddAsync(
                 AwardEntity entity,
@@ -60,21 +60,19 @@ public static class CreateAward
             }
     }
 
-    public sealed class Handler(ICreateAward dataAccess)
+    public sealed class Handler(ICreateAwardCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = AwardEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

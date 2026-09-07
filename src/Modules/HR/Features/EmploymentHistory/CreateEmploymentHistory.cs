@@ -40,14 +40,14 @@ public static class CreateEmploymentHistory
         }
     }
 
-    public interface ICreateEmploymentHistory
+    public interface ICreateEmploymentHistoryCommand
     {
         Task AddAsync(
                 EmploymentHistoryEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateEmploymentHistoryCommand(IHRDbContext dbContext) : ICreateEmploymentHistory
+    internal sealed class CreateEmploymentHistoryCommand(IHRDbContext dbContext) : ICreateEmploymentHistoryCommand
     {
         public async Task AddAsync(
                 EmploymentHistoryEntity entity,
@@ -60,21 +60,19 @@ public static class CreateEmploymentHistory
             }
     }
 
-    public sealed class Handler(ICreateEmploymentHistory dataAccess)
+    public sealed class Handler(ICreateEmploymentHistoryCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = EmploymentHistoryEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

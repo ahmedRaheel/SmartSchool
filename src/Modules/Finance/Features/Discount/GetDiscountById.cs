@@ -29,7 +29,7 @@ public static class GetDiscountById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetDiscountById
+    public interface IGetDiscountByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetDiscountById
     }
 
     internal sealed class GetDiscountByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetDiscountById
+        IDbConnectionFactory connectionFactory) : IGetDiscountByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetDiscountById
             }
     }
 
-    public sealed class Handler(IGetDiscountById dataAccess)
+    public sealed class Handler(IGetDiscountByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

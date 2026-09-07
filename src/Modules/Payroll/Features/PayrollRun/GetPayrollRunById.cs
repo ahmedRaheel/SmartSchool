@@ -29,7 +29,7 @@ public static class GetPayrollRunById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetPayrollRunById
+    public interface IGetPayrollRunByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetPayrollRunById
     }
 
     internal sealed class GetPayrollRunByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetPayrollRunById
+        IDbConnectionFactory connectionFactory) : IGetPayrollRunByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetPayrollRunById
             }
     }
 
-    public sealed class Handler(IGetPayrollRunById dataAccess)
+    public sealed class Handler(IGetPayrollRunByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

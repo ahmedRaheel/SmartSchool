@@ -41,14 +41,14 @@ public static class CreateHumanHandoff
         }
     }
 
-    public interface ICreateHumanHandoff
+    public interface ICreateHumanHandoffCommand
     {
         Task AddAsync(
                 HumanHandoffEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateHumanHandoffCommand(IAIInquiryDbContext dbContext) : ICreateHumanHandoff
+    internal sealed class CreateHumanHandoffCommand(IAIInquiryDbContext dbContext) : ICreateHumanHandoffCommand
     {
         public async Task AddAsync(
                 HumanHandoffEntity entity,
@@ -61,22 +61,20 @@ public static class CreateHumanHandoff
             }
     }
 
-    public sealed class Handler(ICreateHumanHandoff dataAccess)
+    public sealed class Handler(ICreateHumanHandoffCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = HumanHandoffEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

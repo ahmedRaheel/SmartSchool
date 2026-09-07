@@ -29,7 +29,7 @@ public static class GetRouteById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetRouteById
+    public interface IGetRouteByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetRouteById
     }
 
     internal sealed class GetRouteByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetRouteById
+        IDbConnectionFactory connectionFactory) : IGetRouteByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetRouteById
             }
     }
 
-    public sealed class Handler(IGetRouteById dataAccess)
+    public sealed class Handler(IGetRouteByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

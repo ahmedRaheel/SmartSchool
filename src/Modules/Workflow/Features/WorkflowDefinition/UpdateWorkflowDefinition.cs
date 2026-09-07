@@ -42,7 +42,7 @@ public static class UpdateWorkflowDefinition
         }
     }
 
-    public interface IUpdateWorkflowDefinition
+    public interface IUpdateWorkflowDefinitionCommand
     {
         Task UpdateAsync(
                 WorkflowDefinitionEntity entity,
@@ -54,7 +54,7 @@ Task<WorkflowDefinitionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateWorkflowDefinitionCommand(IWorkflowDbContext dbContext) : IUpdateWorkflowDefinition
+    internal sealed class UpdateWorkflowDefinitionCommand(IWorkflowDbContext dbContext) : IUpdateWorkflowDefinitionCommand
     {
         public async Task UpdateAsync(
                 WorkflowDefinitionEntity entity,
@@ -79,14 +79,14 @@ Task<WorkflowDefinitionEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateWorkflowDefinition dataAccess)
+    public sealed class Handler(IUpdateWorkflowDefinitionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<WorkflowDefinitionEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

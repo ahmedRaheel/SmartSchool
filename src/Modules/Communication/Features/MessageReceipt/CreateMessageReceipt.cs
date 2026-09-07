@@ -40,14 +40,14 @@ public static class CreateMessageReceipt
         }
     }
 
-    public interface ICreateMessageReceipt
+    public interface ICreateMessageReceiptCommand
     {
         Task AddAsync(
                 MessageReceiptEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateMessageReceiptCommand(ICommunicationDbContext dbContext) : ICreateMessageReceipt
+    internal sealed class CreateMessageReceiptCommand(ICommunicationDbContext dbContext) : ICreateMessageReceiptCommand
     {
         public async Task AddAsync(
                 MessageReceiptEntity entity,
@@ -60,21 +60,19 @@ public static class CreateMessageReceipt
             }
     }
 
-    public sealed class Handler(ICreateMessageReceipt dataAccess)
+    public sealed class Handler(ICreateMessageReceiptCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = MessageReceiptEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

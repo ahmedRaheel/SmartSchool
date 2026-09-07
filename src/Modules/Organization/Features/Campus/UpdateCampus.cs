@@ -32,11 +32,18 @@ public static class UpdateCampus
 
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
         }
+    }    public interface IUpdateCampusCommand
+    {
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
     }
 
-    public sealed class Handler(ITenantScope tenantScope, UpdateCampusCampusCommand command, UpdateCampusSchoolQuery schoolQuery, UpdateCampusBranchPolicyQuery policyQuery, UpdateCampusBranchPolicyCommand policyCommand) : IRequestHandler<Request, Result<Response>>
+
+
+    internal sealed class UpdateCampusCommand(ITenantScope tenantScope, UpdateCampusCampusCommand command, UpdateCampusSchoolQuery schoolQuery, UpdateCampusBranchPolicyQuery policyQuery, UpdateCampusBranchPolicyCommand policyCommand) : IUpdateCampusCommand
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var tenantId = tenantScope.Resolve(request.TenantId);
             if (!tenantId.HasValue)
@@ -66,6 +73,17 @@ public static class UpdateCampus
             await policyCommand.SetEducationLevelsAsync(tenantId.Value, campus.CampusId, educationLevelIds, cancellationToken);
             await command.SyncGradeLevelsAsync(tenantId.Value, campus.CampusId, request.AcademicSystemId, cancellationToken);
             return Result<Response>.Success(new Response(campus.CampusId, campus.SchoolId, campus.Name, campus.BranchType, campus.BranchGenderTypeId, campus.AcademicSystemId, educationLevelIds, campus.Address, campus.City, campus.Province, campus.Country, campus.Phone, campus.Fax, campus.Mobile, campus.Email, campus.LogoUrl));
+        }
+    }
+
+    public sealed class Handler(IUpdateCampusCommand command)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
         }
     }
 

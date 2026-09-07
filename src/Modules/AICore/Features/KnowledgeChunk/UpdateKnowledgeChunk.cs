@@ -42,7 +42,7 @@ public static class UpdateKnowledgeChunk
         }
     }
 
-    public interface IUpdateKnowledgeChunk
+    public interface IUpdateKnowledgeChunkCommand
     {
         Task UpdateAsync(
                 KnowledgeChunkEntity entity,
@@ -54,7 +54,7 @@ Task<KnowledgeChunkEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateKnowledgeChunkCommand(IAICoreDbContext dbContext) : IUpdateKnowledgeChunk
+    internal sealed class UpdateKnowledgeChunkCommand(IAICoreDbContext dbContext) : IUpdateKnowledgeChunkCommand
     {
         public async Task UpdateAsync(
                 KnowledgeChunkEntity entity,
@@ -79,14 +79,14 @@ Task<KnowledgeChunkEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateKnowledgeChunk dataAccess)
+    public sealed class Handler(IUpdateKnowledgeChunkCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<KnowledgeChunkEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -20,7 +20,7 @@ public static class DeleteSchool
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteSchool
+    public interface IDeleteSchoolCommand
     {
         Task DeleteAsync(
                 SchoolEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteSchool
 
     }
 
-    internal sealed class DeleteSchoolCommand(IOrganizationDbContext dbContext) : IDeleteSchool
+    internal sealed class DeleteSchoolCommand(IOrganizationDbContext dbContext) : IDeleteSchoolCommand
     {
         public async Task DeleteAsync(
                 SchoolEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteSchool
             }
     }
 
-    public sealed class Handler(IDeleteSchool dataAccess)
+    public sealed class Handler(IDeleteSchoolCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(SchoolEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

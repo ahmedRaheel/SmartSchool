@@ -40,14 +40,14 @@ public static class CreateAuditLog
         }
     }
 
-    public interface ICreateAuditLog
+    public interface ICreateAuditLogCommand
     {
         Task AddAsync(
                 AuditLogEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAuditLogCommand(IAuditDbContext dbContext) : ICreateAuditLog
+    internal sealed class CreateAuditLogCommand(IAuditDbContext dbContext) : ICreateAuditLogCommand
     {
         public async Task AddAsync(
                 AuditLogEntity entity,
@@ -60,21 +60,19 @@ public static class CreateAuditLog
             }
     }
 
-    public sealed class Handler(ICreateAuditLog dataAccess)
+    public sealed class Handler(ICreateAuditLogCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = AuditLogEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

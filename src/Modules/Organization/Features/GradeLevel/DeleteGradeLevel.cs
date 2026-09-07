@@ -19,7 +19,7 @@ public static class DeleteGradeLevel
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteGradeLevel
+    public interface IDeleteGradeLevelCommand
     {
         Task DeleteAsync(
                 GradeLevelEntity entity,
@@ -32,7 +32,7 @@ public static class DeleteGradeLevel
 
     }
 
-    internal sealed class DeleteGradeLevelCommand(IOrganizationDbContext dbContext) : IDeleteGradeLevel
+    internal sealed class DeleteGradeLevelCommand(IOrganizationDbContext dbContext) : IDeleteGradeLevelCommand
     {
         public async Task DeleteAsync(
                 GradeLevelEntity entity,
@@ -59,21 +59,21 @@ public static class DeleteGradeLevel
             }
     }
 
-    public sealed class Handler(IDeleteGradeLevel dataAccess)
+    public sealed class Handler(IDeleteGradeLevelCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(GradeLevelEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

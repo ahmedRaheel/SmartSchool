@@ -13,12 +13,18 @@ namespace SmartSchool.Modules.HR.Features.Employee;
 public static class TerminateEmployee
 {
     public sealed record Request(Guid TenantId, Guid EmployeeId, string Reason) : IRequest<Result<Response>>;
-    public sealed record Response(Guid EmployeeId, string Status);
-
-    public sealed class Handler(TerminateEmployeeEmployeeCommand command, IIdentityAccountService accounts)
-        : IRequestHandler<Request, Result<Response>>
+    public sealed record Response(Guid EmployeeId, string Status);    public interface ITerminateEmployeeCommand
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
+    }
+
+
+
+    internal sealed class TerminateEmployeeCommand(TerminateEmployeeEmployeeCommand command, IIdentityAccountService accounts) : ITerminateEmployeeCommand
+    {
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var employee = await command.GetByIdAsync(request.TenantId, request.EmployeeId, cancellationToken);
             if (employee is null) return Result<Response>.Failure(Error.NotFound("Employee was not found."));
@@ -26,6 +32,17 @@ public static class TerminateEmployee
             employee.Terminate();
             await command.UpdateAsync(employee, cancellationToken);
             return Result<Response>.Success(new Response(employee.EmployeeId, employee.Status));
+        }
+    }
+
+    public sealed class Handler(ITerminateEmployeeCommand command)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
         }
     }
 

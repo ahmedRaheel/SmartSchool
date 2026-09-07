@@ -31,7 +31,7 @@ public static class GetClassSectionPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetClassSectionPage
+    public interface IGetClassSectionPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetClassSectionPage
     }
 
     internal sealed class GetClassSectionPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetClassSectionPage
+        IDbConnectionFactory connectionFactory) : IGetClassSectionPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetClassSectionPage
             }
     }
 
-    public sealed class Handler(IGetClassSectionPage dataAccess)
+    public sealed class Handler(IGetClassSectionPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetClassSectionPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

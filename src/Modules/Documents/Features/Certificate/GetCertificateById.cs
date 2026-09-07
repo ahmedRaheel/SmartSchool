@@ -29,7 +29,7 @@ public static class GetCertificateById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetCertificateById
+    public interface IGetCertificateByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetCertificateById
     }
 
     internal sealed class GetCertificateByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetCertificateById
+        IDbConnectionFactory connectionFactory) : IGetCertificateByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetCertificateById
             }
     }
 
-    public sealed class Handler(IGetCertificateById dataAccess)
+    public sealed class Handler(IGetCertificateByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

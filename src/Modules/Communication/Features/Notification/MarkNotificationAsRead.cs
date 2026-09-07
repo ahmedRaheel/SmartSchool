@@ -16,7 +16,7 @@ public static class MarkNotificationAsRead
     public sealed record Command(Guid TenantId, Guid Id, Guid RecipientUserId) : IRequest<Result<Response>>;
     public sealed record Response(Guid TenantId, Guid Id, bool IsRead, DateTimeOffset? ReadAt);
 
-    public interface IMarkNotificationAsRead
+    public interface IMarkNotificationAsReadCommand
     {
         Task<NotificationEntity?> GetByIdAsync(
             Guid tenantId,
@@ -30,7 +30,7 @@ public static class MarkNotificationAsRead
     }
 
     internal sealed class MarkNotificationAsReadCommand(
-        ICommunicationDbContext dbContext) : IMarkNotificationAsRead
+        ICommunicationDbContext dbContext) : IMarkNotificationAsReadCommand
     {
         public Task<NotificationEntity?> GetByIdAsync(
             Guid tenantId,
@@ -54,15 +54,15 @@ public static class MarkNotificationAsRead
             }
     }
 
-    public sealed class Handler(IMarkNotificationAsRead dataAccess) : IRequestHandler<Command, Result<Response>>
+    public sealed class Handler(IMarkNotificationAsReadCommand command) : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Command request, CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+            var entity = await command.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
             if (entity is null || entity.RecipientUserId != request.RecipientUserId)
                 return Result<Response>.Failure(Error.NotFound(ErrorMessages.EntityNotFound("Notification")));
             entity.MarkAsRead();
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(entity.TenantId, entity.NotificationId, entity.IsRead, entity.ReadAt));
         }
     }

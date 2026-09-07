@@ -40,14 +40,14 @@ public static class CreateAiExecutionLog
         }
     }
 
-    public interface ICreateAiExecutionLog
+    public interface ICreateAiExecutionLogCommand
     {
         Task AddAsync(
                 AiExecutionLogEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAiExecutionLogCommand(IAICoreDbContext dbContext) : ICreateAiExecutionLog
+    internal sealed class CreateAiExecutionLogCommand(IAICoreDbContext dbContext) : ICreateAiExecutionLogCommand
     {
         public async Task AddAsync(
                 AiExecutionLogEntity entity,
@@ -60,21 +60,19 @@ public static class CreateAiExecutionLog
             }
     }
 
-    public sealed class Handler(ICreateAiExecutionLog dataAccess)
+    public sealed class Handler(ICreateAiExecutionLogCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = AiExecutionLogEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

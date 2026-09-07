@@ -19,7 +19,7 @@ public static class DeleteAcademicSystem
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteAcademicSystem
+    public interface IDeleteAcademicSystemCommand
     {
         Task DeleteAsync(
                 AcademicSystemEntity entity,
@@ -32,7 +32,7 @@ public static class DeleteAcademicSystem
 
     }
 
-    internal sealed class DeleteAcademicSystemCommand(IOrganizationDbContext dbContext) : IDeleteAcademicSystem
+    internal sealed class DeleteAcademicSystemCommand(IOrganizationDbContext dbContext) : IDeleteAcademicSystemCommand
     {
         public async Task DeleteAsync(
                 AcademicSystemEntity entity,
@@ -59,21 +59,21 @@ public static class DeleteAcademicSystem
             }
     }
 
-    public sealed class Handler(IDeleteAcademicSystem dataAccess)
+    public sealed class Handler(IDeleteAcademicSystemCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(AcademicSystemEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

@@ -41,7 +41,7 @@ public static class UpdateProgram
         }
     }
 
-    public interface IUpdateProgram
+    public interface IUpdateProgramCommand
     {
         Task UpdateAsync(
                 ProgramEntity entity,
@@ -53,7 +53,7 @@ Task<ProgramEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateProgramCommand(IOrganizationDbContext dbContext) : IUpdateProgram
+    internal sealed class UpdateProgramCommand(IOrganizationDbContext dbContext) : IUpdateProgramCommand
     {
         public async Task UpdateAsync(
                 ProgramEntity entity,
@@ -80,14 +80,14 @@ Task<ProgramEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateProgram dataAccess)
+    public sealed class Handler(IUpdateProgramCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -99,7 +99,7 @@ Task<ProgramEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

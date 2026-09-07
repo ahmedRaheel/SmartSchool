@@ -31,7 +31,7 @@ public static class GetMessageReceiptPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetMessageReceiptPage
+    public interface IGetMessageReceiptPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetMessageReceiptPage
     }
 
     internal sealed class GetMessageReceiptPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetMessageReceiptPage
+        IDbConnectionFactory connectionFactory) : IGetMessageReceiptPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetMessageReceiptPage
             }
     }
 
-    public sealed class Handler(IGetMessageReceiptPage dataAccess)
+    public sealed class Handler(IGetMessageReceiptPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetMessageReceiptPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

@@ -41,14 +41,14 @@ public static class CreateModelConfiguration
         }
     }
 
-    public interface ICreateModelConfiguration
+    public interface ICreateModelConfigurationCommand
     {
         Task AddAsync(
                 ModelConfigurationEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateModelConfigurationCommand(IAICoreDbContext dbContext) : ICreateModelConfiguration
+    internal sealed class CreateModelConfigurationCommand(IAICoreDbContext dbContext) : ICreateModelConfigurationCommand
     {
         public async Task AddAsync(
                 ModelConfigurationEntity entity,
@@ -61,22 +61,20 @@ public static class CreateModelConfiguration
             }
     }
 
-    public sealed class Handler(ICreateModelConfiguration dataAccess)
+    public sealed class Handler(ICreateModelConfigurationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ModelConfigurationEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

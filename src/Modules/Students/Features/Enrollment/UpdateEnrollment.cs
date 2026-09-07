@@ -18,7 +18,7 @@ public static class UpdateEnrollment
     {
         public Validator(){ RuleFor(x=>x.TenantId).NotEmpty(); RuleFor(x=>x.Id).NotEmpty(); RuleFor(x=>x.ClassSectionId).NotEmpty(); RuleFor(x=>x.Status).NotEmpty().MaximumLength(30); }
     }
-    public interface IUpdateEnrollment
+    public interface IUpdateEnrollmentCommand
     {
         Task UpdateAsync(
                 EnrollmentEntity entity,
@@ -29,7 +29,7 @@ public static class UpdateEnrollment
     }
 
     internal sealed class UpdateEnrollmentCommand(
-        IStudentsDbContext dbContext) : IUpdateEnrollment
+        IStudentsDbContext dbContext) : IUpdateEnrollmentCommand
     {
         public async Task UpdateAsync(
                 EnrollmentEntity entity,
@@ -49,14 +49,14 @@ public static class UpdateEnrollment
         }
 }
 
-    public sealed class Handler(IUpdateEnrollment dataAccess) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(IUpdateEnrollmentCommand command) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity=await dataAccess.GetByIdAsync(request.TenantId,request.Id,cancellationToken);
+            var entity=await command.GetByIdAsync(request.TenantId,request.Id,cancellationToken);
             if(entity is null) return Result<Response>.Failure(Error.NotFound("Enrollment was not found."));
             entity.ChangePlacement(request.ClassSectionId,request.Status);
-            await dataAccess.UpdateAsync(entity,cancellationToken);
+            await command.UpdateAsync(entity,cancellationToken);
             return Result<Response>.Success(new(entity.TenantId,entity.StudentEnrollmentId,entity.StudentId,entity.AcademicYearId,entity.ClassSectionId,entity.EnrollmentDate,entity.Status));
         }
     }

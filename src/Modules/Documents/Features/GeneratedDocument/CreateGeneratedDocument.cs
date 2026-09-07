@@ -40,14 +40,14 @@ public static class CreateGeneratedDocument
         }
     }
 
-    public interface ICreateGeneratedDocument
+    public interface ICreateGeneratedDocumentCommand
     {
         Task AddAsync(
                 GeneratedDocumentEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateGeneratedDocumentCommand(IDocumentsDbContext dbContext) : ICreateGeneratedDocument
+    internal sealed class CreateGeneratedDocumentCommand(IDocumentsDbContext dbContext) : ICreateGeneratedDocumentCommand
     {
         public async Task AddAsync(
                 GeneratedDocumentEntity entity,
@@ -60,21 +60,19 @@ public static class CreateGeneratedDocument
             }
     }
 
-    public sealed class Handler(ICreateGeneratedDocument dataAccess)
+    public sealed class Handler(ICreateGeneratedDocumentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = GeneratedDocumentEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

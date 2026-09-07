@@ -42,7 +42,7 @@ public static class UpdatePredictionModel
         }
     }
 
-    public interface IUpdatePredictionModel
+    public interface IUpdatePredictionModelCommand
     {
         Task UpdateAsync(
                 PredictionModelEntity entity,
@@ -54,7 +54,7 @@ Task<PredictionModelEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePredictionModelCommand(IAIPredictionDbContext dbContext) : IUpdatePredictionModel
+    internal sealed class UpdatePredictionModelCommand(IAIPredictionDbContext dbContext) : IUpdatePredictionModelCommand
     {
         public async Task UpdateAsync(
                 PredictionModelEntity entity,
@@ -79,14 +79,14 @@ Task<PredictionModelEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdatePredictionModel dataAccess)
+    public sealed class Handler(IUpdatePredictionModelCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<PredictionModelEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

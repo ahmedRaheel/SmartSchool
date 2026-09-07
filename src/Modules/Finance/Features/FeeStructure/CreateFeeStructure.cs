@@ -22,11 +22,11 @@ public static class CreateFeeStructure
             RuleFor(x => x.Amount).GreaterThanOrEqualTo(0);
         }
     }
-    public interface ICreateFeeStructure
+    public interface ICreateFeeStructureCommand
     {
         Task AddAsync(FeeStructureEntity entity, CancellationToken cancellationToken);
     }
-    internal sealed class CreateFeeStructureCommand(IFinanceDbContext db) : ICreateFeeStructure
+    internal sealed class CreateFeeStructureCommand(IFinanceDbContext db) : ICreateFeeStructureCommand
     {
         public async Task AddAsync(FeeStructureEntity entity, CancellationToken ct)
         {
@@ -34,7 +34,7 @@ public static class CreateFeeStructure
             await db.SaveChangesAsync(ct);
         }
     }
-    public sealed class Handler(ICreateFeeStructure persistence) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(ICreateFeeStructureCommand persistence) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request x, CancellationToken  cancellationToken)
         {

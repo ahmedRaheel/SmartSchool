@@ -155,7 +155,7 @@ public sealed class CreateAdmissionApplicationQuery(IDbConnectionFactory connect
     }
 }
 
-public interface ICreateAdmissionApplication
+public interface ICreateAdmissionApplicationCommand
 {
     Task<Guid> CreateApplicationAsync(
         Guid tenantId,
@@ -164,7 +164,7 @@ public interface ICreateAdmissionApplication
 }
 
 public sealed class CreateAdmissionApplicationCommand(IAdmissionsDbContext dbContext)
-    : ICreateAdmissionApplication
+    : ICreateAdmissionApplicationCommand
 {
     public async Task<Guid> CreateApplicationAsync(
         Guid tenantId,
@@ -210,7 +210,7 @@ public static class CreateAdmissionApplication
     public sealed class Handler(
         ITenantScope tenantScope,
         ICreateAdmissionApplicationQuery query,
-        ICreateAdmissionApplication command)
+        ICreateAdmissionApplicationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(

@@ -56,7 +56,7 @@ public static class CreateStudent
         }
     }
 
-    public interface ICreateStudent
+    public interface ICreateStudentCommand
     {
         Task AddAsync(
                 StudentEntity entity,
@@ -68,7 +68,7 @@ public static class CreateStudent
 
     }
 
-    internal sealed class CreateStudentCommand(IStudentsDbContext dbContext) : ICreateStudent
+    internal sealed class CreateStudentCommand(IStudentsDbContext dbContext) : ICreateStudentCommand
     {
         public async Task AddAsync(
                 StudentEntity entity,
@@ -95,7 +95,7 @@ public static class CreateStudent
 
     }
 
-    public sealed class Handler(ICreateStudent dataAccess)
+    public sealed class Handler(ICreateStudentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -103,7 +103,7 @@ public static class CreateStudent
             CancellationToken cancellationToken)
         {
             var tenantId = request.TenantId!.Value;
-            var validScope = await dataAccess.CampusBelongsToSchoolAsync(
+            var validScope = await command.CampusBelongsToSchoolAsync(
                 tenantId,
                 request.SchoolId,
                 request.BranchId,
@@ -131,7 +131,7 @@ public static class CreateStudent
                 request.AdmissionDate,
                 LifecycleStatuses.PendingApproval);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
 
             var placement = AdmissionPlacementEntity.Create(
                 tenantId,
@@ -139,7 +139,7 @@ public static class CreateStudent
                 request.AcademicYearId,
                 request.ClassSectionId);
 
-            await dataAccess.AddPlacementAsync(placement, cancellationToken);
+            await command.AddPlacementAsync(placement, cancellationToken);
 
             return Result<Response>.Success(MapResponse(entity));
         }

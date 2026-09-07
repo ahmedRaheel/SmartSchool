@@ -41,14 +41,14 @@ public static class CreateQuizAttempt
         }
     }
 
-    public interface ICreateQuizAttempt
+    public interface ICreateQuizAttemptCommand
     {
         Task AddAsync(
                 QuizAttemptEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateQuizAttemptCommand(IAITutorDbContext dbContext) : ICreateQuizAttempt
+    internal sealed class CreateQuizAttemptCommand(IAITutorDbContext dbContext) : ICreateQuizAttemptCommand
     {
         public async Task AddAsync(
                 QuizAttemptEntity entity,
@@ -61,22 +61,20 @@ public static class CreateQuizAttempt
             }
     }
 
-    public sealed class Handler(ICreateQuizAttempt dataAccess)
+    public sealed class Handler(ICreateQuizAttemptCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = QuizAttemptEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -29,7 +29,7 @@ public static class GetParentToolExecutionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetParentToolExecutionById
+    public interface IGetParentToolExecutionByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetParentToolExecutionById
     }
 
     internal sealed class GetParentToolExecutionByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetParentToolExecutionById
+        IDbConnectionFactory connectionFactory) : IGetParentToolExecutionByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetParentToolExecutionById
             }
     }
 
-    public sealed class Handler(IGetParentToolExecutionById dataAccess)
+    public sealed class Handler(IGetParentToolExecutionByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

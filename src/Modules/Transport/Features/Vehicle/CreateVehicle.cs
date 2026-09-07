@@ -40,14 +40,14 @@ public static class CreateVehicle
         }
     }
 
-    public interface ICreateVehicle
+    public interface ICreateVehicleCommand
     {
         Task AddAsync(
                 VehicleEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateVehicleCommand(ITransportDbContext dbContext) : ICreateVehicle
+    internal sealed class CreateVehicleCommand(ITransportDbContext dbContext) : ICreateVehicleCommand
     {
         public async Task AddAsync(
                 VehicleEntity entity,
@@ -60,21 +60,19 @@ public static class CreateVehicle
             }
     }
 
-    public sealed class Handler(ICreateVehicle dataAccess)
+    public sealed class Handler(ICreateVehicleCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = VehicleEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

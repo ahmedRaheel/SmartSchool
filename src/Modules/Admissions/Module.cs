@@ -23,13 +23,13 @@ public static class Module
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<IGetAdmissionApplicationsQuery, GetAdmissionApplicationsQuery>();
         services.AddScoped<ICreateAdmissionApplicationQuery, CreateAdmissionApplicationQuery>();
-        services.AddScoped<ICreateAdmissionApplication, CreateAdmissionApplicationCommand>();
+       // services.AddScoped<ICreateAdmissionApplication, CreateAdmissionApplicationCommand>();
         services.AddScoped<IChangeAdmissionStatusQuery, ChangeAdmissionStatusQuery>();
-        services.AddScoped<IChangeAdmissionStatus, ChangeAdmissionStatusCommand>();
+        //services.AddScoped<IChangeAdmissionStatus, ChangeAdmissionStatusCommand>();
         services.AddScoped<ICompleteAdmission, CompleteAdmissionCommand>();
         services.AddScoped<IGetAdmissionCriteriaQuery, GetAdmissionCriteriaQuery>();
         services.AddScoped<ICreateAdmissionCriteriaQuery, CreateAdmissionCriteriaQuery>();
-        services.AddScoped<ICreateAdmissionCriteria, CreateAdmissionCriteriaCommand>();
+        //services.AddScoped<ICreateAdmissionCriteria, CreateAdmissionCriteriaCommand>();
         return services;
     }
 

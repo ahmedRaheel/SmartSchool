@@ -40,14 +40,14 @@ public static class CreateInvoice
         }
     }
 
-    public interface ICreateInvoice
+    public interface ICreateInvoiceCommand
     {
         Task AddAsync(
                 InvoiceEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateInvoiceCommand(IFinanceDbContext dbContext) : ICreateInvoice
+    internal sealed class CreateInvoiceCommand(IFinanceDbContext dbContext) : ICreateInvoiceCommand
     {
         public async Task AddAsync(
                 InvoiceEntity entity,
@@ -60,21 +60,19 @@ public static class CreateInvoice
             }
     }
 
-    public sealed class Handler(ICreateInvoice dataAccess)
+    public sealed class Handler(ICreateInvoiceCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = InvoiceEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

@@ -19,7 +19,7 @@ public static class DeleteTerm
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteTerm
+    public interface IDeleteTermCommand
     {
         Task DeleteAsync(
                 TermEntity entity,
@@ -32,7 +32,7 @@ public static class DeleteTerm
 
     }
 
-    internal sealed class DeleteTermCommand(IOrganizationDbContext dbContext) : IDeleteTerm
+    internal sealed class DeleteTermCommand(IOrganizationDbContext dbContext) : IDeleteTermCommand
     {
         public async Task DeleteAsync(
                 TermEntity entity,
@@ -59,21 +59,21 @@ public static class DeleteTerm
             }
     }
 
-    public sealed class Handler(IDeleteTerm dataAccess)
+    public sealed class Handler(IDeleteTermCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(TermEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

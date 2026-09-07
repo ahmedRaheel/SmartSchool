@@ -11,8 +11,8 @@ public static class GetAllLookups
     private sealed record Row(string TypeCode, string TypeName, long? Id, string? Code, string? Name, int? SortOrder);
     public sealed record Request : IRequest<IReadOnlyList<Response>>;
 
-    public interface IGetAllLookups { Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken); }
-    internal sealed class GetAllLookupsQuery(IDbConnectionFactory connectionFactory) : IGetAllLookups
+    public interface IGetAllLookupsQuery { Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken); }
+    internal sealed class GetAllLookupsQuery(IDbConnectionFactory connectionFactory) : IGetAllLookupsQuery
     {
         public async Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken)
         {
@@ -28,7 +28,7 @@ public static class GetAllLookups
         }
     }
 
-    public sealed class Handler(IGetAllLookups query) : IRequestHandler<Request, IReadOnlyList<Response>>
+    public sealed class Handler(IGetAllLookupsQuery query) : IRequestHandler<Request, IReadOnlyList<Response>>
     {
         public Task<IReadOnlyList<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
             => query.ExecuteAsync(cancellationToken);

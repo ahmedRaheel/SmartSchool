@@ -40,14 +40,14 @@ public static class CreateConversation
         }
     }
 
-    public interface ICreateConversation
+    public interface ICreateConversationCommand
     {
         Task AddAsync(
                 ConversationEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateConversationCommand(ICommunicationDbContext dbContext) : ICreateConversation
+    internal sealed class CreateConversationCommand(ICommunicationDbContext dbContext) : ICreateConversationCommand
     {
         public async Task AddAsync(
                 ConversationEntity entity,
@@ -60,21 +60,19 @@ public static class CreateConversation
             }
     }
 
-    public sealed class Handler(ICreateConversation dataAccess)
+    public sealed class Handler(ICreateConversationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ConversationEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

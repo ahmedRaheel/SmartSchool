@@ -41,14 +41,14 @@ public static class CreateInquiryConversation
         }
     }
 
-    public interface ICreateInquiryConversation
+    public interface ICreateInquiryConversationCommand
     {
         Task AddAsync(
                 InquiryConversationEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateInquiryConversationCommand(IAIInquiryDbContext dbContext) : ICreateInquiryConversation
+    internal sealed class CreateInquiryConversationCommand(IAIInquiryDbContext dbContext) : ICreateInquiryConversationCommand
     {
         public async Task AddAsync(
                 InquiryConversationEntity entity,
@@ -61,22 +61,20 @@ public static class CreateInquiryConversation
             }
     }
 
-    public sealed class Handler(ICreateInquiryConversation dataAccess)
+    public sealed class Handler(ICreateInquiryConversationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = InquiryConversationEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

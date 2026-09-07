@@ -42,7 +42,7 @@ public static class UpdateJobGrade
         }
     }
 
-    public interface IUpdateJobGrade
+    public interface IUpdateJobGradeCommand
     {
         Task UpdateAsync(
                 JobGradeEntity entity,
@@ -54,7 +54,7 @@ Task<JobGradeEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateJobGradeCommand(IHRDbContext dbContext) : IUpdateJobGrade
+    internal sealed class UpdateJobGradeCommand(IHRDbContext dbContext) : IUpdateJobGradeCommand
     {
         public async Task UpdateAsync(
                 JobGradeEntity entity,
@@ -79,14 +79,14 @@ Task<JobGradeEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateJobGrade dataAccess)
+    public sealed class Handler(IUpdateJobGradeCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<JobGradeEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

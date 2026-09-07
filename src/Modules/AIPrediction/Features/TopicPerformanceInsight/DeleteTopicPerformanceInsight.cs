@@ -20,7 +20,7 @@ public static class DeleteTopicPerformanceInsight
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteTopicPerformanceInsight
+    public interface IDeleteTopicPerformanceInsightCommand
     {
         Task DeleteAsync(
                 TopicPerformanceInsightEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteTopicPerformanceInsight
 
     }
 
-    internal sealed class DeleteTopicPerformanceInsightCommand(IAIPredictionDbContext dbContext) : IDeleteTopicPerformanceInsight
+    internal sealed class DeleteTopicPerformanceInsightCommand(IAIPredictionDbContext dbContext) : IDeleteTopicPerformanceInsightCommand
     {
         public async Task DeleteAsync(
                 TopicPerformanceInsightEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteTopicPerformanceInsight
             }
     }
 
-    public sealed class Handler(IDeleteTopicPerformanceInsight dataAccess)
+    public sealed class Handler(IDeleteTopicPerformanceInsightCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(TopicPerformanceInsightEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

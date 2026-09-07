@@ -31,7 +31,7 @@ public static class GetBookPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetBookPage
+    public interface IGetBookPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetBookPage
     }
 
     internal sealed class GetBookPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetBookPage
+        IDbConnectionFactory connectionFactory) : IGetBookPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetBookPage
             }
     }
 
-    public sealed class Handler(IGetBookPage dataAccess)
+    public sealed class Handler(IGetBookPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetBookPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

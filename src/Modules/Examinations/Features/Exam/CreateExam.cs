@@ -40,14 +40,14 @@ public static class CreateExam
         }
     }
 
-    public interface ICreateExam
+    public interface ICreateExamCommand
     {
         Task AddAsync(
                 ExamEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateExamCommand(IExaminationsDbContext dbContext) : ICreateExam
+    internal sealed class CreateExamCommand(IExaminationsDbContext dbContext) : ICreateExamCommand
     {
         public async Task AddAsync(
                 ExamEntity entity,
@@ -60,21 +60,19 @@ public static class CreateExam
             }
     }
 
-    public sealed class Handler(ICreateExam dataAccess)
+    public sealed class Handler(ICreateExamCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ExamEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

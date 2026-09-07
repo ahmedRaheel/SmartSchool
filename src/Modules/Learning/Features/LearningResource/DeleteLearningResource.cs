@@ -20,7 +20,7 @@ public static class DeleteLearningResource
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteLearningResource
+    public interface IDeleteLearningResourceCommand
     {
         Task DeleteAsync(
                 LearningResourceEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteLearningResource
 
     }
 
-    internal sealed class DeleteLearningResourceCommand(ILearningDbContext dbContext) : IDeleteLearningResource
+    internal sealed class DeleteLearningResourceCommand(ILearningDbContext dbContext) : IDeleteLearningResourceCommand
     {
         public async Task DeleteAsync(
                 LearningResourceEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteLearningResource
             }
     }
 
-    public sealed class Handler(IDeleteLearningResource dataAccess)
+    public sealed class Handler(IDeleteLearningResourceCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(LearningResourceEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

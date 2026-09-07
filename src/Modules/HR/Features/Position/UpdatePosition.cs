@@ -42,7 +42,7 @@ public static class UpdatePosition
         }
     }
 
-    public interface IUpdatePosition
+    public interface IUpdatePositionCommand
     {
         Task UpdateAsync(
                 PositionEntity entity,
@@ -54,7 +54,7 @@ Task<PositionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePositionCommand(IHRDbContext dbContext) : IUpdatePosition
+    internal sealed class UpdatePositionCommand(IHRDbContext dbContext) : IUpdatePositionCommand
     {
         public async Task UpdateAsync(
                 PositionEntity entity,
@@ -79,14 +79,14 @@ Task<PositionEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdatePosition dataAccess)
+    public sealed class Handler(IUpdatePositionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<PositionEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

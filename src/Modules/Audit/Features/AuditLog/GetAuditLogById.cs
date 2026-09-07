@@ -36,7 +36,7 @@ public static class GetAuditLogById
         Guid TenantId,
         long Id) : IRequest<Result<Response>>;
 
-    public interface IGetAuditLogById
+    public interface IGetAuditLogByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -46,7 +46,7 @@ public static class GetAuditLogById
     }
 
     internal sealed class GetAuditLogByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetAuditLogById
+        IDbConnectionFactory connectionFactory) : IGetAuditLogByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -81,14 +81,14 @@ public static class GetAuditLogById
             }
     }
 
-    public sealed class Handler(IGetAuditLogById dataAccess)
+    public sealed class Handler(IGetAuditLogByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

@@ -20,7 +20,7 @@ public static class DeleteAdmissionDecision
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteAdmissionDecision
+    public interface IDeleteAdmissionDecisionCommand
     {
         Task DeleteAsync(
                 AdmissionDecisionEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteAdmissionDecision
 
     }
 
-    internal sealed class DeleteAdmissionDecisionCommand(IAdmissionsDbContext dbContext) : IDeleteAdmissionDecision
+    internal sealed class DeleteAdmissionDecisionCommand(IAdmissionsDbContext dbContext) : IDeleteAdmissionDecisionCommand
     {
         public async Task DeleteAsync(
                 AdmissionDecisionEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteAdmissionDecision
             }
     }
 
-    public sealed class Handler(IDeleteAdmissionDecision dataAccess)
+    public sealed class Handler(IDeleteAdmissionDecisionCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(AdmissionDecisionEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

@@ -34,11 +34,18 @@ public static class UpdateSchool
             RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
         }
+    }    public interface IUpdateSchoolCommand
+    {
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
     }
 
-    public sealed class Handler(UpdateSchoolSchoolQuery query, UpdateSchoolSchoolCommand command) : IRequestHandler<Request, Result<Response>>
+
+
+    internal sealed class UpdateSchoolCommand(UpdateSchoolSchoolQuery query, UpdateSchoolSchoolCommand command) : IUpdateSchoolCommand
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var school = await query.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
             if (school is null)
@@ -62,6 +69,17 @@ public static class UpdateSchool
             }
 
             return Result<Response>.Success(Map(updatedSchool));
+        }
+    }
+
+    public sealed class Handler(IUpdateSchoolCommand command)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
         }
     }
 

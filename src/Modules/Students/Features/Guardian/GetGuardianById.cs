@@ -21,11 +21,18 @@ public static class GetGuardianById
         string? Email,
         string? Phone);
 
-    public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
-
-    public sealed class Handler(IDbConnectionFactory connectionFactory) : IRequestHandler<Query, Result<Response>>
+    public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;    public interface IGetGuardianByIdQuery
     {
-        public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
+        Task<Result<Response>> ExecuteAsync(
+            Query request,
+            CancellationToken cancellationToken);
+    }
+
+
+
+    internal sealed class GetGuardianByIdQuery(IDbConnectionFactory connectionFactory) : IGetGuardianByIdQuery
+    {
+        public async Task<Result<Response>> ExecuteAsync(Query request, CancellationToken cancellationToken)
         {
             const string sql = """
                 SELECT tenant_id AS "TenantId", guardian_id AS "Id", user_id AS "UserId", full_name AS "FullName", cnic_number AS "CnicNumber", email AS "Email", phone AS "Phone"
@@ -46,6 +53,17 @@ public static class GetGuardianById
             }
 
             return Result<Response>.Success(response);
+        }
+    }
+
+    public sealed class Handler(IGetGuardianByIdQuery query)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            return query.ExecuteAsync(request, cancellationToken);
         }
     }
 

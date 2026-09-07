@@ -29,7 +29,7 @@ public static class GetEmploymentHistoryById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetEmploymentHistoryById
+    public interface IGetEmploymentHistoryByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetEmploymentHistoryById
     }
 
     internal sealed class GetEmploymentHistoryByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetEmploymentHistoryById
+        IDbConnectionFactory connectionFactory) : IGetEmploymentHistoryByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetEmploymentHistoryById
             }
     }
 
-    public sealed class Handler(IGetEmploymentHistoryById dataAccess)
+    public sealed class Handler(IGetEmploymentHistoryByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

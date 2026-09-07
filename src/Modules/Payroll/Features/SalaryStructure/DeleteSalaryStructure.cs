@@ -20,7 +20,7 @@ public static class DeleteSalaryStructure
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteSalaryStructure
+    public interface IDeleteSalaryStructureCommand
     {
         Task DeleteAsync(
                 SalaryStructureEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteSalaryStructure
 
     }
 
-    internal sealed class DeleteSalaryStructureCommand(IPayrollDbContext dbContext) : IDeleteSalaryStructure
+    internal sealed class DeleteSalaryStructureCommand(IPayrollDbContext dbContext) : IDeleteSalaryStructureCommand
     {
         public async Task DeleteAsync(
                 SalaryStructureEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteSalaryStructure
             }
     }
 
-    public sealed class Handler(IDeleteSalaryStructure dataAccess)
+    public sealed class Handler(IDeleteSalaryStructureCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(SalaryStructureEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

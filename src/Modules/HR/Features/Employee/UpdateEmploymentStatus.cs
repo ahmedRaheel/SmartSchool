@@ -16,7 +16,7 @@ public static class UpdateEmploymentStatus
             RuleFor(x => x.Status).Must(x => x is LifecycleStatuses.Submitted or LifecycleStatuses.Rejected or LifecycleStatuses.WaitingList);
         }
     }
-    public interface IUpdateEmploymentStatus
+    public interface IUpdateEmploymentStatusCommand
     {
         Task<EmployeeEntity?> GetByIdAsync(
             Guid tenantId,
@@ -30,7 +30,7 @@ public static class UpdateEmploymentStatus
     }
 
     internal sealed class UpdateEmploymentStatusCommand(
-        IHRDbContext dbContext) : IUpdateEmploymentStatus
+        IHRDbContext dbContext) : IUpdateEmploymentStatusCommand
     {
         public Task<EmployeeEntity?> GetByIdAsync(
             Guid tenantId,
@@ -54,17 +54,17 @@ public static class UpdateEmploymentStatus
             }
     }
 
-    public sealed class Handler(IUpdateEmploymentStatus dataAccess) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(IUpdateEmploymentStatusCommand command) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request r, CancellationToken cancellationToken)
         {
-            var e = await dataAccess.GetByIdAsync(r.TenantId!.Value, r.EmployeeId, cancellationToken);
+            var e = await command.GetByIdAsync(r.TenantId!.Value, r.EmployeeId, cancellationToken);
             if (e is null)
                 return Result<Response>.Failure(Error.NotFound("Employee was not found."));
             if (e.UserId.HasValue)
                 return Result<Response>.Failure(Error.Conflict("An active account already exists; use termination instead."));
             e.SetRecruitmentStatus(r.Status);
-            await dataAccess.UpdateAsync(e, cancellationToken);
+            await command.UpdateAsync(e, cancellationToken);
             return Result<Response>.Success(new(e.EmployeeId, e.Status));
         }
     }

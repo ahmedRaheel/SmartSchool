@@ -20,7 +20,7 @@ public static class DeleteInvoice
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteInvoice
+    public interface IDeleteInvoiceCommand
     {
         Task DeleteAsync(
                 InvoiceEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteInvoice
 
     }
 
-    internal sealed class DeleteInvoiceCommand(IFinanceDbContext dbContext) : IDeleteInvoice
+    internal sealed class DeleteInvoiceCommand(IFinanceDbContext dbContext) : IDeleteInvoiceCommand
     {
         public async Task DeleteAsync(
                 InvoiceEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteInvoice
             }
     }
 
-    public sealed class Handler(IDeleteInvoice dataAccess)
+    public sealed class Handler(IDeleteInvoiceCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(InvoiceEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

@@ -41,7 +41,7 @@ public static class UpdateClassSection
         }
     }
 
-    public interface IUpdateClassSection
+    public interface IUpdateClassSectionCommand
     {
         Task UpdateAsync(
                 ClassSectionEntity entity,
@@ -53,7 +53,7 @@ Task<ClassSectionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateClassSectionCommand(IOrganizationDbContext dbContext) : IUpdateClassSection
+    internal sealed class UpdateClassSectionCommand(IOrganizationDbContext dbContext) : IUpdateClassSectionCommand
     {
         public async Task UpdateAsync(
                 ClassSectionEntity entity,
@@ -80,14 +80,14 @@ Task<ClassSectionEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateClassSection dataAccess)
+    public sealed class Handler(IUpdateClassSectionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -99,7 +99,7 @@ Task<ClassSectionEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

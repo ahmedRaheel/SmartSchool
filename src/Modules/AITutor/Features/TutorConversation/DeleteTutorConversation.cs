@@ -20,7 +20,7 @@ public static class DeleteTutorConversation
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteTutorConversation
+    public interface IDeleteTutorConversationCommand
     {
         Task DeleteAsync(
                 TutorConversationEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteTutorConversation
 
     }
 
-    internal sealed class DeleteTutorConversationCommand(IAITutorDbContext dbContext) : IDeleteTutorConversation
+    internal sealed class DeleteTutorConversationCommand(IAITutorDbContext dbContext) : IDeleteTutorConversationCommand
     {
         public async Task DeleteAsync(
                 TutorConversationEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteTutorConversation
             }
     }
 
-    public sealed class Handler(IDeleteTutorConversation dataAccess)
+    public sealed class Handler(IDeleteTutorConversationCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(TutorConversationEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

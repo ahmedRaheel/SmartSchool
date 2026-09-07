@@ -38,7 +38,7 @@ public static class GetEmployeePage
     public sealed record Query(Guid TenantId, int Page = 1, int PageSize = 25)
         : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetEmployeePage
+    public interface IGetEmployeePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -49,7 +49,7 @@ public static class GetEmployeePage
     }
 
     internal sealed class GetEmployeePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetEmployeePage
+        IDbConnectionFactory connectionFactory) : IGetEmployeePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -126,13 +126,13 @@ public static class GetEmployeePage
             }
     }
 
-    public sealed class Handler(IGetEmployeePage dataAccess)
+    public sealed class Handler(IGetEmployeePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId, pageRequest.NormalizedPage, pageRequest.NormalizedPageSize, cancellationToken);
             var response = new PagedResult<Response>(
                 page.Items, page.Page, page.PageSize, page.TotalCount);

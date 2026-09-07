@@ -31,7 +31,7 @@ public static class GetInterviewPage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetInterviewPage
+    public interface IGetInterviewPageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetInterviewPage
     }
 
     internal sealed class GetInterviewPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetInterviewPage
+        IDbConnectionFactory connectionFactory) : IGetInterviewPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetInterviewPage
             }
     }
 
-    public sealed class Handler(IGetInterviewPage dataAccess)
+    public sealed class Handler(IGetInterviewPageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetInterviewPage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

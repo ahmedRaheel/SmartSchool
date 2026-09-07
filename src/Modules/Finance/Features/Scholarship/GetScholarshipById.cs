@@ -29,7 +29,7 @@ public static class GetScholarshipById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetScholarshipById
+    public interface IGetScholarshipByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetScholarshipById
     }
 
     internal sealed class GetScholarshipByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetScholarshipById
+        IDbConnectionFactory connectionFactory) : IGetScholarshipByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetScholarshipById
             }
     }
 
-    public sealed class Handler(IGetScholarshipById dataAccess)
+    public sealed class Handler(IGetScholarshipByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

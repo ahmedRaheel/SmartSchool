@@ -20,7 +20,7 @@ public static class DeletePromptTemplate
         Guid TenantId,
         Guid Id);
 
-    public interface IDeletePromptTemplate
+    public interface IDeletePromptTemplateCommand
     {
         Task DeleteAsync(
                 PromptTemplateEntity entity,
@@ -33,7 +33,7 @@ public static class DeletePromptTemplate
 
     }
 
-    internal sealed class DeletePromptTemplateCommand(IAICoreDbContext dbContext) : IDeletePromptTemplate
+    internal sealed class DeletePromptTemplateCommand(IAICoreDbContext dbContext) : IDeletePromptTemplateCommand
     {
         public async Task DeleteAsync(
                 PromptTemplateEntity entity,
@@ -58,21 +58,21 @@ public static class DeletePromptTemplate
             }
     }
 
-    public sealed class Handler(IDeletePromptTemplate dataAccess)
+    public sealed class Handler(IDeletePromptTemplateCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(PromptTemplateEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

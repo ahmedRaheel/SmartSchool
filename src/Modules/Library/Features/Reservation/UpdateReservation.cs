@@ -42,7 +42,7 @@ public static class UpdateReservation
         }
     }
 
-    public interface IUpdateReservation
+    public interface IUpdateReservationCommand
     {
         Task UpdateAsync(
                 ReservationEntity entity,
@@ -54,7 +54,7 @@ Task<ReservationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateReservationCommand(ILibraryDbContext dbContext) : IUpdateReservation
+    internal sealed class UpdateReservationCommand(ILibraryDbContext dbContext) : IUpdateReservationCommand
     {
         public async Task UpdateAsync(
                 ReservationEntity entity,
@@ -79,14 +79,14 @@ Task<ReservationEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateReservation dataAccess)
+    public sealed class Handler(IUpdateReservationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ReservationEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

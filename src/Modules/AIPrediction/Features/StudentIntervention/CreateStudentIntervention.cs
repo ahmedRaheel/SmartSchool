@@ -40,14 +40,14 @@ public static class CreateStudentIntervention
         }
     }
 
-    public interface ICreateStudentIntervention
+    public interface ICreateStudentInterventionCommand
     {
         Task AddAsync(
                 StudentInterventionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentInterventionCommand(IAIPredictionDbContext dbContext) : ICreateStudentIntervention
+    internal sealed class CreateStudentInterventionCommand(IAIPredictionDbContext dbContext) : ICreateStudentInterventionCommand
     {
         public async Task AddAsync(
                 StudentInterventionEntity entity,
@@ -60,21 +60,19 @@ public static class CreateStudentIntervention
             }
     }
 
-    public sealed class Handler(ICreateStudentIntervention dataAccess)
+    public sealed class Handler(ICreateStudentInterventionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = StudentInterventionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

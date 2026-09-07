@@ -38,7 +38,7 @@ public static class UpdateGuardian
         }
     }
 
-    public interface IUpdateGuardian
+    public interface IUpdateGuardianCommand
     {
         Task UpdateAsync(
                 GuardianEntity entity,
@@ -51,7 +51,7 @@ public static class UpdateGuardian
     }
 
     internal sealed class UpdateGuardianCommand(
-        IStudentsDbContext dbContext) : IUpdateGuardian
+        IStudentsDbContext dbContext) : IUpdateGuardianCommand
     {
         public async Task UpdateAsync(
                 GuardianEntity entity,
@@ -79,12 +79,12 @@ public static class UpdateGuardian
         }
 }
 
-    public sealed class Handler(IUpdateGuardian dataAccess)
+    public sealed class Handler(IUpdateGuardianCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
+            var entity = await command.GetByIdAsync(request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
@@ -97,7 +97,7 @@ public static class UpdateGuardian
                 request.Email,
                 request.Phone);
 
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

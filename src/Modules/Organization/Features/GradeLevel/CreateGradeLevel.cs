@@ -43,14 +43,14 @@ public static class CreateGradeLevel
         }
     }
 
-    public interface ICreateGradeLevel
+    public interface ICreateGradeLevelCommand
     {
         Task AddAsync(
                 GradeLevelEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateGradeLevelCommand(IOrganizationDbContext dbContext) : ICreateGradeLevel
+    internal sealed class CreateGradeLevelCommand(IOrganizationDbContext dbContext) : ICreateGradeLevelCommand
     {
         public async Task AddAsync(
                 GradeLevelEntity entity,
@@ -64,15 +64,13 @@ public static class CreateGradeLevel
             }
     }
 
-    public sealed class Handler(ICreateGradeLevel dataAccess)
+    public sealed class Handler(ICreateGradeLevelCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = GradeLevelEntity.Create(
                 request.TenantId,
                 request.CampusId,
@@ -81,7 +79,7 @@ public static class CreateGradeLevel
                 request.Name,
                 request.SortOrder);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

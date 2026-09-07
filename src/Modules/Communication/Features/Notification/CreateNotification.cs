@@ -58,7 +58,7 @@ public static class CreateNotification
         }
     }
 
-    public interface ICreateNotification
+    public interface ICreateNotificationCommand
     {
         Task AddAsync(
                 NotificationEntity entity,
@@ -67,7 +67,7 @@ public static class CreateNotification
     }
 
     internal sealed class CreateNotificationCommand(
-        ICommunicationDbContext dbContext) : ICreateNotification
+        ICommunicationDbContext dbContext) : ICreateNotificationCommand
     {
         public async Task AddAsync(
                 NotificationEntity entity,
@@ -82,7 +82,7 @@ public static class CreateNotification
 
     public sealed class Handler(IHubContext<NotificationHub> notificationHub,
         IIntegrationEventPublisher eventPublisher,
-        ICreateNotification dataAccess)
+        ICreateNotificationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -100,7 +100,7 @@ public static class CreateNotification
                     request.RelatedEntityType,
                     request.ActionUrl,
                     request.Priority);
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             var response = MapResponse(entity);
             await eventPublisher.PublishAsync(KafkaTopics.NotificationCreated, response, cancellationToken);
             await notificationHub.Clients

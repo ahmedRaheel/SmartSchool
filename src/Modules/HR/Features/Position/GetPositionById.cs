@@ -29,7 +29,7 @@ public static class GetPositionById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetPositionById
+    public interface IGetPositionByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetPositionById
     }
 
     internal sealed class GetPositionByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetPositionById
+        IDbConnectionFactory connectionFactory) : IGetPositionByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetPositionById
             }
     }
 
-    public sealed class Handler(IGetPositionById dataAccess)
+    public sealed class Handler(IGetPositionByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

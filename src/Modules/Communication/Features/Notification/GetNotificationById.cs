@@ -34,12 +34,18 @@ public static class GetNotificationById
 
     public sealed record Query(
         Guid TenantId,
-        Guid Id) : IRequest<Result<Response>>;
-
-    public sealed class Handler(IDbConnectionFactory connectionFactory)
-        : IRequestHandler<Query, Result<Response>>
+        Guid Id) : IRequest<Result<Response>>;    public interface IGetNotificationByIdQuery
     {
-        public async Task<Result<Response>> HandleAsync(
+        Task<Result<Response>> ExecuteAsync(
+            Query request,
+            CancellationToken cancellationToken);
+    }
+
+
+
+    internal sealed class GetNotificationByIdQuery(IDbConnectionFactory connectionFactory) : IGetNotificationByIdQuery
+    {
+        public async Task<Result<Response>> ExecuteAsync(
             Query request,
             CancellationToken cancellationToken)
         {
@@ -62,6 +68,17 @@ public static class GetNotificationById
                 Enum.Parse<NotificationType>(row.Type, true), row.Title, row.Message, row.RelatedEntityId,
                 row.RelatedEntityType, row.ActionUrl, row.Priority, row.IsRead, row.ReadAt, row.OccurredAt);
             return Result<Response>.Success(response);
+        }
+    }
+
+    public sealed class Handler(IGetNotificationByIdQuery query)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            return query.ExecuteAsync(request, cancellationToken);
         }
     }
 

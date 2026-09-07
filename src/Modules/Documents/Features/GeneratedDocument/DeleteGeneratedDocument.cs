@@ -20,7 +20,7 @@ public static class DeleteGeneratedDocument
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteGeneratedDocument
+    public interface IDeleteGeneratedDocumentCommand
     {
         Task DeleteAsync(
                 GeneratedDocumentEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteGeneratedDocument
 
     }
 
-    internal sealed class DeleteGeneratedDocumentCommand(IDocumentsDbContext dbContext) : IDeleteGeneratedDocument
+    internal sealed class DeleteGeneratedDocumentCommand(IDocumentsDbContext dbContext) : IDeleteGeneratedDocumentCommand
     {
         public async Task DeleteAsync(
                 GeneratedDocumentEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteGeneratedDocument
             }
     }
 
-    public sealed class Handler(IDeleteGeneratedDocument dataAccess)
+    public sealed class Handler(IDeleteGeneratedDocumentCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(GeneratedDocumentEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

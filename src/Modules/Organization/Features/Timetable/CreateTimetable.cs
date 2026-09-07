@@ -39,14 +39,14 @@ public static class CreateTimetable
         }
     }
 
-    public interface ICreateTimetable
+    public interface ICreateTimetableCommand
     {
         Task AddAsync(
                 TimetableEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTimetableCommand(IOrganizationDbContext dbContext) : ICreateTimetable
+    internal sealed class CreateTimetableCommand(IOrganizationDbContext dbContext) : ICreateTimetableCommand
     {
         public async Task AddAsync(
                 TimetableEntity entity,
@@ -60,21 +60,19 @@ public static class CreateTimetable
             }
     }
 
-    public sealed class Handler(ICreateTimetable dataAccess)
+    public sealed class Handler(ICreateTimetableCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = TimetableEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

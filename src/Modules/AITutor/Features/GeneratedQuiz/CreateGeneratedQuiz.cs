@@ -41,14 +41,14 @@ public static class CreateGeneratedQuiz
         }
     }
 
-    public interface ICreateGeneratedQuiz
+    public interface ICreateGeneratedQuizCommand
     {
         Task AddAsync(
                 GeneratedQuizEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateGeneratedQuizCommand(IAITutorDbContext dbContext) : ICreateGeneratedQuiz
+    internal sealed class CreateGeneratedQuizCommand(IAITutorDbContext dbContext) : ICreateGeneratedQuizCommand
     {
         public async Task AddAsync(
                 GeneratedQuizEntity entity,
@@ -61,22 +61,20 @@ public static class CreateGeneratedQuiz
             }
     }
 
-    public sealed class Handler(ICreateGeneratedQuiz dataAccess)
+    public sealed class Handler(ICreateGeneratedQuizCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = GeneratedQuizEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

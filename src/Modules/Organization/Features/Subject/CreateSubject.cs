@@ -41,11 +41,18 @@ public static class CreateSubject
             RuleFor(x => x.BranchId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
+    }    public interface ICreateSubjectCommand
+    {
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
     }
 
-    public sealed class Handler(IOrganizationDbContext dbContext, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+
+
+    internal sealed class CreateSubjectCommand(IOrganizationDbContext dbContext, IBusinessNumberGenerator numberGenerator) : ICreateSubjectCommand
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var code = await numberGenerator.NextAsync(
                 "SUBJECT", "SUB", request.TenantId, 8, cancellationToken);
@@ -56,6 +63,17 @@ public static class CreateSubject
             await dbContext.Subjects.AddAsync(subject, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, subjectId, code, request.Name));
+        }
+    }
+
+    public sealed class Handler(ICreateSubjectCommand command)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
         }
     }
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)

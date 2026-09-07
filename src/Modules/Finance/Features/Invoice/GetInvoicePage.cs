@@ -31,7 +31,7 @@ public static class GetInvoicePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetInvoicePage
+    public interface IGetInvoicePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetInvoicePage
     }
 
     internal sealed class GetInvoicePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetInvoicePage
+        IDbConnectionFactory connectionFactory) : IGetInvoicePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetInvoicePage
             }
     }
 
-    public sealed class Handler(IGetInvoicePage dataAccess)
+    public sealed class Handler(IGetInvoicePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetInvoicePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

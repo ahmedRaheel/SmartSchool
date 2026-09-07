@@ -41,14 +41,14 @@ public static class CreateKnowledgeCollection
         }
     }
 
-    public interface ICreateKnowledgeCollection
+    public interface ICreateKnowledgeCollectionCommand
     {
         Task AddAsync(
                 KnowledgeCollectionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateKnowledgeCollectionCommand(IAICoreDbContext dbContext) : ICreateKnowledgeCollection
+    internal sealed class CreateKnowledgeCollectionCommand(IAICoreDbContext dbContext) : ICreateKnowledgeCollectionCommand
     {
         public async Task AddAsync(
                 KnowledgeCollectionEntity entity,
@@ -61,22 +61,20 @@ public static class CreateKnowledgeCollection
             }
     }
 
-    public sealed class Handler(ICreateKnowledgeCollection dataAccess)
+    public sealed class Handler(ICreateKnowledgeCollectionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = KnowledgeCollectionEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name,
                 request.MetadataJson);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

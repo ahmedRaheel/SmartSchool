@@ -31,11 +31,18 @@ public static class CreateCampus
 
             RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
         }
+    }    public interface ICreateCampusCommand
+    {
+        Task<Result<Response>> ExecuteAsync(
+            Request request,
+            CancellationToken cancellationToken);
     }
 
-    public sealed class Handler(ITenantScope tenantScope, CreateCampusCampusCommand command, CreateCampusSchoolQuery schoolQuery, CreateCampusBranchPolicyQuery policyQuery, CreateCampusBranchPolicyCommand policyCommand, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
+
+
+    internal sealed class CreateCampusCommand(ITenantScope tenantScope, CreateCampusCampusCommand command, CreateCampusSchoolQuery schoolQuery, CreateCampusBranchPolicyQuery policyQuery, CreateCampusBranchPolicyCommand policyCommand, IBusinessNumberGenerator numberGenerator) : ICreateCampusCommand
     {
-        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        public async Task<Result<Response>> ExecuteAsync(Request request, CancellationToken cancellationToken)
         {
             var tenantId = tenantScope.Resolve(request.TenantId);
             if (!tenantId.HasValue)
@@ -62,6 +69,17 @@ public static class CreateCampus
             await policyCommand.SetEducationLevelsAsync(tenantId.Value, campus.CampusId, educationLevelIds, cancellationToken);
             await command.SyncGradeLevelsAsync(tenantId.Value, campus.CampusId, request.AcademicSystemId, cancellationToken);
             return Result<Response>.Success(Map(campus, educationLevelIds));
+        }
+    }
+
+    public sealed class Handler(ICreateCampusCommand command)
+        : IRequestHandler<Request, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Request request,
+            CancellationToken cancellationToken)
+        {
+            return command.ExecuteAsync(request, cancellationToken);
         }
     }
 

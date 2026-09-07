@@ -29,7 +29,7 @@ public static class GetKnowledgeDocumentById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetKnowledgeDocumentById
+    public interface IGetKnowledgeDocumentByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetKnowledgeDocumentById
     }
 
     internal sealed class GetKnowledgeDocumentByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetKnowledgeDocumentById
+        IDbConnectionFactory connectionFactory) : IGetKnowledgeDocumentByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetKnowledgeDocumentById
             }
     }
 
-    public sealed class Handler(IGetKnowledgeDocumentById dataAccess)
+    public sealed class Handler(IGetKnowledgeDocumentByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

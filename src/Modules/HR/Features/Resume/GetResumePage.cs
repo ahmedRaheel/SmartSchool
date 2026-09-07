@@ -31,7 +31,7 @@ public static class GetResumePage
         int Page = 1,
         int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
 
-    public interface IGetResumePage
+    public interface IGetResumePageQuery
     {
         Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -42,7 +42,7 @@ public static class GetResumePage
     }
 
     internal sealed class GetResumePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetResumePage
+        IDbConnectionFactory connectionFactory) : IGetResumePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -102,7 +102,7 @@ public static class GetResumePage
             }
     }
 
-    public sealed class Handler(IGetResumePage dataAccess)
+    public sealed class Handler(IGetResumePageQuery query)
         : IRequestHandler<Query, Result<PagedResult<Response>>>
     {
         public async Task<Result<PagedResult<Response>>> HandleAsync(
@@ -110,7 +110,7 @@ public static class GetResumePage
             CancellationToken cancellationToken)
         {
             var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await dataAccess.GetPageAsync(
+            var page = await query.GetPageAsync(
                 request.TenantId,
                 pageRequest.NormalizedPage,
                 pageRequest.NormalizedPageSize,

@@ -97,7 +97,7 @@ public sealed class ChangeAdmissionStatusQuery(IDbConnectionFactory connectionFa
     }
 }
 
-public interface IChangeAdmissionStatus
+public interface IChangeAdmissionStatusCommand
 {
     Task<bool> ChangeStatusAsync(
         Guid tenantId,
@@ -109,7 +109,7 @@ public interface IChangeAdmissionStatus
 
 public sealed class ChangeAdmissionStatusCommand(
     IAdmissionsDbContext dbContext,
-    TimeProvider timeProvider) : IChangeAdmissionStatus
+    TimeProvider timeProvider) : IChangeAdmissionStatusCommand
 {
     public async Task<bool> ChangeStatusAsync(
         Guid tenantId,
@@ -161,7 +161,7 @@ public static class ChangeAdmissionStatus
     public sealed class Handler(
         ITenantScope tenantScope,
         IChangeAdmissionStatusQuery query,
-        IChangeAdmissionStatus command,
+        IChangeAdmissionStatusCommand command,
         ICompleteAdmission completeAdmission,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numbers)

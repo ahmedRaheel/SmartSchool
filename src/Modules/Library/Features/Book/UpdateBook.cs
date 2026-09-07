@@ -42,7 +42,7 @@ public static class UpdateBook
         }
     }
 
-    public interface IUpdateBook
+    public interface IUpdateBookCommand
     {
         Task UpdateAsync(
                 BookEntity entity,
@@ -54,7 +54,7 @@ Task<BookEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateBookCommand(ILibraryDbContext dbContext) : IUpdateBook
+    internal sealed class UpdateBookCommand(ILibraryDbContext dbContext) : IUpdateBookCommand
     {
         public async Task UpdateAsync(
                 BookEntity entity,
@@ -79,14 +79,14 @@ Task<BookEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateBook dataAccess)
+    public sealed class Handler(IUpdateBookCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<BookEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

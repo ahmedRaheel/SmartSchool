@@ -42,7 +42,7 @@ public static class UpdateLearningRecommendation
         }
     }
 
-    public interface IUpdateLearningRecommendation
+    public interface IUpdateLearningRecommendationCommand
     {
         Task UpdateAsync(
                 LearningRecommendationEntity entity,
@@ -54,7 +54,7 @@ Task<LearningRecommendationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLearningRecommendationCommand(IAITutorDbContext dbContext) : IUpdateLearningRecommendation
+    internal sealed class UpdateLearningRecommendationCommand(IAITutorDbContext dbContext) : IUpdateLearningRecommendationCommand
     {
         public async Task UpdateAsync(
                 LearningRecommendationEntity entity,
@@ -79,14 +79,14 @@ Task<LearningRecommendationEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateLearningRecommendation dataAccess)
+    public sealed class Handler(IUpdateLearningRecommendationCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<LearningRecommendationEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

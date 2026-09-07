@@ -42,7 +42,7 @@ public static class UpdatePayment
         }
     }
 
-    public interface IUpdatePayment
+    public interface IUpdatePaymentCommand
     {
         Task UpdateAsync(
                 PaymentEntity entity,
@@ -54,7 +54,7 @@ Task<PaymentEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePaymentCommand(IFinanceDbContext dbContext) : IUpdatePayment
+    internal sealed class UpdatePaymentCommand(IFinanceDbContext dbContext) : IUpdatePaymentCommand
     {
         public async Task UpdateAsync(
                 PaymentEntity entity,
@@ -79,14 +79,14 @@ Task<PaymentEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdatePayment dataAccess)
+    public sealed class Handler(IUpdatePaymentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<PaymentEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

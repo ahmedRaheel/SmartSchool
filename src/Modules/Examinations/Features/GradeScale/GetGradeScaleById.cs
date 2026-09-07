@@ -29,7 +29,7 @@ public static class GetGradeScaleById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetGradeScaleById
+    public interface IGetGradeScaleByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetGradeScaleById
     }
 
     internal sealed class GetGradeScaleByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetGradeScaleById
+        IDbConnectionFactory connectionFactory) : IGetGradeScaleByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetGradeScaleById
             }
     }
 
-    public sealed class Handler(IGetGradeScaleById dataAccess)
+    public sealed class Handler(IGetGradeScaleByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

@@ -29,7 +29,7 @@ public static class GetHumanHandoffById
         Guid TenantId,
         Guid Id) : IRequest<Result<Response>>;
 
-    public interface IGetHumanHandoffById
+    public interface IGetHumanHandoffByIdQuery
     {
         Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -39,7 +39,7 @@ public static class GetHumanHandoffById
     }
 
     internal sealed class GetHumanHandoffByIdQuery(
-        IDbConnectionFactory connectionFactory) : IGetHumanHandoffById
+        IDbConnectionFactory connectionFactory) : IGetHumanHandoffByIdQuery
     {
         public async Task<Response?> GetByIdAsync(
                 Guid tenantId,
@@ -70,14 +70,14 @@ public static class GetHumanHandoffById
             }
     }
 
-    public sealed class Handler(IGetHumanHandoffById dataAccess)
+    public sealed class Handler(IGetHumanHandoffByIdQuery query)
         : IRequestHandler<Query, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Query request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await query.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {

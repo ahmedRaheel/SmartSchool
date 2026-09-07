@@ -40,14 +40,14 @@ public static class CreateJob
         }
     }
 
-    public interface ICreateJob
+    public interface ICreateJobCommand
     {
         Task AddAsync(
                 JobEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateJobCommand(IHRDbContext dbContext) : ICreateJob
+    internal sealed class CreateJobCommand(IHRDbContext dbContext) : ICreateJobCommand
     {
         public async Task AddAsync(
                 JobEntity entity,
@@ -60,21 +60,19 @@ public static class CreateJob
             }
     }
 
-    public sealed class Handler(ICreateJob dataAccess)
+    public sealed class Handler(ICreateJobCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = JobEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

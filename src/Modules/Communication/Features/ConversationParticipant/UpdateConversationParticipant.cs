@@ -42,7 +42,7 @@ public static class UpdateConversationParticipant
         }
     }
 
-    public interface IUpdateConversationParticipant
+    public interface IUpdateConversationParticipantCommand
     {
         Task UpdateAsync(
                 ConversationParticipantEntity entity,
@@ -54,7 +54,7 @@ Task<ConversationParticipantEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateConversationParticipantCommand(ICommunicationDbContext dbContext) : IUpdateConversationParticipant
+    internal sealed class UpdateConversationParticipantCommand(ICommunicationDbContext dbContext) : IUpdateConversationParticipantCommand
     {
         public async Task UpdateAsync(
                 ConversationParticipantEntity entity,
@@ -79,14 +79,14 @@ Task<ConversationParticipantEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateConversationParticipant dataAccess)
+    public sealed class Handler(IUpdateConversationParticipantCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<ConversationParticipantEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

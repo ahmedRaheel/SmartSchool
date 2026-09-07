@@ -42,7 +42,7 @@ public static class UpdatePayrollRun
         }
     }
 
-    public interface IUpdatePayrollRun
+    public interface IUpdatePayrollRunCommand
     {
         Task UpdateAsync(
                 PayrollRunEntity entity,
@@ -54,7 +54,7 @@ Task<PayrollRunEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePayrollRunCommand(IPayrollDbContext dbContext) : IUpdatePayrollRun
+    internal sealed class UpdatePayrollRunCommand(IPayrollDbContext dbContext) : IUpdatePayrollRunCommand
     {
         public async Task UpdateAsync(
                 PayrollRunEntity entity,
@@ -79,14 +79,14 @@ Task<PayrollRunEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdatePayrollRun dataAccess)
+    public sealed class Handler(IUpdatePayrollRunCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<PayrollRunEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

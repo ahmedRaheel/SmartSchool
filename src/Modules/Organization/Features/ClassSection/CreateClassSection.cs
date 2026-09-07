@@ -49,14 +49,14 @@ public static class CreateClassSection
         }
     }
 
-    public interface ICreateClassSection
+    public interface ICreateClassSectionCommand
     {
         Task AddAsync(
                 ClassSectionEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateClassSectionCommand(IOrganizationDbContext dbContext) : ICreateClassSection
+    internal sealed class CreateClassSectionCommand(IOrganizationDbContext dbContext) : ICreateClassSectionCommand
     {
         public async Task AddAsync(
                 ClassSectionEntity entity,
@@ -70,15 +70,13 @@ public static class CreateClassSection
             }
     }
 
-    public sealed class Handler(ICreateClassSection dataAccess)
+    public sealed class Handler(ICreateClassSectionCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ClassSectionEntity.Create(
                 request.TenantId,
                 request.CampusId,
@@ -90,7 +88,7 @@ public static class CreateClassSection
                 capacity: request.Capacity,
                 roomNo: request.RoomNo);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

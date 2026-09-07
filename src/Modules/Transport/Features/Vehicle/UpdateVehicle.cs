@@ -42,7 +42,7 @@ public static class UpdateVehicle
         }
     }
 
-    public interface IUpdateVehicle
+    public interface IUpdateVehicleCommand
     {
         Task UpdateAsync(
                 VehicleEntity entity,
@@ -54,7 +54,7 @@ Task<VehicleEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateVehicleCommand(ITransportDbContext dbContext) : IUpdateVehicle
+    internal sealed class UpdateVehicleCommand(ITransportDbContext dbContext) : IUpdateVehicleCommand
     {
         public async Task UpdateAsync(
                 VehicleEntity entity,
@@ -79,14 +79,14 @@ Task<VehicleEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateVehicle dataAccess)
+    public sealed class Handler(IUpdateVehicleCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<VehicleEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

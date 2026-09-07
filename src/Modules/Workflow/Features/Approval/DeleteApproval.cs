@@ -20,7 +20,7 @@ public static class DeleteApproval
         Guid TenantId,
         Guid Id);
 
-    public interface IDeleteApproval
+    public interface IDeleteApprovalCommand
     {
         Task DeleteAsync(
                 ApprovalEntity entity,
@@ -33,7 +33,7 @@ public static class DeleteApproval
 
     }
 
-    internal sealed class DeleteApprovalCommand(IWorkflowDbContext dbContext) : IDeleteApproval
+    internal sealed class DeleteApprovalCommand(IWorkflowDbContext dbContext) : IDeleteApprovalCommand
     {
         public async Task DeleteAsync(
                 ApprovalEntity entity,
@@ -58,21 +58,21 @@ public static class DeleteApproval
             }
     }
 
-    public sealed class Handler(IDeleteApproval dataAccess)
+    public sealed class Handler(IDeleteApprovalCommand command)
         : IRequestHandler<Command, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Command request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
                 return Result<Response>.Failure(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(ApprovalEntity))));
             }
-            await dataAccess.DeleteAsync(entity, cancellationToken);
+            await command.DeleteAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(request.TenantId, request.Id));
         }
     }

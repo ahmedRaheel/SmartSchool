@@ -27,11 +27,18 @@ public static class GetStudentById
         DateOnly? AdmissionDate,
         string Status);
 
-    public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;
-
-    public sealed class Handler(IDbConnectionFactory connectionFactory) : IRequestHandler<Query, Result<Response>>
+    public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;    public interface IGetStudentByIdQuery
     {
-        public async Task<Result<Response>> HandleAsync(Query request, CancellationToken cancellationToken)
+        Task<Result<Response>> ExecuteAsync(
+            Query request,
+            CancellationToken cancellationToken);
+    }
+
+
+
+    internal sealed class GetStudentByIdQuery(IDbConnectionFactory connectionFactory) : IGetStudentByIdQuery
+    {
+        public async Task<Result<Response>> ExecuteAsync(Query request, CancellationToken cancellationToken)
         {
             const string sql = """
                 SELECT tenant_id AS "TenantId", student_id AS "Id", user_id AS "UserId", student_number AS "StudentNumber", first_name AS "FirstName", last_name AS "LastName", date_of_birth AS "DateOfBirth", gender AS "Gender", photo AS "Photo", photo_content_type AS "PhotoContentType", photo_file_name AS "PhotoFileName", admission_date AS "AdmissionDate", status AS "Status"
@@ -52,6 +59,17 @@ public static class GetStudentById
             }
 
             return Result<Response>.Success(response);
+        }
+    }
+
+    public sealed class Handler(IGetStudentByIdQuery query)
+        : IRequestHandler<Query, Result<Response>>
+    {
+        public Task<Result<Response>> HandleAsync(
+            Query request,
+            CancellationToken cancellationToken)
+        {
+            return query.ExecuteAsync(request, cancellationToken);
         }
     }
 

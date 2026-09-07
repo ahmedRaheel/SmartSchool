@@ -43,7 +43,7 @@ public static class CreateEnrollment
         }
     }
 
-    public interface ICreateEnrollment
+    public interface ICreateEnrollmentCommand
     {
         Task AddAsync(
                 EnrollmentEntity entity,
@@ -56,7 +56,7 @@ public static class CreateEnrollment
     }
 
     internal sealed class CreateEnrollmentCommand(
-        IStudentsDbContext dbContext) : ICreateEnrollment
+        IStudentsDbContext dbContext) : ICreateEnrollmentCommand
     {
         public async Task AddAsync(
                 EnrollmentEntity entity,
@@ -85,17 +85,17 @@ public static class CreateEnrollment
 }
 
     public sealed class Handler(IBusinessNumberGenerator numberGenerator,
-        ICreateEnrollment dataAccess)
+        ICreateEnrollmentCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            if (await dataAccess.ExistsForAcademicYearAsync(request.TenantId, request.StudentId, request.AcademicYearId, cancellationToken))
+            if (await command.ExistsForAcademicYearAsync(request.TenantId, request.StudentId, request.AcademicYearId, cancellationToken))
             {
                 return Result<Response>.Failure(Error.Conflict("The student is already enrolled for this academic year."));
             }
 
-            var student = await dataAccess.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
+            var student = await command.GetByIdAsync(request.TenantId, request.StudentId, cancellationToken);
             if (student is null)
                 return Result<Response>.Failure(Error.Validation("Student admission must be approved before enrollment."));
             var enrollmentNumber = await numberGenerator.NextAsync($"ENROLLMENT:{request.StudentId}", $"{student.StudentId}-", request.TenantId, 3, cancellationToken);
@@ -109,7 +109,7 @@ public static class CreateEnrollment
                 request.EnrollmentDate,
                 request.Status);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(Map(entity));
         }
     }

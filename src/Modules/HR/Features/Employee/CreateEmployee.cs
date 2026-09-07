@@ -76,7 +76,7 @@ public static class CreateEmployee
         }
     }
 
-    public interface ICreateEmployee
+    public interface ICreateEmployeeCommand
     {
         Task AddAsync(
                 EmployeeEntity entity,
@@ -88,7 +88,7 @@ public static class CreateEmployee
 
     }
 
-    internal sealed class CreateEmployeeCommand(IHRDbContext dbContext) : ICreateEmployee
+    internal sealed class CreateEmployeeCommand(IHRDbContext dbContext) : ICreateEmployeeCommand
     {
         public async Task AddAsync(
                 EmployeeEntity entity,
@@ -116,7 +116,7 @@ public static class CreateEmployee
     }
 
 
-    public sealed class Handler(ICreateEmployee persistence)
+    public sealed class Handler(ICreateEmployeeCommand persistence)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)

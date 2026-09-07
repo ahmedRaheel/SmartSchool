@@ -40,14 +40,14 @@ public static class CreateResume
         }
     }
 
-    public interface ICreateResume
+    public interface ICreateResumeCommand
     {
         Task AddAsync(
                 ResumeEntity entity,
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateResumeCommand(IHRDbContext dbContext) : ICreateResume
+    internal sealed class CreateResumeCommand(IHRDbContext dbContext) : ICreateResumeCommand
     {
         public async Task AddAsync(
                 ResumeEntity entity,
@@ -60,21 +60,19 @@ public static class CreateResume
             }
     }
 
-    public sealed class Handler(ICreateResume dataAccess)
+    public sealed class Handler(ICreateResumeCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-
-
             var entity = ResumeEntity.Create(
                 request.TenantId,
                 Guid.NewGuid().ToString("N").ToUpperInvariant(),
                 request.Name);
 
-            await dataAccess.AddAsync(entity, cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }

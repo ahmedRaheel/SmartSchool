@@ -42,7 +42,7 @@ public static class UpdateLoan
         }
     }
 
-    public interface IUpdateLoan
+    public interface IUpdateLoanCommand
     {
         Task UpdateAsync(
                 LoanEntity entity,
@@ -54,7 +54,7 @@ Task<LoanEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLoanCommand(ILibraryDbContext dbContext) : IUpdateLoan
+    internal sealed class UpdateLoanCommand(ILibraryDbContext dbContext) : IUpdateLoanCommand
     {
         public async Task UpdateAsync(
                 LoanEntity entity,
@@ -79,14 +79,14 @@ Task<LoanEntity?> GetByIdAsync(
             }
     }
 
-    public sealed class Handler(IUpdateLoan dataAccess)
+    public sealed class Handler(IUpdateLoanCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
-            var entity = await dataAccess.GetByIdAsync(
+            var entity = await command.GetByIdAsync(
                 request.TenantId, request.Id, cancellationToken);
             if (entity is null)
             {
@@ -98,7 +98,7 @@ Task<LoanEntity?> GetByIdAsync(
             entity.UpdateDetails(
                 entity.Code,
                 request.Name);
-            await dataAccess.UpdateAsync(entity, cancellationToken);
+            await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
     }
