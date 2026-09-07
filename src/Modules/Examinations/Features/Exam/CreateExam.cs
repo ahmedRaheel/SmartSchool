@@ -47,7 +47,7 @@ public static class CreateExam
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateExamPersistence(IExaminationsDbContext dbContext) : ICreateExam
+    internal sealed class CreateExamCommand(IExaminationsDbContext dbContext) : ICreateExam
     {
         public async Task AddAsync(
                 ExamEntity entity,

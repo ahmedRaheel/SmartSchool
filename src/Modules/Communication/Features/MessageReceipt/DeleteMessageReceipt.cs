@@ -33,7 +33,7 @@ public static class DeleteMessageReceipt
 
     }
 
-    internal sealed class DeleteMessageReceiptPersistence(ICommunicationDbContext dbContext) : IDeleteMessageReceipt
+    internal sealed class DeleteMessageReceiptCommand(ICommunicationDbContext dbContext) : IDeleteMessageReceipt
     {
         public async Task DeleteAsync(
                 MessageReceiptEntity entity,

@@ -47,7 +47,7 @@ public static class CreateReservation
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateReservationPersistence(ILibraryDbContext dbContext) : ICreateReservation
+    internal sealed class CreateReservationCommand(ILibraryDbContext dbContext) : ICreateReservation
     {
         public async Task AddAsync(
                 ReservationEntity entity,

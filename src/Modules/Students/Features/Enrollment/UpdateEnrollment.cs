@@ -28,7 +28,7 @@ public static class UpdateEnrollment
 
     }
 
-    internal sealed class UpdateEnrollmentPersistence(
+    internal sealed class UpdateEnrollmentCommand(
         IStudentsDbContext dbContext) : IUpdateEnrollment
     {
         public async Task UpdateAsync(

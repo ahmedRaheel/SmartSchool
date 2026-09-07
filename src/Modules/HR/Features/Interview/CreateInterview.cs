@@ -47,7 +47,7 @@ public static class CreateInterview
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateInterviewPersistence(IHRDbContext dbContext) : ICreateInterview
+    internal sealed class CreateInterviewCommand(IHRDbContext dbContext) : ICreateInterview
     {
         public async Task AddAsync(
                 InterviewEntity entity,

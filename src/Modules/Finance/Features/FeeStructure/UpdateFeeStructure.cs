@@ -58,7 +58,7 @@ Task<FeeStructureEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateFeeStructurePersistence(IFinanceDbContext dbContext) : IUpdateFeeStructure
+    internal sealed class UpdateFeeStructureCommand(IFinanceDbContext dbContext) : IUpdateFeeStructure
     {
         public async Task UpdateAsync(
                 FeeStructureEntity entity,

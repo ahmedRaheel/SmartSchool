@@ -19,7 +19,7 @@ public static class GetGeography
         Task<IReadOnlyList<Response>> GetCitiesAsync(int provinceId, CancellationToken cancellationToken);
     }
 
-    internal sealed class Persistence(IDbConnectionFactory connectionFactory) : IGetGeography
+    internal sealed class GetGeographyQuery(IDbConnectionFactory connectionFactory) : IGetGeography
     {
         public Task<IReadOnlyList<Response>> GetCountriesAsync(CancellationToken cancellationToken) =>
             QueryAsync("SELECT country_id AS \"Id\", code AS \"Code\", name AS \"Name\" FROM reference.country ORDER BY name", null, cancellationToken);

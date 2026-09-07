@@ -33,7 +33,7 @@ public static class DeleteReservation
 
     }
 
-    internal sealed class DeleteReservationPersistence(ILibraryDbContext dbContext) : IDeleteReservation
+    internal sealed class DeleteReservationCommand(ILibraryDbContext dbContext) : IDeleteReservation
     {
         public async Task DeleteAsync(
                 ReservationEntity entity,

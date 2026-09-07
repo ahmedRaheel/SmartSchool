@@ -33,7 +33,7 @@ public static class DeleteWorkflowInstance
 
     }
 
-    internal sealed class DeleteWorkflowInstancePersistence(IWorkflowDbContext dbContext) : IDeleteWorkflowInstance
+    internal sealed class DeleteWorkflowInstanceCommand(IWorkflowDbContext dbContext) : IDeleteWorkflowInstance
     {
         public async Task DeleteAsync(
                 WorkflowInstanceEntity entity,

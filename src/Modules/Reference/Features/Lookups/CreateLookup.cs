@@ -46,7 +46,7 @@ public static class CreateLookup
         Task AddAsync(LookupValueEntity entity, CancellationToken cancellationToken);
     }
 
-    internal sealed class CreateLookupPersistence(
+    internal sealed class CreateLookupCommand(
         IReferenceDbContext dbContext,
         IDbConnectionFactory connections) : ICreateLookup
     {

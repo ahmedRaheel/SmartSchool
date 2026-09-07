@@ -47,7 +47,7 @@ public static class CreateStudentFee
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentFeePersistence(IFinanceDbContext dbContext) : ICreateStudentFee
+    internal sealed class CreateStudentFeeCommand(IFinanceDbContext dbContext) : ICreateStudentFee
     {
         public async Task AddAsync(
                 StudentFeeEntity entity,

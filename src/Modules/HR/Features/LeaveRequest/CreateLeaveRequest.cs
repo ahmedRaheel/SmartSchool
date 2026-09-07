@@ -47,7 +47,7 @@ public static class CreateLeaveRequest
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLeaveRequestPersistence(IHRDbContext dbContext) : ICreateLeaveRequest
+    internal sealed class CreateLeaveRequestCommand(IHRDbContext dbContext) : ICreateLeaveRequest
     {
         public async Task AddAsync(
                 LeaveRequestEntity entity,

@@ -54,7 +54,7 @@ Task<SchoolLogoEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateSchoolLogoPersistence(IDocumentsDbContext dbContext) : IUpdateSchoolLogo
+    internal sealed class UpdateSchoolLogoCommand(IDocumentsDbContext dbContext) : IUpdateSchoolLogo
     {
         public async Task UpdateAsync(
                 SchoolLogoEntity entity,

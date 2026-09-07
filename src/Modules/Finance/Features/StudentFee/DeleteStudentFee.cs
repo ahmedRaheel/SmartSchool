@@ -33,7 +33,7 @@ public static class DeleteStudentFee
 
     }
 
-    internal sealed class DeleteStudentFeePersistence(IFinanceDbContext dbContext) : IDeleteStudentFee
+    internal sealed class DeleteStudentFeeCommand(IFinanceDbContext dbContext) : IDeleteStudentFee
     {
         public async Task DeleteAsync(
                 StudentFeeEntity entity,

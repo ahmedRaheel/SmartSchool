@@ -47,7 +47,7 @@ public static class CreateMessageReceipt
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateMessageReceiptPersistence(ICommunicationDbContext dbContext) : ICreateMessageReceipt
+    internal sealed class CreateMessageReceiptCommand(ICommunicationDbContext dbContext) : ICreateMessageReceipt
     {
         public async Task AddAsync(
                 MessageReceiptEntity entity,

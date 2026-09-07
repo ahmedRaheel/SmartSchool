@@ -48,7 +48,7 @@ public static class GetEmployeePage
 
     }
 
-    internal sealed class GetEmployeePagePersistence(
+    internal sealed class GetEmployeePageQuery(
         IDbConnectionFactory connectionFactory) : IGetEmployeePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

@@ -48,7 +48,7 @@ public static class CreateKnowledgeChunk
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateKnowledgeChunkPersistence(IAICoreDbContext dbContext) : ICreateKnowledgeChunk
+    internal sealed class CreateKnowledgeChunkCommand(IAICoreDbContext dbContext) : ICreateKnowledgeChunk
     {
         public async Task AddAsync(
                 KnowledgeChunkEntity entity,

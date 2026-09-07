@@ -38,7 +38,7 @@ public static class GetReservationById
 
     }
 
-    internal sealed class GetReservationByIdPersistence(
+    internal sealed class GetReservationByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetReservationById
     {
         public async Task<Response?> GetByIdAsync(

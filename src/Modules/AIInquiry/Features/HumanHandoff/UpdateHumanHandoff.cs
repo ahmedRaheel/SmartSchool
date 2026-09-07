@@ -54,7 +54,7 @@ Task<HumanHandoffEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateHumanHandoffPersistence(IAIInquiryDbContext dbContext) : IUpdateHumanHandoff
+    internal sealed class UpdateHumanHandoffCommand(IAIInquiryDbContext dbContext) : IUpdateHumanHandoff
     {
         public async Task UpdateAsync(
                 HumanHandoffEntity entity,

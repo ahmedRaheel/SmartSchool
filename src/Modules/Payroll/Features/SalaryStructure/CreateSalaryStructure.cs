@@ -47,7 +47,7 @@ public static class CreateSalaryStructure
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateSalaryStructurePersistence(IPayrollDbContext dbContext) : ICreateSalaryStructure
+    internal sealed class CreateSalaryStructureCommand(IPayrollDbContext dbContext) : ICreateSalaryStructure
     {
         public async Task AddAsync(
                 SalaryStructureEntity entity,

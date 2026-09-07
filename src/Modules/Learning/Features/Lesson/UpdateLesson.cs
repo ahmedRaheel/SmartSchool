@@ -54,7 +54,7 @@ Task<LessonEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLessonPersistence(ILearningDbContext dbContext) : IUpdateLesson
+    internal sealed class UpdateLessonCommand(ILearningDbContext dbContext) : IUpdateLesson
     {
         public async Task UpdateAsync(
                 LessonEntity entity,

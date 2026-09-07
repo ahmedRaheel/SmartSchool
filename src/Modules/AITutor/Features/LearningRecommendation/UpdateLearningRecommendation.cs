@@ -54,7 +54,7 @@ Task<LearningRecommendationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLearningRecommendationPersistence(IAITutorDbContext dbContext) : IUpdateLearningRecommendation
+    internal sealed class UpdateLearningRecommendationCommand(IAITutorDbContext dbContext) : IUpdateLearningRecommendation
     {
         public async Task UpdateAsync(
                 LearningRecommendationEntity entity,

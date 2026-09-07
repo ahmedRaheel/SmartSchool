@@ -47,7 +47,7 @@ public static class CreateBook
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateBookPersistence(ILibraryDbContext dbContext) : ICreateBook
+    internal sealed class CreateBookCommand(ILibraryDbContext dbContext) : ICreateBook
     {
         public async Task AddAsync(
                 BookEntity entity,

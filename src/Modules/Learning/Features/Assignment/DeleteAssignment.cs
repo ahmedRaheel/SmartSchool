@@ -33,7 +33,7 @@ public static class DeleteAssignment
 
     }
 
-    internal sealed class DeleteAssignmentPersistence(ILearningDbContext dbContext) : IDeleteAssignment
+    internal sealed class DeleteAssignmentCommand(ILearningDbContext dbContext) : IDeleteAssignment
     {
         public async Task DeleteAsync(
                 AssignmentEntity entity,

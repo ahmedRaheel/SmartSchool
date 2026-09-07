@@ -38,7 +38,7 @@ public static class GetPurchaseOrderById
 
     }
 
-    internal sealed class GetPurchaseOrderByIdPersistence(
+    internal sealed class GetPurchaseOrderByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPurchaseOrderById
     {
         public async Task<Response?> GetByIdAsync(

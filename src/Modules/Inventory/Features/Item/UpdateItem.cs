@@ -54,7 +54,7 @@ Task<ItemEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateItemPersistence(IInventoryDbContext dbContext) : IUpdateItem
+    internal sealed class UpdateItemCommand(IInventoryDbContext dbContext) : IUpdateItem
     {
         public async Task UpdateAsync(
                 ItemEntity entity,

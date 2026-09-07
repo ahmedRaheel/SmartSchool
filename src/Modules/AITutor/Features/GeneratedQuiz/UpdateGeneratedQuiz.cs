@@ -54,7 +54,7 @@ Task<GeneratedQuizEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateGeneratedQuizPersistence(IAITutorDbContext dbContext) : IUpdateGeneratedQuiz
+    internal sealed class UpdateGeneratedQuizCommand(IAITutorDbContext dbContext) : IUpdateGeneratedQuiz
     {
         public async Task UpdateAsync(
                 GeneratedQuizEntity entity,

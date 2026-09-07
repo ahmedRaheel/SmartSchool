@@ -38,7 +38,7 @@ public static class GetWorkflowDefinitionById
 
     }
 
-    internal sealed class GetWorkflowDefinitionByIdPersistence(
+    internal sealed class GetWorkflowDefinitionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetWorkflowDefinitionById
     {
         public async Task<Response?> GetByIdAsync(

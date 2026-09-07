@@ -41,7 +41,7 @@ public static class GetHumanHandoffPage
 
     }
 
-    internal sealed class GetHumanHandoffPagePersistence(
+    internal sealed class GetHumanHandoffPageQuery(
         IDbConnectionFactory connectionFactory) : IGetHumanHandoffPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

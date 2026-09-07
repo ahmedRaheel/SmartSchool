@@ -15,7 +15,7 @@ public static class UpdateLookup
     public sealed record Response(long Id, long LookupTypeId, string TypeCode, string Code, string Name, int SortOrder, bool IsActive);
     public sealed class Validator : AbstractValidator<Request> { public Validator() { RuleFor(x => x.Id).GreaterThan(0); RuleFor(x => x.Code).NotEmpty(); RuleFor(x => x.Name).NotEmpty(); } }
     public interface IUpdateLookup { Task<LookupValueEntity?> GetByIdAsync(long id, CancellationToken cancellationToken); Task<string?> GetTypeCodeAsync(long typeId, CancellationToken cancellationToken); Task SaveAsync(CancellationToken cancellationToken); }
-    internal sealed class UpdateLookupPersistence(IReferenceDbContext dbContext) : IUpdateLookup
+    internal sealed class UpdateLookupCommand(IReferenceDbContext dbContext) : IUpdateLookup
     {
         public Task<LookupValueEntity?> GetByIdAsync(long id, CancellationToken cancellationToken) => dbContext.LookupValues.SingleOrDefaultAsync(x => x.LookupValueId == id, cancellationToken);
         public Task<string?> GetTypeCodeAsync(long typeId, CancellationToken cancellationToken) => dbContext.Database.SqlQueryRaw<string?>("SELECT code AS \"Value\" FROM saas.lookup_type WHERE lookup_type_id = {0}", typeId).SingleOrDefaultAsync(cancellationToken);

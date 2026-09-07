@@ -54,7 +54,7 @@ Task<ResumeEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateResumePersistence(IHRDbContext dbContext) : IUpdateResume
+    internal sealed class UpdateResumeCommand(IHRDbContext dbContext) : IUpdateResume
     {
         public async Task UpdateAsync(
                 ResumeEntity entity,

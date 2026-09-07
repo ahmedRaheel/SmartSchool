@@ -38,7 +38,7 @@ public static class GetEmploymentHistoryById
 
     }
 
-    internal sealed class GetEmploymentHistoryByIdPersistence(
+    internal sealed class GetEmploymentHistoryByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetEmploymentHistoryById
     {
         public async Task<Response?> GetByIdAsync(

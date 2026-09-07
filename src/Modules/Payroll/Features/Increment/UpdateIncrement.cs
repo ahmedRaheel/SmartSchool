@@ -54,7 +54,7 @@ Task<IncrementEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateIncrementPersistence(IPayrollDbContext dbContext) : IUpdateIncrement
+    internal sealed class UpdateIncrementCommand(IPayrollDbContext dbContext) : IUpdateIncrement
     {
         public async Task UpdateAsync(
                 IncrementEntity entity,

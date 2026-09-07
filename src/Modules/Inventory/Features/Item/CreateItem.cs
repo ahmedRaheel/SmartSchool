@@ -47,7 +47,7 @@ public static class CreateItem
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateItemPersistence(IInventoryDbContext dbContext) : ICreateItem
+    internal sealed class CreateItemCommand(IInventoryDbContext dbContext) : ICreateItem
     {
         public async Task AddAsync(
                 ItemEntity entity,

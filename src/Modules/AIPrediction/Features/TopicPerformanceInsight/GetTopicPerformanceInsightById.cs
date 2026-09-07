@@ -38,7 +38,7 @@ public static class GetTopicPerformanceInsightById
 
     }
 
-    internal sealed class GetTopicPerformanceInsightByIdPersistence(
+    internal sealed class GetTopicPerformanceInsightByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetTopicPerformanceInsightById
     {
         public async Task<Response?> GetByIdAsync(

@@ -33,7 +33,7 @@ public static class DeleteGeneratedDocument
 
     }
 
-    internal sealed class DeleteGeneratedDocumentPersistence(IDocumentsDbContext dbContext) : IDeleteGeneratedDocument
+    internal sealed class DeleteGeneratedDocumentCommand(IDocumentsDbContext dbContext) : IDeleteGeneratedDocument
     {
         public async Task DeleteAsync(
                 GeneratedDocumentEntity entity,

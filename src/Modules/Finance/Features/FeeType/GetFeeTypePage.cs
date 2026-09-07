@@ -43,7 +43,7 @@ public static class GetFeeTypePage
 
     }
 
-    internal sealed class GetFeeTypePagePersistence(
+    internal sealed class GetFeeTypePageQuery(
         IDbConnectionFactory connectionFactory) : IGetFeeTypePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

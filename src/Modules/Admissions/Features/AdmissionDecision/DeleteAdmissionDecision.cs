@@ -33,7 +33,7 @@ public static class DeleteAdmissionDecision
 
     }
 
-    internal sealed class DeleteAdmissionDecisionPersistence(IAdmissionsDbContext dbContext) : IDeleteAdmissionDecision
+    internal sealed class DeleteAdmissionDecisionCommand(IAdmissionsDbContext dbContext) : IDeleteAdmissionDecision
     {
         public async Task DeleteAsync(
                 AdmissionDecisionEntity entity,

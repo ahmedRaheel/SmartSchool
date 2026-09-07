@@ -33,7 +33,7 @@ public static class DeleteEmployee
 
     }
 
-    internal sealed class DeleteEmployeePersistence(
+    internal sealed class DeleteEmployeeCommand(
         IHRDbContext dbContext) : IDeleteEmployee
     {
         public Task<EmployeeEntity?> GetByIdAsync(

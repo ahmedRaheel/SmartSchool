@@ -48,7 +48,7 @@ public static class CreateTutorSession
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTutorSessionPersistence(IAITutorDbContext dbContext) : ICreateTutorSession
+    internal sealed class CreateTutorSessionCommand(IAITutorDbContext dbContext) : ICreateTutorSession
     {
         public async Task AddAsync(
                 TutorSessionEntity entity,

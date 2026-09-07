@@ -33,7 +33,7 @@ public static class DeleteAiExecutionLog
 
     }
 
-    internal sealed class DeleteAiExecutionLogPersistence(IAICoreDbContext dbContext) : IDeleteAiExecutionLog
+    internal sealed class DeleteAiExecutionLogCommand(IAICoreDbContext dbContext) : IDeleteAiExecutionLog
     {
         public async Task DeleteAsync(
                 AiExecutionLogEntity entity,

@@ -33,7 +33,7 @@ public static class DeletePosition
 
     }
 
-    internal sealed class DeletePositionPersistence(IHRDbContext dbContext) : IDeletePosition
+    internal sealed class DeletePositionCommand(IHRDbContext dbContext) : IDeletePosition
     {
         public async Task DeleteAsync(
                 PositionEntity entity,

@@ -47,7 +47,7 @@ public static class CreateStudentIntervention
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentInterventionPersistence(IAIPredictionDbContext dbContext) : ICreateStudentIntervention
+    internal sealed class CreateStudentInterventionCommand(IAIPredictionDbContext dbContext) : ICreateStudentIntervention
     {
         public async Task AddAsync(
                 StudentInterventionEntity entity,

@@ -41,7 +41,7 @@ public static class GetGradeLevelPage
 
     }
 
-    internal sealed class GetGradeLevelPagePersistence(
+    internal sealed class GetGradeLevelPageQuery(
         IDbConnectionFactory connectionFactory) : IGetGradeLevelPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

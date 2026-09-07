@@ -38,7 +38,7 @@ public static class GetPredictionModelById
 
     }
 
-    internal sealed class GetPredictionModelByIdPersistence(
+    internal sealed class GetPredictionModelByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPredictionModelById
     {
         public async Task<Response?> GetByIdAsync(

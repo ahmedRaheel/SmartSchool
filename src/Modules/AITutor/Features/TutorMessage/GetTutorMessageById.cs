@@ -38,7 +38,7 @@ public static class GetTutorMessageById
 
     }
 
-    internal sealed class GetTutorMessageByIdPersistence(
+    internal sealed class GetTutorMessageByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetTutorMessageById
     {
         public async Task<Response?> GetByIdAsync(

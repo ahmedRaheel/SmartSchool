@@ -41,7 +41,7 @@ public static class GetStudentFeePage
 
     }
 
-    internal sealed class GetStudentFeePagePersistence(
+    internal sealed class GetStudentFeePageQuery(
         IDbConnectionFactory connectionFactory) : IGetStudentFeePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

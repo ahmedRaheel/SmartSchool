@@ -46,7 +46,7 @@ public static class CreateProgram
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateProgramPersistence(IOrganizationDbContext dbContext) : ICreateProgram
+    internal sealed class CreateProgramCommand(IOrganizationDbContext dbContext) : ICreateProgram
     {
         public async Task AddAsync(
                 ProgramEntity entity,

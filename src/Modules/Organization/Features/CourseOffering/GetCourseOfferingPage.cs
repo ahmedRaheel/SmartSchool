@@ -41,7 +41,7 @@ public static class GetCourseOfferingPage
 
     }
 
-    internal sealed class GetCourseOfferingPagePersistence(
+    internal sealed class GetCourseOfferingPageQuery(
         IDbConnectionFactory connectionFactory) : IGetCourseOfferingPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

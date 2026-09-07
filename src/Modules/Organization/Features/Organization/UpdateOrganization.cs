@@ -49,7 +49,7 @@ public static class UpdateOrganization
         Task SaveAsync(CancellationToken cancellationToken);
     }
 
-    internal sealed class Persistence(IOrganizationDbContext dbContext) : IUpdateOrganization
+    internal sealed class UpdateOrganizationCommand(IOrganizationDbContext dbContext) : IUpdateOrganization
     {
         public Task<TenantEntity?> GetAsync(Guid tenantId, CancellationToken cancellationToken) =>
             dbContext.Tenants

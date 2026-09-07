@@ -33,7 +33,7 @@ public static class DeleteKnowledgeChunk
 
     }
 
-    internal sealed class DeleteKnowledgeChunkPersistence(IAICoreDbContext dbContext) : IDeleteKnowledgeChunk
+    internal sealed class DeleteKnowledgeChunkCommand(IAICoreDbContext dbContext) : IDeleteKnowledgeChunk
     {
         public async Task DeleteAsync(
                 KnowledgeChunkEntity entity,

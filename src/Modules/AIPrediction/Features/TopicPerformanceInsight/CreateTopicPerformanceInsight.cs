@@ -47,7 +47,7 @@ public static class CreateTopicPerformanceInsight
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTopicPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : ICreateTopicPerformanceInsight
+    internal sealed class CreateTopicPerformanceInsightCommand(IAIPredictionDbContext dbContext) : ICreateTopicPerformanceInsight
     {
         public async Task AddAsync(
                 TopicPerformanceInsightEntity entity,

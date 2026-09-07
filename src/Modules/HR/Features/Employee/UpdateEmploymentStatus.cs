@@ -29,7 +29,7 @@ public static class UpdateEmploymentStatus
 
     }
 
-    internal sealed class UpdateEmploymentStatusPersistence(
+    internal sealed class UpdateEmploymentStatusCommand(
         IHRDbContext dbContext) : IUpdateEmploymentStatus
     {
         public Task<EmployeeEntity?> GetByIdAsync(

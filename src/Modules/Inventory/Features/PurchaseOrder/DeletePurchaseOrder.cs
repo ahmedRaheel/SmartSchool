@@ -33,7 +33,7 @@ public static class DeletePurchaseOrder
 
     }
 
-    internal sealed class DeletePurchaseOrderPersistence(IInventoryDbContext dbContext) : IDeletePurchaseOrder
+    internal sealed class DeletePurchaseOrderCommand(IInventoryDbContext dbContext) : IDeletePurchaseOrder
     {
         public async Task DeleteAsync(
                 PurchaseOrderEntity entity,

@@ -54,7 +54,7 @@ Task<StopEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStopPersistence(ITransportDbContext dbContext) : IUpdateStop
+    internal sealed class UpdateStopCommand(ITransportDbContext dbContext) : IUpdateStop
     {
         public async Task UpdateAsync(
                 StopEntity entity,

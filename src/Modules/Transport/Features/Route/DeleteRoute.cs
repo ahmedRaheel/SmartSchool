@@ -33,7 +33,7 @@ public static class DeleteRoute
 
     }
 
-    internal sealed class DeleteRoutePersistence(ITransportDbContext dbContext) : IDeleteRoute
+    internal sealed class DeleteRouteCommand(ITransportDbContext dbContext) : IDeleteRoute
     {
         public async Task DeleteAsync(
                 RouteEntity entity,

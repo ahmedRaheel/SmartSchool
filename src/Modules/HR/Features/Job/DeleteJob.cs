@@ -33,7 +33,7 @@ public static class DeleteJob
 
     }
 
-    internal sealed class DeleteJobPersistence(IHRDbContext dbContext) : IDeleteJob
+    internal sealed class DeleteJobCommand(IHRDbContext dbContext) : IDeleteJob
     {
         public async Task DeleteAsync(
                 JobEntity entity,

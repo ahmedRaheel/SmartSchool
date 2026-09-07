@@ -33,7 +33,7 @@ public static class DeleteFeeType
 
     }
 
-    internal sealed class DeleteFeeTypePersistence(IFinanceDbContext dbContext) : IDeleteFeeType
+    internal sealed class DeleteFeeTypeCommand(IFinanceDbContext dbContext) : IDeleteFeeType
     {
         public async Task DeleteAsync(
                 FeeTypeEntity entity,

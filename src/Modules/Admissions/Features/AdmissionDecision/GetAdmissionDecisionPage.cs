@@ -41,7 +41,7 @@ public static class GetAdmissionDecisionPage
 
     }
 
-    internal sealed class GetAdmissionDecisionPagePersistence(
+    internal sealed class GetAdmissionDecisionPageQuery(
         IDbConnectionFactory connectionFactory) : IGetAdmissionDecisionPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

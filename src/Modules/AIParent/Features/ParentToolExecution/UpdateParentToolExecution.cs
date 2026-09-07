@@ -54,7 +54,7 @@ Task<ParentToolExecutionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateParentToolExecutionPersistence(IAIParentDbContext dbContext) : IUpdateParentToolExecution
+    internal sealed class UpdateParentToolExecutionCommand(IAIParentDbContext dbContext) : IUpdateParentToolExecution
     {
         public async Task UpdateAsync(
                 ParentToolExecutionEntity entity,

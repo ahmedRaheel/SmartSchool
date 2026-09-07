@@ -56,7 +56,7 @@ public static class CreateClassSection
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateClassSectionPersistence(IOrganizationDbContext dbContext) : ICreateClassSection
+    internal sealed class CreateClassSectionCommand(IOrganizationDbContext dbContext) : ICreateClassSection
     {
         public async Task AddAsync(
                 ClassSectionEntity entity,

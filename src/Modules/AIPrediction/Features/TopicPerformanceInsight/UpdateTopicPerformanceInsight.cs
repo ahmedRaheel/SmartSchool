@@ -54,7 +54,7 @@ Task<TopicPerformanceInsightEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateTopicPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : IUpdateTopicPerformanceInsight
+    internal sealed class UpdateTopicPerformanceInsightCommand(IAIPredictionDbContext dbContext) : IUpdateTopicPerformanceInsight
     {
         public async Task UpdateAsync(
                 TopicPerformanceInsightEntity entity,

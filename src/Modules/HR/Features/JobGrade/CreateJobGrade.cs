@@ -47,7 +47,7 @@ public static class CreateJobGrade
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateJobGradePersistence(IHRDbContext dbContext) : ICreateJobGrade
+    internal sealed class CreateJobGradeCommand(IHRDbContext dbContext) : ICreateJobGrade
     {
         public async Task AddAsync(
                 JobGradeEntity entity,

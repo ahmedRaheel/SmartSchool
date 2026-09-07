@@ -38,7 +38,7 @@ public static class GetGeneratedDocumentById
 
     }
 
-    internal sealed class GetGeneratedDocumentByIdPersistence(
+    internal sealed class GetGeneratedDocumentByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetGeneratedDocumentById
     {
         public async Task<Response?> GetByIdAsync(

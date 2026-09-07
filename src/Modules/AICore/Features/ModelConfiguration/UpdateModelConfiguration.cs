@@ -54,7 +54,7 @@ Task<ModelConfigurationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateModelConfigurationPersistence(IAICoreDbContext dbContext) : IUpdateModelConfiguration
+    internal sealed class UpdateModelConfigurationCommand(IAICoreDbContext dbContext) : IUpdateModelConfiguration
     {
         public async Task UpdateAsync(
                 ModelConfigurationEntity entity,

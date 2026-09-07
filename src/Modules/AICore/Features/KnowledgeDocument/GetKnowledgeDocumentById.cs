@@ -38,7 +38,7 @@ public static class GetKnowledgeDocumentById
 
     }
 
-    internal sealed class GetKnowledgeDocumentByIdPersistence(
+    internal sealed class GetKnowledgeDocumentByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetKnowledgeDocumentById
     {
         public async Task<Response?> GetByIdAsync(

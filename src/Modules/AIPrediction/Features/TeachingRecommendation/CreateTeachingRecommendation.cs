@@ -47,7 +47,7 @@ public static class CreateTeachingRecommendation
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTeachingRecommendationPersistence(IAIPredictionDbContext dbContext) : ICreateTeachingRecommendation
+    internal sealed class CreateTeachingRecommendationCommand(IAIPredictionDbContext dbContext) : ICreateTeachingRecommendation
     {
         public async Task AddAsync(
                 TeachingRecommendationEntity entity,

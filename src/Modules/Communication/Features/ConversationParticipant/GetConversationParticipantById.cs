@@ -38,7 +38,7 @@ public static class GetConversationParticipantById
 
     }
 
-    internal sealed class GetConversationParticipantByIdPersistence(
+    internal sealed class GetConversationParticipantByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetConversationParticipantById
     {
         public async Task<Response?> GetByIdAsync(

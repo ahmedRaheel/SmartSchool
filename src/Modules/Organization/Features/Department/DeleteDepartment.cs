@@ -33,7 +33,7 @@ public static class DeleteDepartment
 
     }
 
-    internal sealed class DeleteDepartmentPersistence(IOrganizationDbContext dbContext) : IDeleteDepartment
+    internal sealed class DeleteDepartmentCommand(IOrganizationDbContext dbContext) : IDeleteDepartment
     {
         public async Task DeleteAsync(
                 DepartmentEntity entity,

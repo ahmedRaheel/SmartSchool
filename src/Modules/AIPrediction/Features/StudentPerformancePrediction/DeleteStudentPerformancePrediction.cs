@@ -30,7 +30,7 @@ public static class DeleteStudentPerformancePrediction
 
     }
 
-    internal sealed class DeleteStudentPerformancePredictionPersistence(
+    internal sealed class DeleteStudentPerformancePredictionCommand(
         IAIPredictionDbContext dbContext) : IDeleteStudentPerformancePrediction
     {
         public async Task DeleteAsync(

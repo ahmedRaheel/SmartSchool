@@ -38,7 +38,7 @@ public static class GetStopById
 
     }
 
-    internal sealed class GetStopByIdPersistence(
+    internal sealed class GetStopByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetStopById
     {
         public async Task<Response?> GetByIdAsync(

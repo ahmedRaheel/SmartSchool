@@ -38,7 +38,7 @@ public static class GetModelConfigurationById
 
     }
 
-    internal sealed class GetModelConfigurationByIdPersistence(
+    internal sealed class GetModelConfigurationByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetModelConfigurationById
     {
         public async Task<Response?> GetByIdAsync(

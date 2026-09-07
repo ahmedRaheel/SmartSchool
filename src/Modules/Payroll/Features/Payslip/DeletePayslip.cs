@@ -33,7 +33,7 @@ public static class DeletePayslip
 
     }
 
-    internal sealed class DeletePayslipPersistence(IPayrollDbContext dbContext) : IDeletePayslip
+    internal sealed class DeletePayslipCommand(IPayrollDbContext dbContext) : IDeletePayslip
     {
         public async Task DeleteAsync(
                 PayslipEntity entity,

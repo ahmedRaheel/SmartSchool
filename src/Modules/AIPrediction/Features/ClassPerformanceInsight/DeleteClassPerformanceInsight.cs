@@ -33,7 +33,7 @@ public static class DeleteClassPerformanceInsight
 
     }
 
-    internal sealed class DeleteClassPerformanceInsightPersistence(IAIPredictionDbContext dbContext) : IDeleteClassPerformanceInsight
+    internal sealed class DeleteClassPerformanceInsightCommand(IAIPredictionDbContext dbContext) : IDeleteClassPerformanceInsight
     {
         public async Task DeleteAsync(
                 ClassPerformanceInsightEntity entity,

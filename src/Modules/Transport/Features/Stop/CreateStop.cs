@@ -47,7 +47,7 @@ public static class CreateStop
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStopPersistence(ITransportDbContext dbContext) : ICreateStop
+    internal sealed class CreateStopCommand(ITransportDbContext dbContext) : ICreateStop
     {
         public async Task AddAsync(
                 StopEntity entity,

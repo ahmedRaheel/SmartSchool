@@ -38,7 +38,7 @@ public static class GetDocumentTemplateById
 
     }
 
-    internal sealed class GetDocumentTemplateByIdPersistence(
+    internal sealed class GetDocumentTemplateByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetDocumentTemplateById
     {
         public async Task<Response?> GetByIdAsync(

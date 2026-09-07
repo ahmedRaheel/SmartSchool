@@ -33,7 +33,7 @@ public static class DeleteScholarship
 
     }
 
-    internal sealed class DeleteScholarshipPersistence(IFinanceDbContext dbContext) : IDeleteScholarship
+    internal sealed class DeleteScholarshipCommand(IFinanceDbContext dbContext) : IDeleteScholarship
     {
         public async Task DeleteAsync(
                 ScholarshipEntity entity,

@@ -33,7 +33,7 @@ public static class DeleteEmploymentHistory
 
     }
 
-    internal sealed class DeleteEmploymentHistoryPersistence(IHRDbContext dbContext) : IDeleteEmploymentHistory
+    internal sealed class DeleteEmploymentHistoryCommand(IHRDbContext dbContext) : IDeleteEmploymentHistory
     {
         public async Task DeleteAsync(
                 EmploymentHistoryEntity entity,

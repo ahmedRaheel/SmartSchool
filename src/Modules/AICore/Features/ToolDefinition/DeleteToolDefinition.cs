@@ -33,7 +33,7 @@ public static class DeleteToolDefinition
 
     }
 
-    internal sealed class DeleteToolDefinitionPersistence(IAICoreDbContext dbContext) : IDeleteToolDefinition
+    internal sealed class DeleteToolDefinitionCommand(IAICoreDbContext dbContext) : IDeleteToolDefinition
     {
         public async Task DeleteAsync(
                 ToolDefinitionEntity entity,

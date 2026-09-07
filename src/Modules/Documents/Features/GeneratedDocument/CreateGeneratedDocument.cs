@@ -47,7 +47,7 @@ public static class CreateGeneratedDocument
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateGeneratedDocumentPersistence(IDocumentsDbContext dbContext) : ICreateGeneratedDocument
+    internal sealed class CreateGeneratedDocumentCommand(IDocumentsDbContext dbContext) : ICreateGeneratedDocument
     {
         public async Task AddAsync(
                 GeneratedDocumentEntity entity,

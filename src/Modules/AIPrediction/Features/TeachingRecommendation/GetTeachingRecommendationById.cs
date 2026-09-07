@@ -38,7 +38,7 @@ public static class GetTeachingRecommendationById
 
     }
 
-    internal sealed class GetTeachingRecommendationByIdPersistence(
+    internal sealed class GetTeachingRecommendationByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetTeachingRecommendationById
     {
         public async Task<Response?> GetByIdAsync(

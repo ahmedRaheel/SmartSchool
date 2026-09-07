@@ -38,7 +38,7 @@ public static class GetPromptTemplateById
 
     }
 
-    internal sealed class GetPromptTemplateByIdPersistence(
+    internal sealed class GetPromptTemplateByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPromptTemplateById
     {
         public async Task<Response?> GetByIdAsync(

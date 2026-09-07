@@ -41,7 +41,7 @@ public static class GetDiscountPage
 
     }
 
-    internal sealed class GetDiscountPagePersistence(
+    internal sealed class GetDiscountPageQuery(
         IDbConnectionFactory connectionFactory) : IGetDiscountPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

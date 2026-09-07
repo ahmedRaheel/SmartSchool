@@ -18,7 +18,7 @@ public static class CreateFeeType
         public Validator() { RuleFor(x=>x.TenantId).NotEmpty(); RuleFor(x=>x.Name).NotEmpty().MaximumLength(120); RuleFor(x=>x.Frequency).NotEmpty().Must(x=>new[]{"Monthly","Term","Annual","OneTime"}.Contains(x)); }
     }
     public interface ICreateFeeType { Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken); }
-    internal sealed class CreateFeeTypePersistence(IFinanceDbContext dbContext) : ICreateFeeType
+    internal sealed class CreateFeeTypeCommand(IFinanceDbContext dbContext) : ICreateFeeType
     {
         public async Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken) { await dbContext.FeeTypes.AddAsync(entity,cancellationToken); await dbContext.SaveChangesAsync(cancellationToken); }
     }

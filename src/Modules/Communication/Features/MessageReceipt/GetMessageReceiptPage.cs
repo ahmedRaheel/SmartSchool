@@ -41,7 +41,7 @@ public static class GetMessageReceiptPage
 
     }
 
-    internal sealed class GetMessageReceiptPagePersistence(
+    internal sealed class GetMessageReceiptPageQuery(
         IDbConnectionFactory connectionFactory) : IGetMessageReceiptPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

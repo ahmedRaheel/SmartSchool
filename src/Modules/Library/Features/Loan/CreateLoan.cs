@@ -47,7 +47,7 @@ public static class CreateLoan
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLoanPersistence(ILibraryDbContext dbContext) : ICreateLoan
+    internal sealed class CreateLoanCommand(ILibraryDbContext dbContext) : ICreateLoan
     {
         public async Task AddAsync(
                 LoanEntity entity,

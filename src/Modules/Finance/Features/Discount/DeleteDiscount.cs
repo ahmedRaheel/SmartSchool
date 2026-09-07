@@ -33,7 +33,7 @@ public static class DeleteDiscount
 
     }
 
-    internal sealed class DeleteDiscountPersistence(IFinanceDbContext dbContext) : IDeleteDiscount
+    internal sealed class DeleteDiscountCommand(IFinanceDbContext dbContext) : IDeleteDiscount
     {
         public async Task DeleteAsync(
                 DiscountEntity entity,

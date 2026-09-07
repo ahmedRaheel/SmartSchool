@@ -54,7 +54,7 @@ Task<AiExecutionLogEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAiExecutionLogPersistence(IAICoreDbContext dbContext) : IUpdateAiExecutionLog
+    internal sealed class UpdateAiExecutionLogCommand(IAICoreDbContext dbContext) : IUpdateAiExecutionLog
     {
         public async Task UpdateAsync(
                 AiExecutionLogEntity entity,

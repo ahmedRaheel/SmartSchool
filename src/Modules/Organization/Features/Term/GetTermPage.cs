@@ -41,7 +41,7 @@ public static class GetTermPage
 
     }
 
-    internal sealed class GetTermPagePersistence(
+    internal sealed class GetTermPageQuery(
         IDbConnectionFactory connectionFactory) : IGetTermPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

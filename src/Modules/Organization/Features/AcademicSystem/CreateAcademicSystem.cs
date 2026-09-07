@@ -46,7 +46,7 @@ public static class CreateAcademicSystem
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAcademicSystemPersistence(IOrganizationDbContext dbContext) : ICreateAcademicSystem
+    internal sealed class CreateAcademicSystemCommand(IOrganizationDbContext dbContext) : ICreateAcademicSystem
     {
         public async Task AddAsync(
                 AcademicSystemEntity entity,

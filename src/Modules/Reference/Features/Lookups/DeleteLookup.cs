@@ -14,7 +14,7 @@ public static class DeleteLookup
     public sealed record Command(long Id) : IRequest<Result<Response>>;
     public sealed record Response(long Id);
     public interface IDeleteLookup { Task<LookupValueEntity?> GetByIdAsync(long id, CancellationToken cancellationToken); Task DeleteAsync(LookupValueEntity entity, CancellationToken cancellationToken); }
-    internal sealed class DeleteLookupPersistence(IReferenceDbContext dbContext) : IDeleteLookup
+    internal sealed class DeleteLookupCommand(IReferenceDbContext dbContext) : IDeleteLookup
     {
         public Task<LookupValueEntity?> GetByIdAsync(long id, CancellationToken cancellationToken) => dbContext.LookupValues.SingleOrDefaultAsync(x => x.LookupValueId == id, cancellationToken);
         public async Task DeleteAsync(LookupValueEntity entity, CancellationToken cancellationToken) { dbContext.LookupValues.Remove(entity); await dbContext.SaveChangesAsync(cancellationToken); }

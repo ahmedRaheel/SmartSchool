@@ -33,7 +33,7 @@ public static class DeleteCertificate
 
     }
 
-    internal sealed class DeleteCertificatePersistence(IDocumentsDbContext dbContext) : IDeleteCertificate
+    internal sealed class DeleteCertificateCommand(IDocumentsDbContext dbContext) : IDeleteCertificate
     {
         public async Task DeleteAsync(
                 CertificateEntity entity,

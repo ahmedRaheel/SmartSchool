@@ -33,7 +33,7 @@ public static class DeleteGradeScale
 
     }
 
-    internal sealed class DeleteGradeScalePersistence(IExaminationsDbContext dbContext) : IDeleteGradeScale
+    internal sealed class DeleteGradeScaleCommand(IExaminationsDbContext dbContext) : IDeleteGradeScale
     {
         public async Task DeleteAsync(
                 GradeScaleEntity entity,

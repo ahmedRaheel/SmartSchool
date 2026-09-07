@@ -38,7 +38,7 @@ public static class GetClassSectionById
 
     }
 
-    internal sealed class GetClassSectionByIdPersistence(
+    internal sealed class GetClassSectionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetClassSectionById
     {
         public async Task<Response?> GetByIdAsync(

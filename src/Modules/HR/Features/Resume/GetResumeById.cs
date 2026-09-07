@@ -38,7 +38,7 @@ public static class GetResumeById
 
     }
 
-    internal sealed class GetResumeByIdPersistence(
+    internal sealed class GetResumeByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetResumeById
     {
         public async Task<Response?> GetByIdAsync(

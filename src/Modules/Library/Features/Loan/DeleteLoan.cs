@@ -33,7 +33,7 @@ public static class DeleteLoan
 
     }
 
-    internal sealed class DeleteLoanPersistence(ILibraryDbContext dbContext) : IDeleteLoan
+    internal sealed class DeleteLoanCommand(ILibraryDbContext dbContext) : IDeleteLoan
     {
         public async Task DeleteAsync(
                 LoanEntity entity,

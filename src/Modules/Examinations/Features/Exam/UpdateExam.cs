@@ -54,7 +54,7 @@ Task<ExamEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateExamPersistence(IExaminationsDbContext dbContext) : IUpdateExam
+    internal sealed class UpdateExamCommand(IExaminationsDbContext dbContext) : IUpdateExam
     {
         public async Task UpdateAsync(
                 ExamEntity entity,

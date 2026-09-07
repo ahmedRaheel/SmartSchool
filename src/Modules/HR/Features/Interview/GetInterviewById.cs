@@ -38,7 +38,7 @@ public static class GetInterviewById
 
     }
 
-    internal sealed class GetInterviewByIdPersistence(
+    internal sealed class GetInterviewByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetInterviewById
     {
         public async Task<Response?> GetByIdAsync(

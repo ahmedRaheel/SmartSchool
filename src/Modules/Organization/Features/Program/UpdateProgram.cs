@@ -53,7 +53,7 @@ Task<ProgramEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateProgramPersistence(IOrganizationDbContext dbContext) : IUpdateProgram
+    internal sealed class UpdateProgramCommand(IOrganizationDbContext dbContext) : IUpdateProgram
     {
         public async Task UpdateAsync(
                 ProgramEntity entity,

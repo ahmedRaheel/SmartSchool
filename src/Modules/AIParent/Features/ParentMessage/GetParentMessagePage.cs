@@ -41,7 +41,7 @@ public static class GetParentMessagePage
 
     }
 
-    internal sealed class GetParentMessagePagePersistence(
+    internal sealed class GetParentMessagePageQuery(
         IDbConnectionFactory connectionFactory) : IGetParentMessagePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

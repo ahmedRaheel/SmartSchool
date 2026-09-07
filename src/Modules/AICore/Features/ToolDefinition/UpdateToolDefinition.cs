@@ -54,7 +54,7 @@ Task<ToolDefinitionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateToolDefinitionPersistence(IAICoreDbContext dbContext) : IUpdateToolDefinition
+    internal sealed class UpdateToolDefinitionCommand(IAICoreDbContext dbContext) : IUpdateToolDefinition
     {
         public async Task UpdateAsync(
                 ToolDefinitionEntity entity,

@@ -33,7 +33,7 @@ public static class DeleteMessage
 
     }
 
-    internal sealed class DeleteMessagePersistence(ICommunicationDbContext dbContext) : IDeleteMessage
+    internal sealed class DeleteMessageCommand(ICommunicationDbContext dbContext) : IDeleteMessage
     {
         public async Task DeleteAsync(
                 MessageEntity entity,

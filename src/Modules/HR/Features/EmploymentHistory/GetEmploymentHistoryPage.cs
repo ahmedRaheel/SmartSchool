@@ -41,7 +41,7 @@ public static class GetEmploymentHistoryPage
 
     }
 
-    internal sealed class GetEmploymentHistoryPagePersistence(
+    internal sealed class GetEmploymentHistoryPageQuery(
         IDbConnectionFactory connectionFactory) : IGetEmploymentHistoryPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

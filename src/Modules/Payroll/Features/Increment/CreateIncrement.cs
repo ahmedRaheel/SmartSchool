@@ -47,7 +47,7 @@ public static class CreateIncrement
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateIncrementPersistence(IPayrollDbContext dbContext) : ICreateIncrement
+    internal sealed class CreateIncrementCommand(IPayrollDbContext dbContext) : ICreateIncrement
     {
         public async Task AddAsync(
                 IncrementEntity entity,

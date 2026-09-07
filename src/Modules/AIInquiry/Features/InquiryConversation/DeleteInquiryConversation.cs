@@ -33,7 +33,7 @@ public static class DeleteInquiryConversation
 
     }
 
-    internal sealed class DeleteInquiryConversationPersistence(IAIInquiryDbContext dbContext) : IDeleteInquiryConversation
+    internal sealed class DeleteInquiryConversationCommand(IAIInquiryDbContext dbContext) : IDeleteInquiryConversation
     {
         public async Task DeleteAsync(
                 InquiryConversationEntity entity,

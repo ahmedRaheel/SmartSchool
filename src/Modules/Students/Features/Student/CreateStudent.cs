@@ -68,7 +68,7 @@ public static class CreateStudent
 
     }
 
-    internal sealed class CreateStudentPersistence(IStudentsDbContext dbContext) : ICreateStudent
+    internal sealed class CreateStudentCommand(IStudentsDbContext dbContext) : ICreateStudent
     {
         public async Task AddAsync(
                 StudentEntity entity,

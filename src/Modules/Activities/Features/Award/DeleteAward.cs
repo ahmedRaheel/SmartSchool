@@ -33,7 +33,7 @@ public static class DeleteAward
 
     }
 
-    internal sealed class DeleteAwardPersistence(IActivitiesDbContext dbContext) : IDeleteAward
+    internal sealed class DeleteAwardCommand(IActivitiesDbContext dbContext) : IDeleteAward
     {
         public async Task DeleteAsync(
                 AwardEntity entity,

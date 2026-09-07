@@ -41,7 +41,7 @@ public static class GetLeadCapturePage
 
     }
 
-    internal sealed class GetLeadCapturePagePersistence(
+    internal sealed class GetLeadCapturePageQuery(
         IDbConnectionFactory connectionFactory) : IGetLeadCapturePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

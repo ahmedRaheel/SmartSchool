@@ -38,7 +38,7 @@ public static class GetLeadCaptureById
 
     }
 
-    internal sealed class GetLeadCaptureByIdPersistence(
+    internal sealed class GetLeadCaptureByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetLeadCaptureById
     {
         public async Task<Response?> GetByIdAsync(

@@ -33,7 +33,7 @@ public static class DeleteVehicle
 
     }
 
-    internal sealed class DeleteVehiclePersistence(ITransportDbContext dbContext) : IDeleteVehicle
+    internal sealed class DeleteVehicleCommand(ITransportDbContext dbContext) : IDeleteVehicle
     {
         public async Task DeleteAsync(
                 VehicleEntity entity,

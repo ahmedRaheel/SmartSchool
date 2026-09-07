@@ -38,7 +38,7 @@ public static class GetGeneratedQuizById
 
     }
 
-    internal sealed class GetGeneratedQuizByIdPersistence(
+    internal sealed class GetGeneratedQuizByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetGeneratedQuizById
     {
         public async Task<Response?> GetByIdAsync(

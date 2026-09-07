@@ -38,7 +38,7 @@ public static class GetAcademicYearById
 
     }
 
-    internal sealed class GetAcademicYearByIdPersistence(
+    internal sealed class GetAcademicYearByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetAcademicYearById
     {
         public async Task<Response?> GetByIdAsync(

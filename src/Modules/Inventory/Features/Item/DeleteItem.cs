@@ -33,7 +33,7 @@ public static class DeleteItem
 
     }
 
-    internal sealed class DeleteItemPersistence(IInventoryDbContext dbContext) : IDeleteItem
+    internal sealed class DeleteItemCommand(IInventoryDbContext dbContext) : IDeleteItem
     {
         public async Task DeleteAsync(
                 ItemEntity entity,

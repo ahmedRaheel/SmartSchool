@@ -33,7 +33,7 @@ public static class DeleteJobGrade
 
     }
 
-    internal sealed class DeleteJobGradePersistence(IHRDbContext dbContext) : IDeleteJobGrade
+    internal sealed class DeleteJobGradeCommand(IHRDbContext dbContext) : IDeleteJobGrade
     {
         public async Task DeleteAsync(
                 JobGradeEntity entity,

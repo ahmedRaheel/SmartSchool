@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
-using SmartSchool.Modules.Organization.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Organization.Persistence;
 
 namespace SmartSchool.Modules.Organization.Features.Organization;
 
@@ -20,7 +20,7 @@ public static class DeleteOrganization
         Task DeleteAsync(TenantEntity tenant, CancellationToken cancellationToken);
     }
 
-    internal sealed class Persistence(IOrganizationDbContext dbContext) : IDeleteOrganization
+    internal sealed class DeleteOrganizationCommand(IOrganizationDbContext dbContext) : IDeleteOrganization
     {
         public Task<TenantEntity?> GetAsync(Guid tenantId, CancellationToken cancellationToken) =>
             dbContext.Tenants.FirstOrDefaultAsync(

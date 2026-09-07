@@ -38,7 +38,7 @@ public static class GetDiscountById
 
     }
 
-    internal sealed class GetDiscountByIdPersistence(
+    internal sealed class GetDiscountByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetDiscountById
     {
         public async Task<Response?> GetByIdAsync(

@@ -47,7 +47,7 @@ public static class CreateRoute
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateRoutePersistence(ITransportDbContext dbContext) : ICreateRoute
+    internal sealed class CreateRouteCommand(ITransportDbContext dbContext) : ICreateRoute
     {
         public async Task AddAsync(
                 RouteEntity entity,

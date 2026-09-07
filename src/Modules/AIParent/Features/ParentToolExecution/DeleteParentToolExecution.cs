@@ -33,7 +33,7 @@ public static class DeleteParentToolExecution
 
     }
 
-    internal sealed class DeleteParentToolExecutionPersistence(IAIParentDbContext dbContext) : IDeleteParentToolExecution
+    internal sealed class DeleteParentToolExecutionCommand(IAIParentDbContext dbContext) : IDeleteParentToolExecution
     {
         public async Task DeleteAsync(
                 ParentToolExecutionEntity entity,

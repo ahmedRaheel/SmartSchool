@@ -41,7 +41,7 @@ public static class GetIncrementPage
 
     }
 
-    internal sealed class GetIncrementPagePersistence(
+    internal sealed class GetIncrementPageQuery(
         IDbConnectionFactory connectionFactory) : IGetIncrementPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

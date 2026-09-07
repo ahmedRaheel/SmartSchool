@@ -54,7 +54,7 @@ Task<DiscountEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateDiscountPersistence(IFinanceDbContext dbContext) : IUpdateDiscount
+    internal sealed class UpdateDiscountCommand(IFinanceDbContext dbContext) : IUpdateDiscount
     {
         public async Task UpdateAsync(
                 DiscountEntity entity,

@@ -33,7 +33,7 @@ public static class DeletePromptTemplate
 
     }
 
-    internal sealed class DeletePromptTemplatePersistence(IAICoreDbContext dbContext) : IDeletePromptTemplate
+    internal sealed class DeletePromptTemplateCommand(IAICoreDbContext dbContext) : IDeletePromptTemplate
     {
         public async Task DeleteAsync(
                 PromptTemplateEntity entity,

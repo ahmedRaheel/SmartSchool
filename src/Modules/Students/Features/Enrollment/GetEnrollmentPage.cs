@@ -44,7 +44,7 @@ public static class GetEnrollmentPage
 
     }
 
-    internal sealed class GetEnrollmentPagePersistence(
+    internal sealed class GetEnrollmentPageQuery(
 
         IDbConnectionFactory connectionFactory) : IGetEnrollmentPage
     {

@@ -32,7 +32,7 @@ public static class DeleteTimetable
 
     }
 
-    internal sealed class DeleteTimetablePersistence(IOrganizationDbContext dbContext) : IDeleteTimetable
+    internal sealed class DeleteTimetableCommand(IOrganizationDbContext dbContext) : IDeleteTimetable
     {
         public async Task DeleteAsync(
                 TimetableEntity entity,

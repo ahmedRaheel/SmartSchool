@@ -70,7 +70,7 @@ public static class UpdateNotification
 
     }
 
-    internal sealed class UpdateNotificationPersistence(
+    internal sealed class UpdateNotificationCommand(
         ICommunicationDbContext dbContext) : IUpdateNotification
     {
         public Task<NotificationEntity?> GetByIdAsync(

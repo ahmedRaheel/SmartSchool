@@ -32,7 +32,7 @@ public static class DeleteTerm
 
     }
 
-    internal sealed class DeleteTermPersistence(IOrganizationDbContext dbContext) : IDeleteTerm
+    internal sealed class DeleteTermCommand(IOrganizationDbContext dbContext) : IDeleteTerm
     {
         public async Task DeleteAsync(
                 TermEntity entity,

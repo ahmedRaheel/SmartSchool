@@ -50,7 +50,7 @@ public static class CreateAssignment
 
     }
 
-    internal sealed class CreateAssignmentPersistence(
+    internal sealed class CreateAssignmentCommand(
         ILearningDbContext dbContext) : ICreateAssignment
     {
         public async Task AddAsync(

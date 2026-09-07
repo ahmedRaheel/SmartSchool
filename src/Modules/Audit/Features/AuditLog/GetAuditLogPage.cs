@@ -48,7 +48,7 @@ public static class GetAuditLogPage
 
     }
 
-    internal sealed class GetAuditLogPagePersistence(
+    internal sealed class GetAuditLogPageQuery(
         IDbConnectionFactory connectionFactory) : IGetAuditLogPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

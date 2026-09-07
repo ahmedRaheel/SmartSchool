@@ -54,7 +54,7 @@ Task<KnowledgeChunkEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateKnowledgeChunkPersistence(IAICoreDbContext dbContext) : IUpdateKnowledgeChunk
+    internal sealed class UpdateKnowledgeChunkCommand(IAICoreDbContext dbContext) : IUpdateKnowledgeChunk
     {
         public async Task UpdateAsync(
                 KnowledgeChunkEntity entity,

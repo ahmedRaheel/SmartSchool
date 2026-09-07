@@ -41,7 +41,7 @@ public static class GetDocumentTemplatePage
 
     }
 
-    internal sealed class GetDocumentTemplatePagePersistence(
+    internal sealed class GetDocumentTemplatePageQuery(
         IDbConnectionFactory connectionFactory) : IGetDocumentTemplatePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

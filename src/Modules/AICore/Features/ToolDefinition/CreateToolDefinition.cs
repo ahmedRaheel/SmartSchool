@@ -48,7 +48,7 @@ public static class CreateToolDefinition
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateToolDefinitionPersistence(IAICoreDbContext dbContext) : ICreateToolDefinition
+    internal sealed class CreateToolDefinitionCommand(IAICoreDbContext dbContext) : ICreateToolDefinition
     {
         public async Task AddAsync(
                 ToolDefinitionEntity entity,

@@ -47,7 +47,7 @@ public static class CreateEmployeeCompensation
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateEmployeeCompensationPersistence(IPayrollDbContext dbContext) : ICreateEmployeeCompensation
+    internal sealed class CreateEmployeeCompensationCommand(IPayrollDbContext dbContext) : ICreateEmployeeCompensation
     {
         public async Task AddAsync(
                 EmployeeCompensationEntity entity,

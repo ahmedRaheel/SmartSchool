@@ -54,7 +54,7 @@ Task<WorkflowInstanceEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateWorkflowInstancePersistence(IWorkflowDbContext dbContext) : IUpdateWorkflowInstance
+    internal sealed class UpdateWorkflowInstanceCommand(IWorkflowDbContext dbContext) : IUpdateWorkflowInstance
     {
         public async Task UpdateAsync(
                 WorkflowInstanceEntity entity,

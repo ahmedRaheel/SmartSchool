@@ -33,7 +33,7 @@ public static class DeleteBookCopy
 
     }
 
-    internal sealed class DeleteBookCopyPersistence(ILibraryDbContext dbContext) : IDeleteBookCopy
+    internal sealed class DeleteBookCopyCommand(ILibraryDbContext dbContext) : IDeleteBookCopy
     {
         public async Task DeleteAsync(
                 BookCopyEntity entity,

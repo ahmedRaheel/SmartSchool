@@ -38,7 +38,7 @@ public static class GetPredictionEvidenceById
 
     }
 
-    internal sealed class GetPredictionEvidenceByIdPersistence(
+    internal sealed class GetPredictionEvidenceByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPredictionEvidenceById
     {
         public async Task<Response?> GetByIdAsync(

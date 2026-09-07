@@ -54,7 +54,7 @@ Task<CertificateEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateCertificatePersistence(IDocumentsDbContext dbContext) : IUpdateCertificate
+    internal sealed class UpdateCertificateCommand(IDocumentsDbContext dbContext) : IUpdateCertificate
     {
         public async Task UpdateAsync(
                 CertificateEntity entity,

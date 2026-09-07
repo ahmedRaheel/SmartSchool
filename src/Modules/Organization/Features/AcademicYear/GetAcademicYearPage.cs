@@ -43,7 +43,7 @@ public static class GetAcademicYearPage
 
     }
 
-    internal sealed class GetAcademicYearPagePersistence(
+    internal sealed class GetAcademicYearPageQuery(
         IDbConnectionFactory connectionFactory) : IGetAcademicYearPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

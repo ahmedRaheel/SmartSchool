@@ -41,7 +41,7 @@ public static class GetBookCopyPage
 
     }
 
-    internal sealed class GetBookCopyPagePersistence(
+    internal sealed class GetBookCopyPageQuery(
         IDbConnectionFactory connectionFactory) : IGetBookCopyPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

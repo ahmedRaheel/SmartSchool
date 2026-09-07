@@ -47,7 +47,7 @@ public static class CreateAward
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAwardPersistence(IActivitiesDbContext dbContext) : ICreateAward
+    internal sealed class CreateAwardCommand(IActivitiesDbContext dbContext) : ICreateAward
     {
         public async Task AddAsync(
                 AwardEntity entity,

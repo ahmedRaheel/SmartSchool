@@ -54,7 +54,7 @@ Task<GradeScaleEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateGradeScalePersistence(IExaminationsDbContext dbContext) : IUpdateGradeScale
+    internal sealed class UpdateGradeScaleCommand(IExaminationsDbContext dbContext) : IUpdateGradeScale
     {
         public async Task UpdateAsync(
                 GradeScaleEntity entity,

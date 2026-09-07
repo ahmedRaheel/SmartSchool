@@ -38,7 +38,7 @@ public static class GetRouteById
 
     }
 
-    internal sealed class GetRouteByIdPersistence(
+    internal sealed class GetRouteByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetRouteById
     {
         public async Task<Response?> GetByIdAsync(

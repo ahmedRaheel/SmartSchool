@@ -54,7 +54,7 @@ Task<ConversationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateConversationPersistence(ICommunicationDbContext dbContext) : IUpdateConversation
+    internal sealed class UpdateConversationCommand(ICommunicationDbContext dbContext) : IUpdateConversation
     {
         public async Task UpdateAsync(
                 ConversationEntity entity,

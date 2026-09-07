@@ -41,7 +41,7 @@ public static class GetTutorMessagePage
 
     }
 
-    internal sealed class GetTutorMessagePagePersistence(
+    internal sealed class GetTutorMessagePageQuery(
         IDbConnectionFactory connectionFactory) : IGetTutorMessagePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

@@ -38,7 +38,7 @@ public static class GetSchoolLogoById
 
     }
 
-    internal sealed class GetSchoolLogoByIdPersistence(
+    internal sealed class GetSchoolLogoByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetSchoolLogoById
     {
         public async Task<Response?> GetByIdAsync(

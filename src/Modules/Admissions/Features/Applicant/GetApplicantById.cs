@@ -38,7 +38,7 @@ public static class GetApplicantById
 
     }
 
-    internal sealed class GetApplicantByIdPersistence(
+    internal sealed class GetApplicantByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetApplicantById
     {
         public async Task<Response?> GetByIdAsync(

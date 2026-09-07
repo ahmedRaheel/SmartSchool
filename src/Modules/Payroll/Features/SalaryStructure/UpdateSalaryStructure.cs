@@ -54,7 +54,7 @@ Task<SalaryStructureEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateSalaryStructurePersistence(IPayrollDbContext dbContext) : IUpdateSalaryStructure
+    internal sealed class UpdateSalaryStructureCommand(IPayrollDbContext dbContext) : IUpdateSalaryStructure
     {
         public async Task UpdateAsync(
                 SalaryStructureEntity entity,

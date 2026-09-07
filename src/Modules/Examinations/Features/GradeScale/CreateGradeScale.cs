@@ -47,7 +47,7 @@ public static class CreateGradeScale
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateGradeScalePersistence(IExaminationsDbContext dbContext) : ICreateGradeScale
+    internal sealed class CreateGradeScaleCommand(IExaminationsDbContext dbContext) : ICreateGradeScale
     {
         public async Task AddAsync(
                 GradeScaleEntity entity,

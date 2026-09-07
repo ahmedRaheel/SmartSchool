@@ -54,7 +54,7 @@ Task<KnowledgeDocumentEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateKnowledgeDocumentPersistence(IAICoreDbContext dbContext) : IUpdateKnowledgeDocument
+    internal sealed class UpdateKnowledgeDocumentCommand(IAICoreDbContext dbContext) : IUpdateKnowledgeDocument
     {
         public async Task UpdateAsync(
                 KnowledgeDocumentEntity entity,

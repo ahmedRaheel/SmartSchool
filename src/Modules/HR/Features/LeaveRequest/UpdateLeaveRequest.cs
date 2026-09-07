@@ -54,7 +54,7 @@ Task<LeaveRequestEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLeaveRequestPersistence(IHRDbContext dbContext) : IUpdateLeaveRequest
+    internal sealed class UpdateLeaveRequestCommand(IHRDbContext dbContext) : IUpdateLeaveRequest
     {
         public async Task UpdateAsync(
                 LeaveRequestEntity entity,

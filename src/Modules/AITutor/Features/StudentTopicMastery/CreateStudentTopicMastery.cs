@@ -48,7 +48,7 @@ public static class CreateStudentTopicMastery
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentTopicMasteryPersistence(IAITutorDbContext dbContext) : ICreateStudentTopicMastery
+    internal sealed class CreateStudentTopicMasteryCommand(IAITutorDbContext dbContext) : ICreateStudentTopicMastery
     {
         public async Task AddAsync(
                 StudentTopicMasteryEntity entity,

@@ -50,7 +50,7 @@ public static class UpdateGuardian
 
     }
 
-    internal sealed class UpdateGuardianPersistence(
+    internal sealed class UpdateGuardianCommand(
         IStudentsDbContext dbContext) : IUpdateGuardian
     {
         public async Task UpdateAsync(

@@ -47,7 +47,7 @@ public static class CreatePredictionEvaluation
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePredictionEvaluationPersistence(IAIPredictionDbContext dbContext) : ICreatePredictionEvaluation
+    internal sealed class CreatePredictionEvaluationCommand(IAIPredictionDbContext dbContext) : ICreatePredictionEvaluation
     {
         public async Task AddAsync(
                 PredictionEvaluationEntity entity,

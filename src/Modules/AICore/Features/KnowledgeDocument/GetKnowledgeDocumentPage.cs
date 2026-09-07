@@ -41,7 +41,7 @@ public static class GetKnowledgeDocumentPage
 
     }
 
-    internal sealed class GetKnowledgeDocumentPagePersistence(
+    internal sealed class GetKnowledgeDocumentPageQuery(
         IDbConnectionFactory connectionFactory) : IGetKnowledgeDocumentPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

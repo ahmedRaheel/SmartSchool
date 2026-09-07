@@ -46,7 +46,7 @@ public static class CreateTimetable
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTimetablePersistence(IOrganizationDbContext dbContext) : ICreateTimetable
+    internal sealed class CreateTimetableCommand(IOrganizationDbContext dbContext) : ICreateTimetable
     {
         public async Task AddAsync(
                 TimetableEntity entity,

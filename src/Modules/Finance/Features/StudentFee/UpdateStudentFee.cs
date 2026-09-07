@@ -54,7 +54,7 @@ Task<StudentFeeEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStudentFeePersistence(IFinanceDbContext dbContext) : IUpdateStudentFee
+    internal sealed class UpdateStudentFeeCommand(IFinanceDbContext dbContext) : IUpdateStudentFee
     {
         public async Task UpdateAsync(
                 StudentFeeEntity entity,

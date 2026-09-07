@@ -54,7 +54,7 @@ Task<LoanEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLoanPersistence(ILibraryDbContext dbContext) : IUpdateLoan
+    internal sealed class UpdateLoanCommand(ILibraryDbContext dbContext) : IUpdateLoan
     {
         public async Task UpdateAsync(
                 LoanEntity entity,

@@ -42,7 +42,7 @@ public static class GetStudentPerformancePredictionPage
 
     }
 
-    internal sealed class GetStudentPerformancePredictionPagePersistence(
+    internal sealed class GetStudentPerformancePredictionPageQuery(
 
         IDbConnectionFactory connectionFactory) : IGetStudentPerformancePredictionPage
     {

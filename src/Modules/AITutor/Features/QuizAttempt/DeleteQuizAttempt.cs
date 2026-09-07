@@ -33,7 +33,7 @@ public static class DeleteQuizAttempt
 
     }
 
-    internal sealed class DeleteQuizAttemptPersistence(IAITutorDbContext dbContext) : IDeleteQuizAttempt
+    internal sealed class DeleteQuizAttemptCommand(IAITutorDbContext dbContext) : IDeleteQuizAttempt
     {
         public async Task DeleteAsync(
                 QuizAttemptEntity entity,

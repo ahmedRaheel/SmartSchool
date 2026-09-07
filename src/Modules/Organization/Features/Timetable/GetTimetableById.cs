@@ -38,7 +38,7 @@ public static class GetTimetableById
 
     }
 
-    internal sealed class GetTimetableByIdPersistence(
+    internal sealed class GetTimetableByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetTimetableById
     {
         public async Task<Response?> GetByIdAsync(

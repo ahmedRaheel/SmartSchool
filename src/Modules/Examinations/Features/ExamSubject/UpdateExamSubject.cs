@@ -54,7 +54,7 @@ Task<ExamSubjectEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateExamSubjectPersistence(IExaminationsDbContext dbContext) : IUpdateExamSubject
+    internal sealed class UpdateExamSubjectCommand(IExaminationsDbContext dbContext) : IUpdateExamSubject
     {
         public async Task UpdateAsync(
                 ExamSubjectEntity entity,

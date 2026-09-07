@@ -38,7 +38,7 @@ public static class GetParentToolExecutionById
 
     }
 
-    internal sealed class GetParentToolExecutionByIdPersistence(
+    internal sealed class GetParentToolExecutionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetParentToolExecutionById
     {
         public async Task<Response?> GetByIdAsync(

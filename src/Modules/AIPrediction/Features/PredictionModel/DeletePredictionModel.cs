@@ -33,7 +33,7 @@ public static class DeletePredictionModel
 
     }
 
-    internal sealed class DeletePredictionModelPersistence(IAIPredictionDbContext dbContext) : IDeletePredictionModel
+    internal sealed class DeletePredictionModelCommand(IAIPredictionDbContext dbContext) : IDeletePredictionModel
     {
         public async Task DeleteAsync(
                 PredictionModelEntity entity,

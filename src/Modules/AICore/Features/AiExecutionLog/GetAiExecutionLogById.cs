@@ -38,7 +38,7 @@ public static class GetAiExecutionLogById
 
     }
 
-    internal sealed class GetAiExecutionLogByIdPersistence(
+    internal sealed class GetAiExecutionLogByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetAiExecutionLogById
     {
         public async Task<Response?> GetByIdAsync(

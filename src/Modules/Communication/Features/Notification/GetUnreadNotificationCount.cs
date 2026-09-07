@@ -22,7 +22,7 @@ public static class GetUnreadNotificationCount
 
     }
 
-    internal sealed class GetUnreadNotificationCountPersistence(
+    internal sealed class GetUnreadNotificationCountQuery(
         IDbConnectionFactory connectionFactory) : IGetUnreadNotificationCount
     {
         public async Task<int> GetUnreadCountAsync(

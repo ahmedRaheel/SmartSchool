@@ -47,7 +47,7 @@ public static class CreateJob
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateJobPersistence(IHRDbContext dbContext) : ICreateJob
+    internal sealed class CreateJobCommand(IHRDbContext dbContext) : ICreateJob
     {
         public async Task AddAsync(
                 JobEntity entity,

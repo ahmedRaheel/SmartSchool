@@ -33,7 +33,7 @@ public static class DeleteStockTransaction
 
     }
 
-    internal sealed class DeleteStockTransactionPersistence(IInventoryDbContext dbContext) : IDeleteStockTransaction
+    internal sealed class DeleteStockTransactionCommand(IInventoryDbContext dbContext) : IDeleteStockTransaction
     {
         public async Task DeleteAsync(
                 StockTransactionEntity entity,

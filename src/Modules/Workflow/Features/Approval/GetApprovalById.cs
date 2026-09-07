@@ -38,7 +38,7 @@ public static class GetApprovalById
 
     }
 
-    internal sealed class GetApprovalByIdPersistence(
+    internal sealed class GetApprovalByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetApprovalById
     {
         public async Task<Response?> GetByIdAsync(

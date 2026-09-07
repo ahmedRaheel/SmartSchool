@@ -38,7 +38,7 @@ public static class GetScholarshipById
 
     }
 
-    internal sealed class GetScholarshipByIdPersistence(
+    internal sealed class GetScholarshipByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetScholarshipById
     {
         public async Task<Response?> GetByIdAsync(

@@ -47,7 +47,7 @@ public static class CreateAttendance
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAttendancePersistence(IStudentsDbContext dbContext) : ICreateAttendance
+    internal sealed class CreateAttendanceCommand(IStudentsDbContext dbContext) : ICreateAttendance
     {
         public async Task AddAsync(
                 AttendanceEntity entity,

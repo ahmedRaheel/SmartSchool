@@ -38,7 +38,7 @@ public static class GetMessageReceiptById
 
     }
 
-    internal sealed class GetMessageReceiptByIdPersistence(
+    internal sealed class GetMessageReceiptByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetMessageReceiptById
     {
         public async Task<Response?> GetByIdAsync(

@@ -51,7 +51,7 @@ public static class UpdateStudentPerformancePrediction
         Task<StudentPerformancePredictionEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
 }
 
-    internal sealed class UpdateStudentPerformancePredictionPersistence(
+    internal sealed class UpdateStudentPerformancePredictionCommand(
         IAIPredictionDbContext dbContext) : IUpdateStudentPerformancePrediction
     {
         public async Task UpdateAsync(

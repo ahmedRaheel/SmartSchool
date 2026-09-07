@@ -38,7 +38,7 @@ public static class GetCertificateById
 
     }
 
-    internal sealed class GetCertificateByIdPersistence(
+    internal sealed class GetCertificateByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetCertificateById
     {
         public async Task<Response?> GetByIdAsync(

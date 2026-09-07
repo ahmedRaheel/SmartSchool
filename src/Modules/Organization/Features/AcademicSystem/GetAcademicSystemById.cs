@@ -38,7 +38,7 @@ public static class GetAcademicSystemById
 
     }
 
-    internal sealed class GetAcademicSystemByIdPersistence(
+    internal sealed class GetAcademicSystemByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetAcademicSystemById
     {
         public async Task<Response?> GetByIdAsync(

@@ -55,7 +55,7 @@ public static class CreateEnrollment
 
     }
 
-    internal sealed class CreateEnrollmentPersistence(
+    internal sealed class CreateEnrollmentCommand(
         IStudentsDbContext dbContext) : ICreateEnrollment
     {
         public async Task AddAsync(

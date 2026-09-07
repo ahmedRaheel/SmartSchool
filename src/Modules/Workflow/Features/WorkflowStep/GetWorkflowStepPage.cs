@@ -41,7 +41,7 @@ public static class GetWorkflowStepPage
 
     }
 
-    internal sealed class GetWorkflowStepPagePersistence(
+    internal sealed class GetWorkflowStepPageQuery(
         IDbConnectionFactory connectionFactory) : IGetWorkflowStepPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

@@ -54,7 +54,7 @@ Task<StudentActivityEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStudentActivityPersistence(IActivitiesDbContext dbContext) : IUpdateStudentActivity
+    internal sealed class UpdateStudentActivityCommand(IActivitiesDbContext dbContext) : IUpdateStudentActivity
     {
         public async Task UpdateAsync(
                 StudentActivityEntity entity,

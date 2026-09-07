@@ -54,7 +54,7 @@ Task<AuditLogEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAuditLogPersistence(IAuditDbContext dbContext) : IUpdateAuditLog
+    internal sealed class UpdateAuditLogCommand(IAuditDbContext dbContext) : IUpdateAuditLog
     {
         public async Task UpdateAsync(
                 AuditLogEntity entity,

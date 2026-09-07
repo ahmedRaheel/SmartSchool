@@ -88,7 +88,7 @@ public static class CreateEmployee
 
     }
 
-    internal sealed class CreateEmployeePersistence(IHRDbContext dbContext) : ICreateEmployee
+    internal sealed class CreateEmployeeCommand(IHRDbContext dbContext) : ICreateEmployee
     {
         public async Task AddAsync(
                 EmployeeEntity entity,

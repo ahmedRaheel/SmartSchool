@@ -54,7 +54,7 @@ Task<ReservationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateReservationPersistence(ILibraryDbContext dbContext) : IUpdateReservation
+    internal sealed class UpdateReservationCommand(ILibraryDbContext dbContext) : IUpdateReservation
     {
         public async Task UpdateAsync(
                 ReservationEntity entity,

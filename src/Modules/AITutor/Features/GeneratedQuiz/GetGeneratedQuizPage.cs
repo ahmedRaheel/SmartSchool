@@ -41,7 +41,7 @@ public static class GetGeneratedQuizPage
 
     }
 
-    internal sealed class GetGeneratedQuizPagePersistence(
+    internal sealed class GetGeneratedQuizPageQuery(
         IDbConnectionFactory connectionFactory) : IGetGeneratedQuizPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

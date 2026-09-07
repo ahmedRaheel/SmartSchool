@@ -54,7 +54,7 @@ Task<PromptTemplateEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePromptTemplatePersistence(IAICoreDbContext dbContext) : IUpdatePromptTemplate
+    internal sealed class UpdatePromptTemplateCommand(IAICoreDbContext dbContext) : IUpdatePromptTemplate
     {
         public async Task UpdateAsync(
                 PromptTemplateEntity entity,

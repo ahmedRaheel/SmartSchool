@@ -54,7 +54,7 @@ Task<StudentTransportEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStudentTransportPersistence(ITransportDbContext dbContext) : IUpdateStudentTransport
+    internal sealed class UpdateStudentTransportCommand(ITransportDbContext dbContext) : IUpdateStudentTransport
     {
         public async Task UpdateAsync(
                 StudentTransportEntity entity,

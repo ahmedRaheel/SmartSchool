@@ -54,7 +54,7 @@ Task<InvoiceEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateInvoicePersistence(IFinanceDbContext dbContext) : IUpdateInvoice
+    internal sealed class UpdateInvoiceCommand(IFinanceDbContext dbContext) : IUpdateInvoice
     {
         public async Task UpdateAsync(
                 InvoiceEntity entity,

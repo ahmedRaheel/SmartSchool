@@ -53,7 +53,7 @@ Task<AcademicSystemEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAcademicSystemPersistence(IOrganizationDbContext dbContext) : IUpdateAcademicSystem
+    internal sealed class UpdateAcademicSystemCommand(IOrganizationDbContext dbContext) : IUpdateAcademicSystem
     {
         public async Task UpdateAsync(
                 AcademicSystemEntity entity,

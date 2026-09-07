@@ -38,7 +38,7 @@ public static class GetIncrementById
 
     }
 
-    internal sealed class GetIncrementByIdPersistence(
+    internal sealed class GetIncrementByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetIncrementById
     {
         public async Task<Response?> GetByIdAsync(

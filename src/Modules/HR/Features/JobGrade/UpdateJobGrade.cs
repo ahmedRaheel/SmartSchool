@@ -54,7 +54,7 @@ Task<JobGradeEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateJobGradePersistence(IHRDbContext dbContext) : IUpdateJobGrade
+    internal sealed class UpdateJobGradeCommand(IHRDbContext dbContext) : IUpdateJobGrade
     {
         public async Task UpdateAsync(
                 JobGradeEntity entity,

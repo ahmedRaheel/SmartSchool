@@ -38,7 +38,7 @@ public static class GetActivityById
 
     }
 
-    internal sealed class GetActivityByIdPersistence(
+    internal sealed class GetActivityByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetActivityById
     {
         public async Task<Response?> GetByIdAsync(

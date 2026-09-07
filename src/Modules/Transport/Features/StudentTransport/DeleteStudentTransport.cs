@@ -33,7 +33,7 @@ public static class DeleteStudentTransport
 
     }
 
-    internal sealed class DeleteStudentTransportPersistence(ITransportDbContext dbContext) : IDeleteStudentTransport
+    internal sealed class DeleteStudentTransportCommand(ITransportDbContext dbContext) : IDeleteStudentTransport
     {
         public async Task DeleteAsync(
                 StudentTransportEntity entity,

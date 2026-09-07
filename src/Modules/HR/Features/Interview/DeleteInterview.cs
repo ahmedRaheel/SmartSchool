@@ -33,7 +33,7 @@ public static class DeleteInterview
 
     }
 
-    internal sealed class DeleteInterviewPersistence(IHRDbContext dbContext) : IDeleteInterview
+    internal sealed class DeleteInterviewCommand(IHRDbContext dbContext) : IDeleteInterview
     {
         public async Task DeleteAsync(
                 InterviewEntity entity,

@@ -47,7 +47,7 @@ public static class CreateStudentOfMonth
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentOfMonthPersistence(IActivitiesDbContext dbContext) : ICreateStudentOfMonth
+    internal sealed class CreateStudentOfMonthCommand(IActivitiesDbContext dbContext) : ICreateStudentOfMonth
     {
         public async Task AddAsync(
                 StudentOfMonthEntity entity,

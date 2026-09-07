@@ -54,7 +54,7 @@ Task<InterviewEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateInterviewPersistence(IHRDbContext dbContext) : IUpdateInterview
+    internal sealed class UpdateInterviewCommand(IHRDbContext dbContext) : IUpdateInterview
     {
         public async Task UpdateAsync(
                 InterviewEntity entity,

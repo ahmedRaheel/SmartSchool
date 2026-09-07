@@ -47,7 +47,7 @@ public static class CreateApplication
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateApplicationPersistence(IAdmissionsDbContext dbContext) : ICreateApplication
+    internal sealed class CreateApplicationCommand(IAdmissionsDbContext dbContext) : ICreateApplication
     {
         public async Task AddAsync(
                 ApplicationEntity entity,

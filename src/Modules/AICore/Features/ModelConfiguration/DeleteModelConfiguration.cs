@@ -33,7 +33,7 @@ public static class DeleteModelConfiguration
 
     }
 
-    internal sealed class DeleteModelConfigurationPersistence(IAICoreDbContext dbContext) : IDeleteModelConfiguration
+    internal sealed class DeleteModelConfigurationCommand(IAICoreDbContext dbContext) : IDeleteModelConfiguration
     {
         public async Task DeleteAsync(
                 ModelConfigurationEntity entity,

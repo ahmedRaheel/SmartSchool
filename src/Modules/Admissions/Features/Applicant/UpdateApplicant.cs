@@ -54,7 +54,7 @@ Task<ApplicantEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateApplicantPersistence(IAdmissionsDbContext dbContext) : IUpdateApplicant
+    internal sealed class UpdateApplicantCommand(IAdmissionsDbContext dbContext) : IUpdateApplicant
     {
         public async Task UpdateAsync(
                 ApplicantEntity entity,

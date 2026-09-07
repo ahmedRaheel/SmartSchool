@@ -38,7 +38,7 @@ public static class GetQuizAttemptById
 
     }
 
-    internal sealed class GetQuizAttemptByIdPersistence(
+    internal sealed class GetQuizAttemptByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetQuizAttemptById
     {
         public async Task<Response?> GetByIdAsync(

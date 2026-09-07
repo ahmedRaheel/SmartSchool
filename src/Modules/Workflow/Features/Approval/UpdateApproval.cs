@@ -54,7 +54,7 @@ Task<ApprovalEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateApprovalPersistence(IWorkflowDbContext dbContext) : IUpdateApproval
+    internal sealed class UpdateApprovalCommand(IWorkflowDbContext dbContext) : IUpdateApproval
     {
         public async Task UpdateAsync(
                 ApprovalEntity entity,

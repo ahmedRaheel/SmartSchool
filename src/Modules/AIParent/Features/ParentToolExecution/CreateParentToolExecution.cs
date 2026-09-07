@@ -47,7 +47,7 @@ public static class CreateParentToolExecution
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateParentToolExecutionPersistence(IAIParentDbContext dbContext) : ICreateParentToolExecution
+    internal sealed class CreateParentToolExecutionCommand(IAIParentDbContext dbContext) : ICreateParentToolExecution
     {
         public async Task AddAsync(
                 ParentToolExecutionEntity entity,

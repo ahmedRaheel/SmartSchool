@@ -26,7 +26,7 @@ public static class CreateFeeStructure
     {
         Task AddAsync(FeeStructureEntity entity, CancellationToken cancellationToken);
     }
-    internal sealed class CreateFeeStructurePersistence(IFinanceDbContext db) : ICreateFeeStructure
+    internal sealed class CreateFeeStructureCommand(IFinanceDbContext db) : ICreateFeeStructure
     {
         public async Task AddAsync(FeeStructureEntity entity, CancellationToken ct)
         {

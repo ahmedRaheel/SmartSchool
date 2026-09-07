@@ -38,7 +38,7 @@ public static class GetInvoiceById
 
     }
 
-    internal sealed class GetInvoiceByIdPersistence(
+    internal sealed class GetInvoiceByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetInvoiceById
     {
         public async Task<Response?> GetByIdAsync(

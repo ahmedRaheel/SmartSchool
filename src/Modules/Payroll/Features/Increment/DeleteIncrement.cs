@@ -33,7 +33,7 @@ public static class DeleteIncrement
 
     }
 
-    internal sealed class DeleteIncrementPersistence(IPayrollDbContext dbContext) : IDeleteIncrement
+    internal sealed class DeleteIncrementCommand(IPayrollDbContext dbContext) : IDeleteIncrement
     {
         public async Task DeleteAsync(
                 IncrementEntity entity,

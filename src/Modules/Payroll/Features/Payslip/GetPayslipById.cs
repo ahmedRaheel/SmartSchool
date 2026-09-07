@@ -38,7 +38,7 @@ public static class GetPayslipById
 
     }
 
-    internal sealed class GetPayslipByIdPersistence(
+    internal sealed class GetPayslipByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPayslipById
     {
         public async Task<Response?> GetByIdAsync(

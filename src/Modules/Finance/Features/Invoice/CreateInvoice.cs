@@ -47,7 +47,7 @@ public static class CreateInvoice
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateInvoicePersistence(IFinanceDbContext dbContext) : ICreateInvoice
+    internal sealed class CreateInvoiceCommand(IFinanceDbContext dbContext) : ICreateInvoice
     {
         public async Task AddAsync(
                 InvoiceEntity entity,

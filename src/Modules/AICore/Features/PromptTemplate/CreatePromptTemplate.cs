@@ -48,7 +48,7 @@ public static class CreatePromptTemplate
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePromptTemplatePersistence(IAICoreDbContext dbContext) : ICreatePromptTemplate
+    internal sealed class CreatePromptTemplateCommand(IAICoreDbContext dbContext) : ICreatePromptTemplate
     {
         public async Task AddAsync(
                 PromptTemplateEntity entity,

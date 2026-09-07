@@ -33,7 +33,7 @@ public static class DeleteNotification
 
     }
 
-    internal sealed class DeleteNotificationPersistence(
+    internal sealed class DeleteNotificationCommand(
         ICommunicationDbContext dbContext) : IDeleteNotification
     {
         public Task<NotificationEntity?> GetByIdAsync(

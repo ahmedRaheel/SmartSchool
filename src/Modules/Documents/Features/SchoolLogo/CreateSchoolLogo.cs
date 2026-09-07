@@ -47,7 +47,7 @@ public static class CreateSchoolLogo
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateSchoolLogoPersistence(IDocumentsDbContext dbContext) : ICreateSchoolLogo
+    internal sealed class CreateSchoolLogoCommand(IDocumentsDbContext dbContext) : ICreateSchoolLogo
     {
         public async Task AddAsync(
                 SchoolLogoEntity entity,

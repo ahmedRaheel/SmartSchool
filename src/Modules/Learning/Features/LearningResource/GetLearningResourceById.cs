@@ -38,7 +38,7 @@ public static class GetLearningResourceById
 
     }
 
-    internal sealed class GetLearningResourceByIdPersistence(
+    internal sealed class GetLearningResourceByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetLearningResourceById
     {
         public async Task<Response?> GetByIdAsync(

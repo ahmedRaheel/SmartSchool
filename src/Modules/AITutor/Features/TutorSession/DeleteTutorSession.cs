@@ -33,7 +33,7 @@ public static class DeleteTutorSession
 
     }
 
-    internal sealed class DeleteTutorSessionPersistence(IAITutorDbContext dbContext) : IDeleteTutorSession
+    internal sealed class DeleteTutorSessionCommand(IAITutorDbContext dbContext) : IDeleteTutorSession
     {
         public async Task DeleteAsync(
                 TutorSessionEntity entity,

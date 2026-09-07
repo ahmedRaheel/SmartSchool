@@ -38,7 +38,7 @@ public static class GetWorkflowStepById
 
     }
 
-    internal sealed class GetWorkflowStepByIdPersistence(
+    internal sealed class GetWorkflowStepByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetWorkflowStepById
     {
         public async Task<Response?> GetByIdAsync(

@@ -38,7 +38,7 @@ public static class GetHumanHandoffById
 
     }
 
-    internal sealed class GetHumanHandoffByIdPersistence(
+    internal sealed class GetHumanHandoffByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetHumanHandoffById
     {
         public async Task<Response?> GetByIdAsync(

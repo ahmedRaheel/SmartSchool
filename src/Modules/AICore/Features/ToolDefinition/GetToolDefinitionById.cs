@@ -38,7 +38,7 @@ public static class GetToolDefinitionById
 
     }
 
-    internal sealed class GetToolDefinitionByIdPersistence(
+    internal sealed class GetToolDefinitionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetToolDefinitionById
     {
         public async Task<Response?> GetByIdAsync(

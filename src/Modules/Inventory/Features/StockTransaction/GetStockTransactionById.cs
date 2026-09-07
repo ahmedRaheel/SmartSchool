@@ -38,7 +38,7 @@ public static class GetStockTransactionById
 
     }
 
-    internal sealed class GetStockTransactionByIdPersistence(
+    internal sealed class GetStockTransactionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetStockTransactionById
     {
         public async Task<Response?> GetByIdAsync(

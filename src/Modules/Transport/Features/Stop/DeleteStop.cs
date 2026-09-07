@@ -33,7 +33,7 @@ public static class DeleteStop
 
     }
 
-    internal sealed class DeleteStopPersistence(ITransportDbContext dbContext) : IDeleteStop
+    internal sealed class DeleteStopCommand(ITransportDbContext dbContext) : IDeleteStop
     {
         public async Task DeleteAsync(
                 StopEntity entity,

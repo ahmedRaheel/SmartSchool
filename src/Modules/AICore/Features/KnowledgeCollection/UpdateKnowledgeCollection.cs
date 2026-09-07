@@ -54,7 +54,7 @@ Task<KnowledgeCollectionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateKnowledgeCollectionPersistence(IAICoreDbContext dbContext) : IUpdateKnowledgeCollection
+    internal sealed class UpdateKnowledgeCollectionCommand(IAICoreDbContext dbContext) : IUpdateKnowledgeCollection
     {
         public async Task UpdateAsync(
                 KnowledgeCollectionEntity entity,

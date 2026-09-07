@@ -41,7 +41,7 @@ public static class GetJobGradePage
 
     }
 
-    internal sealed class GetJobGradePagePersistence(
+    internal sealed class GetJobGradePageQuery(
         IDbConnectionFactory connectionFactory) : IGetJobGradePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

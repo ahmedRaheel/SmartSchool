@@ -47,7 +47,7 @@ public static class CreateDiscount
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateDiscountPersistence(IFinanceDbContext dbContext) : ICreateDiscount
+    internal sealed class CreateDiscountCommand(IFinanceDbContext dbContext) : ICreateDiscount
     {
         public async Task AddAsync(
                 DiscountEntity entity,

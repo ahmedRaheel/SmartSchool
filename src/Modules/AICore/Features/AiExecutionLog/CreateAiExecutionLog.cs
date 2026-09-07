@@ -47,7 +47,7 @@ public static class CreateAiExecutionLog
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAiExecutionLogPersistence(IAICoreDbContext dbContext) : ICreateAiExecutionLog
+    internal sealed class CreateAiExecutionLogCommand(IAICoreDbContext dbContext) : ICreateAiExecutionLog
     {
         public async Task AddAsync(
                 AiExecutionLogEntity entity,

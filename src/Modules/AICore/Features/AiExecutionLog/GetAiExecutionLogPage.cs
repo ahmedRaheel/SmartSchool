@@ -41,7 +41,7 @@ public static class GetAiExecutionLogPage
 
     }
 
-    internal sealed class GetAiExecutionLogPagePersistence(
+    internal sealed class GetAiExecutionLogPageQuery(
         IDbConnectionFactory connectionFactory) : IGetAiExecutionLogPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

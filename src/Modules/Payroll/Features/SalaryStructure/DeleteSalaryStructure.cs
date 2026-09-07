@@ -33,7 +33,7 @@ public static class DeleteSalaryStructure
 
     }
 
-    internal sealed class DeleteSalaryStructurePersistence(IPayrollDbContext dbContext) : IDeleteSalaryStructure
+    internal sealed class DeleteSalaryStructureCommand(IPayrollDbContext dbContext) : IDeleteSalaryStructure
     {
         public async Task DeleteAsync(
                 SalaryStructureEntity entity,

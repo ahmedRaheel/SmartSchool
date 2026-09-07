@@ -38,7 +38,7 @@ public static class GetKnowledgeChunkById
 
     }
 
-    internal sealed class GetKnowledgeChunkByIdPersistence(
+    internal sealed class GetKnowledgeChunkByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetKnowledgeChunkById
     {
         public async Task<Response?> GetByIdAsync(

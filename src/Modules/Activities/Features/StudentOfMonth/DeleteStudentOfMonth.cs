@@ -33,7 +33,7 @@ public static class DeleteStudentOfMonth
 
     }
 
-    internal sealed class DeleteStudentOfMonthPersistence(IActivitiesDbContext dbContext) : IDeleteStudentOfMonth
+    internal sealed class DeleteStudentOfMonthCommand(IActivitiesDbContext dbContext) : IDeleteStudentOfMonth
     {
         public async Task DeleteAsync(
                 StudentOfMonthEntity entity,

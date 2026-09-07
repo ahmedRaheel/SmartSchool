@@ -38,7 +38,7 @@ public static class GetAdmissionDecisionById
 
     }
 
-    internal sealed class GetAdmissionDecisionByIdPersistence(
+    internal sealed class GetAdmissionDecisionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetAdmissionDecisionById
     {
         public async Task<Response?> GetByIdAsync(

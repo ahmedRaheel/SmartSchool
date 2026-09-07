@@ -1,11 +1,11 @@
 using Dapper;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Enums;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Organization.Features.Organization;
 
@@ -38,7 +38,7 @@ public static class GetOrganizationById
         Task<Response?> GetAsync(Guid tenantId, CancellationToken cancellationToken);
     }
 
-    internal sealed class Persistence(IDbConnectionFactory connectionFactory) : IGetOrganizationById
+    internal sealed class GetOrganizationByIdQuery(IDbConnectionFactory connectionFactory) : IGetOrganizationById
     {
         public async Task<Response?> GetAsync(Guid tenantId, CancellationToken cancellationToken)
         {

@@ -50,7 +50,7 @@ public static class CreateCourseOffering
 
     }
 
-    internal sealed class CreateCourseOfferingPersistence(
+    internal sealed class CreateCourseOfferingCommand(
         IOrganizationDbContext dbContext) : ICreateCourseOffering
     {
         public async Task AddAsync(

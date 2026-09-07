@@ -33,7 +33,7 @@ public static class DeleteLeaveRequest
 
     }
 
-    internal sealed class DeleteLeaveRequestPersistence(IHRDbContext dbContext) : IDeleteLeaveRequest
+    internal sealed class DeleteLeaveRequestCommand(IHRDbContext dbContext) : IDeleteLeaveRequest
     {
         public async Task DeleteAsync(
                 LeaveRequestEntity entity,

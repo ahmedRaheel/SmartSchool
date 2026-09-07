@@ -47,7 +47,7 @@ public static class CreatePayrollRun
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePayrollRunPersistence(IPayrollDbContext dbContext) : ICreatePayrollRun
+    internal sealed class CreatePayrollRunCommand(IPayrollDbContext dbContext) : ICreatePayrollRun
     {
         public async Task AddAsync(
                 PayrollRunEntity entity,

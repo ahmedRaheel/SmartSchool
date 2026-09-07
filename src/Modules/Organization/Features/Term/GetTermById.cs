@@ -38,7 +38,7 @@ public static class GetTermById
 
     }
 
-    internal sealed class GetTermByIdPersistence(
+    internal sealed class GetTermByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetTermById
     {
         public async Task<Response?> GetByIdAsync(

@@ -48,7 +48,7 @@ public static class CreateHumanHandoff
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateHumanHandoffPersistence(IAIInquiryDbContext dbContext) : ICreateHumanHandoff
+    internal sealed class CreateHumanHandoffCommand(IAIInquiryDbContext dbContext) : ICreateHumanHandoff
     {
         public async Task AddAsync(
                 HumanHandoffEntity entity,

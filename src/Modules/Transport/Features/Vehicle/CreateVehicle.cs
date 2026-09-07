@@ -47,7 +47,7 @@ public static class CreateVehicle
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateVehiclePersistence(ITransportDbContext dbContext) : ICreateVehicle
+    internal sealed class CreateVehicleCommand(ITransportDbContext dbContext) : ICreateVehicle
     {
         public async Task AddAsync(
                 VehicleEntity entity,

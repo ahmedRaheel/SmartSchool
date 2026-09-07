@@ -38,7 +38,7 @@ public static class GetSalaryStructureById
 
     }
 
-    internal sealed class GetSalaryStructureByIdPersistence(
+    internal sealed class GetSalaryStructureByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetSalaryStructureById
     {
         public async Task<Response?> GetByIdAsync(

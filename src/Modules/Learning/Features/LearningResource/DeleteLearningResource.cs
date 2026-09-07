@@ -33,7 +33,7 @@ public static class DeleteLearningResource
 
     }
 
-    internal sealed class DeleteLearningResourcePersistence(ILearningDbContext dbContext) : IDeleteLearningResource
+    internal sealed class DeleteLearningResourceCommand(ILearningDbContext dbContext) : IDeleteLearningResource
     {
         public async Task DeleteAsync(
                 LearningResourceEntity entity,

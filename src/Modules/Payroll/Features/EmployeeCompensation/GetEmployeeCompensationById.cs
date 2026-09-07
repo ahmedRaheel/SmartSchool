@@ -38,7 +38,7 @@ public static class GetEmployeeCompensationById
 
     }
 
-    internal sealed class GetEmployeeCompensationByIdPersistence(
+    internal sealed class GetEmployeeCompensationByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetEmployeeCompensationById
     {
         public async Task<Response?> GetByIdAsync(

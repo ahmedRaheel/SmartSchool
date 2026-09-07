@@ -47,7 +47,7 @@ public static class CreateWorkflowStep
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateWorkflowStepPersistence(IWorkflowDbContext dbContext) : ICreateWorkflowStep
+    internal sealed class CreateWorkflowStepCommand(IWorkflowDbContext dbContext) : ICreateWorkflowStep
     {
         public async Task AddAsync(
                 WorkflowStepEntity entity,

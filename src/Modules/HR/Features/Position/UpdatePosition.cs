@@ -54,7 +54,7 @@ Task<PositionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePositionPersistence(IHRDbContext dbContext) : IUpdatePosition
+    internal sealed class UpdatePositionCommand(IHRDbContext dbContext) : IUpdatePosition
     {
         public async Task UpdateAsync(
                 PositionEntity entity,

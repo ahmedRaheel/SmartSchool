@@ -41,7 +41,7 @@ public static class GetPurchaseOrderPage
 
     }
 
-    internal sealed class GetPurchaseOrderPagePersistence(
+    internal sealed class GetPurchaseOrderPageQuery(
         IDbConnectionFactory connectionFactory) : IGetPurchaseOrderPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

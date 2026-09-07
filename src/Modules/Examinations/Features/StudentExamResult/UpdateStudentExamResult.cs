@@ -51,7 +51,7 @@ public static class UpdateStudentExamResult
         Task<StudentExamResultEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
 }
 
-    internal sealed class UpdateStudentExamResultPersistence(
+    internal sealed class UpdateStudentExamResultCommand(
         IExaminationsDbContext dbContext) : IUpdateStudentExamResult
     {
         public async Task UpdateAsync(

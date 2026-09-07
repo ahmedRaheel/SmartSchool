@@ -38,7 +38,7 @@ public static class GetPredictionEvaluationById
 
     }
 
-    internal sealed class GetPredictionEvaluationByIdPersistence(
+    internal sealed class GetPredictionEvaluationByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPredictionEvaluationById
     {
         public async Task<Response?> GetByIdAsync(

@@ -58,7 +58,7 @@ public static class CreateDepartment
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateDepartmentPersistence(IOrganizationDbContext dbContext) : ICreateDepartment
+    internal sealed class CreateDepartmentCommand(IOrganizationDbContext dbContext) : ICreateDepartment
     {
         public async Task AddAsync(
                 DepartmentEntity entity,

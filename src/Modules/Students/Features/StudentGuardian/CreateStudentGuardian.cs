@@ -47,7 +47,7 @@ public static class CreateStudentGuardian
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentGuardianPersistence(IStudentsDbContext dbContext) : ICreateStudentGuardian
+    internal sealed class CreateStudentGuardianCommand(IStudentsDbContext dbContext) : ICreateStudentGuardian
     {
         public async Task AddAsync(
                 StudentGuardianEntity entity,

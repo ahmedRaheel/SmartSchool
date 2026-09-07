@@ -45,7 +45,7 @@ public static class GetAuditLogById
 
     }
 
-    internal sealed class GetAuditLogByIdPersistence(
+    internal sealed class GetAuditLogByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetAuditLogById
     {
         public async Task<Response?> GetByIdAsync(

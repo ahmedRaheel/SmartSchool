@@ -58,7 +58,7 @@ public static class CreateAcademicYear
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAcademicYearPersistence(IOrganizationDbContext dbContext) : ICreateAcademicYear
+    internal sealed class CreateAcademicYearCommand(IOrganizationDbContext dbContext) : ICreateAcademicYear
     {
         public async Task AddAsync(AcademicYearEntity entity, CancellationToken cancellationToken)
         {

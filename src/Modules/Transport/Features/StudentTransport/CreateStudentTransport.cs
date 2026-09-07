@@ -47,7 +47,7 @@ public static class CreateStudentTransport
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentTransportPersistence(ITransportDbContext dbContext) : ICreateStudentTransport
+    internal sealed class CreateStudentTransportCommand(ITransportDbContext dbContext) : ICreateStudentTransport
     {
         public async Task AddAsync(
                 StudentTransportEntity entity,

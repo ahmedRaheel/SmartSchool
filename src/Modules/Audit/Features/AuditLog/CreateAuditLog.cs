@@ -47,7 +47,7 @@ public static class CreateAuditLog
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAuditLogPersistence(IAuditDbContext dbContext) : ICreateAuditLog
+    internal sealed class CreateAuditLogCommand(IAuditDbContext dbContext) : ICreateAuditLog
     {
         public async Task AddAsync(
                 AuditLogEntity entity,

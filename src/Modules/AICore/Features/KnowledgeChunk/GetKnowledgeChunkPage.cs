@@ -41,7 +41,7 @@ public static class GetKnowledgeChunkPage
 
     }
 
-    internal sealed class GetKnowledgeChunkPagePersistence(
+    internal sealed class GetKnowledgeChunkPageQuery(
         IDbConnectionFactory connectionFactory) : IGetKnowledgeChunkPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

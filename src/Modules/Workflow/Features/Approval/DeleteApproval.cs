@@ -33,7 +33,7 @@ public static class DeleteApproval
 
     }
 
-    internal sealed class DeleteApprovalPersistence(IWorkflowDbContext dbContext) : IDeleteApproval
+    internal sealed class DeleteApprovalCommand(IWorkflowDbContext dbContext) : IDeleteApproval
     {
         public async Task DeleteAsync(
                 ApprovalEntity entity,

@@ -38,7 +38,7 @@ public static class GetBookCopyById
 
     }
 
-    internal sealed class GetBookCopyByIdPersistence(
+    internal sealed class GetBookCopyByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetBookCopyById
     {
         public async Task<Response?> GetByIdAsync(

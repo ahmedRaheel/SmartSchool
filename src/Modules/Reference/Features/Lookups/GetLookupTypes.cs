@@ -15,7 +15,7 @@ public static class GetLookupTypes
         Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken);
     }
 
-    internal sealed class GetLookupTypesPersistence(IDbConnectionFactory connectionFactory) : IGetLookupTypes
+    internal sealed class GetLookupTypesQuery(IDbConnectionFactory connectionFactory) : IGetLookupTypes
     {
         public async Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken)
         {

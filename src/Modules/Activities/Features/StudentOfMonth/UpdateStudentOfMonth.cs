@@ -54,7 +54,7 @@ Task<StudentOfMonthEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStudentOfMonthPersistence(IActivitiesDbContext dbContext) : IUpdateStudentOfMonth
+    internal sealed class UpdateStudentOfMonthCommand(IActivitiesDbContext dbContext) : IUpdateStudentOfMonth
     {
         public async Task UpdateAsync(
                 StudentOfMonthEntity entity,

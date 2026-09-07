@@ -47,7 +47,7 @@ public static class CreateDocumentTemplate
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateDocumentTemplatePersistence(IDocumentsDbContext dbContext) : ICreateDocumentTemplate
+    internal sealed class CreateDocumentTemplateCommand(IDocumentsDbContext dbContext) : ICreateDocumentTemplate
     {
         public async Task AddAsync(
                 DocumentTemplateEntity entity,

@@ -33,7 +33,7 @@ public static class DeleteInquiry
 
     }
 
-    internal sealed class DeleteInquiryPersistence(IAdmissionsDbContext dbContext) : IDeleteInquiry
+    internal sealed class DeleteInquiryCommand(IAdmissionsDbContext dbContext) : IDeleteInquiry
     {
         public async Task DeleteAsync(
                 InquiryEntity entity,

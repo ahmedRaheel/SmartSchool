@@ -54,7 +54,7 @@ Task<EmploymentHistoryEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateEmploymentHistoryPersistence(IHRDbContext dbContext) : IUpdateEmploymentHistory
+    internal sealed class UpdateEmploymentHistoryCommand(IHRDbContext dbContext) : IUpdateEmploymentHistory
     {
         public async Task UpdateAsync(
                 EmploymentHistoryEntity entity,

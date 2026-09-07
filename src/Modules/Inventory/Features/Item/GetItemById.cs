@@ -38,7 +38,7 @@ public static class GetItemById
 
     }
 
-    internal sealed class GetItemByIdPersistence(
+    internal sealed class GetItemByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetItemById
     {
         public async Task<Response?> GetByIdAsync(

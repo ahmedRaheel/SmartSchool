@@ -41,7 +41,7 @@ public static class GetKnowledgeCollectionPage
 
     }
 
-    internal sealed class GetKnowledgeCollectionPagePersistence(
+    internal sealed class GetKnowledgeCollectionPageQuery(
         IDbConnectionFactory connectionFactory) : IGetKnowledgeCollectionPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

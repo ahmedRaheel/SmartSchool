@@ -33,7 +33,7 @@ public static class DeleteDocumentTemplate
 
     }
 
-    internal sealed class DeleteDocumentTemplatePersistence(IDocumentsDbContext dbContext) : IDeleteDocumentTemplate
+    internal sealed class DeleteDocumentTemplateCommand(IDocumentsDbContext dbContext) : IDeleteDocumentTemplate
     {
         public async Task DeleteAsync(
                 DocumentTemplateEntity entity,

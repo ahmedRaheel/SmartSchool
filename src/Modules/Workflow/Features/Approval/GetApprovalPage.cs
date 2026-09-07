@@ -41,7 +41,7 @@ public static class GetApprovalPage
 
     }
 
-    internal sealed class GetApprovalPagePersistence(
+    internal sealed class GetApprovalPageQuery(
         IDbConnectionFactory connectionFactory) : IGetApprovalPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

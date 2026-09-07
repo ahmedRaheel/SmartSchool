@@ -33,7 +33,7 @@ public static class DeleteSchoolLogo
 
     }
 
-    internal sealed class DeleteSchoolLogoPersistence(IDocumentsDbContext dbContext) : IDeleteSchoolLogo
+    internal sealed class DeleteSchoolLogoCommand(IDocumentsDbContext dbContext) : IDeleteSchoolLogo
     {
         public async Task DeleteAsync(
                 SchoolLogoEntity entity,

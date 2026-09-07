@@ -47,7 +47,7 @@ public static class CreateStockTransaction
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStockTransactionPersistence(IInventoryDbContext dbContext) : ICreateStockTransaction
+    internal sealed class CreateStockTransactionCommand(IInventoryDbContext dbContext) : ICreateStockTransaction
     {
         public async Task AddAsync(
                 StockTransactionEntity entity,

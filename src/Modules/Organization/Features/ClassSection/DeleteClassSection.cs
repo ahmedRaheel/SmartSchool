@@ -32,7 +32,7 @@ public static class DeleteClassSection
 
     }
 
-    internal sealed class DeleteClassSectionPersistence(IOrganizationDbContext dbContext) : IDeleteClassSection
+    internal sealed class DeleteClassSectionCommand(IOrganizationDbContext dbContext) : IDeleteClassSection
     {
         public async Task DeleteAsync(
                 ClassSectionEntity entity,

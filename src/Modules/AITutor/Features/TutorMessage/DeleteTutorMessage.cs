@@ -33,7 +33,7 @@ public static class DeleteTutorMessage
 
     }
 
-    internal sealed class DeleteTutorMessagePersistence(IAITutorDbContext dbContext) : IDeleteTutorMessage
+    internal sealed class DeleteTutorMessageCommand(IAITutorDbContext dbContext) : IDeleteTutorMessage
     {
         public async Task DeleteAsync(
                 TutorMessageEntity entity,

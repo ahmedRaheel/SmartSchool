@@ -47,7 +47,7 @@ public static class CreatePayment
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePaymentPersistence(IFinanceDbContext dbContext) : ICreatePayment
+    internal sealed class CreatePaymentCommand(IFinanceDbContext dbContext) : ICreatePayment
     {
         public async Task AddAsync(
                 PaymentEntity entity,

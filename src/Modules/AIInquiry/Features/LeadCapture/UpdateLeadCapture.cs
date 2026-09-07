@@ -54,7 +54,7 @@ Task<LeadCaptureEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateLeadCapturePersistence(IAIInquiryDbContext dbContext) : IUpdateLeadCapture
+    internal sealed class UpdateLeadCaptureCommand(IAIInquiryDbContext dbContext) : IUpdateLeadCapture
     {
         public async Task UpdateAsync(
                 LeadCaptureEntity entity,

@@ -38,7 +38,7 @@ public static class GetVehicleById
 
     }
 
-    internal sealed class GetVehicleByIdPersistence(
+    internal sealed class GetVehicleByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetVehicleById
     {
         public async Task<Response?> GetByIdAsync(

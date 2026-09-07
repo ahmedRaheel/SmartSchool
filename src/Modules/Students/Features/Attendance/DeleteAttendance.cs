@@ -33,7 +33,7 @@ public static class DeleteAttendance
 
     }
 
-    internal sealed class DeleteAttendancePersistence(IStudentsDbContext dbContext) : IDeleteAttendance
+    internal sealed class DeleteAttendanceCommand(IStudentsDbContext dbContext) : IDeleteAttendance
     {
         public async Task DeleteAsync(
                 AttendanceEntity entity,

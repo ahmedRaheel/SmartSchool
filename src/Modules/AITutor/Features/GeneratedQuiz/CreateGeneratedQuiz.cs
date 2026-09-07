@@ -48,7 +48,7 @@ public static class CreateGeneratedQuiz
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateGeneratedQuizPersistence(IAITutorDbContext dbContext) : ICreateGeneratedQuiz
+    internal sealed class CreateGeneratedQuizCommand(IAITutorDbContext dbContext) : ICreateGeneratedQuiz
     {
         public async Task AddAsync(
                 GeneratedQuizEntity entity,

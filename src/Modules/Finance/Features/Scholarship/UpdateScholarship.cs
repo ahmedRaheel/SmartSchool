@@ -54,7 +54,7 @@ Task<ScholarshipEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateScholarshipPersistence(IFinanceDbContext dbContext) : IUpdateScholarship
+    internal sealed class UpdateScholarshipCommand(IFinanceDbContext dbContext) : IUpdateScholarship
     {
         public async Task UpdateAsync(
                 ScholarshipEntity entity,

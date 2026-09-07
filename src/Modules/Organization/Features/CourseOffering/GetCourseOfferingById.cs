@@ -38,7 +38,7 @@ public static class GetCourseOfferingById
 
     }
 
-    internal sealed class GetCourseOfferingByIdPersistence(
+    internal sealed class GetCourseOfferingByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetCourseOfferingById
     {
         public async Task<Response?> GetByIdAsync(

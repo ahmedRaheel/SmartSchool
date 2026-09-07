@@ -41,7 +41,7 @@ public static class GetApplicantPage
 
     }
 
-    internal sealed class GetApplicantPagePersistence(
+    internal sealed class GetApplicantPageQuery(
         IDbConnectionFactory connectionFactory) : IGetApplicantPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

@@ -54,7 +54,7 @@ Task<AssignmentSubmissionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAssignmentSubmissionPersistence(ILearningDbContext dbContext) : IUpdateAssignmentSubmission
+    internal sealed class UpdateAssignmentSubmissionCommand(ILearningDbContext dbContext) : IUpdateAssignmentSubmission
     {
         public async Task UpdateAsync(
                 AssignmentSubmissionEntity entity,

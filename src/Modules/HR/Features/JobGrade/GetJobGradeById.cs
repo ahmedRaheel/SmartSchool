@@ -38,7 +38,7 @@ public static class GetJobGradeById
 
     }
 
-    internal sealed class GetJobGradeByIdPersistence(
+    internal sealed class GetJobGradeByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetJobGradeById
     {
         public async Task<Response?> GetByIdAsync(

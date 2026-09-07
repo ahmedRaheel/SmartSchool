@@ -10,7 +10,7 @@ public static class GetLookupValues
     public sealed record Response(long Id, string TypeCode, string Code, string Name, int SortOrder, bool IsTenantScoped, bool CanManage);
     public sealed record Request(string TypeCode, Guid? TenantId = null) : IRequest<IReadOnlyList<Response>>;
     public interface IGetLookupValues { Task<IReadOnlyList<Response>> ExecuteAsync(string typeCode, Guid? tenantId, CancellationToken cancellationToken); }
-    internal sealed class GetLookupValuesPersistence(IDbConnectionFactory connectionFactory) : IGetLookupValues
+    internal sealed class GetLookupValuesQuery(IDbConnectionFactory connectionFactory) : IGetLookupValues
     {
         public async Task<IReadOnlyList<Response>> ExecuteAsync(string typeCode, Guid? tenantId, CancellationToken cancellationToken)
         {

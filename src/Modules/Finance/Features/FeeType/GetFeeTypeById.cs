@@ -38,7 +38,7 @@ public static class GetFeeTypeById
 
     }
 
-    internal sealed class GetFeeTypeByIdPersistence(
+    internal sealed class GetFeeTypeByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetFeeTypeById
     {
         public async Task<Response?> GetByIdAsync(

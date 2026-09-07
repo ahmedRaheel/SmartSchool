@@ -47,7 +47,7 @@ public static class CreatePurchaseOrder
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePurchaseOrderPersistence(IInventoryDbContext dbContext) : ICreatePurchaseOrder
+    internal sealed class CreatePurchaseOrderCommand(IInventoryDbContext dbContext) : ICreatePurchaseOrder
     {
         public async Task AddAsync(
                 PurchaseOrderEntity entity,

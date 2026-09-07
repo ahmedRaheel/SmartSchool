@@ -47,7 +47,7 @@ public static class CreateConversation
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateConversationPersistence(ICommunicationDbContext dbContext) : ICreateConversation
+    internal sealed class CreateConversationCommand(ICommunicationDbContext dbContext) : ICreateConversation
     {
         public async Task AddAsync(
                 ConversationEntity entity,

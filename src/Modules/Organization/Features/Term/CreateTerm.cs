@@ -46,7 +46,7 @@ public static class CreateTerm
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateTermPersistence(IOrganizationDbContext dbContext) : ICreateTerm
+    internal sealed class CreateTermCommand(IOrganizationDbContext dbContext) : ICreateTerm
     {
         public async Task AddAsync(
                 TermEntity entity,

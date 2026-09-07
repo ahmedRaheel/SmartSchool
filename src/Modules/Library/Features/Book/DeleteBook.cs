@@ -33,7 +33,7 @@ public static class DeleteBook
 
     }
 
-    internal sealed class DeleteBookPersistence(ILibraryDbContext dbContext) : IDeleteBook
+    internal sealed class DeleteBookCommand(ILibraryDbContext dbContext) : IDeleteBook
     {
         public async Task DeleteAsync(
                 BookEntity entity,

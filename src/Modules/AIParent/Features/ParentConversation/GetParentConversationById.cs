@@ -38,7 +38,7 @@ public static class GetParentConversationById
 
     }
 
-    internal sealed class GetParentConversationByIdPersistence(
+    internal sealed class GetParentConversationByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetParentConversationById
     {
         public async Task<Response?> GetByIdAsync(

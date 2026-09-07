@@ -41,7 +41,7 @@ public static class GetStopPage
 
     }
 
-    internal sealed class GetStopPagePersistence(
+    internal sealed class GetStopPageQuery(
         IDbConnectionFactory connectionFactory) : IGetStopPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

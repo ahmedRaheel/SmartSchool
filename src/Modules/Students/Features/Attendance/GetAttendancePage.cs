@@ -41,7 +41,7 @@ public static class GetAttendancePage
 
     }
 
-    internal sealed class GetAttendancePagePersistence(
+    internal sealed class GetAttendancePageQuery(
         IDbConnectionFactory connectionFactory) : IGetAttendancePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

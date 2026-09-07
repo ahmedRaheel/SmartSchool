@@ -53,7 +53,7 @@ Task<TimetableEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateTimetablePersistence(IOrganizationDbContext dbContext) : IUpdateTimetable
+    internal sealed class UpdateTimetableCommand(IOrganizationDbContext dbContext) : IUpdateTimetable
     {
         public async Task UpdateAsync(
                 TimetableEntity entity,

@@ -47,7 +47,7 @@ public static class CreatePayslip
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePayslipPersistence(IPayrollDbContext dbContext) : ICreatePayslip
+    internal sealed class CreatePayslipCommand(IPayrollDbContext dbContext) : ICreatePayslip
     {
         public async Task AddAsync(
                 PayslipEntity entity,

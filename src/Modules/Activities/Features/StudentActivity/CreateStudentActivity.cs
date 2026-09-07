@@ -47,7 +47,7 @@ public static class CreateStudentActivity
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentActivityPersistence(IActivitiesDbContext dbContext) : ICreateStudentActivity
+    internal sealed class CreateStudentActivityCommand(IActivitiesDbContext dbContext) : ICreateStudentActivity
     {
         public async Task AddAsync(
                 StudentActivityEntity entity,

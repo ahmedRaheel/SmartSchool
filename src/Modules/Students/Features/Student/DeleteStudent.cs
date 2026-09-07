@@ -30,7 +30,7 @@ public static class DeleteStudent
 
     }
 
-    internal sealed class DeleteStudentPersistence(
+    internal sealed class DeleteStudentCommand(
         IStudentsDbContext dbContext) : IDeleteStudent
     {
         public async Task DeleteAsync(

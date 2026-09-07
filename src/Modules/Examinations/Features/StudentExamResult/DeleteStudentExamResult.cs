@@ -30,7 +30,7 @@ public static class DeleteStudentExamResult
 
     }
 
-    internal sealed class DeleteStudentExamResultPersistence(
+    internal sealed class DeleteStudentExamResultCommand(
         IExaminationsDbContext dbContext) : IDeleteStudentExamResult
     {
         public async Task DeleteAsync(

@@ -49,7 +49,7 @@ public static class CreateGuardian
 
     }
 
-    internal sealed class CreateGuardianPersistence(
+    internal sealed class CreateGuardianCommand(
         IStudentsDbContext dbContext) : ICreateGuardian
     {
         public async Task AddAsync(

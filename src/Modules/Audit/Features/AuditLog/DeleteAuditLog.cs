@@ -33,7 +33,7 @@ public static class DeleteAuditLog
 
     }
 
-    internal sealed class DeleteAuditLogPersistence(IAuditDbContext dbContext) : IDeleteAuditLog
+    internal sealed class DeleteAuditLogCommand(IAuditDbContext dbContext) : IDeleteAuditLog
     {
         public async Task DeleteAsync(
                 AuditLogEntity entity,

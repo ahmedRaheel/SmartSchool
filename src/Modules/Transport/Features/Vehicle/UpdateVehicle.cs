@@ -54,7 +54,7 @@ Task<VehicleEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateVehiclePersistence(ITransportDbContext dbContext) : IUpdateVehicle
+    internal sealed class UpdateVehicleCommand(ITransportDbContext dbContext) : IUpdateVehicle
     {
         public async Task UpdateAsync(
                 VehicleEntity entity,

@@ -47,7 +47,7 @@ public static class CreateStudentPerformancePrediction
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateStudentPerformancePredictionPersistence(
+    internal sealed class CreateStudentPerformancePredictionCommand(
         IAIPredictionDbContext dbContext) : ICreateStudentPerformancePrediction
     {
         public async Task AddAsync(

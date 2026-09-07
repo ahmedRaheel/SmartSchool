@@ -38,7 +38,7 @@ public static class GetParentMessageById
 
     }
 
-    internal sealed class GetParentMessageByIdPersistence(
+    internal sealed class GetParentMessageByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetParentMessageById
     {
         public async Task<Response?> GetByIdAsync(

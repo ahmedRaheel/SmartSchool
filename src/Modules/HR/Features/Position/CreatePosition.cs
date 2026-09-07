@@ -47,7 +47,7 @@ public static class CreatePosition
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePositionPersistence(IHRDbContext dbContext) : ICreatePosition
+    internal sealed class CreatePositionCommand(IHRDbContext dbContext) : ICreatePosition
     {
         public async Task AddAsync(
                 PositionEntity entity,

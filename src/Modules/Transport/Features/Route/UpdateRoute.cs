@@ -54,7 +54,7 @@ Task<RouteEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateRoutePersistence(ITransportDbContext dbContext) : IUpdateRoute
+    internal sealed class UpdateRouteCommand(ITransportDbContext dbContext) : IUpdateRoute
     {
         public async Task UpdateAsync(
                 RouteEntity entity,

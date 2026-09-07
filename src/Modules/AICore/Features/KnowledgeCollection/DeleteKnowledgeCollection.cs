@@ -33,7 +33,7 @@ public static class DeleteKnowledgeCollection
 
     }
 
-    internal sealed class DeleteKnowledgeCollectionPersistence(IAICoreDbContext dbContext) : IDeleteKnowledgeCollection
+    internal sealed class DeleteKnowledgeCollectionCommand(IAICoreDbContext dbContext) : IDeleteKnowledgeCollection
     {
         public async Task DeleteAsync(
                 KnowledgeCollectionEntity entity,

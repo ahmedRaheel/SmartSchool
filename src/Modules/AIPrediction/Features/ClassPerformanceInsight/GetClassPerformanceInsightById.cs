@@ -38,7 +38,7 @@ public static class GetClassPerformanceInsightById
 
     }
 
-    internal sealed class GetClassPerformanceInsightByIdPersistence(
+    internal sealed class GetClassPerformanceInsightByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetClassPerformanceInsightById
     {
         public async Task<Response?> GetByIdAsync(

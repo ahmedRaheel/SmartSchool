@@ -47,7 +47,7 @@ public static class CreateEmploymentHistory
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateEmploymentHistoryPersistence(IHRDbContext dbContext) : ICreateEmploymentHistory
+    internal sealed class CreateEmploymentHistoryCommand(IHRDbContext dbContext) : ICreateEmploymentHistory
     {
         public async Task AddAsync(
                 EmploymentHistoryEntity entity,

@@ -48,7 +48,7 @@ public static class CreateLeadCapture
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLeadCapturePersistence(IAIInquiryDbContext dbContext) : ICreateLeadCapture
+    internal sealed class CreateLeadCaptureCommand(IAIInquiryDbContext dbContext) : ICreateLeadCapture
     {
         public async Task AddAsync(
                 LeadCaptureEntity entity,

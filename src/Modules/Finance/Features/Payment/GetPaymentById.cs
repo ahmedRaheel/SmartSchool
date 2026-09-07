@@ -38,7 +38,7 @@ public static class GetPaymentById
 
     }
 
-    internal sealed class GetPaymentByIdPersistence(
+    internal sealed class GetPaymentByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPaymentById
     {
         public async Task<Response?> GetByIdAsync(

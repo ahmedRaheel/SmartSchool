@@ -33,7 +33,7 @@ public static class DeleteLeadCapture
 
     }
 
-    internal sealed class DeleteLeadCapturePersistence(IAIInquiryDbContext dbContext) : IDeleteLeadCapture
+    internal sealed class DeleteLeadCaptureCommand(IAIInquiryDbContext dbContext) : IDeleteLeadCapture
     {
         public async Task DeleteAsync(
                 LeadCaptureEntity entity,

@@ -54,7 +54,7 @@ Task<BookEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateBookPersistence(ILibraryDbContext dbContext) : IUpdateBook
+    internal sealed class UpdateBookCommand(ILibraryDbContext dbContext) : IUpdateBook
     {
         public async Task UpdateAsync(
                 BookEntity entity,

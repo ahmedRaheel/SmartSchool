@@ -47,7 +47,7 @@ public static class CreateAdmissionDecision
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAdmissionDecisionPersistence(IAdmissionsDbContext dbContext) : ICreateAdmissionDecision
+    internal sealed class CreateAdmissionDecisionCommand(IAdmissionsDbContext dbContext) : ICreateAdmissionDecision
     {
         public async Task AddAsync(
                 AdmissionDecisionEntity entity,

@@ -29,7 +29,7 @@ public static class MarkNotificationAsRead
 
     }
 
-    internal sealed class MarkNotificationAsReadPersistence(
+    internal sealed class MarkNotificationAsReadCommand(
         ICommunicationDbContext dbContext) : IMarkNotificationAsRead
     {
         public Task<NotificationEntity?> GetByIdAsync(

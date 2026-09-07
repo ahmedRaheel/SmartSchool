@@ -54,7 +54,7 @@ Task<AwardEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAwardPersistence(IActivitiesDbContext dbContext) : IUpdateAward
+    internal sealed class UpdateAwardCommand(IActivitiesDbContext dbContext) : IUpdateAward
     {
         public async Task UpdateAsync(
                 AwardEntity entity,

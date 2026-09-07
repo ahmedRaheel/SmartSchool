@@ -54,7 +54,7 @@ Task<BookCopyEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateBookCopyPersistence(ILibraryDbContext dbContext) : IUpdateBookCopy
+    internal sealed class UpdateBookCopyCommand(ILibraryDbContext dbContext) : IUpdateBookCopy
     {
         public async Task UpdateAsync(
                 BookCopyEntity entity,

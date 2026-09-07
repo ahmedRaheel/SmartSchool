@@ -38,7 +38,7 @@ public static class GetAttendanceById
 
     }
 
-    internal sealed class GetAttendanceByIdPersistence(
+    internal sealed class GetAttendanceByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetAttendanceById
     {
         public async Task<Response?> GetByIdAsync(

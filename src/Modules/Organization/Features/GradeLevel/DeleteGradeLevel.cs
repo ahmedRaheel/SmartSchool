@@ -32,7 +32,7 @@ public static class DeleteGradeLevel
 
     }
 
-    internal sealed class DeleteGradeLevelPersistence(IOrganizationDbContext dbContext) : IDeleteGradeLevel
+    internal sealed class DeleteGradeLevelCommand(IOrganizationDbContext dbContext) : IDeleteGradeLevel
     {
         public async Task DeleteAsync(
                 GradeLevelEntity entity,

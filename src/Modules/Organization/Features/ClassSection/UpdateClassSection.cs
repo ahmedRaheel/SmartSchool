@@ -53,7 +53,7 @@ Task<ClassSectionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateClassSectionPersistence(IOrganizationDbContext dbContext) : IUpdateClassSection
+    internal sealed class UpdateClassSectionCommand(IOrganizationDbContext dbContext) : IUpdateClassSection
     {
         public async Task UpdateAsync(
                 ClassSectionEntity entity,

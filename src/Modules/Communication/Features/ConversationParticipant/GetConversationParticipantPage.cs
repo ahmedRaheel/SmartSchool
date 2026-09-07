@@ -41,7 +41,7 @@ public static class GetConversationParticipantPage
 
     }
 
-    internal sealed class GetConversationParticipantPagePersistence(
+    internal sealed class GetConversationParticipantPageQuery(
         IDbConnectionFactory connectionFactory) : IGetConversationParticipantPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

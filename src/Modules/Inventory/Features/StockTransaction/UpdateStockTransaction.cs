@@ -54,7 +54,7 @@ Task<StockTransactionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateStockTransactionPersistence(IInventoryDbContext dbContext) : IUpdateStockTransaction
+    internal sealed class UpdateStockTransactionCommand(IInventoryDbContext dbContext) : IUpdateStockTransaction
     {
         public async Task UpdateAsync(
                 StockTransactionEntity entity,

@@ -53,7 +53,7 @@ Task<TermEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateTermPersistence(IOrganizationDbContext dbContext) : IUpdateTerm
+    internal sealed class UpdateTermCommand(IOrganizationDbContext dbContext) : IUpdateTerm
     {
         public async Task UpdateAsync(
                 TermEntity entity,

@@ -23,7 +23,7 @@ public static class PredictionSuiteEndpoints
             Guid? studentId = null, Guid? subjectId = null, Guid? relatedEntityId = null);
     }
 
-    internal sealed class PredictionResultPersistence(IAIPredictionDbContext dbContext) : IPredictionResultPersistence
+    internal sealed class PredictionSuiteEndpointsCommand(IAIPredictionDbContext dbContext) : IPredictionResultPersistence
     {
         public async Task AddAsync(Guid tenantId, PredictionResult result, CancellationToken cancellationToken,
             Guid? studentId = null, Guid? subjectId = null, Guid? relatedEntityId = null)

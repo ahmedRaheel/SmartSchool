@@ -47,7 +47,7 @@ public static class CreateApproval
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateApprovalPersistence(IWorkflowDbContext dbContext) : ICreateApproval
+    internal sealed class CreateApprovalCommand(IWorkflowDbContext dbContext) : ICreateApproval
     {
         public async Task AddAsync(
                 ApprovalEntity entity,

@@ -47,7 +47,7 @@ public static class CreateCertificate
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateCertificatePersistence(IDocumentsDbContext dbContext) : ICreateCertificate
+    internal sealed class CreateCertificateCommand(IDocumentsDbContext dbContext) : ICreateCertificate
     {
         public async Task AddAsync(
                 CertificateEntity entity,

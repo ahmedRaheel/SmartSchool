@@ -54,7 +54,7 @@ Task<PurchaseOrderEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePurchaseOrderPersistence(IInventoryDbContext dbContext) : IUpdatePurchaseOrder
+    internal sealed class UpdatePurchaseOrderCommand(IInventoryDbContext dbContext) : IUpdatePurchaseOrder
     {
         public async Task UpdateAsync(
                 PurchaseOrderEntity entity,

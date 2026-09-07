@@ -66,7 +66,7 @@ public static class CreateNotification
 
     }
 
-    internal sealed class CreateNotificationPersistence(
+    internal sealed class CreateNotificationCommand(
         ICommunicationDbContext dbContext) : ICreateNotification
     {
         public async Task AddAsync(

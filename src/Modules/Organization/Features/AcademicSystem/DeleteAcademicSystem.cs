@@ -32,7 +32,7 @@ public static class DeleteAcademicSystem
 
     }
 
-    internal sealed class DeleteAcademicSystemPersistence(IOrganizationDbContext dbContext) : IDeleteAcademicSystem
+    internal sealed class DeleteAcademicSystemCommand(IOrganizationDbContext dbContext) : IDeleteAcademicSystem
     {
         public async Task DeleteAsync(
                 AcademicSystemEntity entity,

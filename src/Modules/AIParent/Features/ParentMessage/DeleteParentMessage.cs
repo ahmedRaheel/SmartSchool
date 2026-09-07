@@ -33,7 +33,7 @@ public static class DeleteParentMessage
 
     }
 
-    internal sealed class DeleteParentMessagePersistence(IAIParentDbContext dbContext) : IDeleteParentMessage
+    internal sealed class DeleteParentMessageCommand(IAIParentDbContext dbContext) : IDeleteParentMessage
     {
         public async Task DeleteAsync(
                 ParentMessageEntity entity,

@@ -47,7 +47,7 @@ public static class CreateAssignmentSubmission
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateAssignmentSubmissionPersistence(ILearningDbContext dbContext) : ICreateAssignmentSubmission
+    internal sealed class CreateAssignmentSubmissionCommand(ILearningDbContext dbContext) : ICreateAssignmentSubmission
     {
         public async Task AddAsync(
                 AssignmentSubmissionEntity entity,

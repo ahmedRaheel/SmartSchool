@@ -33,7 +33,7 @@ public static class DeleteHumanHandoff
 
     }
 
-    internal sealed class DeleteHumanHandoffPersistence(IAIInquiryDbContext dbContext) : IDeleteHumanHandoff
+    internal sealed class DeleteHumanHandoffCommand(IAIInquiryDbContext dbContext) : IDeleteHumanHandoff
     {
         public async Task DeleteAsync(
                 HumanHandoffEntity entity,

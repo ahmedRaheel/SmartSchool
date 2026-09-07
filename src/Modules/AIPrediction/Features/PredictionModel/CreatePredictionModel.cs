@@ -47,7 +47,7 @@ public static class CreatePredictionModel
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreatePredictionModelPersistence(IAIPredictionDbContext dbContext) : ICreatePredictionModel
+    internal sealed class CreatePredictionModelCommand(IAIPredictionDbContext dbContext) : ICreatePredictionModel
     {
         public async Task AddAsync(
                 PredictionModelEntity entity,

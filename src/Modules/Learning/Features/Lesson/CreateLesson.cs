@@ -47,7 +47,7 @@ public static class CreateLesson
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateLessonPersistence(ILearningDbContext dbContext) : ICreateLesson
+    internal sealed class CreateLessonCommand(ILearningDbContext dbContext) : ICreateLesson
     {
         public async Task AddAsync(
                 LessonEntity entity,

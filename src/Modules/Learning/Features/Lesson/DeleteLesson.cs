@@ -33,7 +33,7 @@ public static class DeleteLesson
 
     }
 
-    internal sealed class DeleteLessonPersistence(ILearningDbContext dbContext) : IDeleteLesson
+    internal sealed class DeleteLessonCommand(ILearningDbContext dbContext) : IDeleteLesson
     {
         public async Task DeleteAsync(
                 LessonEntity entity,

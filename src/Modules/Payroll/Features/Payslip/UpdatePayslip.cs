@@ -54,7 +54,7 @@ Task<PayslipEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePayslipPersistence(IPayrollDbContext dbContext) : IUpdatePayslip
+    internal sealed class UpdatePayslipCommand(IPayrollDbContext dbContext) : IUpdatePayslip
     {
         public async Task UpdateAsync(
                 PayslipEntity entity,

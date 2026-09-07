@@ -48,7 +48,7 @@ public static class CreateModelConfiguration
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateModelConfigurationPersistence(IAICoreDbContext dbContext) : ICreateModelConfiguration
+    internal sealed class CreateModelConfigurationCommand(IAICoreDbContext dbContext) : ICreateModelConfiguration
     {
         public async Task AddAsync(
                 ModelConfigurationEntity entity,

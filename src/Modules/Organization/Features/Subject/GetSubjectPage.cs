@@ -41,7 +41,7 @@ public static class GetSubjectPage
 
     }
 
-    internal sealed class GetSubjectPagePersistence(
+    internal sealed class GetSubjectPageQuery(
         IDbConnectionFactory connectionFactory) : IGetSubjectPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

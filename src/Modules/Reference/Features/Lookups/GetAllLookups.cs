@@ -12,7 +12,7 @@ public static class GetAllLookups
     public sealed record Request : IRequest<IReadOnlyList<Response>>;
 
     public interface IGetAllLookups { Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken); }
-    internal sealed class GetAllLookupsPersistence(IDbConnectionFactory connectionFactory) : IGetAllLookups
+    internal sealed class GetAllLookupsQuery(IDbConnectionFactory connectionFactory) : IGetAllLookups
     {
         public async Task<IReadOnlyList<Response>> ExecuteAsync(CancellationToken cancellationToken)
         {

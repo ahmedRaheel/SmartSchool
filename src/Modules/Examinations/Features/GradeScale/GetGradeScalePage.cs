@@ -41,7 +41,7 @@ public static class GetGradeScalePage
 
     }
 
-    internal sealed class GetGradeScalePagePersistence(
+    internal sealed class GetGradeScalePageQuery(
         IDbConnectionFactory connectionFactory) : IGetGradeScalePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

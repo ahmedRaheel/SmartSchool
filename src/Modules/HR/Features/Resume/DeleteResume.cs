@@ -33,7 +33,7 @@ public static class DeleteResume
 
     }
 
-    internal sealed class DeleteResumePersistence(IHRDbContext dbContext) : IDeleteResume
+    internal sealed class DeleteResumeCommand(IHRDbContext dbContext) : IDeleteResume
     {
         public async Task DeleteAsync(
                 ResumeEntity entity,

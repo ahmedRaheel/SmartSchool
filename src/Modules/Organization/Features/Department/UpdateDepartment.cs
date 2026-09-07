@@ -60,7 +60,7 @@ Task<DepartmentEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateDepartmentPersistence(IOrganizationDbContext dbContext) : IUpdateDepartment
+    internal sealed class UpdateDepartmentCommand(IOrganizationDbContext dbContext) : IUpdateDepartment
     {
         public async Task UpdateAsync(
                 DepartmentEntity entity,

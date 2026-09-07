@@ -54,7 +54,7 @@ Task<GeneratedDocumentEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateGeneratedDocumentPersistence(IDocumentsDbContext dbContext) : IUpdateGeneratedDocument
+    internal sealed class UpdateGeneratedDocumentCommand(IDocumentsDbContext dbContext) : IUpdateGeneratedDocument
     {
         public async Task UpdateAsync(
                 GeneratedDocumentEntity entity,

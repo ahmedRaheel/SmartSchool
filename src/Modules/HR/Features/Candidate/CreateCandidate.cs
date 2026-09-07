@@ -47,7 +47,7 @@ public static class CreateCandidate
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateCandidatePersistence(IHRDbContext dbContext) : ICreateCandidate
+    internal sealed class CreateCandidateCommand(IHRDbContext dbContext) : ICreateCandidate
     {
         public async Task AddAsync(
                 CandidateEntity entity,

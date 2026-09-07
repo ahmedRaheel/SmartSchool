@@ -33,7 +33,7 @@ public static class DeleteEmployeeCompensation
 
     }
 
-    internal sealed class DeleteEmployeeCompensationPersistence(IPayrollDbContext dbContext) : IDeleteEmployeeCompensation
+    internal sealed class DeleteEmployeeCompensationCommand(IPayrollDbContext dbContext) : IDeleteEmployeeCompensation
     {
         public async Task DeleteAsync(
                 EmployeeCompensationEntity entity,

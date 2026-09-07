@@ -33,7 +33,7 @@ public static class DeleteExam
 
     }
 
-    internal sealed class DeleteExamPersistence(IExaminationsDbContext dbContext) : IDeleteExam
+    internal sealed class DeleteExamCommand(IExaminationsDbContext dbContext) : IDeleteExam
     {
         public async Task DeleteAsync(
                 ExamEntity entity,

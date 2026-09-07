@@ -38,7 +38,7 @@ public static class GetKnowledgeCollectionById
 
     }
 
-    internal sealed class GetKnowledgeCollectionByIdPersistence(
+    internal sealed class GetKnowledgeCollectionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetKnowledgeCollectionById
     {
         public async Task<Response?> GetByIdAsync(

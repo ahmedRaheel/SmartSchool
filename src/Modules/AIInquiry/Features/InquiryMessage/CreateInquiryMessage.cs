@@ -48,7 +48,7 @@ public static class CreateInquiryMessage
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateInquiryMessagePersistence(IAIInquiryDbContext dbContext) : ICreateInquiryMessage
+    internal sealed class CreateInquiryMessageCommand(IAIInquiryDbContext dbContext) : ICreateInquiryMessage
     {
         public async Task AddAsync(
                 InquiryMessageEntity entity,

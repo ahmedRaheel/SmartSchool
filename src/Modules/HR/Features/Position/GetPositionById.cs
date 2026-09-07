@@ -38,7 +38,7 @@ public static class GetPositionById
 
     }
 
-    internal sealed class GetPositionByIdPersistence(
+    internal sealed class GetPositionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPositionById
     {
         public async Task<Response?> GetByIdAsync(

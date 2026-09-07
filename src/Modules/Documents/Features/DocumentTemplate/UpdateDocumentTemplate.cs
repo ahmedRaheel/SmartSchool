@@ -54,7 +54,7 @@ Task<DocumentTemplateEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateDocumentTemplatePersistence(IDocumentsDbContext dbContext) : IUpdateDocumentTemplate
+    internal sealed class UpdateDocumentTemplateCommand(IDocumentsDbContext dbContext) : IUpdateDocumentTemplate
     {
         public async Task UpdateAsync(
                 DocumentTemplateEntity entity,

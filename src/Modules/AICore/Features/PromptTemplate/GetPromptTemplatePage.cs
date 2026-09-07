@@ -41,7 +41,7 @@ public static class GetPromptTemplatePage
 
     }
 
-    internal sealed class GetPromptTemplatePagePersistence(
+    internal sealed class GetPromptTemplatePageQuery(
         IDbConnectionFactory connectionFactory) : IGetPromptTemplatePage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

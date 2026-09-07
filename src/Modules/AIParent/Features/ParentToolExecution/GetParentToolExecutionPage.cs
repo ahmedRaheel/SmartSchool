@@ -41,7 +41,7 @@ public static class GetParentToolExecutionPage
 
     }
 
-    internal sealed class GetParentToolExecutionPagePersistence(
+    internal sealed class GetParentToolExecutionPageQuery(
         IDbConnectionFactory connectionFactory) : IGetParentToolExecutionPage
     {
         public async Task<PagedResult<Response>> GetPageAsync(

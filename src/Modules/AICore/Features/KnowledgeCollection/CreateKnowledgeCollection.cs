@@ -48,7 +48,7 @@ public static class CreateKnowledgeCollection
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateKnowledgeCollectionPersistence(IAICoreDbContext dbContext) : ICreateKnowledgeCollection
+    internal sealed class CreateKnowledgeCollectionCommand(IAICoreDbContext dbContext) : ICreateKnowledgeCollection
     {
         public async Task AddAsync(
                 KnowledgeCollectionEntity entity,

@@ -54,7 +54,7 @@ Task<PredictionModelEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdatePredictionModelPersistence(IAIPredictionDbContext dbContext) : IUpdatePredictionModel
+    internal sealed class UpdatePredictionModelCommand(IAIPredictionDbContext dbContext) : IUpdatePredictionModel
     {
         public async Task UpdateAsync(
                 PredictionModelEntity entity,

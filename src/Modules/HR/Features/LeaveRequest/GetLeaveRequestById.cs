@@ -38,7 +38,7 @@ public static class GetLeaveRequestById
 
     }
 
-    internal sealed class GetLeaveRequestByIdPersistence(
+    internal sealed class GetLeaveRequestByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetLeaveRequestById
     {
         public async Task<Response?> GetByIdAsync(

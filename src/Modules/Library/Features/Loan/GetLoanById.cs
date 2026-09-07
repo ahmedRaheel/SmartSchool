@@ -38,7 +38,7 @@ public static class GetLoanById
 
     }
 
-    internal sealed class GetLoanByIdPersistence(
+    internal sealed class GetLoanByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetLoanById
     {
         public async Task<Response?> GetByIdAsync(

@@ -54,7 +54,7 @@ Task<AdmissionDecisionEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateAdmissionDecisionPersistence(IAdmissionsDbContext dbContext) : IUpdateAdmissionDecision
+    internal sealed class UpdateAdmissionDecisionCommand(IAdmissionsDbContext dbContext) : IUpdateAdmissionDecision
     {
         public async Task UpdateAsync(
                 AdmissionDecisionEntity entity,

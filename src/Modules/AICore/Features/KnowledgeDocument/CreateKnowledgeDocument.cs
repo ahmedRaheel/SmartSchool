@@ -48,7 +48,7 @@ public static class CreateKnowledgeDocument
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateKnowledgeDocumentPersistence(IAICoreDbContext dbContext) : ICreateKnowledgeDocument
+    internal sealed class CreateKnowledgeDocumentCommand(IAICoreDbContext dbContext) : ICreateKnowledgeDocument
     {
         public async Task AddAsync(
                 KnowledgeDocumentEntity entity,

@@ -47,7 +47,7 @@ public static class CreateResume
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateResumePersistence(IHRDbContext dbContext) : ICreateResume
+    internal sealed class CreateResumeCommand(IHRDbContext dbContext) : ICreateResume
     {
         public async Task AddAsync(
                 ResumeEntity entity,

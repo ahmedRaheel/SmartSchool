@@ -38,7 +38,7 @@ public static class GetStudentActivityById
 
     }
 
-    internal sealed class GetStudentActivityByIdPersistence(
+    internal sealed class GetStudentActivityByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetStudentActivityById
     {
         public async Task<Response?> GetByIdAsync(

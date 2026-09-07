@@ -59,7 +59,7 @@ Task<FeeTypeEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateFeeTypePersistence(IFinanceDbContext dbContext) : IUpdateFeeType
+    internal sealed class UpdateFeeTypeCommand(IFinanceDbContext dbContext) : IUpdateFeeType
     {
         public async Task UpdateAsync(
                 FeeTypeEntity entity,

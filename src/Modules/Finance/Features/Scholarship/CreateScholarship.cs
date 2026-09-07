@@ -47,7 +47,7 @@ public static class CreateScholarship
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateScholarshipPersistence(IFinanceDbContext dbContext) : ICreateScholarship
+    internal sealed class CreateScholarshipCommand(IFinanceDbContext dbContext) : ICreateScholarship
     {
         public async Task AddAsync(
                 ScholarshipEntity entity,

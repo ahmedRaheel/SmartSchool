@@ -32,7 +32,7 @@ public static class DeleteProgram
 
     }
 
-    internal sealed class DeleteProgramPersistence(IOrganizationDbContext dbContext) : IDeleteProgram
+    internal sealed class DeleteProgramCommand(IOrganizationDbContext dbContext) : IDeleteProgram
     {
         public async Task DeleteAsync(
                 ProgramEntity entity,

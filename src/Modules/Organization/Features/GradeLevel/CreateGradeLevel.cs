@@ -50,7 +50,7 @@ public static class CreateGradeLevel
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateGradeLevelPersistence(IOrganizationDbContext dbContext) : ICreateGradeLevel
+    internal sealed class CreateGradeLevelCommand(IOrganizationDbContext dbContext) : ICreateGradeLevel
     {
         public async Task AddAsync(
                 GradeLevelEntity entity,

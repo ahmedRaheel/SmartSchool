@@ -54,7 +54,7 @@ Task<InquiryEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateInquiryPersistence(IAdmissionsDbContext dbContext) : IUpdateInquiry
+    internal sealed class UpdateInquiryCommand(IAdmissionsDbContext dbContext) : IUpdateInquiry
     {
         public async Task UpdateAsync(
                 InquiryEntity entity,

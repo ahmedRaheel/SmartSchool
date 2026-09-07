@@ -38,7 +38,7 @@ public static class GetStudentTransportById
 
     }
 
-    internal sealed class GetStudentTransportByIdPersistence(
+    internal sealed class GetStudentTransportByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetStudentTransportById
     {
         public async Task<Response?> GetByIdAsync(

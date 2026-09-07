@@ -47,7 +47,7 @@ public static class CreateParentMessage
                 CancellationToken cancellationToken);
 }
 
-    internal sealed class CreateParentMessagePersistence(IAIParentDbContext dbContext) : ICreateParentMessage
+    internal sealed class CreateParentMessageCommand(IAIParentDbContext dbContext) : ICreateParentMessage
     {
         public async Task AddAsync(
                 ParentMessageEntity entity,

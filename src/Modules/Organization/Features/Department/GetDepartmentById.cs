@@ -40,7 +40,7 @@ public static class GetDepartmentById
 
     }
 
-    internal sealed class GetDepartmentByIdPersistence(
+    internal sealed class GetDepartmentByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetDepartmentById
     {
         public async Task<Response?> GetByIdAsync(

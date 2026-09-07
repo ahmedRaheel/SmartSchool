@@ -38,7 +38,7 @@ public static class GetAssignmentSubmissionById
 
     }
 
-    internal sealed class GetAssignmentSubmissionByIdPersistence(
+    internal sealed class GetAssignmentSubmissionByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetAssignmentSubmissionById
     {
         public async Task<Response?> GetByIdAsync(

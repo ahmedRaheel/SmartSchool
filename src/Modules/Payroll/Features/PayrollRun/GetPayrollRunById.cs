@@ -38,7 +38,7 @@ public static class GetPayrollRunById
 
     }
 
-    internal sealed class GetPayrollRunByIdPersistence(
+    internal sealed class GetPayrollRunByIdQuery(
         IDbConnectionFactory connectionFactory) : IGetPayrollRunById
     {
         public async Task<Response?> GetByIdAsync(

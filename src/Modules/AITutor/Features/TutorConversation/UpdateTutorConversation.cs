@@ -54,7 +54,7 @@ Task<TutorConversationEntity?> GetByIdAsync(
 
     }
 
-    internal sealed class UpdateTutorConversationPersistence(IAITutorDbContext dbContext) : IUpdateTutorConversation
+    internal sealed class UpdateTutorConversationCommand(IAITutorDbContext dbContext) : IUpdateTutorConversation
     {
         public async Task UpdateAsync(
                 TutorConversationEntity entity,

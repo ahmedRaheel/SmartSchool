@@ -33,7 +33,7 @@ public static class DeleteInvoice
 
     }
 
-    internal sealed class DeleteInvoicePersistence(IFinanceDbContext dbContext) : IDeleteInvoice
+    internal sealed class DeleteInvoiceCommand(IFinanceDbContext dbContext) : IDeleteInvoice
     {
         public async Task DeleteAsync(
                 InvoiceEntity entity,
