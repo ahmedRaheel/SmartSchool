@@ -126,7 +126,7 @@ public sealed class AiContextService(
                 request.TenantId,
                 request.Collections,
                 Vector = VectorLiteral(embedding),
-                TopK = options.CurrentValue.TopK
+                topK = options.CurrentValue.TopK
             },
             cancellationToken: cancellationToken))).ToArray();
 

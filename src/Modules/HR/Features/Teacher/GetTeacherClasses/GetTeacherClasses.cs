@@ -14,7 +14,7 @@ public static class GetTeacherClasses
 
     private static async Task<IResult> HandleAsync(Guid employeeId, Guid? tenantId, ITenantScope tenantScope, IDbConnectionFactory connectionFactory, CancellationToken cancellationToken)
     {
-        var resolvedTenantId = (tenantScope.IsSuperAdmin ? tenantId : tenantScope.Resolve(tenantId));
+        var resolvedTenantId = tenantScope.IsSuperAdmin ? tenantId : tenantScope.Resolve(tenantId);
         if (!resolvedTenantId.HasValue)
         {
             return Results.BadRequest(new { message = "Tenant is required." });

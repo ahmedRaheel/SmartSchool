@@ -9,15 +9,10 @@ public interface IFinanceDbContext
     DatabaseFacade Database { get; }
 
     DbSet<DiscountEntity> Discounts { get; }
-    DbSet<EmployeeCompensationEntity> EmployeeCompensations { get; }
     DbSet<FeeStructureEntity> FeeStructures { get; }
     DbSet<FeeTypeEntity> FeeTypes { get; }
-    DbSet<IncrementEntity> Increments { get; }
     DbSet<InvoiceEntity> Invoices { get; }
     DbSet<PaymentEntity> Payments { get; }
-    DbSet<PayrollRunEntity> PayrollRuns { get; }
-    DbSet<PayslipEntity> Payslips { get; }
-    DbSet<SalaryStructureEntity> SalaryStructures { get; }
     DbSet<ScholarshipEntity> Scholarships { get; }
     DbSet<StudentFeeEntity> StudentFees { get; }
 
@@ -32,15 +27,10 @@ public sealed class FinanceDbContext(DbContextOptions<FinanceDbContext> options)
     : DbContext(options), IFinanceDbContext
 {
     public DbSet<DiscountEntity> Discounts => Set<DiscountEntity>();
-    public DbSet<EmployeeCompensationEntity> EmployeeCompensations => Set<EmployeeCompensationEntity>();
     public DbSet<FeeStructureEntity> FeeStructures => Set<FeeStructureEntity>();
     public DbSet<FeeTypeEntity> FeeTypes => Set<FeeTypeEntity>();
-    public DbSet<IncrementEntity> Increments => Set<IncrementEntity>();
     public DbSet<InvoiceEntity> Invoices => Set<InvoiceEntity>();
     public DbSet<PaymentEntity> Payments => Set<PaymentEntity>();
-    public DbSet<PayrollRunEntity> PayrollRuns => Set<PayrollRunEntity>();
-    public DbSet<PayslipEntity> Payslips => Set<PayslipEntity>();
-    public DbSet<SalaryStructureEntity> SalaryStructures => Set<SalaryStructureEntity>();
     public DbSet<ScholarshipEntity> Scholarships => Set<ScholarshipEntity>();
     public DbSet<StudentFeeEntity> StudentFees => Set<StudentFeeEntity>();
 

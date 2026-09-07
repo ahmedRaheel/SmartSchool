@@ -40,22 +40,56 @@ public static class OperationalTutorEndpoints
         var c=TutorConversationEntity.Create(t.Value,$"CONV-{Guid.NewGuid():N}",$"{r.Subject} tutoring",JsonSerializer.Serialize(new{sessionId=s.TutorSessionId,r.StudentId,r.Subject,r.Topic}));await conversations.AddAsync(c,ct);
         return Results.Created($"/api/aitutor/tutor-session/{s.TutorSessionId}",new{sessionId=s.TutorSessionId,conversationId=c.TutorConversationId});
     }
-    private static async Task<IResult> Ask(AskRequest r,ITenantScope scope,OperationalTutorEndpointsTutorMessageCommand messages,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
+    private static async Task<IResult> Ask(AskRequest r, ITenantScope scope, OperationalTutorEndpointsTutorMessageCommand messages, IOllamaClient ollama, IIntegrationEventPublisher events, CancellationToken ct)
     {
-        var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
-        var u=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}",SmartSchoolRoles.Student,JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="user",content=r.Message,r.Subject,r.Topic}));await messages.AddAsync(u,ct);
-        var prompt=$"""
+        var t = Tenant(scope, r.TenantId);
+        if (!t.HasValue)
+        {
+            return Results.BadRequest(new
+            {
+                message = "Tenant required."
+            });
+        }
+
+        var u = TutorMessageEntity.Create(t.Value, $"TMSG-{Guid.NewGuid():N}", SmartSchoolRoles.Student, JsonSerializer.Serialize(new
+        {
+            r.SessionId,
+            r.StudentId,
+            role = "user",
+            content = r.Message,
+            r.Subject,
+            r.Topic
+        }));
+        await messages.AddAsync(u, ct);
+        var prompt = $"""
             You are SmartSchool AI Tutor. Student subject: {r.Subject}. Topic: {r.Topic}.
 
 Teach using hints, explanation and formative questions. Do not fabricate school-specific facts. Do not reveal another student's data.
 For assessed work, coach rather than blindly completing it.
 Student: {r.Message}
 """;
-        var generated=await ollama.GenerateAsync(prompt,ct);
-        var answer=generated.Answer;
-        var a=TutorMessageEntity.Create(t.Value,$"TMSG-{Guid.NewGuid():N}","AI Tutor",JsonSerializer.Serialize(new{r.SessionId,r.StudentId,role="assistant",content=answer}));await messages.AddAsync(a,ct);
-        await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked,new{tenantId=t.Value,bot="student-tutor",r.StudentId,r.SessionId},ct);
-        return Results.Ok(new{messageId=a.TutorMessageId,answer,model=generated.Model});
+        var (answer, model) = await ollama.GenerateAsync(prompt, ct);
+        var a = TutorMessageEntity.Create(t.Value, $"TMSG-{Guid.NewGuid():N}", "AI Tutor", JsonSerializer.Serialize(new
+        {
+            r.SessionId,
+            r.StudentId,
+            role = "assistant",
+            content = answer
+        }));
+        await messages.AddAsync(a, ct);
+        await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked, new
+        {
+            tenantId = t.Value,
+            bot = "student-tutor",
+            r.StudentId,
+            r.SessionId
+        }, ct);
+        return Results.Ok(new
+        {
+            messageId = a.TutorMessageId,
+            answer,
+            model
+        });
     }
     private static async Task<IResult> Quiz(QuizRequest r,ITenantScope scope,OperationalTutorEndpointsGeneratedQuizCommand quizzes,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
     {
@@ -75,8 +109,7 @@ Return ONLY valid JSON array. Each object: question, options (4 strings), correc
     {
         var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
         var prompt=$"Create a concise learning plan for {r.Subject}/{r.Topic}. Current mastery is {r.MasteryScore:P0}. Include next concept, practice type, revision frequency and success criterion.";
-        var generated=await ollama.GenerateAsync(prompt,ct);
-        var answer=generated.Answer;
+        var (answer, _) = await ollama.GenerateAsync(prompt,ct);
         var e=LearningRecommendationEntity.Create(t.Value,$"REC-{Guid.NewGuid():N}",$"{r.Subject} recommendation",JsonSerializer.Serialize(new{r.StudentId,r.Subject,r.Topic,r.MasteryScore,recommendation=answer}));
         await recommendations.AddAsync(e,ct);return Results.Ok(new{recommendationId=e.LearningRecommendationId,recommendation=answer});
     }

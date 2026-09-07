@@ -35,8 +35,7 @@ public static class Module
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<AgentWorkflowServiceAiExecutionLogCommand>();
-        services.AddScoped<OperationalAiCoreEndpointsAiExecutionLogCommand>();
-        services.AddScoped<OperationalAiCoreEndpointsKnowledgeChunkCommand>();
+        
         services.AddScoped<SmartSchoolAgentToolsStudentExamResultQuery>();
         services.AddScoped<SmartSchoolAgentToolsStudentPerformancePredictionQuery>();
         services.AddScoped<SmartSchoolAgentToolsStudentQuery>();
@@ -103,7 +102,7 @@ public static class Module
         UpdateToolDefinition.MapEndpoint(endpoints);
         DeleteToolDefinition.MapEndpoint(endpoints);
 
-        OperationalAiCoreEndpoints.MapOperationalAiCoreEndpoints(endpoints);
+       
         endpoints.MapAgentEndpoints();
 
         return endpoints;
