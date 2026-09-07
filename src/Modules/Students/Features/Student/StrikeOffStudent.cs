@@ -1,8 +1,6 @@
-using Dapper;
 using SmartSchool.Modules.Students.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -17,7 +15,7 @@ public static class StrikeOffStudent
     public sealed record Request(Guid TenantId, Guid StudentId, string Reason) : IRequest<Result<Response>>;
     public sealed record Response(Guid StudentId, string Status);
 
-    public sealed class Handler(StrikeOffStudentStudentQuery query, StrikeOffStudentStudentCommand command, IIdentityAccountService accounts)
+    public sealed class Handler(StrikeOffStudentStudentCommand command, IIdentityAccountService accounts)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -65,9 +63,4 @@ public sealed class StrikeOffStudentStudentCommand(IStudentsDbContext dbContext)
     }
 }
 
-/// <summary>
-/// Feature-owned data access for StrikeOffStudent. Do not share across slices.
-/// </summary>
-public sealed class StrikeOffStudentStudentQuery(IDbConnectionFactory connectionFactory)
-{
-    
+

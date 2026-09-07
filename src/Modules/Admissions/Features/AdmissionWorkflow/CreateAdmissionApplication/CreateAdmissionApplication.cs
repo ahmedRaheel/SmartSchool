@@ -11,23 +11,194 @@ namespace SmartSchool.Modules.Admissions.Features;
 
 public interface ICreateAdmissionApplicationQuery
 {
-    Task<bool> BranchBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid branchId, CancellationToken ct);
-    Task<string?> GetBranchGenderPolicyAsync(Guid tenantId, Guid branchId, CancellationToken ct);
-    Task<bool> ClassIsEligibleForBranchAsync(Guid tenantId, Guid branchId, Guid classId, CancellationToken ct);
-    Task<bool> AcademicYearBelongsToBranchAsync(Guid tenantId, Guid branchId, Guid academicYearId, CancellationToken ct);
+    Task<bool> BranchBelongsToSchoolAsync(
+        Guid tenantId,
+        Guid schoolId,
+        Guid branchId,
+        CancellationToken cancellationToken);
+
+    Task<string?> GetBranchGenderPolicyAsync(
+        Guid tenantId,
+        Guid branchId,
+        CancellationToken cancellationToken);
+
+    Task<bool> ClassIsEligibleForBranchAsync(
+        Guid tenantId,
+        Guid branchId,
+        Guid classId,
+        CancellationToken cancellationToken);
+
+    Task<bool> AcademicYearBelongsToBranchAsync(
+        Guid tenantId,
+        Guid branchId,
+        Guid academicYearId,
+        CancellationToken cancellationToken);
 }
-public sealed class CreateAdmissionApplicationQuery(IDbConnectionFactory factory) : ICreateAdmissionApplicationQuery
+
+public sealed class CreateAdmissionApplicationQuery(IDbConnectionFactory connectionFactory)
+    : ICreateAdmissionApplicationQuery
 {
-    public Task<bool> BranchBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid branchId, CancellationToken ct)=>Exists("SELECT EXISTS(SELECT 1 FROM org.campus WHERE tenant_id=@T AND school_id=@S AND campus_id=@B AND is_active=TRUE);",new { T = tenantId, S = schoolId, B = branchId },ct);
-    public async Task<string?> GetBranchGenderPolicyAsync(Guid tenantId, Guid branchId, CancellationToken ct){const string sql="SELECT g.code FROM org.campus c INNER JOIN reference.branch_gender_type g ON g.branch_gender_type_id=c.branch_gender_type_id WHERE c.tenant_id=@T AND c.campus_id=@B AND c.is_active=TRUE;";await using var c=await factory.OpenConnectionAsync(ct);return await c.ExecuteScalarAsync<string?>(new CommandDefinition(sql,new { T = tenantId, B = branchId },cancellationToken:ct));}
-    public Task<bool> ClassIsEligibleForBranchAsync(Guid tenantId, Guid branchId, Guid classId, CancellationToken ct)=>Exists("SELECT EXISTS(SELECT 1 FROM academic.class c INNER JOIN org.campus_education_level bel ON bel.campus_id=c.branch_id AND bel.education_level_id=c.education_level_id WHERE c.tenant_id=@T AND c.branch_id=@B AND c.class_id=@Id AND c.is_active=TRUE);",new { T = tenantId, B = branchId, Id = classId },ct);
-    public Task<bool> AcademicYearBelongsToBranchAsync(Guid tenantId, Guid branchId, Guid academicYearId, CancellationToken ct)=>Exists("SELECT EXISTS(SELECT 1 FROM academic.academic_year WHERE tenant_id=@T AND branch_id=@B AND academic_year_id=@Id AND is_active=TRUE);",new { T = tenantId, B = branchId, Id = classId },ct);
-    private async Task<bool> Exists(string sql,object p,CancellationToken ct){await using var c=await factory.OpenConnectionAsync(ct);return await c.ExecuteScalarAsync<bool>(new CommandDefinition(sql,p,cancellationToken:ct));}
+    public Task<bool> BranchBelongsToSchoolAsync(
+        Guid tenantId,
+        Guid schoolId,
+        Guid branchId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM org.campus
+                WHERE tenant_id = @TenantId
+                    AND school_id = @SchoolId
+                    AND campus_id = @BranchId
+                    AND is_active = TRUE
+            );
+            """;
+
+        return ExistsAsync(
+            sql,
+            new { TenantId = tenantId, SchoolId = schoolId, BranchId = branchId },
+            cancellationToken);
+    }
+
+    public async Task<string?> GetBranchGenderPolicyAsync(
+        Guid tenantId,
+        Guid branchId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT gender_type.code
+            FROM org.campus AS branch
+            INNER JOIN reference.branch_gender_type AS gender_type
+                ON gender_type.branch_gender_type_id = branch.branch_gender_type_id
+            WHERE branch.tenant_id = @TenantId
+                AND branch.campus_id = @BranchId
+                AND branch.is_active = TRUE;
+            """;
+
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+        return await connection.ExecuteScalarAsync<string?>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, BranchId = branchId },
+                cancellationToken: cancellationToken));
+    }
+
+    public Task<bool> ClassIsEligibleForBranchAsync(
+        Guid tenantId,
+        Guid branchId,
+        Guid classId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM academic.class AS class
+                INNER JOIN org.campus_education_level AS branch_level
+                    ON branch_level.campus_id = class.branch_id
+                    AND branch_level.education_level_id = class.education_level_id
+                WHERE class.tenant_id = @TenantId
+                    AND class.branch_id = @BranchId
+                    AND class.class_id = @ClassId
+                    AND class.is_active = TRUE
+            );
+            """;
+
+        return ExistsAsync(
+            sql,
+            new { TenantId = tenantId, BranchId = branchId, ClassId = classId },
+            cancellationToken);
+    }
+
+    public Task<bool> AcademicYearBelongsToBranchAsync(
+        Guid tenantId,
+        Guid branchId,
+        Guid academicYearId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM academic.academic_year
+                WHERE tenant_id = @TenantId
+                    AND branch_id = @BranchId
+                    AND academic_year_id = @AcademicYearId
+                    AND is_active = TRUE
+            );
+            """;
+
+        return ExistsAsync(
+            sql,
+            new
+            {
+                TenantId = tenantId,
+                BranchId = branchId,
+                AcademicYearId = academicYearId
+            },
+            cancellationToken);
+    }
+
+    private async Task<bool> ExistsAsync(
+        string sql,
+        object parameters,
+        CancellationToken cancellationToken)
+    {
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+        return await connection.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                sql,
+                parameters,
+                cancellationToken: cancellationToken));
+    }
 }
-public interface ICreateAdmissionApplication { Task<Guid> CreateApplicationAsync(Guid tenantId, CreateAdmissionApplication.Request request, CancellationToken ct); }
-public sealed class CreateAdmissionApplicationCommand(IAdmissionsDbContext db) : ICreateAdmissionApplication
+
+public interface ICreateAdmissionApplication
 {
-    public async Task<Guid> CreateApplicationAsync(Guid tenantId, CreateAdmissionApplication.Request request, CancellationToken ct){var id = Guid.NewGuid(); var st =AdmissionApplicationStatus.SubmittedApplication.ToDatabaseValue();await db.Database.ExecuteSqlInterpolatedAsync($"""INSERT INTO admission.student_application (application_id,tenant_id,school_id,branch_id,academic_year_id,class_id,section_id,first_name,last_name,date_of_birth,gender,email,phone,address,guardian_name,guardian_cnic,guardian_email,guardian_phone,relationship,previous_school,previous_marks,status) VALUES ({id},{tenantId},{request.SchoolId},{request.BranchId},{request.AcademicYearId},{request.ClassId},{request.SectionId},{request.FirstName},{request.LastName},{request.DateOfBirth},{request.Gender},{request.Email},{request.Phone},{request.Address},{request.GuardianName},{request.GuardianCnic},{request.GuardianEmail},{request.GuardianPhone},{request.Relationship},{request.PreviousSchool},{request.PreviousMarks},{st});""",ct);return id;}
+    Task<Guid> CreateApplicationAsync(
+        Guid tenantId,
+        CreateAdmissionApplication.Request request,
+        CancellationToken cancellationToken);
+}
+
+public sealed class CreateAdmissionApplicationCommand(IAdmissionsDbContext dbContext)
+    : ICreateAdmissionApplication
+{
+    public async Task<Guid> CreateApplicationAsync(
+        Guid tenantId,
+        CreateAdmissionApplication.Request request,
+        CancellationToken cancellationToken)
+    {
+        var applicationId = Guid.NewGuid();
+        var status = AdmissionApplicationStatus.SubmittedApplication.ToDatabaseValue();
+
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""
+            INSERT INTO admission.student_application
+            (
+                application_id, tenant_id, school_id, branch_id, academic_year_id,
+                class_id, section_id, first_name, last_name, date_of_birth, gender,
+                email, phone, address, guardian_name, guardian_cnic, guardian_email,
+                guardian_phone, relationship, previous_school, previous_marks, status
+            )
+            VALUES
+            (
+                {applicationId}, {tenantId}, {request.SchoolId}, {request.BranchId},
+                {request.AcademicYearId}, {request.ClassId}, {request.SectionId},
+                {request.FirstName}, {request.LastName}, {request.DateOfBirth},
+                {request.Gender}, {request.Email}, {request.Phone}, {request.Address},
+                {request.GuardianName}, {request.GuardianCnic}, {request.GuardianEmail},
+                {request.GuardianPhone}, {request.Relationship}, {request.PreviousSchool},
+                {request.PreviousMarks}, {status}
+            );
+            """,
+            cancellationToken);
+
+        return applicationId;
+    }
 }
 
 public static class CreateAdmissionApplication

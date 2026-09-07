@@ -12,7 +12,7 @@ namespace SmartSchool.Modules.Admissions.Features;
 public interface IGetAdmissionApplicationsQuery { Task<IReadOnlyList<AdmissionApplicationDto>> GetApplicationsAsync(Guid tenantId, CancellationToken cancellationToken); }
 public sealed class GetAdmissionApplicationsQuery(IDbConnectionFactory factory) : IGetAdmissionApplicationsQuery
 {
-    public async Task<IReadOnlyList<AdmissionApplicationDto>> GetApplicationsAsync(Guid tenantId, CancellationToken ct)
+    public async Task<IReadOnlyList<AdmissionApplicationDto>> GetApplicationsAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         const string sql = """
         SELECT application_id AS Id, school_id AS SchoolId, branch_id AS BranchId, academic_year_id AS AcademicYearId,
@@ -22,7 +22,7 @@ public sealed class GetAdmissionApplicationsQuery(IDbConnectionFactory factory) 
         decision_notes AS DecisionNotes, student_id AS StudentId
         FROM admission.student_application WHERE tenant_id=@TenantId AND is_active=TRUE ORDER BY submitted_at DESC;
         """;
-        await using var c=await factory.OpenConnectionAsync(ct); return (await c.QueryAsync<AdmissionApplicationDto>(new CommandDefinition(sql,new{TenantId=tenantId},cancellationToken:ct))).AsList();
+        await using var connection = await factory.OpenConnectionAsync(cancellationToken); return (await connection.QueryAsync<AdmissionApplicationDto>(new CommandDefinition(sql,new{TenantId=tenantId},cancellationToken: cancellationToken))).AsList();
     }
 }
 

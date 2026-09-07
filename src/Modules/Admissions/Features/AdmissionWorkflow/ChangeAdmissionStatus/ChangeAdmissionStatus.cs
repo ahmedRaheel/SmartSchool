@@ -1,29 +1,143 @@
 using Dapper;
 using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Application.Persistence;
-using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Modules.Admissions.Persistence;
 
 namespace SmartSchool.Modules.Admissions.Features;
 
-public interface IChangeAdmissionStatusQuery { Task<AdmissionApplicationDetails?> GetApplicationAsync(Guid tenantId,Guid applicationId,CancellationToken ct); Task<string?> GetBranchCodeAsync(Guid tenantId,Guid branchId,CancellationToken ct); }
-public sealed class ChangeAdmissionStatusQuery(IDbConnectionFactory factory) : IChangeAdmissionStatusQuery
+public interface IChangeAdmissionStatusQuery
 {
-    public async Task<AdmissionApplicationDetails?> GetApplicationAsync(Guid tenantId, Guid applicationId, CancellationToken ct){const string sql="""SELECT application_id AS Id,school_id AS SchoolId,branch_id AS BranchId,academic_year_id AS AcademicYearId,class_id AS ClassId,section_id AS SectionId,first_name AS FirstName,last_name AS LastName,date_of_birth AS DateOfBirth,gender AS Gender,email AS Email,guardian_name AS GuardianName,guardian_cnic AS GuardianCnic,guardian_email AS GuardianEmail,guardian_phone AS GuardianPhone,relationship AS Relationship,student_id AS StudentId FROM admission.student_application WHERE application_id=@Id AND tenant_id=@T AND is_active=TRUE;""";await using var c=await factory.OpenConnectionAsync(ct);return await c.QuerySingleOrDefaultAsync<AdmissionApplicationDetails>(new CommandDefinition(sql,new { Id = applicationId, T = tenantId },cancellationToken:ct));}
-    public async Task<string?> GetBranchCodeAsync(Guid tenantId, Guid branchId, CancellationToken ct){const string sql="SELECT code FROM org.campus WHERE tenant_id=@T AND campus_id=@B AND is_active=TRUE;";await using var c=await factory.OpenConnectionAsync(ct);return await c.ExecuteScalarAsync<string?>(new CommandDefinition(sql,new { T = tenantId, B = branchId },cancellationToken:ct));}
-}
-public interface IChangeAdmissionStatus
-{
-    Task<bool> ChangeStatusAsync(Guid tenantId, Guid applicationId, AdmissionApplicationStatus status, string? notes, CancellationToken ct);
-}
-public sealed class ChangeAdmissionStatusCommand(IAdmissionsDbContext db) : IChangeAdmissionStatus
-{
-    public async Task<bool> ChangeStatusAsync(Guid tenantId, Guid applicationId, AdmissionApplicationStatus status, string? notes, CancellationToken ct){var s=status.ToDatabaseValue();var submitted=AdmissionApplicationStatus.SubmittedApplication.ToDatabaseValue();return await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE admission.student_application SET status={s},decision_notes={notes},decided_at=CASE WHEN {s}={submitted} THEN NULL ELSE NOW() END WHERE application_id={applicationId} AND tenant_id={tenantId};",ct)>0;}
+    Task<AdmissionApplicationDetails?> GetApplicationAsync(
+        Guid tenantId,
+        Guid applicationId,
+        CancellationToken cancellationToken);
+
+    Task<string?> GetBranchCodeAsync(
+        Guid tenantId,
+        Guid branchId,
+        CancellationToken cancellationToken);
 }
 
+public sealed class ChangeAdmissionStatusQuery(IDbConnectionFactory connectionFactory)
+    : IChangeAdmissionStatusQuery
+{
+    public async Task<AdmissionApplicationDetails?> GetApplicationAsync(
+        Guid tenantId,
+        Guid applicationId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT
+                application_id AS Id,
+                school_id AS SchoolId,
+                branch_id AS BranchId,
+                academic_year_id AS AcademicYearId,
+                class_id AS ClassId,
+                section_id AS SectionId,
+                first_name AS FirstName,
+                last_name AS LastName,
+                date_of_birth AS DateOfBirth,
+                gender AS Gender,
+                email AS Email,
+                guardian_name AS GuardianName,
+                guardian_cnic AS GuardianCnic,
+                guardian_email AS GuardianEmail,
+                guardian_phone AS GuardianPhone,
+                relationship AS Relationship,
+                student_id AS StudentId
+            FROM admission.student_application
+            WHERE application_id = @ApplicationId
+                AND tenant_id = @TenantId
+                AND is_active = TRUE;
+            """;
+
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+        return await connection.QuerySingleOrDefaultAsync<AdmissionApplicationDetails>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ApplicationId = applicationId,
+                    TenantId = tenantId
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<string?> GetBranchCodeAsync(
+        Guid tenantId,
+        Guid branchId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT code
+            FROM org.campus
+            WHERE tenant_id = @TenantId
+                AND campus_id = @BranchId
+                AND is_active = TRUE;
+            """;
+
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+        return await connection.ExecuteScalarAsync<string?>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    BranchId = branchId
+                },
+                cancellationToken: cancellationToken));
+    }
+}
+
+public interface IChangeAdmissionStatus
+{
+    Task<bool> ChangeStatusAsync(
+        Guid tenantId,
+        Guid applicationId,
+        AdmissionApplicationStatus status,
+        string? notes,
+        CancellationToken cancellationToken);
+}
+
+public sealed class ChangeAdmissionStatusCommand(
+    IAdmissionsDbContext dbContext,
+    TimeProvider timeProvider) : IChangeAdmissionStatus
+{
+    public async Task<bool> ChangeStatusAsync(
+        Guid tenantId,
+        Guid applicationId,
+        AdmissionApplicationStatus status,
+        string? notes,
+        CancellationToken cancellationToken)
+    {
+        var application = await dbContext.CompleteAdmissionApplications
+            .SingleOrDefaultAsync(
+                entity => entity.ApplicationId == applicationId &&
+                          entity.TenantId == tenantId,
+                cancellationToken);
+
+        if (application is null)
+        {
+            return false;
+        }
+
+        application.ChangeStatus(
+            status,
+            notes,
+            timeProvider.GetUtcNow().UtcDateTime);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+}
 
 public static class ChangeAdmissionStatus
 {

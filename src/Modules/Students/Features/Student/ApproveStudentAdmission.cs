@@ -30,7 +30,6 @@ public static class ApproveStudentAdmission
     }
 
     public sealed class Handler(
-        ApproveStudentAdmissionStudentQuery query,
         ApproveStudentAdmissionStudentCommand command,
         ApproveStudentAdmissionStudentOnboardingQuery onboardingQuery,
         ApproveStudentAdmissionStudentOnboardingCommand onboardingCommand,
@@ -264,10 +263,3 @@ public sealed class ApproveStudentAdmissionStudentCommand(IStudentsDbContext dbC
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
-
-/// <summary>
-/// Feature-owned data access for ApproveStudentAdmission. Do not share across slices.
-/// </summary>
-public sealed class ApproveStudentAdmissionStudentQuery(IDbConnectionFactory connectionFactory)
-{
-    

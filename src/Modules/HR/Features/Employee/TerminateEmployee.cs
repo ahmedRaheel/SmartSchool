@@ -1,8 +1,6 @@
-using Dapper;
 using SmartSchool.Modules.HR.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -17,7 +15,7 @@ public static class TerminateEmployee
     public sealed record Request(Guid TenantId, Guid EmployeeId, string Reason) : IRequest<Result<Response>>;
     public sealed record Response(Guid EmployeeId, string Status);
 
-    public sealed class Handler(TerminateEmployeeEmployeeQuery query, TerminateEmployeeEmployeeCommand command, IIdentityAccountService accounts)
+    public sealed class Handler(TerminateEmployeeEmployeeCommand command, IIdentityAccountService accounts)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -65,9 +63,4 @@ public sealed class TerminateEmployeeEmployeeCommand(IHRDbContext dbContext)
     }
 }
 
-/// <summary>
-/// Feature-owned data access for TerminateEmployee. Do not share across slices.
-/// </summary>
-public sealed class TerminateEmployeeEmployeeQuery(IDbConnectionFactory connectionFactory)
-{
-    
+

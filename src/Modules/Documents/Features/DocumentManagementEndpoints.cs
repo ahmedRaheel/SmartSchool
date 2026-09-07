@@ -86,7 +86,7 @@ public static class DocumentManagementEndpoints
             INSERT INTO document.document_link(document_link_id,tenant_id,document_id,entity_type,entity_id,purpose,is_primary)
             VALUES({linkId},{resolvedTenant.Value},{documentId},{normalizedEntityType},{entityId},{normalizedPurpose},{isPrimary});
             """, ct);
-        await CreateTypedDocumentLinkAsync(dbContext, resolvedTenant.Value, entityType, entityId, documentId, documentType, ct);
+        await CreateTypedDocumentLinkAsync(dbContext, resolvedTenant.Value, entityType, entityId, documentId, ct);
         await transaction.CommitAsync(ct);
         return Results.Created($"/api/documents/files/{documentId}", new { documentNumber, fileName=file.FileName, file.Length, category, documentType });
     }
@@ -156,7 +156,7 @@ public static class DocumentManagementEndpoints
         return Results.Ok(new { compliant = rows.All(x => (bool)x.Satisfied), requirements = rows });
     }
 
-    private static async Task CreateTypedDocumentLinkAsync(DocumentsDbContext dbContext, Guid tenantId, string entityType, Guid entityId, Guid documentId, string documentType, CancellationToken ct)
+    private static async Task CreateTypedDocumentLinkAsync(DocumentsDbContext dbContext, Guid tenantId, string entityType, Guid entityId, Guid documentId, CancellationToken ct)
     {
         var type = entityType.Trim().ToUpperInvariant();
         var table = type switch

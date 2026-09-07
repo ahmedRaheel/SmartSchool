@@ -5,33 +5,288 @@ namespace SmartSchool.Modules.Admissions.Features;
 
 public interface ICompleteAdmission
 {
-    Task ExecuteAsync(Guid tenantId, AdmissionApplicationDetails application, Guid studentId, Guid studentUserId, Guid guardianId, Guid guardianUserId, string studentNumber, string? notes, CancellationToken ct);
+    Task ExecuteAsync(
+        Guid tenantId,
+        AdmissionApplicationDetails application,
+        Guid studentId,
+        Guid studentUserId,
+        Guid guardianId,
+        Guid guardianUserId,
+        string studentNumber,
+        string? notes,
+        CancellationToken cancellationToken);
 }
 
-public sealed class CompleteAdmissionCommand(IAdmissionsDbContext db) : ICompleteAdmission
+public sealed class CompleteAdmissionCommand(
+    IAdmissionsDbContext db,
+    TimeProvider timeProvider) : ICompleteAdmission
 {
-    public async Task ExecuteAsync(Guid t, AdmissionApplicationDetails a, Guid sid, Guid suid, Guid gid, Guid guid, string sn, string? notes, CancellationToken ct)
+    public async Task ExecuteAsync(
+        Guid tenantId,
+        AdmissionApplicationDetails application,
+        Guid studentId,
+        Guid studentUserId,
+        Guid guardianId,
+        Guid guardianUserId,
+        string studentNumber,
+        string? notes,
+        CancellationToken cancellationToken)
     {
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
-        try
+        var admissionDate = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
+        var relationship = string.IsNullOrWhiteSpace(application.Relationship)
+            ? "GUARDIAN"
+            : application.Relationship.Trim();
+
+        var admission = await db.CompleteAdmissionApplications
+            .SingleOrDefaultAsync(
+                entity => entity.ApplicationId == application.Id &&
+                          entity.TenantId == tenantId,
+                cancellationToken);
+
+        if (admission is null)
         {
-            await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO student.student (student_id,tenant_id,user_id,school_id,branch_id,student_number,first_name,last_name,date_of_birth,gender,admission_date,status) VALUES ({sid},{t},{suid},{a.SchoolId},{a.BranchId},{sn},{a.FirstName},{a.LastName},{a.DateOfBirth},{a.Gender},CURRENT_DATE,'ACTIVE');", ct);
-            await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO student.guardian (guardian_id,tenant_id,user_id,full_name,cnic_number,email,phone) VALUES ({gid},{t},{guid},{a.GuardianName},{a.GuardianCnic},{a.GuardianEmail},{a.GuardianPhone});", ct);
-            var relationship = string.IsNullOrWhiteSpace(a.Relationship) ? "GUARDIAN" : a.Relationship.Trim();
-            await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO student.student_guardian (student_id,guardian_id,relationship,is_primary,can_view_academics,can_view_finance,can_pickup) VALUES ({sid},{gid},{relationship},TRUE,TRUE,TRUE,FALSE);", ct);
-            if (a.AcademicYearId.HasValue && a.SectionId.HasValue)
-            {
-                var enrollmentId = Guid.NewGuid();
-                await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO student.student_enrollment (student_enrollment_id,tenant_id,student_id,enrollment_number,academic_year_id,class_section_id,enrollment_date,status) VALUES ({enrollmentId},{t},{sid},{sn},{a.AcademicYearId.Value},{a.SectionId.Value},CURRENT_DATE,'ACTIVE');", ct);
-            }
-            var accepted = AdmissionApplicationStatus.AdmissionAccepted.ToDatabaseValue();
-            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE admission.student_application SET status={accepted},student_id={sid},decision_notes={notes},decided_at=NOW() WHERE application_id={a.Id} AND tenant_id={t};", ct);
-            await tx.CommitAsync(ct);
+            throw new InvalidOperationException("Admission application was not found.");
         }
-        catch
+
+        var student = CompleteAdmissionStudent.Create(
+            studentId,
+            tenantId,
+            studentUserId,
+            application.SchoolId,
+            application.BranchId,
+            studentNumber,
+            application.FirstName,
+            application.LastName,
+            application.DateOfBirth,
+            application.Gender,
+            admissionDate);
+
+        var guardian = CompleteAdmissionGuardian.Create(
+            guardianId,
+            tenantId,
+            guardianUserId,
+            application.GuardianName,
+            application.GuardianCnic,
+            application.GuardianEmail,
+            application.GuardianPhone);
+
+        var studentGuardian = CompleteAdmissionStudentGuardian.Create(
+            Guid.NewGuid(),
+            tenantId,
+            studentId,
+            guardianId,
+            relationship);
+
+        await db.CompleteAdmissionStudents.AddAsync(student, cancellationToken);
+        await db.CompleteAdmissionGuardians.AddAsync(guardian, cancellationToken);
+        await db.CompleteAdmissionStudentGuardians.AddAsync(studentGuardian, cancellationToken);
+
+        if (application.AcademicYearId.HasValue && application.SectionId.HasValue)
         {
-            await tx.RollbackAsync(ct);
-            throw;
+            var enrollment = CompleteAdmissionEnrollment.Create(
+                Guid.NewGuid(),
+                tenantId,
+                studentId,
+                studentNumber,
+                application.AcademicYearId.Value,
+                application.SectionId.Value,
+                admissionDate);
+
+            await db.CompleteAdmissionEnrollments.AddAsync(enrollment, cancellationToken);
         }
+
+        admission.Accept(studentId, notes, timeProvider.GetUtcNow().UtcDateTime);
+
+        await db.SaveChangesAsync(cancellationToken);
+    }
+}
+
+public sealed class CompleteAdmissionStudent
+{
+    public Guid StudentId { get; private set; }
+    public Guid TenantId { get; private set; }
+    public Guid UserId { get; private set; }
+    public Guid SchoolId { get; private set; }
+    public Guid BranchId { get; private set; }
+    public string StudentNumber { get; private set; } = string.Empty;
+    public string FirstName { get; private set; } = string.Empty;
+    public string? LastName { get; private set; }
+    public DateOnly? DateOfBirth { get; private set; }
+    public string? Gender { get; private set; }
+    public DateOnly AdmissionDate { get; private set; }
+    public string Status { get; private set; } = "ACTIVE";
+
+    private CompleteAdmissionStudent()
+    {
+    }
+
+    public static CompleteAdmissionStudent Create(
+        Guid studentId,
+        Guid tenantId,
+        Guid userId,
+        Guid schoolId,
+        Guid branchId,
+        string studentNumber,
+        string firstName,
+        string? lastName,
+        DateOnly? dateOfBirth,
+        string? gender,
+        DateOnly admissionDate)
+    {
+        return new CompleteAdmissionStudent
+        {
+            StudentId = studentId,
+            TenantId = tenantId,
+            UserId = userId,
+            SchoolId = schoolId,
+            BranchId = branchId,
+            StudentNumber = studentNumber.Trim(),
+            FirstName = firstName.Trim(),
+            LastName = lastName?.Trim(),
+            DateOfBirth = dateOfBirth,
+            Gender = gender?.Trim(),
+            AdmissionDate = admissionDate
+        };
+    }
+}
+
+public sealed class CompleteAdmissionGuardian
+{
+    public Guid GuardianId { get; private set; }
+    public Guid TenantId { get; private set; }
+    public Guid UserId { get; private set; }
+    public string FullName { get; private set; } = string.Empty;
+    public string? CnicNumber { get; private set; }
+    public string? Email { get; private set; }
+    public string? Phone { get; private set; }
+
+    private CompleteAdmissionGuardian()
+    {
+    }
+
+    public static CompleteAdmissionGuardian Create(
+        Guid guardianId,
+        Guid tenantId,
+        Guid userId,
+        string fullName,
+        string? cnicNumber,
+        string? email,
+        string? phone)
+    {
+        return new CompleteAdmissionGuardian
+        {
+            GuardianId = guardianId,
+            TenantId = tenantId,
+            UserId = userId,
+            FullName = fullName.Trim(),
+            CnicNumber = cnicNumber?.Trim(),
+            Email = email?.Trim(),
+            Phone = phone?.Trim()
+        };
+    }
+}
+
+public sealed class CompleteAdmissionStudentGuardian
+{
+    public Guid StudentGuardianId { get; private set; }
+    public Guid TenantId { get; private set; }
+    public Guid StudentId { get; private set; }
+    public Guid GuardianId { get; private set; }
+    public string Relationship { get; private set; } = string.Empty;
+    public bool IsPrimary { get; private set; } = true;
+    public bool CanViewAcademics { get; private set; } = true;
+    public bool CanViewFinance { get; private set; } = true;
+    public bool CanPickup { get; private set; }
+
+    private CompleteAdmissionStudentGuardian()
+    {
+    }
+
+    public static CompleteAdmissionStudentGuardian Create(
+        Guid studentGuardianId,
+        Guid tenantId,
+        Guid studentId,
+        Guid guardianId,
+        string relationship)
+    {
+        return new CompleteAdmissionStudentGuardian
+        {
+            StudentGuardianId = studentGuardianId,
+            TenantId = tenantId,
+            StudentId = studentId,
+            GuardianId = guardianId,
+            Relationship = relationship.Trim().ToUpperInvariant()
+        };
+    }
+}
+
+public sealed class CompleteAdmissionEnrollment
+{
+    public Guid StudentEnrollmentId { get; private set; }
+    public Guid TenantId { get; private set; }
+    public Guid StudentId { get; private set; }
+    public string EnrollmentNumber { get; private set; } = string.Empty;
+    public Guid AcademicYearId { get; private set; }
+    public Guid ClassSectionId { get; private set; }
+    public DateOnly EnrollmentDate { get; private set; }
+    public string Status { get; private set; } = "ACTIVE";
+
+    private CompleteAdmissionEnrollment()
+    {
+    }
+
+    public static CompleteAdmissionEnrollment Create(
+        Guid studentEnrollmentId,
+        Guid tenantId,
+        Guid studentId,
+        string enrollmentNumber,
+        Guid academicYearId,
+        Guid classSectionId,
+        DateOnly enrollmentDate)
+    {
+        return new CompleteAdmissionEnrollment
+        {
+            StudentEnrollmentId = studentEnrollmentId,
+            TenantId = tenantId,
+            StudentId = studentId,
+            EnrollmentNumber = enrollmentNumber.Trim(),
+            AcademicYearId = academicYearId,
+            ClassSectionId = classSectionId,
+            EnrollmentDate = enrollmentDate
+        };
+    }
+}
+
+public sealed class CompleteAdmissionApplication
+{
+    public Guid ApplicationId { get; private set; }
+    public Guid TenantId { get; private set; }
+    public string Status { get; private set; } = string.Empty;
+    public Guid? StudentId { get; private set; }
+    public string? DecisionNotes { get; private set; }
+    public DateTime? DecidedAt { get; private set; }
+
+    private CompleteAdmissionApplication()
+    {
+    }
+
+    public void Accept(Guid studentId, string? notes, DateTime decidedAt)
+    {
+        StudentId = studentId;
+        DecisionNotes = notes?.Trim();
+        DecidedAt = decidedAt;
+        Status = AdmissionApplicationStatus.AdmissionAccepted.ToDatabaseValue();
+    }
+
+    public void ChangeStatus(
+        AdmissionApplicationStatus status,
+        string? notes,
+        DateTime decidedAt)
+    {
+        Status = status.ToDatabaseValue();
+        DecisionNotes = notes?.Trim();
+        DecidedAt = status == AdmissionApplicationStatus.SubmittedApplication
+            ? null
+            : decidedAt;
     }
 }

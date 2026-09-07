@@ -12,6 +12,12 @@ public interface IAdmissionsDbContext
     DbSet<ApplicantEntity> Applicants { get; }
     DbSet<ApplicationEntity> Applications { get; }
     DbSet<InquiryEntity> Inquiries { get; }
+    DbSet<Features.AdmissionCriteriaWriteEntity> AdmissionCriteria { get; }
+    DbSet<Features.CompleteAdmissionApplication> CompleteAdmissionApplications { get; }
+    DbSet<Features.CompleteAdmissionStudent> CompleteAdmissionStudents { get; }
+    DbSet<Features.CompleteAdmissionGuardian> CompleteAdmissionGuardians { get; }
+    DbSet<Features.CompleteAdmissionStudentGuardian> CompleteAdmissionStudentGuardians { get; }
+    DbSet<Features.CompleteAdmissionEnrollment> CompleteAdmissionEnrollments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -27,6 +33,12 @@ public sealed class AdmissionsDbContext(DbContextOptions<AdmissionsDbContext> op
     public DbSet<ApplicantEntity> Applicants => Set<ApplicantEntity>();
     public DbSet<ApplicationEntity> Applications => Set<ApplicationEntity>();
     public DbSet<InquiryEntity> Inquiries => Set<InquiryEntity>();
+    public DbSet<Features.AdmissionCriteriaWriteEntity> AdmissionCriteria => Set<Features.AdmissionCriteriaWriteEntity>();
+    public DbSet<Features.CompleteAdmissionApplication> CompleteAdmissionApplications => Set<Features.CompleteAdmissionApplication>();
+    public DbSet<Features.CompleteAdmissionStudent> CompleteAdmissionStudents => Set<Features.CompleteAdmissionStudent>();
+    public DbSet<Features.CompleteAdmissionGuardian> CompleteAdmissionGuardians => Set<Features.CompleteAdmissionGuardian>();
+    public DbSet<Features.CompleteAdmissionStudentGuardian> CompleteAdmissionStudentGuardians => Set<Features.CompleteAdmissionStudentGuardian>();
+    public DbSet<Features.CompleteAdmissionEnrollment> CompleteAdmissionEnrollments => Set<Features.CompleteAdmissionEnrollment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
