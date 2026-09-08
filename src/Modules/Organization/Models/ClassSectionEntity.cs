@@ -64,7 +64,6 @@ public sealed class ClassSectionEntity : Entity
         Guid campusId,
         Guid academicYearId,
         Guid gradeLevelId,
-        Guid sectionId,
         string code,
         string name,
         Guid? programGradeId = null,
@@ -85,7 +84,7 @@ public sealed class ClassSectionEntity : Entity
             AcademicYearId = academicYearId,
             GradeLevelId = gradeLevelId,
             ProgramGradeId = programGradeId,
-            SectionId = sectionId,
+            
             ClassTeacherEmployeeId = classTeacherEmployeeId,
             RoomId = roomId,
             RoomNo = roomNo,
