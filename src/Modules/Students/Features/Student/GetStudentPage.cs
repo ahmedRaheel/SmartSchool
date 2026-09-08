@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Students.Features.Student;
 
@@ -40,7 +41,7 @@ public static class GetStudentPage
     }
 
     internal sealed class GetStudentPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetStudentPageQuery
+        IDbConnectionFactory connectionFactory, ICurrentUser currentUser) : IGetStudentPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -48,11 +49,17 @@ public static class GetStudentPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+
+               var campusId = currentUser.BranchId ?? Guid.Empty;
+
+
+
+            const string countSql = """
                     SELECT COUNT(*)
                     FROM student.student AS entity
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE;
+                      AND entity.branch_id = @branchId
                     """;
 
                 const string pageSql = """
@@ -74,6 +81,7 @@ public static class GetStudentPage
                         ON p1.school_id = entity.school_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
+                    AND entity.branch_id = @branchId
                     ORDER BY entity.student_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -85,6 +93,7 @@ public static class GetStudentPage
                 {
                     TenantId = tenantId,
                     PageSize = pageSize,
+                    BranchId = campusId,
                     Offset = (page - 1) * pageSize
                 };
 
@@ -133,7 +142,8 @@ public static class GetStudentPage
                         new Query(tenantId, page, pageSize), cancellationToken);
                     return result.ToHttpResult();
                 })
-            .WithName("GetStudentPage").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
+            .WithName("GetStudentPage").WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
         return endpoints;
     }
 }

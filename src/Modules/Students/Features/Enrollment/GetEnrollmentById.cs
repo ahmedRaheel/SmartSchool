@@ -103,7 +103,7 @@ public static class GetEnrollmentById
                 })
             .WithName("GetEnrollmentById")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
+            .RequireAuthorization();
         return endpoints;
     }
 }

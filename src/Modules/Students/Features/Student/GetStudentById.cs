@@ -90,7 +90,8 @@ public static class GetStudentById
                     var result = await mediator.SendAsync<Query, Result<Response>>(new Query(tenantId, id), cancellationToken);
                     return result.ToHttpResult();
                 })
-            .WithName("GetStudentById").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
+            .WithName("GetStudentById").WithTags(ModuleConstants.Name)
+            .RequireAuthorization();
         return endpoints;
     }
 }

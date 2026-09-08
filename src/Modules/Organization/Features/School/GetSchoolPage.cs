@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Organization.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Organization.Features.School;
 
@@ -135,7 +136,7 @@ public static class GetSchoolPage
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "school"),
-                async (Guid? tenantId, int page, int pageSize, SmartSchool.Application.Identity.ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
+                async (Guid? tenantId, int page, int pageSize, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var effectiveTenantId = tenantScope.Resolve(tenantId);
                     var request = new Query(effectiveTenantId, page, pageSize);

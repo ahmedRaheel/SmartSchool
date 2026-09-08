@@ -8,6 +8,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Students.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Students.Features.Enrollment;
 
@@ -49,7 +50,7 @@ public static class GetEnrollmentPage
     }
 
     internal sealed class GetEnrollmentPageQuery(
-
+        ICurrentUser currentUser,
         IDbConnectionFactory connectionFactory) : IGetEnrollmentPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
@@ -58,11 +59,13 @@ public static class GetEnrollmentPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
+               var branchId = currentUser.BranchId ?? Guid.Empty;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM student.student_enrollment AS entity
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE;
+                    AND entity.branch_id = @branchId
                     """;
 
                 const string pageSql = """
@@ -85,6 +88,7 @@ public static class GetEnrollmentPage
                         ON p2.class_section_id = entity.class_section_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
+                    AND entity.branch_id = @branchId
                     ORDER BY entity.student_enrollment_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -96,6 +100,7 @@ public static class GetEnrollmentPage
                 {
                     TenantId = tenantId,
                     PageSize = pageSize,
+                    BranchId = branchId,
                     Offset = (page - 1) * pageSize
                 };
 
@@ -155,7 +160,7 @@ public static class GetEnrollmentPage
                 })
             .WithName("GetEnrollmentPage")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantStudent);
+            .RequireAuthorization();
         return endpoints;
     }
 }
