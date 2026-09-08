@@ -81,12 +81,7 @@ public sealed class ClassSectionEntityConfiguration
         builder.HasOne<GradeLevelEntity>()
             .WithMany()
             .HasForeignKey(entity => entity.GradeLevelId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne<SectionEntity>()
-            .WithMany()
-            .HasForeignKey(entity => entity.SectionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict);        
 
     }
 }
