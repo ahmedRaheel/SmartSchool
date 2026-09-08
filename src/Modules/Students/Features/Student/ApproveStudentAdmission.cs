@@ -17,7 +17,7 @@ namespace SmartSchool.Modules.Students.Features.Student;
 public static class ApproveStudentAdmission
 {
     public sealed record Request(Guid TenantId, Guid StudentId, string Email) : IRequest<Result<Response>>;
-    public sealed record Response(Guid StudentId, Guid UserId, string StudentNumber, string Status);
+    public sealed record Response(Guid StudentId, Guid? UserId, string StudentNumber, string Status);
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -35,7 +35,8 @@ public static class ApproveStudentAdmission
         ApproveStudentAdmissionStudentOnboardingCommand onboardingCommand,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numberGenerator,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ICurrentUser currentUser)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -102,19 +103,24 @@ public static class ApproveStudentAdmission
                 7,
                 cancellationToken);
 
-            var account = await accounts.CreateAccountAsync(
-                request.TenantId,
-                student.StudentId,
-                SmartSchoolRoles.Student,
-                request.Email,
-                student.FirstName,
-                student.LastName ?? string.Empty,
-                student.SchoolId,
-                student.BranchId,
-                new[] { SmartSchoolRoles.Student },
-                cancellationToken);
+            var userId = student.UserId;
+            if (!userId.HasValue)
+            {
+                var account = await accounts.CreateAccountAsync(
+                    request.TenantId,
+                    student.StudentId,
+                    SmartSchoolRoles.Student,
+                    request.Email,
+                    student.FirstName,
+                    student.LastName ?? string.Empty,
+                    student.SchoolId,
+                    student.BranchId,
+                    [SmartSchoolRoles.Student],
+                    cancellationToken);
+                userId = account.UserId;
+            }
 
-            student.ApproveAdmission(account.UserId, studentNumber);
+            student.ApproveAdmission(userId.Value, studentNumber);
             await command.UpdateAsync(student, cancellationToken);
 
             var enrollmentNumber = await numberGenerator.NextAsync(
@@ -141,7 +147,7 @@ public static class ApproveStudentAdmission
                 cancellationToken);
 
             return Result<Response>.Success(
-                new Response(student.StudentId, account.UserId, student.StudentNumber!, student.Status));
+                new Response(student.StudentId, currentUser.UserId, student.StudentNumber!, student.Status));
         }
     }
 

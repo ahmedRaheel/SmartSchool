@@ -26,7 +26,14 @@ public static class CreateStudent
         string? PhotoContentType,
         string? PhotoFileName,
         DateOnly? AdmissionDate,
-        string Status);
+        string Status,
+        LoginAccountResponse LoginAccount);
+
+    public sealed record LoginAccountResponse(
+        Guid UserId,
+        string Email,
+        string TemporaryPassword,
+        bool MustChangePassword);
 
     public sealed record Request(
         Guid? TenantId,
@@ -35,6 +42,7 @@ public static class CreateStudent
         Guid AcademicYearId,
         Guid ClassSectionId,
         Guid? UserId,
+        string Email,
         string FirstName,
         string? LastName,
         DateOnly? DateOfBirth,
@@ -52,6 +60,7 @@ public static class CreateStudent
             RuleFor(x => x.BranchId).NotEmpty();
             RuleFor(x => x.AcademicYearId).NotEmpty();
             RuleFor(x => x.ClassSectionId).NotEmpty();
+            RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(256);
             RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
         }
     }
@@ -60,9 +69,8 @@ public static class CreateStudent
     {
         Task AddAsync(
                 StudentEntity entity,
+                AdmissionPlacementEntity placement,
                 CancellationToken cancellationToken);
-
-        Task AddPlacementAsync(AdmissionPlacementEntity placement, CancellationToken cancellationToken);
 
         Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken);
 
@@ -71,20 +79,14 @@ public static class CreateStudent
     internal sealed class CreateStudentCommand(IStudentsDbContext dbContext) : ICreateStudentCommand
     {
         public async Task AddAsync(
-                StudentEntity entity,
-                CancellationToken cancellationToken)
-            {
-                await dbContext.Students
-                    .AddAsync(entity, cancellationToken);
-
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-
-        public async Task AddPlacementAsync(AdmissionPlacementEntity placement, CancellationToken cancellationToken)
-            {
-                await dbContext.AdmissionPlacements.AddAsync(placement, cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
+            StudentEntity entity,
+            AdmissionPlacementEntity placement,
+            CancellationToken cancellationToken)
+        {
+            await dbContext.Students.AddAsync(entity, cancellationToken);
+            await dbContext.AdmissionPlacements.AddAsync(placement, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
 
         public async Task<bool> CampusBelongsToSchoolAsync(Guid tenantId, Guid schoolId, Guid campusId, CancellationToken cancellationToken)
         {
@@ -95,7 +97,9 @@ public static class CreateStudent
 
     }
 
-    public sealed class Handler(ICreateStudentCommand command)
+    public sealed class Handler(
+        ICreateStudentCommand command,
+        IIdentityAccountService identityAccountService)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -131,7 +135,28 @@ public static class CreateStudent
                 request.AdmissionDate,
                 LifecycleStatuses.PendingApproval);
 
-            await command.AddAsync(entity, cancellationToken);
+            ProvisionedAccount account;
+            try
+            {
+                account = await identityAccountService.CreateAccountAsync(
+                    tenantId,
+                    entity.StudentId,
+                    SmartSchoolRoles.Student,
+                    request.Email,
+                    request.FirstName,
+                    request.LastName ?? string.Empty,
+                    request.SchoolId,
+                    request.BranchId,
+                    [SmartSchoolRoles.Student],
+                    cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                return Result<Response>.Failure(
+                    Error.InternalServerError($"Unable to create the student's login account: {exception.Message}"));
+            }
+
+            entity.LinkIdentityAccount(account.UserId);
 
             var placement = AdmissionPlacementEntity.Create(
                 tenantId,
@@ -139,9 +164,17 @@ public static class CreateStudent
                 request.AcademicYearId,
                 request.ClassSectionId);
 
-            await command.AddPlacementAsync(placement, cancellationToken);
+            try
+            {
+                await command.AddAsync(entity, placement, cancellationToken);
+            }
+            catch
+            {
+                await identityAccountService.DeleteAccountAsync(account.UserId, cancellationToken);
+                throw;
+            }
 
-            return Result<Response>.Success(MapResponse(entity));
+            return Result<Response>.Success(MapResponse(entity, account));
         }
     }
 
@@ -161,7 +194,7 @@ public static class CreateStudent
         return endpoints;
     }
 
-    private static Response MapResponse(StudentEntity entity)
+    private static Response MapResponse(StudentEntity entity, ProvisionedAccount account)
     {
         return new Response(
             entity.TenantId,
@@ -176,6 +209,11 @@ public static class CreateStudent
             entity.PhotoContentType,
             entity.PhotoFileName,
             entity.AdmissionDate,
-            entity.Status);
+            entity.Status,
+            new LoginAccountResponse(
+                account.UserId,
+                account.Email,
+                account.TemporaryPassword,
+                account.MustChangePassword));
     }
 }
