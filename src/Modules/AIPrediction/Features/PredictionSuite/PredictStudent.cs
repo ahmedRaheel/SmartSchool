@@ -31,7 +31,7 @@ public static class PredictStudent
         public async Task<Response> HandleAsync(Request request, CancellationToken cancellationToken)
         {
             var result = await service.PredictStudentAsync(request.Kind, request.Input, cancellationToken);
-            await command.AddAsync(request.Input.TenantId, result, request, cancellationToken);
+            await command.AddAsync(request.Input.TenantId, result,request, cancellationToken);
             return new Response(result.Kind, result.Score, result.Probability, result.RiskLevel, result.Outcome, result.Confidence, result.ModelVersion, result.UsedMachineLearning, result.Factors);
         }
     }

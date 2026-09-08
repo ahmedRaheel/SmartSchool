@@ -23,6 +23,7 @@ public static class CreateEmployeeExperience
         public async Task<EmployeeExperienceEntity> AddAsync(EmployeeExperienceEntity entity, CancellationToken cancellationToken)
         {
             await dbContext.EmployeeExperiences.AddAsync(entity, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             return entity;
         }
     }

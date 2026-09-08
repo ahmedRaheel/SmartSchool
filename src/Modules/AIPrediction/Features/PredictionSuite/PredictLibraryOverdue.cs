@@ -18,7 +18,7 @@ public static class PredictLibraryOverdue
 
     internal sealed class PredictLibraryOverdueCommand(IAIPredictionDbContext dbContext) : IPredictLibraryOverdueCommand
     {
-        public async Task AddAsync(Guid tenantId, PredictionResult result, Request request, CancellationToken cancellationToken)
+        public async Task AddAsync(Guid tenantId, PredictionResult result, Request request,  CancellationToken cancellationToken)
         {
             var entity = MlPredictionResultEntity.Create(tenantId, result.Kind.ToString(), result.Score, result.Probability, result.RiskLevel, result.Outcome, result.Confidence, result.ModelVersion, result.UsedMachineLearning, JsonSerializer.Serialize(result.Factors), request.Input.StudentId, null, null);
             await dbContext.MlPredictionResults.AddAsync(entity, cancellationToken);

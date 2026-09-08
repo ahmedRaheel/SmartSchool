@@ -23,6 +23,7 @@ public static class CreateEmployeeEducation
         public async Task<EmployeeEducationEntity> AddAsync(EmployeeEducationEntity entity, CancellationToken cancellationToken)
         {
             await dbContext.EmployeeEducations.AddAsync(entity, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             return entity;
         }
     }

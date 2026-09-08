@@ -13,7 +13,7 @@ public static class PredictTeacher
 
     public interface IPredictTeacherCommand
     {
-        Task AddAsync(Guid tenantId, PredictionResult result, Request request, CancellationToken cancellationToken);
+        Task AddAsync(Guid tenantId, PredictionResult result,Request request,  CancellationToken cancellationToken);
     }
 
     internal sealed class PredictTeacherCommand(IAIPredictionDbContext dbContext) : IPredictTeacherCommand
