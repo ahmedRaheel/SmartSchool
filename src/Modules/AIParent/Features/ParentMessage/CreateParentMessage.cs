@@ -60,16 +60,18 @@ public static class CreateParentMessage
             }
     }
 
-    public sealed class Handler(ICreateParentMessageCommand command)
+    public sealed class Handler(ICreateParentMessageCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("ParentMessage", "PM", request.TenantId, 3, cancellationToken);
+
             var entity = ParentMessageEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

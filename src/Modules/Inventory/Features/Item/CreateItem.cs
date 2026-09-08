@@ -60,16 +60,18 @@ public static class CreateItem
             }
     }
 
-    public sealed class Handler(ICreateItemCommand command)
+    public sealed class Handler(ICreateItemCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Item", "ITE", request.TenantId, 3, cancellationToken);
+
             var entity = ItemEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

@@ -60,16 +60,18 @@ public static class CreateVehicle
             }
     }
 
-    public sealed class Handler(ICreateVehicleCommand command)
+    public sealed class Handler(ICreateVehicleCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Vehicle", "VEH", request.TenantId, 3, cancellationToken);
+
             var entity = VehicleEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

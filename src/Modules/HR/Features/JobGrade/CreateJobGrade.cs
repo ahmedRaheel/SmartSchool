@@ -60,16 +60,18 @@ public static class CreateJobGrade
             }
     }
 
-    public sealed class Handler(ICreateJobGradeCommand command)
+    public sealed class Handler(ICreateJobGradeCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("JobGrade", "JG", request.TenantId, 3, cancellationToken);
+
             var entity = JobGradeEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

@@ -60,16 +60,18 @@ public static class CreateLearningResource
             }
     }
 
-    public sealed class Handler(ICreateLearningResourceCommand command)
+    public sealed class Handler(ICreateLearningResourceCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("LearningResource", "LRN", request.TenantId, 3, cancellationToken);
+
             var entity = LearningResourceEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

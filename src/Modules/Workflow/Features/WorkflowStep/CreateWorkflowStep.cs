@@ -60,16 +60,18 @@ public static class CreateWorkflowStep
             }
     }
 
-    public sealed class Handler(ICreateWorkflowStepCommand command)
+    public sealed class Handler(ICreateWorkflowStepCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("WorkflowStep", "WS", request.TenantId, 3, cancellationToken);
+
             var entity = WorkflowStepEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

@@ -61,16 +61,18 @@ public static class CreateKnowledgeChunk
             }
     }
 
-    public sealed class Handler(ICreateKnowledgeChunkCommand command)
+    public sealed class Handler(ICreateKnowledgeChunkCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("KnowledgeChunk", "KC", request.TenantId, 3, cancellationToken);
+
             var entity = KnowledgeChunkEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

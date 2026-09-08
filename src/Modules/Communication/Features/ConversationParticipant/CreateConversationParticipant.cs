@@ -60,16 +60,18 @@ public static class CreateConversationParticipant
             }
     }
 
-    public sealed class Handler(ICreateConversationParticipantCommand command)
+    public sealed class Handler(ICreateConversationParticipantCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("ConversationParticipant", "CP", request.TenantId, 3, cancellationToken);
+
             var entity = ConversationParticipantEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

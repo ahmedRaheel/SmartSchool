@@ -60,16 +60,18 @@ public static class CreateScholarship
             }
     }
 
-    public sealed class Handler(ICreateScholarshipCommand command)
+    public sealed class Handler(ICreateScholarshipCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Scholarship", "SCH", request.TenantId, 3, cancellationToken);
+
             var entity = ScholarshipEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

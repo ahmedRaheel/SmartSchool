@@ -33,9 +33,6 @@ public static class GetClassSectionById
     Guid? RoomId,
     string? RoomCode,
     string? RoomName,
-    Guid SectionId,
-    string? SectionCode,
-    string? SectionName,
     Guid GradeLevelId,
     string? GradeLevelCode,
     string? GradeLevelName);
@@ -77,9 +74,6 @@ public static class GetClassSectionById
                         p3.room_id AS "RoomId",
                         p3.code AS "RoomCode",
                         p3.name AS "RoomName",
-                        p4.section_id AS "SectionId",
-                        p4.code AS "SectionCode",
-                        p4.name AS "SectionName",
                         p5.grade_level_id AS "GradeLevelId",
                         p5.code AS "GradeLevelCode",
                         p5.name AS "GradeLevelName"
@@ -90,8 +84,6 @@ public static class GetClassSectionById
                         ON p2.campus_id = entity.campus_id
                     LEFT JOIN org.room AS p3
                         ON p3.room_id = entity.room_id
-                    LEFT JOIN academic.section AS p4
-                        ON p4.section_id = entity.section_id
                     LEFT JOIN academic.grade_level AS p5
                         ON p5.grade_level_id = entity.grade_level_id
                     WHERE entity.tenant_id = @TenantId

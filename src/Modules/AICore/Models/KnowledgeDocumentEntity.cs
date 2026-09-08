@@ -89,9 +89,9 @@ public sealed class KnowledgeDocumentEntity : Entity
         MarkAsUpdated();
     }
     public static KnowledgeDocumentEntity CreateIndexed(
-        Guid tenantId, Guid collectionId, Guid? campusId, Guid? academicSystemId, string title, string metadata)
+        Guid tenantId, string code, Guid collectionId, Guid? campusId, Guid? academicSystemId, string title, string metadata)
     {
-        var entity = Create(tenantId, $"PDF-{Guid.NewGuid():N}", title, metadata);
+        var entity = Create(tenantId, code, title, metadata);
         entity.KnowledgeCollectionId = collectionId;
         entity.CampusId = campusId;
         entity.AcademicSystemId = academicSystemId;

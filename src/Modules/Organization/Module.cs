@@ -62,7 +62,6 @@ public static class Module
         CreateClassSection.MapEndpoint(endpoints);
         GetClassSectionById.MapEndpoint(endpoints);
         GetClassSectionByClassTeacherEmployeeId.MapEndpoint(endpoints);
-        GetClassSectionBySectionId.MapEndpoint(endpoints);
         GetClassSectionByRoomId.MapEndpoint(endpoints);
         GetClassSectionByProgramGradeId.MapEndpoint(endpoints);
         GetClassSectionByCampusId.MapEndpoint(endpoints);

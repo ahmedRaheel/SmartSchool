@@ -61,16 +61,18 @@ public static class CreateTutorMessage
             }
     }
 
-    public sealed class Handler(ICreateTutorMessageCommand command)
+    public sealed class Handler(ICreateTutorMessageCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("TutorMessage", "TMSG", request.TenantId, 3, cancellationToken);
+
             var entity = TutorMessageEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

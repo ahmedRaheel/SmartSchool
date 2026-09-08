@@ -61,16 +61,18 @@ public static class CreateModelConfiguration
             }
     }
 
-    public sealed class Handler(ICreateModelConfigurationCommand command)
+    public sealed class Handler(ICreateModelConfigurationCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("ModelConfiguration", "MC", request.TenantId, 3, cancellationToken);
+
             var entity = ModelConfigurationEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

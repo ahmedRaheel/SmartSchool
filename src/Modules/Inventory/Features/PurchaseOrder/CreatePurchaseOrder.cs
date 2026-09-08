@@ -60,16 +60,18 @@ public static class CreatePurchaseOrder
             }
     }
 
-    public sealed class Handler(ICreatePurchaseOrderCommand command)
+    public sealed class Handler(ICreatePurchaseOrderCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("PurchaseOrder", "PO", request.TenantId, 3, cancellationToken);
+
             var entity = PurchaseOrderEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

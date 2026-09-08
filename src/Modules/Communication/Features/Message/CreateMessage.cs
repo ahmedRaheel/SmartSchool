@@ -60,16 +60,18 @@ public static class CreateMessage
             }
     }
 
-    public sealed class Handler(ICreateMessageCommand command)
+    public sealed class Handler(ICreateMessageCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Message", "MES", request.TenantId, 3, cancellationToken);
+
             var entity = MessageEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

@@ -60,16 +60,18 @@ public static class CreatePayment
             }
     }
 
-    public sealed class Handler(ICreatePaymentCommand command)
+    public sealed class Handler(ICreatePaymentCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Payment", "PAY", request.TenantId, 3, cancellationToken);
+
             var entity = PaymentEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

@@ -60,16 +60,18 @@ public static class CreateStop
             }
     }
 
-    public sealed class Handler(ICreateStopCommand command)
+    public sealed class Handler(ICreateStopCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Stop", "STO", request.TenantId, 3, cancellationToken);
+
             var entity = StopEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

@@ -60,16 +60,18 @@ public static class CreateInterview
             }
     }
 
-    public sealed class Handler(ICreateInterviewCommand command)
+    public sealed class Handler(ICreateInterviewCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Interview", "INT", request.TenantId, 3, cancellationToken);
+
             var entity = InterviewEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

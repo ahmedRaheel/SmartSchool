@@ -60,16 +60,18 @@ public static class CreateGradeScale
             }
     }
 
-    public sealed class Handler(ICreateGradeScaleCommand command)
+    public sealed class Handler(ICreateGradeScaleCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("GradeScale", "GS", request.TenantId, 3, cancellationToken);
+
             var entity = GradeScaleEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

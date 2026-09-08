@@ -60,16 +60,18 @@ public static class CreatePosition
             }
     }
 
-    public sealed class Handler(ICreatePositionCommand command)
+    public sealed class Handler(ICreatePositionCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Position", "POS", request.TenantId, 3, cancellationToken);
+
             var entity = PositionEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

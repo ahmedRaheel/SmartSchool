@@ -61,16 +61,18 @@ public static class CreateHumanHandoff
             }
     }
 
-    public sealed class Handler(ICreateHumanHandoffCommand command)
+    public sealed class Handler(ICreateHumanHandoffCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("HumanHandoff", "HH", request.TenantId, 3, cancellationToken);
+
             var entity = HumanHandoffEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

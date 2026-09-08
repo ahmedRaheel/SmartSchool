@@ -61,16 +61,18 @@ public static class CreateKnowledgeCollection
             }
     }
 
-    public sealed class Handler(ICreateKnowledgeCollectionCommand command)
+    public sealed class Handler(ICreateKnowledgeCollectionCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("KnowledgeCollection", "KCOL", request.TenantId, 3, cancellationToken);
+
             var entity = KnowledgeCollectionEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

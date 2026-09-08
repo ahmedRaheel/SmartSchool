@@ -1,3 +1,4 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -60,16 +61,18 @@ public static class CreateAcademicSystem
             }
     }
 
-    public sealed class Handler(ICreateAcademicSystemCommand command)
+    public sealed class Handler(ICreateAcademicSystemCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("AcademicSystem", "AS", request.TenantId, 3, cancellationToken);
+
             var entity = AcademicSystemEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

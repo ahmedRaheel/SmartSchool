@@ -9,7 +9,7 @@ namespace SmartSchool.Modules.Organization.Features.ClassSection;
 
 public static class GetClassSectionsByParentId
 {
-    public sealed record Response(Guid Id, string Code, string Name, Guid CampusId, Guid AcademicYearId, Guid GradeLevelId, Guid SectionId);
+    public sealed record Response(Guid Id, string Code, string Name, Guid CampusId, Guid AcademicYearId, Guid GradeLevelId);
     public sealed record Query(Guid TenantId, Guid? CampusId, Guid? AcademicYearId, Guid? GradeLevelId) : IRequest<Result<IReadOnlyCollection<Response>>>;
     public interface IGetClassSectionsByParentIdQuery { Task<IReadOnlyCollection<Response>> GetAsync(Guid tenantId, Guid? campusId, Guid? academicYearId, Guid? gradeLevelId, CancellationToken cancellationToken); }
     internal sealed class GetClassSectionsByParentIdQuery(IDbConnectionFactory connectionFactory) : IGetClassSectionsByParentIdQuery
@@ -17,7 +17,7 @@ public static class GetClassSectionsByParentId
         public async Task<IReadOnlyCollection<Response>> GetAsync(Guid tenantId, Guid? campusId, Guid? academicYearId, Guid? gradeLevelId, CancellationToken cancellationToken)
         {
             const string sql = """
-                SELECT class_section_id AS "Id", code AS "Code", name AS "Name", campus_id AS "CampusId", academic_year_id AS "AcademicYearId", grade_level_id AS "GradeLevelId", section_id AS "SectionId"
+                SELECT class_section_id AS "Id", code AS "Code", name AS "Name", campus_id AS "CampusId", academic_year_id AS "AcademicYearId", grade_level_id AS "GradeLevelId"
                 FROM academic.class_section
                 WHERE tenant_id=@TenantId AND is_active=TRUE
                   AND (@CampusId IS NULL OR campus_id=@CampusId)

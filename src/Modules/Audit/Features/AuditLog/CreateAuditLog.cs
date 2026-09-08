@@ -60,16 +60,18 @@ public static class CreateAuditLog
             }
     }
 
-    public sealed class Handler(ICreateAuditLogCommand command)
+    public sealed class Handler(ICreateAuditLogCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("AuditLog", "AL", request.TenantId, 3, cancellationToken);
+
             var entity = AuditLogEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);
