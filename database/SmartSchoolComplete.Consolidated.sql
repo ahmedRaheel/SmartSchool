@@ -3643,3 +3643,9 @@ CREATE TABLE IF NOT EXISTS hr.teacher_teaching_assignment (
 CREATE INDEX IF NOT EXISTS ix_teacher_teaching_assignment_employee ON hr.teacher_teaching_assignment(tenant_id, employee_id);
 CREATE INDEX IF NOT EXISTS ix_teacher_teaching_assignment_campus ON hr.teacher_teaching_assignment(tenant_id, campus_id);
 COMMIT;
+
+-- ============================================================================
+-- SOURCE: database/postgresql/20260908_domain_schema_sync_department_grading.sql
+-- Applicant/Discount/StudentOfMonth + Department-owned fees + Campus grading.
+-- ============================================================================
+\i database/postgresql/20260908_domain_schema_sync_department_grading.sql

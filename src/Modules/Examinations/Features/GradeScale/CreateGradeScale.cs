@@ -29,13 +29,21 @@ public static class CreateGradeScale
 
     public sealed record Request(
         Guid TenantId,
-        string Name) : IRequest<Result<Response>>;
+        Guid CampusId,
+        string Name,
+        decimal MinimumPercentage,
+        decimal MaximumPercentage,
+        decimal? GradePoint,
+        string? Description) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.CampusId).NotEmpty();
+            RuleFor(x => x.MinimumPercentage).InclusiveBetween(0, 100);
+            RuleFor(x => x.MaximumPercentage).InclusiveBetween(0, 100).GreaterThanOrEqualTo(x => x.MinimumPercentage);
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
@@ -71,8 +79,13 @@ public static class CreateGradeScale
 
             var entity = GradeScaleEntity.Create(
                 request.TenantId,
+                request.CampusId,
                 code,
-                request.Name);
+                request.Name,
+                request.MinimumPercentage,
+                request.MaximumPercentage,
+                request.GradePoint,
+                request.Description);
 
             await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));

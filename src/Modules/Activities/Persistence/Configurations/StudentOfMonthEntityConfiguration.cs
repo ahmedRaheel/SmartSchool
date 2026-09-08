@@ -12,7 +12,7 @@ public sealed class StudentOfMonthEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<StudentOfMonthEntity> builder)
     {
-        builder.ToTable("StudentOfMonth", schema: "activity");
+        builder.ToTable("student_of_month", schema: "activity");
         builder.HasKey(entity => entity.StudentOfMonthId);
 
         builder
@@ -50,6 +50,10 @@ public sealed class StudentOfMonthEntityConfiguration
         builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
         builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
         builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+        builder.Property(entity => entity.DepartmentId).HasColumnName("department_id").IsRequired();
+        builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+        builder.Property(entity => entity.AwardMonth).HasColumnName("award_month");
+        builder.Property(entity => entity.AwardYear).HasColumnName("award_year");
         builder.Property(entity => entity.Code).HasColumnName("code");
         builder.Property(entity => entity.Name).HasColumnName("name");
         builder.Property(entity => entity.StudentOfMonthId).HasColumnName("student_of_month_id");

@@ -5,6 +5,7 @@ namespace SmartSchool.Modules.Finance.Models;
 public sealed class FeeTypeEntity : Entity
 {
     public Guid FeeTypeId { get; private set; } = Guid.NewGuid();
+    public Guid DepartmentId { get; private set; }
     public string Code { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
     public string Frequency { get; private set; } = "Monthly";
@@ -13,12 +14,12 @@ public sealed class FeeTypeEntity : Entity
 
     private FeeTypeEntity() { }
 
-    public static FeeTypeEntity Create(Guid tenantId, string code, string name, string frequency, string? description = null)
+    public static FeeTypeEntity Create(Guid tenantId, Guid departmentId, string code, string name, string frequency, string? description = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(frequency);
-        return new FeeTypeEntity { TenantId=tenantId, Code=code.Trim(), Name=name.Trim(), Frequency=frequency.Trim(), Description=description?.Trim() };
+        return new FeeTypeEntity { TenantId=tenantId, DepartmentId=departmentId, Code=code.Trim(), Name=name.Trim(), Frequency=frequency.Trim(), Description=description?.Trim() };
     }
 
     public void UpdateDetails(string name, string frequency, bool isActive, string? description = null)

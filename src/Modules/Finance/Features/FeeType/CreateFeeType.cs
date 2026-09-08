@@ -12,10 +12,10 @@ namespace SmartSchool.Modules.Finance.Features.FeeType;
 public static class CreateFeeType
 {
     public sealed record Response(Guid TenantId, Guid Id, string Code, string Name, string Frequency, bool IsActive, string? Description);
-    public sealed record Request(Guid TenantId, string Name, string Frequency = "Monthly", string? Description = null) : IRequest<Result<Response>>;
+    public sealed record Request(Guid TenantId, Guid DepartmentId, string Name, string Frequency = "Monthly", string? Description = null) : IRequest<Result<Response>>;
     public sealed class Validator : AbstractValidator<Request>
     {
-        public Validator() { RuleFor(x=>x.TenantId).NotEmpty(); RuleFor(x=>x.Name).NotEmpty().MaximumLength(120); RuleFor(x=>x.Frequency).NotEmpty().Must(x=>new[]{"Monthly","Term","Annual","OneTime"}.Contains(x)); }
+        public Validator() { RuleFor(x=>x.TenantId).NotEmpty(); RuleFor(x=>x.DepartmentId).NotEmpty(); RuleFor(x=>x.Name).NotEmpty().MaximumLength(120); RuleFor(x=>x.Frequency).NotEmpty().Must(x=>new[]{"Monthly","Term","Annual","OneTime"}.Contains(x)); }
     }
     public interface ICreateFeeTypeCommand { Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken); }
     internal sealed class CreateFeeTypeCommand(IFinanceDbContext dbContext) : ICreateFeeTypeCommand
@@ -27,7 +27,7 @@ public static class CreateFeeType
         public async Task<Result<Response>> HandleAsync(Request request,CancellationToken cancellationToken)
         {
             var code = await numberGenerator.NextAsync("FeeType", "FEE", request.TenantId, 3, cancellationToken);
-            var entity=FeeTypeEntity.Create(request.TenantId,code,request.Name,request.Frequency,request.Description);
+            var entity=FeeTypeEntity.Create(request.TenantId, request.DepartmentId, code,request.Name,request.Frequency,request.Description);
             await persistence.AddAsync(entity,cancellationToken);
             return Result<Response>.Success(new(entity.TenantId,entity.FeeTypeId,entity.Code,entity.Name,entity.Frequency,entity.IsActive,entity.Description));
         }

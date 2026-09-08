@@ -11,12 +11,13 @@ namespace SmartSchool.Modules.Finance.Features.FeeStructure;
 public static class CreateFeeStructure
 {
     public sealed record Response(Guid TenantId, Guid Id, Guid GradeLevelId, Guid FeeTypeId, Guid? AcademicYearId, decimal Amount, string Frequency, DateOnly? EffectiveFrom, DateOnly? EffectiveTo, bool IsActive);
-    public sealed record Request(Guid TenantId, Guid GradeLevelId, Guid FeeTypeId, decimal Amount, string Frequency = "Monthly", Guid? AcademicYearId = null, DateOnly? EffectiveFrom = null, DateOnly? EffectiveTo = null) : IRequest<Result<Response>>;
+    public sealed record Request(Guid TenantId, Guid DepartmentId, Guid GradeLevelId, Guid FeeTypeId, decimal Amount, string Frequency = "Monthly", Guid? AcademicYearId = null, DateOnly? EffectiveFrom = null, DateOnly? EffectiveTo = null) : IRequest<Result<Response>>;
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.DepartmentId).NotEmpty();
             RuleFor(x => x.GradeLevelId).NotEmpty();
             RuleFor(x => x.FeeTypeId).NotEmpty();
             RuleFor(x => x.Amount).GreaterThanOrEqualTo(0);
@@ -40,6 +41,7 @@ public static class CreateFeeStructure
         {
             var code = await numberGenerator.NextAsync("FeeStructure", "FS", x.TenantId, 3, cancellationToken);
             var feeStructure = FeeStructureEntity.Create(x.TenantId,
+                x.DepartmentId,
                 code,
                 x.GradeLevelId,
                 x.FeeTypeId,

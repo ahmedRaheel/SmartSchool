@@ -34,6 +34,7 @@ public static class Module
         CreateFeeType.MapEndpoint(endpoints);
         GetFeeTypeById.MapEndpoint(endpoints);
         GetFeeTypePage.MapEndpoint(endpoints);
+        GetFeeTypesByDepartmentId.MapEndpoint(endpoints);
         UpdateFeeType.MapEndpoint(endpoints);
         DeleteFeeType.MapEndpoint(endpoints);
         CreateInvoice.MapEndpoint(endpoints);
