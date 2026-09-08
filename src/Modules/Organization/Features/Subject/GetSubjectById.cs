@@ -23,6 +23,12 @@ public static class GetSubjectById
     Guid Id,
     string Code,
     string Name,
+    Guid DepartmentId,
+    string? DepartmentCode,
+    string? DepartmentName,
+    Guid? CampusId,
+    string? CampusCode,
+    string? CampusName,
     string? MetadataJson);
 
     public sealed record Query(
@@ -48,15 +54,23 @@ public static class GetSubjectById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        subject_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM academic.subject
-                    WHERE tenant_id = @TenantId
-                      AND subject_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.subject_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.department_id AS "DepartmentId",
+                        department.code AS "DepartmentCode",
+                        department.name AS "DepartmentName",
+                        campus.campus_id AS "CampusId",
+                        campus.code AS "CampusCode",
+                        campus.name AS "CampusName",
+                        entity.metadata_json AS "MetadataJson"
+                    FROM academic.subject entity
+                    INNER JOIN org.department department ON department.department_id = entity.department_id AND department.tenant_id = entity.tenant_id
+                    LEFT JOIN org.campus campus ON campus.campus_id = department.campus_id AND campus.tenant_id = entity.tenant_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.subject_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

@@ -53,6 +53,7 @@ public static class Module
         CreateStudent.MapEndpoint(endpoints);
         GetStudentById.MapEndpoint(endpoints);
         GetStudentPage.MapEndpoint(endpoints);
+        GetStudentsByCurrentCampus.MapEndpoint(endpoints);
         UpdateStudent.MapEndpoint(endpoints);
         DeleteStudent.MapEndpoint(endpoints);
         ApproveStudentAdmission.MapEndpoint(endpoints);

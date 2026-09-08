@@ -30,7 +30,7 @@ public static class CreateSubject
 
     public sealed record Request(
         Guid TenantId,
-        Guid BranchId,
+        Guid DepartmentId,
         string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
@@ -38,7 +38,7 @@ public static class CreateSubject
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
-            RuleFor(x => x.BranchId).NotEmpty();
+            RuleFor(x => x.DepartmentId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }    public interface ICreateSubjectCommand
@@ -56,13 +56,12 @@ public static class CreateSubject
         {
             var code = await numberGenerator.NextAsync(
                 "SUBJECT", "SUB", request.TenantId, 8, cancellationToken);
-            var subjectId = Guid.NewGuid();
             var subject = SubjectEntity.Create(
-                request.TenantId, subjectId, code, request.Name);
+                request.TenantId, request.DepartmentId, code, request.Name);
 
             await dbContext.Subjects.AddAsync(subject, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
-            return Result<Response>.Success(new Response(request.TenantId, subjectId, code, request.Name));
+            return Result<Response>.Success(new Response(request.TenantId, subject.SubjectId, code, request.Name));
         }
     }
 

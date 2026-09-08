@@ -94,6 +94,7 @@ public static class Module
         DeleteProgram.MapEndpoint(endpoints);
         CreateSubject.MapEndpoint(endpoints);
         GetSubjectById.MapEndpoint(endpoints);
+        GetSubjectByDepartmentId.MapEndpoint(endpoints);
         GetSubjectPage.MapEndpoint(endpoints);
         UpdateSubject.MapEndpoint(endpoints);
         DeleteSubject.MapEndpoint(endpoints);
@@ -126,6 +127,7 @@ public static class Module
         GetBranchPolicy.MapEndpoint(endpoints);
         GetCampusById.MapEndpoint(endpoints);
         GetCampusPage.MapEndpoint(endpoints);
+        GetCurrentCampus.MapEndpoint(endpoints);
         UpdateCampus.MapEndpoint(endpoints);
         DeleteCampus.MapEndpoint(endpoints);
         CreateDepartment.MapEndpoint(endpoints);

@@ -24,6 +24,12 @@ public static class GetSubjectPage
     Guid Id,
     string Code,
     string Name,
+    Guid DepartmentId,
+    string? DepartmentCode,
+    string? DepartmentName,
+    Guid? CampusId,
+    string? CampusCode,
+    string? CampusName,
     string? MetadataJson);
 
     public sealed record Query(
@@ -52,9 +58,9 @@ public static class GetSubjectPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM academic.subject
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM academic.subject entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
@@ -64,8 +70,8 @@ public static class GetSubjectPage
                     code AS "Code",
                     name AS "Name",
                     metadata_json AS "MetadataJson"
-                    FROM academic.subject
-                    WHERE tenant_id = @TenantId
+                    FROM academic.subject entity
+                    WHERE entity.tenant_id = @TenantId
                       AND is_active = TRUE
                     ORDER BY subject_id
                     LIMIT @PageSize OFFSET @Offset;

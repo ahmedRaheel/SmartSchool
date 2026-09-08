@@ -25,6 +25,7 @@ public interface IHRDbContext
     DbSet<TeacherDirectoryReadEntity> TeacherDirectoryReads { get; }
     DbSet<TeacherDocumentEntity> TeacherDocuments { get; }
     DbSet<TeacherProfileEntity> TeacherProfiles { get; }
+    DbSet<TeacherTeachingAssignmentEntity> TeacherTeachingAssignments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -53,6 +54,7 @@ public sealed class HRDbContext(DbContextOptions<HRDbContext> options)
     public DbSet<TeacherDirectoryReadEntity> TeacherDirectoryReads => Set<TeacherDirectoryReadEntity>();
     public DbSet<TeacherDocumentEntity> TeacherDocuments => Set<TeacherDocumentEntity>();
     public DbSet<TeacherProfileEntity> TeacherProfiles => Set<TeacherProfileEntity>();
+    public DbSet<TeacherTeachingAssignmentEntity> TeacherTeachingAssignments => Set<TeacherTeachingAssignmentEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
