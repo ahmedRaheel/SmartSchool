@@ -29,16 +29,22 @@ public static class Module
     {
         CreateActivity.MapEndpoint(endpoints);
         GetActivityById.MapEndpoint(endpoints);
+        GetActivityByCoordinatorEmployeeId.MapEndpoint(endpoints);
+        GetActivityByCampusId.MapEndpoint(endpoints);
         GetActivityPage.MapEndpoint(endpoints);
         UpdateActivity.MapEndpoint(endpoints);
         DeleteActivity.MapEndpoint(endpoints);
         CreateAward.MapEndpoint(endpoints);
         GetAwardById.MapEndpoint(endpoints);
+        GetAwardByStudentId.MapEndpoint(endpoints);
+        GetAwardByGeneratedDocumentId.MapEndpoint(endpoints);
         GetAwardPage.MapEndpoint(endpoints);
         UpdateAward.MapEndpoint(endpoints);
         DeleteAward.MapEndpoint(endpoints);
         CreateStudentActivity.MapEndpoint(endpoints);
         GetStudentActivityById.MapEndpoint(endpoints);
+        GetStudentActivityByStudentId.MapEndpoint(endpoints);
+        GetStudentActivityByActivityId.MapEndpoint(endpoints);
         GetStudentActivityPage.MapEndpoint(endpoints);
         UpdateStudentActivity.MapEndpoint(endpoints);
         DeleteStudentActivity.MapEndpoint(endpoints);

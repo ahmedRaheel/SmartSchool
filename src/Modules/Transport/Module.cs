@@ -29,11 +29,13 @@ public static class Module
     {
         CreateRoute.MapEndpoint(endpoints);
         GetRouteById.MapEndpoint(endpoints);
+        GetRouteByCampusId.MapEndpoint(endpoints);
         GetRoutePage.MapEndpoint(endpoints);
         UpdateRoute.MapEndpoint(endpoints);
         DeleteRoute.MapEndpoint(endpoints);
         CreateVehicle.MapEndpoint(endpoints);
         GetVehicleById.MapEndpoint(endpoints);
+        GetVehicleByCampusId.MapEndpoint(endpoints);
         GetVehiclePage.MapEndpoint(endpoints);
         UpdateVehicle.MapEndpoint(endpoints);
         DeleteVehicle.MapEndpoint(endpoints);

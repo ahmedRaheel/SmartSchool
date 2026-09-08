@@ -79,6 +79,9 @@ public static class Module
     {
         CreateEnrollment.MapEndpoint(endpoints);
         GetEnrollmentById.MapEndpoint(endpoints);
+        GetEnrollmentByStudentId.MapEndpoint(endpoints);
+        GetEnrollmentByClassSectionId.MapEndpoint(endpoints);
+        GetEnrollmentByAcademicYearId.MapEndpoint(endpoints);
         GetEnrollmentPage.MapEndpoint(endpoints);
         UpdateEnrollment.MapEndpoint(endpoints);
         DeleteEnrollment.MapEndpoint(endpoints);

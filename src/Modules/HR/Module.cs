@@ -56,6 +56,8 @@ public static class Module
         DeleteInterview.MapEndpoint(endpoints);
         CreateJob.MapEndpoint(endpoints);
         GetJobById.MapEndpoint(endpoints);
+        GetJobByJobFamilyId.MapEndpoint(endpoints);
+        GetJobByDepartmentId.MapEndpoint(endpoints);
         GetJobPage.MapEndpoint(endpoints);
         UpdateJob.MapEndpoint(endpoints);
         DeleteJob.MapEndpoint(endpoints);

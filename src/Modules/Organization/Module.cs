@@ -61,6 +61,12 @@ public static class Module
         DeleteAcademicYear.MapEndpoint(endpoints);
         CreateClassSection.MapEndpoint(endpoints);
         GetClassSectionById.MapEndpoint(endpoints);
+        GetClassSectionByClassTeacherEmployeeId.MapEndpoint(endpoints);
+        GetClassSectionBySectionId.MapEndpoint(endpoints);
+        GetClassSectionByRoomId.MapEndpoint(endpoints);
+        GetClassSectionByProgramGradeId.MapEndpoint(endpoints);
+        GetClassSectionByCampusId.MapEndpoint(endpoints);
+        GetClassSectionByAcademicYearId.MapEndpoint(endpoints);
         GetClassSectionPage.MapEndpoint(endpoints);
         GetClassSectionsByParentId.MapEndpoint(endpoints);
         GetSections.MapEndpoint(endpoints);
@@ -68,6 +74,10 @@ public static class Module
         DeleteClassSection.MapEndpoint(endpoints);
         CreateCourseOffering.MapEndpoint(endpoints);
         GetCourseOfferingById.MapEndpoint(endpoints);
+        GetCourseOfferingByTermId.MapEndpoint(endpoints);
+        GetCourseOfferingByProgramSubjectId.MapEndpoint(endpoints);
+        GetCourseOfferingByCampusId.MapEndpoint(endpoints);
+        GetCourseOfferingByAcademicYearId.MapEndpoint(endpoints);
         GetCourseOfferingPage.MapEndpoint(endpoints);
         UpdateCourseOffering.MapEndpoint(endpoints);
         DeleteCourseOffering.MapEndpoint(endpoints);
@@ -79,6 +89,7 @@ public static class Module
         DeleteGradeLevel.MapEndpoint(endpoints);
         CreateProgram.MapEndpoint(endpoints);
         GetProgramById.MapEndpoint(endpoints);
+        GetProgramByAcademicSystemId.MapEndpoint(endpoints);
         GetProgramPage.MapEndpoint(endpoints);
         UpdateProgram.MapEndpoint(endpoints);
         DeleteProgram.MapEndpoint(endpoints);
@@ -89,11 +100,15 @@ public static class Module
         DeleteSubject.MapEndpoint(endpoints);
         CreateTerm.MapEndpoint(endpoints);
         GetTermById.MapEndpoint(endpoints);
+        GetTermByAcademicYearId.MapEndpoint(endpoints);
         GetTermPage.MapEndpoint(endpoints);
         UpdateTerm.MapEndpoint(endpoints);
         DeleteTerm.MapEndpoint(endpoints);
         CreateTimetable.MapEndpoint(endpoints);
         GetTimetableById.MapEndpoint(endpoints);
+        GetTimetableByTermId.MapEndpoint(endpoints);
+        GetTimetableByCampusId.MapEndpoint(endpoints);
+        GetTimetableByAcademicYearId.MapEndpoint(endpoints);
         GetTimetablePage.MapEndpoint(endpoints);
         UpdateTimetable.MapEndpoint(endpoints);
         DeleteTimetable.MapEndpoint(endpoints);
@@ -116,6 +131,7 @@ public static class Module
         DeleteCampus.MapEndpoint(endpoints);
         CreateDepartment.MapEndpoint(endpoints);
         GetDepartmentById.MapEndpoint(endpoints);
+        GetDepartmentByCampusId.MapEndpoint(endpoints);
         GetDepartmentPage.MapEndpoint(endpoints);
         UpdateDepartment.MapEndpoint(endpoints);
         DeleteDepartment.MapEndpoint(endpoints);

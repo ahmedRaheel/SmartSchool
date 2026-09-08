@@ -35,11 +35,16 @@ public static class Module
     {
         CreateDocumentTemplate.MapEndpoint(endpoints);
         GetDocumentTemplateById.MapEndpoint(endpoints);
+        GetDocumentTemplateByCampusId.MapEndpoint(endpoints);
+        GetDocumentTemplateByAcademicSystemId.MapEndpoint(endpoints);
         GetDocumentTemplatePage.MapEndpoint(endpoints);
         UpdateDocumentTemplate.MapEndpoint(endpoints);
         DeleteDocumentTemplate.MapEndpoint(endpoints);
         CreateGeneratedDocument.MapEndpoint(endpoints);
         GetGeneratedDocumentById.MapEndpoint(endpoints);
+        GetGeneratedDocumentByStudentId.MapEndpoint(endpoints);
+        GetGeneratedDocumentByEmployeeId.MapEndpoint(endpoints);
+        GetGeneratedDocumentByDocumentTemplateId.MapEndpoint(endpoints);
         GetGeneratedDocumentPage.MapEndpoint(endpoints);
         UpdateGeneratedDocument.MapEndpoint(endpoints);
         DeleteGeneratedDocument.MapEndpoint(endpoints);

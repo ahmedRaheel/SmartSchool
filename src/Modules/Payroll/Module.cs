@@ -31,6 +31,8 @@ public static class Module
     {
         CreateEmployeeCompensation.MapEndpoint(endpoints);
         GetEmployeeCompensationById.MapEndpoint(endpoints);
+        GetEmployeeCompensationByJobGradeId.MapEndpoint(endpoints);
+        GetEmployeeCompensationByEmployeeId.MapEndpoint(endpoints);
         GetEmployeeCompensationPage.MapEndpoint(endpoints);
         UpdateEmployeeCompensation.MapEndpoint(endpoints);
         DeleteEmployeeCompensation.MapEndpoint(endpoints);
