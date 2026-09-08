@@ -94,7 +94,8 @@ public static class Module
         UpdateTimetable.MapEndpoint(endpoints);
         DeleteTimetable.MapEndpoint(endpoints);
 
-        TenantSettingsFeature.MapEndpoints(endpoints);
+        GetTenantSettings.MapEndpoint(endpoints);
+        SaveTenantSettings.MapEndpoint(endpoints);
 
         CreateTenant.MapEndpoint(endpoints);
         GetOrganizationById.MapEndpoint(endpoints);
@@ -102,7 +103,9 @@ public static class Module
         UpdateOrganization.MapEndpoint(endpoints);
         DeleteOrganization.MapEndpoint(endpoints);
         CreateCampus.MapEndpoint(endpoints);
-        BranchPolicyEndpoints.MapEndpoints(endpoints);
+        GetBranchGenderTypes.MapEndpoint(endpoints);
+        GetEducationLevels.MapEndpoint(endpoints);
+        GetBranchPolicy.MapEndpoint(endpoints);
         GetCampusById.MapEndpoint(endpoints);
         GetCampusPage.MapEndpoint(endpoints);
         UpdateCampus.MapEndpoint(endpoints);

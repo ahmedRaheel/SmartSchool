@@ -42,7 +42,14 @@ public static class Module
     {
         CreateClassPerformanceInsight.MapEndpoint(endpoints);
         PredictExamPerformance.MapEndpoint(endpoints);
-        PredictionSuiteEndpoints.MapEndpoints(endpoints);
+        PredictStudent.MapEndpoint(endpoints);
+        GetEarlyWarning.MapEndpoint(endpoints);
+        PredictAdmission.MapEndpoint(endpoints);
+        PredictTeacher.MapEndpoint(endpoints);
+        PredictPayrollAnomaly.MapEndpoint(endpoints);
+        PredictTransportDelay.MapEndpoint(endpoints);
+        PredictLibraryOverdue.MapEndpoint(endpoints);
+        ForecastPrediction.MapEndpoint(endpoints);
         GetClassPerformanceInsightById.MapEndpoint(endpoints);
         GetClassPerformanceInsightPage.MapEndpoint(endpoints);
         UpdateClassPerformanceInsight.MapEndpoint(endpoints);
