@@ -154,6 +154,13 @@ public sealed class EmployeeEntity : Entity
         };
     }
 
+    public void LinkIdentityAccount(Guid userId)
+    {
+        if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
+        UserId = userId;
+        MarkAsUpdated();
+    }
+
     /// <summary>Approves employment and links the provisioned Identity account.</summary>
     public void ApproveEmployment(Guid userId, string employeeNumber)
     {

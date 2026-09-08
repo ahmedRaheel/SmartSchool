@@ -90,6 +90,13 @@ public sealed class StudentEntity : Entity
         };
     }
 
+    public void LinkIdentityAccount(Guid userId)
+    {
+        if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
+        UserId = userId;
+        MarkAsUpdated();
+    }
+
     /// <summary>Approves the admission and links the provisioned Identity account.</summary>
     public void ApproveAdmission(Guid userId, string studentNumber)
     {

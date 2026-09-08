@@ -55,7 +55,7 @@ public static class GetAcademicYearById
                 const string sql = """
                     SELECT
                         entity.tenant_id AS "TenantId",
-                        entity.start_date AS "Id",
+                        entity.academic_year_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
                         entity.metadata_json AS "MetadataJson",
@@ -69,9 +69,9 @@ public static class GetAcademicYearById
                     LEFT JOIN org.campus AS p1
                         ON p1.campus_id = entity.campus_id
                     LEFT JOIN org.school AS p2
-                        ON p2.school_id = entity.school_id
+                        ON p2.school_id = p1.school_id
                     WHERE entity.tenant_id = @TenantId
-                      AND entity.start_date = @Id
+                      AND entity.academic_year_id = @Id
                       AND entity.is_active = TRUE;
                     """;
 

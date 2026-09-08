@@ -29,11 +29,17 @@ public static class Module
     {
         CreateAssignment.MapEndpoint(endpoints);
         GetAssignmentById.MapEndpoint(endpoints);
+        GetAssignmentByTeachingGroupId.MapEndpoint(endpoints);
+        GetAssignmentByTeacherEmployeeId.MapEndpoint(endpoints);
+        GetAssignmentByCourseOfferingId.MapEndpoint(endpoints);
+        GetAssignmentByClassSectionId.MapEndpoint(endpoints);
         GetAssignmentPage.MapEndpoint(endpoints);
         UpdateAssignment.MapEndpoint(endpoints);
         DeleteAssignment.MapEndpoint(endpoints);
         CreateAssignmentSubmission.MapEndpoint(endpoints);
         GetAssignmentSubmissionById.MapEndpoint(endpoints);
+        GetAssignmentSubmissionByStudentId.MapEndpoint(endpoints);
+        GetAssignmentSubmissionByAcademicAssignmentId.MapEndpoint(endpoints);
         GetAssignmentSubmissionPage.MapEndpoint(endpoints);
         UpdateAssignmentSubmission.MapEndpoint(endpoints);
         DeleteAssignmentSubmission.MapEndpoint(endpoints);

@@ -74,16 +74,22 @@ public static class ApproveEmployee
             var employeeNumber = await numberGenerator.NextAsync(
                 $"EMPLOYEE:{marker}:{employee.BranchId}", $"{branchCode}-{marker}-", request.TenantId, 7, cancellationToken);
 
-            var accountType = request.Roles.Any(r => r.Equals(SmartSchoolRoles.Teacher, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Teacher
-                : request.Roles.Any(r => r.Equals(SmartSchoolRoles.Driver, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Driver
-                : request.Roles.Any(r => r.Equals("Examiner", StringComparison.OrdinalIgnoreCase)) ? "Examiner" : "Employee";
-            var account = await accounts.CreateAccountAsync(
-                request.TenantId, employee.EmployeeId, accountType, employee.Email, employee.FirstName, employee.LastName ?? string.Empty,
-                employee.SchoolId, employee.BranchId, request.Roles, cancellationToken);
+            var userId = employee.UserId;
+            if (!userId.HasValue)
+            {
+                var accountType = request.Roles.Any(r => r.Equals(SmartSchoolRoles.Teacher, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Teacher
+                    : request.Roles.Any(r => r.Equals(SmartSchoolRoles.Driver, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Driver
+                    : request.Roles.Any(r => r.Equals(SmartSchoolRoles.Examiner, StringComparison.OrdinalIgnoreCase)) ? SmartSchoolRoles.Examiner
+                    : "Employee";
+                var account = await accounts.CreateAccountAsync(
+                    request.TenantId, employee.EmployeeId, accountType, employee.Email, employee.FirstName, employee.LastName ?? string.Empty,
+                    employee.SchoolId, employee.BranchId, request.Roles, cancellationToken);
+                userId = account.UserId;
+            }
 
-            employee.ApproveEmployment(account.UserId, employeeNumber);
+            employee.ApproveEmployment(userId.Value, employeeNumber);
             await command.UpdateAsync(employee, cancellationToken);
-            return Result<Response>.Success(new Response(employee.EmployeeId, account.UserId, employee.EmployeeNumber!, employee.Status, request.Roles));
+            return Result<Response>.Success(new Response(employee.EmployeeId, userId.Value, employee.EmployeeNumber!, employee.Status, request.Roles));
         }
     }
 

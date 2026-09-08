@@ -67,11 +67,13 @@ public static class Module
     {
         CreateAiExecutionLog.MapEndpoint(endpoints);
         GetAiExecutionLogById.MapEndpoint(endpoints);
+        GetAiExecutionLogByModelConfigurationId.MapEndpoint(endpoints);
         GetAiExecutionLogPage.MapEndpoint(endpoints);
         UpdateAiExecutionLog.MapEndpoint(endpoints);
         DeleteAiExecutionLog.MapEndpoint(endpoints);
         CreateKnowledgeChunk.MapEndpoint(endpoints);
         GetKnowledgeChunkById.MapEndpoint(endpoints);
+        GetKnowledgeChunkByKnowledgeDocumentId.MapEndpoint(endpoints);
         GetKnowledgeChunkPage.MapEndpoint(endpoints);
         UpdateKnowledgeChunk.MapEndpoint(endpoints);
         DeleteKnowledgeChunk.MapEndpoint(endpoints);
@@ -82,6 +84,9 @@ public static class Module
         DeleteKnowledgeCollection.MapEndpoint(endpoints);
         CreateKnowledgeDocument.MapEndpoint(endpoints);
         GetKnowledgeDocumentById.MapEndpoint(endpoints);
+        GetKnowledgeDocumentByKnowledgeCollectionId.MapEndpoint(endpoints);
+        GetKnowledgeDocumentByCampusId.MapEndpoint(endpoints);
+        GetKnowledgeDocumentByAcademicSystemId.MapEndpoint(endpoints);
         GetKnowledgeDocumentPage.MapEndpoint(endpoints);
         UpdateKnowledgeDocument.MapEndpoint(endpoints);
         DeleteKnowledgeDocument.MapEndpoint(endpoints);

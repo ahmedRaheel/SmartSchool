@@ -34,11 +34,16 @@ public static class Module
         DeleteBook.MapEndpoint(endpoints);
         CreateBookCopy.MapEndpoint(endpoints);
         GetBookCopyById.MapEndpoint(endpoints);
+        GetBookCopyByCampusId.MapEndpoint(endpoints);
+        GetBookCopyByBookId.MapEndpoint(endpoints);
         GetBookCopyPage.MapEndpoint(endpoints);
         UpdateBookCopy.MapEndpoint(endpoints);
         DeleteBookCopy.MapEndpoint(endpoints);
         CreateLoan.MapEndpoint(endpoints);
         GetLoanById.MapEndpoint(endpoints);
+        GetLoanByStudentId.MapEndpoint(endpoints);
+        GetLoanByEmployeeId.MapEndpoint(endpoints);
+        GetLoanByBookCopyId.MapEndpoint(endpoints);
         GetLoanPage.MapEndpoint(endpoints);
         UpdateLoan.MapEndpoint(endpoints);
         DeleteLoan.MapEndpoint(endpoints);

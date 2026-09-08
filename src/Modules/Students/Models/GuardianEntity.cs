@@ -52,6 +52,13 @@ public sealed class GuardianEntity : Entity
     }
 
     /// <summary>Updates guardian details.</summary>
+    public void LinkIdentityAccount(Guid userId)
+    {
+        if (userId == Guid.Empty) throw new ArgumentException("User id is required.", nameof(userId));
+        UserId = userId;
+        MarkAsUpdated();
+    }
+
     public void UpdateDetails(
         string fullName,
         string? cnicNumber,

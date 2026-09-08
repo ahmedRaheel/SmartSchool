@@ -7,6 +7,7 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Organization.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Modules.Organization.Features.ClassSection;
 
@@ -31,8 +32,7 @@ public static class CreateClassSection
         Guid CampusId,
         Guid AcademicYearId,
         Guid GradeLevelId,
-        Guid SectionId,
-        string Name,
+        string Name,       
         int? Capacity = null,
         string? RoomNo = null) : IRequest<Result<Response>>;
 
@@ -44,46 +44,45 @@ public static class CreateClassSection
             RuleFor(x => x.CampusId).NotEmpty();
             RuleFor(x => x.AcademicYearId).NotEmpty();
             RuleFor(x => x.GradeLevelId).NotEmpty();
-            RuleFor(x => x.SectionId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public interface ICreateClassSectionCommand
     {
-        Task AddAsync(
-                ClassSectionEntity entity,
-                CancellationToken cancellationToken);
+        Task AddAsync(           
+            ClassSectionEntity entity,
+            CancellationToken cancellationToken);
 }
 
     internal sealed class CreateClassSectionCommand(IOrganizationDbContext dbContext) : ICreateClassSectionCommand
     {
-        public async Task AddAsync(
-                ClassSectionEntity entity,
-                CancellationToken cancellationToken)
-            {
-                await dbContext
-                    .ClassSections
-                    .AddAsync(entity, cancellationToken);
+        public async Task AddAsync(           
+            ClassSectionEntity entity,
+            CancellationToken cancellationToken)
+        {        
 
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
+            await dbContext.ClassSections.AddAsync(entity, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
-    public sealed class Handler(ICreateClassSectionCommand command)
+    public sealed class Handler(ICreateClassSectionCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+           
+            var code = await numberGenerator.NextAsync("Section", "SEC", request.TenantId, 3, cancellationToken);
+
             var entity = ClassSectionEntity.Create(
                 request.TenantId,
                 request.CampusId,
                 request.AcademicYearId,
-                request.GradeLevelId,
-                request.SectionId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                request.GradeLevelId,                
+                 code,
                 request.Name,
                 capacity: request.Capacity,
                 roomNo: request.RoomNo);

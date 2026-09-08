@@ -10,10 +10,10 @@ public sealed class OllamaRagOptions
     public string BaseUrl { get; set; } = string.Empty;
 
     /// <summary>Gets or sets the chat model.</summary>
-    public string ChatModel { get; set; } = "qwen3:1.7b";
+    public string ChatModel { get; set; } = "llama3.2:1b";
 
     /// <summary>Gets or sets the embedding model.</summary>
-    public string EmbeddingModel { get; set; } = "nomic-embed-text";
+    public string EmbeddingModel { get; set; } = "all-minilm-embed-text";
 
     /// <summary>Gets or sets the retrieval result count.</summary>
     public int TopK { get; set; } = 5;

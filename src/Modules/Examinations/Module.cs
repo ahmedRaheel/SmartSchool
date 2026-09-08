@@ -29,16 +29,25 @@ public static class Module
     {
         CreateExam.MapEndpoint(endpoints);
         GetExamById.MapEndpoint(endpoints);
+        GetExamByTermId.MapEndpoint(endpoints);
+        GetExamByCampusId.MapEndpoint(endpoints);
+        GetExamByAcademicYearId.MapEndpoint(endpoints);
+        GetExamByAcademicSystemId.MapEndpoint(endpoints);
         GetExamPage.MapEndpoint(endpoints);
         UpdateExam.MapEndpoint(endpoints);
         DeleteExam.MapEndpoint(endpoints);
         CreateExamSubject.MapEndpoint(endpoints);
         GetExamSubjectById.MapEndpoint(endpoints);
+        GetExamSubjectByRoomId.MapEndpoint(endpoints);
+        GetExamSubjectByExamId.MapEndpoint(endpoints);
+        GetExamSubjectByCourseOfferingId.MapEndpoint(endpoints);
         GetExamSubjectPage.MapEndpoint(endpoints);
         UpdateExamSubject.MapEndpoint(endpoints);
         DeleteExamSubject.MapEndpoint(endpoints);
         CreateStudentExamResult.MapEndpoint(endpoints);
         GetStudentExamResultById.MapEndpoint(endpoints);
+        GetStudentExamResultByStudentId.MapEndpoint(endpoints);
+        GetStudentExamResultByExamSubjectId.MapEndpoint(endpoints);
         GetStudentExamResultPage.MapEndpoint(endpoints);
         UpdateStudentExamResult.MapEndpoint(endpoints);
         DeleteStudentExamResult.MapEndpoint(endpoints);

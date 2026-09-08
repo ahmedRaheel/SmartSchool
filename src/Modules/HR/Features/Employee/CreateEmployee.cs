@@ -36,7 +36,14 @@ public static class CreateEmployee
         DateOnly HireDate,
         string EmploymentTypeCode,
         EmployeeDesignation StaffType,
-        Guid? SourceCandidateId);
+        Guid? SourceCandidateId,
+        LoginAccountResponse LoginAccount);
+
+    public sealed record LoginAccountResponse(
+        Guid UserId,
+        string Email,
+        string TemporaryPassword,
+        bool MustChangePassword);
 
     public sealed record Request(
         Guid? TenantId,
@@ -71,6 +78,7 @@ public static class CreateEmployee
             RuleFor(x => x.SchoolId).NotEmpty();
             RuleFor(x => x.BranchId).NotEmpty();
             RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(256);
             RuleFor(x => x.EmploymentTypeCode).NotEmpty().MaximumLength(30);
             RuleFor(x => x.StaffType).IsInEnum().WithMessage("A valid employee designation is required.");
         }
@@ -116,7 +124,9 @@ public static class CreateEmployee
     }
 
 
-    public sealed class Handler(ICreateEmployeeCommand persistence)
+    public sealed class Handler(
+        ICreateEmployeeCommand persistence,
+        IIdentityAccountService identityAccountService)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -135,15 +145,60 @@ public static class CreateEmployee
                 request.EmergencyContactName, request.EmergencyContactPhone, request.HireDate,
                 request.EmploymentTypeCode, LifecycleStatuses.PendingApproval, request.SourceCandidateId);
 
-            await persistence.AddAsync(entity, cancellationToken);
+            var role = ResolveRole(request.StaffType);
+            ProvisionedAccount account;
+            try
+            {
+                account = await identityAccountService.CreateAccountAsync(
+                    tenantId,
+                    entity.EmployeeId,
+                    role,
+                    request.Email!,
+                    request.FirstName,
+                    request.LastName ?? string.Empty,
+                    request.SchoolId,
+                    request.BranchId,
+                    [role],
+                    cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                return Result<Response>.Failure(
+                    Error.InternalServerError($"Unable to create the employee login account: {exception.Message}"));
+            }
+
+            entity.LinkIdentityAccount(account.UserId);
+            try
+            {
+                await persistence.AddAsync(entity, cancellationToken);
+            }
+            catch
+            {
+                await identityAccountService.DeleteAccountAsync(account.UserId, cancellationToken);
+                throw;
+            }
+
             return Result<Response>.Success(new Response(entity.TenantId, entity.EmployeeId, entity.UserId,
                 entity.EmployeeNumber, entity.FirstName, entity.LastName, entity.CnicNumber, entity.DateOfBirth,
                 entity.Gender, entity.JobTitle, entity.Photo, entity.PhotoContentType, entity.PhotoFileName,
                 entity.Email, entity.Phone, entity.AlternatePhone, entity.Address, entity.EmergencyContactName,
                 entity.EmergencyContactPhone, entity.HireDate, entity.EmploymentTypeCode, request.StaffType,
-                entity.SourceCandidateId));
+                entity.SourceCandidateId,
+                new LoginAccountResponse(account.UserId, account.Email, account.TemporaryPassword, account.MustChangePassword)));
         }
     }
+
+    private static string ResolveRole(EmployeeDesignation designation) => designation switch
+    {
+        EmployeeDesignation.Teacher => SmartSchoolRoles.Teacher,
+        EmployeeDesignation.Accountant => SmartSchoolRoles.Accountant,
+        EmployeeDesignation.Examiner => SmartSchoolRoles.Examiner,
+        EmployeeDesignation.Principal => SmartSchoolRoles.Principal,
+        EmployeeDesignation.HrManager => SmartSchoolRoles.HrManager,
+        EmployeeDesignation.Driver => SmartSchoolRoles.Driver,
+        EmployeeDesignation.Librarian => SmartSchoolRoles.Librarian,
+        _ => SmartSchoolRoles.Admin
+    };
 
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {

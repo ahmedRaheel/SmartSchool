@@ -84,7 +84,7 @@ public static class GetAcademicYearPage
                     LEFT JOIN org.campus AS p1
                         ON p1.campus_id = entity.campus_id
                     LEFT JOIN org.school AS p2
-                        ON p2.school_id = entity.school_id
+                        ON p2.school_id = p1.school_id
                     WHERE entity.tenant_id = @TenantId
                       AND (@CampusId IS NULL OR entity.campus_id = @CampusId)
                       AND entity.is_active = TRUE

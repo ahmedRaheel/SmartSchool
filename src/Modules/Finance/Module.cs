@@ -38,6 +38,8 @@ public static class Module
         DeleteFeeType.MapEndpoint(endpoints);
         CreateInvoice.MapEndpoint(endpoints);
         GetInvoiceById.MapEndpoint(endpoints);
+        GetInvoiceByStudentId.MapEndpoint(endpoints);
+        GetInvoiceByAcademicYearId.MapEndpoint(endpoints);
         GetInvoicePage.MapEndpoint(endpoints);
         UpdateInvoice.MapEndpoint(endpoints);
         DeleteInvoice.MapEndpoint(endpoints);
