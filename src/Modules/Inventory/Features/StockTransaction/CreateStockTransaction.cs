@@ -60,16 +60,18 @@ public static class CreateStockTransaction
             }
     }
 
-    public sealed class Handler(ICreateStockTransactionCommand command)
+    public sealed class Handler(ICreateStockTransactionCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("StockTransaction", "ST", request.TenantId, 3, cancellationToken);
+
             var entity = StockTransactionEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

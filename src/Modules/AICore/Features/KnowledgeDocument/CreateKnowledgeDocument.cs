@@ -61,16 +61,18 @@ public static class CreateKnowledgeDocument
             }
     }
 
-    public sealed class Handler(ICreateKnowledgeDocumentCommand command)
+    public sealed class Handler(ICreateKnowledgeDocumentCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("KnowledgeDocument", "KDOC", request.TenantId, 3, cancellationToken);
+
             var entity = KnowledgeDocumentEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

@@ -60,16 +60,18 @@ public static class CreateIncrement
             }
     }
 
-    public sealed class Handler(ICreateIncrementCommand command)
+    public sealed class Handler(ICreateIncrementCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Increment", "INC", request.TenantId, 3, cancellationToken);
+
             var entity = IncrementEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

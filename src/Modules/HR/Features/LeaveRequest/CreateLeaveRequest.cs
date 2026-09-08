@@ -60,16 +60,18 @@ public static class CreateLeaveRequest
             }
     }
 
-    public sealed class Handler(ICreateLeaveRequestCommand command)
+    public sealed class Handler(ICreateLeaveRequestCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("LeaveRequest", "LR", request.TenantId, 3, cancellationToken);
+
             var entity = LeaveRequestEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

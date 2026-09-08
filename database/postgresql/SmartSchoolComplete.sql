@@ -416,7 +416,6 @@ CREATE TABLE academic.class_section (
     campus_id uuid NOT NULL,
     academic_year_id uuid NOT NULL,
     program_grade_id uuid NOT NULL,
-    section_id uuid NOT NULL,
     class_teacher_employee_id uuid,
     room_id uuid,
     capacity integer,
@@ -569,46 +568,6 @@ CREATE TABLE academic.program_grade (
 ALTER TABLE academic.program_grade OWNER TO postgres;
 
 --
--- TOC entry 266 (class 1259 OID 16748)
--- Name: program_subject; Type: TABLE; Schema: academic; Owner: postgres
---
-
-CREATE TABLE academic.program_subject (
-    program_subject_id uuid DEFAULT gen_random_uuid() NOT NULL,
-    tenant_id uuid NOT NULL,
-    program_grade_id uuid NOT NULL,
-    subject_id uuid NOT NULL,
-    requirement_type_code character varying(30) NOT NULL,
-    periods_per_week integer,
-    minimum_pass_marks numeric(7,2),
-    display_order integer DEFAULT 0 NOT NULL,
-    is_active boolean DEFAULT true NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
-);
-
-
-ALTER TABLE academic.program_subject OWNER TO postgres;
-
---
--- TOC entry 271 (class 1259 OID 16873)
--- Name: section; Type: TABLE; Schema: academic; Owner: postgres
---
-
-CREATE TABLE academic.section (
-    section_id uuid DEFAULT gen_random_uuid() NOT NULL,
-    tenant_id uuid NOT NULL,
-    code character varying(30) NOT NULL,
-    name character varying(80) NOT NULL,
-    is_active boolean DEFAULT true NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone,
-    row_version bytea DEFAULT public.gen_random_bytes(8) NOT NULL
-);
-
-
-ALTER TABLE academic.section OWNER TO postgres;
 
 --
 -- TOC entry 265 (class 1259 OID 16727)
@@ -4633,7 +4592,7 @@ COPY academic.campus_program (campus_program_id, tenant_id, campus_id, program_i
 -- Data for Name: class_section; Type: TABLE DATA; Schema: academic; Owner: postgres
 --
 
-COPY academic.class_section (class_section_id, tenant_id, campus_id, academic_year_id, program_grade_id, section_id, class_teacher_employee_id, room_id, capacity, status, is_active, created_at, updated_at, row_version) FROM stdin;
+COPY academic.class_section (class_section_id, tenant_id, campus_id, academic_year_id, program_grade_id, class_teacher_employee_id, room_id, capacity, status, is_active, created_at, updated_at, row_version) FROM stdin;
 \.
 
 
@@ -4723,8 +4682,6 @@ COPY academic.program_subject (program_subject_id, tenant_id, program_grade_id, 
 -- Data for Name: section; Type: TABLE DATA; Schema: academic; Owner: postgres
 --
 
-COPY academic.section (section_id, tenant_id, code, name, is_active, created_at, updated_at, row_version) FROM stdin;
-\.
 
 
 --
@@ -6896,13 +6853,6 @@ ALTER TABLE ONLY academic.campus_program
     ADD CONSTRAINT campus_program_pkey PRIMARY KEY (campus_program_id);
 
 
---
--- TOC entry 5154 (class 2606 OID 16905)
--- Name: class_section class_section_academic_year_id_program_grade_id_section_id_key; Type: CONSTRAINT; Schema: academic; Owner: postgres
---
-
-ALTER TABLE ONLY academic.class_section
-    ADD CONSTRAINT class_section_academic_year_id_program_grade_id_section_id_key UNIQUE (academic_year_id, program_grade_id, section_id);
 
 
 --
@@ -7036,8 +6986,6 @@ ALTER TABLE ONLY academic.program
 -- Name: section section_pkey; Type: CONSTRAINT; Schema: academic; Owner: postgres
 --
 
-ALTER TABLE ONLY academic.section
-    ADD CONSTRAINT section_pkey PRIMARY KEY (section_id);
 
 
 --
@@ -7045,8 +6993,6 @@ ALTER TABLE ONLY academic.section
 -- Name: section section_tenant_id_code_key; Type: CONSTRAINT; Schema: academic; Owner: postgres
 --
 
-ALTER TABLE ONLY academic.section
-    ADD CONSTRAINT section_tenant_id_code_key UNIQUE (tenant_id, code);
 
 
 --
@@ -10577,13 +10523,6 @@ ALTER TABLE ONLY academic.class_section
     ADD CONSTRAINT class_section_room_id_fkey FOREIGN KEY (room_id) REFERENCES org.room(room_id);
 
 
---
--- TOC entry 5731 (class 2606 OID 16926)
--- Name: class_section class_section_section_id_fkey; Type: FK CONSTRAINT; Schema: academic; Owner: postgres
---
-
-ALTER TABLE ONLY academic.class_section
-    ADD CONSTRAINT class_section_section_id_fkey FOREIGN KEY (section_id) REFERENCES academic.section(section_id);
 
 
 --
@@ -10789,8 +10728,6 @@ ALTER TABLE ONLY academic.program
 -- Name: section section_tenant_id_fkey; Type: FK CONSTRAINT; Schema: academic; Owner: postgres
 --
 
-ALTER TABLE ONLY academic.section
-    ADD CONSTRAINT section_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES saas.tenant(tenant_id);
 
 
 --

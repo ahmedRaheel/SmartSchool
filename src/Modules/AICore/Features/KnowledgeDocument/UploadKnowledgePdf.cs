@@ -15,10 +15,9 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 public static class UploadKnowledgePdf
 {
     private const long MaxPdfSize = 25 * 1024 * 1024;
-    private const int ChunkSize = 1200;
+    private const int ChunkSize = 1200;    
 
     public sealed record Request(IFormFile File, Guid CollectionId, Guid? TenantId, Guid? CampusId, Guid? AcademicSystemId) : IRequest<IResult>;
-
 
     public sealed record Response(Guid KnowledgeDocumentId, string FileName, int Pages, int Chunks, bool Indexed);
 
@@ -51,10 +50,10 @@ public static class UploadKnowledgePdf
         }
     }
 
-    public sealed class Handler(ITenantScope tenantScope, IUploadKnowledgePdfQuery query, IUploadKnowledgePdfCommand command, IOllamaClient ollamaClient, IAiAssistantService assistantService) : IRequestHandler<Request, IResult>
+    public sealed class Handler(ITenantScope tenantScope, IBusinessNumberGenerator numberGenerator, IUploadKnowledgePdfQuery query, IUploadKnowledgePdfCommand command, IOllamaClient ollamaClient, IAiAssistantService assistantService) : IRequestHandler<Request, IResult>
     {
         public Task<IResult> HandleAsync(Request request, CancellationToken cancellationToken) => ExecuteAsync(
-            request.File, request.CollectionId, request.TenantId, request.CampusId, request.AcademicSystemId, tenantScope, query, command, ollamaClient, assistantService, cancellationToken);
+            request.File, request.CollectionId, request.TenantId, numberGenerator, request.CampusId, request.AcademicSystemId, tenantScope, query, command, ollamaClient, assistantService, cancellationToken);
     }
 
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
@@ -71,6 +70,7 @@ public static class UploadKnowledgePdf
         IFormFile file,
         Guid collectionId,
         Guid? tenantId,
+        IBusinessNumberGenerator numberGenerator,
         Guid? campusId,
         Guid? academicSystemId,
         ITenantScope tenantScope,
@@ -114,7 +114,9 @@ public static class UploadKnowledgePdf
         if (string.IsNullOrWhiteSpace(collectionCode)) return Results.BadRequest(new { message = "Knowledge collection does not belong to this tenant." });
 
         var title = Path.GetFileName(file.FileName);
-        var document = KnowledgeDocumentEntity.CreateIndexed(resolvedTenantId.Value, collectionId, campusId, academicSystemId, title, "{\"source\":\"upload\"}");
+        var code = await numberGenerator.NextAsync("KnowledgeDocument", "KDOC", resolvedTenantId.Value, 3, cancellationToken);
+
+        var document = KnowledgeDocumentEntity.CreateIndexed(resolvedTenantId.Value, code, collectionId, campusId, academicSystemId, title, "{\"source\":\"upload\"}");
 
         var chunks = Chunk(pages, ChunkSize).ToArray();
         var chunkEntities = new List<RagKnowledgeChunkWriteEntity>(chunks.Length);

@@ -22,11 +22,11 @@ public static class CreateFeeType
     {
         public async Task AddAsync(FeeTypeEntity entity, CancellationToken cancellationToken) { await dbContext.FeeTypes.AddAsync(entity,cancellationToken); await dbContext.SaveChangesAsync(cancellationToken); }
     }
-    public sealed class Handler(ICreateFeeTypeCommand persistence) : IRequestHandler<Request,Result<Response>>
+    public sealed class Handler(ICreateFeeTypeCommand persistence, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request,Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request,CancellationToken cancellationToken)
         {
-            var code = $"FEE-{Guid.NewGuid():N}"[..12].ToUpperInvariant();
+            var code = await numberGenerator.NextAsync("FeeType", "FEE", request.TenantId, 3, cancellationToken);
             var entity=FeeTypeEntity.Create(request.TenantId,code,request.Name,request.Frequency,request.Description);
             await persistence.AddAsync(entity,cancellationToken);
             return Result<Response>.Success(new(entity.TenantId,entity.FeeTypeId,entity.Code,entity.Name,entity.Frequency,entity.IsActive,entity.Description));

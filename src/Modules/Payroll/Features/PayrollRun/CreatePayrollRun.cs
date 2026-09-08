@@ -60,16 +60,18 @@ public static class CreatePayrollRun
             }
     }
 
-    public sealed class Handler(ICreatePayrollRunCommand command)
+    public sealed class Handler(ICreatePayrollRunCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("PayrollRun", "PR", request.TenantId, 3, cancellationToken);
+
             var entity = PayrollRunEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

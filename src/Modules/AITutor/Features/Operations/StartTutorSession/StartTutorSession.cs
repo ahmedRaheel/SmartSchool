@@ -1,3 +1,4 @@
+using SmartSchool.Application.Persistence;
 using System.Text.Json;
 using SmartSchool.Application.AI;
 using SmartSchool.Application.Identity;
@@ -11,12 +12,14 @@ public static class StartTutorSession
     public sealed record Request(Guid? TenantId, Guid StudentId, string Subject, string? Topic) : IRequest<Response?>;
     public sealed record Response(Guid SessionId, Guid ConversationId);
     public interface IStartTutorSessionCommand { Task<Response> ExecuteAsync(Guid tenantId, Request request, CancellationToken cancellationToken); }
-    internal sealed class StartTutorSessionCommand(IAITutorDbContext dbContext) : IStartTutorSessionCommand
+    internal sealed class StartTutorSessionCommand(IAITutorDbContext dbContext, IBusinessNumberGenerator numberGenerator) : IStartTutorSessionCommand
     {
         public async Task<Response> ExecuteAsync(Guid tenantId, Request request, CancellationToken cancellationToken)
         {
-            var session=TutorSessionEntity.Create(tenantId,$"SESSION-{Guid.NewGuid():N}",$"{request.Subject}: {request.Topic}",JsonSerializer.Serialize(request));
-            var conversation=TutorConversationEntity.Create(tenantId,$"CONV-{Guid.NewGuid():N}",$"{request.Subject} tutoring",JsonSerializer.Serialize(new{sessionId=session.TutorSessionId,request.StudentId,request.Subject,request.Topic}));
+            var sessionCode = await numberGenerator.NextAsync("TutorSession", "SESSION", tenantId, 3, cancellationToken);
+            var conversationCode = await numberGenerator.NextAsync("TutorConversation", "CONV", tenantId, 3, cancellationToken);
+            var session=TutorSessionEntity.Create(tenantId,sessionCode,$"{request.Subject}: {request.Topic}",JsonSerializer.Serialize(request));
+            var conversation=TutorConversationEntity.Create(tenantId,conversationCode,$"{request.Subject} tutoring",JsonSerializer.Serialize(new{sessionId=session.TutorSessionId,request.StudentId,request.Subject,request.Topic}));
             await dbContext.TutorSessions.AddAsync(session,cancellationToken); await dbContext.TutorConversations.AddAsync(conversation,cancellationToken); await dbContext.SaveChangesAsync(cancellationToken);
             return new(session.TutorSessionId,conversation.TutorConversationId);
         }

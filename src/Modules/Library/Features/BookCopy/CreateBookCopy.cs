@@ -60,16 +60,18 @@ public static class CreateBookCopy
             }
     }
 
-    public sealed class Handler(ICreateBookCopyCommand command)
+    public sealed class Handler(ICreateBookCopyCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("BookCopy", "BC", request.TenantId, 3, cancellationToken);
+
             var entity = BookCopyEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

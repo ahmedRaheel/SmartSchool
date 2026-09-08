@@ -61,16 +61,18 @@ public static class CreateInquiryMessage
             }
     }
 
-    public sealed class Handler(ICreateInquiryMessageCommand command)
+    public sealed class Handler(ICreateInquiryMessageCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("InquiryMessage", "IM", request.TenantId, 3, cancellationToken);
+
             var entity = InquiryMessageEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

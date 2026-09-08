@@ -60,16 +60,18 @@ public static class CreateActivity
             }
     }
 
-    public sealed class Handler(ICreateActivityCommand command)
+    public sealed class Handler(ICreateActivityCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Activity", "ACT", request.TenantId, 3, cancellationToken);
+
             var entity = ActivityEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

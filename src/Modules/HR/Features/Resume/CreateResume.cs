@@ -60,16 +60,18 @@ public static class CreateResume
             }
     }
 
-    public sealed class Handler(ICreateResumeCommand command)
+    public sealed class Handler(ICreateResumeCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Resume", "RES", request.TenantId, 3, cancellationToken);
+
             var entity = ResumeEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

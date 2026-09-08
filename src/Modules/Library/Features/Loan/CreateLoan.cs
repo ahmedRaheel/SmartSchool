@@ -60,16 +60,18 @@ public static class CreateLoan
             }
     }
 
-    public sealed class Handler(ICreateLoanCommand command)
+    public sealed class Handler(ICreateLoanCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Loan", "LOA", request.TenantId, 3, cancellationToken);
+
             var entity = LoanEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

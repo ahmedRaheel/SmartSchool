@@ -1,3 +1,4 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -60,16 +61,18 @@ public static class CreateTerm
             }
     }
 
-    public sealed class Handler(ICreateTermCommand command)
+    public sealed class Handler(ICreateTermCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Term", "TER", request.TenantId, 3, cancellationToken);
+
             var entity = TermEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

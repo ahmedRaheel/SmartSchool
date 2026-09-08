@@ -60,16 +60,18 @@ public static class CreateLesson
             }
     }
 
-    public sealed class Handler(ICreateLessonCommand command)
+    public sealed class Handler(ICreateLessonCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Lesson", "LES", request.TenantId, 3, cancellationToken);
+
             var entity = LessonEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

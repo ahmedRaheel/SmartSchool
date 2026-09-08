@@ -60,16 +60,18 @@ public static class CreateApplicant
             }
     }
 
-    public sealed class Handler(ICreateApplicantCommand command)
+    public sealed class Handler(ICreateApplicantCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Applicant", "APP", request.TenantId, 3, cancellationToken);
+
             var entity = ApplicantEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

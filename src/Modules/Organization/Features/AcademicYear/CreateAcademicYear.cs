@@ -1,3 +1,4 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -74,7 +75,7 @@ public static class CreateAcademicYear
         }
     }
 
-    public sealed class Handler(ICreateAcademicYearCommand command)
+    public sealed class Handler(ICreateAcademicYearCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -90,10 +91,12 @@ public static class CreateAcademicYear
             }
 
 
+            var code = await numberGenerator.NextAsync("AcademicYear", "AY", request.TenantId, 3, cancellationToken);
+
             var entity = AcademicYearEntity.Create(
                 request.TenantId,
                 request.CampusId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.StartDate,
                 request.EndDate,

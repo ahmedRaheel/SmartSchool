@@ -61,16 +61,18 @@ public static class CreateGeneratedQuiz
             }
     }
 
-    public sealed class Handler(ICreateGeneratedQuizCommand command)
+    public sealed class Handler(ICreateGeneratedQuizCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("GeneratedQuiz", "QUIZ", request.TenantId, 3, cancellationToken);
+
             var entity = GeneratedQuizEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Activities.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Activities.Features.StudentOfMonth;
 
@@ -42,7 +43,8 @@ public static class GetStudentOfMonthPage
     }
 
     internal sealed class GetStudentOfMonthPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetStudentOfMonthPageQuery
+        IDbConnectionFactory connectionFactory
+        ) : IGetStudentOfMonthPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -50,7 +52,9 @@ public static class GetStudentOfMonthPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+
+               
+            const string countSql = """
                     SELECT COUNT(*)
                     FROM activity.studentofmonth
                     WHERE tenant_id = @TenantId

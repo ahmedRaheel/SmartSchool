@@ -60,16 +60,18 @@ public static class CreateEmploymentHistory
             }
     }
 
-    public sealed class Handler(ICreateEmploymentHistoryCommand command)
+    public sealed class Handler(ICreateEmploymentHistoryCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("EmploymentHistory", "EH", request.TenantId, 3, cancellationToken);
+
             var entity = EmploymentHistoryEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

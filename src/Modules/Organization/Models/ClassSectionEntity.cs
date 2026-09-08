@@ -26,9 +26,6 @@ public sealed class ClassSectionEntity : Entity
     /// <summary>Gets the class/grade level for this section.</summary>
     public Guid GradeLevelId { get; private set; }
 
-    /// <summary>Gets the persisted section id value.</summary>
-    public Guid SectionId { get; private set; }
-
     /// <summary>Gets the persisted class teacher employee id value.</summary>
     public Guid? ClassTeacherEmployeeId { get; private set; }
 

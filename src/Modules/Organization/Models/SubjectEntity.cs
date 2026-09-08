@@ -10,7 +10,7 @@ public sealed class SubjectEntity : Entity
     /// <summary>Gets the entity-specific identifier.</summary>
     public Guid SubjectId { get; private set; } = Guid.NewGuid();
 
-    public Guid BranchId { get; private set; }
+    public Guid DepartmentId { get; private set; }
 
     private SubjectEntity()
     {
@@ -39,7 +39,7 @@ public sealed class SubjectEntity : Entity
     /// <returns>The newly created entity.</returns>
     public static SubjectEntity Create(
         Guid tenantId,
-        Guid branchId,
+        Guid departmentId,
         string code,
         string name,
         string? metadataJson = null)
@@ -50,7 +50,7 @@ public sealed class SubjectEntity : Entity
         return new SubjectEntity
         {
             TenantId = tenantId,
-            BranchId = branchId,
+            DepartmentId = departmentId,
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

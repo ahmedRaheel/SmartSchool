@@ -60,16 +60,18 @@ public static class CreateWorkflowInstance
             }
     }
 
-    public sealed class Handler(ICreateWorkflowInstanceCommand command)
+    public sealed class Handler(ICreateWorkflowInstanceCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("WorkflowInstance", "WI", request.TenantId, 3, cancellationToken);
+
             var entity = WorkflowInstanceEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

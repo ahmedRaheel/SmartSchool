@@ -1,3 +1,4 @@
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -64,18 +65,20 @@ public static class CreateGradeLevel
             }
     }
 
-    public sealed class Handler(ICreateGradeLevelCommand command)
+    public sealed class Handler(ICreateGradeLevelCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("GradeLevel", "GL", request.TenantId, 3, cancellationToken);
+
             var entity = GradeLevelEntity.Create(
                 request.TenantId,
                 request.CampusId,
                 request.AcademicSystemId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.SortOrder);
 

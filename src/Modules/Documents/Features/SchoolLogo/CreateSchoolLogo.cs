@@ -60,16 +60,18 @@ public static class CreateSchoolLogo
             }
     }
 
-    public sealed class Handler(ICreateSchoolLogoCommand command)
+    public sealed class Handler(ICreateSchoolLogoCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("SchoolLogo", "SL", request.TenantId, 3, cancellationToken);
+
             var entity = SchoolLogoEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

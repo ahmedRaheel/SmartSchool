@@ -60,16 +60,18 @@ public static class CreateStudentGuardian
             }
     }
 
-    public sealed class Handler(ICreateStudentGuardianCommand command)
+    public sealed class Handler(ICreateStudentGuardianCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("StudentGuardian", "SG", request.TenantId, 3, cancellationToken);
+
             var entity = StudentGuardianEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

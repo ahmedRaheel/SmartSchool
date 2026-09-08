@@ -60,16 +60,18 @@ public static class CreateAiExecutionLog
             }
     }
 
-    public sealed class Handler(ICreateAiExecutionLogCommand command)
+    public sealed class Handler(ICreateAiExecutionLogCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("AiExecutionLog", "AEL", request.TenantId, 3, cancellationToken);
+
             var entity = AiExecutionLogEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

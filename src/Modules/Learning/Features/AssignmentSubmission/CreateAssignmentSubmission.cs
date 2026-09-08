@@ -60,16 +60,18 @@ public static class CreateAssignmentSubmission
             }
     }
 
-    public sealed class Handler(ICreateAssignmentSubmissionCommand command)
+    public sealed class Handler(ICreateAssignmentSubmissionCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("AssignmentSubmission", "SUB", request.TenantId, 3, cancellationToken);
+
             var entity = AssignmentSubmissionEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

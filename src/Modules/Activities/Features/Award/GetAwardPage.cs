@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Activities.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Activities.Features.Award;
 
@@ -45,7 +46,8 @@ public static class GetAwardPage
     }
 
     internal sealed class GetAwardPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetAwardPageQuery
+        IDbConnectionFactory connectionFactory,
+        ICurrentUser currentUser) : IGetAwardPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -53,11 +55,15 @@ public static class GetAwardPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
+                var branchId = currentUser.BranchId ?? Guid.Empty;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM activity.student_award AS entity
+                         Join student.student AS student on student.student_id = entity.student_id
                     WHERE entity.tenant_id = @TenantId
+                    AND student.branch_id = @branchId
                       AND entity.is_active = TRUE;
+                    AND entity.branch_id = @branchId
                     """;
 
                 const string pageSql = """
@@ -71,10 +77,14 @@ public static class GetAwardPage
                         p1.code AS "GeneratedDocumentCode",
                         p1.name AS "GeneratedDocumentName"
                     FROM activity.student_award AS entity
+                    OM student.student_award AS entity
+                         Join student.student AS student on student.student_id = entity.student_id
+                   
                     LEFT JOIN document.generated_document AS p1
                         ON p1.generated_document_id = entity.generated_document_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
+                    AND student.branch_id = @branchId
                     ORDER BY entity.student_award_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -85,6 +95,7 @@ public static class GetAwardPage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

@@ -60,16 +60,18 @@ public static class CreatePredictionEvidence
             }
     }
 
-    public sealed class Handler(ICreatePredictionEvidenceCommand command)
+    public sealed class Handler(ICreatePredictionEvidenceCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("PredictionEvidence", "PEV", request.TenantId, 3, cancellationToken);
+
             var entity = PredictionEvidenceEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

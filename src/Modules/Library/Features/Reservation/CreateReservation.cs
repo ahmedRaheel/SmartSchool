@@ -60,16 +60,18 @@ public static class CreateReservation
             }
     }
 
-    public sealed class Handler(ICreateReservationCommand command)
+    public sealed class Handler(ICreateReservationCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("Reservation", "RES", request.TenantId, 3, cancellationToken);
+
             var entity = ReservationEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name);
 
             await command.AddAsync(entity, cancellationToken);

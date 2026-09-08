@@ -34,11 +34,13 @@ public static class CreateFeeStructure
             await db.SaveChangesAsync(ct);
         }
     }
-    public sealed class Handler(ICreateFeeStructureCommand persistence) : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(ICreateFeeStructureCommand persistence, IBusinessNumberGenerator numberGenerator) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request x, CancellationToken  cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("FeeStructure", "FS", x.TenantId, 3, cancellationToken);
             var feeStructure = FeeStructureEntity.Create(x.TenantId,
+                code,
                 x.GradeLevelId,
                 x.FeeTypeId,
                 x.Amount,

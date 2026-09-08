@@ -61,16 +61,18 @@ public static class CreatePromptTemplate
             }
     }
 
-    public sealed class Handler(ICreatePromptTemplateCommand command)
+    public sealed class Handler(ICreatePromptTemplateCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("PromptTemplate", "PT", request.TenantId, 3, cancellationToken);
+
             var entity = PromptTemplateEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 

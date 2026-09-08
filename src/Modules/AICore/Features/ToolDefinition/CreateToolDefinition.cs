@@ -61,16 +61,18 @@ public static class CreateToolDefinition
             }
     }
 
-    public sealed class Handler(ICreateToolDefinitionCommand command)
+    public sealed class Handler(ICreateToolDefinitionCommand command, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            var code = await numberGenerator.NextAsync("ToolDefinition", "TD", request.TenantId, 3, cancellationToken);
+
             var entity = ToolDefinitionEntity.Create(
                 request.TenantId,
-                Guid.NewGuid().ToString("N").ToUpperInvariant(),
+                code,
                 request.Name,
                 request.MetadataJson);
 
