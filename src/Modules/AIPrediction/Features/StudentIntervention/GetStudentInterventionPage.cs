@@ -24,7 +24,19 @@ public static class GetStudentInterventionPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? CourseOfferingId,
+    string? CourseOfferingCode,
+    string? CourseOfferingName,
+    Guid? SourcePredictionId,
+    string? SourcePredictionCode,
+    string? SourcePredictionName,
+    Guid? SourceRecommendationId,
+    string? SourceRecommendationCode,
+    string? SourceRecommendationName,
+    Guid? SubjectId,
+    string? SubjectCode,
+    string? SubjectName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +64,42 @@ public static class GetStudentInterventionPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM ai.student_intervention
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM ai.student_intervention AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    student_intervention_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM ai.student_intervention
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY student_intervention_id
+                    entity.tenant_id AS "TenantId",
+                    entity.student_intervention_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.course_offering_id AS "CourseOfferingId",
+                        p1.code AS "CourseOfferingCode",
+                        p1.name AS "CourseOfferingName",
+                        p2.student_performance_prediction_id AS "SourcePredictionId",
+                        p2.code AS "SourcePredictionCode",
+                        p2.name AS "SourcePredictionName",
+                        p3.teaching_recommendation_id AS "SourceRecommendationId",
+                        p3.code AS "SourceRecommendationCode",
+                        p3.name AS "SourceRecommendationName",
+                        p4.subject_id AS "SubjectId",
+                        p4.code AS "SubjectCode",
+                        p4.name AS "SubjectName"
+                    FROM ai.student_intervention AS entity
+                    LEFT JOIN academic.course_offering AS p1
+                        ON p1.course_offering_id = entity.course_offering_id
+                    LEFT JOIN ai.student_performance_prediction AS p2
+                        ON p2.student_performance_prediction_id = entity.source_prediction_id
+                    LEFT JOIN ai.teaching_recommendation AS p3
+                        ON p3.teaching_recommendation_id = entity.source_recommendation_id
+                    LEFT JOIN academic.subject AS p4
+                        ON p4.subject_id = entity.subject_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.student_intervention_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

@@ -24,7 +24,13 @@ public static class GetJobPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? DepartmentId,
+    string? DepartmentCode,
+    string? DepartmentName,
+    Guid? JobFamilyId,
+    string? JobFamilyCode,
+    string? JobFamilyName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +58,32 @@ public static class GetJobPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM hr.job
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM hr.job AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    job_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM hr.job
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY job_id
+                    entity.tenant_id AS "TenantId",
+                    entity.job_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.department_id AS "DepartmentId",
+                        p1.code AS "DepartmentCode",
+                        p1.name AS "DepartmentName",
+                        p2.job_family_id AS "JobFamilyId",
+                        p2.code AS "JobFamilyCode",
+                        p2.name AS "JobFamilyName"
+                    FROM hr.job AS entity
+                    LEFT JOIN org.department AS p1
+                        ON p1.department_id = entity.department_id
+                    LEFT JOIN hr.job_family AS p2
+                        ON p2.job_family_id = entity.job_family_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.job_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

@@ -30,9 +30,6 @@ public static class Module
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
         services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
-        services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
-        services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
-        services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
 
         return services;
     }
@@ -42,7 +39,14 @@ public static class Module
     {
         CreateClassPerformanceInsight.MapEndpoint(endpoints);
         PredictExamPerformance.MapEndpoint(endpoints);
-        PredictionSuiteEndpoints.MapEndpoints(endpoints);
+        PredictStudent.MapEndpoint(endpoints);
+        GetEarlyWarning.MapEndpoint(endpoints);
+        PredictAdmission.MapEndpoint(endpoints);
+        PredictTeacher.MapEndpoint(endpoints);
+        PredictPayrollAnomaly.MapEndpoint(endpoints);
+        PredictTransportDelay.MapEndpoint(endpoints);
+        PredictLibraryOverdue.MapEndpoint(endpoints);
+        ForecastPrediction.MapEndpoint(endpoints);
         GetClassPerformanceInsightById.MapEndpoint(endpoints);
         GetClassPerformanceInsightPage.MapEndpoint(endpoints);
         UpdateClassPerformanceInsight.MapEndpoint(endpoints);

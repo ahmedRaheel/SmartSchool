@@ -24,7 +24,10 @@ public static class GetProgramPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid AcademicSystemId,
+    string? AcademicSystemCode,
+    string? AcademicSystemName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +55,27 @@ public static class GetProgramPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM academic.program
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM academic.program AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    program_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM academic.program
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY program_id
+                    entity.tenant_id AS "TenantId",
+                    entity.program_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.academic_system_id AS "AcademicSystemId",
+                        p1.code AS "AcademicSystemCode",
+                        p1.name AS "AcademicSystemName"
+                    FROM academic.program AS entity
+                    LEFT JOIN academic.academic_system AS p1
+                        ON p1.academic_system_id = entity.academic_system_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.program_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

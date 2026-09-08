@@ -27,7 +27,9 @@ public static class Module
         GetLookupTypes.MapEndpoint(endpoints);
         GetLookupValues.MapEndpoint(endpoints);
         GetAllLookups.MapEndpoint(endpoints);
-        GetGeography.MapEndpoint(endpoints);
+        GetCountries.MapEndpoint(endpoints);
+        GetProvinces.MapEndpoint(endpoints);
+        GetCities.MapEndpoint(endpoints);
         CreateLookup.MapEndpoint(endpoints);
         UpdateLookup.MapEndpoint(endpoints);
         DeleteLookup.MapEndpoint(endpoints);

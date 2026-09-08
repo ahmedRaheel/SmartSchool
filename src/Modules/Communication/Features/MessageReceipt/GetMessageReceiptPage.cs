@@ -24,7 +24,10 @@ public static class GetMessageReceiptPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid MessageId,
+    string? MessageCode,
+    string? MessageName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,7 +55,7 @@ public static class GetMessageReceiptPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM communication.message_receipt
+                    FROM communication.message_receipt AS entity
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -61,13 +64,18 @@ public static class GetMessageReceiptPage
                     SELECT
                     tenant_id AS "TenantId",
                     id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM communication.message_receipt
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.message_id AS "MessageId",
+                        p1.code AS "MessageCode",
+                        p1.name AS "MessageName"
+                    FROM communication.message_receipt AS entity
+                    LEFT JOIN communication.message AS p1
+                        ON p1.message_id = entity.message_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                    ORDER BY message_receipt_id
+                    ORDER BY entity.message_receipt_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

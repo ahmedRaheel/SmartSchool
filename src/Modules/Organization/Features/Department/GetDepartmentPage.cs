@@ -28,7 +28,9 @@ public static class GetDepartmentPage
     string? Email,
     Guid? CampusId,
     Guid? HeadOfDepartmentEmployeeId,
-    string? MetadataJson);
+    string? MetadataJson,
+    string? CampusCode,
+    string? CampusName);
 
     public sealed record Query(
         Guid TenantId,
@@ -57,26 +59,30 @@ public static class GetDepartmentPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM org.department
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM org.department AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    department_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    telephone AS "Telephone",
-                    email AS "Email",
-                    campus_id AS "CampusId",
-                    head_of_department_employee_id AS "HeadOfDepartmentEmployeeId",
-                    metadata_json AS "MetadataJson"
-                    FROM org.department
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY department_id
+                    entity.tenant_id AS "TenantId",
+                    entity.department_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.telephone AS "Telephone",
+                    entity.email AS "Email",
+                    entity.campus_id AS "CampusId",
+                    entity.head_of_department_employee_id AS "HeadOfDepartmentEmployeeId",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.code AS "CampusCode",
+                        p1.name AS "CampusName"
+                    FROM org.department AS entity
+                    LEFT JOIN org.campus AS p1
+                        ON p1.campus_id = entity.campus_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.department_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

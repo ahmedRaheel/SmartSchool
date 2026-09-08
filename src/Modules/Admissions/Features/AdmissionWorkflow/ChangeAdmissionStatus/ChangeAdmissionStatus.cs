@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
@@ -324,6 +325,16 @@ public static class ChangeAdmissionStatus
                     AdmissionApplicationStatus.AdmissionAccepted.ToDatabaseValue(),
                     studentNumber));
         }
+    }
+
+    public static void MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPut("/api/admissions/workflow/applications/{id:guid}/status", async (Guid id, Body body, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            if (!AdmissionApplicationStatusExtensions.TryParseDatabaseValue(body.Status, out var status))
+                return Results.BadRequest(new { message = "Invalid admission status." });
+            return (await mediator.SendAsync<Request, Result<Response>>(new Request(id, body.TenantId, status, body.Notes), cancellationToken)).ToHttpResult();
+        }).WithName("ChangeAdmissionStatus").WithTags("Admissions").RequireAuthorization();
     }
 }
 

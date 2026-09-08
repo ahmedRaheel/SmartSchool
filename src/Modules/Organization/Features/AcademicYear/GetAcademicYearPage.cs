@@ -24,7 +24,13 @@ public static class GetAcademicYearPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid CampusId,
+    string? CampusCode,
+    string? CampusName,
+    Guid? SchoolId,
+    string? SchoolCode,
+    string? SchoolName);
 
     public sealed record Query(
         Guid TenantId,
@@ -55,24 +61,34 @@ public static class GetAcademicYearPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM academic.academic_year
-                    WHERE tenant_id = @TenantId
-                      AND (@CampusId IS NULL OR campus_id = @CampusId)
-                      AND is_active = TRUE;
+                    FROM academic.academic_year AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND (@CampusId IS NULL OR entity.campus_id = @CampusId)
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    academic_year_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM academic.academic_year
-                    WHERE tenant_id = @TenantId
-                      AND (@CampusId IS NULL OR campus_id = @CampusId)
-                      AND is_active = TRUE
-                    ORDER BY start_date DESC, academic_year_id
+                    entity.tenant_id AS "TenantId",
+                    entity.academic_year_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.campus_id AS "CampusId",
+                        p1.code AS "CampusCode",
+                        p1.name AS "CampusName",
+                        p2.school_id AS "SchoolId",
+                        p2.code AS "SchoolCode",
+                        p2.name AS "SchoolName"
+                    FROM academic.academic_year AS entity
+                    LEFT JOIN org.campus AS p1
+                        ON p1.campus_id = entity.campus_id
+                    LEFT JOIN org.school AS p2
+                        ON p2.school_id = entity.school_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND (@CampusId IS NULL OR entity.campus_id = @CampusId)
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.start_date DESC, entity.academic_year_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

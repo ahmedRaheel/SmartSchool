@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Identity;
 using SmartSchool.Modules.Documents.Persistence;
@@ -6,7 +7,8 @@ namespace SmartSchool.Modules.Documents.Features.ArchiveDocument;
 
 public static class ArchiveDocument
 {
-    public sealed record Request(Guid DocumentId, Guid? TenantId);
+    public sealed record Request(Guid TenantId, Guid DocumentId) : IRequest<bool>;
+
     public sealed record Response(Guid DocumentId);
 
     public interface IArchiveDocumentCommand
@@ -26,17 +28,17 @@ public static class ArchiveDocument
         }
     }
 
-    public sealed class Handler(IArchiveDocumentCommand command)
+    public sealed class Handler(IArchiveDocumentCommand command) : IRequestHandler<Request, bool>
     {
-        public Task<bool> HandleAsync(Guid tenantId, Guid documentId, CancellationToken cancellationToken) => command.ExecuteAsync(tenantId, documentId, cancellationToken);
+        public Task<bool> HandleAsync(Request request, CancellationToken cancellationToken) => command.ExecuteAsync(request.TenantId, request.DocumentId, cancellationToken);
     }
 
     public static void MapEndpoint(IEndpointRouteBuilder endpoints) => endpoints.MapDelete("/api/documents/files/{documentId:guid}", HandleAsync).WithTags("Documents").RequireAuthorization();
 
-    private static async Task<IResult> HandleAsync(Guid documentId, Guid? tenantId, ITenantScope tenantScope, Handler handler, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(Guid documentId, Guid? tenantId, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken)
     {
         var resolvedTenantId = tenantScope.Resolve(tenantId);
         if (!resolvedTenantId.HasValue) return Results.BadRequest();
-        return await handler.HandleAsync(resolvedTenantId.Value, documentId, cancellationToken) ? Results.NoContent() : Results.NotFound();
+        return await mediator.SendAsync<Request, bool>(new Request(resolvedTenantId.Value, documentId), cancellationToken) ? Results.NoContent() : Results.NotFound();
     }
 }

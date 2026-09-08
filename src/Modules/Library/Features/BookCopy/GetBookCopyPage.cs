@@ -24,7 +24,13 @@ public static class GetBookCopyPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid BookId,
+    string? BookCode,
+    string? BookName,
+    Guid CampusId,
+    string? CampusCode,
+    string? CampusName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,7 +58,7 @@ public static class GetBookCopyPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM library.book_copy
+                    FROM library.book_copy AS entity
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -60,14 +66,24 @@ public static class GetBookCopyPage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
-                    book_copy_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM library.book_copy
+                    entity.book_copy_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.book_id AS "BookId",
+                        p1.code AS "BookCode",
+                        p1.name AS "BookName",
+                        p2.campus_id AS "CampusId",
+                        p2.code AS "CampusCode",
+                        p2.name AS "CampusName"
+                    FROM library.book_copy AS entity
+                    LEFT JOIN library.book AS p1
+                        ON p1.book_id = entity.book_id
+                    LEFT JOIN org.campus AS p2
+                        ON p2.campus_id = entity.campus_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                    ORDER BY book_copy_id
+                    ORDER BY entity.book_copy_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

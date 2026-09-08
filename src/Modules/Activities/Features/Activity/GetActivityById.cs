@@ -23,7 +23,10 @@ public static class GetActivityById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? CampusId,
+    string? CampusCode,
+    string? CampusName);
 
     public sealed record Query(
         Guid TenantId,
@@ -48,15 +51,20 @@ public static class GetActivityById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        activity_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM activity.activity
-                    WHERE tenant_id = @TenantId
-                      AND activity_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.activity_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.campus_id AS "CampusId",
+                        p1.code AS "CampusCode",
+                        p1.name AS "CampusName"
+                    FROM activity.activity AS entity
+                    LEFT JOIN org.campus AS p1
+                        ON p1.campus_id = entity.campus_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.activity_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

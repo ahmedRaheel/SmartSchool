@@ -23,7 +23,13 @@ public static class GetMessageById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid ConversationId,
+    string? ConversationCode,
+    string? ConversationName,
+    Guid? ReplyToMessageId,
+    string? ReplyToMessageCode,
+    string? ReplyToMessageName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +55,23 @@ public static class GetMessageById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        message_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM communication.message
+                        entity.message_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.conversation_id AS "ConversationId",
+                        p1.code AS "ConversationCode",
+                        p1.name AS "ConversationName",
+                        p2.message_id AS "ReplyToMessageId",
+                        p2.code AS "ReplyToMessageCode",
+                        p2.name AS "ReplyToMessageName"
+                    FROM communication.message AS entity
+                    LEFT JOIN communication.conversation AS p1
+                        ON p1.conversation_id = entity.conversation_id
+                    LEFT JOIN communication.message AS p2
+                        ON p2.message_id = entity.reply_to_message_id
                     WHERE tenant_id = @TenantId
-                      AND message_id = @Id
+                      AND entity.message_id = @Id
                       AND is_active = TRUE;
                     """;
 

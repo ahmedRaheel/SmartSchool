@@ -23,7 +23,10 @@ public static class GetQuizAttemptById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid GeneratedQuizId,
+    string? GeneratedQuizCode,
+    string? GeneratedQuizName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +52,18 @@ public static class GetQuizAttemptById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        student_quiz_attempt_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM ai_tutor.student_quiz_attempt
+                        entity.student_quiz_attempt_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.generated_quiz_id AS "GeneratedQuizId",
+                        p1.code AS "GeneratedQuizCode",
+                        p1.name AS "GeneratedQuizName"
+                    FROM ai_tutor.student_quiz_attempt AS entity
+                    LEFT JOIN ai_tutor.generated_quiz AS p1
+                        ON p1.generated_quiz_id = entity.generated_quiz_id
                     WHERE tenant_id = @TenantId
-                      AND student_quiz_attempt_id = @Id
+                      AND entity.student_quiz_attempt_id = @Id
                       AND is_active = TRUE;
                     """;
 

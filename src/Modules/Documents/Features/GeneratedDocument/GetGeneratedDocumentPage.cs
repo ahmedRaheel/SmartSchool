@@ -24,7 +24,10 @@ public static class GetGeneratedDocumentPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid DocumentTemplateId,
+    string? DocumentTemplateCode,
+    string? DocumentTemplateName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +55,27 @@ public static class GetGeneratedDocumentPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM document.generated_document
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM document.generated_document AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    generated_document_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM document.generated_document
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY generated_document_id
+                    entity.tenant_id AS "TenantId",
+                    entity.generated_document_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.document_template_id AS "DocumentTemplateId",
+                        p1.code AS "DocumentTemplateCode",
+                        p1.name AS "DocumentTemplateName"
+                    FROM document.generated_document AS entity
+                    LEFT JOIN document.document_template AS p1
+                        ON p1.document_template_id = entity.document_template_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.generated_document_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

@@ -27,7 +27,11 @@ public static class GetEnrollmentPage
     Guid AcademicYearId,
     Guid ClassSectionId,
     DateOnly EnrollmentDate,
-    string Status);
+    string Status,
+    string? AcademicYearCode,
+    string? AcademicYearName,
+    string? ClassSectionCode,
+    string? ClassSectionName);
 
     public sealed record Query(
         Guid TenantId,
@@ -56,24 +60,32 @@ public static class GetEnrollmentPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM student.student_enrollment
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM student.student_enrollment AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    student_enrollment_id AS "Id",
-                    student_id AS "StudentId",
-                    academic_year_id AS "AcademicYearId",
-                    class_section_id AS "ClassSectionId",
-                    enrollment_date AS "EnrollmentDate",
-                    status AS "Status"
-                    FROM student.student_enrollment
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY student_enrollment_id
+                    entity.tenant_id AS "TenantId",
+                    entity.student_enrollment_id AS "Id",
+                    entity.student_id AS "StudentId",
+                    entity.academic_year_id AS "AcademicYearId",
+                    entity.class_section_id AS "ClassSectionId",
+                    entity.enrollment_date AS "EnrollmentDate",
+                    entity.status AS "Status",
+                        p1.code AS "AcademicYearCode",
+                        p1.name AS "AcademicYearName",
+                        p2.code AS "ClassSectionCode",
+                        p2.name AS "ClassSectionName"
+                    FROM student.student_enrollment AS entity
+                    LEFT JOIN academic.academic_year AS p1
+                        ON p1.academic_year_id = entity.academic_year_id
+                    LEFT JOIN academic.class_section AS p2
+                        ON p2.class_section_id = entity.class_section_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.student_enrollment_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

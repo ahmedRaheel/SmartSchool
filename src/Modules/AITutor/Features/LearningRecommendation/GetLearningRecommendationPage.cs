@@ -24,7 +24,10 @@ public static class GetLearningRecommendationPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? SubjectId,
+    string? SubjectCode,
+    string? SubjectName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,7 +55,7 @@ public static class GetLearningRecommendationPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM ai_tutor.learning_recommendation
+                    FROM ai_tutor.learning_recommendation AS entity
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -60,14 +63,19 @@ public static class GetLearningRecommendationPage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
-                    learning_recommendation_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM ai_tutor.learning_recommendation
+                    entity.learning_recommendation_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.subject_id AS "SubjectId",
+                        p1.code AS "SubjectCode",
+                        p1.name AS "SubjectName"
+                    FROM ai_tutor.learning_recommendation AS entity
+                    LEFT JOIN academic.subject AS p1
+                        ON p1.subject_id = entity.subject_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                    ORDER BY learning_recommendation_id
+                    ORDER BY entity.learning_recommendation_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

@@ -29,7 +29,6 @@ public static class Module
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<ApproveStudentAdmissionStudentOnboardingQuery>();
         services.AddScoped<ApproveStudentAdmissionStudentOnboardingCommand>();
-       // services.AddScoped<ApproveStudentAdmissionStudentCommand>();
         services.AddScoped<LinkStudentGuardianStudentOnboardingQuery>();
         services.AddScoped<LinkStudentGuardianStudentOnboardingCommand>();
         services.AddScoped<StrikeOffStudentStudentCommand>();

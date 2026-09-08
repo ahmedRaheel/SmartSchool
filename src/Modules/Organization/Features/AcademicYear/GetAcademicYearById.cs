@@ -23,7 +23,13 @@ public static class GetAcademicYearById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid CampusId,
+    string? CampusCode,
+    string? CampusName,
+    Guid? SchoolId,
+    string? SchoolCode,
+    string? SchoolName);
 
     public sealed record Query(
         Guid TenantId,
@@ -48,15 +54,25 @@ public static class GetAcademicYearById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        start_date AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM academic.academic_year
-                    WHERE tenant_id = @TenantId
-                      AND start_date = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.start_date AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.campus_id AS "CampusId",
+                        p1.code AS "CampusCode",
+                        p1.name AS "CampusName",
+                        p2.school_id AS "SchoolId",
+                        p2.code AS "SchoolCode",
+                        p2.name AS "SchoolName"
+                    FROM academic.academic_year AS entity
+                    LEFT JOIN org.campus AS p1
+                        ON p1.campus_id = entity.campus_id
+                    LEFT JOIN org.school AS p2
+                        ON p2.school_id = entity.school_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.start_date = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

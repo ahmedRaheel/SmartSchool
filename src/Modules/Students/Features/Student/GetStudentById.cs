@@ -25,7 +25,10 @@ public static class GetStudentById
         string? PhotoContentType,
         string? PhotoFileName,
         DateOnly? AdmissionDate,
-        string Status);
+        string Status,
+    Guid? SchoolId,
+    string? SchoolCode,
+    string? SchoolName);
 
     public sealed record Query(Guid TenantId, Guid Id) : IRequest<Result<Response>>;    public interface IGetStudentByIdQuery
     {
@@ -41,11 +44,16 @@ public static class GetStudentById
         public async Task<Result<Response>> ExecuteAsync(Query request, CancellationToken cancellationToken)
         {
             const string sql = """
-                SELECT tenant_id AS "TenantId", student_id AS "Id", user_id AS "UserId", student_number AS "StudentNumber", first_name AS "FirstName", last_name AS "LastName", date_of_birth AS "DateOfBirth", gender AS "Gender", photo AS "Photo", photo_content_type AS "PhotoContentType", photo_file_name AS "PhotoFileName", admission_date AS "AdmissionDate", status AS "Status"
-                FROM student.student
-                WHERE tenant_id = @TenantId
-                  AND student_id = @Id
-                  AND is_active = TRUE;
+                SELECT entity.tenant_id AS "TenantId", entity.student_id AS "Id", entity.user_id AS "UserId", entity.student_number AS "StudentNumber", entity.first_name AS "FirstName", entity.last_name AS "LastName", entity.date_of_birth AS "DateOfBirth", entity.gender AS "Gender", entity.photo AS "Photo", entity.photo_content_type AS "PhotoContentType", entity.photo_file_name AS "PhotoFileName", entity.admission_date AS "AdmissionDate", entity.status AS "Status",
+                        p1.school_id AS "SchoolId",
+                        p1.code AS "SchoolCode",
+                        p1.name AS "SchoolName"
+                FROM student.student AS entity
+                    LEFT JOIN org.school AS p1
+                        ON p1.school_id = entity.school_id
+                WHERE entity.tenant_id = @TenantId
+                  AND entity.student_id = @Id
+                  AND entity.is_active = TRUE;
                 """;
 
             await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);

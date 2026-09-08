@@ -24,7 +24,10 @@ public static class GetEmployeeCompensationPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? JobGradeId,
+    string? JobGradeCode,
+    string? JobGradeName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +55,27 @@ public static class GetEmployeeCompensationPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM hr.employee_compensation
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM hr.employee_compensation AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    employee_compensation_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM hr.employee_compensation
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY employee_compensation_id
+                    entity.tenant_id AS "TenantId",
+                    entity.employee_compensation_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.job_grade_id AS "JobGradeId",
+                        p1.code AS "JobGradeCode",
+                        p1.name AS "JobGradeName"
+                    FROM hr.employee_compensation AS entity
+                    LEFT JOIN hr.job_grade AS p1
+                        ON p1.job_grade_id = entity.job_grade_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.employee_compensation_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

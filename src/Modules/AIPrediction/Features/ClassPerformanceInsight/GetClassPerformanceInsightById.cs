@@ -23,7 +23,19 @@ public static class GetClassPerformanceInsightById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid AcademicYearId,
+    string? AcademicYearCode,
+    string? AcademicYearName,
+    Guid ClassSectionId,
+    string? ClassSectionCode,
+    string? ClassSectionName,
+    Guid CourseOfferingId,
+    string? CourseOfferingCode,
+    string? CourseOfferingName,
+    Guid? TermId,
+    string? TermCode,
+    string? TermName);
 
     public sealed record Query(
         Guid TenantId,
@@ -48,15 +60,35 @@ public static class GetClassPerformanceInsightById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        class_performance_insight_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM ai.class_performance_insight
-                    WHERE tenant_id = @TenantId
-                      AND class_performance_insight_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.class_performance_insight_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.academic_year_id AS "AcademicYearId",
+                        p1.code AS "AcademicYearCode",
+                        p1.name AS "AcademicYearName",
+                        p2.class_section_id AS "ClassSectionId",
+                        p2.code AS "ClassSectionCode",
+                        p2.name AS "ClassSectionName",
+                        p3.course_offering_id AS "CourseOfferingId",
+                        p3.code AS "CourseOfferingCode",
+                        p3.name AS "CourseOfferingName",
+                        p4.term_id AS "TermId",
+                        p4.code AS "TermCode",
+                        p4.name AS "TermName"
+                    FROM ai.class_performance_insight AS entity
+                    LEFT JOIN academic.academic_year AS p1
+                        ON p1.academic_year_id = entity.academic_year_id
+                    LEFT JOIN academic.class_section AS p2
+                        ON p2.class_section_id = entity.class_section_id
+                    LEFT JOIN academic.course_offering AS p3
+                        ON p3.course_offering_id = entity.course_offering_id
+                    LEFT JOIN academic.term AS p4
+                        ON p4.term_id = entity.term_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.class_performance_insight_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

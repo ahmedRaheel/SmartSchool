@@ -4,11 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace SmartSchool.Application.Messaging;
 
 /// <summary>
-/// Registers feature-local query and command implementations by convention.
-/// A concrete type ending in Query or Command is registered against the
-/// feature-local interface it implements. This keeps module registration
-/// independent from individual entities and allows slices to evolve without
-/// editing Module.cs for every data-access type.
+/// Registers feature-owned query and command services by convention.
+/// CQRS request/message types are deliberately excluded from self-registration.
 /// </summary>
 public static class FeaturePersistenceRegistrationExtensions
 {
@@ -23,25 +20,50 @@ public static class FeaturePersistenceRegistrationExtensions
             .DefinedTypes
             .Where(type =>
                 type is { IsAbstract: false, IsInterface: false }
-                && type.Namespace is not null
-                && type.Namespace.Contains(".Features.", StringComparison.Ordinal))
+                && IsFeatureType(type))
             .ToArray();
 
         foreach (var implementation in implementations)
         {
-            var contracts = implementation
-                .ImplementedInterfaces
-                .Where(contract =>
-                    contract.DeclaringType is not null
-                    && contract.DeclaringType.Namespace is not null
-                    && contract.DeclaringType.Namespace.Contains(".Features.", StringComparison.Ordinal));
+            var implementationType = implementation.AsType();
 
-            foreach (var contract in contracts)
+            // Feature contracts are the authoritative registration mechanism.
+            // This supports both top-level and nested feature-owned interfaces.
+            foreach (var contract in implementation.ImplementedInterfaces.Where(IsFeatureContract))
             {
-                services.AddScoped(contract, implementation.AsType());
+                services.AddScoped(contract, implementationType);
+            }
+
+            // A small number of feature-local services are consumed by their
+            // concrete type. Only top-level Query/Command implementations may
+            // be self-registered. Nested Command/Query records are mediator
+            // messages containing runtime values (Guid, string, etc.) and must
+            // never be created by the DI container.
+            if (!implementation.IsNested && IsQueryOrCommandImplementation(implementation))
+            {
+                services.AddScoped(implementationType);
             }
         }
 
         return services;
+    }
+
+    private static bool IsFeatureType(TypeInfo type)
+    {
+        return type.Namespace?.Contains(".Features", StringComparison.Ordinal) == true;
+    }
+
+    private static bool IsFeatureContract(Type contract)
+    {
+        return contract.IsInterface
+            && contract.Namespace?.Contains(".Features", StringComparison.Ordinal) == true
+            && (contract.Name.EndsWith("Query", StringComparison.Ordinal)
+                || contract.Name.EndsWith("Command", StringComparison.Ordinal));
+    }
+
+    private static bool IsQueryOrCommandImplementation(TypeInfo type)
+    {
+        return type.Name.EndsWith("Query", StringComparison.Ordinal)
+            || type.Name.EndsWith("Command", StringComparison.Ordinal);
     }
 }

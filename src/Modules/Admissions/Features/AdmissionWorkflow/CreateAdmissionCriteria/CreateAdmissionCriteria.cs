@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
@@ -195,5 +196,12 @@ public static class CreateAdmissionCriteria
 
             return Result<Response>.Success(new Response(criteriaId));
         }
+    }
+
+    public static void MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost("/api/admissions/criteria", async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
+            (await mediator.SendAsync<Request, Result<Response>>(request, cancellationToken)).ToHttpResult())
+            .WithName("CreateAdmissionCriteria").WithTags("Admission Criteria").RequireAuthorization();
     }
 }

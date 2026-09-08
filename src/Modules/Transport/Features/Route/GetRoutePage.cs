@@ -24,7 +24,10 @@ public static class GetRoutePage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid CampusId,
+    string? CampusCode,
+    string? CampusName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +55,27 @@ public static class GetRoutePage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM transport.route
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM transport.route AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    route_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM transport.route
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY route_id
+                    entity.tenant_id AS "TenantId",
+                    entity.route_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.campus_id AS "CampusId",
+                        p1.code AS "CampusCode",
+                        p1.name AS "CampusName"
+                    FROM transport.route AS entity
+                    LEFT JOIN org.campus AS p1
+                        ON p1.campus_id = entity.campus_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.route_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

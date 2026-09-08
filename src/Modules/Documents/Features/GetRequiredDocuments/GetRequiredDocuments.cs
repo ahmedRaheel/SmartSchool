@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
@@ -5,6 +6,8 @@ using SmartSchool.Application.Persistence;
 namespace SmartSchool.Modules.Documents.Features.GetRequiredDocuments;
 public static class GetRequiredDocuments
 {
+    public sealed record Request(string ActorType, string? StaffType, Guid? TenantId) : IRequest<IResult>;
+
  public sealed record Response(Guid Id,string ActorType,string? StaffType,string DocumentType,string DisplayName,bool IsRequired,string? ConditionCode,int MinCount,int SortOrder);
  public static void MapEndpoint(IEndpointRouteBuilder e)=>e.MapGet("/api/documents/files/requirements/{actorType}",HandleAsync).WithTags("Documents").RequireAuthorization();
  public interface IGetRequiredDocumentsQuery
@@ -19,10 +22,11 @@ public static class GetRequiredDocuments
         }
     }
 
-    public sealed class Handler(IGetRequiredDocumentsQuery query)
+    public sealed class Handler(IGetRequiredDocumentsQuery query) : IRequestHandler<Request, IResult>
     {
-        public Task<IResult> HandleAsync(string actorType, string? staffType, Guid? tenantId, CancellationToken cancellationToken) => query.ExecuteAsync(actorType, staffType, tenantId, cancellationToken);
+        public Task<IResult> HandleAsync(Request request, CancellationToken cancellationToken) => query.ExecuteAsync(request.ActorType, request.StaffType, request.TenantId, cancellationToken);
     }
 
-    private static Task<IResult> HandleAsync(string actorType, string? staffType, Guid? tenantId, CancellationToken cancellationToken, Handler handler) => handler.HandleAsync(actorType, staffType, tenantId, cancellationToken);
+    private static Task<IResult> HandleAsync(string actorType, string? staffType, Guid? tenantId, CancellationToken cancellationToken, IMediator mediator) =>
+        mediator.SendAsync<Request, IResult>(new Request(actorType, staffType, tenantId), cancellationToken);
 }

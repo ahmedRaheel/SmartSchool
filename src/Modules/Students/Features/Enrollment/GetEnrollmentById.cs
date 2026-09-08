@@ -26,7 +26,11 @@ public static class GetEnrollmentById
     Guid AcademicYearId,
     Guid ClassSectionId,
     DateOnly EnrollmentDate,
-    string Status);
+    string Status,
+    string? AcademicYearCode,
+    string? AcademicYearName,
+    string? ClassSectionCode,
+    string? ClassSectionName);
 
     public sealed record Query(
         Guid TenantId,
@@ -46,11 +50,19 @@ public static class GetEnrollmentById
             CancellationToken cancellationToken)
         {
             const string sql = """
-                SELECT tenant_id AS "TenantId", student_enrollment_id AS "Id", student_id AS "StudentId", academic_year_id AS "AcademicYearId", class_section_id AS "ClassSectionId", enrollment_date AS "EnrollmentDate", status AS "Status"
-                FROM student.student_enrollment
-                WHERE tenant_id = @TenantId
-                  AND student_enrollment_id = @Id
-                  AND is_active = TRUE;
+                SELECT entity.tenant_id AS "TenantId", entity.student_enrollment_id AS "Id", entity.student_id AS "StudentId", entity.academic_year_id AS "AcademicYearId", entity.class_section_id AS "ClassSectionId", entity.enrollment_date AS "EnrollmentDate", entity.status AS "Status",
+                        p1.code AS "AcademicYearCode",
+                        p1.name AS "AcademicYearName",
+                        p2.code AS "ClassSectionCode",
+                        p2.name AS "ClassSectionName"
+                FROM student.student_enrollment AS entity
+                    LEFT JOIN academic.academic_year AS p1
+                        ON p1.academic_year_id = entity.academic_year_id
+                    LEFT JOIN academic.class_section AS p2
+                        ON p2.class_section_id = entity.class_section_id
+                WHERE entity.tenant_id = @TenantId
+                  AND entity.student_enrollment_id = @Id
+                  AND entity.is_active = TRUE;
                 """;
 
             await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);

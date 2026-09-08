@@ -23,7 +23,10 @@ public static class GetAssignmentSubmissionById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid AcademicAssignmentId,
+    string? AcademicAssignmentCode,
+    string? AcademicAssignmentName);
 
     public sealed record Query(
         Guid TenantId,
@@ -49,13 +52,18 @@ public static class GetAssignmentSubmissionById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
-                        submission_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM lms.student_assignment_submission
+                        entity.submission_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.academic_assignment_id AS "AcademicAssignmentId",
+                        p1.code AS "AcademicAssignmentCode",
+                        p1.name AS "AcademicAssignmentName"
+                    FROM lms.student_assignment_submission AS entity
+                    LEFT JOIN lms.academic_assignment AS p1
+                        ON p1.academic_assignment_id = entity.academic_assignment_id
                     WHERE tenant_id = @TenantId
-                      AND submission_id = @Id
+                      AND entity.submission_id = @Id
                       AND is_active = TRUE;
                     """;
 

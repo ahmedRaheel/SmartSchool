@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using System.Security.Cryptography;
 using SmartSchool.Application.Identity;
 using SmartSchool.Modules.Documents.Models;
@@ -7,6 +8,8 @@ namespace SmartSchool.Modules.Documents.Features.UploadDocument;
 
 public static class UploadDocument
 {
+    public sealed record Request(HttpRequest HttpRequest, Guid? TenantId) : IRequest<IResult>;
+
     private const long MaxFileSize = 25 * 1024 * 1024;
 
     public sealed record Response(string DocumentNumber, string FileName, long SizeBytes, string Category, string DocumentType);
@@ -26,14 +29,18 @@ public static class UploadDocument
         }
     }
 
-    public sealed class Handler(IUploadDocumentCommand command)
+    public sealed class Handler(ITenantScope tenantScope, IUploadDocumentCommand command, TimeProvider timeProvider) : IRequestHandler<Request, IResult>
     {
-        public Task ExecuteAsync(DocumentFileEntity document, DocumentLinkEntity link, CancellationToken cancellationToken) => command.ExecuteAsync(document, link, cancellationToken);
+        public Task<IResult> HandleAsync(Request request, CancellationToken cancellationToken) =>
+            ExecuteAsync(request.HttpRequest, request.TenantId, tenantScope, command, timeProvider, cancellationToken);
     }
 
-    public static void MapEndpoint(IEndpointRouteBuilder endpoints) => endpoints.MapPost("/api/documents/files", HandleAsync).WithTags("Documents").RequireAuthorization().DisableAntiforgery();
+    public static void MapEndpoint(IEndpointRouteBuilder endpoints) => endpoints.MapPost("/api/documents/files", HandleEndpointAsync).WithTags("Documents").RequireAuthorization().DisableAntiforgery();
 
-    private static async Task<IResult> HandleAsync(HttpRequest request, Guid? tenantId, ITenantScope tenantScope, Handler handler, TimeProvider timeProvider, CancellationToken cancellationToken)
+    private static Task<IResult> HandleEndpointAsync(HttpRequest request, Guid? tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+        mediator.SendAsync<Request, IResult>(new Request(request, tenantId), cancellationToken);
+
+    private static async Task<IResult> ExecuteAsync(HttpRequest request, Guid? tenantId, ITenantScope tenantScope, IUploadDocumentCommand command, TimeProvider timeProvider, CancellationToken cancellationToken)
     {
         var resolvedTenantId = tenantScope.Resolve(tenantId);
         if (!resolvedTenantId.HasValue) return Results.BadRequest(new { message = "Tenant is required for SuperAdmin." });
@@ -66,7 +73,7 @@ public static class UploadDocument
         var document = DocumentFileEntity.Create(resolvedTenantId.Value, schoolId, branchId, documentNumber, originalFileName, $"{documentId:N}{extension}", extension, mimeType, file.Length, checksum, bytes, category, documentType, form["title"], bool.TryParse(form["isConfidential"], out var confidential) && confidential, tenantScope.UserId);
         var link = DocumentLinkEntity.Create(resolvedTenantId.Value, document.DocumentId, entityType, entityId, purpose, bool.TryParse(form["isPrimary"], out var primary) && primary);
 
-        await handler.ExecuteAsync(document, link, cancellationToken);
+        await command.ExecuteAsync(document, link, cancellationToken);
 
         return Results.Created($"/api/documents/files/{document.DocumentId}", new Response(documentNumber, originalFileName, file.Length, category, documentType));
     }

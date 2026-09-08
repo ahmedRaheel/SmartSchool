@@ -23,7 +23,10 @@ public static class GetEmployeeCompensationById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? JobGradeId,
+    string? JobGradeCode,
+    string? JobGradeName);
 
     public sealed record Query(
         Guid TenantId,
@@ -48,15 +51,20 @@ public static class GetEmployeeCompensationById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        employee_compensation_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM hr.employee_compensation
-                    WHERE tenant_id = @TenantId
-                      AND employee_compensation_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.employee_compensation_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.job_grade_id AS "JobGradeId",
+                        p1.code AS "JobGradeCode",
+                        p1.name AS "JobGradeName"
+                    FROM hr.employee_compensation AS entity
+                    LEFT JOIN hr.job_grade AS p1
+                        ON p1.job_grade_id = entity.job_grade_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.employee_compensation_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

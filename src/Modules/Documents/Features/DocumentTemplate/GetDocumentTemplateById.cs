@@ -23,7 +23,13 @@ public static class GetDocumentTemplateById
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? AcademicSystemId,
+    string? AcademicSystemCode,
+    string? AcademicSystemName,
+    Guid? CampusId,
+    string? CampusCode,
+    string? CampusName);
 
     public sealed record Query(
         Guid TenantId,
@@ -48,15 +54,25 @@ public static class GetDocumentTemplateById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        document_template_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM document.document_template
-                    WHERE tenant_id = @TenantId
-                      AND document_template_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.document_template_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.metadata_json AS "MetadataJson",
+                        p1.academic_system_id AS "AcademicSystemId",
+                        p1.code AS "AcademicSystemCode",
+                        p1.name AS "AcademicSystemName",
+                        p2.campus_id AS "CampusId",
+                        p2.code AS "CampusCode",
+                        p2.name AS "CampusName"
+                    FROM document.document_template AS entity
+                    LEFT JOIN academic.academic_system AS p1
+                        ON p1.academic_system_id = entity.academic_system_id
+                    LEFT JOIN org.campus AS p2
+                        ON p2.campus_id = entity.campus_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.document_template_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

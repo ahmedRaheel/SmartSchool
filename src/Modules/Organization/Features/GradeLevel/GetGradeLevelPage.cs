@@ -24,7 +24,13 @@ public static class GetGradeLevelPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid CampusId,
+    string? CampusCode,
+    string? CampusName,
+    Guid? AcademicSystemId,
+    string? AcademicSystemCode,
+    string? AcademicSystemName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +58,32 @@ public static class GetGradeLevelPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM academic.grade_level
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM academic.grade_level AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    grade_level_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM academic.grade_level
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY grade_level_id
+                    entity.tenant_id AS "TenantId",
+                    entity.grade_level_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.campus_id AS "CampusId",
+                        p1.code AS "CampusCode",
+                        p1.name AS "CampusName",
+                        p2.academic_system_id AS "AcademicSystemId",
+                        p2.code AS "AcademicSystemCode",
+                        p2.name AS "AcademicSystemName"
+                    FROM academic.grade_level AS entity
+                    LEFT JOIN org.campus AS p1
+                        ON p1.campus_id = entity.campus_id
+                    LEFT JOIN academic.academic_system AS p2
+                        ON p2.academic_system_id = entity.academic_system_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.grade_level_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

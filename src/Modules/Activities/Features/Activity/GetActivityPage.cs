@@ -24,7 +24,10 @@ public static class GetActivityPage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson,
+    Guid? CampusId,
+    string? CampusCode,
+    string? CampusName);
 
     public sealed record Query(
         Guid TenantId,
@@ -52,22 +55,27 @@ public static class GetActivityPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM activity.activity
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    FROM activity.activity AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    activity_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM activity.activity
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY activity_id
+                    entity.tenant_id AS "TenantId",
+                    entity.activity_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson",
+                        p1.campus_id AS "CampusId",
+                        p1.code AS "CampusCode",
+                        p1.name AS "CampusName"
+                    FROM activity.activity AS entity
+                    LEFT JOIN org.campus AS p1
+                        ON p1.campus_id = entity.campus_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.activity_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 
