@@ -1,3 +1,7 @@
+using SmartSchool.Modules.Communication.Features.Chat.SendChatMessage;
+using SmartSchool.Modules.Communication.Features.Chat.CreateChatConversation;
+using SmartSchool.Modules.Communication.Features.Chat.GetChatMessages;
+using SmartSchool.Modules.Communication.Features.Chat.GetChatConversations;
 using SmartSchool.Modules.Communication.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -62,7 +66,10 @@ public static class Module
         MarkNotificationAsRead.MapEndpoint(endpoints);
         MarkAllNotificationsAsRead.MapEndpoint(endpoints);
         GetUnreadNotificationCount.MapEndpoint(endpoints);
-        endpoints.MapChatEndpoints();
+        GetChatConversations.MapEndpoint(endpoints);
+        GetChatMessages.MapEndpoint(endpoints);
+        CreateChatConversation.MapEndpoint(endpoints);
+        SendChatMessage.MapEndpoint(endpoints);
 
         return endpoints;
     }

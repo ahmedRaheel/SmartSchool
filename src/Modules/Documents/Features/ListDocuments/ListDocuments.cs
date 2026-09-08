@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
@@ -5,6 +6,8 @@ using SmartSchool.Application.Persistence;
 namespace SmartSchool.Modules.Documents.Features.ListDocuments;
 public static class ListDocuments
 {
+    public sealed record Request(string EntityType, Guid EntityId, Guid? TenantId) : IRequest<IResult>;
+
     public sealed record Response(string DocumentNumber,string FileName,string MimeType,long SizeBytes,string Category,string DocumentType,string? Title,int Version,string Status,string Purpose,bool IsPrimary,DateTimeOffset UploadedAt);
     public static void MapEndpoint(IEndpointRouteBuilder endpoints) => endpoints.MapGet("/api/documents/files/entity/{entityType}/{entityId:guid}", HandleAsync).WithTags("Documents").RequireAuthorization();
     public interface IListDocumentsQuery
@@ -25,10 +28,11 @@ public static class ListDocuments
         }
     }
 
-    public sealed class Handler(IListDocumentsQuery query)
+    public sealed class Handler(IListDocumentsQuery query) : IRequestHandler<Request, IResult>
     {
-        public Task<IResult> HandleAsync(string entityType, Guid entityId, Guid? tenantId, CancellationToken cancellationToken) => query.ExecuteAsync(entityType, entityId, tenantId, cancellationToken);
+        public Task<IResult> HandleAsync(Request request, CancellationToken cancellationToken) => query.ExecuteAsync(request.EntityType, request.EntityId, request.TenantId, cancellationToken);
     }
 
-    private static Task<IResult> HandleAsync(string entityType, Guid entityId, Guid? tenantId, CancellationToken cancellationToken, Handler handler) => handler.HandleAsync(entityType, entityId, tenantId, cancellationToken);
+    private static Task<IResult> HandleAsync(string entityType, Guid entityId, Guid? tenantId, CancellationToken cancellationToken, IMediator mediator) =>
+        mediator.SendAsync<Request, IResult>(new Request(entityType, entityId, tenantId), cancellationToken);
 }

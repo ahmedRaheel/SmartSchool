@@ -1,3 +1,7 @@
+using SmartSchool.Modules.AITutor.Features.Operations.GenerateLearningRecommendation;
+using SmartSchool.Modules.AITutor.Features.Operations.GenerateTutorQuiz;
+using SmartSchool.Modules.AITutor.Features.Operations.AskTutor;
+using SmartSchool.Modules.AITutor.Features.Operations.StartTutorSession;
 using SmartSchool.Modules.AITutor.Persistence;
 using SmartSchool.Modules.AITutor.Features;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,11 +29,6 @@ public static class Module
             serviceProvider.GetRequiredService<AITutorDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<OperationalTutorEndpointsGeneratedQuizCommand>();
-        services.AddScoped<OperationalTutorEndpointsLearningRecommendationCommand>();
-        services.AddScoped<OperationalTutorEndpointsTutorConversationCommand>();
-        services.AddScoped<OperationalTutorEndpointsTutorMessageCommand>();
-        services.AddScoped<OperationalTutorEndpointsTutorSessionCommand>();
         return services;
     }
 
@@ -72,7 +71,10 @@ public static class Module
         UpdateTutorSession.MapEndpoint(endpoints);
         DeleteTutorSession.MapEndpoint(endpoints);
 
-        OperationalTutorEndpoints.MapOperationalTutorEndpoints(endpoints);
+        StartTutorSession.MapEndpoint(endpoints);
+        AskTutor.MapEndpoint(endpoints);
+        GenerateTutorQuiz.MapEndpoint(endpoints);
+        GenerateLearningRecommendation.MapEndpoint(endpoints);
 
         return endpoints;
     }

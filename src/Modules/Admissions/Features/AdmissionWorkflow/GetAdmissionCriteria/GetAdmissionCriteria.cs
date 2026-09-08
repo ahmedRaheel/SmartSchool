@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
@@ -80,6 +81,13 @@ public static class GetAdmissionCriteria
 
             return Result<IReadOnlyList<AdmissionCriteriaDto>>.Success(criteria);
         }
+    }
+
+    public static void MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet("/api/admissions/criteria", async (Guid? tenantId, Guid? branchId, Guid? classId, IMediator mediator, CancellationToken cancellationToken) =>
+            (await mediator.SendAsync<Request, Result<IReadOnlyList<AdmissionCriteriaDto>>>(new Request(tenantId), cancellationToken)).ToHttpResult())
+            .WithName("GetAdmissionCriteria").WithTags("Admission Criteria").RequireAuthorization();
     }
 }
 

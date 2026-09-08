@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
@@ -313,5 +314,12 @@ public static class CreateAdmissionApplication
 
             return false;
         }
+    }
+
+    public static void MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapPost("/api/admissions/workflow/applications", async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
+            (await mediator.SendAsync<Request, Result<Response>>(request, cancellationToken)).ToHttpResult())
+            .WithName("CreateAdmissionApplication").WithTags("Admissions").RequireAuthorization();
     }
 }

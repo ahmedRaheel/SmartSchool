@@ -13,13 +13,26 @@ public static class CreateEmployeeExperience
     public sealed record Request(Guid? TenantId, Guid EmployeeId, string Employer, string JobTitle, DateOnly StartDate, DateOnly? EndDate, string? Responsibilities) : IRequest<Result<Response>>;
     public sealed record Response(Guid Id);
     public sealed class Validator : AbstractValidator<Request> { public Validator() { RuleFor(x=>x.EmployeeId).NotEmpty(); RuleFor(x=>x.Employer).NotEmpty().MaximumLength(200); RuleFor(x=>x.JobTitle).NotEmpty().MaximumLength(150); } }
-    public sealed class Handler(IHRDbContext dbContext) : IRequestHandler<Request, Result<Response>>
+    public interface ICreateEmployeeExperienceCommand
+    {
+        Task<EmployeeExperienceEntity> AddAsync(EmployeeExperienceEntity entity, CancellationToken cancellationToken);
+    }
+
+    internal sealed class CreateEmployeeExperienceCommand(IHRDbContext dbContext) : ICreateEmployeeExperienceCommand
+    {
+        public async Task<EmployeeExperienceEntity> AddAsync(EmployeeExperienceEntity entity, CancellationToken cancellationToken)
+        {
+            await dbContext.EmployeeExperiences.AddAsync(entity, cancellationToken);
+            return entity;
+        }
+    }
+
+    public sealed class Handler(ICreateEmployeeExperienceCommand command) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
             var entity = EmployeeExperienceEntity.Create(request.TenantId!.Value, request.EmployeeId, request.Employer, request.JobTitle, request.StartDate, request.EndDate, request.Responsibilities);
-            await dbContext.EmployeeExperiences.AddAsync(entity, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(entity.EmployeeExperienceId));
         }
     }

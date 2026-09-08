@@ -30,7 +30,6 @@ public static class Module
             serviceProvider.GetRequiredService<OrganizationDbContext>());
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
-        services.AddScoped<BranchPolicyBranchPolicyQuery>();
         services.AddScoped<CreateCampusBranchPolicyCommand>();
         services.AddScoped<CreateCampusCampusCommand>();
         services.AddScoped<CreateCampusSchoolQuery>();

@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AICore.Persistence;
 using SmartSchool.Modules.AICore.Models;
 using System.Text.RegularExpressions;
@@ -15,6 +16,8 @@ public static class UploadKnowledgePdf
 {
     private const long MaxPdfSize = 25 * 1024 * 1024;
     private const int ChunkSize = 1200;
+
+    public sealed record Request(IFormFile File, Guid CollectionId, Guid? TenantId, Guid? CampusId, Guid? AcademicSystemId) : IRequest<IResult>;
 
 
     public sealed record Response(Guid KnowledgeDocumentId, string FileName, int Pages, int Chunks, bool Indexed);
@@ -48,21 +51,23 @@ public static class UploadKnowledgePdf
         }
     }
 
-    public sealed class Handler
+    public sealed class Handler(ITenantScope tenantScope, IUploadKnowledgePdfQuery query, IUploadKnowledgePdfCommand command, IOllamaClient ollamaClient, IAiAssistantService assistantService) : IRequestHandler<Request, IResult>
     {
-        // Endpoint orchestration remains in UploadAsync; all persistence is delegated to the feature-owned query/command.
+        public Task<IResult> HandleAsync(Request request, CancellationToken cancellationToken) => ExecuteAsync(
+            request.File, request.CollectionId, request.TenantId, request.CampusId, request.AcademicSystemId, tenantScope, query, command, ollamaClient, assistantService, cancellationToken);
     }
 
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/aicore/knowledge/pdf", UploadAsync)
+        endpoints.MapPost("/api/aicore/knowledge/pdf", async (IFormFile file, Guid collectionId, Guid? tenantId, Guid? campusId, Guid? academicSystemId, IMediator mediator, CancellationToken cancellationToken) =>
+                await mediator.SendAsync<Request, IResult>(new Request(file, collectionId, tenantId, campusId, academicSystemId), cancellationToken))
             .WithTags("AICore Knowledge")
             .WithName("UploadKnowledgePdf")
             .RequireAuthorization(SmartSchoolPolicies.AiKnowledgeContribution)
             .DisableAntiforgery();
     }
 
-    private static async Task<IResult> UploadAsync(
+    private static async Task<IResult> ExecuteAsync(
         IFormFile file,
         Guid collectionId,
         Guid? tenantId,

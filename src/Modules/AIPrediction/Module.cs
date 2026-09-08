@@ -30,9 +30,6 @@ public static class Module
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
         services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
-        services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
-        services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();
-        services.AddScoped<IPredictionSuiteService, MlNetPredictionSuiteService>();
 
         return services;
     }

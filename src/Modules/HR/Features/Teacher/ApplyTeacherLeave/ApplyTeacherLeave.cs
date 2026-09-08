@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Identity;
@@ -11,10 +12,11 @@ public static class ApplyTeacherLeave
 {
     public sealed record Request(
         Guid? TenantId,
+        Guid EmployeeId,
         DateOnly FromDate,
         DateOnly ToDate,
         string LeaveType,
-        string Reason);
+        string Reason) : IRequest<Response>;
 
     public sealed record Response(Guid LeaveRequestId, string Status);
 
@@ -61,11 +63,11 @@ public static class ApplyTeacherLeave
         }
     }
 
-    public sealed class Handler(IApplyTeacherLeaveCommand command)
+    public sealed class Handler(IApplyTeacherLeaveCommand command) : IRequestHandler<Request, Response>
     {
-        public async Task<Response> HandleAsync(Guid tenantId, Guid employeeId, Request request, CancellationToken cancellationToken)
+        public async Task<Response> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity = await command.ExecuteAsync(tenantId, employeeId, request, cancellationToken);
+            var entity = await command.ExecuteAsync(request.TenantId!.Value, request.EmployeeId, request, cancellationToken);
             return new Response(entity.LeaveRequestId, entity.Status);
         }
     }
@@ -80,7 +82,7 @@ public static class ApplyTeacherLeave
         Guid employeeId,
         Request request,
         ITenantScope tenantScope,
-        Handler handler,
+        IMediator mediator,
         CancellationToken cancellationToken)
     {
         var tenantId = tenantScope.IsSuperAdmin
@@ -92,10 +94,8 @@ public static class ApplyTeacherLeave
             return Results.BadRequest(new { message = "Tenant is required." });
         }
 
-        var response = await handler.HandleAsync(
-            tenantId.Value,
-            employeeId,
-            request,
+        var response = await mediator.SendAsync<Request, Response>(
+            request with { TenantId = tenantId.Value, EmployeeId = employeeId },
             cancellationToken);
 
         return Results.Accepted($"/api/teachers/{employeeId}/leave/{response.LeaveRequestId}", response);

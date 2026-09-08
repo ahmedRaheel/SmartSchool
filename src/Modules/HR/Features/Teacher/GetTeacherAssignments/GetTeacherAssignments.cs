@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
@@ -7,6 +8,7 @@ namespace SmartSchool.Modules.HR.Features.Teacher.GetTeacherAssignments;
 
 public static class GetTeacherAssignments
 {
+    public sealed record Request(Guid TenantId, Guid EmployeeId) : IRequest<Response>;
     public sealed record Response(IReadOnlyList<dynamic> Items);
 
     public interface IGetTeacherAssignmentsQuery
@@ -27,9 +29,9 @@ public static class GetTeacherAssignments
         }
     }
 
-    public sealed class Handler(IGetTeacherAssignmentsQuery query)
+    public sealed class Handler(IGetTeacherAssignmentsQuery query) : IRequestHandler<Request, Response>
     {
-        public Task<Response> HandleAsync(Guid tenantId, Guid employeeId, CancellationToken cancellationToken) => query.ExecuteAsync(tenantId, employeeId, cancellationToken);
+        public Task<Response> HandleAsync(Request request, CancellationToken cancellationToken) => query.ExecuteAsync(request.TenantId, request.EmployeeId, cancellationToken);
     }
 
     public static void MapEndpoint(RouteGroupBuilder group)
@@ -37,7 +39,7 @@ public static class GetTeacherAssignments
         group.MapGet("/{employeeId:guid}/assignments", HandleAsync);
     }
 
-    private static async Task<IResult> HandleAsync(Guid employeeId, Guid? tenantId, ITenantScope tenantScope, Handler handler, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(Guid employeeId, Guid? tenantId, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken)
     {
             var resolvedTenantId = tenantScope.IsSuperAdmin ? tenantId : tenantScope.Resolve(tenantId);
             if (!resolvedTenantId.HasValue)
@@ -45,7 +47,7 @@ public static class GetTeacherAssignments
                 return Results.BadRequest(new { message = "Tenant is required." });
             }
 
-            var response = await handler.HandleAsync(resolvedTenantId.Value, employeeId, cancellationToken);
+            var response = await mediator.SendAsync<Request, Response>(new Request(resolvedTenantId.Value, employeeId), cancellationToken);
             return Results.Ok(response.Items);
     }
 }

@@ -13,7 +13,7 @@ public static class PredictPayrollAnomaly
 
     public interface IPredictPayrollAnomalyCommand
     {
-        Task AddAsync(Guid tenantId, PredictionResult result, Request request,  CancellationToken cancellationToken);
+        Task AddAsync(Guid tenantId, PredictionResult result, Request request, CancellationToken cancellationToken);
     }
 
     internal sealed class PredictPayrollAnomalyCommand(IAIPredictionDbContext dbContext) : IPredictPayrollAnomalyCommand

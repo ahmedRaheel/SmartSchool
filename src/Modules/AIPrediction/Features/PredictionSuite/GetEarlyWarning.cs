@@ -11,11 +11,22 @@ public static class GetEarlyWarning
     public sealed record Request(StudentPredictionRequest Input) : IRequest<Response>;
     public sealed record Response(decimal OverallRiskScore, string RiskLevel, PredictionResult Academic, PredictionResult Attendance, PredictionResult Assignment, PredictionResult Fee, PredictionResult Dropout, PredictionResult Promotion, IReadOnlyList<string> TopFactors);
 
-    public sealed class Handler(IPredictionSuiteService service) : IRequestHandler<Request, Response>
+    public interface IGetEarlyWarningQuery
+    {
+        Task<EarlyWarningResult> ExecuteAsync(StudentPredictionRequest input, CancellationToken cancellationToken);
+    }
+
+    internal sealed class GetEarlyWarningQuery(IPredictionSuiteService service) : IGetEarlyWarningQuery
+    {
+        public Task<EarlyWarningResult> ExecuteAsync(StudentPredictionRequest input, CancellationToken cancellationToken) =>
+            service.GetEarlyWarningAsync(input, cancellationToken);
+    }
+
+    public sealed class Handler(IGetEarlyWarningQuery query) : IRequestHandler<Request, Response>
     {
         public async Task<Response> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var result = await service.GetEarlyWarningAsync(request.Input, cancellationToken);
+            var result = await query.ExecuteAsync(request.Input, cancellationToken);
             return new Response(result.OverallRiskScore, result.RiskLevel, result.Academic, result.Attendance, result.Assignment, result.Fee, result.Dropout, result.Promotion, result.TopFactors);
         }
     }

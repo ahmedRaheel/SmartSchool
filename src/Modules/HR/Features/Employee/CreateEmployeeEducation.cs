@@ -13,13 +13,26 @@ public static class CreateEmployeeEducation
     public sealed record Request(Guid? TenantId, Guid EmployeeId, string Qualification, string? Institute, string? FieldOfStudy, DateOnly? StartDate, DateOnly? EndDate, string? Grade, bool IsHighest) : IRequest<Result<Response>>;
     public sealed record Response(Guid Id);
     public sealed class Validator : AbstractValidator<Request> { public Validator() { RuleFor(x=>x.EmployeeId).NotEmpty(); RuleFor(x=>x.Qualification).NotEmpty().MaximumLength(150); } }
-    public sealed class Handler(IHRDbContext dbContext) : IRequestHandler<Request, Result<Response>>
+    public interface ICreateEmployeeEducationCommand
+    {
+        Task<EmployeeEducationEntity> AddAsync(EmployeeEducationEntity entity, CancellationToken cancellationToken);
+    }
+
+    internal sealed class CreateEmployeeEducationCommand(IHRDbContext dbContext) : ICreateEmployeeEducationCommand
+    {
+        public async Task<EmployeeEducationEntity> AddAsync(EmployeeEducationEntity entity, CancellationToken cancellationToken)
+        {
+            await dbContext.EmployeeEducations.AddAsync(entity, cancellationToken);
+            return entity;
+        }
+    }
+
+    public sealed class Handler(ICreateEmployeeEducationCommand command) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
             var entity = EmployeeEducationEntity.Create(request.TenantId!.Value, request.EmployeeId, request.Qualification, request.Institute, request.FieldOfStudy, request.StartDate, request.EndDate, request.Grade, request.IsHighest);
-            await dbContext.EmployeeEducations.AddAsync(entity, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(new Response(entity.EmployeeEducationId));
         }
     }

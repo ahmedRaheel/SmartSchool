@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
@@ -5,6 +6,8 @@ using SmartSchool.Application.Persistence;
 namespace SmartSchool.Modules.Documents.Features.DownloadDocument;
 public static class DownloadDocument
 {
+    public sealed record Request(Guid DocumentId, Guid? TenantId) : IRequest<IResult>;
+
     private sealed record Response(byte[]? Data, string MimeType, string FileName);
     public static void MapEndpoint(IEndpointRouteBuilder endpoints) => endpoints.MapGet("/api/documents/files/{documentId:guid}", HandleAsync).WithTags("Documents").RequireAuthorization();
     public interface IDownloadDocumentQuery
@@ -25,10 +28,11 @@ public static class DownloadDocument
         }
     }
 
-    public sealed class Handler(IDownloadDocumentQuery query)
+    public sealed class Handler(IDownloadDocumentQuery query) : IRequestHandler<Request, IResult>
     {
-        public Task<IResult> HandleAsync(Guid documentId, Guid? tenantId, CancellationToken cancellationToken) => query.ExecuteAsync(documentId, tenantId, cancellationToken);
+        public Task<IResult> HandleAsync(Request request, CancellationToken cancellationToken) => query.ExecuteAsync(request.DocumentId, request.TenantId, cancellationToken);
     }
 
-    private static Task<IResult> HandleAsync(Guid documentId, Guid? tenantId, CancellationToken cancellationToken, Handler handler) => handler.HandleAsync(documentId, tenantId, cancellationToken);
+    private static Task<IResult> HandleAsync(Guid documentId, Guid? tenantId, CancellationToken cancellationToken, IMediator mediator) =>
+        mediator.SendAsync<Request, IResult>(new Request(documentId, tenantId), cancellationToken);
 }

@@ -1,3 +1,4 @@
+using SmartSchool.Application.Messaging;
 using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Persistence;
@@ -5,6 +6,8 @@ using SmartSchool.Application.Persistence;
 namespace SmartSchool.Modules.Documents.Features.GetDocumentCompliance;
 public static class GetDocumentCompliance
 {
+    public sealed record Request(string ActorType, Guid EntityId, string? StaffType, Guid? TenantId) : IRequest<IResult>;
+
  public sealed record Requirement(string DocumentType,string DisplayName,int RequiredCount,int UploadedCount,bool Satisfied,string? ConditionCode);
  public static void MapEndpoint(IEndpointRouteBuilder e)=>e.MapGet("/api/documents/files/compliance/{actorType}/{entityId:guid}",HandleAsync).WithTags("Documents").RequireAuthorization();
  public interface IGetDocumentComplianceQuery
@@ -19,10 +22,11 @@ public static class GetDocumentCompliance
         }
     }
 
-    public sealed class Handler(IGetDocumentComplianceQuery query)
+    public sealed class Handler(IGetDocumentComplianceQuery query) : IRequestHandler<Request, IResult>
     {
-        public Task<IResult> HandleAsync(string actorType, Guid entityId, string? staffType, Guid? tenantId, CancellationToken cancellationToken) => query.ExecuteAsync(actorType, entityId, staffType, tenantId, cancellationToken);
+        public Task<IResult> HandleAsync(Request request, CancellationToken cancellationToken) => query.ExecuteAsync(request.ActorType, request.EntityId, request.StaffType, request.TenantId, cancellationToken);
     }
 
-    private static Task<IResult> HandleAsync(string actorType, Guid entityId, string? staffType, Guid? tenantId, CancellationToken cancellationToken, Handler handler) => handler.HandleAsync(actorType, entityId, staffType, tenantId, cancellationToken);
+    private static Task<IResult> HandleAsync(string actorType, Guid entityId, string? staffType, Guid? tenantId, CancellationToken cancellationToken, IMediator mediator) =>
+        mediator.SendAsync<Request, IResult>(new Request(actorType, entityId, staffType, tenantId), cancellationToken);
 }

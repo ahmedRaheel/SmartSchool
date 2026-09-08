@@ -1,3 +1,4 @@
+using SmartSchool.Application.Http;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Identity;
@@ -53,6 +54,13 @@ public static class GetAdmissionApplications
 
             return Result<IReadOnlyList<AdmissionApplicationDto>>.Success(applications);
         }
+    }
+
+    public static void MapEndpoint(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapGet("/api/admissions/workflow/applications", async (Guid? tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+            (await mediator.SendAsync<Request, Result<IReadOnlyList<AdmissionApplicationDto>>>(new Request(tenantId), cancellationToken)).ToHttpResult())
+            .WithName("GetAdmissionApplications").WithTags("Admissions").RequireAuthorization();
     }
 }
 
