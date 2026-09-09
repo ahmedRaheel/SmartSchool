@@ -54,14 +54,14 @@ public static class GetStudentOfMonthPage
                 CancellationToken cancellationToken)
             {
 
-            var branchId = currentUser.BranchId ?? Guid.Empty;
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
 
             const string countSql = """
                     SELECT COUNT(*)
                     FROM activity.student_of_month
                          join  org.department on department.department_id = student_of_month.department_id
                     WHERE tenant_id = @TenantId
-                    AND department.branch_id = @BranchId
+                    AND (@BranchId IS NULL OR department.branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -76,7 +76,7 @@ public static class GetStudentOfMonthPage
                          join  org.department on department.department_id = student_of_month.department_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                      AND department.branch_id = @BranchId
+                      AND (@BranchId IS NULL OR department.branch_id = @BranchId)
                     ORDER BY student_of_month_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

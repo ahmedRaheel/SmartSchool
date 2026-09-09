@@ -56,13 +56,13 @@ public static class GetStudentActivityPage
                 CancellationToken cancellationToken)
             {
 
-                var branchId = currentUser.BranchId ?? Guid.Empty;
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM activity.student_activity AS entity
                     Join student.student st  on st.student_id = entity.student_id
                     WHERE tenant_id = @TenantId
-                      AND st.branch_id =@BranchId
+                      AND (@BranchId IS NULL OR st.branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -82,7 +82,7 @@ public static class GetStudentActivityPage
                     Join student.student st  on st.student_id = entity.student_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                      AND st.branch_id = @BranchId
+                      AND (@BranchId IS NULL OR st.branch_id = @BranchId)
                     ORDER BY id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

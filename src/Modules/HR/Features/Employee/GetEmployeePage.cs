@@ -60,12 +60,12 @@ public static class GetEmployeePage
                 CancellationToken cancellationToken)
             {
 
-                var branchId = currentUser.BranchId;
-            const string countSql = """
-                    SELECT COUNT(*)
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
+                const string countSql = """
+                    SELECT COUNT(e.employee_id)
                     FROM hr.employee e
                     WHERE e.tenant_id = @TenantId
-                    AND e.branch_id = @BranchId
+                    AND (@BranchId IS NULL OR e.branch_id = @BranchId)
                       AND e.is_active = TRUE;
                     """;
 
@@ -96,7 +96,7 @@ public static class GetEmployeePage
                     LEFT JOIN org.department d ON d.tenant_id = e.tenant_id AND d.department_id = e.department_id AND d.is_active = TRUE
                     WHERE e.tenant_id = @TenantId
                       AND e.is_active = TRUE
-                      ANd e.branch_id = @BranchId
+                     AND (@BranchId IS NULL OR e.branch_id = @BranchId)
                     ORDER BY e.employee_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

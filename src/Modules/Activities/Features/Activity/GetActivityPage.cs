@@ -55,13 +55,13 @@ public static class GetActivityPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-            var branchId = currentUser.BranchId ?? Guid.Empty;
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
                 const string countSql = """
-                    SELECT COUNT(*)
+                    SELECT COUNT(entity.activity_id)
                     FROM activity.activity AS entity
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
-                    AND entity.branch_id = @branchId
+                    AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
                     """;
 
                 const string pageSql = """
@@ -79,7 +79,7 @@ public static class GetActivityPage
                         ON p1.campus_id = entity.campus_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
-                    AND entity.branch_id = @branchId
+                      AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
                     ORDER BY entity.activity_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

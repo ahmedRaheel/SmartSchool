@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Examinations.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Examinations.Features.GradeScale;
 
@@ -42,7 +43,8 @@ public static class GetGradeScalePage
     }
 
     internal sealed class GetGradeScalePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetGradeScalePageQuery
+        IDbConnectionFactory connectionFactory, 
+        ICurrentUser currentUser) : IGetGradeScalePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -50,10 +52,12 @@ public static class GetGradeScalePage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM exam.grade_scale
                     WHERE tenant_id = @TenantId
+                    AND ( @BranchId IS NULL OR branch_id = @BranchId )
                       AND is_active = TRUE;
                     """;
 
@@ -66,6 +70,7 @@ public static class GetGradeScalePage
                     metadata_json AS "MetadataJson"
                     FROM exam.grade_scale
                     WHERE tenant_id = @TenantId
+                    AND ( @BranchId IS NULL OR branch_id = @BranchId )
                       AND is_active = TRUE
                     ORDER BY grade_scale_id
                     LIMIT @PageSize OFFSET @Offset;
@@ -77,6 +82,7 @@ public static class GetGradeScalePage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };
