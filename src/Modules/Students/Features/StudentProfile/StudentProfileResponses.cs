@@ -1,5 +1,3 @@
-using SmartSchool.Application.Documents;
-
 namespace SmartSchool.Modules.Students.Features.StudentProfile;
 
 /// <summary>Lightweight student row used by paged/list APIs.</summary>
@@ -46,5 +44,4 @@ public sealed record StudentDetailResponse(
     DateOnly AdmissionDate,
     Guid? CurrentProgramId,
     Guid? CurrentClassId,
-    Guid? CurrentSectionId,
-    IReadOnlyCollection<DocumentResponse> Documents);
+    Guid? CurrentSectionId);

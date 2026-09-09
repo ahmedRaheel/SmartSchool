@@ -7,10 +7,7 @@ namespace SmartSchool.Modules.HR.Persistence;
 public interface IHRDbContext
 {
     DatabaseFacade Database { get; }
-
-    DbSet<CandidateDocumentEntity> CandidateDocuments { get; }
     DbSet<CandidateEntity> Candidates { get; }
-    DbSet<EmployeeDocumentEntity> EmployeeDocuments { get; }
     DbSet<EmployeeEducationEntity> EmployeeEducations { get; }
     DbSet<EmployeeEntity> Employees { get; }
     DbSet<EmployeeExperienceEntity> EmployeeExperiences { get; }
@@ -23,7 +20,6 @@ public interface IHRDbContext
     DbSet<PositionEntity> Positions { get; }
     DbSet<ResumeEntity> Resumes { get; }
     DbSet<TeacherDirectoryReadEntity> TeacherDirectoryReads { get; }
-    DbSet<TeacherDocumentEntity> TeacherDocuments { get; }
     DbSet<TeacherProfileEntity> TeacherProfiles { get; }
     DbSet<TeacherTeachingAssignmentEntity> TeacherTeachingAssignments { get; }
 
@@ -37,9 +33,7 @@ public interface IHRDbContext
 public sealed class HRDbContext(DbContextOptions<HRDbContext> options)
     : DbContext(options), IHRDbContext
 {
-    public DbSet<CandidateDocumentEntity> CandidateDocuments => Set<CandidateDocumentEntity>();
     public DbSet<CandidateEntity> Candidates => Set<CandidateEntity>();
-    public DbSet<EmployeeDocumentEntity> EmployeeDocuments => Set<EmployeeDocumentEntity>();
     public DbSet<EmployeeEducationEntity> EmployeeEducations => Set<EmployeeEducationEntity>();
     public DbSet<EmployeeEntity> Employees => Set<EmployeeEntity>();
     public DbSet<EmployeeExperienceEntity> EmployeeExperiences => Set<EmployeeExperienceEntity>();
@@ -52,7 +46,6 @@ public sealed class HRDbContext(DbContextOptions<HRDbContext> options)
     public DbSet<PositionEntity> Positions => Set<PositionEntity>();
     public DbSet<ResumeEntity> Resumes => Set<ResumeEntity>();
     public DbSet<TeacherDirectoryReadEntity> TeacherDirectoryReads => Set<TeacherDirectoryReadEntity>();
-    public DbSet<TeacherDocumentEntity> TeacherDocuments => Set<TeacherDocumentEntity>();
     public DbSet<TeacherProfileEntity> TeacherProfiles => Set<TeacherProfileEntity>();
     public DbSet<TeacherTeachingAssignmentEntity> TeacherTeachingAssignments => Set<TeacherTeachingAssignmentEntity>();
 

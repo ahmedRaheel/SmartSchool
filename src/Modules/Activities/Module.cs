@@ -37,7 +37,7 @@ public static class Module
         CreateAward.MapEndpoint(endpoints);
         GetAwardById.MapEndpoint(endpoints);
         GetAwardByStudentId.MapEndpoint(endpoints);
-        GetAwardByGeneratedDocumentId.MapEndpoint(endpoints);
+        GetAwardByDocumentId.MapEndpoint(endpoints);
         GetAwardPage.MapEndpoint(endpoints);
         UpdateAward.MapEndpoint(endpoints);
         DeleteAward.MapEndpoint(endpoints);

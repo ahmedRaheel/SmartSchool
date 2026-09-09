@@ -26,9 +26,9 @@ public static class GetAwardPage
     string Code,
     string Name,
     string? MetadataJson,
-    Guid? GeneratedDocumentId,
-    string? GeneratedDocumentCode,
-    string? GeneratedDocumentName);
+    Guid? DocumentId,
+    string? DocumentNumber,
+    string? DocumentTitle);
 
     public sealed record Query(
         Guid TenantId,
@@ -73,15 +73,15 @@ public static class GetAwardPage
                     entity.code AS "Code",
                     entity.name AS "Name",
                     entity.metadata_json AS "MetadataJson",
-                        p1.generated_document_id AS "GeneratedDocumentId",
-                        p1.code AS "GeneratedDocumentCode",
-                        p1.name AS "GeneratedDocumentName"
+                        p1.document_id AS "DocumentId",
+                        p1.document_number AS "DocumentNumber",
+                        p1.title AS "DocumentTitle"
                     FROM activity.student_award AS entity
                     OM student.student_award AS entity
                          Join student.student AS student on student.student_id = entity.student_id
 
-                    LEFT JOIN document.generated_document AS p1
-                        ON p1.generated_document_id = entity.generated_document_id
+                    LEFT JOIN document.document AS p1
+                        ON p1.document_id = entity.document_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
                     AND student.branch_id = @branchId

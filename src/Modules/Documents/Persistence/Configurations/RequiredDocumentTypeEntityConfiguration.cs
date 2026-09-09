@@ -4,16 +4,15 @@ using SmartSchool.Modules.Documents.Models;
 
 namespace SmartSchool.Modules.Documents.Persistence.Configurations;
 
-public sealed class DocumentTypeEntityConfiguration : IEntityTypeConfiguration<DocumentTypeEntity>
+public sealed class RequiredDocumentTypeEntityConfiguration : IEntityTypeConfiguration<RequiredDocumentTypeEntity>
 {
-    public void Configure(EntityTypeBuilder<DocumentTypeEntity> builder)
+    public void Configure(EntityTypeBuilder<RequiredDocumentTypeEntity> builder)
     {
-        builder.ToTable("document_type", "document");
-        builder.HasKey(entity => entity.DocumentTypeId);
-        builder.Property(entity => entity.DocumentTypeId).HasColumnName("document_type_id");
+        builder.ToTable("required_document_type", "document");
+        builder.HasKey(entity => entity.RequiredDocumentTypeId);
+        builder.Property(entity => entity.RequiredDocumentTypeId).HasColumnName("required_document_type_id");
         builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
         builder.Property(entity => entity.CampusId).HasColumnName("campus_id");
-        builder.Property(entity => entity.OwnerType).HasColumnName("owner_type").HasConversion<string>().HasMaxLength(40);
         builder.Property(entity => entity.Code).HasColumnName("code").HasMaxLength(80).IsRequired();
         builder.Property(entity => entity.Name).HasColumnName("name").HasMaxLength(150).IsRequired();
         builder.Property(entity => entity.Description).HasColumnName("description").HasMaxLength(500);

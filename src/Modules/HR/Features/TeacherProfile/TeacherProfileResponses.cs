@@ -1,5 +1,3 @@
-using SmartSchool.Application.Documents;
-
 namespace SmartSchool.Modules.HR.Features.TeacherProfile;
 
 /// <summary>Lightweight teacher row used by paged/list APIs.</summary>
@@ -38,5 +36,4 @@ public sealed record TeacherDetailResponse(
     Guid? DepartmentId,
     Guid? JobId,
     Guid? JobGradeId,
-    string EmploymentStatusCode,
-    IReadOnlyCollection<DocumentResponse> Documents);
+    string EmploymentStatusCode);

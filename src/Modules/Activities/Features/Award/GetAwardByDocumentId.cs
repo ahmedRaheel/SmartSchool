@@ -6,7 +6,7 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Activities.Features.Award;
 
-public static class GetAwardByStudentId
+public static class GetAwardByDocumentId
 {
     public sealed record Response(
     Guid TenantId,
@@ -21,7 +21,7 @@ public static class GetAwardByStudentId
     public sealed record Query(Guid TenantId, Guid ParentId)
         : IRequest<Result<IReadOnlyCollection<Response>>>;
 
-    public interface IGetAwardByStudentIdQuery
+    public interface IGetAwardByDocumentIdQuery
     {
         Task<IReadOnlyCollection<Response>> GetAsync(
             Guid tenantId,
@@ -29,8 +29,8 @@ public static class GetAwardByStudentId
             CancellationToken cancellationToken);
     }
 
-    internal sealed class GetAwardByStudentIdQuery(IDbConnectionFactory connectionFactory)
-        : IGetAwardByStudentIdQuery
+    internal sealed class GetAwardByDocumentIdQuery(IDbConnectionFactory connectionFactory)
+        : IGetAwardByDocumentIdQuery
     {
         public async Task<IReadOnlyCollection<Response>> GetAsync(
             Guid tenantId,
@@ -51,7 +51,7 @@ public static class GetAwardByStudentId
                     LEFT JOIN document.document AS p1
                         ON p1.document_id = entity.document_id
                     WHERE entity.tenant_id = @TenantId
-                      AND entity.student_id = @ParentId
+                      AND entity.document_id = @ParentId
                       AND entity.is_active = TRUE;
                     """;
 
@@ -68,7 +68,7 @@ public static class GetAwardByStudentId
         }
     }
 
-    public sealed class Handler(IGetAwardByStudentIdQuery query)
+    public sealed class Handler(IGetAwardByDocumentIdQuery query)
         : IRequestHandler<Query, Result<IReadOnlyCollection<Response>>>
     {
         public async Task<Result<IReadOnlyCollection<Response>>> HandleAsync(
@@ -87,7 +87,7 @@ public static class GetAwardByStudentId
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet(
-                "/api/activities/student-award/by-student/{parentId:guid}",
+                "/api/activities/student-award/by-document/{parentId:guid}",
                 async (Guid parentId, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var result = await mediator.SendAsync<Query, Result<IReadOnlyCollection<Response>>>(
@@ -95,7 +95,7 @@ public static class GetAwardByStudentId
                         cancellationToken);
                     return result.ToHttpResult();
                 })
-            .WithName("GetAwardByStudentId")
+            .WithName("GetAwardByDocumentId")
             .WithTags("Activities")
             .RequireAuthorization();
 

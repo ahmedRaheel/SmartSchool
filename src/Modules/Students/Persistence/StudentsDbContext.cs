@@ -12,10 +12,8 @@ public interface IStudentsDbContext
     DbSet<AttendanceEntity> Attendances { get; }
     DbSet<EnrollmentEntity> Enrollments { get; }
     DbSet<GuardianEntity> Guardians { get; }
-    DbSet<ParentDocumentEntity> ParentDocuments { get; }
     DbSet<ParentProfileEntity> ParentProfiles { get; }
     DbSet<StudentDirectoryReadEntity> StudentDirectoryReads { get; }
-    DbSet<StudentDocumentEntity> StudentDocuments { get; }
     DbSet<StudentEntity> Students { get; }
     DbSet<StudentGuardianEntity> StudentGuardians { get; }
     DbSet<StudentProfileEntity> StudentProfiles { get; }
@@ -34,10 +32,8 @@ public sealed class StudentsDbContext(DbContextOptions<StudentsDbContext> option
     public DbSet<AttendanceEntity> Attendances => Set<AttendanceEntity>();
     public DbSet<EnrollmentEntity> Enrollments => Set<EnrollmentEntity>();
     public DbSet<GuardianEntity> Guardians => Set<GuardianEntity>();
-    public DbSet<ParentDocumentEntity> ParentDocuments => Set<ParentDocumentEntity>();
     public DbSet<ParentProfileEntity> ParentProfiles => Set<ParentProfileEntity>();
     public DbSet<StudentDirectoryReadEntity> StudentDirectoryReads => Set<StudentDirectoryReadEntity>();
-    public DbSet<StudentDocumentEntity> StudentDocuments => Set<StudentDocumentEntity>();
     public DbSet<StudentEntity> Students => Set<StudentEntity>();
     public DbSet<StudentGuardianEntity> StudentGuardians => Set<StudentGuardianEntity>();
     public DbSet<StudentProfileEntity> StudentProfiles => Set<StudentProfileEntity>();

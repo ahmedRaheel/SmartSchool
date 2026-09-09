@@ -33,7 +33,7 @@ public sealed class AwardEntity : Entity
     public Guid? ApprovedBy { get; private set; }
 
     /// <summary>Gets the persisted generated document id value.</summary>
-    public Guid? GeneratedDocumentId { get; private set; }
+    public Guid? DocumentId { get; private set; }
 
     /// <summary>Gets the business code.</summary>
     public string Code { get; private set; } = string.Empty;

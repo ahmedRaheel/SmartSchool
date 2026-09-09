@@ -62,6 +62,6 @@ public sealed class AwardEntityConfiguration
         builder.Property(entity => entity.Description).HasColumnName("description");
         builder.Property(entity => entity.AwardDate).HasColumnName("award_date");
         builder.Property(entity => entity.ApprovedBy).HasColumnName("approved_by");
-        builder.Property(entity => entity.GeneratedDocumentId).HasColumnName("generated_document_id");
+        builder.Property(entity => entity.DocumentId).HasColumnName("document_id");
     }
 }
