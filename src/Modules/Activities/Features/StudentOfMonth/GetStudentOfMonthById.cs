@@ -53,7 +53,7 @@ public static class GetStudentOfMonthById
                         code AS "Code",
                         name AS "Name",
                         metadata_json AS "MetadataJson"
-                    FROM activity.studentofmonth
+                    FROM activity.student_of_month
                     WHERE tenant_id = @TenantId
                       AND student_of_month_id = @Id
                       AND is_active = TRUE;
