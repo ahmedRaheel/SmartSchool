@@ -20,6 +20,11 @@ public sealed class CandidateEntityConfiguration
             .IsRequired();
 
         builder
+            .Property(entity => entity.BranchId)
+            .HasColumnName("branch_id")
+            .IsRequired();
+
+        builder
             .Property(entity => entity.IsActive)
             .IsRequired();
 
@@ -27,7 +32,7 @@ public sealed class CandidateEntityConfiguration
             .Property(entity => entity.RowVersion)
             .IsConcurrencyToken();
 
-        builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => new { entity.TenantId, entity.BranchId });
 
         builder
             .Property(entity => entity.Code)

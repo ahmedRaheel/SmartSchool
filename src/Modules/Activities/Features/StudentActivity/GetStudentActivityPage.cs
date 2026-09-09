@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Activities.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Activities.Features.StudentActivity;
 
@@ -45,7 +46,8 @@ public static class GetStudentActivityPage
     }
 
     internal sealed class GetStudentActivityPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetStudentActivityPageQuery
+        IDbConnectionFactory connectionFactory,
+        ICurrentUser currentUser) : IGetStudentActivityPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -53,10 +55,14 @@ public static class GetStudentActivityPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
+
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM activity.student_activity AS entity
+                    Join student.student st  on st.student_id = entity.student_id
                     WHERE tenant_id = @TenantId
+                      AND (@BranchId IS NULL OR st.branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -73,8 +79,10 @@ public static class GetStudentActivityPage
                     FROM activity.student_activity AS entity
                     LEFT JOIN activity.activity AS p1
                         ON p1.activity_id = entity.activity_id
+                    Join student.student st  on st.student_id = entity.student_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND (@BranchId IS NULL OR st.branch_id = @BranchId)
                     ORDER BY id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -85,6 +93,7 @@ public static class GetStudentActivityPage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

@@ -19,7 +19,6 @@ public interface IOrganizationDbContext
     DbSet<DepartmentEntity> Departments { get; }
     DbSet<GradeLevelEntity> GradeLevels { get; }
     DbSet<ProgramEntity> Programs { get; }
-    DbSet<SchoolDocumentEntity> SchoolDocuments { get; }
     DbSet<SchoolEntity> Schools { get; }
     DbSet<SubjectEntity> Subjects { get; }
     DbSet<SubscriptionEntity> Subscriptions { get; }
@@ -52,7 +51,6 @@ public sealed class OrganizationDbContext(DbContextOptions<OrganizationDbContext
     public DbSet<DepartmentEntity> Departments => Set<DepartmentEntity>();
     public DbSet<GradeLevelEntity> GradeLevels => Set<GradeLevelEntity>();
     public DbSet<ProgramEntity> Programs => Set<ProgramEntity>();
-    public DbSet<SchoolDocumentEntity> SchoolDocuments => Set<SchoolDocumentEntity>();
     public DbSet<SchoolEntity> Schools => Set<SchoolEntity>();
     public DbSet<SubjectEntity> Subjects => Set<SubjectEntity>();
     public DbSet<SubscriptionEntity> Subscriptions => Set<SubscriptionEntity>();

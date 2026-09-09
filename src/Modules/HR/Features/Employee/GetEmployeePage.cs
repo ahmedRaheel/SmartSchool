@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.Modules.HR.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.HR.Features.Employee;
 
@@ -49,7 +50,8 @@ public static class GetEmployeePage
     }
 
     internal sealed class GetEmployeePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetEmployeePageQuery
+        IDbConnectionFactory connectionFactory, 
+        ICurrentUser currentUser) : IGetEmployeePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -57,10 +59,13 @@ public static class GetEmployeePage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
+
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
                 const string countSql = """
-                    SELECT COUNT(*)
+                    SELECT COUNT(e.employee_id)
                     FROM hr.employee e
                     WHERE e.tenant_id = @TenantId
+                    AND (@BranchId IS NULL OR e.branch_id = @BranchId)
                       AND e.is_active = TRUE;
                     """;
 
@@ -91,6 +96,7 @@ public static class GetEmployeePage
                     LEFT JOIN org.department d ON d.tenant_id = e.tenant_id AND d.department_id = e.department_id AND d.is_active = TRUE
                     WHERE e.tenant_id = @TenantId
                       AND e.is_active = TRUE
+                     AND (@BranchId IS NULL OR e.branch_id = @BranchId)
                     ORDER BY e.employee_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -101,6 +107,7 @@ public static class GetEmployeePage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

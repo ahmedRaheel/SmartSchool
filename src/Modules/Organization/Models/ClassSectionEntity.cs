@@ -81,7 +81,7 @@ public sealed class ClassSectionEntity : Entity
             AcademicYearId = academicYearId,
             GradeLevelId = gradeLevelId,
             ProgramGradeId = programGradeId,
-            
+
             ClassTeacherEmployeeId = classTeacherEmployeeId,
             RoomId = roomId,
             RoomNo = roomNo,

@@ -22,6 +22,7 @@ public static class CreateScholarship
     /// <param name="Name">The display name.</param>
     public sealed record Response(
     Guid TenantId,
+    Guid BranchId,
     Guid Id,
     string Code,
     string Name,
@@ -29,6 +30,7 @@ public static class CreateScholarship
 
     public sealed record Request(
         Guid TenantId,
+        Guid BranchId,
         string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
@@ -36,6 +38,7 @@ public static class CreateScholarship
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.BranchId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
@@ -71,6 +74,7 @@ public static class CreateScholarship
 
             var entity = ScholarshipEntity.Create(
                 request.TenantId,
+                request.BranchId,
                 code,
                 request.Name);
 
@@ -99,6 +103,7 @@ public static class CreateScholarship
     {
         return new Response(
             entity.TenantId,
+            entity.BranchId,
             entity.ScholarshipId,
             entity.Code,
             entity.Name,

@@ -12,7 +12,7 @@ public sealed class StudentFeeEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<StudentFeeEntity> builder)
     {
-        builder.ToTable("StudentFee", schema: "finance");
+        builder.ToTable("studentfee", schema: "finance");
         builder.HasKey(entity => entity.StudentFeeId);
 
         builder
@@ -20,10 +20,15 @@ public sealed class StudentFeeEntityConfiguration
             .IsRequired();
 
         builder
+            .Property(entity => entity.BranchId)
+            .HasColumnName("branch_id")
+            .IsRequired();
+
+        builder
             .Property(entity => entity.IsActive)
             .IsRequired();
 
-        builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => new { entity.TenantId, entity.BranchId });
 
         builder.Property(entity => entity.CreatedAt).IsRequired();
         builder.Property(entity => entity.UpdatedAt);

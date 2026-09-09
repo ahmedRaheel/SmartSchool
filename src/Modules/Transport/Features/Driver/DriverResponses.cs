@@ -1,5 +1,3 @@
-using SmartSchool.Application.Documents;
-
 namespace SmartSchool.Modules.Transport.Features.Driver;
 
 /// <summary>Lightweight driver row used by paged/list APIs.</summary>
@@ -31,5 +29,4 @@ public sealed record DriverDetailResponse(
     string EmploymentStatusCode,
     string? EmergencyContactName,
     string? EmergencyContactPhone,
-    Guid? AssignedVehicleId,
-    IReadOnlyCollection<DocumentResponse> Documents);
+    Guid? AssignedVehicleId);

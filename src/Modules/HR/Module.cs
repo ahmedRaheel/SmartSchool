@@ -26,7 +26,7 @@ public static class Module
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<ApproveEmployeeEmployeeOnboardingQuery>();
-       
+
         services.AddScoped<TerminateEmployeeEmployeeCommand>();
         return services;
     }

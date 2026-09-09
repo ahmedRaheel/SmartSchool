@@ -22,6 +22,7 @@ public static class CreateCandidate
     /// <param name="Name">The display name.</param>
     public sealed record Response(
     Guid TenantId,
+    Guid BranchId,
     Guid Id,
     string Code,
     string Name,
@@ -29,6 +30,7 @@ public static class CreateCandidate
 
     public sealed record Request(
         Guid TenantId,
+        Guid BranchId,
         string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
@@ -36,6 +38,7 @@ public static class CreateCandidate
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.BranchId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
@@ -71,6 +74,7 @@ public static class CreateCandidate
 
             var entity = CandidateEntity.Create(
                 request.TenantId,
+                request.BranchId,
                 code,
                 request.Name);
 
@@ -99,6 +103,7 @@ public static class CreateCandidate
     {
         return new Response(
             entity.TenantId,
+            entity.BranchId,
             entity.CandidateId,
             entity.Code,
             entity.Name,

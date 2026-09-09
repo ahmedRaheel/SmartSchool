@@ -15,7 +15,7 @@ namespace SmartSchool.Modules.AICore.Features.KnowledgeDocument;
 public static class UploadKnowledgePdf
 {
     private const long MaxPdfSize = 25 * 1024 * 1024;
-    private const int ChunkSize = 1200;    
+    private const int ChunkSize = 1200;
 
     public sealed record Request(IFormFile File, Guid CollectionId, Guid? TenantId, Guid? CampusId, Guid? AcademicSystemId) : IRequest<IResult>;
 

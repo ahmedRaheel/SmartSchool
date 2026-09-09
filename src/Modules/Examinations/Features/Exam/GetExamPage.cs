@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Examinations.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Examinations.Features.Exam;
 
@@ -54,7 +55,8 @@ public static class GetExamPage
     }
 
     internal sealed class GetExamPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetExamPageQuery
+        IDbConnectionFactory connectionFactory,
+        ICurrentUser currentUser) : IGetExamPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -62,10 +64,13 @@ public static class GetExamPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
+            const string countSql = """
                     SELECT COUNT(*)
                     FROM exam.exam AS entity
                     WHERE entity.tenant_id = @TenantId
+                     AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
                       AND entity.is_active = TRUE;
                     """;
 
@@ -98,6 +103,7 @@ public static class GetExamPage
                     LEFT JOIN academic.term AS p4
                         ON p4.term_id = entity.term_id
                     WHERE entity.tenant_id = @TenantId
+                     AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
                       AND entity.is_active = TRUE
                     ORDER BY entity.exam_id
                     LIMIT @PageSize OFFSET @Offset;
@@ -109,6 +115,7 @@ public static class GetExamPage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

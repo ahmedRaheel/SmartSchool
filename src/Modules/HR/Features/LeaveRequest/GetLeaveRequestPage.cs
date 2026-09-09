@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.HR.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.HR.Features.LeaveRequest;
 
@@ -21,6 +22,7 @@ public static class GetLeaveRequestPage
     /// <param name="Name">The display name.</param>
     public sealed record Response(
     Guid TenantId,
+    Guid BranchId,
     Guid Id,
     string Code,
     string Name,
@@ -42,7 +44,7 @@ public static class GetLeaveRequestPage
     }
 
     internal sealed class GetLeaveRequestPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetLeaveRequestPageQuery
+        IDbConnectionFactory connectionFactory, ICurrentUser currentUser) : IGetLeaveRequestPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -50,23 +52,28 @@ public static class GetLeaveRequestPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
+            const string countSql = """
                     SELECT COUNT(*)
-                    FROM teacher.leave_request
+                    FROM hr.leave_request
                     WHERE tenant_id = @TenantId
+                    AND (@BranchId IS NULL OR branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
+                        branch_id AS "BranchId",
                     leave_request_id AS "Id",
                     code AS "Code",
                     name AS "Name",
                     metadata_json AS "MetadataJson"
-                    FROM teacher.leave_request
+                    FROM hr.leave_request
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND (@BranchId IS NULL OR branch_id = @BranchId)
                     ORDER BY leave_request_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -77,6 +84,7 @@ public static class GetLeaveRequestPage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

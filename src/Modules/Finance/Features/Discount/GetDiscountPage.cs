@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Finance.Features.Discount;
 
@@ -21,6 +22,7 @@ public static class GetDiscountPage
     /// <param name="Name">The display name.</param>
     public sealed record Response(
     Guid TenantId,
+    Guid BranchId,
     Guid Id,
     string Code,
     string Name,
@@ -42,7 +44,7 @@ public static class GetDiscountPage
     }
 
     internal sealed class GetDiscountPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetDiscountPageQuery
+        IDbConnectionFactory connectionFactory, ICurrentUser currentUser) : IGetDiscountPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -50,16 +52,19 @@ public static class GetDiscountPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.discount
                     WHERE tenant_id = @TenantId
+                    AND (@BranchId IS NULL OR branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
+                        branch_id AS "BranchId",
                     discount_id AS "Id",
                     code AS "Code",
                     name AS "Name",
@@ -67,6 +72,7 @@ public static class GetDiscountPage
                     FROM finance.discount
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND (@BranchId IS NULL OR branch_id = @BranchId)
                     ORDER BY discount_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -78,6 +84,7 @@ public static class GetDiscountPage
                 {
                     TenantId = tenantId,
                     PageSize = pageSize,
+                    BranchId = branchId,
                     Offset = (page - 1) * pageSize
                 };
 

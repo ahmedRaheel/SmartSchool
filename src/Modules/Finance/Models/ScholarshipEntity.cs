@@ -14,6 +14,9 @@ public sealed class ScholarshipEntity : Entity
     {
     }
 
+    /// <summary>Gets the campus/branch identifier.</summary>
+    public Guid BranchId { get; private set; }
+
     /// <summary>Gets the business code.</summary>
     public string Code { get; private set; } = string.Empty;
 
@@ -31,6 +34,7 @@ public sealed class ScholarshipEntity : Entity
     /// <returns>The newly created entity.</returns>
     public static ScholarshipEntity Create(
         Guid tenantId,
+        Guid branchId,
         string code,
         string name,
         string? metadataJson = null)
@@ -41,6 +45,7 @@ public sealed class ScholarshipEntity : Entity
         return new ScholarshipEntity
         {
             TenantId = tenantId,
+            BranchId = branchId,
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

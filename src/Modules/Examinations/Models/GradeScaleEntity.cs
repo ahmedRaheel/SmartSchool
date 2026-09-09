@@ -15,6 +15,16 @@ public sealed class GradeScaleEntity : Entity
     }
 
     /// <summary>Gets the business code.</summary>
+    public Guid CampusId { get; private set; }
+
+    public decimal MinimumPercentage { get; private set; }
+
+    public decimal MaximumPercentage { get; private set; }
+
+    public decimal? GradePoint { get; private set; }
+
+    public string? Description { get; private set; }
+
     public string Code { get; private set; } = string.Empty;
 
     /// <summary>Gets the display name.</summary>
@@ -31,8 +41,13 @@ public sealed class GradeScaleEntity : Entity
     /// <returns>The newly created entity.</returns>
     public static GradeScaleEntity Create(
         Guid tenantId,
+        Guid campusId,
         string code,
         string name,
+        decimal minimumPercentage,
+        decimal maximumPercentage,
+        decimal? gradePoint,
+        string? description,
         string? metadataJson = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
@@ -41,6 +56,11 @@ public sealed class GradeScaleEntity : Entity
         return new GradeScaleEntity
         {
             TenantId = tenantId,
+            CampusId = campusId,
+            MinimumPercentage = minimumPercentage,
+            MaximumPercentage = maximumPercentage,
+            GradePoint = gradePoint,
+            Description = description?.Trim(),
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

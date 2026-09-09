@@ -7,14 +7,10 @@ namespace SmartSchool.Modules.Documents.Persistence;
 public interface IDocumentsDbContext
 {
     DatabaseFacade Database { get; }
-
-    DbSet<CertificateEntity> Certificates { get; }
     DbSet<DocumentFileEntity> DocumentFiles { get; }
-    DbSet<DocumentLinkEntity> DocumentLinks { get; }
-    DbSet<DocumentTemplateEntity> DocumentTemplates { get; }
     DbSet<DocumentTypeEntity> DocumentTypes { get; }
-    DbSet<GeneratedDocumentEntity> GeneratedDocuments { get; }
-    DbSet<SchoolLogoEntity> SchoolLogos { get; }
+    DbSet<RequiredDocumentTypeEntity> RequiredDocumentTypes { get; }
+    DbSet<RequiredDocumentEntity> RequiredDocuments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -26,13 +22,10 @@ public interface IDocumentsDbContext
 public sealed class DocumentsDbContext(DbContextOptions<DocumentsDbContext> options)
     : DbContext(options), IDocumentsDbContext
 {
-    public DbSet<CertificateEntity> Certificates => Set<CertificateEntity>();
     public DbSet<DocumentFileEntity> DocumentFiles => Set<DocumentFileEntity>();
-    public DbSet<DocumentLinkEntity> DocumentLinks => Set<DocumentLinkEntity>();
-    public DbSet<DocumentTemplateEntity> DocumentTemplates => Set<DocumentTemplateEntity>();
     public DbSet<DocumentTypeEntity> DocumentTypes => Set<DocumentTypeEntity>();
-    public DbSet<GeneratedDocumentEntity> GeneratedDocuments => Set<GeneratedDocumentEntity>();
-    public DbSet<SchoolLogoEntity> SchoolLogos => Set<SchoolLogoEntity>();
+    public DbSet<RequiredDocumentTypeEntity> RequiredDocumentTypes => Set<RequiredDocumentTypeEntity>();
+    public DbSet<RequiredDocumentEntity> RequiredDocuments => Set<RequiredDocumentEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

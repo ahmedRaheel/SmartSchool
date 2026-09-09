@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Finance.Features.StudentFee;
 
@@ -21,6 +22,7 @@ public static class GetStudentFeePage
     /// <param name="Name">The display name.</param>
     public sealed record Response(
     Guid TenantId,
+    Guid BranchId,
     Guid Id,
     string Code,
     string Name,
@@ -42,7 +44,7 @@ public static class GetStudentFeePage
     }
 
     internal sealed class GetStudentFeePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetStudentFeePageQuery
+        IDbConnectionFactory connectionFactory, ICurrentUser currentUser) : IGetStudentFeePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -50,16 +52,19 @@ public static class GetStudentFeePage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
+            const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.studentfee
                     WHERE tenant_id = @TenantId
+                     AND (@BranchId IS NULL OR branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
+                        branch_id AS "BranchId",
                     student_fee_id AS "Id",
                     code AS "Code",
                     name AS "Name",
@@ -67,6 +72,7 @@ public static class GetStudentFeePage
                     FROM finance.studentfee
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND (@BranchId IS NULL OR branch_id = @BranchId)
                     ORDER BY student_fee_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -77,6 +83,7 @@ public static class GetStudentFeePage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

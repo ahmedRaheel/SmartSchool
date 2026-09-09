@@ -81,7 +81,7 @@ public sealed class CompleteAdmissionCommand(
         await db.CompleteAdmissionGuardians.AddAsync(guardian, cancellationToken);
         await db.CompleteAdmissionStudentGuardians.AddAsync(studentGuardian, cancellationToken);
 
-        if (application.AcademicYearId.HasValue && application.SectionId.HasValue)
+        if (application.AcademicYearId.HasValue && application.ClassSectionId.HasValue)
         {
             var enrollment = CompleteAdmissionEnrollment.Create(
                 Guid.NewGuid(),
@@ -89,7 +89,7 @@ public sealed class CompleteAdmissionCommand(
                 studentId,
                 studentNumber,
                 application.AcademicYearId.Value,
-                application.SectionId.Value,
+                application.ClassSectionId.Value,
                 admissionDate);
 
             await db.CompleteAdmissionEnrollments.AddAsync(enrollment, cancellationToken);
@@ -227,7 +227,7 @@ public sealed class CompleteAdmissionEnrollment
     public Guid StudentId { get; private set; }
     public string EnrollmentNumber { get; private set; } = string.Empty;
     public Guid AcademicYearId { get; private set; }
-    public Guid ClassSectionId { get; private set; }
+    public Guid ClassClassSectionId { get; private set; }
     public DateOnly EnrollmentDate { get; private set; }
     public string Status { get; private set; } = "ACTIVE";
 
@@ -241,7 +241,7 @@ public sealed class CompleteAdmissionEnrollment
         Guid studentId,
         string enrollmentNumber,
         Guid academicYearId,
-        Guid classSectionId,
+        Guid classClassSectionId,
         DateOnly enrollmentDate)
     {
         return new CompleteAdmissionEnrollment
@@ -251,7 +251,7 @@ public sealed class CompleteAdmissionEnrollment
             StudentId = studentId,
             EnrollmentNumber = enrollmentNumber.Trim(),
             AcademicYearId = academicYearId,
-            ClassSectionId = classSectionId,
+            ClassClassSectionId = classClassSectionId,
             EnrollmentDate = enrollmentDate
         };
     }

@@ -9,7 +9,6 @@ public interface ITransportDbContext
     DatabaseFacade Database { get; }
 
     DbSet<DriverDirectoryReadEntity> DriverDirectoryReads { get; }
-    DbSet<DriverDocumentEntity> DriverDocuments { get; }
     DbSet<DriverEntity> Drivers { get; }
     DbSet<RouteEntity> Routes { get; }
     DbSet<StopEntity> Stops { get; }
@@ -27,7 +26,6 @@ public sealed class TransportDbContext(DbContextOptions<TransportDbContext> opti
     : DbContext(options), ITransportDbContext
 {
     public DbSet<DriverDirectoryReadEntity> DriverDirectoryReads => Set<DriverDirectoryReadEntity>();
-    public DbSet<DriverDocumentEntity> DriverDocuments => Set<DriverDocumentEntity>();
     public DbSet<DriverEntity> Drivers => Set<DriverEntity>();
     public DbSet<RouteEntity> Routes => Set<RouteEntity>();
     public DbSet<StopEntity> Stops => Set<StopEntity>();

@@ -41,6 +41,9 @@ public sealed class LeaveRequestEntity : Entity
     /// <summary>Gets the persisted decision note value.</summary>
     public string? DecisionNote { get; private set; }
 
+    /// <summary>Gets the campus/branch identifier.</summary>
+    public Guid BranchId { get; private set; }
+
     /// <summary>Gets the business code.</summary>
     public string Code { get; private set; } = string.Empty;
 
@@ -58,6 +61,7 @@ public sealed class LeaveRequestEntity : Entity
     /// <returns>The newly created entity.</returns>
     public static LeaveRequestEntity Create(
         Guid tenantId,
+        Guid branchId,
         string code,
         string name,
         string? metadataJson = null)
@@ -68,6 +72,7 @@ public sealed class LeaveRequestEntity : Entity
         return new LeaveRequestEntity
         {
             TenantId = tenantId,
+            BranchId = branchId,
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson
@@ -76,6 +81,7 @@ public sealed class LeaveRequestEntity : Entity
 
     public static LeaveRequestEntity CreateTeacherLeave(
         Guid tenantId,
+        Guid branchId,
         Guid employeeId,
         string leaveType,
         DateOnly fromDate,
@@ -91,6 +97,7 @@ public sealed class LeaveRequestEntity : Entity
         {
             LeaveRequestId = leaveRequestId,
             TenantId = tenantId,
+            BranchId = branchId,
             EmployeeId = employeeId,
             LeaveType = leaveType.Trim(),
             FromDate = fromDate,

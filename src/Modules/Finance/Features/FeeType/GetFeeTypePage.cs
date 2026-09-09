@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Finance.Features.FeeType;
 
@@ -44,7 +45,8 @@ public static class GetFeeTypePage
     }
 
     internal sealed class GetFeeTypePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetFeeTypePageQuery
+        IDbConnectionFactory connectionFactory, 
+        ICurrentUser currentUser) : IGetFeeTypePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -52,10 +54,14 @@ public static class GetFeeTypePage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant)? null : currentUser.BranchId;
+            const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.fee_type
+                         join org.department dept on dept.department_id = finance.fee_type.department_id
                     WHERE tenant_id = @TenantId
+                      AND (dept.branch_id = @BranchId OR @BranchId IS NULL)
                       ;
                     """;
 
@@ -69,7 +75,9 @@ public static class GetFeeTypePage
                     is_active AS "IsActive",
                     description AS "Description"
                     FROM finance.fee_type
+                         join org.department dept on dept.department_id = finance.fee_type.department_id
                     WHERE tenant_id = @TenantId
+                    ANd (dept.branch_id = @BranchId OR @BranchId IS NULL)
 
                     ORDER BY fee_type_id
                     LIMIT @PageSize OFFSET @Offset;
@@ -82,6 +90,7 @@ public static class GetFeeTypePage
                 {
                     TenantId = tenantId,
                     PageSize = pageSize,
+                    BranchId = branchId,
                     Offset = (page - 1) * pageSize
                 };
 

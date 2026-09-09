@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Finance.Features.FeeStructure;
 
@@ -42,7 +43,8 @@ public static class GetFeeStructurePage
     }
 
     internal sealed class GetFeeStructurePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetFeeStructurePageQuery
+        IDbConnectionFactory connectionFactory, 
+        ICurrentUser currentUser) : IGetFeeStructurePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -50,22 +52,30 @@ public static class GetFeeStructurePage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant)? null : currentUser.BranchId;
+            const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.fee_structure
+                       join org.department on finance.fee_structure.department_id = org.department.department_id
+                       
                     WHERE tenant_id = @TenantId
+                      AND (org.department.branch_id = @BranchId OR @BranchId IS NULL)
                       AND is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
+                    branch_id AS "BranchId",
                     fee_structure_id AS "Id",
                     code AS "Code",
                     name AS "Name",
                     metadata_json AS "MetadataJson"
                     FROM finance.fee_structure
+                     join org.department on finance.fee_structure.department_id = org.department.department_id
                     WHERE tenant_id = @TenantId
+                      and (org.department.branch_id = @BranchId OR @BranchId IS NULL)
                       AND is_active = TRUE
                     ORDER BY fee_structure_id
                     LIMIT @PageSize OFFSET @Offset;
@@ -77,6 +87,7 @@ public static class GetFeeStructurePage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

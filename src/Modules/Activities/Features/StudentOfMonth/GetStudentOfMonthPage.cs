@@ -43,7 +43,8 @@ public static class GetStudentOfMonthPage
     }
 
     internal sealed class GetStudentOfMonthPageQuery(
-        IDbConnectionFactory connectionFactory
+        IDbConnectionFactory connectionFactory,
+        ICurrentUser currentUser
         ) : IGetStudentOfMonthPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
@@ -53,11 +54,14 @@ public static class GetStudentOfMonthPage
                 CancellationToken cancellationToken)
             {
 
-               
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
+
             const string countSql = """
                     SELECT COUNT(*)
-                    FROM activity.studentofmonth
+                    FROM activity.student_of_month
+                         join  org.department on department.department_id = student_of_month.department_id
                     WHERE tenant_id = @TenantId
+                    AND (@BranchId IS NULL OR department.branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -68,9 +72,11 @@ public static class GetStudentOfMonthPage
                     code AS "Code",
                     name AS "Name",
                     metadata_json AS "MetadataJson"
-                    FROM activity.studentofmonth
+                    FROM activity.student_of_month
+                         join  org.department on department.department_id = student_of_month.department_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND (@BranchId IS NULL OR department.branch_id = @BranchId)
                     ORDER BY student_of_month_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -81,6 +87,7 @@ public static class GetStudentOfMonthPage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };
