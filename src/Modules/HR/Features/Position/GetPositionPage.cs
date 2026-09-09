@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.HR.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.HR.Features.Position;
 
@@ -42,7 +43,8 @@ public static class GetPositionPage
     }
 
     internal sealed class GetPositionPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetPositionPageQuery
+        IDbConnectionFactory connectionFactory, 
+        ICurrentUser currentUser) : IGetPositionPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -50,10 +52,13 @@ public static class GetPositionPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+
+                var branchId = currentUser.BranchId;
+            const string countSql = """
                     SELECT COUNT(*)
                     FROM hr.position
                     WHERE tenant_id = @TenantId
+                    ANd campus_id = @BranchId
                       AND is_active = TRUE;
                     """;
 
@@ -67,6 +72,7 @@ public static class GetPositionPage
                     FROM hr.position
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND campus_id = @BranchId
                     ORDER BY position_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -77,6 +83,7 @@ public static class GetPositionPage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

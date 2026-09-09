@@ -62,7 +62,7 @@ public static class GetAwardPage
                          Join student.student AS student on student.student_id = entity.student_id
                     WHERE entity.tenant_id = @TenantId
                     AND student.branch_id = @branchId
-                      AND entity.is_active = TRUE;
+                      AND entity.is_active = TRUE
                     AND entity.branch_id = @branchId
                     """;
 

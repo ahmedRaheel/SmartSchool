@@ -60,7 +60,7 @@ public static class GetActivityPage
                     SELECT COUNT(*)
                     FROM activity.activity AS entity
                     WHERE entity.tenant_id = @TenantId
-                      AND entity.is_active = TRUE;
+                      AND entity.is_active = TRUE
                     AND entity.branch_id = @branchId
                     """;
 

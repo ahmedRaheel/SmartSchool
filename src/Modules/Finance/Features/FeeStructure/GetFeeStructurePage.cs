@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Finance.Features.FeeStructure;
 
@@ -42,7 +43,8 @@ public static class GetFeeStructurePage
     }
 
     internal sealed class GetFeeStructurePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetFeeStructurePageQuery
+        IDbConnectionFactory connectionFactory, 
+        ICurrentUser currentUser) : IGetFeeStructurePageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -50,10 +52,15 @@ public static class GetFeeStructurePage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
+
+            var branchId = currentUser.BranchId;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.fee_structure
+                       join org.department on finance.fee_structure.department_id = org.department.department_id
+                       
                     WHERE tenant_id = @TenantId
+                      AND (org.department.branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -65,7 +72,9 @@ public static class GetFeeStructurePage
                     name AS "Name",
                     metadata_json AS "MetadataJson"
                     FROM finance.fee_structure
+                     join org.department on finance.fee_structure.department_id = org.department.department_id
                     WHERE tenant_id = @TenantId
+                      and (org.department.branch_id = @BranchId)
                       AND is_active = TRUE
                     ORDER BY fee_structure_id
                     LIMIT @PageSize OFFSET @Offset;
@@ -77,6 +86,7 @@ public static class GetFeeStructurePage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

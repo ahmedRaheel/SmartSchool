@@ -61,6 +61,7 @@ public static class GetStudentOfMonthPage
                     FROM activity.student_of_month
                          join  org.department on department.department_id = student_of_month.department_id
                     WHERE tenant_id = @TenantId
+                    AND department.branch_id = @BranchId
                       AND is_active = TRUE;
                     """;
 
@@ -75,6 +76,7 @@ public static class GetStudentOfMonthPage
                          join  org.department on department.department_id = student_of_month.department_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND department.branch_id = @BranchId
                     ORDER BY student_of_month_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

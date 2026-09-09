@@ -58,7 +58,7 @@ public static class GetStudentPage
                     SELECT COUNT(*)
                     FROM student.student AS entity
                     WHERE entity.tenant_id = @TenantId
-                      AND entity.is_active = TRUE;
+                      AND entity.is_active = TRUE
                       AND entity.branch_id = @branchId
                     """;
 
