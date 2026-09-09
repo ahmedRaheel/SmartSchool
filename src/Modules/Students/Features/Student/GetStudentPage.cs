@@ -50,7 +50,7 @@ public static class GetStudentPage
                 CancellationToken cancellationToken)
             {
 
-               var campusId = currentUser.BranchId ?? Guid.Empty;
+               var campusId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
 
 
 
@@ -59,7 +59,7 @@ public static class GetStudentPage
                     FROM student.student AS entity
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
-                      AND entity.branch_id = @branchId
+                      AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
                     """;
 
                 const string pageSql = """
@@ -81,7 +81,7 @@ public static class GetStudentPage
                         ON p1.school_id = entity.school_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
-                    AND entity.branch_id = @branchId
+                      AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
                     ORDER BY entity.student_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

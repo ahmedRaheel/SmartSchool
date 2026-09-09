@@ -53,12 +53,12 @@ public static class GetPositionPage
                 CancellationToken cancellationToken)
             {
 
-                var branchId = currentUser.BranchId;
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
             const string countSql = """
                     SELECT COUNT(*)
                     FROM hr.position
                     WHERE tenant_id = @TenantId
-                    ANd campus_id = @BranchId
+                    AND (@BranchId IS NULL OR campus_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -72,7 +72,8 @@ public static class GetPositionPage
                     FROM hr.position
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                      AND campus_id = @BranchId
+                      AND (@BranchId IS NULL OR campus_id = @BranchId)
+
                     ORDER BY position_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
