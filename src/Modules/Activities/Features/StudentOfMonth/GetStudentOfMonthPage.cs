@@ -53,7 +53,7 @@ public static class GetStudentOfMonthPage
                 CancellationToken cancellationToken)
             {
 
-               
+
             const string countSql = """
                     SELECT COUNT(*)
                     FROM activity.studentofmonth

@@ -24,7 +24,7 @@ public static class DownloadDocument
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         var response = await connection.QuerySingleOrDefaultAsync<Response>(new CommandDefinition(sql, new { TenantId = resolvedTenantId.Value, DocumentId = documentId }, cancellationToken: cancellationToken));
         return response?.Data is null ? Results.NotFound() : Results.File(response.Data, response.MimeType, response.FileName);
-    
+
         }
     }
 

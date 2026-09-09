@@ -79,7 +79,7 @@ public static class GetAwardPage
                     FROM activity.student_award AS entity
                     OM student.student_award AS entity
                          Join student.student AS student on student.student_id = entity.student_id
-                   
+
                     LEFT JOIN document.generated_document AS p1
                         ON p1.generated_document_id = entity.generated_document_id
                     WHERE entity.tenant_id = @TenantId

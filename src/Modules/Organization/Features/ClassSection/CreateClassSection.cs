@@ -32,7 +32,7 @@ public static class CreateClassSection
         Guid CampusId,
         Guid AcademicYearId,
         Guid GradeLevelId,
-        string Name,       
+        string Name,
         int? Capacity = null,
         string? RoomNo = null) : IRequest<Result<Response>>;
 
@@ -50,17 +50,17 @@ public static class CreateClassSection
 
     public interface ICreateClassSectionCommand
     {
-        Task AddAsync(           
+        Task AddAsync(
             ClassSectionEntity entity,
             CancellationToken cancellationToken);
 }
 
     internal sealed class CreateClassSectionCommand(IOrganizationDbContext dbContext) : ICreateClassSectionCommand
     {
-        public async Task AddAsync(           
+        public async Task AddAsync(
             ClassSectionEntity entity,
             CancellationToken cancellationToken)
-        {        
+        {
 
             await dbContext.ClassSections.AddAsync(entity, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -74,14 +74,14 @@ public static class CreateClassSection
             Request request,
             CancellationToken cancellationToken)
         {
-           
+
             var code = await numberGenerator.NextAsync("Section", "SEC", request.TenantId, 3, cancellationToken);
 
             var entity = ClassSectionEntity.Create(
                 request.TenantId,
                 request.CampusId,
                 request.AcademicYearId,
-                request.GradeLevelId,                
+                request.GradeLevelId,
                  code,
                 request.Name,
                 capacity: request.Capacity,

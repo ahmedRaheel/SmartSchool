@@ -74,7 +74,7 @@ public sealed class CompleteAdmissionEnrollmentConfiguration
         builder.Property(x => x.StudentId).HasColumnName("student_id");
         builder.Property(x => x.EnrollmentNumber).HasColumnName("enrollment_number");
         builder.Property(x => x.AcademicYearId).HasColumnName("academic_year_id");
-        builder.Property(x => x.ClassSectionId).HasColumnName("class_section_id");
+        builder.Property(x => x.ClassClassSectionId).HasColumnName("class_class_section_id");
         builder.Property(x => x.EnrollmentDate).HasColumnName("enrollment_date");
         builder.Property(x => x.Status).HasColumnName("status");
     }

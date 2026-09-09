@@ -15,6 +15,14 @@ public sealed class StudentOfMonthEntity : Entity
     }
 
     /// <summary>Gets the business code.</summary>
+    public Guid DepartmentId { get; private set; }
+
+    public Guid? StudentId { get; private set; }
+
+    public int? AwardMonth { get; private set; }
+
+    public int? AwardYear { get; private set; }
+
     public string Code { get; private set; } = string.Empty;
 
     /// <summary>Gets the display name.</summary>
@@ -31,6 +39,10 @@ public sealed class StudentOfMonthEntity : Entity
     /// <returns>The newly created entity.</returns>
     public static StudentOfMonthEntity Create(
         Guid tenantId,
+        Guid departmentId,
+        Guid? studentId,
+        int? awardMonth,
+        int? awardYear,
         string code,
         string name,
         string? metadataJson = null)
@@ -41,6 +53,10 @@ public sealed class StudentOfMonthEntity : Entity
         return new StudentOfMonthEntity
         {
             TenantId = tenantId,
+            DepartmentId = departmentId,
+            StudentId = studentId,
+            AwardMonth = awardMonth,
+            AwardYear = awardYear,
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

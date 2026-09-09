@@ -7,7 +7,6 @@ using SmartSchool.Modules.Organization.Features.GradeLevel;
 using SmartSchool.Modules.Organization.Features.Program;
 using SmartSchool.Modules.Organization.Features.Subject;
 using SmartSchool.Modules.Organization.Features.Term;
-using SmartSchool.Modules.Organization.Features.Section;
 using SmartSchool.Modules.Organization.Features.Timetable;
 using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,7 +67,6 @@ public static class Module
         GetClassSectionByAcademicYearId.MapEndpoint(endpoints);
         GetClassSectionPage.MapEndpoint(endpoints);
         GetClassSectionsByParentId.MapEndpoint(endpoints);
-        GetSections.MapEndpoint(endpoints);
         UpdateClassSection.MapEndpoint(endpoints);
         DeleteClassSection.MapEndpoint(endpoints);
         CreateCourseOffering.MapEndpoint(endpoints);

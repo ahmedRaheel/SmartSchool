@@ -50,6 +50,11 @@ public sealed class GradeScaleEntityConfiguration
         builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
         builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
         builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
+        builder.Property(entity => entity.CampusId).HasColumnName("campus_id").IsRequired();
+        builder.Property(entity => entity.MinimumPercentage).HasColumnName("minimum_percentage").HasPrecision(5, 2).IsRequired();
+        builder.Property(entity => entity.MaximumPercentage).HasColumnName("maximum_percentage").HasPrecision(5, 2).IsRequired();
+        builder.Property(entity => entity.GradePoint).HasColumnName("grade_point").HasPrecision(4, 2);
+        builder.Property(entity => entity.Description).HasColumnName("description").HasMaxLength(500);
         builder.Property(entity => entity.Code).HasColumnName("code");
         builder.Property(entity => entity.Name).HasColumnName("name");
         builder.Property(entity => entity.GradeScaleId).HasColumnName("grade_scale_id");

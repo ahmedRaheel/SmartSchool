@@ -17,7 +17,7 @@ public sealed class GetAdmissionApplicationsQuery(IDbConnectionFactory factory) 
     {
         const string sql = """
         SELECT application_id AS Id, school_id AS SchoolId, branch_id AS BranchId, academic_year_id AS AcademicYearId,
-        class_id AS ClassId, section_id AS SectionId, first_name AS FirstName, last_name AS LastName, date_of_birth AS DateOfBirth,
+        class_id AS ClassId, class_section_id AS ClassSectionId, first_name AS FirstName, last_name AS LastName, date_of_birth AS DateOfBirth,
         gender AS Gender, email AS Email, phone AS Phone, guardian_name AS GuardianName, guardian_email AS GuardianEmail,
         guardian_phone AS GuardianPhone, previous_marks AS PreviousMarks, status AS Status, submitted_at AS SubmittedAt,
         decision_notes AS DecisionNotes, student_id AS StudentId
@@ -70,7 +70,7 @@ public sealed record AdmissionApplicationDto(
     Guid BranchId,
     Guid? AcademicYearId,
     Guid? ClassId,
-    Guid? SectionId,
+    Guid? ClassSectionId,
     string FirstName,
     string? LastName,
     DateOnly? DateOfBirth,

@@ -1,16 +1,9 @@
 using SmartSchool.Modules.AITutor.Persistence;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 using System.Text.Json;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.AITutor.Models;
-using SmartSchool.Modules.AITutor.Features.TutorSession;
-using SmartSchool.Modules.AITutor.Features.TutorConversation;
-using SmartSchool.Modules.AITutor.Features.TutorMessage;
-using SmartSchool.Modules.AITutor.Features.GeneratedQuiz;
-using SmartSchool.Modules.AITutor.Features.LearningRecommendation;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Application.AI;
 
@@ -18,102 +11,342 @@ namespace SmartSchool.Modules.AITutor.Features;
 
 public static class OperationalTutorEndpoints
 {
-    public sealed record StartSessionRequest(Guid? TenantId,Guid StudentId,string Subject,string? Topic);
-    public sealed record AskRequest(Guid? TenantId,Guid SessionId,Guid StudentId,string Subject,string Topic,string Message);
-    public sealed record QuizRequest(Guid? TenantId,Guid StudentId,string Subject,string Topic,int QuestionCount=5,string Difficulty="adaptive");
-    public sealed record RecommendationRequest(Guid? TenantId,Guid StudentId,string Subject,string Topic,double MasteryScore);
+    public sealed record StartSessionRequest(
+        Guid? TenantId,
+        Guid StudentId,
+        string Subject,
+        string? Topic);
 
-    public static IEndpointRouteBuilder MapOperationalTutorEndpoints(this IEndpointRouteBuilder e)
+    public sealed record AskRequest(
+        Guid? TenantId,
+        Guid SessionId,
+        Guid StudentId,
+        string Subject,
+        string Topic,
+        string Message);
+
+    public sealed record QuizRequest(
+        Guid? TenantId,
+        Guid StudentId,
+        string Subject,
+        string Topic,
+        int QuestionCount = 5,
+        string Difficulty = "adaptive");
+
+    public sealed record RecommendationRequest(
+        Guid? TenantId,
+        Guid StudentId,
+        string Subject,
+        string Topic,
+        double MasteryScore);
+
+    public static IEndpointRouteBuilder MapOperationalTutorEndpoints(
+        this IEndpointRouteBuilder endpoints)
     {
-        var g=e.MapGroup("/api/aitutor/operations").WithTags("AI Tutor Operations").RequireAuthorization();
-        g.MapPost("/sessions",Start);
-        g.MapPost("/ask",Ask);
-        g.MapPost("/quizzes/generate",Quiz);
-        g.MapPost("/recommendations/generate",Recommend);
-        return e;
+        var group = endpoints
+            .MapGroup("/api/aitutor/operations")
+            .WithTags("AI Tutor Operations")
+            .RequireAuthorization();
+
+        group.MapPost("/sessions", Start);
+        group.MapPost("/ask", Ask);
+        group.MapPost("/quizzes/generate", Quiz);
+        group.MapPost("/recommendations/generate", Recommend);
+
+        return endpoints;
     }
-    private static Guid? Tenant(ITenantScope s,Guid? t)=>s.IsSuperAdmin?t:s.Resolve(t);
-    private static async Task<IResult> Start(StartSessionRequest r,ITenantScope scope,OperationalTutorEndpointsTutorSessionCommand sessions,OperationalTutorEndpointsTutorConversationCommand conversations,CancellationToken ct)
+
+    private static Guid? ResolveTenantId(
+        ITenantScope tenantScope,
+        Guid? requestedTenantId)
     {
-        var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
-        var s=TutorSessionEntity.Create(t.Value,$"SESSION-{Guid.NewGuid():N}",$"{r.Subject}: {r.Topic}",JsonSerializer.Serialize(r));await sessions.AddAsync(s,ct);
-        var c=TutorConversationEntity.Create(t.Value,$"CONV-{Guid.NewGuid():N}",$"{r.Subject} tutoring",JsonSerializer.Serialize(new{sessionId=s.TutorSessionId,r.StudentId,r.Subject,r.Topic}));await conversations.AddAsync(c,ct);
-        return Results.Created($"/api/aitutor/tutor-session/{s.TutorSessionId}",new{sessionId=s.TutorSessionId,conversationId=c.TutorConversationId});
+        return tenantScope.IsSuperAdmin
+            ? requestedTenantId
+            : tenantScope.Resolve(requestedTenantId);
     }
-    private static async Task<IResult> Ask(AskRequest r, ITenantScope scope, OperationalTutorEndpointsTutorMessageCommand messages, IOllamaClient ollama, IIntegrationEventPublisher events, CancellationToken ct)
+
+    private static async Task<IResult> Start(
+        StartSessionRequest request,
+        ITenantScope tenantScope,
+        OperationalTutorEndpointsTutorSessionCommand sessionCommand,
+        OperationalTutorEndpointsTutorConversationCommand conversationCommand,
+        IBusinessNumberGenerator numberGenerator,
+        CancellationToken cancellationToken)
     {
-        var t = Tenant(scope, r.TenantId);
-        if (!t.HasValue)
+        var tenantId = ResolveTenantId(tenantScope, request.TenantId);
+        if (!tenantId.HasValue)
         {
-            return Results.BadRequest(new
-            {
-                message = "Tenant required."
-            });
+            return Results.BadRequest(new { message = "Tenant required." });
         }
 
-        var u = TutorMessageEntity.Create(t.Value, $"TMSG-{Guid.NewGuid():N}", SmartSchoolRoles.Student, JsonSerializer.Serialize(new
-        {
-            r.SessionId,
-            r.StudentId,
-            role = "user",
-            content = r.Message,
-            r.Subject,
-            r.Topic
-        }));
-        await messages.AddAsync(u, ct);
-        var prompt = $"""
-            You are SmartSchool AI Tutor. Student subject: {r.Subject}. Topic: {r.Topic}.
+        var sessionCode = await numberGenerator.NextAsync(
+            "TutorSession",
+            "SESSION",
+            tenantId.Value,
+            6,
+            cancellationToken);
 
-Teach using hints, explanation and formative questions. Do not fabricate school-specific facts. Do not reveal another student's data.
-For assessed work, coach rather than blindly completing it.
-Student: {r.Message}
-""";
-        var (answer, model) = await ollama.GenerateAsync(prompt, ct);
-        var a = TutorMessageEntity.Create(t.Value, $"TMSG-{Guid.NewGuid():N}", "AI Tutor", JsonSerializer.Serialize(new
+        var session = TutorSessionEntity.Create(
+            tenantId.Value,
+            sessionCode,
+            $"{request.Subject}: {request.Topic}",
+            JsonSerializer.Serialize(request));
+
+        await sessionCommand.AddAsync(session, cancellationToken);
+
+        var conversationCode = await numberGenerator.NextAsync(
+            "TutorConversation",
+            "CONV",
+            tenantId.Value,
+            6,
+            cancellationToken);
+
+        var conversation = TutorConversationEntity.Create(
+            tenantId.Value,
+            conversationCode,
+            $"{request.Subject} tutoring",
+            JsonSerializer.Serialize(new
+            {
+                sessionId = session.TutorSessionId,
+                request.StudentId,
+                request.Subject,
+                request.Topic
+            }));
+
+        await conversationCommand.AddAsync(conversation, cancellationToken);
+
+        return Results.Created(
+            $"/api/aitutor/tutor-session/{session.TutorSessionId}",
+            new
+            {
+                sessionId = session.TutorSessionId,
+                conversationId = conversation.TutorConversationId
+            });
+    }
+
+    private static async Task<IResult> Ask(
+        AskRequest request,
+        ITenantScope tenantScope,
+        OperationalTutorEndpointsTutorMessageCommand messageCommand,
+        IOllamaClient ollamaClient,
+        IIntegrationEventPublisher eventPublisher,
+        IBusinessNumberGenerator numberGenerator,
+        CancellationToken cancellationToken)
+    {
+        var tenantId = ResolveTenantId(tenantScope, request.TenantId);
+        if (!tenantId.HasValue)
         {
-            r.SessionId,
-            r.StudentId,
-            role = "assistant",
-            content = answer
-        }));
-        await messages.AddAsync(a, ct);
-        await events.PublishAsync(KafkaTopics.ChatbotQuestionAsked, new
-        {
-            tenantId = t.Value,
-            bot = "student-tutor",
-            r.StudentId,
-            r.SessionId
-        }, ct);
+            return Results.BadRequest(new { message = "Tenant required." });
+        }
+
+        var userMessageCode = await numberGenerator.NextAsync(
+            "TutorMessage",
+            "TMSG",
+            tenantId.Value,
+            6,
+            cancellationToken);
+
+        var userMessage = TutorMessageEntity.Create(
+            tenantId.Value,
+            userMessageCode,
+            SmartSchoolRoles.Student,
+            JsonSerializer.Serialize(new
+            {
+                request.SessionId,
+                request.StudentId,
+                role = "user",
+                content = request.Message,
+                request.Subject,
+                request.Topic
+            }));
+
+        await messageCommand.AddAsync(userMessage, cancellationToken);
+
+        var prompt = $"""
+            You are SmartSchool AI Tutor. Student subject: {request.Subject}. Topic: {request.Topic}.
+
+            Teach using hints, explanation and formative questions. Do not fabricate school-specific facts.
+            Do not reveal another student's data. For assessed work, coach rather than blindly completing it.
+            Student: {request.Message}
+            """;
+
+        var (answer, model) = await ollamaClient.GenerateAsync(
+            prompt,
+            cancellationToken);
+
+        var assistantMessageCode = await numberGenerator.NextAsync(
+            "TutorMessage",
+            "TMSG",
+            tenantId.Value,
+            6,
+            cancellationToken);
+
+        var assistantMessage = TutorMessageEntity.Create(
+            tenantId.Value,
+            assistantMessageCode,
+            "AI Tutor",
+            JsonSerializer.Serialize(new
+            {
+                request.SessionId,
+                request.StudentId,
+                role = "assistant",
+                content = answer
+            }));
+
+        await messageCommand.AddAsync(assistantMessage, cancellationToken);
+
+        await eventPublisher.PublishAsync(
+            KafkaTopics.ChatbotQuestionAsked,
+            new
+            {
+                tenantId = tenantId.Value,
+                bot = "student-tutor",
+                request.StudentId,
+                request.SessionId
+            },
+            cancellationToken);
+
         return Results.Ok(new
         {
-            messageId = a.TutorMessageId,
+            messageId = assistantMessage.TutorMessageId,
             answer,
             model
         });
     }
-    private static async Task<IResult> Quiz(QuizRequest r,ITenantScope scope,OperationalTutorEndpointsGeneratedQuizCommand quizzes,IOllamaClient ollama,IIntegrationEventPublisher events,CancellationToken ct)
-    {
-        var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
-        var count=Math.Clamp(r.QuestionCount,1,20);
-        var prompt=$"""
-            Generate exactly {count} {r.Difficulty} quiz questions for {r.Subject}, topic {r.Topic}.
 
-Return ONLY valid JSON array. Each object: question, options (4 strings), correctAnswer, explanation. Avoid personal data.
-""";
-        var raw=(await ollama.GenerateAsync(prompt,ct)).Answer;
-        var e=GeneratedQuizEntity.Create(t.Value,$"QUIZ-{Guid.NewGuid():N}",$"{r.Subject} - {r.Topic}",JsonSerializer.Serialize(new{r.StudentId,r.Subject,r.Topic,r.Difficulty,questionsJson=raw}));
-        await quizzes.AddAsync(e,ct);await events.PublishAsync("smartschool.aitutor.quiz-generated",new{tenantId=t.Value,quizId=e.GeneratedQuizId,r.StudentId},ct);
-        return Results.Created($"/api/aitutor/generated-quiz/{e.GeneratedQuizId}",new{quizId=e.GeneratedQuizId,questions=TryJson(raw)});
-    }
-    private static async Task<IResult> Recommend(RecommendationRequest r,ITenantScope scope,OperationalTutorEndpointsLearningRecommendationCommand recommendations,IOllamaClient ollama,CancellationToken ct)
+    private static async Task<IResult> Quiz(
+        QuizRequest request,
+        ITenantScope tenantScope,
+        OperationalTutorEndpointsGeneratedQuizCommand quizCommand,
+        IOllamaClient ollamaClient,
+        IIntegrationEventPublisher eventPublisher,
+        IBusinessNumberGenerator numberGenerator,
+        CancellationToken cancellationToken)
     {
-        var t=Tenant(scope,r.TenantId);if(!t.HasValue)return Results.BadRequest(new{message="Tenant required."});
-        var prompt=$"Create a concise learning plan for {r.Subject}/{r.Topic}. Current mastery is {r.MasteryScore:P0}. Include next concept, practice type, revision frequency and success criterion.";
-        var (answer, _) = await ollama.GenerateAsync(prompt,ct);
-        var e=LearningRecommendationEntity.Create(t.Value,$"REC-{Guid.NewGuid():N}",$"{r.Subject} recommendation",JsonSerializer.Serialize(new{r.StudentId,r.Subject,r.Topic,r.MasteryScore,recommendation=answer}));
-        await recommendations.AddAsync(e,ct);return Results.Ok(new{recommendationId=e.LearningRecommendationId,recommendation=answer});
+        var tenantId = ResolveTenantId(tenantScope, request.TenantId);
+        if (!tenantId.HasValue)
+        {
+            return Results.BadRequest(new { message = "Tenant required." });
+        }
+
+        var questionCount = Math.Clamp(request.QuestionCount, 1, 20);
+        var prompt = $"""
+            Generate exactly {questionCount} {request.Difficulty} quiz questions for {request.Subject}, topic {request.Topic}.
+
+            Return ONLY valid JSON array. Each object: question, options (4 strings), correctAnswer, explanation.
+            Avoid personal data.
+            """;
+
+        var generatedContent = (await ollamaClient.GenerateAsync(
+            prompt,
+            cancellationToken)).Answer;
+
+        var quizCode = await numberGenerator.NextAsync(
+            "GeneratedQuiz",
+            "QUIZ",
+            tenantId.Value,
+            6,
+            cancellationToken);
+
+        var quiz = GeneratedQuizEntity.Create(
+            tenantId.Value,
+            quizCode,
+            $"{request.Subject} - {request.Topic}",
+            JsonSerializer.Serialize(new
+            {
+                request.StudentId,
+                request.Subject,
+                request.Topic,
+                request.Difficulty,
+                questionsJson = generatedContent
+            }));
+
+        await quizCommand.AddAsync(quiz, cancellationToken);
+
+        await eventPublisher.PublishAsync(
+            "smartschool.aitutor.quiz-generated",
+            new
+            {
+                tenantId = tenantId.Value,
+                quizId = quiz.GeneratedQuizId,
+                request.StudentId
+            },
+            cancellationToken);
+
+        return Results.Created(
+            $"/api/aitutor/generated-quiz/{quiz.GeneratedQuizId}",
+            new
+            {
+                quizId = quiz.GeneratedQuizId,
+                questions = TryJson(generatedContent)
+            });
     }
-    private static object TryJson(string raw){try{return JsonSerializer.Deserialize<object>(raw)??raw;}catch{return raw;}}
+
+    private static async Task<IResult> Recommend(
+        RecommendationRequest request,
+        ITenantScope tenantScope,
+        OperationalTutorEndpointsLearningRecommendationCommand recommendationCommand,
+        IOllamaClient ollamaClient,
+        IBusinessNumberGenerator numberGenerator,
+        CancellationToken cancellationToken)
+    {
+        var tenantId = ResolveTenantId(tenantScope, request.TenantId);
+        if (!tenantId.HasValue)
+        {
+            return Results.BadRequest(new { message = "Tenant required." });
+        }
+
+        var prompt =
+            $"Create a concise learning plan for {request.Subject}/{request.Topic}. " +
+            $"Current mastery is {request.MasteryScore:P0}. Include next concept, practice type, " +
+            "revision frequency and success criterion.";
+
+        var (answer, _) = await ollamaClient.GenerateAsync(
+            prompt,
+            cancellationToken);
+
+        var recommendationCode = await numberGenerator.NextAsync(
+            "LearningRecommendation",
+            "REC",
+            tenantId.Value,
+            6,
+            cancellationToken);
+
+        var recommendation = LearningRecommendationEntity.Create(
+            tenantId.Value,
+            recommendationCode,
+            $"{request.Subject} recommendation",
+            JsonSerializer.Serialize(new
+            {
+                request.StudentId,
+                request.Subject,
+                request.Topic,
+                request.MasteryScore,
+                recommendation = answer
+            }));
+
+        await recommendationCommand.AddAsync(
+            recommendation,
+            cancellationToken);
+
+        return Results.Ok(new
+        {
+            recommendationId = recommendation.LearningRecommendationId,
+            recommendation = answer
+        });
+    }
+
+    private static object TryJson(string raw)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<object>(raw) ?? raw;
+        }
+        catch (JsonException)
+        {
+            return raw;
+        }
+    }
 }
 
 /// <summary>

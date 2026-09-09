@@ -10,7 +10,7 @@ public sealed class AdmissionApplicationWriteEntity : Entity
     public Guid BranchId { get; private set; }
     public Guid? AcademicYearId { get; private set; }
     public Guid? ClassId { get; private set; }
-    public Guid? SectionId { get; private set; }
+    public Guid? ClassSectionId { get; private set; }
     public string FirstName { get; private set; } = string.Empty;
     public string? LastName { get; private set; }
     public DateOnly? DateOfBirth { get; private set; }
@@ -30,7 +30,7 @@ public sealed class AdmissionApplicationWriteEntity : Entity
     public static AdmissionApplicationWriteEntity Create(Guid tenantId, CreateAdmissionApplication.Request request) => new()
     {
         TenantId = tenantId, SchoolId = request.SchoolId, BranchId = request.BranchId, AcademicYearId = request.AcademicYearId,
-        ClassId = request.ClassId, SectionId = request.SectionId, FirstName = request.FirstName.Trim(), LastName = request.LastName?.Trim(),
+        ClassId = request.ClassId, ClassSectionId = request.ClassSectionId, FirstName = request.FirstName.Trim(), LastName = request.LastName?.Trim(),
         DateOfBirth = request.DateOfBirth, Gender = request.Gender?.Trim(), Email = request.Email?.Trim(), Phone = request.Phone?.Trim(),
         Address = request.Address?.Trim(), GuardianName = request.GuardianName.Trim(), GuardianCnic = request.GuardianCnic?.Trim(),
         GuardianEmail = request.GuardianEmail?.Trim(), GuardianPhone = request.GuardianPhone?.Trim(), Relationship = request.Relationship?.Trim(),

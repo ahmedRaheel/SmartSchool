@@ -45,6 +45,7 @@ public sealed class FeeTypeEntityConfiguration
 
 
         // Canonical database mapping generated from SmartSchoolComplete.sql.
+        builder.Property(entity => entity.DepartmentId).HasColumnName("department_id").IsRequired();
         builder.Property(entity => entity.Code).HasColumnName("code");
         builder.Property(entity => entity.Name).HasColumnName("name");
         builder.Property(entity => entity.Frequency).HasColumnName("frequency").HasMaxLength(30).IsRequired();

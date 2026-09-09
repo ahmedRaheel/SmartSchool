@@ -29,6 +29,10 @@ public static class CreateStudentOfMonth
 
     public sealed record Request(
         Guid TenantId,
+        Guid DepartmentId,
+        Guid? StudentId,
+        int? AwardMonth,
+        int? AwardYear,
         string Name) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
@@ -36,6 +40,8 @@ public static class CreateStudentOfMonth
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.DepartmentId).NotEmpty();
+            RuleFor(x => x.AwardMonth).InclusiveBetween(1, 12).When(x => x.AwardMonth.HasValue);
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
@@ -71,6 +77,10 @@ public static class CreateStudentOfMonth
 
             var entity = StudentOfMonthEntity.Create(
                 request.TenantId,
+                request.DepartmentId,
+                request.StudentId,
+                request.AwardMonth,
+                request.AwardYear,
                 code,
                 request.Name);
 

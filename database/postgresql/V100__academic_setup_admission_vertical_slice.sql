@@ -9,7 +9,7 @@ UPDATE academic.academic_year SET branch_id=campus_id WHERE branch_id IS NULL;
 UPDATE academic.academic_year SET school_id=c.school_id FROM org.campus c WHERE academic.academic_year.campus_id=c.campus_id AND academic.academic_year.school_id IS NULL;
 UPDATE academic.academic_year SET code=replace(name,'/','-') WHERE code IS NULL;
 ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS class_id uuid REFERENCES academic.class(class_id);
-ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS section_id uuid REFERENCES academic.section(section_id);
+ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS class_section_id uuid REFERENCES academic.class_section(class_section_id);
 ALTER TABLE admission.admission_criteria ADD COLUMN IF NOT EXISTS class_id uuid REFERENCES academic.class(class_id);
 ALTER TABLE academic.class_section ADD COLUMN IF NOT EXISTS class_id uuid REFERENCES academic.class(class_id);
 CREATE INDEX IF NOT EXISTS ix_academic_year_branch ON academic.academic_year(tenant_id,branch_id);

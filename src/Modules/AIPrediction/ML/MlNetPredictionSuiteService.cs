@@ -10,7 +10,7 @@ namespace SmartSchool.Modules.AIPrediction.ML;
 /// ML.NET is used when sufficient labelled history exists; otherwise the API
 /// returns an explainable cold-start score with UsedMachineLearning=false.
 /// </summary>
-public sealed class MlNetPredictionSuiteService  
+public sealed class MlNetPredictionSuiteService
      : IPredictionSuiteService
 {
     private const int MinimumRows = 12;

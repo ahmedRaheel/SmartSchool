@@ -10,6 +10,7 @@ public sealed class FeeStructureEntityConfiguration : IEntityTypeConfiguration<F
         builder.HasKey(x => x.FeeStructureId);
         builder.Property(x => x.FeeStructureId).HasColumnName("fee_structure_id");
         builder.Property(x => x.TenantId).HasColumnName("tenant_id");
+        builder.Property(x => x.DepartmentId).HasColumnName("department_id").IsRequired();
         builder.Property(x => x.GradeLevelId).HasColumnName("grade_level_id");
         builder.Property(x => x.FeeTypeId).HasColumnName("fee_type_id");
         builder.Property(x => x.AcademicYearId).HasColumnName("academic_year_id");

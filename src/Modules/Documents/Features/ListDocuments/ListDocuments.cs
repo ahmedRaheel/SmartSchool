@@ -24,7 +24,7 @@ public static class ListDocuments
         await using var connection=await connectionFactory.OpenConnectionAsync(cancellationToken);
         var rows=await connection.QueryAsync<Response>(new CommandDefinition(sql,new{TenantId=resolvedTenantId.Value,EntityType=entityType.ToUpperInvariant(),EntityId=entityId},cancellationToken:cancellationToken));
         return Results.Ok(rows);
-    
+
         }
     }
 

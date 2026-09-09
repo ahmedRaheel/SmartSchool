@@ -189,7 +189,7 @@ public static class CreateAdmissionApplication
         Guid BranchId,
         Guid? AcademicYearId,
         Guid? ClassId,
-        Guid? SectionId,
+        Guid? ClassSectionId,
         string FirstName,
         string? LastName,
         DateOnly? DateOfBirth,

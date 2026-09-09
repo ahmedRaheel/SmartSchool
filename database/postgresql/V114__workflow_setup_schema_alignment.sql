@@ -2,7 +2,7 @@ BEGIN;
 
 -- Admission workflow columns used by the current Dapper query/command slices.
 ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS class_id uuid REFERENCES academic.class(class_id);
-ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS section_id uuid REFERENCES academic.section(section_id);
+ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS class_section_id uuid REFERENCES academic.class_section(class_section_id);
 ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS gender varchar(30);
 ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS decision_notes text;
 ALTER TABLE admission.student_application ADD COLUMN IF NOT EXISTS student_id uuid;

@@ -11,7 +11,7 @@ public sealed class AdmissionApplicationWriteEntityConfiguration : IEntityTypeCo
         builder.HasKey(x => x.ApplicationId);
         builder.Property(x => x.ApplicationId).HasColumnName("application_id"); builder.Property(x => x.TenantId).HasColumnName("tenant_id");
         builder.Property(x => x.SchoolId).HasColumnName("school_id"); builder.Property(x => x.BranchId).HasColumnName("branch_id");
-        builder.Property(x => x.AcademicYearId).HasColumnName("academic_year_id"); builder.Property(x => x.ClassId).HasColumnName("class_id"); builder.Property(x => x.SectionId).HasColumnName("section_id");
+        builder.Property(x => x.AcademicYearId).HasColumnName("academic_year_id"); builder.Property(x => x.ClassId).HasColumnName("class_id"); builder.Property(x => x.ClassSectionId).HasColumnName("class_section_id");
         builder.Property(x => x.FirstName).HasColumnName("first_name"); builder.Property(x => x.LastName).HasColumnName("last_name"); builder.Property(x => x.DateOfBirth).HasColumnName("date_of_birth"); builder.Property(x => x.Gender).HasColumnName("gender");
         builder.Property(x => x.Email).HasColumnName("email"); builder.Property(x => x.Phone).HasColumnName("phone"); builder.Property(x => x.Address).HasColumnName("address");
         builder.Property(x => x.GuardianName).HasColumnName("guardian_name"); builder.Property(x => x.GuardianCnic).HasColumnName("guardian_cnic"); builder.Property(x => x.GuardianEmail).HasColumnName("guardian_email"); builder.Property(x => x.GuardianPhone).HasColumnName("guardian_phone");
