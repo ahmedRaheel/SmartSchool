@@ -12,6 +12,7 @@ public static class ApplyTeacherLeave
 {
     public sealed record Request(
         Guid? TenantId,
+        Guid BranchId,
         Guid EmployeeId,
         DateOnly FromDate,
         DateOnly ToDate,
@@ -35,6 +36,7 @@ public static class ApplyTeacherLeave
     {
         Task<LeaveRequestEntity> ExecuteAsync(
             Guid tenantId,
+            Guid branchId,
             Guid employeeId,
             Request request,
             CancellationToken cancellationToken);
@@ -44,12 +46,14 @@ public static class ApplyTeacherLeave
     {
         public async Task<LeaveRequestEntity> ExecuteAsync(
             Guid tenantId,
+            Guid branchId,
             Guid employeeId,
             Request request,
             CancellationToken cancellationToken)
         {
             var entity = LeaveRequestEntity.CreateTeacherLeave(
                 tenantId,
+                branchId,
                 employeeId,
                 request.LeaveType,
                 request.FromDate,
@@ -67,7 +71,7 @@ public static class ApplyTeacherLeave
     {
         public async Task<Response> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity = await command.ExecuteAsync(request.TenantId!.Value, request.EmployeeId, request, cancellationToken);
+            var entity = await command.ExecuteAsync(request.TenantId!.Value, request.BranchId, request.EmployeeId, request, cancellationToken);
             return new Response(entity.LeaveRequestId, entity.Status);
         }
     }
@@ -82,6 +86,7 @@ public static class ApplyTeacherLeave
         Guid employeeId,
         Request request,
         ITenantScope tenantScope,
+        ICurrentUser currentUser,
         IMediator mediator,
         CancellationToken cancellationToken)
     {
@@ -94,8 +99,13 @@ public static class ApplyTeacherLeave
             return Results.BadRequest(new { message = "Tenant is required." });
         }
 
+        if (currentUser.BranchId is not Guid branchId)
+        {
+            return Results.Forbid();
+        }
+
         var response = await mediator.SendAsync<Request, Response>(
-            request with { TenantId = tenantId.Value, EmployeeId = employeeId },
+            request with { TenantId = tenantId.Value, BranchId = branchId, EmployeeId = employeeId },
             cancellationToken);
 
         return Results.Accepted($"/api/teachers/{employeeId}/leave/{response.LeaveRequestId}", response);

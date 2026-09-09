@@ -12,7 +12,7 @@ public sealed class DiscountEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<DiscountEntity> builder)
     {
-        builder.ToTable("Discount", schema: "finance");
+        builder.ToTable("discount", schema: "finance");
         builder.HasKey(entity => entity.DiscountId);
 
         builder
@@ -20,10 +20,15 @@ public sealed class DiscountEntityConfiguration
             .IsRequired();
 
         builder
+            .Property(entity => entity.BranchId)
+            .HasColumnName("branch_id")
+            .IsRequired();
+
+        builder
             .Property(entity => entity.IsActive)
             .IsRequired();
 
-        builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => new { entity.TenantId, entity.BranchId });
 
         builder.Property(entity => entity.CreatedAt).IsRequired();
         builder.Property(entity => entity.UpdatedAt);

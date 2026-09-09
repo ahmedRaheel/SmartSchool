@@ -12,11 +12,16 @@ public sealed class LeaveRequestEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<LeaveRequestEntity> builder)
     {
-        builder.ToTable("leave_request", schema: "teacher");
+        builder.ToTable("leave_request", schema: "hr");
         builder.HasKey(entity => entity.LeaveRequestId);
 
         builder
             .Property(entity => entity.TenantId)
+            .IsRequired();
+
+        builder
+            .Property(entity => entity.BranchId)
+            .HasColumnName("branch_id")
             .IsRequired();
 
         builder
@@ -27,7 +32,7 @@ public sealed class LeaveRequestEntityConfiguration
             .Property(entity => entity.RowVersion)
             .IsConcurrencyToken();
 
-        builder.HasIndex(entity => entity.TenantId);
+        builder.HasIndex(entity => new { entity.TenantId, entity.BranchId });
 
         builder
             .Property(entity => entity.Code)

@@ -20,6 +20,7 @@ public static class GetCandidateById
     /// <param name="Name">The display name.</param>
     public sealed record Response(
     Guid TenantId,
+    Guid BranchId,
     Guid Id,
     string Code,
     string Name,
@@ -49,6 +50,7 @@ public static class GetCandidateById
                 const string sql = """
                     SELECT
                         tenant_id AS "TenantId",
+                        branch_id AS "BranchId",
                         candidate_id AS "Id",
                         code AS "Code",
                         name AS "Name",

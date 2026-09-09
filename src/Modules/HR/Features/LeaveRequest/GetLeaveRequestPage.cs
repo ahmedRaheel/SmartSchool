@@ -21,6 +21,7 @@ public static class GetLeaveRequestPage
     /// <param name="Name">The display name.</param>
     public sealed record Response(
     Guid TenantId,
+    Guid BranchId,
     Guid Id,
     string Code,
     string Name,
@@ -52,7 +53,7 @@ public static class GetLeaveRequestPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM teacher.leave_request
+                    FROM hr.leave_request
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -60,11 +61,12 @@ public static class GetLeaveRequestPage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
+                        branch_id AS "BranchId",
                     leave_request_id AS "Id",
                     code AS "Code",
                     name AS "Name",
                     metadata_json AS "MetadataJson"
-                    FROM teacher.leave_request
+                    FROM hr.leave_request
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
                     ORDER BY leave_request_id

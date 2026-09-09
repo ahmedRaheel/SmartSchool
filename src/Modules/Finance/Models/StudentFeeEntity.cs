@@ -14,6 +14,9 @@ public sealed class StudentFeeEntity : Entity
     {
     }
 
+    /// <summary>Gets the campus/branch identifier.</summary>
+    public Guid BranchId { get; private set; }
+
     /// <summary>Gets the business code.</summary>
     public string Code { get; private set; } = string.Empty;
 
@@ -31,6 +34,7 @@ public sealed class StudentFeeEntity : Entity
     /// <returns>The newly created entity.</returns>
     public static StudentFeeEntity Create(
         Guid tenantId,
+        Guid branchId,
         string code,
         string name,
         string? metadataJson = null)
@@ -41,6 +45,7 @@ public sealed class StudentFeeEntity : Entity
         return new StudentFeeEntity
         {
             TenantId = tenantId,
+            BranchId = branchId,
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

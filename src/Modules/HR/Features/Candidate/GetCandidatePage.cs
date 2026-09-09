@@ -21,6 +21,7 @@ public static class GetCandidatePage
     /// <param name="Name">The display name.</param>
     public sealed record Response(
     Guid TenantId,
+    Guid BranchId,
     Guid Id,
     string Code,
     string Name,
@@ -60,6 +61,7 @@ public static class GetCandidatePage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
+                        branch_id AS "BranchId",
                     candidate_id AS "Id",
                     code AS "Code",
                     name AS "Name",
