@@ -53,20 +53,21 @@ public static class GetFeeStructurePage
                 CancellationToken cancellationToken)
             {
 
-            var branchId = currentUser.BranchId;
-                const string countSql = """
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant)? null : currentUser.BranchId;
+            const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.fee_structure
                        join org.department on finance.fee_structure.department_id = org.department.department_id
                        
                     WHERE tenant_id = @TenantId
-                      AND (org.department.branch_id = @BranchId)
+                      AND (org.department.branch_id = @BranchId OR @BranchId IS NULL)
                       AND is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
+                    branch_id AS "BranchId",
                     fee_structure_id AS "Id",
                     code AS "Code",
                     name AS "Name",
@@ -74,7 +75,7 @@ public static class GetFeeStructurePage
                     FROM finance.fee_structure
                      join org.department on finance.fee_structure.department_id = org.department.department_id
                     WHERE tenant_id = @TenantId
-                      and (org.department.branch_id = @BranchId)
+                      and (org.department.branch_id = @BranchId OR @BranchId IS NULL)
                       AND is_active = TRUE
                     ORDER BY fee_structure_id
                     LIMIT @PageSize OFFSET @Offset;

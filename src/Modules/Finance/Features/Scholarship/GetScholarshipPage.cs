@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Finance.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Finance.Features.Scholarship;
 
@@ -43,7 +44,8 @@ public static class GetScholarshipPage
     }
 
     internal sealed class GetScholarshipPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetScholarshipPageQuery
+        IDbConnectionFactory connectionFactory, 
+        ICurrentUser currentUser) : IGetScholarshipPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -51,10 +53,12 @@ public static class GetScholarshipPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.scholarship
                     WHERE tenant_id = @TenantId
+                    AND (@BranchId IS NULL OR branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -69,6 +73,7 @@ public static class GetScholarshipPage
                     FROM finance.scholarship
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND (@BranchId IS NULL OR branch_id = @BranchId)
                     ORDER BY scholarship_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -79,6 +84,7 @@ public static class GetScholarshipPage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

@@ -53,13 +53,13 @@ public static class GetPaymentPage
                 CancellationToken cancellationToken)
             {
 
-                var branchId = currentUser.BranchId;
+                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
             const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.student_payment
                      join student.student on student_payment.student_id = student.student_id
                     WHERE tenant_id = @TenantId
-                    AND student.branch_id = @BranchId
+                      AND (@BranchId IS NULL OR student.branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -73,7 +73,7 @@ public static class GetPaymentPage
                     FROM finance.student_payment
                      join student.student on student_payment.student_id = student.student_id
                     WHERE tenant_id = @TenantId
-                      AND student.branch_id = @BranchId
+                      AND (@BranchId IS NULL OR student.branch_id = @BranchId)
                       AND is_active = TRUE
                     ORDER BY student_payment_id
                     LIMIT @PageSize OFFSET @Offset;

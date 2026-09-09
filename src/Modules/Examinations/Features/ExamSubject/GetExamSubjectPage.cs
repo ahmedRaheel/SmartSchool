@@ -7,6 +7,7 @@ using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Modules.Examinations.Models;
+using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Examinations.Features.ExamSubject;
 
@@ -51,7 +52,8 @@ public static class GetExamSubjectPage
     }
 
     internal sealed class GetExamSubjectPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetExamSubjectPageQuery
+        IDbConnectionFactory connectionFactory, 
+        ICurrentUser currentUser) : IGetExamSubjectPageQuery
     {
         public async Task<PagedResult<Response>> GetPageAsync(
                 Guid tenantId,
@@ -59,10 +61,14 @@ public static class GetExamSubjectPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-                const string countSql = """
+
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
+            const string countSql = """
                     SELECT COUNT(*)
-                    FROM exam.exam_subject AS entity
+                    FROM exam.exam_subject AS entity                                        
+                    	 join exam.exam  ex on ex.exam_id = entity.exam_id
                     WHERE tenant_id = @TenantId
+                    AND (@BranchId IS NULL OR ex.branch_id = @BranchId)
                       AND is_active = TRUE;
                     """;
 
@@ -85,12 +91,13 @@ public static class GetExamSubjectPage
                     FROM exam.exam_subject AS entity
                     LEFT JOIN academic.course_offering AS p1
                         ON p1.course_offering_id = entity.course_offering_id
-                    LEFT JOIN exam.exam AS p2
+                    JOIN exam.exam AS p2
                         ON p2.exam_id = entity.exam_id
                     LEFT JOIN org.room AS p3
                         ON p3.room_id = entity.room_id
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
+                      AND (@BranchId IS NULL OR p2.branch_id = @BranchId)
                     ORDER BY entity.exam_subject_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
@@ -101,6 +108,7 @@ public static class GetExamSubjectPage
                 var parameters = new
                 {
                     TenantId = tenantId,
+                    BranchId = branchId,
                     PageSize = pageSize,
                     Offset = (page - 1) * pageSize
                 };

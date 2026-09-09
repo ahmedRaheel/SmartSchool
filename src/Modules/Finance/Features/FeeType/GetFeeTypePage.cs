@@ -55,13 +55,13 @@ public static class GetFeeTypePage
                 CancellationToken cancellationToken)
             {
 
-            var branchId = currentUser.BranchId;
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant)? null : currentUser.BranchId;
             const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.fee_type
                          join org.department dept on dept.department_id = finance.fee_type.department_id
                     WHERE tenant_id = @TenantId
-                      AND (dept.branch_id = @BranchId)
+                      AND (dept.branch_id = @BranchId OR @BranchId IS NULL)
                       ;
                     """;
 
@@ -77,7 +77,7 @@ public static class GetFeeTypePage
                     FROM finance.fee_type
                          join org.department dept on dept.department_id = finance.fee_type.department_id
                     WHERE tenant_id = @TenantId
-                    ANd (dept.branch_id = @BranchId)
+                    ANd (dept.branch_id = @BranchId OR @BranchId IS NULL)
 
                     ORDER BY fee_type_id
                     LIMIT @PageSize OFFSET @Offset;
