@@ -35,8 +35,7 @@ public static class ApproveStudentAdmission
         ApproveStudentAdmissionStudentOnboardingCommand onboardingCommand,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numberGenerator,
-        TimeProvider timeProvider,
-        ICurrentUser currentUser)
+        TimeProvider timeProvider)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -103,25 +102,93 @@ public static class ApproveStudentAdmission
                 7,
                 cancellationToken);
 
-            var userId = student.UserId;
-            if (!userId.HasValue)
+            var guardians = await command.GetLinkedGuardiansWithoutAccountsAsync(
+                request.TenantId,
+                request.StudentId,
+                cancellationToken);
+
+            var guardiansWithoutEmail = guardians
+                .Where(guardian => string.IsNullOrWhiteSpace(guardian.Email))
+                .Select(guardian => guardian.FullName)
+                .ToArray();
+
+            if (guardiansWithoutEmail.Length > 0)
             {
-                var account = await accounts.CreateAccountAsync(
-                    request.TenantId,
-                    student.StudentId,
-                    SmartSchoolRoles.Student,
-                    request.Email,
-                    student.FirstName,
-                    student.LastName ?? string.Empty,
-                    student.SchoolId,
-                    student.BranchId,
-                    [SmartSchoolRoles.Student],
-                    cancellationToken);
-                userId = account.UserId;
+                return Result<Response>.Failure(
+                    Error.Validation(
+                        $"Guardian email is required before admission approval: {string.Join(", ", guardiansWithoutEmail)}."));
+            }
+
+            var provisionedAccountIds = new List<Guid>();
+            Guid? userId = student.UserId;
+
+            try
+            {
+                foreach (var guardian in guardians)
+                {
+                    var nameParts = guardian.FullName.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    var firstName = nameParts[0];
+                    var lastName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
+
+                    var parentAccount = await accounts.CreateAccountAsync(
+                        request.TenantId,
+                        guardian.GuardianId,
+                        SmartSchoolRoles.Parent,
+                        guardian.Email!,
+                        firstName,
+                        lastName,
+                        student.SchoolId,
+                        student.BranchId,
+                        [SmartSchoolRoles.Parent],
+                        cancellationToken);
+
+                    guardian.LinkIdentityAccount(parentAccount.UserId);
+                    provisionedAccountIds.Add(parentAccount.UserId);
+                }
+
+                if (!userId.HasValue)
+                {
+                    var studentAccount = await accounts.CreateAccountAsync(
+                        request.TenantId,
+                        student.StudentId,
+                        SmartSchoolRoles.Student,
+                        request.Email,
+                        student.FirstName,
+                        student.LastName ?? string.Empty,
+                        student.SchoolId,
+                        student.BranchId,
+                        [SmartSchoolRoles.Student],
+                        cancellationToken);
+
+                    userId = studentAccount.UserId;
+                    provisionedAccountIds.Add(studentAccount.UserId);
+                }
+            }
+            catch
+            {
+                foreach (var accountId in provisionedAccountIds)
+                {
+                    await accounts.DeleteAccountAsync(accountId, cancellationToken);
+                }
+
+                throw;
             }
 
             student.ApproveAdmission(userId.Value, studentNumber);
-            await command.UpdateAsync(student, cancellationToken);
+
+            try
+            {
+                await command.UpdateAdmissionAsync(student, guardians, cancellationToken);
+            }
+            catch
+            {
+                foreach (var accountId in provisionedAccountIds)
+                {
+                    await accounts.DeleteAccountAsync(accountId, cancellationToken);
+                }
+
+                throw;
+            }
 
             var enrollmentNumber = await numberGenerator.NextAsync(
                 $"ENROLLMENT:{student.BranchId}",
@@ -147,7 +214,7 @@ public static class ApproveStudentAdmission
                 cancellationToken);
 
             return Result<Response>.Success(
-                new Response(student.StudentId, currentUser.UserId, student.StudentNumber!, student.Status));
+                new Response(student.StudentId, userId, student.StudentNumber!, student.Status));
         }
     }
 
@@ -253,7 +320,16 @@ public sealed class ApproveStudentAdmissionStudentOnboardingQuery(IDbConnectionF
 public interface IApproveStudentAdmissionCommand
 {
     Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
-    Task UpdateAsync(StudentEntity entity, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<GuardianEntity>> GetLinkedGuardiansWithoutAccountsAsync(
+        Guid tenantId,
+        Guid studentId,
+        CancellationToken cancellationToken);
+
+    Task UpdateAdmissionAsync(
+        StudentEntity student,
+        IReadOnlyCollection<GuardianEntity> guardians,
+        CancellationToken cancellationToken);
 }
 
 internal sealed class ApproveStudentAdmissionCommand(IStudentsDbContext dbContext) : IApproveStudentAdmissionCommand
@@ -265,13 +341,28 @@ internal sealed class ApproveStudentAdmissionCommand(IStudentsDbContext dbContex
     }
 
 
-    public async Task UpdateAsync(
-        StudentEntity entity,
+    public async Task<IReadOnlyList<GuardianEntity>> GetLinkedGuardiansWithoutAccountsAsync(
+        Guid tenantId,
+        Guid studentId,
         CancellationToken cancellationToken)
     {
-        dbContext.Students
-            .Update(entity);
+        return await dbContext.StudentGuardians
+            .Where(link => link.TenantId == tenantId && link.StudentId == studentId && link.IsActive)
+            .Join(
+                dbContext.Guardians.Where(guardian => guardian.TenantId == tenantId && guardian.IsActive && !guardian.UserId.HasValue),
+                link => link.GuardianId,
+                guardian => guardian.GuardianId,
+                (_, guardian) => guardian)
+            .ToListAsync(cancellationToken);
+    }
 
+    public async Task UpdateAdmissionAsync(
+        StudentEntity student,
+        IReadOnlyCollection<GuardianEntity> guardians,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Students.Update(student);
+        dbContext.Guardians.UpdateRange(guardians);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

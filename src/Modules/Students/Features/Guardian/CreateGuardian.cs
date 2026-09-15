@@ -7,7 +7,6 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Students.Features.Guardian;
 
@@ -20,14 +19,7 @@ public static class CreateGuardian
         string FullName,
         string? CnicNumber,
         string? Email,
-        string? Phone,
-        LoginAccountResponse LoginAccount);
-
-    public sealed record LoginAccountResponse(
-        Guid UserId,
-        string Email,
-        string TemporaryPassword,
-        bool MustChangePassword);
+        string? Phone);
 
     public sealed record Request(
         Guid TenantId,
@@ -80,9 +72,7 @@ public static class CreateGuardian
         }
 }
 
-    public sealed class Handler(
-        ICreateGuardianCommand command,
-        IIdentityAccountService identityAccountService)
+    public sealed class Handler(ICreateGuardianCommand command)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
@@ -104,43 +94,8 @@ public static class CreateGuardian
                 request.Email,
                 request.Phone);
 
-            var nameParts = request.FullName.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-            var firstName = nameParts[0];
-            var lastName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
-
-            ProvisionedAccount account;
-            try
-            {
-                account = await identityAccountService.CreateAccountAsync(
-                    request.TenantId,
-                    entity.GuardianId,
-                    SmartSchoolRoles.Parent,
-                    request.Email!,
-                    firstName,
-                    lastName,
-                    null,
-                    null,
-                    [SmartSchoolRoles.Parent],
-                    cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                return Result<Response>.Failure(
-                    Error.InternalServerError($"Unable to create the parent login account: {exception.Message}"));
-            }
-
-            entity.LinkIdentityAccount(account.UserId);
-            try
-            {
-                await command.AddAsync(entity, cancellationToken);
-            }
-            catch
-            {
-                await identityAccountService.DeleteAccountAsync(account.UserId, cancellationToken);
-                throw;
-            }
-
-            return Result<Response>.Success(MapResponse(entity, account));
+            await command.AddAsync(entity, cancellationToken);
+            return Result<Response>.Success(MapResponse(entity));
         }
     }
 
@@ -157,7 +112,7 @@ public static class CreateGuardian
         return endpoints;
     }
 
-    private static Response MapResponse(GuardianEntity entity, ProvisionedAccount account)
+    private static Response MapResponse(GuardianEntity entity)
     {
         return new Response(
             entity.TenantId,
@@ -166,7 +121,6 @@ public static class CreateGuardian
             entity.FullName,
             entity.CnicNumber,
             entity.Email,
-            entity.Phone,
-            new LoginAccountResponse(account.UserId, account.Email, account.TemporaryPassword, account.MustChangePassword));
+            entity.Phone);
     }
 }
