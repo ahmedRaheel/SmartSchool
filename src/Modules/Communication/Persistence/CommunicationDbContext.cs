@@ -15,7 +15,9 @@ public interface ICommunicationDbContext
     DbSet<NotificationEntity> Notifications { get; }
     DbSet<NotificationPreferenceEntity> NotificationPreferences { get; }
     DbSet<ConversationParticipantEntity> ConversationParticipants { get; }
-
+    DbSet<MessageEntity> Messages { get; }
+    DbSet<MessageReceiptEntity> MessageReceipts { get; }
+    DbSet<ConversationEntity> Conversations { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
@@ -34,6 +36,12 @@ public sealed class CommunicationDbContext(DbContextOptions<CommunicationDbConte
     public DbSet<NotificationPreferenceEntity> NotificationPreferences => Set<NotificationPreferenceEntity>();
 
     public DbSet<ConversationParticipantEntity> ConversationParticipants => Set<ConversationParticipantEntity>();
+
+    public DbSet<MessageEntity> Messages => Set<MessageEntity>();
+
+    public DbSet<MessageReceiptEntity> MessageReceipts => Set<MessageReceiptEntity>();
+
+    public DbSet<ConversationEntity> Conversations => Set<ConversationEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
