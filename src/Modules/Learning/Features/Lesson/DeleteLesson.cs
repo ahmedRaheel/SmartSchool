@@ -90,7 +90,7 @@ public static class DeleteLesson
                 })
             .WithName("DeleteLesson")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

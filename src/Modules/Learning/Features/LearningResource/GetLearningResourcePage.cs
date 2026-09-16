@@ -137,7 +137,7 @@ public static class GetLearningResourcePage
                 })
             .WithName("GetLearningResourcePage")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

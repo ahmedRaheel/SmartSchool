@@ -109,7 +109,7 @@ public static class GetAssignmentSubmissionById
                 })
             .WithName("GetAssignmentSubmissionById")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

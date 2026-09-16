@@ -11,7 +11,7 @@ using SmartSchool.SharedKernel.Constants;
 namespace SmartSchool.Modules.Admissions.Features;
 
 public interface IGetAdmissionApplicationsQuery { Task<IReadOnlyList<AdmissionApplicationDto>> GetApplicationsAsync(Guid tenantId, CancellationToken cancellationToken); }
-public sealed class GetAdmissionApplicationsQuery(IDbConnectionFactory factory) : IGetAdmissionApplicationsQuery
+public sealed class GetAdmissionApplicationsQuery(IDbConnectionFactory factory, ICurrentUser user) : IGetAdmissionApplicationsQuery
 {
     public async Task<IReadOnlyList<AdmissionApplicationDto>> GetApplicationsAsync(Guid tenantId, CancellationToken cancellationToken)
     {
@@ -20,10 +20,10 @@ public sealed class GetAdmissionApplicationsQuery(IDbConnectionFactory factory) 
         class_id AS ClassId, class_section_id AS ClassSectionId, first_name AS FirstName, last_name AS LastName, date_of_birth AS DateOfBirth,
         gender AS Gender, email AS Email, phone AS Phone, guardian_name AS GuardianName, guardian_email AS GuardianEmail,
         guardian_phone AS GuardianPhone, previous_marks AS PreviousMarks, status AS Status, submitted_at AS SubmittedAt,
-        decision_notes AS DecisionNotes, student_id AS StudentId
-        FROM admission.student_application WHERE tenant_id=@TenantId AND is_active=TRUE ORDER BY submitted_at DESC;
+        decision_notes AS DecisionNotes, student_id AS StudentId, entrance_test_marks AS EntranceTestMarks, interview_passed AS InterviewPassed
+        FROM admission.student_application WHERE tenant_id=@TenantId AND is_active=TRUE AND (@ScopeBranchId IS NULL OR branch_id=@ScopeBranchId) ORDER BY submitted_at DESC;
         """;
-        await using var connection = await factory.OpenConnectionAsync(cancellationToken); return (await connection.QueryAsync<AdmissionApplicationDto>(new CommandDefinition(sql,new{TenantId=tenantId},cancellationToken: cancellationToken))).AsList();
+        await using var connection = await factory.OpenConnectionAsync(cancellationToken); return (await connection.QueryAsync<AdmissionApplicationDto>(new CommandDefinition(sql,new{TenantId=tenantId, ScopeBranchId=user.BranchId},cancellationToken: cancellationToken))).AsList();
     }
 }
 
@@ -60,7 +60,7 @@ public static class GetAdmissionApplications
     {
         endpoints.MapGet("/api/admissions/workflow/applications", async (Guid? tenantId, IMediator mediator, CancellationToken cancellationToken) =>
             (await mediator.SendAsync<Request, Result<IReadOnlyList<AdmissionApplicationDto>>>(new Request(tenantId), cancellationToken)).ToHttpResult())
-            .WithName("GetAdmissionApplications").WithTags("Admissions").RequireAuthorization();
+            .WithName("GetAdmissionApplications").WithTags("Admissions").RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
     }
 }
 
@@ -84,4 +84,4 @@ public sealed record AdmissionApplicationDto(
     string Status,
     DateTimeOffset SubmittedAt,
     string? DecisionNotes,
-    Guid? StudentId);
+    Guid? StudentId, decimal? EntranceTestMarks, bool? InterviewPassed);

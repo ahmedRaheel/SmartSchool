@@ -56,8 +56,12 @@ public static class Module
         GetAdmissionApplications.MapEndpoint(endpoints);
         CreateAdmissionApplication.MapEndpoint(endpoints);
         ChangeAdmissionStatus.MapEndpoint(endpoints);
+        UpdateAdmissionApplication.MapEndpoint(endpoints);
+        DeleteAdmissionApplication.MapEndpoint(endpoints);
         GetAdmissionCriteria.MapEndpoint(endpoints);
         CreateAdmissionCriteria.MapEndpoint(endpoints);
+        UpdateAdmissionCriteria.MapEndpoint(endpoints);
+        DeleteAdmissionCriteria.MapEndpoint(endpoints);
 
         return endpoints;
     }

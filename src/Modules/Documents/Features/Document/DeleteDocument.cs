@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel.Constants;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -59,7 +60,7 @@ public static class DeleteDocument
                     (await mediator.SendAsync<Request, Result>(new Request(documentId), cancellationToken)).ToHttpResult())
             .WithName("DeleteDocument")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

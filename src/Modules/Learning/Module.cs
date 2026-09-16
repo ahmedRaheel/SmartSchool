@@ -28,6 +28,7 @@ public static class Module
         this IEndpointRouteBuilder endpoints)
     {
         CreateAssignment.MapEndpoint(endpoints);
+        GetAssignmentOptions.MapEndpoint(endpoints);
         GetAssignmentById.MapEndpoint(endpoints);
         GetAssignmentByTeachingGroupId.MapEndpoint(endpoints);
         GetAssignmentByTeacherEmployeeId.MapEndpoint(endpoints);
@@ -37,12 +38,12 @@ public static class Module
         UpdateAssignment.MapEndpoint(endpoints);
         DeleteAssignment.MapEndpoint(endpoints);
         CreateAssignmentSubmission.MapEndpoint(endpoints);
+        GradeAssignmentSubmission.MapEndpoint(endpoints);
+        DownloadSubmissionFile.MapEndpoint(endpoints);
         GetAssignmentSubmissionById.MapEndpoint(endpoints);
         GetAssignmentSubmissionByStudentId.MapEndpoint(endpoints);
         GetAssignmentSubmissionByAcademicAssignmentId.MapEndpoint(endpoints);
         GetAssignmentSubmissionPage.MapEndpoint(endpoints);
-        UpdateAssignmentSubmission.MapEndpoint(endpoints);
-        DeleteAssignmentSubmission.MapEndpoint(endpoints);
 
         CreateLearningResource.MapEndpoint(endpoints);
         CreateLesson.MapEndpoint(endpoints);

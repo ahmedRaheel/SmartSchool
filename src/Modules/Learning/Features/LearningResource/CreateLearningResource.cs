@@ -91,7 +91,7 @@ public static class CreateLearningResource
                 })
             .WithName("CreateLearningResource")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 

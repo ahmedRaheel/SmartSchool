@@ -11,6 +11,7 @@ public sealed class CourseOfferingEntity : Entity
     public Guid CourseOfferingId { get; private set; } = Guid.NewGuid();
 
     public Guid BranchId { get; private set; }
+    public Guid? SubjectId { get; private set; }
 
     private CourseOfferingEntity()
     {
@@ -26,7 +27,7 @@ public sealed class CourseOfferingEntity : Entity
     public Guid? TermId { get; private set; }
 
     /// <summary>Gets the persisted program subject id value.</summary>
-    public Guid ProgramSubjectId { get; private set; }
+    public Guid? ProgramSubjectId { get; private set; }
 
     /// <summary>Gets the persisted display name value.</summary>
     public string? DisplayName { get; private set; }
@@ -67,6 +68,14 @@ public sealed class CourseOfferingEntity : Entity
             Name = name.Trim(),
             MetadataJson = metadataJson
         };
+    }
+
+    public static CourseOfferingEntity Offer(Guid tenantId, Guid campusId, Guid academicYearId, Guid subjectId, string code, string name)
+    {
+        var entity = Create(tenantId, campusId, code, name);
+        entity.CampusId = campusId; entity.AcademicYearId = academicYearId; entity.SubjectId = subjectId;
+        entity.DisplayName = name; entity.Status = "ACTIVE";
+        return entity;
     }
 
     /// <summary>Updates the business details.</summary>

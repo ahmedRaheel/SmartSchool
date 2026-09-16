@@ -74,6 +74,16 @@ public sealed class TeacherAssignmentEntity : Entity
         };
     }
 
+    public static TeacherAssignmentEntity Allocate(Guid tenantId, Guid courseOfferingId, Guid classSectionId,
+        Guid employeeId, string code, string name, int periodsPerWeek, DateOnly? effectiveFrom = null, DateOnly? effectiveTo = null)
+    {
+        var entity = Create(tenantId, code, name);
+        entity.CourseOfferingId = courseOfferingId; entity.ClassSectionId = classSectionId;
+        entity.EmployeeId = employeeId; entity.AssignmentRole = "PRIMARY"; entity.IsPrimary = true;
+        entity.PeriodsPerWeek = periodsPerWeek; entity.EffectiveFrom = effectiveFrom ?? DateOnly.FromDateTime(DateTime.UtcNow); entity.EffectiveTo = effectiveTo;
+        return entity;
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

@@ -11,6 +11,7 @@ public sealed class AdmissionCriteriaWriteEntityConfiguration
     {
         builder.ToTable("admission_criteria", "admission");
         builder.HasKey(criteria => criteria.AdmissionCriteriaId);
+        builder.Property(criteria => criteria.Status).HasColumnName("status");
 
         builder.Property(criteria => criteria.AdmissionCriteriaId)
             .HasColumnName("admission_criteria_id");

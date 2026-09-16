@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel.Constants;
 using Dapper;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -92,7 +93,7 @@ public static class GetStudentExamResultByExamSubjectId
                 })
             .WithName("GetStudentExamResultByExamSubjectId")
             .WithTags("Examinations")
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
 
         return endpoints;
     }

@@ -57,5 +57,12 @@ public sealed class HRDbContext(DbContextOptions<HRDbContext> options)
             typeof(HRDbContext).Assembly,
             type => type.Namespace is not null
                 && type.Namespace.StartsWith("SmartSchool.Modules.HR.Persistence.Configurations", StringComparison.Ordinal));
+
+        // These retired projections and document models are not part of the active persistence model.
+        modelBuilder.Ignore<TeacherDirectoryReadEntity>();
+        modelBuilder.Ignore<TeacherProfileEntity>();
+        modelBuilder.Ignore<PayrollProfileEntity>();
+        modelBuilder.Ignore<CandidateDocumentEntity>();
+        modelBuilder.Ignore<EmployeeDocumentEntity>();
     }
 }

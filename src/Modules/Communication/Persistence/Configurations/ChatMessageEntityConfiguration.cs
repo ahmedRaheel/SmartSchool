@@ -28,7 +28,7 @@ public sealed class ChatMessageEntityConfiguration : IEntityTypeConfiguration<Ch
         builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
 
         // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
-        builder.HasOne<ConversationEntity>()
+        builder.HasOne<ChatConversationEntity>()
             .WithMany()
             .HasForeignKey(entity => entity.ConversationId)
             .OnDelete(DeleteBehavior.Restrict);

@@ -14,6 +14,11 @@ public sealed class CandidateDocumentEntityConfiguration
     public void Configure(EntityTypeBuilder<CandidateDocumentEntity> builder)
     {
         builder.ToTable("candidatedocument", schema: "document");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
         builder.HasKey(document => document.CandidateDocumentId);
 
         builder.Property(document => document.TenantId).IsRequired();

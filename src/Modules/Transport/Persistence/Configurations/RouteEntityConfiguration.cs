@@ -13,6 +13,11 @@ public sealed class RouteEntityConfiguration
     public void Configure(EntityTypeBuilder<RouteEntity> builder)
     {
         builder.ToTable("route", schema: "transport");
+        builder.Property(entity => entity.VehicleId).HasColumnName("vehicle_id");
+        builder.Property(entity => entity.DriverId).HasColumnName("driver_id");
+        builder.Property(entity => entity.StartTime).HasColumnName("start_time");
+        builder.Property(entity => entity.ArrivalTime).HasColumnName("arrival_time");
+        builder.Property(entity => entity.DismissalTime).HasColumnName("dismissal_time");
         builder.HasKey(entity => entity.RouteId);
 
         builder

@@ -10,6 +10,8 @@ public sealed class ClassSectionEntity : Entity
     /// <summary>Gets the entity-specific identifier.</summary>
     public Guid ClassSectionId { get; private set; } = Guid.NewGuid();
 
+    public void AssignClassTeacher(Guid employeeId) { ClassTeacherEmployeeId = employeeId; MarkAsUpdated(); }
+
     private ClassSectionEntity()
     {
     }

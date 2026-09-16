@@ -123,7 +123,7 @@ public static class GetAssignmentById
                 })
             .WithName("GetAssignmentById")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

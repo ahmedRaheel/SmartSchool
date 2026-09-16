@@ -1,3 +1,4 @@
+using Dapper;
 using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -44,10 +45,21 @@ public static class CreateClassSection
             RuleFor(x => x.CampusId).NotEmpty();
             RuleFor(x => x.AcademicYearId).NotEmpty();
             RuleFor(x => x.GradeLevelId).NotEmpty();
+            RuleFor(x => x.Capacity).GreaterThan(0).When(x => x.Capacity.HasValue);
+            RuleFor(x => x.RoomNo).MaximumLength(50);
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
+    public interface ICreateClassSectionQuery { Task<bool> IsValidAsync(Request request, CancellationToken cancellationToken); }
+    internal sealed class CreateClassSectionQuery(IDbConnectionFactory factory) : ICreateClassSectionQuery
+    {
+        public async Task<bool> IsValidAsync(Request request, CancellationToken cancellationToken)
+        {
+            await using var connection = await factory.OpenConnectionAsync(cancellationToken);
+            return await connection.ExecuteScalarAsync<bool>(new CommandDefinition("SELECT EXISTS (SELECT 1 FROM academic.grade_level g JOIN academic.academic_year y ON y.tenant_id = g.tenant_id AND y.campus_id = g.campus_id WHERE g.tenant_id = @TenantId AND g.campus_id = @CampusId AND g.grade_level_id = @GradeLevelId AND g.is_active AND y.academic_year_id = @AcademicYearId AND y.is_active)", request, cancellationToken: cancellationToken));
+        }
+    }
     public interface ICreateClassSectionCommand
     {
         Task AddAsync(
@@ -67,7 +79,7 @@ public static class CreateClassSection
         }
     }
 
-    public sealed class Handler(ICreateClassSectionCommand command, IBusinessNumberGenerator numberGenerator)
+    public sealed class Handler(ICreateClassSectionCommand command, ICreateClassSectionQuery query, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -75,6 +87,7 @@ public static class CreateClassSection
             CancellationToken cancellationToken)
         {
 
+            if (!await query.IsValidAsync(request, cancellationToken)) return Result<Response>.Failure(Error.Validation("Class and academic year must belong to the selected campus."));
             var code = await numberGenerator.NextAsync("Section", "SEC", request.TenantId, 3, cancellationToken);
 
             var entity = ClassSectionEntity.Create(
@@ -104,7 +117,7 @@ public static class CreateClassSection
                 })
             .WithName("CreateClassSection")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 

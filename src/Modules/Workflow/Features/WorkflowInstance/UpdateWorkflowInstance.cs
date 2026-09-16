@@ -94,10 +94,17 @@ Task<WorkflowInstanceEntity?> GetByIdAsync(
                     Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowInstanceEntity))));
             }
 
-
-            entity.UpdateDetails(
+            entity = WorkflowInstanceEntity.Update(
+                request.TenantId,
+                entity.WorkflowInstanceId,
+                entity.WorkflowDefinitionId,
                 entity.Code,
-                request.Name);
+                request.Name,
+                entity.EntityType,
+                entity.EntityId,
+                entity.StartedByUserId,
+                entity.ContextJson);
+
             await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
@@ -127,6 +134,6 @@ Task<WorkflowInstanceEntity?> GetByIdAsync(
             entity.WorkflowInstanceId,
             entity.Code,
             entity.Name,
-            entity.MetadataJson);
+           "");
     }
 }

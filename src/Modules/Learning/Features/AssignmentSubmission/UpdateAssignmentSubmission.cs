@@ -116,7 +116,7 @@ Task<AssignmentSubmissionEntity?> GetByIdAsync(
                 })
             .WithName("UpdateAssignmentSubmission")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 

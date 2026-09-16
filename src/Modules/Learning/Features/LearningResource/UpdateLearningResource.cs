@@ -116,7 +116,7 @@ Task<LearningResourceEntity?> GetByIdAsync(
                 })
             .WithName("UpdateLearningResource")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 

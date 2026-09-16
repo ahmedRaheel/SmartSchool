@@ -1,3 +1,4 @@
+using Dapper;
 using SmartSchool.Modules.Examinations.Persistence;
 using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,15 @@ public static class CreateGradeScale
         }
     }
 
+    public interface ICreateGradeScaleQuery { Task<bool> IsValidAsync(Request request, CancellationToken cancellationToken); }
+    internal sealed class CreateGradeScaleQuery(IDbConnectionFactory factory) : ICreateGradeScaleQuery
+    {
+        public async Task<bool> IsValidAsync(Request request, CancellationToken cancellationToken)
+        {
+            await using var connection = await factory.OpenConnectionAsync(cancellationToken);
+            return await connection.ExecuteScalarAsync<bool>(new CommandDefinition("SELECT EXISTS (SELECT 1 FROM org.campus WHERE tenant_id = @TenantId AND campus_id = @CampusId AND is_active) AND NOT EXISTS (SELECT 1 FROM exam.grade_scale WHERE tenant_id = @TenantId AND campus_id = @CampusId AND is_active AND minimum_percentage <= @MaximumPercentage AND maximum_percentage >= @MinimumPercentage)", request, cancellationToken: cancellationToken));
+        }
+    }
     public interface ICreateGradeScaleCommand
     {
         Task AddAsync(
@@ -68,13 +78,14 @@ public static class CreateGradeScale
             }
     }
 
-    public sealed class Handler(ICreateGradeScaleCommand command, IBusinessNumberGenerator numberGenerator)
+    public sealed class Handler(ICreateGradeScaleCommand command, ICreateGradeScaleQuery query, IBusinessNumberGenerator numberGenerator)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
             Request request,
             CancellationToken cancellationToken)
         {
+            if (!await query.IsValidAsync(request, cancellationToken)) return Result<Response>.Failure(Error.Validation("Choose a valid campus and a percentage range that does not overlap an existing grade."));
             var code = await numberGenerator.NextAsync("GradeScale", "GS", request.TenantId, 3, cancellationToken);
 
             var entity = GradeScaleEntity.Create(
@@ -104,7 +115,7 @@ public static class CreateGradeScale
                 })
             .WithName("CreateGradeScale")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 

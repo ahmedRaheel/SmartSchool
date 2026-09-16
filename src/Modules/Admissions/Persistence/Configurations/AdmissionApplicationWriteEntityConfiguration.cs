@@ -9,6 +9,13 @@ public sealed class AdmissionApplicationWriteEntityConfiguration : IEntityTypeCo
     {
         builder.ToTable("student_application", "admission");
         builder.HasKey(x => x.ApplicationId);
+        builder.Property(x => x.EntranceTestMarks).HasColumnName("entrance_test_marks");
+        builder.Property(x => x.InterviewPassed).HasColumnName("interview_passed");
+        builder.Property(x => x.StudentId).HasColumnName("student_id");
+        builder.Property(x => x.DecisionNotes).HasColumnName("decision_notes");
+        builder.Property(x => x.DecidedAt).HasColumnName("decided_at");
+        builder.Property(x => x.SubmittedAt).HasColumnName("submitted_at");
+        builder.Property(x => x.RowVersion).IsConcurrencyToken();
         builder.Property(x => x.ApplicationId).HasColumnName("application_id"); builder.Property(x => x.TenantId).HasColumnName("tenant_id");
         builder.Property(x => x.SchoolId).HasColumnName("school_id"); builder.Property(x => x.BranchId).HasColumnName("branch_id");
         builder.Property(x => x.AcademicYearId).HasColumnName("academic_year_id"); builder.Property(x => x.ClassId).HasColumnName("class_id"); builder.Property(x => x.ClassSectionId).HasColumnName("class_section_id");

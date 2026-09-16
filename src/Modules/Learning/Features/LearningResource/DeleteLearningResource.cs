@@ -90,7 +90,7 @@ public static class DeleteLearningResource
                 })
             .WithName("DeleteLearningResource")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

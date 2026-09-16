@@ -32,11 +32,9 @@ public static class ApproveStudentAdmission
     public sealed class Handler(
         IApproveStudentAdmissionCommand command,
         ApproveStudentAdmissionStudentOnboardingQuery onboardingQuery,
-        ApproveStudentAdmissionStudentOnboardingCommand onboardingCommand,
         IIdentityAccountService accounts,
         IBusinessNumberGenerator numberGenerator,
-        TimeProvider timeProvider,
-        ICurrentUser currentUser)
+        TimeProvider timeProvider)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(
@@ -103,51 +101,98 @@ public static class ApproveStudentAdmission
                 7,
                 cancellationToken);
 
-            var userId = student.UserId;
-            if (!userId.HasValue)
+            var guardians = await command.GetLinkedGuardiansWithoutAccountsAsync(
+                request.TenantId,
+                request.StudentId,
+                cancellationToken);
+
+            var guardiansWithoutEmail = guardians
+                .Where(guardian => string.IsNullOrWhiteSpace(guardian.Email))
+                .Select(guardian => guardian.FullName)
+                .ToArray();
+
+            if (guardiansWithoutEmail.Length > 0)
             {
-                var account = await accounts.CreateAccountAsync(
-                    request.TenantId,
-                    student.StudentId,
-                    SmartSchoolRoles.Student,
-                    request.Email,
-                    student.FirstName,
-                    student.LastName ?? string.Empty,
-                    student.SchoolId,
-                    student.BranchId,
-                    [SmartSchoolRoles.Student],
-                    cancellationToken);
-                userId = account.UserId;
+                return Result<Response>.Failure(
+                    Error.Validation(
+                        $"Guardian email is required before admission approval: {string.Join(", ", guardiansWithoutEmail)}."));
+            }
+
+            var provisionedAccountIds = new List<Guid>();
+            Guid? userId = student.UserId;
+
+            try
+            {
+                foreach (var guardian in guardians)
+                {
+                    var nameParts = guardian.FullName.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    var firstName = nameParts[0];
+                    var lastName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
+
+                    var parentAccount = await accounts.CreateAccountAsync(
+                        request.TenantId,
+                        guardian.GuardianId,
+                        SmartSchoolRoles.Parent,
+                        guardian.Email!,
+                        firstName,
+                        lastName,
+                        student.SchoolId,
+                        student.BranchId,
+                        [SmartSchoolRoles.Parent],
+                        cancellationToken);
+
+                    guardian.LinkIdentityAccount(parentAccount.UserId);
+                    provisionedAccountIds.Add(parentAccount.UserId);
+                }
+
+                if (!userId.HasValue)
+                {
+                    var studentAccount = await accounts.CreateAccountAsync(
+                        request.TenantId,
+                        student.StudentId,
+                        SmartSchoolRoles.Student,
+                        request.Email,
+                        student.FirstName,
+                        student.LastName ?? string.Empty,
+                        student.SchoolId,
+                        student.BranchId,
+                        [SmartSchoolRoles.Student],
+                        cancellationToken);
+
+                    userId = studentAccount.UserId;
+                    provisionedAccountIds.Add(studentAccount.UserId);
+                }
+            }
+            catch
+            {
+                foreach (var accountId in provisionedAccountIds)
+                {
+                    await accounts.DeleteAccountAsync(accountId, cancellationToken);
+                }
+
+                throw;
             }
 
             student.ApproveAdmission(userId.Value, studentNumber);
-            await command.UpdateAsync(student, cancellationToken);
 
             var enrollmentNumber = await numberGenerator.NextAsync(
-                $"ENROLLMENT:{student.BranchId}",
-                string.Empty,
-                request.TenantId,
-                3,
-                cancellationToken);
-
-            var enrollment = EnrollmentEntity.Create(
-                request.TenantId,
-                student.StudentId,
-                enrollmentNumber,
-                placement.AcademicYearId,
-                placement.ClassSectionId,
-                DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime),
-                LifecycleStatuses.Active);
-
-            await onboardingCommand.AddEnrollmentAndApprovePlacementAsync(
-                enrollment,
-                request.TenantId,
-                student.StudentId,
-                placement.AcademicYearId,
-                cancellationToken);
+                $"ENROLLMENT:{student.BranchId}", string.Empty, request.TenantId, 3, cancellationToken);
+            var enrollment = EnrollmentEntity.Create(request.TenantId, student.StudentId, enrollmentNumber,
+                placement.AcademicYearId, placement.ClassSectionId,
+                DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime), LifecycleStatuses.Active);
+            try
+            {
+                await command.UpdateAdmissionAsync(student, guardians, enrollment, cancellationToken);
+            }
+            catch
+            {
+                foreach (var accountId in provisionedAccountIds)
+                    await accounts.DeleteAccountAsync(accountId, cancellationToken);
+                throw;
+            }
 
             return Result<Response>.Success(
-                new Response(student.StudentId, currentUser.UserId, student.StudentNumber!, student.Status));
+                new Response(student.StudentId, userId, student.StudentNumber!, student.Status));
         }
     }
 
@@ -160,7 +205,7 @@ public static class ApproveStudentAdmission
             if (!tenantId.HasValue) return Results.BadRequest(new { message = "Tenant is required for SuperAdmin." });
             var command = request with { TenantId = tenantId.Value, StudentId = studentId };
             return (await mediator.SendAsync<Request, Result<Response>>(command, cancellationToken)).ToHttpResult();
-        }).WithName("ApproveStudentAdmission").WithTags("Students").RequireAuthorization();
+        }).WithName("ApproveStudentAdmission").WithTags("Students").RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }
@@ -198,21 +243,16 @@ public sealed class ApproveStudentAdmissionStudentOnboardingQuery(IDbConnectionF
     public async Task<IReadOnlyList<string>> GetMissingRequiredDocumentsAsync(Guid tenantId, Guid studentId, CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT r.display_name
+            SELECT rt.name
             FROM document.required_document r
-            WHERE r.is_active = true
-              AND r.is_required = true
-              AND r.actor_type = 'STUDENT'
-              AND (r.tenant_id IS NULL OR r.tenant_id = @TenantId)
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM document.document d
-                  JOIN document.student_document sd ON sd.document_id = d.document_id
-                  WHERE sd.tenant_id = @TenantId
-                    AND sd.student_id = @StudentId
-                    AND d.document_type = r.document_type
-                    AND d.status = 'ACTIVE'
-              );
+            JOIN document.required_document_type rt ON rt.required_document_type_id = r.required_document_type_id
+                AND rt.tenant_id = r.tenant_id AND rt.is_active
+            JOIN student.student s ON s.tenant_id = r.tenant_id AND s.student_id = @StudentId
+            WHERE r.tenant_id = @TenantId AND r.is_active AND r.is_mandatory
+                AND upper(r.user_role) = 'STUDENT' AND (r.campus_id IS NULL OR r.campus_id = s.branch_id)
+                AND NOT EXISTS (SELECT 1 FROM document.document d WHERE d.tenant_id = r.tenant_id
+                    AND d.owner_id = @StudentId AND d.owner_type = 'StudentDocument' AND d.is_active
+                    AND d.status = 'ACTIVE' AND d.required_document_type_id = r.required_document_type_id);
             """;
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
         var rows = await connection.QueryAsync<string>(new CommandDefinition(sql, new { TenantId = tenantId, StudentId = studentId }, cancellationToken: cancellationToken));
@@ -220,12 +260,14 @@ public sealed class ApproveStudentAdmissionStudentOnboardingQuery(IDbConnectionF
     }
 
 
-    public async Task<AdmissionPlacementReadModel?> GetPendingPlacementAsync(Guid tenantId, Guid studentId, CancellationToken cancellationToken)
+    public sealed record PendingPlacement(Guid AcademicYearId, Guid ClassSectionId, Guid ClassId);
+
+    public async Task<PendingPlacement?> GetPendingPlacementAsync(Guid tenantId, Guid studentId, CancellationToken cancellationToken)
     {
         const string sql = """
             SELECT ap.academic_year_id AS AcademicYearId,
                    ap.class_section_id AS ClassSectionId,
-                   cs.class_id AS ClassId
+                   cs.grade_level_id AS ClassId
             FROM student.admission_placement ap
             JOIN academic.class_section cs ON cs.class_section_id = ap.class_section_id AND cs.tenant_id = ap.tenant_id
             WHERE ap.tenant_id = @TenantId
@@ -235,7 +277,7 @@ public sealed class ApproveStudentAdmissionStudentOnboardingQuery(IDbConnectionF
             LIMIT 1;
             """;
         await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-        return await connection.QuerySingleOrDefaultAsync<AdmissionPlacementReadModel>(new CommandDefinition(sql, new { TenantId = tenantId, StudentId = studentId }, cancellationToken: cancellationToken));
+        return await connection.QuerySingleOrDefaultAsync<PendingPlacement>(new CommandDefinition(sql, new { TenantId = tenantId, StudentId = studentId }, cancellationToken: cancellationToken));
     }
 
 
@@ -253,7 +295,17 @@ public sealed class ApproveStudentAdmissionStudentOnboardingQuery(IDbConnectionF
 public interface IApproveStudentAdmissionCommand
 {
     Task<StudentEntity?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
-    Task UpdateAsync(StudentEntity entity, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<GuardianEntity>> GetLinkedGuardiansWithoutAccountsAsync(
+        Guid tenantId,
+        Guid studentId,
+        CancellationToken cancellationToken);
+
+    Task UpdateAdmissionAsync(
+        StudentEntity student,
+        IReadOnlyCollection<GuardianEntity> guardians,
+        EnrollmentEntity enrollment,
+        CancellationToken cancellationToken);
 }
 
 internal sealed class ApproveStudentAdmissionCommand(IStudentsDbContext dbContext) : IApproveStudentAdmissionCommand
@@ -265,13 +317,36 @@ internal sealed class ApproveStudentAdmissionCommand(IStudentsDbContext dbContex
     }
 
 
-    public async Task UpdateAsync(
-        StudentEntity entity,
+    public async Task<IReadOnlyList<GuardianEntity>> GetLinkedGuardiansWithoutAccountsAsync(
+        Guid tenantId,
+        Guid studentId,
         CancellationToken cancellationToken)
     {
-        dbContext.Students
-            .Update(entity);
+        return await dbContext.StudentGuardians
+            .Where(link => link.TenantId == tenantId && link.StudentId == studentId && link.IsActive)
+            .Join(
+                dbContext.Guardians.Where(guardian => guardian.TenantId == tenantId && guardian.IsActive && !guardian.UserId.HasValue),
+                link => link.GuardianId,
+                guardian => guardian.GuardianId,
+                (_, guardian) => guardian)
+            .ToListAsync(cancellationToken);
+    }
 
+    public async Task UpdateAdmissionAsync(
+        StudentEntity student,
+        IReadOnlyCollection<GuardianEntity> guardians,
+        EnrollmentEntity enrollment,
+        CancellationToken cancellationToken)
+    {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        var placement = await dbContext.AdmissionPlacements.SingleOrDefaultAsync(x => x.TenantId == student.TenantId &&
+            x.StudentId == student.StudentId && x.AcademicYearId == enrollment.AcademicYearId && x.Status == LifecycleStatuses.Pending, cancellationToken);
+        if (placement is null) throw new InvalidOperationException("Pending admission placement was not found.");
+        dbContext.Students.Update(student);
+        dbContext.Guardians.UpdateRange(guardians);
+        dbContext.Enrollments.Add(enrollment);
+        placement.Approve();
         await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 }

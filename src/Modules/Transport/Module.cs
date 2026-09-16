@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Transport.Features.Route;
+using SmartSchool.Modules.Transport.Features.Operations;
+using SmartSchool.Modules.Transport.Features.Driver;
 using SmartSchool.Modules.Transport.Features.Vehicle;
 using SmartSchool.SharedKernel;
 
@@ -27,11 +29,16 @@ public static class Module
     public static IEndpointRouteBuilder MapTransportEndpoints(
         this IEndpointRouteBuilder endpoints)
     {
-        CreateRoute.MapEndpoint(endpoints);
+        GetTransportOperations.MapEndpoint(endpoints);
+        GetDriverWorkspace.MapEndpoint(endpoints);
+        RegisterDriver.MapEndpoint(endpoints);
+        RecordTripStatus.MapEndpoint(endpoints);
+        CreateRouteNotice.MapEndpoint(endpoints);
+        SaveTransportRoute.MapEndpoint(endpoints);
+        AssignTransportStudent.MapEndpoint(endpoints);
         GetRouteById.MapEndpoint(endpoints);
         GetRouteByCampusId.MapEndpoint(endpoints);
         GetRoutePage.MapEndpoint(endpoints);
-        UpdateRoute.MapEndpoint(endpoints);
         DeleteRoute.MapEndpoint(endpoints);
         CreateVehicle.MapEndpoint(endpoints);
         GetVehicleById.MapEndpoint(endpoints);
@@ -40,16 +47,12 @@ public static class Module
         UpdateVehicle.MapEndpoint(endpoints);
         DeleteVehicle.MapEndpoint(endpoints);
 
-        CreateStop.MapEndpoint(endpoints);
-        CreateStudentTransport.MapEndpoint(endpoints);
         DeleteStop.MapEndpoint(endpoints);
         DeleteStudentTransport.MapEndpoint(endpoints);
         GetStopById.MapEndpoint(endpoints);
         GetStopPage.MapEndpoint(endpoints);
         GetStudentTransportById.MapEndpoint(endpoints);
         GetStudentTransportPage.MapEndpoint(endpoints);
-        UpdateStop.MapEndpoint(endpoints);
-        UpdateStudentTransport.MapEndpoint(endpoints);
 
         return endpoints;
     }

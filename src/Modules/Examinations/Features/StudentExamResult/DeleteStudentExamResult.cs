@@ -83,7 +83,7 @@ public static class DeleteStudentExamResult
                 })
             .WithName("DeleteStudentExamResult")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 }

@@ -13,6 +13,7 @@ public sealed class GradeScaleEntityConfiguration
     public void Configure(EntityTypeBuilder<GradeScaleEntity> builder)
     {
         builder.ToTable("grade_scale", schema: "exam");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.HasKey(entity => entity.GradeScaleId);
 
         builder

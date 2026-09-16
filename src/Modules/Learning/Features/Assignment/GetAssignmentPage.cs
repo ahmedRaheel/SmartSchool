@@ -1,165 +1,96 @@
-using SmartSchool.Application.Persistence;
 using Dapper;
-using System.Threading.Tasks;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Application.Requests;
+using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Learning.Authorization;
+using SmartSchool.Modules.Learning.Models;
+using SmartSchool.Modules.Learning.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Modules.Learning.Models;
 
 namespace SmartSchool.Modules.Learning.Features.Assignment;
 
 public static class GetAssignmentPage
 {
-    /// <summary>
-    /// Represents the response returned by this AssignmentEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson,
-    Guid? ClassSectionId,
-    string? ClassSectionCode,
-    string? ClassSectionName,
-    Guid CourseOfferingId,
-    string? CourseOfferingCode,
-    string? CourseOfferingName,
-    Guid? TeachingGroupId,
-    string? TeachingGroupName);
-
-    public sealed record Query(
-        Guid TenantId,
-        int Page = 1,
-        int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
-
-    public interface IGetAssignmentPageQuery
+    public sealed record Query(Guid TenantId, int Page = 1, int PageSize = 25) : IRequest<Result<PagedResult<Item>>>;
+    public sealed record Item(Guid Id, string Code, string Name, string AssignmentTypeCode,
+        string? Description, string ClassSection, string Course, Guid TeacherEmployeeId,
+        DateTimeOffset? DueAt, decimal? TotalMarks, bool AllowLateSubmission, int MaxAttempts,
+        string Status, long SubmissionCount, Guid? MySubmissionId, string? MySubmissionStatus,
+        decimal? MyMarks, string? MyFeedback);
+    public interface IGetAssignmentPageQuery { Task<PagedResult<Item>> GetAsync(Query request, CancellationToken cancellationToken); }
+    internal sealed class GetAssignmentPageQuery(IDbConnectionFactory factory, ICurrentUser user) : IGetAssignmentPageQuery
     {
-        Task<PagedResult<Response>> GetPageAsync(
-                Guid tenantId,
-                int page,
-                int pageSize,
-                CancellationToken cancellationToken);
-
-    }
-
-    internal sealed class GetAssignmentPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetAssignmentPageQuery
-    {
-        public async Task<PagedResult<Response>> GetPageAsync(
-                Guid tenantId,
-                int page,
-                int pageSize,
-                CancellationToken cancellationToken)
-            {
-                const string countSql = """
-                    SELECT COUNT(*)
-                    FROM lms.academic_assignment AS entity
-                    WHERE entity.tenant_id = @TenantId
-                      AND entity.is_active = TRUE;
-                    """;
-
-                const string pageSql = """
-                    SELECT
-                    entity.tenant_id AS "TenantId",
-                    entity.academic_assignment_id AS "Id",
-                    entity.code AS "Code",
-                    entity.name AS "Name",
-                    entity.metadata_json AS "MetadataJson",
-                        p1.class_section_id AS "ClassSectionId",
-                        p1.code AS "ClassSectionCode",
-                        p1.name AS "ClassSectionName",
-                        p2.course_offering_id AS "CourseOfferingId",
-                        p2.code AS "CourseOfferingCode",
-                        p2.name AS "CourseOfferingName",
-                        p3.teaching_group_id AS "TeachingGroupId",
-                        p3.name AS "TeachingGroupName"
-                    FROM lms.academic_assignment AS entity
-                    LEFT JOIN academic.class_section AS p1
-                        ON p1.class_section_id = entity.class_section_id
-                    LEFT JOIN academic.course_offering AS p2
-                        ON p2.course_offering_id = entity.course_offering_id
-                    LEFT JOIN academic.teaching_group AS p3
-                        ON p3.teaching_group_id = entity.teaching_group_id
-                    WHERE entity.tenant_id = @TenantId
-                      AND entity.is_active = TRUE
-                    ORDER BY entity.academic_assignment_id
-                    LIMIT @PageSize OFFSET @Offset;
-                    """;
-
-                await using var connection =
-                    await connectionFactory.OpenConnectionAsync(cancellationToken);
-
-                var parameters = new
-                {
-                    TenantId = tenantId,
-                    PageSize = pageSize,
-                    Offset = (page - 1) * pageSize
-                };
-
-                var totalCount = await connection.ExecuteScalarAsync<long>(
-                    new CommandDefinition(
-                        countSql,
-                        parameters,
-                        cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-                var items = (await connection.QueryAsync<Response>(
-                    new CommandDefinition(
-                        pageSql,
-                        parameters,
-                        cancellationToken: cancellationToken)).ConfigureAwait(false))
-                    .AsList();
-
-                return new PagedResult<Response>(
-                    items,
-                    page,
-                    pageSize,
-                    totalCount);
-            }
-    }
-
-    public sealed class Handler(IGetAssignmentPageQuery query)
-        : IRequestHandler<Query, Result<PagedResult<Response>>>
-    {
-        public async Task<Result<PagedResult<Response>>> HandleAsync(
-            Query request,
-            CancellationToken cancellationToken)
+        public async Task<PagedResult<Item>> GetAsync(Query request, CancellationToken cancellationToken)
         {
-            var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await query.GetPageAsync(
-                request.TenantId,
-                pageRequest.NormalizedPage,
-                pageRequest.NormalizedPageSize,
-                cancellationToken);
-            var response = new PagedResult<Response>(
-                page.Items,
-                page.Page,
-                page.PageSize,
-                page.TotalCount);
-            return Result<PagedResult<Response>>.Success(response);
+            const string filter = """
+                FROM lms.academic_assignment a
+                JOIN academic.class_section cs ON cs.class_section_id = a.class_section_id AND cs.tenant_id = a.tenant_id
+                JOIN academic.course_offering co ON co.course_offering_id = a.course_offering_id AND co.tenant_id = a.tenant_id
+                WHERE a.tenant_id = @TenantId AND a.is_active
+                    AND (@CampusId IS NULL OR a.branch_id = @CampusId)
+                    AND (@ManageAll OR a.teacher_employee_id = @EmployeeId
+                        OR EXISTS (SELECT 1 FROM student.student_enrollment en
+                            WHERE en.tenant_id = a.tenant_id AND en.class_section_id = a.class_section_id
+                                AND en.is_active AND en.status = 'ACTIVE'
+                                AND (en.student_id = @StudentId OR EXISTS (
+                                    SELECT 1 FROM student.student_guardian sg
+                                    JOIN student.guardian g ON g.guardian_id = sg.guardian_id AND g.tenant_id = sg.tenant_id
+                                    WHERE sg.student_id = en.student_id AND sg.tenant_id = a.tenant_id
+                                        AND sg.is_active AND sg.can_view_academics AND g.is_active AND g.user_id = @UserId))))
+                """;
+            const string projection = """
+                SELECT a.academic_assignment_id AS "Id", a.code AS "Code", a.name AS "Name",
+                    a.assignment_type_code AS "AssignmentTypeCode", a.description AS "Description",
+                    cs.name AS "ClassSection", coalesce(co.display_name, co.name) AS "Course",
+                    a.teacher_employee_id AS "TeacherEmployeeId", a.due_at AS "DueAt",
+                    a.total_marks AS "TotalMarks", a.allow_late_submission AS "AllowLateSubmission",
+                    a.max_attempts AS "MaxAttempts", a.status AS "Status",
+                    (SELECT count(DISTINCT s.student_id) FROM lms.student_assignment_submission s
+                        WHERE s.tenant_id = a.tenant_id AND s.academic_assignment_id = a.academic_assignment_id AND s.is_active) AS "SubmissionCount",
+                    (SELECT s.submission_id FROM lms.student_assignment_submission s WHERE s.tenant_id = a.tenant_id
+                        AND s.academic_assignment_id = a.academic_assignment_id AND s.student_id = @StudentId AND s.is_active
+                        ORDER BY s.attempt_no DESC LIMIT 1) AS "MySubmissionId",
+                    (SELECT s.status FROM lms.student_assignment_submission s WHERE s.tenant_id = a.tenant_id
+                        AND s.academic_assignment_id = a.academic_assignment_id AND s.student_id = @StudentId AND s.is_active
+                        ORDER BY s.attempt_no DESC LIMIT 1) AS "MySubmissionStatus",
+                    (SELECT s.marks_obtained FROM lms.student_assignment_submission s WHERE s.tenant_id = a.tenant_id
+                        AND s.academic_assignment_id = a.academic_assignment_id AND s.student_id = @StudentId AND s.is_active
+                        ORDER BY s.attempt_no DESC LIMIT 1) AS "MyMarks",
+                    (SELECT s.teacher_feedback FROM lms.student_assignment_submission s WHERE s.tenant_id = a.tenant_id
+                        AND s.academic_assignment_id = a.academic_assignment_id AND s.student_id = @StudentId AND s.is_active
+                        ORDER BY s.attempt_no DESC LIMIT 1) AS "MyFeedback"
+                """;
+            var page = Math.Max(1, request.Page);
+            var size = Math.Clamp(request.PageSize, 1, 100);
+            var parameters = new { request.TenantId, CampusId = user.BranchId,
+                ManageAll = LearningPermissions.CanManageAll(user),
+                EmployeeId = user.IsInRole(SmartSchoolRoles.Teacher) ? user.EmployeeId ?? user.TeacherId : null,
+                user.StudentId, user.UserId, Size = size, Offset = (page - 1) * size };
+            await using var connection = await factory.OpenConnectionAsync(cancellationToken);
+            var count = await connection.ExecuteScalarAsync<long>(new CommandDefinition("SELECT COUNT(*) " + filter, parameters, cancellationToken: cancellationToken));
+            var rows = await connection.QueryAsync<Item>(new CommandDefinition(projection + filter +
+                " ORDER BY a.assigned_at DESC, a.academic_assignment_id LIMIT @Size OFFSET @Offset", parameters, cancellationToken: cancellationToken));
+            return new(rows.AsList(), page, size, count);
         }
     }
-
+    public sealed class Handler(IGetAssignmentPageQuery query) : IRequestHandler<Query, Result<PagedResult<Item>>>
+    {
+        public async Task<Result<PagedResult<Item>>> HandleAsync(Query request, CancellationToken cancellationToken) =>
+            Result<PagedResult<Item>>.Success(await query.GetAsync(request, cancellationToken));
+    }
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet(
-                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "assignment"),
-                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var request = new Query(tenantId, page, pageSize);
-                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
-                        request, cancellationToken);
-                    return result.ToHttpResult();
-                })
-            .WithName("GetAssignmentPage")
-            .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+        endpoints.MapGet("/api/learning/assignment", async (Guid? tenantId, int? page, int? pageSize,
+            ITenantScope scope, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var tenant = scope.Resolve(tenantId);
+            if (!tenant.HasValue) return Results.BadRequest(new { message = "Select a tenant." });
+            return (await mediator.SendAsync<Query, Result<PagedResult<Item>>>(new(tenant.Value, page ?? 1, pageSize ?? 25), cancellationToken)).ToHttpResult();
+        }).WithName("GetAssignmentPage").WithTags("Learning").RequireAuthorization();
         return endpoints;
     }
 }

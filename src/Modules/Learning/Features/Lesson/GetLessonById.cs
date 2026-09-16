@@ -101,7 +101,7 @@ public static class GetLessonById
                 })
             .WithName("GetLessonById")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel.Constants;
 using Dapper;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -97,7 +98,7 @@ public static class GetAssignmentSubmissionByStudentId
                 })
             .WithName("GetAssignmentSubmissionByStudentId")
             .WithTags("Learning")
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
 
         return endpoints;
     }

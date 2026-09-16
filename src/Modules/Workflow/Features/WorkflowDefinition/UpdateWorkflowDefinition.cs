@@ -1,11 +1,10 @@
-using SmartSchool.Modules.Workflow.Persistence;
-using SmartSchool.Application.Persistence;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Workflow.Models;
+using SmartSchool.Modules.Workflow.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -13,120 +12,19 @@ namespace SmartSchool.Modules.Workflow.Features.WorkflowDefinition;
 
 public static class UpdateWorkflowDefinition
 {
-    /// <summary>
-    /// Represents the response returned by this WorkflowDefinitionEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
-
-    public sealed record Request(
-        Guid TenantId,
-        Guid Id,
-        string Name) : IRequest<Result<Response>>;
-
-    public sealed class Validator : AbstractValidator<Request>
+    public sealed record StepRequest(string Name,string StepType,string? ApproverRole,string? ActionCode,bool IsRequired=true);
+    public sealed record Request(Guid Id,Guid? TenantId,string Name,string? Description,string TriggerType,string EntityType,string Status,IReadOnlyList<StepRequest> Steps):IRequest<Result>;
+    public sealed class Validator:AbstractValidator<Request>{public Validator(){RuleFor(x=>x.Id).NotEmpty();RuleFor(x=>x.Name).NotEmpty().MaximumLength(250);RuleFor(x=>x.Steps).NotEmpty();}}
+    public interface IUpdateWorkflowDefinition{Task<WorkflowDefinitionEntity?> GetAsync(Guid tenantId,Guid id,CancellationToken cancellationToken);Task<bool> HasRunningInstancesAsync(Guid tenantId,Guid id,CancellationToken cancellationToken);Task ReplaceStepsAsync(WorkflowDefinitionEntity entity,IReadOnlyList<WorkflowStepEntity> steps,CancellationToken cancellationToken);}
+    internal sealed class Command(IWorkflowDbContext db):IUpdateWorkflowDefinition
     {
-        public Validator()
-        {
-            RuleFor(x => x.TenantId).NotEmpty();
-            RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-        }
+        public Task<WorkflowDefinitionEntity?> GetAsync(Guid tenantId,Guid id,CancellationToken cancellationToken)=>db.WorkflowDefinitions.SingleOrDefaultAsync(x=>x.TenantId==tenantId&&x.WorkflowDefinitionId==id&&x.IsActive,cancellationToken);
+        public Task<bool> HasRunningInstancesAsync(Guid tenantId,Guid id,CancellationToken cancellationToken)=>db.WorkflowInstances.AnyAsync(x=>x.TenantId==tenantId&&x.WorkflowDefinitionId==id&&x.IsActive&&x.Status=="IN_PROGRESS",cancellationToken);
+        public async Task ReplaceStepsAsync(WorkflowDefinitionEntity entity,IReadOnlyList<WorkflowStepEntity> steps,CancellationToken cancellationToken){await using var tx=await db.Database.BeginTransactionAsync(cancellationToken);var old=await db.WorkflowSteps.Where(x=>x.TenantId==entity.TenantId&&x.WorkflowDefinitionId==entity.WorkflowDefinitionId).ToListAsync(cancellationToken);db.WorkflowSteps.RemoveRange(old);await db.WorkflowSteps.AddRangeAsync(steps,cancellationToken);await db.SaveChangesAsync(cancellationToken);await tx.CommitAsync(cancellationToken);}
     }
-
-    public interface IUpdateWorkflowDefinitionCommand
+    public sealed class Handler(IUpdateWorkflowDefinition command,ITenantScope tenantScope):IRequestHandler<Request,Result>
     {
-        Task UpdateAsync(
-                WorkflowDefinitionEntity entity,
-                CancellationToken cancellationToken);
-Task<WorkflowDefinitionEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken);
-
+        public async Task<Result> HandleAsync(Request request,CancellationToken cancellationToken){var tenantId=tenantScope.Resolve(request.TenantId);if(!tenantId.HasValue)return Result.Failure(Error.Validation("Tenant context is required."));var entity=await command.GetAsync(tenantId.Value,request.Id,cancellationToken);if(entity is null)return Result.Failure(Error.NotFound("Workflow definition was not found."));if(await command.HasRunningInstancesAsync(tenantId.Value,request.Id,cancellationToken))return Result.Failure(Error.Conflict("A running workflow instance uses this definition. Finish it before editing the definition."));entity.UpdateDetails(request.Name,request.Description,request.TriggerType,request.EntityType,request.Status);var steps=request.Steps.Select((x,i)=>WorkflowStepEntity.Create(tenantId.Value,entity.WorkflowDefinitionId,$"{entity.Code}-S{i+1:00}",x.Name,i+1,x.StepType,x.ApproverRole,x.ActionCode,x.IsRequired)).ToList();await command.ReplaceStepsAsync(entity,steps,cancellationToken);return Result.Success();}
     }
-
-    internal sealed class UpdateWorkflowDefinitionCommand(IWorkflowDbContext dbContext) : IUpdateWorkflowDefinitionCommand
-    {
-        public async Task UpdateAsync(
-                WorkflowDefinitionEntity entity,
-                CancellationToken cancellationToken)
-            {
-                dbContext.WorkflowDefinitions
-                    .Update(entity);
-
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-
-        public async Task<WorkflowDefinitionEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken)
-            {
-                return await dbContext.WorkflowDefinitions
-                    .FirstOrDefaultAsync(
-                        x => x.TenantId == tenantId
-                            && x.WorkflowDefinitionId == id,
-                        cancellationToken);
-            }
-    }
-
-    public sealed class Handler(IUpdateWorkflowDefinitionCommand command)
-        : IRequestHandler<Request, Result<Response>>
-    {
-        public async Task<Result<Response>> HandleAsync(
-            Request request,
-            CancellationToken cancellationToken)
-        {
-            var entity = await command.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
-            {
-                return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(WorkflowDefinitionEntity))));
-            }
-
-
-            entity.UpdateDetails(
-                entity.Code,
-                request.Name);
-            await command.UpdateAsync(entity, cancellationToken);
-            return Result<Response>.Success(MapResponse(entity));
-        }
-    }
-
-    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapPut(
-                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "workflow-definition"),
-                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var command = request with { Id = id };
-                    var result = await mediator.SendAsync<Request, Result<Response>>(
-                        command, cancellationToken);
-                    return result.ToHttpResult();
-                })
-            .WithName("UpdateWorkflowDefinition")
-            .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
-        return endpoints;
-    }
-
-    private static Response MapResponse(WorkflowDefinitionEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.WorkflowDefinitionId,
-            entity.Code,
-            entity.Name,
-            entity.MetadataJson);
-    }
+    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints){endpoints.MapPut(ApiRoutes.EntityById(ModuleConstants.RouteSegment,"workflow-definition"),async(Guid id,Request body,IMediator mediator,CancellationToken cancellationToken)=>(await mediator.SendAsync<Request,Result>(body with{Id=id},cancellationToken)).ToHttpResult()).WithName("UpdateWorkflowDefinition").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.WorkflowAdministration);return endpoints;}
 }

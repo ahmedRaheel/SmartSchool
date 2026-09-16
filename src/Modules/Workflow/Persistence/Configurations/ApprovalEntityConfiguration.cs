@@ -4,55 +4,31 @@ using SmartSchool.Modules.Workflow.Models;
 
 namespace SmartSchool.Modules.Workflow.Persistence.Configurations;
 
-/// <summary>
-/// Defines relational persistence rules for <see cref="ApprovalEntity"/>.
-/// </summary>
-public sealed class ApprovalEntityConfiguration
-    : IEntityTypeConfiguration<ApprovalEntity>
+public sealed class ApprovalEntityConfiguration : IEntityTypeConfiguration<ApprovalEntity>
 {
     public void Configure(EntityTypeBuilder<ApprovalEntity> builder)
     {
-        builder.ToTable("approval", schema: "workflow");
-        builder.HasKey(entity => entity.ApprovalId);
-
-        builder
-            .Property(entity => entity.TenantId)
-            .IsRequired();
-
-        builder
-            .Property(entity => entity.IsActive)
-            .IsRequired();
-
-        builder.HasIndex(entity => entity.TenantId);
-
-        builder.Property(entity => entity.CreatedAt).IsRequired();
-        builder.Property(entity => entity.UpdatedAt);
-        builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
-
-        builder
-            .Property(entity => entity.Code)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        builder
-            .HasIndex(entity => new { entity.TenantId, entity.Code })
-            .IsUnique();
-
-        builder
-            .Property(entity => entity.Name)
-            .HasMaxLength(250)
-            .IsRequired();
-
-
-        // Explicit PostgreSQL mappings for synchronized table.
-        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
-        builder.Property(entity => entity.Code).HasColumnName("code");
-        builder.Property(entity => entity.Name).HasColumnName("name");
-        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json");
-        builder.Property(entity => entity.ApprovalId).HasColumnName("approval_id");
+        builder.ToTable("approval", "workflow");
+        builder.HasKey(x => x.ApprovalId);
+        builder.Property(x => x.ApprovalId).HasColumnName("approval_id");
+        builder.Property(x => x.WorkflowInstanceId).HasColumnName("workflow_instance_id").IsRequired();
+        builder.Property(x => x.WorkflowStepId).HasColumnName("workflow_step_id").IsRequired();
+        builder.Property(x => x.TenantId).HasColumnName("tenant_id").IsRequired();
+        builder.Property(x => x.Code).HasColumnName("code").HasMaxLength(100).IsRequired();
+        builder.Property(x => x.Name).HasColumnName("name").HasMaxLength(250).IsRequired();
+        builder.Property(x => x.AssignedRole).HasColumnName("assigned_role").HasMaxLength(100).IsRequired();
+        builder.Property(x => x.Status).HasColumnName("status").HasMaxLength(30).IsRequired();
+        builder.Property(x => x.RequestedAt).HasColumnName("requested_at").IsRequired();
+        builder.Property(x => x.DecisionAt).HasColumnName("decision_at");
+        builder.Property(x => x.DecidedByUserId).HasColumnName("decided_by_user_id");
+        builder.Property(x => x.Comments).HasColumnName("comments").HasMaxLength(2000);
+        builder.Property(x => x.IsActive).HasColumnName("is_active").IsRequired();
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(x => x.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
+        builder.HasIndex(x => new { x.TenantId, x.Status, x.AssignedRole });
+        builder.HasIndex(x => new { x.TenantId, x.WorkflowInstanceId, x.WorkflowStepId }).IsUnique();
+        builder.HasOne<WorkflowInstanceEntity>().WithMany().HasForeignKey(x => x.WorkflowInstanceId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<WorkflowStepEntity>().WithMany().HasForeignKey(x => x.WorkflowStepId).OnDelete(DeleteBehavior.Restrict);
     }
 }

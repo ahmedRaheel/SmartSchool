@@ -21,16 +21,28 @@ public static class UpdateWorkflowStep
     /// <param name="Code">The business code.</param>
     /// <param name="Name">The display name.</param>
     public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
+        Guid TenantId,
+        Guid WorkflowStepId,
+        Guid WorkflowDefinitionId,
+        string Code,
+        string Name,
+        int StepOrder,
+        string StepType,
+        string? ApproverRole,
+        string? ActionCode,
+        bool IsRequired);
 
     public sealed record Request(
         Guid TenantId,
         Guid Id,
-        string Name) : IRequest<Result<Response>>;
+        Guid WorkflowDefinitionId,
+        string Code,
+        string Name,
+        int StepOrder,
+        string StepType,
+        string? ApproverRole,
+        string? ActionCode,
+        bool IsRequired) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -47,7 +59,7 @@ public static class UpdateWorkflowStep
         Task UpdateAsync(
                 WorkflowStepEntity entity,
                 CancellationToken cancellationToken);
-Task<WorkflowStepEntity?> GetByIdAsync(
+        Task<WorkflowStepEntity?> GetByIdAsync(
                 Guid tenantId,
                 Guid id,
                 CancellationToken cancellationToken);
@@ -95,9 +107,17 @@ Task<WorkflowStepEntity?> GetByIdAsync(
             }
 
 
-            entity.UpdateDetails(
-                entity.Code,
-                request.Name);
+            entity = WorkflowStepEntity.Update(
+                request.TenantId,
+                request.Id,
+                request.WorkflowDefinitionId,
+                request.Code,
+                request.Name,
+                request.StepOrder,
+                request.StepType,
+                request.ApproverRole,
+                request.ActionCode,
+                request.IsRequired);
             await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }
@@ -122,11 +142,16 @@ Task<WorkflowStepEntity?> GetByIdAsync(
 
     private static Response MapResponse(WorkflowStepEntity entity)
     {
-        return new Response(
+      return new Response(
             entity.TenantId,
             entity.WorkflowStepId,
+            entity.WorkflowDefinitionId,
             entity.Code,
             entity.Name,
-            entity.MetadataJson);
+            entity.StepOrder,
+            entity.StepType,
+            entity.ApproverRole,
+            entity.ActionCode,
+            entity.IsRequired);
     }
 }

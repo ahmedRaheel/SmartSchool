@@ -53,7 +53,7 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToArray();
 
-    public bool IsSuperAdmin => IsInRole(SmartSchoolRoles.SuperAdmin);
+    public bool IsSuperAdmin => IsInRole(SmartSchoolRoles.SuperAdmin) || IsInRole(SmartSchoolRoles.SuperOwner);
 
     public bool IsImpersonated => GetBoolean(SmartSchoolClaims.Impersonated);
 

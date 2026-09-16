@@ -30,7 +30,7 @@ public static class GetAcademicYearPage
     string? CampusName,
     Guid? SchoolId,
     string? SchoolCode,
-    string? SchoolName);
+    string? SchoolName, DateOnly StartDate, DateOnly EndDate, bool IsCurrent);
 
     public sealed record Query(
         Guid TenantId,
@@ -79,7 +79,7 @@ public static class GetAcademicYearPage
                         p1.name AS "CampusName",
                         p2.school_id AS "SchoolId",
                         p2.code AS "SchoolCode",
-                        p2.name AS "SchoolName"
+                        p2.name AS "SchoolName", entity.start_date AS "StartDate", entity.end_date AS "EndDate", entity.is_current AS "IsCurrent"
                     FROM academic.academic_year AS entity
                     LEFT JOIN org.campus AS p1
                         ON p1.campus_id = entity.campus_id

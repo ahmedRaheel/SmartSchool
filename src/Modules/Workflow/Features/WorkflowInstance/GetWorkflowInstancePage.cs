@@ -1,143 +1,18 @@
-using SmartSchool.Application.Persistence;
+using SmartSchool.SharedKernel.Constants;
 using Dapper;
-using System.Threading.Tasks;
 using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
-using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Modules.Workflow.Models;
-
 namespace SmartSchool.Modules.Workflow.Features.WorkflowInstance;
-
 public static class GetWorkflowInstancePage
 {
-    /// <summary>
-    /// Represents the response returned by this WorkflowInstanceEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
-
-    public sealed record Query(
-        Guid TenantId,
-        int Page = 1,
-        int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
-
-    public interface IGetWorkflowInstancePageQuery
-    {
-        Task<PagedResult<Response>> GetPageAsync(
-                Guid tenantId,
-                int page,
-                int pageSize,
-                CancellationToken cancellationToken);
-
-    }
-
-    internal sealed class GetWorkflowInstancePageQuery(
-        IDbConnectionFactory connectionFactory) : IGetWorkflowInstancePageQuery
-    {
-        public async Task<PagedResult<Response>> GetPageAsync(
-                Guid tenantId,
-                int page,
-                int pageSize,
-                CancellationToken cancellationToken)
-            {
-                const string countSql = """
-                    SELECT COUNT(*)
-                    FROM workflow.workflowinstance
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
-                    """;
-
-                const string pageSql = """
-                    SELECT
-                    tenant_id AS "TenantId",
-                    workflow_instance_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM workflow.workflowinstance
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY workflow_instance_id
-                    LIMIT @PageSize OFFSET @Offset;
-                    """;
-
-                await using var connection =
-                    await connectionFactory.OpenConnectionAsync(cancellationToken);
-
-                var parameters = new
-                {
-                    TenantId = tenantId,
-                    PageSize = pageSize,
-                    Offset = (page - 1) * pageSize
-                };
-
-                var totalCount = await connection.ExecuteScalarAsync<long>(
-                    new CommandDefinition(
-                        countSql,
-                        parameters,
-                        cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-                var items = (await connection.QueryAsync<Response>(
-                    new CommandDefinition(
-                        pageSql,
-                        parameters,
-                        cancellationToken: cancellationToken)).ConfigureAwait(false))
-                    .AsList();
-
-                return new PagedResult<Response>(
-                    items,
-                    page,
-                    pageSize,
-                    totalCount);
-            }
-    }
-
-    public sealed class Handler(IGetWorkflowInstancePageQuery query)
-        : IRequestHandler<Query, Result<PagedResult<Response>>>
-    {
-        public async Task<Result<PagedResult<Response>>> HandleAsync(
-            Query request,
-            CancellationToken cancellationToken)
-        {
-            var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await query.GetPageAsync(
-                request.TenantId,
-                pageRequest.NormalizedPage,
-                pageRequest.NormalizedPageSize,
-                cancellationToken);
-            var response = new PagedResult<Response>(
-                page.Items,
-                page.Page,
-                page.PageSize,
-                page.TotalCount);
-            return Result<PagedResult<Response>>.Success(response);
-        }
-    }
-
-    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapGet(
-                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "workflow-instance"),
-                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var request = new Query(tenantId, page, pageSize);
-                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
-                        request, cancellationToken);
-                    return result.ToHttpResult();
-                })
-            .WithName("GetWorkflowInstancePage")
-            .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
-        return endpoints;
-    }
+ public sealed record Response(Guid TenantId,Guid Id,Guid WorkflowDefinitionId,string DefinitionName,string Code,string Name,string EntityType,Guid? EntityId,string Status,int CurrentStepOrder,DateTimeOffset StartedAt,DateTimeOffset? CompletedAt,string? ContextJson);
+ public sealed record Query(Guid? TenantId,int Page=1,int PageSize=25):IRequest<Result<PagedResult<Response>>>;
+ public interface IGetWorkflowInstancePage{Task<PagedResult<Response>> ExecuteAsync(Guid tenantId,int page,int pageSize,CancellationToken cancellationToken);}
+ internal sealed class QueryService(IDbConnectionFactory factory):IGetWorkflowInstancePage{public async Task<PagedResult<Response>> ExecuteAsync(Guid tenantId,int page,int pageSize,CancellationToken cancellationToken){const string countSql="SELECT COUNT(*) FROM workflow.workflowinstance WHERE tenant_id=@TenantId AND is_active=TRUE";const string sql="""SELECT i.tenant_id AS "TenantId",i.workflow_instance_id AS "Id",i.workflow_definition_id AS "WorkflowDefinitionId",d.name AS "DefinitionName",i.code AS "Code",i.name AS "Name",i.entity_type AS "EntityType",i.entity_id AS "EntityId",i.status AS "Status",i.current_step_order AS "CurrentStepOrder",i.started_at AS "StartedAt",i.completed_at AS "CompletedAt",i.context_json::text AS "ContextJson" FROM workflow.workflowinstance i JOIN workflow.workflowdefinition d ON d.workflow_definition_id=i.workflow_definition_id AND d.tenant_id=i.tenant_id WHERE i.tenant_id=@TenantId AND i.is_active=TRUE ORDER BY i.started_at DESC LIMIT @PageSize OFFSET @Offset;""";await using var c=await factory.OpenConnectionAsync(cancellationToken);var p=new{TenantId=tenantId,PageSize=pageSize,Offset=(page-1)*pageSize};var total=await c.ExecuteScalarAsync<long>(new CommandDefinition(countSql,p,cancellationToken:cancellationToken));var items=(await c.QueryAsync<Response>(new CommandDefinition(sql,p,cancellationToken:cancellationToken))).AsList();return new PagedResult<Response>(items,page,pageSize,total);}}
+ public sealed class Handler(IGetWorkflowInstancePage query,ITenantScope tenantScope):IRequestHandler<Query,Result<PagedResult<Response>>>{public async Task<Result<PagedResult<Response>>> HandleAsync(Query request,CancellationToken cancellationToken){var tenant=tenantScope.Resolve(request.TenantId);if(!tenant.HasValue)return Result<PagedResult<Response>>.Failure(Error.Validation("Tenant context is required."));var page=new PageRequest(request.Page,request.PageSize);return Result<PagedResult<Response>>.Success(await query.ExecuteAsync(tenant.Value,page.NormalizedPage,page.NormalizedPageSize,cancellationToken));}}
+ public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints){endpoints.MapGet(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment,"workflow-instance"),async(Guid? tenantId,int page,int pageSize,IMediator mediator,CancellationToken cancellationToken)=>(await mediator.SendAsync<Query,Result<PagedResult<Response>>>(new Query(tenantId,page,pageSize),cancellationToken)).ToHttpResult()).WithName("GetWorkflowInstancePage").WithTags(ModuleConstants.Name).RequireAuthorization();return endpoints;}
 }

@@ -97,6 +97,14 @@ public static class GetDocumentById
                     var result = await mediator.SendAsync<Query, Result<Response>>(
                         new Query(documentId, tenantId, currentUser.BranchId),
                         cancellationToken);
+                    if (result.IsSuccess && result.Value is not null && !Authorization.DocumentPermissions.CanManage(currentUser))
+                    {
+                        var ownIds = new[] { currentUser.StudentId, currentUser.EmployeeId, currentUser.TeacherId, currentUser.DriverId };
+                        if (!ownIds.Contains(result.Value.OwnerId))
+                        {
+                            return Results.Forbid();
+                        }
+                    }
                     return result.ToHttpResult();
                 })
             .WithName("GetDocumentById")

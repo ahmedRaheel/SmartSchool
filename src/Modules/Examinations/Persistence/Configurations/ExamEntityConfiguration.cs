@@ -14,6 +14,7 @@ public sealed class ExamEntityConfiguration
     {
         builder.ToTable("exam", schema: "exam");
         builder.HasKey(entity => entity.ExamId);
+        builder.Property(entity => entity.ClassSectionId).HasColumnName("class_section_id");
 
         builder
             .Property(entity => entity.TenantId)

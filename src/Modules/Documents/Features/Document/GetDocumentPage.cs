@@ -17,6 +17,7 @@ public static class GetDocumentPage
         string DocumentNumber,
         string DocumentTypeCode,
         string DocumentTypeName,
+        Guid? RequiredDocumentTypeId,
         string OwnerType,
         Guid OwnerId,
         string FileName,
@@ -39,7 +40,7 @@ public static class GetDocumentPage
                 FROM document.document d
                 WHERE d.tenant_id = @TenantId
                   AND (@CampusId IS NULL OR d.campus_id = @CampusId)
-                  AND (@OwnerType IS NULL OR d.owner_type = @OwnerType)
+                  AND (@OwnerType IS NULL OR LOWER(d.owner_type) = LOWER(@OwnerType))
                   AND (@OwnerId IS NULL OR d.owner_id = @OwnerId)
                   AND d.is_active = TRUE;
                 """;
@@ -49,6 +50,7 @@ public static class GetDocumentPage
                     d.document_number AS "DocumentNumber",
                     dt.code AS "DocumentTypeCode",
                     dt.name AS "DocumentTypeName",
+                    d.required_document_type_id AS "RequiredDocumentTypeId",
                     d.owner_type AS "OwnerType",
                     d.owner_id AS "OwnerId",
                     d.original_file_name AS "FileName",
@@ -58,7 +60,7 @@ public static class GetDocumentPage
                 JOIN document.document_type dt ON dt.document_type_id = d.document_type_id
                 WHERE d.tenant_id = @TenantId
                   AND (@CampusId IS NULL OR d.campus_id = @CampusId)
-                  AND (@OwnerType IS NULL OR d.owner_type = @OwnerType)
+                  AND (@OwnerType IS NULL OR LOWER(d.owner_type) = LOWER(@OwnerType))
                   AND (@OwnerId IS NULL OR d.owner_id = @OwnerId)
                   AND d.is_active = TRUE
                 ORDER BY d.created_at DESC
@@ -69,7 +71,7 @@ public static class GetDocumentPage
             {
                 TenantId = tenantId,
                 CampusId = campusId,
-                OwnerType = ownerType?.ToUpperInvariant(),
+                OwnerType = ownerType,
                 OwnerId = ownerId,
                 Offset = (page - 1) * pageSize,
                 PageSize = pageSize
@@ -95,14 +97,23 @@ public static class GetDocumentPage
     {
         endpoints.MapGet(
                 "/api/documents",
-                async (string? ownerType, Guid? ownerId, int? page, int? pageSize, ICurrentUser currentUser, IMediator mediator, CancellationToken cancellationToken) =>
+                async (Guid? tenantId, ITenantScope tenantScope, string? ownerType, Guid? ownerId, int? page, int? pageSize, ICurrentUser currentUser, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    if (currentUser.TenantId is not Guid tenantId)
+                    if (tenantScope.Resolve(tenantId) is not Guid resolvedTenantId)
                     {
                         return Results.Forbid();
                     }
 
-                    var query = new Query(tenantId, currentUser.BranchId, ownerType, ownerId, Math.Max(1, page ?? 1), Math.Clamp(pageSize ?? 20, 1, 100));
+                    if (!Authorization.DocumentPermissions.CanManage(currentUser))
+                    {
+                        var ownIds = new[] { currentUser.StudentId, currentUser.EmployeeId, currentUser.TeacherId, currentUser.DriverId };
+                        if (!ownerId.HasValue || !ownIds.Contains(ownerId))
+                        {
+                            return Results.Forbid();
+                        }
+                    }
+
+                    var query = new Query(resolvedTenantId, currentUser.BranchId, ownerType, ownerId, Math.Max(1, page ?? 1), Math.Clamp(pageSize ?? 20, 1, 100));
                     var result = await mediator.SendAsync<Query, Result<Response>>(query, cancellationToken);
                     return result.ToHttpResult();
                 })

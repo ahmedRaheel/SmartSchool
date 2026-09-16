@@ -109,7 +109,7 @@ public static class UpdateStudentExamResult
                 })
             .WithName("UpdateStudentExamResult")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 

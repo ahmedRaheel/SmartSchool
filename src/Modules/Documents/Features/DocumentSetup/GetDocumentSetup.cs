@@ -55,7 +55,7 @@ public static class GetDocumentSetup
                     owner_type AS "OwnerType"
                 FROM document.document_type
                 WHERE tenant_id = @TenantId
-                  AND (campus_id IS NULL OR campus_id = @CampusId)
+                  AND (@CampusId IS NULL OR campus_id IS NULL OR campus_id = @CampusId)
                   AND is_active = TRUE
                 ORDER BY name;
                 """;
@@ -68,7 +68,7 @@ public static class GetDocumentSetup
                     NULL::text AS "OwnerType"
                 FROM document.required_document_type
                 WHERE tenant_id = @TenantId
-                  AND (campus_id IS NULL OR campus_id = @CampusId)
+                  AND (@CampusId IS NULL OR campus_id IS NULL OR campus_id = @CampusId)
                   AND is_active = TRUE
                 ORDER BY name;
                 """;
@@ -86,7 +86,8 @@ public static class GetDocumentSetup
                        document.required_document.required_document_type_id
                 WHERE document.required_document.tenant_id = @TenantId
                   AND (
-                      document.required_document.campus_id IS NULL
+                      @CampusId IS NULL
+                      OR document.required_document.campus_id IS NULL
                       OR document.required_document.campus_id = @CampusId)
                   AND document.required_document.is_active = TRUE
                 ORDER BY
@@ -150,17 +151,19 @@ public static class GetDocumentSetup
         endpoints.MapGet(
                 "/api/documents/setup",
                 async (
+                    Guid? tenantId,
+                    ITenantScope tenantScope,
                     ICurrentUser currentUser,
                     IMediator mediator,
                     CancellationToken cancellationToken) =>
                 {
-                    if (currentUser.TenantId is not Guid tenantId)
+                    if (tenantScope.Resolve(tenantId) is not Guid resolvedTenantId)
                     {
                         return Results.Forbid();
                     }
 
                     var query = new Query(
-                        tenantId,
+                        resolvedTenantId,
                         currentUser.BranchId);
 
                     var result = await mediator.SendAsync<Query, Result<Response>>(

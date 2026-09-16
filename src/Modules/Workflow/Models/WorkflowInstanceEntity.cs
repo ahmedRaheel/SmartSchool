@@ -2,66 +2,100 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Workflow.Models;
 
-/// <summary>
-/// Represents the WorkflowInstanceEntity domain entity.
-/// </summary>
+/// <summary>Represents one execution of a workflow definition for a business entity.</summary>
 public sealed class WorkflowInstanceEntity : Entity
 {
-    /// <summary>Gets the entity-specific identifier.</summary>
+    private WorkflowInstanceEntity() { }
+
     public Guid WorkflowInstanceId { get; private set; } = Guid.NewGuid();
-
-    private WorkflowInstanceEntity()
-    {
-    }
-
-    /// <summary>Gets the business code.</summary>
+    public Guid WorkflowDefinitionId { get; private set; }
     public string Code { get; private set; } = string.Empty;
-
-    /// <summary>Gets the display name.</summary>
     public string Name { get; private set; } = string.Empty;
+    public string EntityType { get; private set; } = string.Empty;
+    public Guid? EntityId { get; private set; }
+    public string Status { get; private set; } = "IN_PROGRESS";
+    public int CurrentStepOrder { get; private set; }
+    public Guid StartedByUserId { get; private set; }
+    public DateTimeOffset StartedAt { get; private set; }
+    public DateTimeOffset? CompletedAt { get; private set; }
+    public string? ContextJson { get; private set; }
 
-    /// <summary>Gets optional domain metadata serialized as JSON.</summary>
-    public string? MetadataJson { get; private set; }
-
-    /// <summary>Creates a new WorkflowInstanceEntity.</summary>
-    /// <param name="tenantId">The owning tenant identifier.</param>
-    /// <param name="code">The business code.</param>
-    /// <param name="name">The display name.</param>
-    /// <param name="metadataJson">Optional domain metadata.</param>
-    /// <returns>The newly created entity.</returns>
     public static WorkflowInstanceEntity Create(
         Guid tenantId,
+        Guid workflowDefinitionId,
         string code,
         string name,
-        string? metadataJson = null)
+        string entityType,
+        Guid? entityId,
+        Guid startedByUserId,
+        string? contextJson)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(entityType);
 
         return new WorkflowInstanceEntity
         {
             TenantId = tenantId,
+            WorkflowDefinitionId = workflowDefinitionId,
             Code = code.Trim(),
             Name = name.Trim(),
-            MetadataJson = metadataJson
+            EntityType = entityType.Trim().ToUpperInvariant(),
+            EntityId = entityId,
+            StartedByUserId = startedByUserId,
+            StartedAt = DateTimeOffset.UtcNow,
+            ContextJson = string.IsNullOrWhiteSpace(contextJson) ? null : contextJson.Trim()
         };
     }
 
-    /// <summary>Updates the business details.</summary>
-    /// <param name="code">The new business code.</param>
-    /// <param name="name">The new display name.</param>
-    /// <param name="metadataJson">Optional domain metadata.</param>
-    public void UpdateDetails(
-        string code,
-        string name,
-        string? metadataJson = null)
+    public static WorkflowInstanceEntity Update(
+       Guid tenantId,
+       Guid workflowIntanceId,
+       Guid workflowDefinitionId,
+       string code,
+       string name,
+       string entityType,
+       Guid? entityId,
+       Guid startedByUserId,
+       string? contextJson)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(entityType);
 
-        Code = code.Trim();
-        Name = name.Trim();
-        MetadataJson = metadataJson;
+        return new WorkflowInstanceEntity
+        {
+            TenantId = tenantId,
+            WorkflowInstanceId = workflowIntanceId,
+            WorkflowDefinitionId = workflowDefinitionId,
+            Code = code.Trim(),
+            Name = name.Trim(),
+            EntityType = entityType.Trim().ToUpperInvariant(),
+            EntityId = entityId,
+            StartedByUserId = startedByUserId,
+            StartedAt = DateTimeOffset.UtcNow,
+            ContextJson = string.IsNullOrWhiteSpace(contextJson) ? null : contextJson.Trim()
+        };
+    }
+
+    public void MoveToStep(int stepOrder)
+    {
+        CurrentStepOrder = stepOrder;
+        Status = "IN_PROGRESS";
+        MarkAsUpdated();
+    }
+
+    public void Complete()
+    {
+        Status = "COMPLETED";
+        CompletedAt = DateTimeOffset.UtcNow;
+        MarkAsUpdated();
+    }
+
+    public void Reject()
+    {
+        Status = "REJECTED";
+        CompletedAt = DateTimeOffset.UtcNow;
         MarkAsUpdated();
     }
 }

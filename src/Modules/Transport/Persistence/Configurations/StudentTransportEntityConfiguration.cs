@@ -12,7 +12,11 @@ public sealed class StudentTransportEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<StudentTransportEntity> builder)
     {
-        builder.ToTable("StudentTransport", schema: "transport");
+        builder.ToTable("studenttransport", schema: "transport");
+        builder.Property(entity => entity.StudentId).HasColumnName("student_id");
+        builder.Property(entity => entity.RouteId).HasColumnName("route_id");
+        builder.Property(entity => entity.StopId).HasColumnName("stop_id");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.HasKey(entity => entity.StudentTransportId);
 
         builder

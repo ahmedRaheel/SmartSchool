@@ -4,69 +4,32 @@ using SmartSchool.Modules.Activities.Models;
 
 namespace SmartSchool.Modules.Activities.Persistence.Configurations;
 
-/// <summary>
-/// Defines relational persistence rules for <see cref="StudentActivityEntity"/>.
-/// </summary>
-public sealed class StudentActivityEntityConfiguration
-    : IEntityTypeConfiguration<StudentActivityEntity>
+public sealed class StudentActivityEntityConfiguration : IEntityTypeConfiguration<StudentActivityEntity>
 {
     public void Configure(EntityTypeBuilder<StudentActivityEntity> builder)
     {
-        builder.ToTable("student_activity", schema: "activity");
-        builder.HasKey(entity => entity.ActivityId);
+        builder.ToTable("student_activity", "activity");
+        builder.HasKey(entity => entity.StudentActivityId);
 
-        builder
-            .Property(entity => entity.TenantId)
-            .IsRequired();
-
-        builder
-            .Property(entity => entity.IsActive)
-            .IsRequired();
-
-        builder.HasIndex(entity => entity.TenantId);
-
-        builder.Property(entity => entity.CreatedAt).IsRequired();
-        builder.Property(entity => entity.UpdatedAt);
-        builder.Property(entity => entity.RowVersion).IsRequired().IsConcurrencyToken();
-
-        builder
-            .Property(entity => entity.Code)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        builder
-            .HasIndex(entity => new { entity.TenantId, entity.Code })
-            .IsUnique();
-
-        builder
-            .Property(entity => entity.Name)
-            .HasMaxLength(250)
-            .IsRequired();
-
-
-        // Canonical database mapping generated from SmartSchoolComplete.sql.
-        builder.Property(entity => entity.Code).HasColumnName("code");
-        builder.Property(entity => entity.Name).HasColumnName("name");
-        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
-        builder.Property(entity => entity.ActivityId).HasColumnName("id");
-        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
-        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
-        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
-        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
-        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
-
-        // Database columns synchronized from SmartSchoolComplete.sql.
-        builder.Property(entity => entity.ActivityId).HasColumnName("activity_id");
-        builder.Property(entity => entity.StudentId).HasColumnName("student_id");
-        builder.Property(entity => entity.RoleName).HasColumnName("role_name");
-        builder.Property(entity => entity.JoinedAt).HasColumnName("joined_at");
+        builder.Property(entity => entity.StudentActivityId).HasColumnName("student_activity_id");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id").IsRequired();
+        builder.Property(entity => entity.ActivityId).HasColumnName("activity_id").IsRequired();
+        builder.Property(entity => entity.StudentId).HasColumnName("student_id").IsRequired();
+        builder.Property(entity => entity.RoleName).HasColumnName("role_name").HasMaxLength(100);
+        builder.Property(entity => entity.JoinedAt).HasColumnName("joined_at").IsRequired();
         builder.Property(entity => entity.LeftAt).HasColumnName("left_at");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active").IsRequired();
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version").IsRequired().IsConcurrencyToken();
 
-        // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
+        builder.HasIndex(entity => new { entity.TenantId, entity.ActivityId, entity.StudentId })
+            .IsUnique()
+            .HasFilter("is_active = TRUE");
+
         builder.HasOne<ActivityEntity>()
             .WithMany()
             .HasForeignKey(entity => entity.ActivityId)
             .OnDelete(DeleteBehavior.Restrict);
-
     }
 }

@@ -14,6 +14,11 @@ public sealed class EmployeeDocumentEntityConfiguration
     public void Configure(EntityTypeBuilder<EmployeeDocumentEntity> builder)
     {
         builder.ToTable("employeedocument", schema: "document");
+        builder.Property(entity => entity.CreatedAt).HasColumnName("created_at");
+        builder.Property(entity => entity.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
         builder.HasKey(document => document.EmployeeDocumentId);
 
         builder.Property(document => document.TenantId).IsRequired();

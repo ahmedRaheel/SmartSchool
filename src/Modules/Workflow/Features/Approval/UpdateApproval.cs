@@ -1,132 +1,21 @@
-using SmartSchool.Modules.Workflow.Persistence;
-using SmartSchool.Application.Persistence;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
-using FluentValidation;
-using SmartSchool.Application.Messaging;
-using SmartSchool.Modules.Workflow.Models;
-using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
+using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
+using SmartSchool.Modules.Workflow.Models;
+using SmartSchool.Modules.Workflow.Persistence;
+using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Workflow.Features.Approval;
-
 public static class UpdateApproval
 {
-    /// <summary>
-    /// Represents the response returned by this ApprovalEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
-
-    public sealed record Request(
-        Guid TenantId,
-        Guid Id,
-        string Name) : IRequest<Result<Response>>;
-
-    public sealed class Validator : AbstractValidator<Request>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.TenantId).NotEmpty();
-            RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-        }
-    }
-
-    public interface IUpdateApprovalCommand
-    {
-        Task UpdateAsync(
-                ApprovalEntity entity,
-                CancellationToken cancellationToken);
-Task<ApprovalEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken);
-
-    }
-
-    internal sealed class UpdateApprovalCommand(IWorkflowDbContext dbContext) : IUpdateApprovalCommand
-    {
-        public async Task UpdateAsync(
-                ApprovalEntity entity,
-                CancellationToken cancellationToken)
-            {
-                dbContext.Approvals
-                    .Update(entity);
-
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-
-        public async Task<ApprovalEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken)
-            {
-                return await dbContext.Approvals
-                    .FirstOrDefaultAsync(
-                        x => x.TenantId == tenantId
-                            && x.ApprovalId == id,
-                        cancellationToken);
-            }
-    }
-
-    public sealed class Handler(IUpdateApprovalCommand command)
-        : IRequestHandler<Request, Result<Response>>
-    {
-        public async Task<Result<Response>> HandleAsync(
-            Request request,
-            CancellationToken cancellationToken)
-        {
-            var entity = await command.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
-            if (entity is null)
-            {
-                return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(ApprovalEntity))));
-            }
-
-
-            entity.UpdateDetails(
-                entity.Code,
-                request.Name);
-            await command.UpdateAsync(entity, cancellationToken);
-            return Result<Response>.Success(MapResponse(entity));
-        }
-    }
-
-    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapPut(
-                ApiRoutes.EntityById(ModuleConstants.RouteSegment, "approval"),
-                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var command = request with { Id = id };
-                    var result = await mediator.SendAsync<Request, Result<Response>>(
-                        command, cancellationToken);
-                    return result.ToHttpResult();
-                })
-            .WithName("UpdateApproval")
-            .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
-        return endpoints;
-    }
-
-    private static Response MapResponse(ApprovalEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.ApprovalId,
-            entity.Code,
-            entity.Name,
-            entity.MetadataJson);
-    }
+ public sealed record Request(Guid Id,Guid? TenantId,string Decision,string? Comments):IRequest<Result>;
+ public sealed class Validator:AbstractValidator<Request>{public Validator(){RuleFor(x=>x.Id).NotEmpty();RuleFor(x=>x.Decision).Must(x=>x.ToUpperInvariant() is "APPROVED" or "REJECTED");RuleFor(x=>x.Comments).MaximumLength(2000);}}
+ public interface IUpdateApproval{Task<ApprovalEntity?> GetAsync(Guid tenantId,Guid id,CancellationToken cancellationToken);Task<WorkflowInstanceEntity?> GetInstanceAsync(Guid tenantId,Guid id,CancellationToken cancellationToken);Task<List<WorkflowStepEntity>> GetStepsAsync(Guid tenantId,Guid definitionId,CancellationToken cancellationToken);Task SaveAsync(ApprovalEntity approval,WorkflowInstanceEntity instance,ApprovalEntity? next,CancellationToken cancellationToken);}
+ internal sealed class Command(IWorkflowDbContext db):IUpdateApproval{public Task<ApprovalEntity?> GetAsync(Guid tenantId,Guid id,CancellationToken cancellationToken)=>db.Approvals.SingleOrDefaultAsync(x=>x.TenantId==tenantId&&x.ApprovalId==id&&x.IsActive,cancellationToken);public Task<WorkflowInstanceEntity?> GetInstanceAsync(Guid tenantId,Guid id,CancellationToken cancellationToken)=>db.WorkflowInstances.SingleOrDefaultAsync(x=>x.TenantId==tenantId&&x.WorkflowInstanceId==id&&x.IsActive,cancellationToken);public Task<List<WorkflowStepEntity>> GetStepsAsync(Guid tenantId,Guid definitionId,CancellationToken cancellationToken)=>db.WorkflowSteps.Where(x=>x.TenantId==tenantId&&x.WorkflowDefinitionId==definitionId&&x.IsActive).OrderBy(x=>x.StepOrder).ToListAsync(cancellationToken);public async Task SaveAsync(ApprovalEntity approval,WorkflowInstanceEntity instance,ApprovalEntity? next,CancellationToken cancellationToken){await using var tx=await db.Database.BeginTransactionAsync(cancellationToken);if(next is not null)await db.Approvals.AddAsync(next,cancellationToken);await db.SaveChangesAsync(cancellationToken);await tx.CommitAsync(cancellationToken);}}
+ public sealed class Handler(IUpdateApproval command,IBusinessNumberGenerator numberGenerator,ITenantScope tenantScope,ICurrentUser currentUser):IRequestHandler<Request,Result>
+ {public async Task<Result> HandleAsync(Request request,CancellationToken cancellationToken){var tenant=tenantScope.Resolve(request.TenantId);if(!tenant.HasValue)return Result.Failure(Error.Validation("Tenant context is required."));var approval=await command.GetAsync(tenant.Value,request.Id,cancellationToken);if(approval is null)return Result.Failure(Error.NotFound("Approval was not found."));if(!approval.Status.Equals("PENDING",StringComparison.OrdinalIgnoreCase))return Result.Failure(Error.Conflict("This approval has already been decided."));var isAssigned=currentUser.Roles.Any(r=>r.Equals(approval.AssignedRole,StringComparison.OrdinalIgnoreCase));if(!isAssigned&&!currentUser.IsSuperAdmin)return Result.Failure(Error.Forbidden("This approval is assigned to a different role."));var instance=await command.GetInstanceAsync(tenant.Value,approval.WorkflowInstanceId,cancellationToken);if(instance is null||instance.Status!="IN_PROGRESS")return Result.Failure(Error.Conflict("The workflow instance is no longer awaiting a decision."));approval.Decide(request.Decision,currentUser.UserId,request.Comments);if(request.Decision.Equals("REJECTED",StringComparison.OrdinalIgnoreCase)){instance.Reject();await command.SaveAsync(approval,instance,null,cancellationToken);return Result.Success();}var steps=await command.GetStepsAsync(tenant.Value,instance.WorkflowDefinitionId,cancellationToken);var next=steps.FirstOrDefault(x=>x.StepOrder>instance.CurrentStepOrder&&x.StepType.Equals("APPROVAL",StringComparison.OrdinalIgnoreCase));ApprovalEntity? nextApproval=null;if(next is null){instance.Complete();}else{instance.MoveToStep(next.StepOrder);var code=await numberGenerator.NextAsync("WorkflowApproval","WFA",tenant,7,cancellationToken);nextApproval=ApprovalEntity.Create(tenant.Value,instance.WorkflowInstanceId,next.WorkflowStepId,code,$"{instance.Name}: {next.Name}",next.ApproverRole!);}await command.SaveAsync(approval,instance,nextApproval,cancellationToken);return Result.Success();}}
+ public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints){endpoints.MapPut(ApiRoutes.EntityById(ModuleConstants.RouteSegment,"approval"),async(Guid id,Request body,IMediator mediator,CancellationToken cancellationToken)=>(await mediator.SendAsync<Request,Result>(body with{Id=id},cancellationToken)).ToHttpResult()).WithName("ProcessWorkflowApproval").WithTags(ModuleConstants.Name).RequireAuthorization();return endpoints;}
 }

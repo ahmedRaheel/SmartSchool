@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel.Constants;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Http;
@@ -74,7 +75,7 @@ public static class UpdateDocument
                 })
             .WithName("UpdateDocument")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 

@@ -12,7 +12,8 @@ public sealed class LearningResourceEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<LearningResourceEntity> builder)
     {
-        builder.ToTable("LearningResource", schema: "lms");
+        builder.ToTable("learningresource", schema: "lms");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.HasKey(entity => entity.LearningResourceId);
 
         builder

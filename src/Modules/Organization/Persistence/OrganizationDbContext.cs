@@ -70,5 +70,9 @@ public sealed class OrganizationDbContext(DbContextOptions<OrganizationDbContext
             typeof(OrganizationDbContext).Assembly,
             type => type.Namespace is not null
                 && type.Namespace.StartsWith("SmartSchool.Modules.Organization.Persistence.Configurations", StringComparison.Ordinal));
+
+        // These retired projections and document models are not part of the active persistence model.
+        modelBuilder.Ignore<SectionEntity>();
+        modelBuilder.Ignore<SchoolDocumentEntity>();
     }
 }

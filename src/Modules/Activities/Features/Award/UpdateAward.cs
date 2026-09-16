@@ -1,11 +1,10 @@
-using SmartSchool.Modules.Activities.Persistence;
-using SmartSchool.Application.Persistence;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Activities.Models;
+using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -13,93 +12,66 @@ namespace SmartSchool.Modules.Activities.Features.Award;
 
 public static class UpdateAward
 {
-    /// <summary>
-    /// Represents the response returned by this AwardEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
-
     public sealed record Request(
-        Guid TenantId,
         Guid Id,
-        string Name) : IRequest<Result<Response>>;
+        Guid? TenantId,
+        string AwardTypeCode,
+        string Title,
+        string? Description,
+        DateOnly AwardDate,
+        Guid? ApprovedBy) : IRequest<Result>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId).NotEmpty();
             RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+            RuleFor(x => x.AwardTypeCode).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.Title).NotEmpty().MaximumLength(180);
+            RuleFor(x => x.Description).MaximumLength(2000);
         }
     }
 
-    public interface IUpdateAwardCommand
+    public interface IUpdateAward
     {
-        Task UpdateAsync(
-                AwardEntity entity,
-                CancellationToken cancellationToken);
-Task<AwardEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken);
-
+        Task<AwardEntity?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+        Task SaveAsync(CancellationToken cancellationToken);
     }
 
-    internal sealed class UpdateAwardCommand(IActivitiesDbContext dbContext) : IUpdateAwardCommand
+    internal sealed class UpdateAwardCommand(IActivitiesDbContext dbContext) : IUpdateAward
     {
-        public async Task UpdateAsync(
-                AwardEntity entity,
-                CancellationToken cancellationToken)
-            {
-                dbContext.Awards
-                    .Update(entity);
+        public Task<AwardEntity?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken) =>
+            dbContext.Awards.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentAwardId == id && x.IsActive, cancellationToken);
 
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-
-        public async Task<AwardEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken)
-            {
-                return await dbContext.Awards
-                    .FirstOrDefaultAsync(
-                        x => x.TenantId == tenantId
-                            && x.StudentAwardId == id,
-                        cancellationToken);
-            }
+        public Task SaveAsync(CancellationToken cancellationToken) => dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public sealed class Handler(IUpdateAwardCommand command)
-        : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(IUpdateAward command, ITenantScope tenantScope, ICurrentUser currentUser)
+        : IRequestHandler<Request, Result>
     {
-        public async Task<Result<Response>> HandleAsync(
-            Request request,
-            CancellationToken cancellationToken)
+        public async Task<Result> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity = await command.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
+            var tenantId = tenantScope.Resolve(request.TenantId);
+            if (!tenantId.HasValue)
+            {
+                return Result.Failure(Error.Validation("Tenant context is required."));
+            }
+
+            var entity = await command.GetAsync(tenantId.Value, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(AwardEntity))));
+                return Result.Failure(Error.NotFound("Award was not found."));
             }
 
-
             entity.UpdateDetails(
-                entity.Code,
-                request.Name);
-            await command.UpdateAsync(entity, cancellationToken);
-            return Result<Response>.Success(MapResponse(entity));
+                request.AwardTypeCode,
+                request.Title,
+                request.Description,
+                request.AwardDate,
+                request.ApprovedBy ?? currentUser.EmployeeId);
+
+            await command.SaveAsync(cancellationToken);
+            return Result.Success();
         }
     }
 
@@ -107,26 +79,12 @@ Task<AwardEntity?> GetByIdAsync(
     {
         endpoints.MapPut(
                 ApiRoutes.EntityById(ModuleConstants.RouteSegment, "award"),
-                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var command = request with { Id = id };
-                    var result = await mediator.SendAsync<Request, Result<Response>>(
-                        command, cancellationToken);
-                    return result.ToHttpResult();
-                })
+                async (Guid id, Request body, IMediator mediator, CancellationToken cancellationToken) =>
+                    (await mediator.SendAsync<Request, Result>(body with { Id = id }, cancellationToken)).ToHttpResult())
             .WithName("UpdateAward")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
-        return endpoints;
-    }
+            .RequireAuthorization(SmartSchoolPolicies.AcademicManagement);
 
-    private static Response MapResponse(AwardEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.StudentAwardId,
-            entity.Code,
-            entity.Name,
-            entity.MetadataJson);
+        return endpoints;
     }
 }

@@ -71,6 +71,18 @@ public sealed class ExamSubjectEntity : Entity
         };
     }
 
+    public static ExamSubjectEntity Schedule(Guid tenantId, Guid examId, Guid courseOfferingId,
+        string name, decimal totalMarks, decimal passingMarks, DateOnly examDate)
+    {
+        var entity = Create(tenantId, Guid.NewGuid().ToString("N"), name);
+        entity.ExamId = examId;
+        entity.CourseOfferingId = courseOfferingId;
+        entity.TotalMarks = totalMarks;
+        entity.PassingMarks = passingMarks;
+        entity.ExamDate = examDate;
+        return entity;
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

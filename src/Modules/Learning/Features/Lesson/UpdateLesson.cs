@@ -116,7 +116,7 @@ Task<LessonEntity?> GetByIdAsync(
                 })
             .WithName("UpdateLesson")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 

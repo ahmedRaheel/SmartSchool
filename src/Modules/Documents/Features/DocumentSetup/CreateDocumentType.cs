@@ -1,3 +1,4 @@
+using SmartSchool.SharedKernel.Constants;
 using FluentValidation;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Identity;
@@ -11,7 +12,7 @@ namespace SmartSchool.Modules.Documents.Features.DocumentSetup;
 
 public static class CreateDocumentType
 {
-    public sealed record Request(DocumentOwnerType OwnerType, string Name, string? Description) : IRequest<Result<Response>>;
+    public sealed record Request(DocumentOwnerType OwnerType, string Name, string? Description, Guid? TenantId = null) : IRequest<Result<Response>>;
     public sealed record Response(Guid DocumentTypeId, string Code, string Name, DocumentOwnerType OwnerType);
 
     public sealed class Validator : AbstractValidator<Request>
@@ -41,11 +42,11 @@ public static class CreateDocumentType
     public sealed class Handler(
         ICreateDocumentTypeCommand command,
         IBusinessNumberGenerator numberGenerator,
-        ICurrentUser currentUser) : IRequestHandler<Request, Result<Response>>
+        ICurrentUser currentUser, ITenantScope scope) : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            if (currentUser.TenantId is not Guid tenantId)
+            if (scope.Resolve(request.TenantId) is not Guid tenantId)
             {
                 return Result<Response>.Failure(Error.Validation("Tenant context is required."));
             }
@@ -61,7 +62,7 @@ public static class CreateDocumentType
     {
         endpoints.MapPost("/api/documents/document-types", async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
             (await mediator.SendAsync<Request, Result<Response>>(request, cancellationToken)).ToHttpResult())
-            .WithName("CreateDocumentType").WithTags(ModuleConstants.Name).RequireAuthorization();
+            .WithName("CreateDocumentType").WithTags(ModuleConstants.Name).RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }
