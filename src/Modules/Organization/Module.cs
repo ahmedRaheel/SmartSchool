@@ -79,6 +79,8 @@ public static class Module
         UpdateCourseOffering.MapEndpoint(endpoints);
         DeleteCourseOffering.MapEndpoint(endpoints);
         CreateGradeLevel.MapEndpoint(endpoints);
+        SmartSchool.Modules.Organization.Features.TeachingAllocation.GetTeachingAllocationSetup.MapEndpoint(endpoints);
+        SmartSchool.Modules.Organization.Features.TeachingAllocation.CreateTeachingAllocation.MapEndpoint(endpoints);
         GetGradeLevelById.MapEndpoint(endpoints);
         GetGradeLevelPage.MapEndpoint(endpoints);
         GetGradeLevelsByCampusId.MapEndpoint(endpoints);

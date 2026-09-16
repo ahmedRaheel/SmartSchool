@@ -14,6 +14,9 @@ public sealed class TeacherProfileEntityConfiguration
     {
         builder.ToTable("TeacherProfile", SmartSchool.Modules.HR.ModuleConstants.Schema);
 
+        builder.Property(entity => entity.IsActive).HasColumnName("is_active");
+        builder.Property(entity => entity.TenantId).HasColumnName("tenant_id");
+        builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
         builder.HasKey(entity => entity.TeacherProfileId);
 
         builder

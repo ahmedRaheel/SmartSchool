@@ -14,6 +14,12 @@ public sealed class AssignmentSubmissionEntityConfiguration
     {
         builder.ToTable("student_assignment_submission", schema: "lms");
         builder.HasKey(entity => entity.SubmissionId);
+        builder.Ignore(entity => entity.AssignmentSubmissionId);
+        builder.Property(entity => entity.FileName).HasColumnName("file_name").HasMaxLength(250);
+        builder.Property(entity => entity.ContentType).HasColumnName("content_type").HasMaxLength(200);
+        builder.Property(entity => entity.FileContent).HasColumnName("file_content");
+        builder.HasIndex(entity => new { entity.TenantId, entity.AcademicAssignmentId,
+            entity.StudentId, entity.AttemptNo }).IsUnique();
 
         builder
             .Property(entity => entity.TenantId)

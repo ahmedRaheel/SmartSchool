@@ -1,143 +1,18 @@
-using SmartSchool.Application.Persistence;
 using Dapper;
-using System.Threading.Tasks;
 using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Modules.Workflow.Models;
-
 namespace SmartSchool.Modules.Workflow.Features.Approval;
-
 public static class GetApprovalPage
 {
-    /// <summary>
-    /// Represents the response returned by this ApprovalEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
-
-    public sealed record Query(
-        Guid TenantId,
-        int Page = 1,
-        int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
-
-    public interface IGetApprovalPageQuery
-    {
-        Task<PagedResult<Response>> GetPageAsync(
-                Guid tenantId,
-                int page,
-                int pageSize,
-                CancellationToken cancellationToken);
-
-    }
-
-    internal sealed class GetApprovalPageQuery(
-        IDbConnectionFactory connectionFactory) : IGetApprovalPageQuery
-    {
-        public async Task<PagedResult<Response>> GetPageAsync(
-                Guid tenantId,
-                int page,
-                int pageSize,
-                CancellationToken cancellationToken)
-            {
-                const string countSql = """
-                    SELECT COUNT(*)
-                    FROM workflow.approval
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
-                    """;
-
-                const string pageSql = """
-                    SELECT
-                    tenant_id AS "TenantId",
-                    approval_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM workflow.approval
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY approval_id
-                    LIMIT @PageSize OFFSET @Offset;
-                    """;
-
-                await using var connection =
-                    await connectionFactory.OpenConnectionAsync(cancellationToken);
-
-                var parameters = new
-                {
-                    TenantId = tenantId,
-                    PageSize = pageSize,
-                    Offset = (page - 1) * pageSize
-                };
-
-                var totalCount = await connection.ExecuteScalarAsync<long>(
-                    new CommandDefinition(
-                        countSql,
-                        parameters,
-                        cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-                var items = (await connection.QueryAsync<Response>(
-                    new CommandDefinition(
-                        pageSql,
-                        parameters,
-                        cancellationToken: cancellationToken)).ConfigureAwait(false))
-                    .AsList();
-
-                return new PagedResult<Response>(
-                    items,
-                    page,
-                    pageSize,
-                    totalCount);
-            }
-    }
-
-    public sealed class Handler(IGetApprovalPageQuery query)
-        : IRequestHandler<Query, Result<PagedResult<Response>>>
-    {
-        public async Task<Result<PagedResult<Response>>> HandleAsync(
-            Query request,
-            CancellationToken cancellationToken)
-        {
-            var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await query.GetPageAsync(
-                request.TenantId,
-                pageRequest.NormalizedPage,
-                pageRequest.NormalizedPageSize,
-                cancellationToken);
-            var response = new PagedResult<Response>(
-                page.Items,
-                page.Page,
-                page.PageSize,
-                page.TotalCount);
-            return Result<PagedResult<Response>>.Success(response);
-        }
-    }
-
-    public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
-    {
-        endpoints.MapGet(
-                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "approval"),
-                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var request = new Query(tenantId, page, pageSize);
-                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
-                        request, cancellationToken);
-                    return result.ToHttpResult();
-                })
-            .WithName("GetApprovalPage")
-            .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
-        return endpoints;
-    }
+ public sealed record Response(Guid TenantId,Guid Id,Guid WorkflowInstanceId,Guid WorkflowStepId,string InstanceName,string StepName,string Code,string Name,string AssignedRole,string Status,DateTimeOffset RequestedAt,DateTimeOffset? DecisionAt,Guid? DecidedByUserId,string? Comments);
+ public sealed record Query(Guid? TenantId,int Page=1,int PageSize=25):IRequest<Result<PagedResult<Response>>>;
+ public interface IGetApprovalPage{Task<PagedResult<Response>> ExecuteAsync(Guid tenantId,bool viewAll,string[] roles,int page,int pageSize,CancellationToken cancellationToken);}
+ internal sealed class QueryService(IDbConnectionFactory factory):IGetApprovalPage{public async Task<PagedResult<Response>> ExecuteAsync(Guid tenantId,bool viewAll,string[] roles,int page,int pageSize,CancellationToken cancellationToken){const string where="a.tenant_id=@TenantId AND a.is_active=TRUE AND (@ViewAll OR a.assigned_role = ANY(@Roles))";var countSql=$"SELECT COUNT(*) FROM workflow.approval a WHERE {where}";var sql=$"""SELECT a.tenant_id AS "TenantId",a.approval_id AS "Id",a.workflow_instance_id AS "WorkflowInstanceId",a.workflow_step_id AS "WorkflowStepId",i.name AS "InstanceName",s.name AS "StepName",a.code AS "Code",a.name AS "Name",a.assigned_role AS "AssignedRole",a.status AS "Status",a.requested_at AS "RequestedAt",a.decision_at AS "DecisionAt",a.decided_by_user_id AS "DecidedByUserId",a.comments AS "Comments" FROM workflow.approval a JOIN workflow.workflowinstance i ON i.workflow_instance_id=a.workflow_instance_id AND i.tenant_id=a.tenant_id JOIN workflow.workflowstep s ON s.workflow_step_id=a.workflow_step_id AND s.tenant_id=a.tenant_id WHERE {where} ORDER BY CASE WHEN a.status='PENDING' THEN 0 ELSE 1 END,a.requested_at DESC LIMIT @PageSize OFFSET @Offset;""";await using var c=await factory.OpenConnectionAsync(cancellationToken);var p=new{TenantId=tenantId,ViewAll=viewAll,Roles=roles,PageSize=pageSize,Offset=(page-1)*pageSize};var total=await c.ExecuteScalarAsync<long>(new CommandDefinition(countSql,p,cancellationToken:cancellationToken));var items=(await c.QueryAsync<Response>(new CommandDefinition(sql,p,cancellationToken:cancellationToken))).AsList();return new PagedResult<Response>(items,page,pageSize,total);}}
+ public sealed class Handler(IGetApprovalPage query,ITenantScope tenantScope,ICurrentUser currentUser):IRequestHandler<Query,Result<PagedResult<Response>>>{public async Task<Result<PagedResult<Response>>> HandleAsync(Query request,CancellationToken cancellationToken){var tenant=tenantScope.Resolve(request.TenantId);if(!tenant.HasValue)return Result<PagedResult<Response>>.Failure(Error.Validation("Tenant context is required."));var viewAll=currentUser.IsSuperAdmin||currentUser.IsInRole(SmartSchoolRoles.Tenant)||currentUser.IsInRole(SmartSchoolRoles.TenantAdmin)||currentUser.IsInRole(SmartSchoolRoles.Owner)||currentUser.IsInRole(SmartSchoolRoles.Admin)||currentUser.IsInRole(SmartSchoolRoles.AdminOfficer);var page=new PageRequest(request.Page,request.PageSize);return Result<PagedResult<Response>>.Success(await query.ExecuteAsync(tenant.Value,viewAll,currentUser.Roles.ToArray(),page.NormalizedPage,page.NormalizedPageSize,cancellationToken));}}
+ public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints){endpoints.MapGet(ApiRoutes.EntityCollection(ModuleConstants.RouteSegment,"approval"),async(Guid? tenantId,int page,int pageSize,IMediator mediator,CancellationToken cancellationToken)=>(await mediator.SendAsync<Query,Result<PagedResult<Response>>>(new Query(tenantId,page,pageSize),cancellationToken)).ToHttpResult()).WithName("GetApprovalPage").WithTags(ModuleConstants.Name).RequireAuthorization();return endpoints;}
 }

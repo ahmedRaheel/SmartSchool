@@ -22,6 +22,7 @@ public sealed class GradeLevelEntity : Entity
 
     /// <summary>Gets the persisted sort order value.</summary>
     public int SortOrder { get; private set; }
+    public Guid? EducationLevelId { get; private set; }
 
     /// <summary>Gets the business code.</summary>
     public string Code { get; private set; } = string.Empty;
@@ -45,7 +46,8 @@ public sealed class GradeLevelEntity : Entity
         string code,
         string name,
         int sortOrder = 0,
-        string? metadataJson = null)
+        string? metadataJson = null,
+        Guid? educationLevelId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -58,6 +60,9 @@ public sealed class GradeLevelEntity : Entity
             Code = code.Trim(),
             Name = name.Trim(),
             SortOrder = sortOrder,
+            EducationLevelId = educationLevelId ?? (sortOrder is > 0 and <= 12
+                ? Guid.Parse($"20000000-0000-0000-0000-00000000000{(sortOrder <= 5 ? 2 : sortOrder <= 8 ? 3 : sortOrder <= 10 ? 4 : 5)}")
+                : null),
             MetadataJson = metadataJson
         };
     }

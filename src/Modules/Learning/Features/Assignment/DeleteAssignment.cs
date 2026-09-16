@@ -90,7 +90,7 @@ public static class DeleteAssignment
                 })
             .WithName("DeleteAssignment")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

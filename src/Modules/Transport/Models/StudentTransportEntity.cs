@@ -47,6 +47,22 @@ public sealed class StudentTransportEntity : Entity
         };
     }
 
+    public Guid? StudentId { get; private set; }
+    public Guid? RouteId { get; private set; }
+    public Guid? StopId { get; private set; }
+
+    public static StudentTransportEntity Assign(Guid tenantId, Guid studentId, Guid routeId, Guid stopId)
+    {
+        var entity = Create(tenantId, Guid.NewGuid().ToString("N"), "Student transport");
+        entity.StudentId = studentId;
+        entity.MoveTo(routeId, stopId);
+        return entity;
+    }
+    public void MoveTo(Guid routeId, Guid stopId)
+    {
+        RouteId = routeId; StopId = stopId; Activate(); MarkAsUpdated();
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

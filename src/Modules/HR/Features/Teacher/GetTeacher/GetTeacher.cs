@@ -21,7 +21,7 @@ public static class GetTeacher
         public async Task<Response> ExecuteAsync(Guid tenantId, Guid employeeId, CancellationToken cancellationToken)
         {
             const string sql = """
-            SELECT e.employee_id AS "EmployeeId", e.tenant_id AS "TenantId", e.user_id AS "UserId", e.employee_number AS "EmployeeNumber", e.first_name AS "FirstName", e.last_name AS "LastName", e.email AS "Email", e.phone AS "Phone", e.hire_date AS "HireDate", e.employment_type_code AS "EmploymentType", e.status AS "Status", tp.qualification AS "Qualification", tp.specialization AS "Specialization", tp.teaching_experience_years AS "TeachingExperienceYears" FROM hr.employee e LEFT JOIN hr."TeacherProfile" tp ON tp."EmployeeId" = e.employee_id AND tp."TenantId" = e.tenant_id WHERE e.tenant_id = @TenantId AND e.employee_id = @EmployeeId;
+            SELECT e.employee_id AS "EmployeeId", e.tenant_id AS "TenantId", e.user_id AS "UserId", e.employee_number AS "EmployeeNumber", e.first_name AS "FirstName", e.last_name AS "LastName", e.email AS "Email", e.phone AS "Phone", e.hire_date AS "HireDate", e.employment_type_code AS "EmploymentType", e.status AS "Status", (SELECT string_agg(ed.qualification, ', ' ORDER BY ed.qualification) FROM hr.employee_education ed WHERE ed.tenant_id = e.tenant_id AND ed.employee_id = e.employee_id AND ed.is_active) AS "Qualification" FROM hr.employee e WHERE e.tenant_id = @TenantId AND e.employee_id = @EmployeeId;
             """;
             await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
             var rows = await connection.QueryAsync(new CommandDefinition(sql, new { TenantId = tenantId, EmployeeId = employeeId }, cancellationToken: cancellationToken));
@@ -39,9 +39,13 @@ public static class GetTeacher
         group.MapGet("/{employeeId:guid}", HandleAsync);
     }
 
-    private static async Task<IResult> HandleAsync(Guid employeeId, Guid? tenantId, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(Guid employeeId, Guid? tenantId, ITenantScope tenantScope, ICurrentUser currentUser, IMediator mediator, CancellationToken cancellationToken)
     {
-            var resolvedTenantId = tenantScope.IsSuperAdmin ? tenantId : tenantScope.Resolve(tenantId);
+            if (currentUser.IsInRole(SmartSchoolRoles.Teacher) && employeeId != (currentUser.EmployeeId ?? currentUser.TeacherId))
+            {
+                return Results.Forbid();
+            }
+            var resolvedTenantId = tenantScope.Resolve(tenantId);
             if (!resolvedTenantId.HasValue)
             {
                 return Results.BadRequest(new { message = "Tenant is required." });

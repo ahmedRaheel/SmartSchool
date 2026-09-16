@@ -30,7 +30,7 @@ public static class GetGradeLevelPage
     string? CampusName,
     Guid? AcademicSystemId,
     string? AcademicSystemCode,
-    string? AcademicSystemName);
+    string? AcademicSystemName, Guid? EducationLevelId);
 
     public sealed record Query(
         Guid TenantId,
@@ -75,7 +75,7 @@ public static class GetGradeLevelPage
                         p1.name AS "CampusName",
                         p2.academic_system_id AS "AcademicSystemId",
                         p2.code AS "AcademicSystemCode",
-                        p2.name AS "AcademicSystemName"
+                        p2.name AS "AcademicSystemName", entity.education_level_id AS "EducationLevelId"
                     FROM academic.grade_level AS entity
                     LEFT JOIN org.campus AS p1
                         ON p1.campus_id = entity.campus_id

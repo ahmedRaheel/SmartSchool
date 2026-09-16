@@ -24,12 +24,23 @@ public static class CreateWorkflowStep
     Guid TenantId,
     Guid Id,
     string Code,
+    Guid WorkflowDefinitionId,
     string Name,
-    string? MetadataJson);
+    int StepOrder,
+    string StepType,
+    string? ApproverRole,
+    string? ActionCode,
+    bool IsRequired);
 
     public sealed record Request(
         Guid TenantId,
-        string Name) : IRequest<Result<Response>>;
+        Guid WorkflowDefinitionId,
+        string Name,      
+        int StepOrder,
+        string StepType,
+        string? ApproverRole,
+        string? ActionCode,
+        bool IsRequired) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -71,8 +82,14 @@ public static class CreateWorkflowStep
 
             var entity = WorkflowStepEntity.Create(
                 request.TenantId,
+                request.WorkflowDefinitionId,
                 code,
-                request.Name);
+                request.Name, 
+                request.StepOrder,
+                request.StepType,
+                request.ApproverRole,
+                request.ActionCode,
+                request.IsRequired);
 
             await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
@@ -97,11 +114,16 @@ public static class CreateWorkflowStep
 
     private static Response MapResponse(WorkflowStepEntity entity)
     {
-        return new Response(
+       return new Response(
             entity.TenantId,
             entity.WorkflowStepId,
             entity.Code,
+            entity.WorkflowDefinitionId,
             entity.Name,
-            entity.MetadataJson);
+            entity.StepOrder,
+            entity.StepType,
+            entity.ApproverRole,
+            entity.ActionCode,
+            entity.IsRequired);
     }
 }

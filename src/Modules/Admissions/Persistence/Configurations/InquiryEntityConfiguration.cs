@@ -12,7 +12,7 @@ public sealed class InquiryEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<InquiryEntity> builder)
     {
-        builder.ToTable("Inquiry", schema: "admission");
+        builder.ToTable("inquiry", schema: "admission");
         builder.HasKey(entity => entity.InquiryId);
 
         builder
@@ -53,5 +53,6 @@ public sealed class InquiryEntityConfiguration
         builder.Property(entity => entity.Code).HasColumnName("code");
         builder.Property(entity => entity.Name).HasColumnName("name");
         builder.Property(entity => entity.InquiryId).HasColumnName("inquiry_id");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
     }
 }

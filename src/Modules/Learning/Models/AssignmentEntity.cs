@@ -93,6 +93,41 @@ public sealed class AssignmentEntity : Entity
         };
     }
 
+    public static AssignmentEntity Assign(
+        Guid tenantId, Guid branchId, string code, string title, Guid courseOfferingId,
+        Guid classSectionId, Guid teacherEmployeeId, string assignmentType,
+        string? description, DateTimeOffset? dueAt, decimal totalMarks,
+        bool allowLateSubmission, int maxAttempts)
+    {
+        var entity = Create(tenantId, branchId, code, title);
+        entity.CourseOfferingId = courseOfferingId;
+        entity.ClassSectionId = classSectionId;
+        entity.TeacherEmployeeId = teacherEmployeeId;
+        entity.AssignmentTypeCode = assignmentType;
+        entity.Title = title.Trim();
+        entity.Description = description?.Trim();
+        entity.AssignedAt = DateTimeOffset.UtcNow;
+        entity.DueAt = dueAt?.ToUniversalTime();
+        entity.TotalMarks = totalMarks;
+        entity.AllowLateSubmission = allowLateSubmission;
+        entity.MaxAttempts = maxAttempts;
+        entity.Status = "PUBLISHED";
+        return entity;
+    }
+
+    public void Amend(string title, string? description, DateTimeOffset? dueAt,
+        decimal totalMarks, bool allowLateSubmission, int maxAttempts)
+    {
+        Name = title.Trim();
+        Title = Name;
+        Description = description?.Trim();
+        DueAt = dueAt?.ToUniversalTime();
+        TotalMarks = totalMarks;
+        AllowLateSubmission = allowLateSubmission;
+        MaxAttempts = maxAttempts;
+        MarkAsUpdated();
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

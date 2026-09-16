@@ -90,7 +90,7 @@ public static class DeleteExam
                 })
             .WithName("DeleteExam")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 }

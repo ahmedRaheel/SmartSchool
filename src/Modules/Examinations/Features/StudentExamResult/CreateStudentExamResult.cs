@@ -92,7 +92,7 @@ public static class CreateStudentExamResult
                 })
             .WithName("CreateStudentExamResult")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 

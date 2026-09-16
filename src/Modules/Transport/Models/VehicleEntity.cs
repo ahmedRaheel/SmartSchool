@@ -59,6 +59,14 @@ public sealed class VehicleEntity : Entity
         };
     }
 
+    public static VehicleEntity Register(Guid tenantId, Guid campusId, string code, string name, string registrationNo, int capacity)
+    {
+        var entity = Create(tenantId, code, name);
+        entity.CampusId = campusId; entity.RegistrationNo = registrationNo.Trim().ToUpperInvariant();
+        entity.Capacity = capacity; entity.Status = "ACTIVE";
+        return entity;
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

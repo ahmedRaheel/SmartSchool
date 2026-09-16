@@ -18,7 +18,7 @@ public static class TeacherModule
         var group = endpoints
             .MapGroup("/api/teachers")
             .WithTags("Teachers")
-            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
+            .RequireAuthorization(SmartSchoolPolicies.AcademicManagement);
 
         GetTeacherProfile.MapEndpoint(group);
         GetTeacher.MapEndpoint(group);

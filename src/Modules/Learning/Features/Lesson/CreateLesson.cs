@@ -91,7 +91,7 @@ public static class CreateLesson
                 })
             .WithName("CreateLesson")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 

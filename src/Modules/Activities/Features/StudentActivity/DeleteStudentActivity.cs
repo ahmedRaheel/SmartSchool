@@ -1,10 +1,9 @@
-using SmartSchool.Modules.Activities.Persistence;
-using SmartSchool.Application.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Activities.Models;
+using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -12,68 +11,40 @@ namespace SmartSchool.Modules.Activities.Features.StudentActivity;
 
 public static class DeleteStudentActivity
 {
-    public sealed record Command(
-        Guid TenantId,
-        Guid Id) : IRequest<Result<Response>>;
+    public sealed record Request(Guid Id, Guid? TenantId) : IRequest<Result>;
 
-    public sealed record Response(
-        Guid TenantId,
-        Guid Id);
-
-    public interface IDeleteStudentActivityCommand
+    public interface IDeleteStudentActivity
     {
-        Task DeleteAsync(
-                StudentActivityEntity entity,
-                CancellationToken cancellationToken);
-
-        Task<StudentActivityEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken);
-
+        Task<StudentActivityEntity?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+        Task SaveAsync(CancellationToken cancellationToken);
     }
 
-    internal sealed class DeleteStudentActivityCommand(IActivitiesDbContext dbContext) : IDeleteStudentActivityCommand
+    internal sealed class DeleteStudentActivityCommand(IActivitiesDbContext dbContext) : IDeleteStudentActivity
     {
-        public async Task DeleteAsync(
-                StudentActivityEntity entity,
-                CancellationToken cancellationToken)
-            {
-                dbContext.StudentActivities
-                    .Remove(entity);
-
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-
-        public async Task<StudentActivityEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken)
-            {
-                return await dbContext.StudentActivities
-                    .FirstOrDefaultAsync(
-                        x => x.TenantId == tenantId
-                            && x.StudentActivityId == id,
-                        cancellationToken);
-            }
+        public Task<StudentActivityEntity?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken) =>
+            dbContext.StudentActivities.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentActivityId == id && x.IsActive, cancellationToken);
+        public Task SaveAsync(CancellationToken cancellationToken) => dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public sealed class Handler(IDeleteStudentActivityCommand command)
-        : IRequestHandler<Command, Result<Response>>
+    public sealed class Handler(IDeleteStudentActivity command, ITenantScope tenantScope) : IRequestHandler<Request, Result>
     {
-        public async Task<Result<Response>> HandleAsync(
-            Command request,
-            CancellationToken cancellationToken)
+        public async Task<Result> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity = await command.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
+            var tenantId = tenantScope.Resolve(request.TenantId);
+            if (!tenantId.HasValue)
+            {
+                return Result.Failure(Error.Validation("Tenant context is required."));
+            }
+
+            var entity = await command.GetAsync(tenantId.Value, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentActivityEntity))));
+                return Result.Failure(Error.NotFound("Student activity participation was not found."));
             }
-            await command.DeleteAsync(entity, cancellationToken);
-            return Result<Response>.Success(new Response(request.TenantId, request.Id));
+
+            entity.Deactivate();
+            await command.SaveAsync(cancellationToken);
+            return Result.Success();
         }
     }
 
@@ -81,16 +52,11 @@ public static class DeleteStudentActivity
     {
         endpoints.MapDelete(
                 ApiRoutes.EntityById(ModuleConstants.RouteSegment, "student-activity"),
-                async (Guid id, Guid tenantId, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var request = new Command(tenantId, id);
-                    var result = await mediator.SendAsync<Command, Result<Response>>(
-                        request, cancellationToken);
-                    return result.ToHttpResult();
-                })
+                async (Guid id, Guid? tenantId, IMediator mediator, CancellationToken cancellationToken) =>
+                    (await mediator.SendAsync<Request, Result>(new Request(id, tenantId), cancellationToken)).ToHttpResult())
             .WithName("DeleteStudentActivity")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.AcademicManagement);
         return endpoints;
     }
 }

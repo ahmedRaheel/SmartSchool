@@ -12,7 +12,8 @@ public sealed class ApplicantEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<ApplicantEntity> builder)
     {
-        builder.ToTable("Applicant", schema: "admission");
+        builder.ToTable("applicant", schema: "admission");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.HasKey(entity => entity.ApplicantId);
 
         builder

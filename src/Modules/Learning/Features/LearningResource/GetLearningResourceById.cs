@@ -101,7 +101,7 @@ public static class GetLearningResourceById
                 })
             .WithName("GetLearningResourceById")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

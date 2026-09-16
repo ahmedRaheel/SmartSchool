@@ -90,7 +90,7 @@ public static class DeleteGradeScale
                 })
             .WithName("DeleteGradeScale")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 }

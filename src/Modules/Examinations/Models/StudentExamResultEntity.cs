@@ -74,6 +74,27 @@ public sealed class StudentExamResultEntity : Entity
         };
     }
 
+    public static StudentExamResultEntity Record(Guid tenantId, Guid examSubjectId, Guid studentId,
+        decimal? marks, decimal totalMarks, bool absent, string? grade, string? remarks, Guid userId)
+    {
+        var entity = Create(tenantId, Guid.NewGuid().ToString("N"), "Exam result");
+        entity.ExamSubjectId = examSubjectId;
+        entity.StudentId = studentId;
+        entity.SetMarks(marks, totalMarks, absent, grade, remarks, userId);
+        return entity;
+    }
+
+    public void SetMarks(decimal? marks, decimal totalMarks, bool absent, string? grade, string? remarks, Guid userId)
+    {
+        MarksObtained = absent ? null : marks;
+        Percentage = absent || !marks.HasValue ? null : Math.Round(marks.Value / totalMarks * 100, 2);
+        IsAbsent = absent;
+        Grade = absent ? null : grade;
+        Remarks = remarks?.Trim();
+        EnteredBy = userId;
+        MarkAsUpdated();
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

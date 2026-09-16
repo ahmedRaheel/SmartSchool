@@ -1,3 +1,4 @@
+using SmartSchool.Application.Identity;
 using SmartSchool.Modules.Students.Persistence;
 using Dapper;
 using SmartSchool.Application.Persistence;
@@ -8,7 +9,6 @@ using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Students.Models;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Students.Features.Student;
 
@@ -112,18 +112,17 @@ public static class CreateStudent
                     EXISTS (
                         SELECT 1
                         FROM academic.class_section AS section
-                        INNER JOIN academic.class AS class
-                            ON class.class_id = section.class_id
+                        INNER JOIN academic.grade_level AS class
+                            ON class.grade_level_id = section.grade_level_id
                            AND class.tenant_id = section.tenant_id
                         INNER JOIN org.campus_education_level AS enabled_level
                             ON enabled_level.tenant_id = class.tenant_id
-                           AND enabled_level.campus_id = class.branch_id
+                           AND enabled_level.campus_id = class.campus_id
                            AND enabled_level.education_level_id = class.education_level_id
                         WHERE section.tenant_id = @TenantId
                           AND section.class_section_id = @ClassSectionId
                           AND section.academic_year_id = @AcademicYearId
-                          AND class.school_id = @SchoolId
-                          AND class.branch_id = @BranchId
+                          AND class.campus_id = @BranchId
                           AND class.is_active = TRUE
                           AND section.is_active = TRUE
                     ) AS "IsEducationLevelAllowed"

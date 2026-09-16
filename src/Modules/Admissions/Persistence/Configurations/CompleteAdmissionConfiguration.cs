@@ -68,30 +68,34 @@ public sealed class CompleteAdmissionEnrollmentConfiguration
     public void Configure(EntityTypeBuilder<CompleteAdmissionEnrollment> builder)
     {
         builder.ToTable("student_enrollment", "student");
+        builder.Property(e => e.IsActive).HasColumnName("is_active");
         builder.HasKey(x => x.StudentEnrollmentId);
         builder.Property(x => x.StudentEnrollmentId).HasColumnName("student_enrollment_id");
         builder.Property(x => x.TenantId).HasColumnName("tenant_id");
         builder.Property(x => x.StudentId).HasColumnName("student_id");
         builder.Property(x => x.EnrollmentNumber).HasColumnName("enrollment_number");
         builder.Property(x => x.AcademicYearId).HasColumnName("academic_year_id");
-        builder.Property(x => x.ClassClassSectionId).HasColumnName("class_class_section_id");
+        builder.Property(x => x.ClassSectionId).HasColumnName("class_section_id");
         builder.Property(x => x.EnrollmentDate).HasColumnName("enrollment_date");
         builder.Property(x => x.Status).HasColumnName("status");
     }
 }
 
-public sealed class CompleteAdmissionApplicationConfiguration
-    : IEntityTypeConfiguration<CompleteAdmissionApplication>
+public sealed class CompleteAdmissionDocumentConfiguration : IEntityTypeConfiguration<CompleteAdmissionDocument>
 {
-    public void Configure(EntityTypeBuilder<CompleteAdmissionApplication> builder)
+    public void Configure(EntityTypeBuilder<CompleteAdmissionDocument> builder)
     {
-        builder.ToTable("student_application", "admission");
-        builder.HasKey(x => x.ApplicationId);
-        builder.Property(x => x.ApplicationId).HasColumnName("application_id");
-        builder.Property(x => x.TenantId).HasColumnName("tenant_id");
-        builder.Property(x => x.Status).HasColumnName("status");
-        builder.Property(x => x.StudentId).HasColumnName("student_id");
-        builder.Property(x => x.DecisionNotes).HasColumnName("decision_notes");
-        builder.Property(x => x.DecidedAt).HasColumnName("decided_at");
+        builder.ToTable("document", "document"); builder.HasKey(x => x.DocumentId);
+        builder.Property(x => x.DocumentId).HasColumnName("document_id"); builder.Property(x => x.TenantId).HasColumnName("tenant_id");
+        builder.Property(x => x.OwnerId).HasColumnName("owner_id"); builder.Property(x => x.OwnerType).HasColumnName("owner_type");
+    }
+}
+public sealed class CompleteAdmissionSectionConfiguration : IEntityTypeConfiguration<CompleteAdmissionSection>
+{
+    public void Configure(EntityTypeBuilder<CompleteAdmissionSection> builder)
+    {
+        builder.ToTable("class_section", "academic"); builder.HasKey(x => x.ClassSectionId);
+        builder.Property(x => x.ClassSectionId).HasColumnName("class_section_id"); builder.Property(x => x.TenantId).HasColumnName("tenant_id");
+        builder.Property(x => x.Capacity).HasColumnName("capacity"); builder.Property(x => x.IsActive).HasColumnName("is_active");
     }
 }

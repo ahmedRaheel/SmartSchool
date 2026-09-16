@@ -125,7 +125,7 @@ public static class GetExamSubjectById
                 })
             .WithName("GetExamSubjectById")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 }

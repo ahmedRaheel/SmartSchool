@@ -1,3 +1,5 @@
+using SmartSchool.Application.Identity;
+using SmartSchool.SharedKernel.Constants;
 using Dapper;
 using SmartSchool.Application.Http;
 using SmartSchool.Application.Messaging;
@@ -33,7 +35,7 @@ public static class GetTeachingAssignmentsByEmployeeId
     }
 
     internal sealed class GetTeachingAssignmentsByEmployeeIdQuery(
-        IDbConnectionFactory connectionFactory)
+        IDbConnectionFactory connectionFactory, ICurrentUser user)
         : IGetTeachingAssignmentsByEmployeeIdQuery
     {
         public async Task<IReadOnlyCollection<Response>> GetAsync(
@@ -42,21 +44,17 @@ public static class GetTeachingAssignmentsByEmployeeId
             CancellationToken cancellationToken)
         {
             const string sql = """
-                SELECT
-                    teacher_teaching_assignment_id AS "TeacherTeachingAssignmentId",
-                    code AS "Code",
-                    name AS "Name",
-                    employee_id AS "EmployeeId",
-                    campus_id AS "CampusId",
-                    class_section_id AS "ClassSectionId",
-                    subject_id AS "SubjectId",
-                    periods_per_week AS "PeriodsPerWeek",
-                    is_class_teacher AS "IsClassTeacher"
-                FROM hr.teacher_teaching_assignment
-                WHERE tenant_id = @TenantId
-                  AND employee_id = @EmployeeId
-                  AND is_active = TRUE
-                ORDER BY name;
+                SELECT a.teacher_course_assignment_id AS "TeacherTeachingAssignmentId", a.code AS "Code", a.name AS "Name",
+                    a.employee_id AS "EmployeeId", cs.campus_id AS "CampusId", a.class_section_id AS "ClassSectionId",
+                    co.subject_id AS "SubjectId", a.periods_per_week AS "PeriodsPerWeek",
+                    coalesce(cs.class_teacher_employee_id=a.employee_id,false) AS "IsClassTeacher"
+                FROM academic.teacher_course_assignment a
+                JOIN academic.course_offering co ON co.course_offering_id=a.course_offering_id AND co.tenant_id=a.tenant_id
+                JOIN academic.class_section cs ON cs.class_section_id=a.class_section_id AND cs.tenant_id=a.tenant_id
+                WHERE a.tenant_id=@TenantId AND a.employee_id=@EmployeeId AND a.is_active
+                    AND (@ScopeBranchId IS NULL OR cs.campus_id=@ScopeBranchId)
+                    AND (@TeacherId IS NULL OR a.employee_id=@TeacherId)
+                ORDER BY a.name;
                 """;
 
             await using var connection =
@@ -68,6 +66,8 @@ public static class GetTeachingAssignmentsByEmployeeId
                     new
                     {
                         TenantId = tenantId,
+                        ScopeBranchId = user.BranchId,
+                        TeacherId = user.IsInRole(SmartSchoolRoles.Teacher) ? user.EmployeeId ?? user.TeacherId ?? Guid.Empty : (Guid?)null,
                         EmployeeId = employeeId
                     },
                     cancellationToken: cancellationToken));
@@ -115,7 +115,7 @@ public static class GetTeachingAssignmentsByEmployeeId
                 })
             .WithName("GetTeachingAssignmentsByEmployeeId")
             .WithTags("HR")
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.AcademicManagement);
 
         return endpoints;
     }

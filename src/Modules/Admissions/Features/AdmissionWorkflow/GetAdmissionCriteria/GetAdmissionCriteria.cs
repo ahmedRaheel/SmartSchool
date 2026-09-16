@@ -37,7 +37,7 @@ public sealed class GetAdmissionCriteriaQuery(IDbConnectionFactory connectionFac
                 required_documents AS RequiredDocuments,
                 status AS Status
             FROM admission.admission_criteria
-            WHERE tenant_id = @TenantId
+            WHERE tenant_id = @TenantId AND status = 'ACTIVE'
             ORDER BY created_at DESC;
             """;
 
@@ -87,7 +87,7 @@ public static class GetAdmissionCriteria
     {
         endpoints.MapGet("/api/admissions/criteria", async (Guid? tenantId, Guid? branchId, Guid? classId, IMediator mediator, CancellationToken cancellationToken) =>
             (await mediator.SendAsync<Request, Result<IReadOnlyList<AdmissionCriteriaDto>>>(new Request(tenantId), cancellationToken)).ToHttpResult())
-            .WithName("GetAdmissionCriteria").WithTags("Admission Criteria").RequireAuthorization();
+            .WithName("GetAdmissionCriteria").WithTags("Admission Criteria").RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
     }
 }
 

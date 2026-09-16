@@ -10,6 +10,8 @@ public interface ITransportDbContext
 
     DbSet<DriverDirectoryReadEntity> DriverDirectoryReads { get; }
     DbSet<DriverEntity> Drivers { get; }
+    DbSet<TripRecordEntity> TripRecords { get; }
+    DbSet<RouteNoticeEntity> RouteNotices { get; }
     DbSet<RouteEntity> Routes { get; }
     DbSet<StopEntity> Stops { get; }
     DbSet<StudentTransportEntity> StudentTransports { get; }
@@ -27,6 +29,8 @@ public sealed class TransportDbContext(DbContextOptions<TransportDbContext> opti
 {
     public DbSet<DriverDirectoryReadEntity> DriverDirectoryReads => Set<DriverDirectoryReadEntity>();
     public DbSet<DriverEntity> Drivers => Set<DriverEntity>();
+    public DbSet<TripRecordEntity> TripRecords => Set<TripRecordEntity>();
+    public DbSet<RouteNoticeEntity> RouteNotices => Set<RouteNoticeEntity>();
     public DbSet<RouteEntity> Routes => Set<RouteEntity>();
     public DbSet<StopEntity> Stops => Set<StopEntity>();
     public DbSet<StudentTransportEntity> StudentTransports => Set<StudentTransportEntity>();
@@ -40,5 +44,9 @@ public sealed class TransportDbContext(DbContextOptions<TransportDbContext> opti
             typeof(TransportDbContext).Assembly,
             type => type.Namespace is not null
                 && type.Namespace.StartsWith("SmartSchool.Modules.Transport.Persistence.Configurations", StringComparison.Ordinal));
+
+        // These retired projections and document models are not part of the active persistence model.
+        modelBuilder.Ignore<DriverDirectoryReadEntity>();
+        modelBuilder.Ignore<DriverDocumentEntity>();
     }
 }

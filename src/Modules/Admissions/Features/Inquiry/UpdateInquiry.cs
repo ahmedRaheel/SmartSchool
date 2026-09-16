@@ -30,7 +30,8 @@ public static class UpdateInquiry
     public sealed record Request(
         Guid TenantId,
         Guid Id,
-        string Name) : IRequest<Result<Response>>;
+        string Name,
+        string? MetadataJson = null) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -97,7 +98,8 @@ Task<InquiryEntity?> GetByIdAsync(
 
             entity.UpdateDetails(
                 entity.Code,
-                request.Name);
+                request.Name,
+                request.MetadataJson);
             await command.UpdateAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
         }

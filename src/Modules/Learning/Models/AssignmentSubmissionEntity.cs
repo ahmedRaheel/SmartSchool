@@ -8,13 +8,13 @@ namespace SmartSchool.Modules.Learning.Models;
 public sealed class AssignmentSubmissionEntity : Entity
 {
     /// <summary>Gets the entity-specific identifier.</summary>
-    public Guid AssignmentSubmissionId { get; private set; } = Guid.NewGuid();
+    public Guid AssignmentSubmissionId => SubmissionId;
     private AssignmentSubmissionEntity()
     {
     }
 
     /// <summary>Gets the persisted submission id value.</summary>
-    public Guid SubmissionId { get; private set; }
+    public Guid SubmissionId { get; private set; } = Guid.NewGuid();
 
     /// <summary>Gets the persisted academic assignment id value.</summary>
     public Guid AcademicAssignmentId { get; private set; }
@@ -71,6 +71,35 @@ public sealed class AssignmentSubmissionEntity : Entity
             Name = name.Trim(),
             MetadataJson = metadataJson
         };
+    }
+
+    public string? FileName { get; private set; }
+    public string? ContentType { get; private set; }
+    public byte[]? FileContent { get; private set; }
+
+    public static AssignmentSubmissionEntity Submit(
+        Guid tenantId, Guid assignmentId, Guid studentId, int attempt,
+        string? text, string? fileName, string? contentType, byte[]? content, bool isLate)
+    {
+        var entity = Create(tenantId, Guid.NewGuid().ToString("N"), $"Submission {attempt}");
+        entity.AcademicAssignmentId = assignmentId;
+        entity.StudentId = studentId;
+        entity.AttemptNo = attempt;
+        entity.SubmittedAt = DateTimeOffset.UtcNow;
+        entity.SubmissionText = text?.Trim();
+        entity.FileName = fileName;
+        entity.ContentType = contentType;
+        entity.FileContent = content;
+        entity.Status = isLate ? "LATE" : "SUBMITTED";
+        return entity;
+    }
+
+    public void Grade(decimal marks, string? feedback)
+    {
+        MarksObtained = marks;
+        TeacherFeedback = feedback?.Trim();
+        Status = "GRADED";
+        MarkAsUpdated();
     }
 
     /// <summary>Updates the business details.</summary>

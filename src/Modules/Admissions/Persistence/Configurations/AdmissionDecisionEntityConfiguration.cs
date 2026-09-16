@@ -12,7 +12,8 @@ public sealed class AdmissionDecisionEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<AdmissionDecisionEntity> builder)
     {
-        builder.ToTable("AdmissionDecision", schema: "admission");
+        builder.ToTable("admissiondecision", schema: "admission");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.HasKey(entity => entity.AdmissionDecisionId);
 
         builder

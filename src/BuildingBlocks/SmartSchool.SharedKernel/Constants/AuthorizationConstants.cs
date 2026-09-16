@@ -15,6 +15,12 @@ public static class SmartSchoolRoles
     public const string HrManager = nameof(Role.HRManager);
     public const string Librarian = nameof(Role.Librarian);
     public const string Examiner = nameof(Role.Examiner);
+    public const string SuperOwner = "SuperOwner";
+    public const string TenantAdmin = "TenantAdmin";
+    public const string Owner = "Owner";
+    public const string AdminOfficer = "AdminOfficer";
+    public const string FinanceOfficer = "FinanceOfficer";
+    public const string HR = "HR";
 
     // Compatibility aliases. New code must use the canonical Role enum.
     public const string SchoolAdmin = Tenant;

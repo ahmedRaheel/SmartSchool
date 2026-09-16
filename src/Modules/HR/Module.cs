@@ -43,7 +43,6 @@ public static class Module
         GetEmployeeById.MapEndpoint(endpoints);
         GetEmployeePage.MapEndpoint(endpoints);
         GetStaffByCurrentCampus.MapEndpoint(endpoints);
-        Features.TeachingAssignment.CreateTeachingAssignment.MapEndpoint(endpoints);
         Features.TeachingAssignment.GetTeachingAssignmentsByEmployeeId.MapEndpoint(endpoints);
         UpdateEmployee.MapEndpoint(endpoints);
         DeleteEmployee.MapEndpoint(endpoints);

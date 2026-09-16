@@ -29,7 +29,8 @@ public static class CreateInquiry
 
     public sealed record Request(
         Guid TenantId,
-        string Name) : IRequest<Result<Response>>;
+        string Name,
+        string? MetadataJson = null) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -72,7 +73,8 @@ public static class CreateInquiry
             var entity = InquiryEntity.Create(
                 request.TenantId,
                 code,
-                request.Name);
+                request.Name,
+                request.MetadataJson);
 
             await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));

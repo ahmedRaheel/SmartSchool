@@ -12,7 +12,12 @@ public sealed class StopEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<StopEntity> builder)
     {
-        builder.ToTable("Stop", schema: "transport");
+        builder.ToTable("stop", schema: "transport");
+        builder.Property(entity => entity.RouteId).HasColumnName("route_id");
+        builder.Property(entity => entity.Sequence).HasColumnName("sequence");
+        builder.Property(entity => entity.PickupTime).HasColumnName("pickup_time");
+        builder.Property(entity => entity.DropoffTime).HasColumnName("dropoff_time");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.HasKey(entity => entity.StopId);
 
         builder

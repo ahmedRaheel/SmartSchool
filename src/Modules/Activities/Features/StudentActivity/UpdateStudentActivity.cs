@@ -1,11 +1,10 @@
-using SmartSchool.Modules.Activities.Persistence;
-using SmartSchool.Application.Persistence;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Activities.Models;
+using SmartSchool.Modules.Activities.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -13,93 +12,52 @@ namespace SmartSchool.Modules.Activities.Features.StudentActivity;
 
 public static class UpdateStudentActivity
 {
-    /// <summary>
-    /// Represents the response returned by this StudentActivityEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
-
-    public sealed record Request(
-        Guid TenantId,
-        Guid Id,
-        string Name) : IRequest<Result<Response>>;
+    public sealed record Request(Guid Id, Guid? TenantId, string? RoleName, DateOnly JoinedAt, DateOnly? LeftAt)
+        : IRequest<Result>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId).NotEmpty();
             RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+            RuleFor(x => x.RoleName).MaximumLength(100);
+            RuleFor(x => x).Must(x => !x.LeftAt.HasValue || x.LeftAt.Value >= x.JoinedAt)
+                .WithMessage("Left date cannot be earlier than joined date.");
         }
     }
 
-    public interface IUpdateStudentActivityCommand
+    public interface IUpdateStudentActivity
     {
-        Task UpdateAsync(
-                StudentActivityEntity entity,
-                CancellationToken cancellationToken);
-Task<StudentActivityEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken);
-
+        Task<StudentActivityEntity?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);
+        Task SaveAsync(CancellationToken cancellationToken);
     }
 
-    internal sealed class UpdateStudentActivityCommand(IActivitiesDbContext dbContext) : IUpdateStudentActivityCommand
+    internal sealed class UpdateStudentActivityCommand(IActivitiesDbContext dbContext) : IUpdateStudentActivity
     {
-        public async Task UpdateAsync(
-                StudentActivityEntity entity,
-                CancellationToken cancellationToken)
-            {
-                dbContext.StudentActivities
-                    .Update(entity);
-
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-
-        public async Task<StudentActivityEntity?> GetByIdAsync(
-                Guid tenantId,
-                Guid id,
-                CancellationToken cancellationToken)
-            {
-                return await dbContext.StudentActivities
-                    .FirstOrDefaultAsync(
-                        x => x.TenantId == tenantId
-                            && x.StudentActivityId == id,
-                        cancellationToken);
-            }
+        public Task<StudentActivityEntity?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken) =>
+            dbContext.StudentActivities.SingleOrDefaultAsync(x => x.TenantId == tenantId && x.StudentActivityId == id && x.IsActive, cancellationToken);
+        public Task SaveAsync(CancellationToken cancellationToken) => dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public sealed class Handler(IUpdateStudentActivityCommand command)
-        : IRequestHandler<Request, Result<Response>>
+    public sealed class Handler(IUpdateStudentActivity command, ITenantScope tenantScope) : IRequestHandler<Request, Result>
     {
-        public async Task<Result<Response>> HandleAsync(
-            Request request,
-            CancellationToken cancellationToken)
+        public async Task<Result> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            var entity = await command.GetByIdAsync(
-                request.TenantId, request.Id, cancellationToken);
+            var tenantId = tenantScope.Resolve(request.TenantId);
+            if (!tenantId.HasValue)
+            {
+                return Result.Failure(Error.Validation("Tenant context is required."));
+            }
+
+            var entity = await command.GetAsync(tenantId.Value, request.Id, cancellationToken);
             if (entity is null)
             {
-                return Result<Response>.Failure(
-                    Error.NotFound(ErrorMessages.EntityNotFound(nameof(StudentActivityEntity))));
+                return Result.Failure(Error.NotFound("Student activity participation was not found."));
             }
 
-
-            entity.UpdateDetails(
-                entity.Code,
-                request.Name);
-            await command.UpdateAsync(entity, cancellationToken);
-            return Result<Response>.Success(MapResponse(entity));
+            entity.Update(request.RoleName, request.JoinedAt, request.LeftAt);
+            await command.SaveAsync(cancellationToken);
+            return Result.Success();
         }
     }
 
@@ -107,26 +65,11 @@ Task<StudentActivityEntity?> GetByIdAsync(
     {
         endpoints.MapPut(
                 ApiRoutes.EntityById(ModuleConstants.RouteSegment, "student-activity"),
-                async (Guid id, Request request, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var command = request with { Id = id };
-                    var result = await mediator.SendAsync<Request, Result<Response>>(
-                        command, cancellationToken);
-                    return result.ToHttpResult();
-                })
+                async (Guid id, Request body, IMediator mediator, CancellationToken cancellationToken) =>
+                    (await mediator.SendAsync<Request, Result>(body with { Id = id }, cancellationToken)).ToHttpResult())
             .WithName("UpdateStudentActivity")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.AcademicManagement);
         return endpoints;
-    }
-
-    private static Response MapResponse(StudentActivityEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.ActivityId,
-            entity.Code,
-            entity.Name,
-            entity.MetadataJson);
     }
 }

@@ -97,7 +97,7 @@ public static class GetStudentExamResultById
                 })
             .WithName("GetStudentExamResultById")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 }

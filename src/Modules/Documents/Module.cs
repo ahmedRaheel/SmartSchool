@@ -33,6 +33,7 @@ public static class Module
         DownloadDocument.MapEndpoint(endpoints);
 
         GetDocumentSetup.MapEndpoint(endpoints);
+        Features.Compliance.GetDocumentCompliance.MapEndpoint(endpoints);
         CreateDocumentType.MapEndpoint(endpoints);
         CreateRequiredDocumentType.MapEndpoint(endpoints);
         CreateRequiredDocument.MapEndpoint(endpoints);

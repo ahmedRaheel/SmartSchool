@@ -9,5 +9,6 @@ public enum DocumentOwnerType
     ExaminerDocument = 5,
     EmployeeDocument = 6,
     DriverDocument = 7,
-    Certificate = 8
+    Certificate = 8,
+    AdmissionDocument = 9
 }

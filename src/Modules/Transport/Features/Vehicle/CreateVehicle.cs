@@ -1,11 +1,12 @@
-using SmartSchool.Modules.Transport.Persistence;
-using SmartSchool.Application.Persistence;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using SmartSchool.Application.Http;
+using Dapper;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Transport.Models;
+using SmartSchool.Modules.Transport.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
 
@@ -13,95 +14,54 @@ namespace SmartSchool.Modules.Transport.Features.Vehicle;
 
 public static class CreateVehicle
 {
-    /// <summary>
-    /// Represents the response returned by this VehicleEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
-    public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
-
-    public sealed record Request(
-        Guid TenantId,
-        string Name) : IRequest<Result<Response>>;
-
+    public sealed record Request(Guid TenantId, Guid CampusId, string Name, string RegistrationNo, int Capacity) : IRequest<Result<Response>>;
+    public sealed record Response(Guid Id, string Name, string RegistrationNo);
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
-            RuleFor(x => x.TenantId).NotEmpty();
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+            RuleFor(x => x.TenantId).NotEmpty(); RuleFor(x => x.CampusId).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(250); RuleFor(x => x.RegistrationNo).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.Capacity).InclusiveBetween(1, 100);
         }
     }
-
-    public interface ICreateVehicleCommand
+    public interface ICreateVehicleQuery { Task<bool> CampusExistsAsync(Request request, CancellationToken cancellationToken); }
+    internal sealed class CreateVehicleQuery(IDbConnectionFactory factory) : ICreateVehicleQuery
     {
-        Task AddAsync(
-                VehicleEntity entity,
-                CancellationToken cancellationToken);
-}
-
-    internal sealed class CreateVehicleCommand(ITransportDbContext dbContext) : ICreateVehicleCommand
-    {
-        public async Task AddAsync(
-                VehicleEntity entity,
-                CancellationToken cancellationToken)
-            {
-                await dbContext.Vehicles
-                    .AddAsync(entity, cancellationToken);
-
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-    }
-
-    public sealed class Handler(ICreateVehicleCommand command, IBusinessNumberGenerator numberGenerator)
-        : IRequestHandler<Request, Result<Response>>
-    {
-        public async Task<Result<Response>> HandleAsync(
-            Request request,
-            CancellationToken cancellationToken)
+        public async Task<bool> CampusExistsAsync(Request request, CancellationToken cancellationToken)
         {
-            var code = await numberGenerator.NextAsync("Vehicle", "VEH", request.TenantId, 3, cancellationToken);
-
-            var entity = VehicleEntity.Create(
-                request.TenantId,
-                code,
-                request.Name);
-
-            await command.AddAsync(entity, cancellationToken);
-            return Result<Response>.Success(MapResponse(entity));
+            await using var connection = await factory.OpenConnectionAsync(cancellationToken);
+            return await connection.ExecuteScalarAsync<bool>(new CommandDefinition("SELECT EXISTS(SELECT 1 FROM org.campus WHERE tenant_id = @TenantId AND campus_id = @CampusId AND is_active)", request, cancellationToken: cancellationToken));
         }
     }
-
+    public interface ICreateVehicleCommand { Task<Result<Response>> AddAsync(VehicleEntity entity, CancellationToken cancellationToken); }
+    internal sealed class CreateVehicleCommand(ITransportDbContext db) : ICreateVehicleCommand
+    {
+        public async Task<Result<Response>> AddAsync(VehicleEntity entity, CancellationToken cancellationToken)
+        {
+            if (await db.Vehicles.AnyAsync(x => x.TenantId == entity.TenantId && x.RegistrationNo == entity.RegistrationNo && x.IsActive, cancellationToken))
+                return Result<Response>.Failure(Error.Conflict("This vehicle registration is already in use."));
+            db.Vehicles.Add(entity); await db.SaveChangesAsync(cancellationToken);
+            return Result<Response>.Success(new(entity.VehicleId, entity.Name, entity.RegistrationNo));
+        }
+    }
+    public sealed class Handler(ICreateVehicleQuery query, ICreateVehicleCommand command, IBusinessNumberGenerator numbers) : IRequestHandler<Request, Result<Response>>
+    {
+        public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
+        {
+            if (!await query.CampusExistsAsync(request, cancellationToken)) return Result<Response>.Failure(Error.Validation("Select an active campus."));
+            var code = await numbers.NextAsync("VEHICLE", "VEH-", request.TenantId, 6, cancellationToken);
+            return await command.AddAsync(VehicleEntity.Register(request.TenantId, request.CampusId, code, request.Name, request.RegistrationNo, request.Capacity), cancellationToken);
+        }
+    }
     public static IEndpointRouteBuilder MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost(
-                ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "vehicle"),
-                async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var result = await mediator.SendAsync<Request, Result<Response>>(
-                        request, cancellationToken);
-                    return result.ToHttpResult();
-                })
-            .WithName("CreateVehicle")
-            .WithTags(ModuleConstants.Name)
-            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantDriver);
+        endpoints.MapPost("/api/transport/vehicle", async (Request request, ITenantScope scope, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var tenant = scope.Resolve(request.TenantId);
+            if (!tenant.HasValue) return Results.BadRequest(new { message = "Select a tenant." });
+            return (await mediator.SendAsync<Request, Result<Response>>(request with { TenantId = tenant.Value }, cancellationToken)).ToHttpResult();
+        }).WithName("CreateVehicle").WithTags("Transport").RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
-    }
-
-    private static Response MapResponse(VehicleEntity entity)
-    {
-        return new Response(
-            entity.TenantId,
-            entity.VehicleId,
-            entity.Code,
-            entity.Name,
-            entity.MetadataJson);
     }
 }

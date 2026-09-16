@@ -26,6 +26,51 @@ public sealed class AdmissionApplicationWriteEntity : Entity
     public string? PreviousSchool { get; private set; }
     public decimal? PreviousMarks { get; private set; }
     public string Status { get; private set; } = string.Empty;
+    public Guid? StudentId { get; private set; }
+    public decimal? EntranceTestMarks { get; private set; }
+    public bool? InterviewPassed { get; private set; }
+
+    public void RecordReview(decimal? entranceTestMarks, bool? interviewPassed)
+    {
+        EntranceTestMarks = entranceTestMarks; InterviewPassed = interviewPassed; MarkAsUpdated();
+    }
+
+    public string? DecisionNotes { get; private set; }
+    public DateTime? DecidedAt { get; private set; }
+    public DateTimeOffset SubmittedAt { get; private set; } = DateTimeOffset.UtcNow;
+
+    public void UpdateContact(string firstName, string? lastName, string guardianName, string? guardianPhone)
+    {
+        FirstName = firstName.Trim();
+        LastName = lastName?.Trim();
+        GuardianName = guardianName.Trim();
+        GuardianPhone = guardianPhone?.Trim();
+        MarkAsUpdated();
+    }
+
+    public void Accept(Guid studentId, string? notes, DateTime decidedAt)
+    {
+        if (StudentId.HasValue)
+        {
+            throw new InvalidOperationException("This application has already been admitted.");
+        }
+
+        StudentId = studentId;
+        ChangeStatus(AdmissionApplicationStatus.AdmissionAccepted, notes, decidedAt);
+    }
+
+    public void ChangeStatus(AdmissionApplicationStatus status, string? notes, DateTime decidedAt)
+    {
+        if (StudentId.HasValue && status != AdmissionApplicationStatus.AdmissionAccepted)
+        {
+            throw new InvalidOperationException("Use the student lifecycle to change an admitted student's status.");
+        }
+
+        Status = status.ToDatabaseValue();
+        DecisionNotes = notes?.Trim();
+        DecidedAt = status == AdmissionApplicationStatus.SubmittedApplication ? null : decidedAt;
+        MarkAsUpdated();
+    }
 
     public static AdmissionApplicationWriteEntity Create(Guid tenantId, CreateAdmissionApplication.Request request) => new()
     {

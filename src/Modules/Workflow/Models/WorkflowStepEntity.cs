@@ -2,66 +2,88 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Workflow.Models;
 
-/// <summary>
-/// Represents the WorkflowStepEntity domain entity.
-/// </summary>
+/// <summary>Represents one ordered step in a workflow definition.</summary>
 public sealed class WorkflowStepEntity : Entity
 {
-    /// <summary>Gets the entity-specific identifier.</summary>
+    private WorkflowStepEntity() { }
+
     public Guid WorkflowStepId { get; private set; } = Guid.NewGuid();
-
-    private WorkflowStepEntity()
-    {
-    }
-
-    /// <summary>Gets the business code.</summary>
+    public Guid WorkflowDefinitionId { get; private set; }
     public string Code { get; private set; } = string.Empty;
-
-    /// <summary>Gets the display name.</summary>
     public string Name { get; private set; } = string.Empty;
+    public int StepOrder { get; private set; }
+    public string StepType { get; private set; } = "APPROVAL";
+    public string? ApproverRole { get; private set; }
+    public string? ActionCode { get; private set; }
+    public bool IsRequired { get; private set; } = true;
 
-    /// <summary>Gets optional domain metadata serialized as JSON.</summary>
-    public string? MetadataJson { get; private set; }
-
-    /// <summary>Creates a new WorkflowStepEntity.</summary>
-    /// <param name="tenantId">The owning tenant identifier.</param>
-    /// <param name="code">The business code.</param>
-    /// <param name="name">The display name.</param>
-    /// <param name="metadataJson">Optional domain metadata.</param>
-    /// <returns>The newly created entity.</returns>
     public static WorkflowStepEntity Create(
         Guid tenantId,
+        Guid workflowDefinitionId,
         string code,
         string name,
-        string? metadataJson = null)
+        int stepOrder,
+        string stepType,
+        string? approverRole,
+        string? actionCode,
+        bool isRequired)
     {
+        if (stepOrder <= 0) throw new ArgumentOutOfRangeException(nameof(stepOrder));
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        var type = string.IsNullOrWhiteSpace(stepType) ? "APPROVAL" : stepType.Trim().ToUpperInvariant();
+        if (type == "APPROVAL" && string.IsNullOrWhiteSpace(approverRole))
+            throw new ArgumentException("Approver role is required for approval steps.");
 
         return new WorkflowStepEntity
         {
             TenantId = tenantId,
+            WorkflowDefinitionId = workflowDefinitionId,
             Code = code.Trim(),
             Name = name.Trim(),
-            MetadataJson = metadataJson
+            StepOrder = stepOrder,
+            StepType = type,
+            ApproverRole = Normalize(approverRole),
+            ActionCode = Normalize(actionCode),
+            IsRequired = isRequired
         };
     }
 
-    /// <summary>Updates the business details.</summary>
-    /// <param name="code">The new business code.</param>
-    /// <param name="name">The new display name.</param>
-    /// <param name="metadataJson">Optional domain metadata.</param>
-    public void UpdateDetails(
-        string code,
-        string name,
-        string? metadataJson = null)
+    public static WorkflowStepEntity Update(
+       Guid tenantId,
+       Guid workflowStepId,
+       Guid workflowDefinitionId,
+       string code,
+       string name,
+       int stepOrder,
+       string stepType,
+       string? approverRole,
+       string? actionCode,
+       bool isRequired)
     {
+        if (stepOrder <= 0)
+            throw new ArgumentOutOfRangeException(nameof(stepOrder));
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        Code = code.Trim();
-        Name = name.Trim();
-        MetadataJson = metadataJson;
-        MarkAsUpdated();
+        var type = string.IsNullOrWhiteSpace(stepType) ? "APPROVAL" : stepType.Trim().ToUpperInvariant();
+        if (type == "APPROVAL" && string.IsNullOrWhiteSpace(approverRole))
+            throw new ArgumentException("Approver role is required for approval steps.");
+
+        return new WorkflowStepEntity
+        {
+            TenantId = tenantId,
+            WorkflowStepId = workflowStepId,
+            WorkflowDefinitionId = workflowDefinitionId,
+            Code = code.Trim(),
+            Name = name.Trim(),
+            StepOrder = stepOrder,
+            StepType = type,
+            ApproverRole = Normalize(approverRole),
+            ActionCode = Normalize(actionCode),
+            IsRequired = isRequired
+        };
     }
+    private static string? Normalize(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

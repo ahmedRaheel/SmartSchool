@@ -116,7 +116,7 @@ Task<ExamSubjectEntity?> GetByIdAsync(
                 })
             .WithName("UpdateExamSubject")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 

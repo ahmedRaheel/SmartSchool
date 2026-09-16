@@ -1,3 +1,4 @@
+using FluentValidation;
 using SmartSchool.Application.Http;
 using Dapper;
 using SmartSchool.Application.Identity;
@@ -34,20 +35,20 @@ public sealed class CreateAdmissionCriteriaQuery(IDbConnectionFactory connection
         const string sql = """
             SELECT EXISTS (
                 SELECT 1
-                FROM academic.class AS class
+                FROM academic.grade_level AS class
                 INNER JOIN academic.academic_year AS academic_year
-                    ON academic_year.branch_id = class.branch_id
+                    ON academic_year.campus_id = class.campus_id
                     AND academic_year.tenant_id = class.tenant_id
                 INNER JOIN org.campus AS branch
-                    ON branch.campus_id = class.branch_id
+                    ON branch.campus_id = class.campus_id
                     AND branch.tenant_id = class.tenant_id
                 INNER JOIN org.campus_education_level AS branch_level
-                    ON branch_level.campus_id = class.branch_id
+                    ON branch_level.campus_id = class.campus_id
                     AND branch_level.education_level_id = class.education_level_id
                 WHERE class.tenant_id = @TenantId
                     AND branch.school_id = @SchoolId
-                    AND class.branch_id = @BranchId
-                    AND class.class_id = @ClassId
+                    AND class.campus_id = @BranchId
+                    AND class.grade_level_id = @ClassId
                     AND academic_year.academic_year_id = @AcademicYearId
                     AND class.is_active = TRUE
                     AND academic_year.is_active = TRUE
@@ -112,6 +113,23 @@ public sealed class AdmissionCriteriaWriteEntity
     public int? MaximumAge { get; private set; }
     public bool InterviewRequired { get; private set; }
     public string? RequiredDocuments { get; private set; }
+    public string Status { get; private set; } = "ACTIVE";
+
+    public void UpdateRules(decimal minimumMarks, decimal? entranceTestMinimum, int? minimumAge,
+        int? maximumAge, bool interviewRequired, string? requiredDocuments)
+    {
+        MinimumMarks = minimumMarks;
+        EntranceTestMinimum = entranceTestMinimum;
+        MinimumAge = minimumAge;
+        MaximumAge = maximumAge;
+        InterviewRequired = interviewRequired;
+        RequiredDocuments = requiredDocuments?.Trim();
+    }
+
+    public void Deactivate()
+    {
+        Status = "INACTIVE";
+    }
 
     private AdmissionCriteriaWriteEntity()
     {
@@ -156,6 +174,22 @@ public static class CreateAdmissionCriteria
         : IRequest<Result<Response>>;
 
     public sealed record Response(Guid Id);
+
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.SchoolId).NotEmpty();
+            RuleFor(x => x.BranchId).NotEmpty();
+            RuleFor(x => x.AcademicYearId).NotEmpty();
+            RuleFor(x => x.ClassId).NotEmpty();
+            RuleFor(x => x.MinimumMarks).InclusiveBetween(0, 100);
+            RuleFor(x => x.EntranceTestMinimum).InclusiveBetween(0, 100).When(x => x.EntranceTestMinimum.HasValue);
+            RuleFor(x => x.MinimumAge).GreaterThanOrEqualTo(0).When(x => x.MinimumAge.HasValue);
+            RuleFor(x => x.MaximumAge).GreaterThanOrEqualTo(x => x.MinimumAge ?? 0).When(x => x.MaximumAge.HasValue);
+            RuleFor(x => x.RequiredDocuments).MaximumLength(4000);
+        }
+    }
 
     public sealed class Handler(
         ITenantScope tenantScope,
@@ -202,6 +236,6 @@ public static class CreateAdmissionCriteria
     {
         endpoints.MapPost("/api/admissions/criteria", async (Request request, IMediator mediator, CancellationToken cancellationToken) =>
             (await mediator.SendAsync<Request, Result<Response>>(request, cancellationToken)).ToHttpResult())
-            .WithName("CreateAdmissionCriteria").WithTags("Admission Criteria").RequireAuthorization();
+            .WithName("CreateAdmissionCriteria").WithTags("Admission Criteria").RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
     }
 }

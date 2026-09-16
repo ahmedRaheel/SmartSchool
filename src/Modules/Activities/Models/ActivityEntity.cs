@@ -3,74 +3,117 @@ using SmartSchool.SharedKernel;
 namespace SmartSchool.Modules.Activities.Models;
 
 /// <summary>
-/// Represents the ActivityEntity domain entity.
+/// Represents a co-curricular activity or school event.
 /// </summary>
 public sealed class ActivityEntity : Entity
 {
-    /// <summary>Gets the entity-specific identifier.</summary>
-    public Guid ActivityId { get; private set; } = Guid.NewGuid();
-
     private ActivityEntity()
     {
     }
 
-    /// <summary>Gets the persisted campus id value.</summary>
+    public Guid ActivityId { get; private set; } = Guid.NewGuid();
     public Guid? CampusId { get; private set; }
-
-    /// <summary>Gets the persisted category value.</summary>
-    public string? Category { get; private set; }
-
-    /// <summary>Gets the persisted coordinator employee id value.</summary>
     public Guid? CoordinatorEmployeeId { get; private set; }
-
-    /// <summary>Gets the business code.</summary>
     public string Code { get; private set; } = string.Empty;
-
-    /// <summary>Gets the display name.</summary>
     public string Name { get; private set; } = string.Empty;
+    public string Category { get; private set; } = "OTHER";
+    public DateOnly ActivityDate { get; private set; }
+    public TimeOnly? StartTime { get; private set; }
+    public TimeOnly? EndTime { get; private set; }
+    public string? Venue { get; private set; }
+    public string? Description { get; private set; }
+    public int? MaxParticipants { get; private set; }
+    public string Status { get; private set; } = "UPCOMING";
 
-    /// <summary>Gets optional domain metadata serialized as JSON.</summary>
-    public string? MetadataJson { get; private set; }
-
-    /// <summary>Creates a new ActivityEntity.</summary>
-    /// <param name="tenantId">The owning tenant identifier.</param>
-    /// <param name="code">The business code.</param>
-    /// <param name="name">The display name.</param>
-    /// <param name="metadataJson">Optional domain metadata.</param>
-    /// <returns>The newly created entity.</returns>
     public static ActivityEntity Create(
         Guid tenantId,
         string code,
         string name,
-        string? metadataJson = null)
+        string category,
+        DateOnly activityDate,
+        Guid? campusId,
+        Guid? coordinatorEmployeeId,
+        TimeOnly? startTime,
+        TimeOnly? endTime,
+        string? venue,
+        string? description,
+        int? maxParticipants,
+        string status)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(code);
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        return new ActivityEntity
+        var entity = new ActivityEntity
         {
             TenantId = tenantId,
-            Code = code.Trim(),
-            Name = name.Trim(),
-            MetadataJson = metadataJson
+            Code = NormalizeRequired(code),
+            Name = NormalizeRequired(name),
+            Category = NormalizeRequired(category).ToUpperInvariant(),
+            ActivityDate = activityDate,
+            CampusId = campusId,
+            CoordinatorEmployeeId = coordinatorEmployeeId,
+            StartTime = startTime,
+            EndTime = endTime,
+            Venue = NormalizeOptional(venue),
+            Description = NormalizeOptional(description),
+            MaxParticipants = maxParticipants,
+            Status = NormalizeRequired(status).ToUpperInvariant()
         };
+
+        entity.ValidateTimeRange();
+        entity.ValidateCapacity();
+        return entity;
     }
 
-    /// <summary>Updates the business details.</summary>
-    /// <param name="code">The new business code.</param>
-    /// <param name="name">The new display name.</param>
-    /// <param name="metadataJson">Optional domain metadata.</param>
     public void UpdateDetails(
-        string code,
         string name,
-        string? metadataJson = null)
+        string category,
+        DateOnly activityDate,
+        Guid? campusId,
+        Guid? coordinatorEmployeeId,
+        TimeOnly? startTime,
+        TimeOnly? endTime,
+        string? venue,
+        string? description,
+        int? maxParticipants,
+        string status)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(code);
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        Name = NormalizeRequired(name);
+        Category = NormalizeRequired(category).ToUpperInvariant();
+        ActivityDate = activityDate;
+        CampusId = campusId;
+        CoordinatorEmployeeId = coordinatorEmployeeId;
+        StartTime = startTime;
+        EndTime = endTime;
+        Venue = NormalizeOptional(venue);
+        Description = NormalizeOptional(description);
+        MaxParticipants = maxParticipants;
+        Status = NormalizeRequired(status).ToUpperInvariant();
 
-        Code = code.Trim();
-        Name = name.Trim();
-        MetadataJson = metadataJson;
+        ValidateTimeRange();
+        ValidateCapacity();
         MarkAsUpdated();
     }
+
+    private void ValidateTimeRange()
+    {
+        if (StartTime.HasValue && EndTime.HasValue && EndTime.Value <= StartTime.Value)
+        {
+            throw new ArgumentException("End time must be later than start time.");
+        }
+    }
+
+    private void ValidateCapacity()
+    {
+        if (MaxParticipants.HasValue && MaxParticipants.Value <= 0)
+        {
+            throw new ArgumentException("Maximum participants must be greater than zero.");
+        }
+    }
+
+    private static string NormalizeRequired(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return value.Trim();
+    }
+
+    private static string? NormalizeOptional(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

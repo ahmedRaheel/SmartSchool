@@ -1,3 +1,4 @@
+using Dapper;
 using System.Security.Cryptography;
 using FluentValidation;
 using SmartSchool.Application.Http;
@@ -16,6 +17,8 @@ public static class CreateDocument
 
     public sealed record Request(HttpRequest HttpRequest) : IRequest<Result<Response>>;
 
+    public sealed record OwnerScope(Guid? CampusId, Guid? UserId);
+
     public sealed record Response(
         Guid DocumentId,
         string DocumentNumber,
@@ -24,6 +27,50 @@ public static class CreateDocument
         Guid OwnerId,
         string FileName,
         long SizeBytes);
+
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator() { RuleFor(x => x.HttpRequest).NotNull(); }
+    }
+
+    public interface ICreateDocumentQuery
+    {
+        Task<bool> TypesBelongToTenantAsync(Guid tenantId, Guid documentTypeId, Guid? requiredDocumentTypeId, CancellationToken cancellationToken);
+        Task<OwnerScope?> GetOwnerAsync(Guid tenantId, Guid ownerId, DocumentOwnerType ownerType, CancellationToken cancellationToken);
+    }
+
+    internal sealed class CreateDocumentQuery(IDbConnectionFactory connectionFactory) : ICreateDocumentQuery
+    {
+        public async Task<bool> TypesBelongToTenantAsync(Guid tenantId, Guid documentTypeId, Guid? requiredDocumentTypeId, CancellationToken cancellationToken)
+        {
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            const string sql = """
+                SELECT EXISTS (SELECT 1 FROM document.document_type
+                    WHERE document_type_id = @DocumentTypeId AND tenant_id = @TenantId AND is_active = TRUE)
+                AND (@RequiredTypeId IS NULL OR EXISTS (SELECT 1 FROM document.required_document_type
+                    WHERE required_document_type_id = @RequiredTypeId AND tenant_id = @TenantId AND is_active = TRUE));
+                """;
+            return await connection.ExecuteScalarAsync<bool>(new CommandDefinition(sql,
+                new { DocumentTypeId = documentTypeId, TenantId = tenantId, RequiredTypeId = requiredDocumentTypeId }, cancellationToken: cancellationToken));
+        }
+        public async Task<OwnerScope?> GetOwnerAsync(Guid tenantId, Guid ownerId, DocumentOwnerType ownerType, CancellationToken cancellationToken)
+        {
+            var ownerSql = ownerType switch
+            {
+                DocumentOwnerType.StudentDocument => "SELECT branch_id AS CampusId, user_id AS UserId FROM student.student WHERE student_id = @OwnerId AND tenant_id = @TenantId AND is_active = TRUE",
+                DocumentOwnerType.AdmissionDocument => "SELECT branch_id AS CampusId, NULL::uuid AS UserId FROM admission.student_application WHERE application_id = @OwnerId AND tenant_id = @TenantId AND is_active = TRUE",
+                DocumentOwnerType.TeacherDocument or DocumentOwnerType.EmployeeDocument or DocumentOwnerType.ExaminerDocument => "SELECT branch_id AS CampusId, user_id AS UserId FROM hr.employee WHERE employee_id = @OwnerId AND tenant_id = @TenantId AND is_active = TRUE",
+                DocumentOwnerType.ParentDocument => "SELECT NULL::uuid AS CampusId, user_id AS UserId FROM student.guardian WHERE guardian_id = @OwnerId AND tenant_id = @TenantId AND is_active = TRUE",
+                DocumentOwnerType.CampusDocument => "SELECT campus_id AS CampusId, NULL::uuid AS UserId FROM org.campus WHERE campus_id = @OwnerId AND tenant_id = @TenantId AND is_active = TRUE",
+                DocumentOwnerType.DriverDocument => "SELECT e.branch_id AS CampusId, e.user_id AS UserId FROM transport.driver d LEFT JOIN hr.employee e ON e.employee_id = d.employee_id AND e.tenant_id = d.tenant_id WHERE d.driver_id = @OwnerId AND d.tenant_id = @TenantId AND d.is_active = TRUE",
+                _ => null
+            };
+            if (ownerSql is null) return null;
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            return await connection.QuerySingleOrDefaultAsync<OwnerScope>(new CommandDefinition(ownerSql,
+                new { OwnerId = ownerId, TenantId = tenantId }, cancellationToken: cancellationToken));
+        }
+    }
 
     public interface ICreateDocumentCommand
     {
@@ -42,12 +89,14 @@ public static class CreateDocument
     public sealed class Handler(
         ICreateDocumentCommand command,
         IBusinessNumberGenerator numberGenerator,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        ITenantScope tenantScope,
+        ICreateDocumentQuery query)
         : IRequestHandler<Request, Result<Response>>
     {
         public async Task<Result<Response>> HandleAsync(Request request, CancellationToken cancellationToken)
         {
-            if (currentUser.TenantId is not Guid tenantId)
+            if (tenantScope.Resolve(Guid.TryParse(request.HttpRequest.Query["tenantId"], out var requestedTenantId) ? requestedTenantId : null) is not Guid tenantId)
             {
                 return Result<Response>.Failure(Error.Validation("Tenant context is required."));
             }
@@ -66,7 +115,7 @@ public static class CreateDocument
 
             if (!Guid.TryParse(form["documentTypeId"], out var documentTypeId) ||
                 !Guid.TryParse(form["ownerId"], out var ownerId) ||
-                !Enum.TryParse<DocumentOwnerType>(form["ownerType"], true, out var ownerType))
+                !Enum.TryParse<DocumentOwnerType>(form["ownerType"], true, out var ownerType) || !Enum.IsDefined(ownerType))
             {
                 return Result<Response>.Failure(Error.Validation("documentTypeId, ownerId and a valid ownerType are required."));
             }
@@ -74,6 +123,18 @@ public static class CreateDocument
             var requiredDocumentTypeId = Guid.TryParse(form["requiredDocumentTypeId"], out var requiredTypeId)
                 ? requiredTypeId
                 : (Guid?)null;
+
+            if (!await query.TypesBelongToTenantAsync(tenantId, documentTypeId, requiredDocumentTypeId, cancellationToken))
+                return Result<Response>.Failure(Error.Validation("The document type does not belong to this tenant."));
+            var owner = await query.GetOwnerAsync(tenantId, ownerId, ownerType, cancellationToken);
+            if (owner is null || currentUser.BranchId.HasValue && owner.CampusId.HasValue && currentUser.BranchId != owner.CampusId)
+            {
+                return Result<Response>.Failure(Error.Validation("The document owner is outside the current campus."));
+            }
+            if (!Authorization.DocumentPermissions.CanManage(currentUser) && owner.UserId != currentUser.UserId)
+            {
+                throw new UnauthorizedAccessException("You cannot upload documents for another person.");
+            }
 
             await using var input = file.OpenReadStream();
             using var memory = new MemoryStream();
@@ -87,7 +148,7 @@ public static class CreateDocument
 
             var document = DocumentFileEntity.Create(
                 tenantId,
-                currentUser.BranchId,
+                owner.CampusId ?? currentUser.BranchId,
                 documentTypeId,
                 requiredDocumentTypeId,
                 ownerId,

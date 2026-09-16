@@ -12,7 +12,8 @@ public sealed class AttendanceEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<AttendanceEntity> builder)
     {
-        builder.ToTable("Attendance", schema: "student");
+        builder.ToTable("attendance", schema: "student");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.HasKey(entity => entity.AttendanceId);
 
         builder

@@ -5,7 +5,7 @@ namespace SmartSchool.Infrastructure.Identity;
 
 public sealed class TenantScope(ICurrentUser currentUser) : ITenantScope
 {
-    public bool IsSuperAdmin => currentUser.IsInRole(SmartSchoolRoles.SuperAdmin);
+    public bool IsSuperAdmin => currentUser.IsInRole(SmartSchoolRoles.SuperAdmin) || currentUser.IsInRole(SmartSchoolRoles.SuperOwner);
     public Guid UserId => currentUser.UserId;
     public Guid? TenantId => IsSuperAdmin ? null : currentUser.TenantId;
 

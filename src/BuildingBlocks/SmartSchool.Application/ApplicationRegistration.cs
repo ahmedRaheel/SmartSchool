@@ -25,6 +25,8 @@ public static class ApplicationRegistration
 		ArgumentNullException.ThrowIfNull(services);
 
 		services.TryAddScoped<IMediator, Mediator>();
+        services.TryAddEnumerable(ServiceDescriptor.Scoped(
+            typeof(IPipelineBehavior<,>), typeof(RequestScopeBehavior<,>)));
 		services.TryAddEnumerable(
 			ServiceDescriptor.Scoped(
 				typeof(IPipelineBehavior<,>),

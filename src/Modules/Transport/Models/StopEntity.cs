@@ -47,6 +47,24 @@ public sealed class StopEntity : Entity
         };
     }
 
+    public Guid? RouteId { get; private set; }
+    public int Sequence { get; private set; }
+    public TimeOnly? PickupTime { get; private set; }
+    public TimeOnly? DropoffTime { get; private set; }
+
+    public static StopEntity Add(Guid tenantId, Guid routeId, string name, int sequence, TimeOnly pickupTime, TimeOnly dropoffTime)
+    {
+        var entity = Create(tenantId, Guid.NewGuid().ToString("N"), name);
+        entity.RouteId = routeId;
+        entity.Configure(name, sequence, pickupTime, dropoffTime);
+        return entity;
+    }
+    public void Configure(string name, int sequence, TimeOnly pickupTime, TimeOnly dropoffTime)
+    {
+        Name = name.Trim(); Sequence = sequence; PickupTime = pickupTime; DropoffTime = dropoffTime;
+        MarkAsUpdated();
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

@@ -2,66 +2,60 @@ using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.Workflow.Models;
 
-/// <summary>
-/// Represents the ApprovalEntity domain entity.
-/// </summary>
+/// <summary>Represents a pending or completed human decision for a workflow step.</summary>
 public sealed class ApprovalEntity : Entity
 {
-    /// <summary>Gets the entity-specific identifier.</summary>
+    private ApprovalEntity() { }
+
     public Guid ApprovalId { get; private set; } = Guid.NewGuid();
-
-    private ApprovalEntity()
-    {
-    }
-
-    /// <summary>Gets the business code.</summary>
+    public Guid WorkflowInstanceId { get; private set; }
+    public Guid WorkflowStepId { get; private set; }
     public string Code { get; private set; } = string.Empty;
-
-    /// <summary>Gets the display name.</summary>
     public string Name { get; private set; } = string.Empty;
+    public string AssignedRole { get; private set; } = string.Empty;
+    public string Status { get; private set; } = "PENDING";
+    public DateTimeOffset RequestedAt { get; private set; }
+    public DateTimeOffset? DecisionAt { get; private set; }
+    public Guid? DecidedByUserId { get; private set; }
+    public string? Comments { get; private set; }
 
-    /// <summary>Gets optional domain metadata serialized as JSON.</summary>
-    public string? MetadataJson { get; private set; }
-
-    /// <summary>Creates a new ApprovalEntity.</summary>
-    /// <param name="tenantId">The owning tenant identifier.</param>
-    /// <param name="code">The business code.</param>
-    /// <param name="name">The display name.</param>
-    /// <param name="metadataJson">Optional domain metadata.</param>
-    /// <returns>The newly created entity.</returns>
     public static ApprovalEntity Create(
         Guid tenantId,
+        Guid workflowInstanceId,
+        Guid workflowStepId,
         string code,
         string name,
-        string? metadataJson = null)
+        string assignedRole)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(assignedRole);
 
         return new ApprovalEntity
         {
             TenantId = tenantId,
+            WorkflowInstanceId = workflowInstanceId,
+            WorkflowStepId = workflowStepId,
             Code = code.Trim(),
             Name = name.Trim(),
-            MetadataJson = metadataJson
+            AssignedRole = assignedRole.Trim(),
+            RequestedAt = DateTimeOffset.UtcNow
         };
     }
 
-    /// <summary>Updates the business details.</summary>
-    /// <param name="code">The new business code.</param>
-    /// <param name="name">The new display name.</param>
-    /// <param name="metadataJson">Optional domain metadata.</param>
-    public void UpdateDetails(
-        string code,
-        string name,
-        string? metadataJson = null)
+    public void Decide(string decision, Guid userId, string? comments)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(code);
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (!Status.Equals("PENDING", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("This approval has already been decided.");
 
-        Code = code.Trim();
-        Name = name.Trim();
-        MetadataJson = metadataJson;
+        var normalized = decision.Trim().ToUpperInvariant();
+        if (normalized is not ("APPROVED" or "REJECTED"))
+            throw new ArgumentException("Decision must be APPROVED or REJECTED.");
+
+        Status = normalized;
+        DecidedByUserId = userId;
+        DecisionAt = DateTimeOffset.UtcNow;
+        Comments = string.IsNullOrWhiteSpace(comments) ? null : comments.Trim();
         MarkAsUpdated();
     }
 }

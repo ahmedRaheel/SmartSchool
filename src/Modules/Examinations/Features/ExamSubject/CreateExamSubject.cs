@@ -91,7 +91,7 @@ public static class CreateExamSubject
                 })
             .WithName("CreateExamSubject")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 

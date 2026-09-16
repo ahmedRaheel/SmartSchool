@@ -14,11 +14,12 @@ public interface IAdmissionsDbContext
     DbSet<InquiryEntity> Inquiries { get; }
     DbSet<Features.AdmissionCriteriaWriteEntity> AdmissionCriteria { get; }
     DbSet<Features.AdmissionApplicationWriteEntity> AdmissionApplications { get; }
-    DbSet<Features.CompleteAdmissionApplication> CompleteAdmissionApplications { get; }
     DbSet<Features.CompleteAdmissionStudent> CompleteAdmissionStudents { get; }
     DbSet<Features.CompleteAdmissionGuardian> CompleteAdmissionGuardians { get; }
     DbSet<Features.CompleteAdmissionStudentGuardian> CompleteAdmissionStudentGuardians { get; }
     DbSet<Features.CompleteAdmissionEnrollment> CompleteAdmissionEnrollments { get; }
+    DbSet<Features.CompleteAdmissionDocument> CompleteAdmissionDocuments { get; }
+    DbSet<Features.CompleteAdmissionSection> CompleteAdmissionSections { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -36,11 +37,13 @@ public sealed class AdmissionsDbContext(DbContextOptions<AdmissionsDbContext> op
     public DbSet<InquiryEntity> Inquiries => Set<InquiryEntity>();
     public DbSet<Features.AdmissionCriteriaWriteEntity> AdmissionCriteria => Set<Features.AdmissionCriteriaWriteEntity>();
     public DbSet<Features.AdmissionApplicationWriteEntity> AdmissionApplications => Set<Features.AdmissionApplicationWriteEntity>();
-    public DbSet<Features.CompleteAdmissionApplication> CompleteAdmissionApplications => Set<Features.CompleteAdmissionApplication>();
     public DbSet<Features.CompleteAdmissionStudent> CompleteAdmissionStudents => Set<Features.CompleteAdmissionStudent>();
     public DbSet<Features.CompleteAdmissionGuardian> CompleteAdmissionGuardians => Set<Features.CompleteAdmissionGuardian>();
     public DbSet<Features.CompleteAdmissionStudentGuardian> CompleteAdmissionStudentGuardians => Set<Features.CompleteAdmissionStudentGuardian>();
     public DbSet<Features.CompleteAdmissionEnrollment> CompleteAdmissionEnrollments => Set<Features.CompleteAdmissionEnrollment>();
+
+    public DbSet<Features.CompleteAdmissionDocument> CompleteAdmissionDocuments => Set<Features.CompleteAdmissionDocument>();
+    public DbSet<Features.CompleteAdmissionSection> CompleteAdmissionSections => Set<Features.CompleteAdmissionSection>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

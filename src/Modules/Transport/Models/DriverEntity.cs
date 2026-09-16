@@ -68,4 +68,17 @@ public sealed class DriverEntity : Entity
 
     /// <summary>Gets the persisted status value.</summary>
     public string Status { get; private set; } = string.Empty;
+    public static DriverEntity Register(Guid tenantId, Guid employeeId, string number, string firstName, string? lastName,
+        string cnic, string? phone, DateOnly dateOfBirth, DateOnly hireDate, string licenseNumber, string licenseCategory, DateOnly licenseExpiry)
+    {
+        return new DriverEntity
+        {
+            TenantId = tenantId, EmployeeId = employeeId, DriverNumber = number, EmployeeNumber = number,
+            FirstName = firstName, LastName = lastName ?? string.Empty, FullName = $"{firstName} {lastName}".Trim(),
+            Cnic = cnic, CnicNumber = cnic, Phone = phone, MobileNumber = phone ?? string.Empty,
+            DateOfBirth = dateOfBirth, HireDate = hireDate, JoiningDate = hireDate,
+            DrivingLicenseNumber = licenseNumber.Trim(), DrivingLicenseCategory = licenseCategory.Trim(),
+            DrivingLicenseExpiresOn = licenseExpiry, LicenseExpiryDate = licenseExpiry, EmploymentStatusCode = "ACTIVE", Status = "ACTIVE"
+        };
+    }
 }

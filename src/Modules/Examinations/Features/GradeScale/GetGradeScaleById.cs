@@ -101,7 +101,7 @@ public static class GetGradeScaleById
                 })
             .WithName("GetGradeScaleById")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 }

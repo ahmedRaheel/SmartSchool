@@ -25,7 +25,7 @@ public static class GetGradeScalePage
     Guid Id,
     string Code,
     string Name,
-    string? MetadataJson);
+    string? MetadataJson, Guid? CampusId, decimal MinimumPercentage, decimal MaximumPercentage, decimal? GradePoint);
 
     public sealed record Query(
         Guid TenantId,
@@ -57,7 +57,7 @@ public static class GetGradeScalePage
                     SELECT COUNT(*)
                     FROM exam.grade_scale
                     WHERE tenant_id = @TenantId
-                    AND ( @BranchId IS NULL OR branch_id = @BranchId )
+                    AND ( @BranchId IS NULL OR campus_id = @BranchId )
                       AND is_active = TRUE;
                     """;
 
@@ -67,10 +67,10 @@ public static class GetGradeScalePage
                     grade_scale_id AS "Id",
                     code AS "Code",
                     name AS "Name",
-                    metadata_json AS "MetadataJson"
+                    metadata_json AS "MetadataJson", campus_id AS "CampusId", minimum_percentage AS "MinimumPercentage", maximum_percentage AS "MaximumPercentage", grade_point AS "GradePoint"
                     FROM exam.grade_scale
                     WHERE tenant_id = @TenantId
-                    AND ( @BranchId IS NULL OR branch_id = @BranchId )
+                    AND ( @BranchId IS NULL OR campus_id = @BranchId )
                       AND is_active = TRUE
                     ORDER BY grade_scale_id
                     LIMIT @PageSize OFFSET @Offset;
@@ -143,7 +143,7 @@ public static class GetGradeScalePage
                 })
             .WithName("GetGradeScalePage")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 }

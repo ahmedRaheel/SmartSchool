@@ -155,7 +155,7 @@ public static class GetStudentExamResultPage
                 })
             .WithName("GetStudentExamResultPage")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization();
+            .RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
         return endpoints;
     }
 }

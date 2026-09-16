@@ -13,6 +13,7 @@ public sealed class LessonEntityConfiguration
     public void Configure(EntityTypeBuilder<LessonEntity> builder)
     {
         builder.ToTable("lesson", schema: "lms");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.HasKey(entity => entity.LessonId);
 
         builder

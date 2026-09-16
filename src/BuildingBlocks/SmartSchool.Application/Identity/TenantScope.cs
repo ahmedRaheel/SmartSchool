@@ -8,7 +8,7 @@ namespace SmartSchool.Application.Identity;
 /// </summary>
 public sealed class TenantScope(ICurrentUser currentUser) : ITenantScope
 {
-    public bool IsSuperAdmin => currentUser.IsInRole(SmartSchoolRoles.SuperAdmin);
+    public bool IsSuperAdmin => currentUser.IsInRole(SmartSchoolRoles.SuperAdmin) || currentUser.IsInRole(SmartSchoolRoles.SuperOwner);
 
     public Guid UserId => currentUser.UserId;
 
@@ -20,7 +20,12 @@ public sealed class TenantScope(ICurrentUser currentUser) : ITenantScope
     {
         if (IsSuperAdmin)
         {
-            return requestedTenantId;
+            return requestedTenantId ?? currentUser.TenantId;
+        }
+
+        if (requestedTenantId.HasValue && requestedTenantId != Guid.Empty && requestedTenantId != currentUser.TenantId)
+        {
+            throw new UnauthorizedAccessException("The requested tenant is outside the authenticated tenant scope.");
         }
 
         return currentUser.TenantId

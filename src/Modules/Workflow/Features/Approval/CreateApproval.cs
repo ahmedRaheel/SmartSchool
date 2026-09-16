@@ -23,13 +23,20 @@ public static class CreateApproval
     public sealed record Response(
     Guid TenantId,
     Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
+
+        Guid WorkflowInstanceId,
+        Guid WorkflowStepId,
+        string Code,
+        string Name,
+        string AssignedRole);
 
     public sealed record Request(
         Guid TenantId,
-        string Name) : IRequest<Result<Response>>;
+        Guid WorkflowInstanceId,
+        Guid WorkflowStepId,
+        string Code,
+        string Name,
+        string AssignedRole) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -71,8 +78,11 @@ public static class CreateApproval
 
             var entity = ApprovalEntity.Create(
                 request.TenantId,
+                request.WorkflowStepId,
+                request.WorkflowInstanceId,
                 code,
-                request.Name);
+                request.Name, 
+                request.AssignedRole);
 
             await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
@@ -97,11 +107,13 @@ public static class CreateApproval
 
     private static Response MapResponse(ApprovalEntity entity)
     {
-        return new Response(
+      return new Response(
             entity.TenantId,
             entity.ApprovalId,
+            entity.WorkflowInstanceId,
+            entity.WorkflowStepId,
             entity.Code,
             entity.Name,
-            entity.MetadataJson);
+            entity.AssignedRole);
     }
 }

@@ -1,143 +1,133 @@
-using SmartSchool.Application.Persistence;
 using Dapper;
-using System.Threading.Tasks;
 using SmartSchool.Application.Http;
+using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
+using SmartSchool.Application.Persistence;
 using SmartSchool.Application.Requests;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
-using SmartSchool.Modules.Activities.Models;
-using SmartSchool.Application.Identity;
 
 namespace SmartSchool.Modules.Activities.Features.Award;
 
 public static class GetAwardPage
 {
-    /// <summary>
-    /// Represents the response returned by this AwardEntity feature.
-    /// </summary>
-    /// <param name="TenantId">The owning tenant identifier.</param>
-    /// <param name="Id">The entity identifier.</param>
-    /// <param name="Code">The business code.</param>
-    /// <param name="Name">The display name.</param>
     public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson,
-    Guid? DocumentId,
-    string? DocumentNumber,
-    string? DocumentTitle);
-
-    public sealed record Query(
         Guid TenantId,
-        int Page = 1,
-        int PageSize = 25) : IRequest<Result<PagedResult<Response>>>;
+        Guid Id,
+        Guid StudentId,
+        string StudentNumber,
+        string StudentName,
+        string AwardTypeCode,
+        string Title,
+        string? Description,
+        DateOnly AwardDate,
+        Guid? ApprovedBy,
+        string? ApprovedByName,
+        Guid? DocumentId);
 
-    public interface IGetAwardPageQuery
+    public sealed record Query(Guid? TenantId, Guid? StudentId, int Page = 1, int PageSize = 25)
+        : IRequest<Result<PagedResult<Response>>>;
+
+    public interface IGetAwardPage
     {
-        Task<PagedResult<Response>> GetPageAsync(
-                Guid tenantId,
-                int page,
-                int pageSize,
-                CancellationToken cancellationToken);
-
+        Task<PagedResult<Response>> ExecuteAsync(
+            Guid tenantId,
+            Guid? branchId,
+            Guid? studentId,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken);
     }
 
-    internal sealed class GetAwardPageQuery(
-        IDbConnectionFactory connectionFactory,
-        ICurrentUser currentUser) : IGetAwardPageQuery
+    internal sealed class GetAwardPageQuery(IDbConnectionFactory connectionFactory) : IGetAwardPage
     {
-        public async Task<PagedResult<Response>> GetPageAsync(
-                Guid tenantId,
-                int page,
-                int pageSize,
-                CancellationToken cancellationToken)
-            {
-                var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId; 
-            const string countSql = """
-                    SELECT COUNT(*)
-                    FROM activity.student_award AS entity
-                         Join student.student AS student on student.student_id = entity.student_id
-                    WHERE entity.tenant_id = @TenantId
-                    and (student.branch_id = @branchId or @branchId is null)
-                      AND entity.is_active = TRUE                    
-                    """;
-
-                const string pageSql = """
-                    SELECT
-                    entity.tenant_id AS "TenantId",
-                    entity.student_award_id AS "Id",
-                    entity.code AS "Code",
-                    entity.name AS "Name",
-                    entity.metadata_json AS "MetadataJson",
-                        p1.document_id AS "DocumentId",
-                        p1.document_number AS "DocumentNumber",
-                        p1.title AS "DocumentTitle"
-                    FROM activity.student_award AS entity
-                         Join student.student AS student on student.student_id = entity.student_id
-
-                    LEFT JOIN document.document AS p1
-                        ON p1.document_id = entity.document_id
-                    WHERE entity.tenant_id = @TenantId
-                      AND entity.is_active = TRUE
-                    and (student.branch_id = @branchId or @branchId is null)
-                    ORDER BY entity.student_award_id
-                    LIMIT @PageSize OFFSET @Offset;
-                    """;
-
-                await using var connection =
-                    await connectionFactory.OpenConnectionAsync(cancellationToken);
-
-                var parameters = new
-                {
-                    TenantId = tenantId,
-                    BranchId = branchId,
-                    PageSize = pageSize,
-                    Offset = (page - 1) * pageSize
-                };
-
-                var totalCount = await connection.ExecuteScalarAsync<long>(
-                    new CommandDefinition(
-                        countSql,
-                        parameters,
-                        cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-                var items = (await connection.QueryAsync<Response>(
-                    new CommandDefinition(
-                        pageSql,
-                        parameters,
-                        cancellationToken: cancellationToken)).ConfigureAwait(false))
-                    .AsList();
-
-                return new PagedResult<Response>(
-                    items,
-                    page,
-                    pageSize,
-                    totalCount);
-            }
-    }
-
-    public sealed class Handler(IGetAwardPageQuery query)
-        : IRequestHandler<Query, Result<PagedResult<Response>>>
-    {
-        public async Task<Result<PagedResult<Response>>> HandleAsync(
-            Query request,
+        public async Task<PagedResult<Response>> ExecuteAsync(
+            Guid tenantId,
+            Guid? branchId,
+            Guid? studentId,
+            int page,
+            int pageSize,
             CancellationToken cancellationToken)
         {
-            var pageRequest = new PageRequest(request.Page, request.PageSize);
-            var page = await query.GetPageAsync(
-                request.TenantId,
-                pageRequest.NormalizedPage,
-                pageRequest.NormalizedPageSize,
+            const string countSql = """
+                SELECT COUNT(*)
+                FROM activity.student_award a
+                JOIN student.student s ON s.student_id=a.student_id AND s.tenant_id=a.tenant_id
+                WHERE a.tenant_id=@TenantId
+                  AND a.is_active=TRUE
+                  AND (@BranchId IS NULL OR s.branch_id=@BranchId)
+                  AND (@StudentId IS NULL OR a.student_id=@StudentId);
+                """;
+
+            const string pageSql = """
+                SELECT
+                    a.tenant_id AS "TenantId",
+                    a.student_award_id AS "Id",
+                    a.student_id AS "StudentId",
+                    s.student_number AS "StudentNumber",
+                    trim(concat_ws(' ', s.first_name, s.last_name)) AS "StudentName",
+                    a.award_type_code AS "AwardTypeCode",
+                    a.title AS "Title",
+                    a.description AS "Description",
+                    a.award_date AS "AwardDate",
+                    a.approved_by AS "ApprovedBy",
+                    NULLIF(trim(concat_ws(' ', e.first_name, e.last_name)), '') AS "ApprovedByName",
+                    a.generated_document_id AS "DocumentId"
+                FROM activity.student_award a
+                JOIN student.student s ON s.student_id=a.student_id AND s.tenant_id=a.tenant_id
+                LEFT JOIN hr.employee e ON e.employee_id=a.approved_by AND e.tenant_id=a.tenant_id
+                WHERE a.tenant_id=@TenantId
+                  AND a.is_active=TRUE
+                  AND (@BranchId IS NULL OR s.branch_id=@BranchId)
+                  AND (@StudentId IS NULL OR a.student_id=@StudentId)
+                ORDER BY a.award_date DESC, a.title
+                LIMIT @PageSize OFFSET @Offset;
+                """;
+
+            var parameters = new
+            {
+                TenantId = tenantId,
+                BranchId = branchId,
+                StudentId = studentId,
+                PageSize = pageSize,
+                Offset = (page - 1) * pageSize
+            };
+
+            await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            var total = await connection.ExecuteScalarAsync<long>(new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+            var items = (await connection.QueryAsync<Response>(new CommandDefinition(pageSql, parameters, cancellationToken: cancellationToken))).AsList();
+            return new PagedResult<Response>(items, page, pageSize, total);
+        }
+    }
+
+    public sealed class Handler(IGetAwardPage query, ITenantScope tenantScope, ICurrentUser currentUser)
+        : IRequestHandler<Query, Result<PagedResult<Response>>>
+    {
+        public async Task<Result<PagedResult<Response>>> HandleAsync(Query request, CancellationToken cancellationToken)
+        {
+            var tenantId = tenantScope.Resolve(request.TenantId);
+            if (!tenantId.HasValue)
+            {
+                return Result<PagedResult<Response>>.Failure(Error.Validation("Tenant context is required."));
+            }
+
+            var page = new PageRequest(request.Page, request.PageSize);
+            var branchId = currentUser.IsInRole(SmartSchoolRoles.SuperAdmin) || currentUser.IsInRole(SmartSchoolRoles.SuperOwner) || currentUser.IsInRole(SmartSchoolRoles.Tenant)
+                ? null
+                : currentUser.BranchId;
+            var studentId = currentUser.IsInRole(SmartSchoolRoles.Student)
+                ? currentUser.StudentId
+                : request.StudentId;
+
+            var result = await query.ExecuteAsync(
+                tenantId.Value,
+                branchId,
+                studentId,
+                page.NormalizedPage,
+                page.NormalizedPageSize,
                 cancellationToken);
-            var response = new PagedResult<Response>(
-                page.Items,
-                page.Page,
-                page.PageSize,
-                page.TotalCount);
-            return Result<PagedResult<Response>>.Success(response);
+
+            return Result<PagedResult<Response>>.Success(result);
         }
     }
 
@@ -145,16 +135,12 @@ public static class GetAwardPage
     {
         endpoints.MapGet(
                 ApiRoutes.EntityCollection(ModuleConstants.RouteSegment, "award"),
-                async (Guid tenantId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var request = new Query(tenantId, page, pageSize);
-                    var result = await mediator.SendAsync<Query, Result<PagedResult<Response>>>(
-                        request, cancellationToken);
-                    return result.ToHttpResult();
-                })
+                async (Guid? tenantId, Guid? studentId, int page, int pageSize, IMediator mediator, CancellationToken cancellationToken) =>
+                    (await mediator.SendAsync<Query, Result<PagedResult<Response>>>(new Query(tenantId, studentId, page, pageSize), cancellationToken)).ToHttpResult())
             .WithName("GetAwardPage")
             .WithTags(ModuleConstants.Name)
             .RequireAuthorization();
+
         return endpoints;
     }
 }

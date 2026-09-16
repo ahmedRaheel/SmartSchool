@@ -55,10 +55,12 @@ public static class FeaturePersistenceRegistrationExtensions
 
     private static bool IsFeatureContract(Type contract)
     {
+        // A feature owns its own persistence contract. The contract name is a
+        // domain choice (for example ICreateStudent, IGradeSubmission or
+        // IGetTeacherTimetable); it must not be forced into shared Query/Command
+        // naming simply to make dependency injection work.
         return contract.IsInterface
-            && contract.Namespace?.Contains(".Features", StringComparison.Ordinal) == true
-            && (contract.Name.EndsWith("Query", StringComparison.Ordinal)
-                || contract.Name.EndsWith("Command", StringComparison.Ordinal));
+            && contract.Namespace?.Contains(".Features", StringComparison.Ordinal) == true;
     }
 
     private static bool IsQueryOrCommandImplementation(TypeInfo type)

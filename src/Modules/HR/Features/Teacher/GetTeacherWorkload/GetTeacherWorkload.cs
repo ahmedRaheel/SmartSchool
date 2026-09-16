@@ -39,9 +39,13 @@ public static class GetTeacherWorkload
         group.MapGet("/{employeeId:guid}/workload", HandleAsync);
     }
 
-    private static async Task<IResult> HandleAsync(Guid employeeId, Guid? tenantId, ITenantScope tenantScope, IMediator mediator, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(Guid employeeId, Guid? tenantId, ITenantScope tenantScope, ICurrentUser currentUser, IMediator mediator, CancellationToken cancellationToken)
     {
-            var resolvedTenantId = tenantScope.IsSuperAdmin ? tenantId : tenantScope.Resolve(tenantId);
+            if (currentUser.IsInRole(SmartSchoolRoles.Teacher) && employeeId != (currentUser.EmployeeId ?? currentUser.TeacherId))
+            {
+                return Results.Forbid();
+            }
+            var resolvedTenantId = tenantScope.Resolve(tenantId);
             if (!resolvedTenantId.HasValue)
             {
                 return Results.BadRequest(new { message = "Tenant is required." });

@@ -74,6 +74,31 @@ public sealed class ExamEntity : Entity
         };
     }
 
+    public Guid? ClassSectionId { get; private set; }
+
+    public static ExamEntity Schedule(Guid tenantId, string code, string name, Guid campusId,
+        Guid academicYearId, Guid academicSystemId, Guid classSectionId, string examType,
+        DateOnly startDate, DateOnly endDate)
+    {
+        var entity = Create(tenantId, code, name);
+        entity.CampusId = campusId;
+        entity.AcademicYearId = academicYearId;
+        entity.AcademicSystemId = academicSystemId;
+        entity.ClassSectionId = classSectionId;
+        entity.ExamTypeCode = examType;
+        entity.StartDate = startDate;
+        entity.EndDate = endDate;
+        entity.Status = "SCHEDULED";
+        return entity;
+    }
+
+    public void Publish()
+    {
+        Status = "PUBLISHED";
+        ResultPublishDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        MarkAsUpdated();
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>

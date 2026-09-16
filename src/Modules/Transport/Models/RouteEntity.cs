@@ -50,6 +50,28 @@ public sealed class RouteEntity : Entity
         };
     }
 
+    public Guid? VehicleId { get; private set; }
+    public Guid? DriverId { get; private set; }
+    public TimeOnly? StartTime { get; private set; }
+    public TimeOnly? ArrivalTime { get; private set; }
+    public TimeOnly? DismissalTime { get; private set; }
+
+    public static RouteEntity Schedule(Guid tenantId, string code, string name, Guid campusId,
+        Guid vehicleId, Guid driverId, TimeOnly startTime, TimeOnly arrivalTime, TimeOnly dismissalTime)
+    {
+        var entity = Create(tenantId, code, name);
+        entity.Configure(name, campusId, vehicleId, driverId, startTime, arrivalTime, dismissalTime);
+        return entity;
+    }
+
+    public void Configure(string name, Guid campusId, Guid vehicleId, Guid driverId,
+        TimeOnly startTime, TimeOnly arrivalTime, TimeOnly dismissalTime)
+    {
+        Name = name.Trim(); CampusId = campusId; VehicleId = vehicleId; DriverId = driverId;
+        StartTime = startTime; ArrivalTime = arrivalTime; DismissalTime = dismissalTime;
+        MarkAsUpdated();
+    }
+
     /// <summary>Updates the business details.</summary>
     /// <param name="code">The new business code.</param>
     /// <param name="name">The new display name.</param>
