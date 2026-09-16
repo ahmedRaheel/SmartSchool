@@ -8,6 +8,7 @@ using SmartSchool.Modules.Organization.Features.Program;
 using SmartSchool.Modules.Organization.Features.Subject;
 using SmartSchool.Modules.Organization.Features.Term;
 using SmartSchool.Modules.Organization.Features.Timetable;
+using SmartSchool.Modules.Organization.Features.TimetableOperations;
 using SmartSchool.Modules.Organization.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Modules.Organization.Features.Campus;
@@ -104,14 +105,12 @@ public static class Module
         GetTermPage.MapEndpoint(endpoints);
         UpdateTerm.MapEndpoint(endpoints);
         DeleteTerm.MapEndpoint(endpoints);
-        CreateTimetable.MapEndpoint(endpoints);
         GetTimetableById.MapEndpoint(endpoints);
         GetTimetableByTermId.MapEndpoint(endpoints);
         GetTimetableByCampusId.MapEndpoint(endpoints);
         GetTimetableByAcademicYearId.MapEndpoint(endpoints);
         GetTimetablePage.MapEndpoint(endpoints);
-        UpdateTimetable.MapEndpoint(endpoints);
-        DeleteTimetable.MapEndpoint(endpoints);
+        TimetableOperations.MapEndpoints(endpoints);
 
         GetTenantSettings.MapEndpoint(endpoints);
         SaveTenantSettings.MapEndpoint(endpoints);

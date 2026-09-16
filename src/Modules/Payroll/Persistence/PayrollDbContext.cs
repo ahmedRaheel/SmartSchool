@@ -38,5 +38,11 @@ public sealed class PayrollDbContext(DbContextOptions<PayrollDbContext> options)
             typeof(PayrollDbContext).Assembly,
             type => type.Namespace is not null
                 && type.Namespace.StartsWith("SmartSchool.Modules.Payroll.Persistence.Configurations", StringComparison.Ordinal));
+
+        // Legacy generated master-data shells are retained as source compatibility types only.
+        // Operational payroll persists to hr.employee_compensation and canonical payroll tables.
+        modelBuilder.Ignore<IncrementEntity>();
+        modelBuilder.Ignore<PayslipEntity>();
+        modelBuilder.Ignore<SalaryStructureEntity>();
     }
 }

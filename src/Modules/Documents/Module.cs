@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Documents.Features.Document;
+using SmartSchool.Modules.Documents.Features.Certificates;
 using SmartSchool.Modules.Documents.Features.DocumentSetup;
 using SmartSchool.Modules.Documents.Features.DownloadDocument;
 using SmartSchool.Modules.Documents.Persistence;
@@ -37,6 +38,7 @@ public static class Module
         CreateDocumentType.MapEndpoint(endpoints);
         CreateRequiredDocumentType.MapEndpoint(endpoints);
         CreateRequiredDocument.MapEndpoint(endpoints);
+        CertificateOperations.MapEndpoints(endpoints);
 
         return endpoints;
     }

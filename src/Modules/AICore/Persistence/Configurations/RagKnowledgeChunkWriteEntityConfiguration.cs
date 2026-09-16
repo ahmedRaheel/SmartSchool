@@ -13,7 +13,7 @@ public sealed class RagKnowledgeChunkWriteEntityConfiguration:IEntityTypeConfigu
         builder.Property(x => x.Collection).HasColumnName("collection").HasMaxLength(80);
         builder.Property(x => x.DocumentName).HasColumnName("document_name").HasMaxLength(250);
         builder.Property(x => x.Content).HasColumnName("content");
-        builder.Property(x => x.Embedding).HasColumnName("embedding").HasColumnType("vector(768)");
+        builder.Property(x => x.Embedding).HasColumnName("embedding_v384").HasColumnType("vector(384)");
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.IsActive).HasColumnName("is_active");
     }

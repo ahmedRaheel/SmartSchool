@@ -16,6 +16,7 @@ public static class UploadKnowledgePdf
 {
     private const long MaxPdfSize = 25 * 1024 * 1024;
     private const int ChunkSize = 1200;
+    private const int EmbeddingDimensions = 384;
 
     public sealed record Request(IFormFile File, Guid CollectionId, Guid? TenantId, Guid? CampusId, Guid? AcademicSystemId) : IRequest<IResult>;
 
@@ -45,7 +46,8 @@ public static class UploadKnowledgePdf
     {
         public async Task SaveAsync(KnowledgeDocumentEntity document, IReadOnlyCollection<RagKnowledgeChunkWriteEntity> chunks, CancellationToken cancellationToken)
         {
-                await dbContext.RagKnowledgeChunks.AddRangeAsync(chunks, cancellationToken);
+            await dbContext.KnowledgeDocuments.AddAsync(document, cancellationToken);
+            await dbContext.RagKnowledgeChunks.AddRangeAsync(chunks, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
@@ -125,7 +127,21 @@ public static class UploadKnowledgePdf
             var embeddings = await ollamaClient.EmbedBatchAsync(batch, cancellationToken);
             for (var index = 0; index < batch.Length; index++)
             {
-                chunkEntities.Add(RagKnowledgeChunkWriteEntity.Create(resolvedTenantId.Value, collectionCode.Trim().ToLowerInvariant(), title, batch[index], embeddings[index].ToArray()));
+                if (embeddings[index].Length != EmbeddingDimensions)
+                {
+                    return Results.Problem(
+                        statusCode: StatusCodes.Status503ServiceUnavailable,
+                        title: "Embedding model configuration mismatch",
+                        detail: $"The configured Ollama embedding model returned {embeddings[index].Length} dimensions. SmartSchool expects {EmbeddingDimensions} dimensions for all-minilm.");
+                }
+
+                chunkEntities.Add(
+                    RagKnowledgeChunkWriteEntity.Create(
+                        resolvedTenantId.Value,
+                        collectionCode.Trim().ToLowerInvariant(),
+                        title,
+                        batch[index],
+                        embeddings[index]));
             }
         }
         await command.SaveAsync(document, chunkEntities, cancellationToken);

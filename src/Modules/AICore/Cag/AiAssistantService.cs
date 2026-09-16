@@ -145,12 +145,13 @@ internal sealed class AiAssistantService(
         var embedding = await ollama.EmbedAsync(request.Question, cancellationToken);
         const string sql = """
             SELECT id AS "Id", document_name AS "DocumentName", collection AS "Collection", content AS "Content",
-                   1 - (embedding <=> CAST(@Vector AS vector)) AS "Score"
+                   1 - (embedding_v384 <=> CAST(@Vector AS vector(384))) AS "Score"
             FROM ai_core.rag_knowledge_chunk
             WHERE tenant_id = @TenantId
               AND is_active = TRUE
+              AND embedding_v384 IS NOT NULL
               AND collection = ANY(@Collections)
-            ORDER BY embedding <=> CAST(@Vector AS vector)
+            ORDER BY embedding_v384 <=> CAST(@Vector AS vector(384))
             LIMIT @TopK;
             """;
 

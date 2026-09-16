@@ -110,17 +110,22 @@ public static class CreateChatConversation
                 return Result<Response>.Failure(Error.Validation("Tenant context is required."));
             }
 
-            var participantIds = request.Participants
+            var requestedParticipantIds = request.Participants
                 .Select(item => item.UserId)
-                .Append(tenantScope.UserId)
+                .Where(userId => userId != tenantScope.UserId)
                 .Distinct()
                 .ToArray();
 
-            if (!await ParticipantsExistAsync(tenantId.Value, participantIds, cancellationToken))
+            if (!await ParticipantsExistAsync(tenantId.Value, requestedParticipantIds, cancellationToken))
             {
                 return Result<Response>.Failure(
                     Error.Validation("Every conversation participant must be an active user in the selected tenant."));
             }
+
+            var participantIds = requestedParticipantIds
+                .Append(tenantScope.UserId)
+                .Distinct()
+                .ToArray();
 
             if (request.Type.Equals("DIRECT", StringComparison.OrdinalIgnoreCase) && participantIds.Length != 2)
             {
@@ -147,12 +152,37 @@ public static class CreateChatConversation
             IReadOnlyCollection<Guid> participantIds,
             CancellationToken cancellationToken)
         {
+            if (participantIds.Count == 0)
+            {
+                return true;
+            }
+
             const string sql = """
-                SELECT COUNT(*)::int
-                FROM identity."Users"
-                WHERE "TenantId"=@TenantId
-                  AND "IsActive"=TRUE
-                  AND "Id" = ANY(@ParticipantIds);
+                SELECT COUNT(DISTINCT actor.user_id)::int
+                FROM (
+                    SELECT s.user_id
+                    FROM student.student s
+                    WHERE s.tenant_id = @TenantId
+                      AND s.is_active = TRUE
+                      AND s.user_id = ANY(@ParticipantIds)
+
+                    UNION ALL
+
+                    SELECT g.user_id
+                    FROM student.guardian g
+                    WHERE g.tenant_id = @TenantId
+                      AND g.is_active = TRUE
+                      AND g.user_id = ANY(@ParticipantIds)
+
+                    UNION ALL
+
+                    SELECT e.user_id
+                    FROM hr.employee e
+                    WHERE e.tenant_id = @TenantId
+                      AND e.is_active = TRUE
+                      AND e.user_id = ANY(@ParticipantIds)
+                ) actor
+                WHERE actor.user_id IS NOT NULL;
                 """;
 
             await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
