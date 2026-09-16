@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS ai_core.rag_knowledge_chunk (
  collection varchar(80) NOT NULL,
  document_name varchar(250) NOT NULL,
  content text NOT NULL,
- embedding vector(768) NOT NULL,
+ embedding vector(384) NOT NULL,
  created_at timestamptz NOT NULL DEFAULT now(),
  is_active boolean NOT NULL DEFAULT true
 );

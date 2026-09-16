@@ -90,10 +90,6 @@ public static class Module
 
     private static void MapAttendanceEndpoints(IEndpointRouteBuilder endpoints)
     {
-        CreateAttendance.MapEndpoint(endpoints);
-        GetAttendanceById.MapEndpoint(endpoints);
-        GetAttendancePage.MapEndpoint(endpoints);
-        UpdateAttendance.MapEndpoint(endpoints);
-        DeleteAttendance.MapEndpoint(endpoints);
+        AttendanceOperations.MapEndpoints(endpoints);
     }
 }

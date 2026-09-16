@@ -53,6 +53,11 @@ public static class AuthorizationRegistration
                 [.. TenantAdministrationRoles, SmartSchoolRoles.Principal, SmartSchoolRoles.Examiner]);
             AddPolicy(options, SmartSchoolPolicies.FinanceManagement,
                 [.. TenantAdministrationRoles, SmartSchoolRoles.Accountant, SmartSchoolRoles.FinanceOfficer]);
+            AddPolicy(options, SmartSchoolPolicies.LibraryManagement,
+                [.. TenantAdministrationRoles, SmartSchoolRoles.Principal, SmartSchoolRoles.Librarian]);
+            AddPolicy(options, SmartSchoolPolicies.PayrollManagement,
+                [.. TenantAdministrationRoles, SmartSchoolRoles.HrManager, SmartSchoolRoles.HR,
+                 SmartSchoolRoles.Accountant, SmartSchoolRoles.FinanceOfficer]);
             AddPolicy(options, SmartSchoolPolicies.HumanResourcesManagement,
                 [.. TenantAdministrationRoles, SmartSchoolRoles.HrManager, SmartSchoolRoles.HR]);
             AddPolicy(options, SmartSchoolPolicies.AiKnowledgeContribution,

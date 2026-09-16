@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Payroll.Features.Operations;
 using SmartSchool.Modules.Payroll.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,34 +30,15 @@ public static class Module
     public static IEndpointRouteBuilder MapPayrollEndpoints(
         this IEndpointRouteBuilder endpoints)
     {
-        CreateEmployeeCompensation.MapEndpoint(endpoints);
         GetEmployeeCompensationById.MapEndpoint(endpoints);
         GetEmployeeCompensationByJobGradeId.MapEndpoint(endpoints);
         GetEmployeeCompensationByEmployeeId.MapEndpoint(endpoints);
         GetEmployeeCompensationPage.MapEndpoint(endpoints);
-        UpdateEmployeeCompensation.MapEndpoint(endpoints);
-        DeleteEmployeeCompensation.MapEndpoint(endpoints);
-        CreatePayrollRun.MapEndpoint(endpoints);
         GetPayrollRunById.MapEndpoint(endpoints);
         GetPayrollRunPage.MapEndpoint(endpoints);
-        UpdatePayrollRun.MapEndpoint(endpoints);
-        DeletePayrollRun.MapEndpoint(endpoints);
 
-        CreateIncrement.MapEndpoint(endpoints);
-        CreatePayslip.MapEndpoint(endpoints);
-        CreateSalaryStructure.MapEndpoint(endpoints);
-        DeleteIncrement.MapEndpoint(endpoints);
-        DeletePayslip.MapEndpoint(endpoints);
-        DeleteSalaryStructure.MapEndpoint(endpoints);
-        GetIncrementById.MapEndpoint(endpoints);
-        GetIncrementPage.MapEndpoint(endpoints);
-        GetPayslipById.MapEndpoint(endpoints);
-        GetPayslipPage.MapEndpoint(endpoints);
-        GetSalaryStructureById.MapEndpoint(endpoints);
-        GetSalaryStructurePage.MapEndpoint(endpoints);
-        UpdateIncrement.MapEndpoint(endpoints);
-        UpdatePayslip.MapEndpoint(endpoints);
-        UpdateSalaryStructure.MapEndpoint(endpoints);
+
+        PayrollOperations.MapEndpoints(endpoints);
 
         return endpoints;
     }

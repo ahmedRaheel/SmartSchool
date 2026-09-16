@@ -1,3 +1,4 @@
+using SmartSchool.Modules.Finance.Features.Operations;
 using SmartSchool.Modules.Finance.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,18 +38,12 @@ public static class Module
         GetFeeTypesByDepartmentId.MapEndpoint(endpoints);
         UpdateFeeType.MapEndpoint(endpoints);
         DeleteFeeType.MapEndpoint(endpoints);
-        CreateInvoice.MapEndpoint(endpoints);
         GetInvoiceById.MapEndpoint(endpoints);
         GetInvoiceByStudentId.MapEndpoint(endpoints);
         GetInvoiceByAcademicYearId.MapEndpoint(endpoints);
         GetInvoicePage.MapEndpoint(endpoints);
-        UpdateInvoice.MapEndpoint(endpoints);
-        DeleteInvoice.MapEndpoint(endpoints);
-        CreatePayment.MapEndpoint(endpoints);
         GetPaymentById.MapEndpoint(endpoints);
         GetPaymentPage.MapEndpoint(endpoints);
-        UpdatePayment.MapEndpoint(endpoints);
-        DeletePayment.MapEndpoint(endpoints);
 
         CreateDiscount.MapEndpoint(endpoints);
         CreateFeeStructure.MapEndpoint(endpoints);
@@ -70,6 +65,8 @@ public static class Module
         UpdateFeeStructure.MapEndpoint(endpoints);
         UpdateScholarship.MapEndpoint(endpoints);
         UpdateStudentFee.MapEndpoint(endpoints);
+
+        FinanceOperations.MapEndpoints(endpoints);
 
         return endpoints;
     }

@@ -44,6 +44,8 @@ public static class SmartSchoolPolicies
     public const string DriverWorkspace = "DriverWorkspace";
     public const string ExaminationManagement = "ExaminationManagement";
     public const string FinanceManagement = "FinanceManagement";
+    public const string LibraryManagement = "LibraryManagement";
+    public const string PayrollManagement = "PayrollManagement";
     public const string HumanResourcesManagement = "HumanResourcesManagement";
     public const string AiKnowledgeContribution = "AiKnowledgeContribution";
 

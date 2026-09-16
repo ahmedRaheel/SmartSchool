@@ -34,7 +34,12 @@ public static class GetChatMessages
                     m.chat_message_id AS "MessageId",
                     m.conversation_id AS "ConversationId",
                     m.sender_user_id AS "SenderUserId",
-                    COALESCE(NULLIF(u."DisplayName",''), NULLIF(trim(concat_ws(' ',u."FirstName",u."LastName")),''), u."Email", 'User') AS "SenderDisplayName",
+                    COALESCE(
+                        NULLIF(trim(concat_ws(' ', student_sender.first_name, student_sender.last_name)), ''),
+                        NULLIF(guardian_sender.full_name, ''),
+                        NULLIF(trim(concat_ws(' ', employee_sender.first_name, employee_sender.last_name)), ''),
+                        CASE WHEN m.sender_user_id = @UserId THEN 'You' ELSE 'User' END
+                    ) AS "SenderDisplayName",
                     sp.role AS "SenderRole",
                     m.message AS "Message",
                     m.sent_at AS "SentAt",
@@ -44,7 +49,18 @@ public static class GetChatMessages
                   ON reader.conversation_id=m.conversation_id AND reader.tenant_id=m.tenant_id
                 LEFT JOIN communication.chat_participant sp
                   ON sp.conversation_id=m.conversation_id AND sp.tenant_id=m.tenant_id AND sp.user_id=m.sender_user_id AND sp.is_active=true
-                LEFT JOIN identity."Users" u ON u."Id"=m.sender_user_id
+                LEFT JOIN student.student student_sender
+                  ON student_sender.tenant_id = m.tenant_id
+                 AND student_sender.user_id = m.sender_user_id
+                 AND student_sender.is_active = TRUE
+                LEFT JOIN student.guardian guardian_sender
+                  ON guardian_sender.tenant_id = m.tenant_id
+                 AND guardian_sender.user_id = m.sender_user_id
+                 AND guardian_sender.is_active = TRUE
+                LEFT JOIN hr.employee employee_sender
+                  ON employee_sender.tenant_id = m.tenant_id
+                 AND employee_sender.user_id = m.sender_user_id
+                 AND employee_sender.is_active = TRUE
                 WHERE m.conversation_id=@ConversationId
                   AND reader.user_id=@UserId AND reader.is_active=true
                   AND m.is_active=true AND m.is_deleted=false
