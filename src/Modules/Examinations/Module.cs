@@ -15,11 +15,13 @@ namespace SmartSchool.Modules.Examinations;
 public static class Module
 {
     public static IServiceCollection AddExaminationsModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IExaminationsDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<ExaminationsDbContext>());
+        services.AddModuleDbContext<ExaminationsDbContext, IExaminationsDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

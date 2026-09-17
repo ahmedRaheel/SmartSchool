@@ -11,11 +11,13 @@ namespace SmartSchool.Modules.Audit;
 public static class Module
 {
     public static IServiceCollection AddAuditModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAuditDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<AuditDbContext>());
+        services.AddModuleDbContext<AuditDbContext, IAuditDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

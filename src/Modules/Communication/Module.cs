@@ -16,11 +16,13 @@ namespace SmartSchool.Modules.Communication;
 
 public static class Module
 {
-    public static IServiceCollection AddCommunicationModule(this IServiceCollection services)
+    public static IServiceCollection AddCommunicationModule(this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<ICommunicationDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<CommunicationDbContext>());
+        services.AddModuleDbContext<CommunicationDbContext, ICommunicationDbContext>(
+            configuration,
+            ModuleConstants.Schema);
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddSignalR();
         return services;

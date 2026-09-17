@@ -21,11 +21,13 @@ namespace SmartSchool.Modules.AIPrediction;
 public static class Module
 {
     public static IServiceCollection AddAIPredictionModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAIPredictionDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<AIPredictionDbContext>());
+        services.AddModuleDbContext<AIPredictionDbContext, IAIPredictionDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<IExamPredictionService, MlNetExamPredictionService>();

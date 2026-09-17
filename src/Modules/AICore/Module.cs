@@ -30,8 +30,9 @@ public static class Module
         IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAICoreDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<AICoreDbContext>());
+        services.AddModuleDbContext<AICoreDbContext, IAICoreDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<AgentWorkflowServiceAiExecutionLogCommand>();

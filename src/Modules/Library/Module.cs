@@ -15,11 +15,13 @@ namespace SmartSchool.Modules.Library;
 public static class Module
 {
     public static IServiceCollection AddLibraryModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<ILibraryDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<LibraryDbContext>());
+        services.AddModuleDbContext<LibraryDbContext, ILibraryDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

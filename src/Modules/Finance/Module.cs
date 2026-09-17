@@ -19,11 +19,13 @@ namespace SmartSchool.Modules.Finance;
 public static class Module
 {
     public static IServiceCollection AddFinanceModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IFinanceDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<FinanceDbContext>());
+        services.AddModuleDbContext<FinanceDbContext, IFinanceDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

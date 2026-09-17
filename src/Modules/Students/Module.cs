@@ -20,11 +20,13 @@ public static class Module
     /// <summary>
     /// Registers Students application handlers and persistence services.
     /// </summary>
-    public static IServiceCollection AddStudentsModule(this IServiceCollection services)
+    public static IServiceCollection AddStudentsModule(this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IStudentsDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<StudentsDbContext>());
+        services.AddModuleDbContext<StudentsDbContext, IStudentsDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<ApproveStudentAdmissionStudentOnboardingQuery>();

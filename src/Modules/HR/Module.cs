@@ -18,11 +18,13 @@ namespace SmartSchool.Modules.HR;
 public static class Module
 {
     public static IServiceCollection AddHRModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IHRDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<HRDbContext>());
+        services.AddModuleDbContext<HRDbContext, IHRDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<ApproveEmployeeEmployeeOnboardingQuery>();
