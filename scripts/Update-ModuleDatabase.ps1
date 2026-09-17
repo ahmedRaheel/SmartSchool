@@ -2,9 +2,6 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Module,
 
-    [Parameter(Mandatory = $true)]
-    [string]$Name,
-
     [switch]$NoBuild
 )
 
@@ -12,11 +9,10 @@ param(
 
 $config = Get-SmartSchoolModuleConfig -Module $Module
 $arguments = @(
-    "ef", "migrations", "add", $Name,
+    "ef", "database", "update",
     "--context", $config.Context,
     "--project", $config.Project,
-    "--startup-project", $SmartSchoolStartupProject,
-    "--output-dir", $SmartSchoolMigrationOutputDirectory
+    "--startup-project", $SmartSchoolStartupProject
 )
 
 if ($NoBuild) {
@@ -25,14 +21,14 @@ if ($NoBuild) {
 
 Push-Location $SmartSchoolRepoRoot
 try {
-    Write-Host "Creating migration '$Name' for $($config.Name) ($($config.Context))..." -ForegroundColor Cyan
+    Write-Host "Applying migrations for $($config.Name) ($($config.Context))..." -ForegroundColor Cyan
     & dotnet @arguments
 
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
 
-    Write-Host "Migration created successfully for $($config.Name)." -ForegroundColor Green
+    Write-Host "$($config.Name) database migration completed successfully." -ForegroundColor Green
 }
 finally {
     Pop-Location
