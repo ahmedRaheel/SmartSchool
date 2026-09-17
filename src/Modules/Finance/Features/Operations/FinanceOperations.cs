@@ -615,7 +615,7 @@ public static class FinanceOperations
                 })
             .WithName("CreateOperationalStudentInvoice")
             .WithTags("Finance")
-            .RequireAuthorization(SmartSchoolPolicies.FinanceManagement);
+            .RequireAuthorization(SmartSchoolPolicies.FinanceTransactions);
 
         endpoints.MapPost(
                 "/api/finance/operations/payments",
@@ -638,7 +638,7 @@ public static class FinanceOperations
                 })
             .WithName("PostOperationalStudentPayment")
             .WithTags("Finance")
-            .RequireAuthorization(SmartSchoolPolicies.FinanceManagement);
+            .RequireAuthorization(SmartSchoolPolicies.FinanceTransactions);
 
         return endpoints;
     }

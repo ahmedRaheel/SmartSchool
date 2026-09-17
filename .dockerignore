@@ -9,3 +9,8 @@ logs
 **/App_Data
 **/*.user
 **/*.suo
+
+.env
+**/.env
+**/.env.*
+**/logs

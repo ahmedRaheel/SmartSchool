@@ -39,11 +39,15 @@ public static class SmartSchoolPolicies
     public const string SchoolAdministration = "SchoolAdministration";
     public const string AcademicManagement = "AcademicManagement";
     public const string TeacherWorkspace = "TeacherWorkspace";
+    public const string TeacherOnly = "TeacherOnly";
     public const string StudentSelfService = "StudentSelfService";
     public const string ParentSelfService = "ParentSelfService";
     public const string DriverWorkspace = "DriverWorkspace";
     public const string ExaminationManagement = "ExaminationManagement";
+    public const string ExaminerOnly = "ExaminerOnly";
+    public const string ExamTaskAccess = "ExamTaskAccess";
     public const string FinanceManagement = "FinanceManagement";
+    public const string FinanceTransactions = "FinanceTransactions";
     public const string LibraryManagement = "LibraryManagement";
     public const string PayrollManagement = "PayrollManagement";
     public const string HumanResourcesManagement = "HumanResourcesManagement";

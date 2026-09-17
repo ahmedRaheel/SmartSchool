@@ -16,6 +16,7 @@ using SmartSchool.Api.Features;
 using SmartSchool.Api.Observability;
 using SmartSchool.Api.Seed;
 using SmartSchool.Application;
+using SmartSchool.BackgroundJobs.Extensions;
 using SmartSchool.Infrastructure;
 using SmartSchool.Infrastructure.DependencyInjection;
 using SmartSchool.Infrastructure.Identity;
@@ -50,6 +51,11 @@ using SmartSchool.Modules.Workflow;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (!builder.Environment.IsDevelopment())
+{
+    ValidateProductionConfiguration(builder.Configuration);
+}
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     // Accept enum names from the React UI while retaining numeric enum support.
@@ -57,6 +63,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 builder.AddSmartSchoolPlatform();
+builder.Services.AddSmartSchoolBackgroundJobs(builder.Configuration);
 
 var portalUrl = builder.Configuration.GetValue<string>("PortalUrl")
     ?? throw new InvalidOperationException("PortalUrl configuration is required.");
@@ -283,6 +290,12 @@ if (app.Environment.IsDevelopment())
 //
 // HTTP pipeline
 //
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+    app.UseHttpsRedirection();
+}
+
 app.UseMiddleware<
     SmartSchool.Api.Middleware.ResultResponseMiddleware>();
 
@@ -303,6 +316,8 @@ app.UseSerilogRequestLogging();
 //
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSmartSchoolBackgroundJobs();
 
 //
 // Health
@@ -374,3 +389,63 @@ app.MapWorkflowEndpoints();
 
 
 app.Run();
+
+
+static void ValidateProductionConfiguration(IConfiguration configuration)
+{
+    static bool IsSecureAbsoluteUrl(string? value) =>
+        Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+        uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) &&
+        !uri.IsLoopback;
+
+    var provider = configuration["Persistence:Provider"];
+    if (string.Equals(provider, "Mock", StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException("Mock persistence is not allowed outside Development.");
+
+    var identityProvider = configuration["Identity:Provider"];
+    if (string.Equals(identityProvider, "Mock", StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException("Mock identity is not allowed outside Development.");
+
+    var connectionString = configuration.GetConnectionString("SmartSchool");
+    if (string.IsNullOrWhiteSpace(connectionString) ||
+        connectionString.Contains("CHANGE_ME", StringComparison.OrdinalIgnoreCase) ||
+        connectionString.Contains("postgres123", StringComparison.OrdinalIgnoreCase))
+    {
+        throw new InvalidOperationException("A production SmartSchool connection string must be supplied through secure configuration.");
+    }
+
+    if (!IsSecureAbsoluteUrl(configuration["PortalUrl"]))
+        throw new InvalidOperationException("PortalUrl must be a non-loopback HTTPS URL outside Development.");
+    if (!IsSecureAbsoluteUrl(configuration["Identity:Authority"]) ||
+        !IsSecureAbsoluteUrl(configuration["Identity:ValidIssuer"]))
+        throw new InvalidOperationException("Identity authority and issuer must be non-loopback HTTPS URLs outside Development.");
+    if (!configuration.GetValue<bool>("Identity:RequireHttpsMetadata"))
+        throw new InvalidOperationException("Identity:RequireHttpsMetadata must be true outside Development.");
+
+    var identitySecret = configuration["IdentityService:ClientSecret"];
+    if (string.IsNullOrWhiteSpace(identitySecret) || identitySecret.Contains("change-me", StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException("IdentityService:ClientSecret must be provided securely outside Development.");
+
+    if (!IsSecureAbsoluteUrl(configuration["IdentityService:BaseUrl"]))
+        throw new InvalidOperationException("IdentityService:BaseUrl must be a non-loopback HTTPS URL outside Development.");
+
+    if (string.IsNullOrWhiteSpace(configuration["IdentityService:ClientId"]) ||
+        string.IsNullOrWhiteSpace(configuration["IdentityService:Scope"]))
+        throw new InvalidOperationException("IdentityService client id and management scope are required outside Development.");
+
+    if (string.Equals(configuration["Caching:Provider"], "Redis", StringComparison.OrdinalIgnoreCase) &&
+        string.IsNullOrWhiteSpace(configuration.GetConnectionString(configuration["Caching:RedisConnectionStringName"] ?? "Redis")))
+    {
+        throw new InvalidOperationException("A Redis connection string is required when Redis caching is enabled outside Development.");
+    }
+
+    if (string.Equals(configuration["AI:Provider"], "Ollama", StringComparison.OrdinalIgnoreCase))
+    {
+        var ollamaBaseUrl = configuration["AI:Ollama:BaseUrl"];
+        if (!Uri.TryCreate(ollamaBaseUrl, UriKind.Absolute, out var ollamaUri) || ollamaUri.IsLoopback)
+            throw new InvalidOperationException("AI:Ollama:BaseUrl must be an explicit non-loopback service URL outside Development.");
+    }
+
+    if (configuration.GetValue<bool>("Kafka:Enabled") && string.IsNullOrWhiteSpace(configuration["Kafka:BootstrapServers"]))
+        throw new InvalidOperationException("Kafka:BootstrapServers is required when Kafka is enabled outside Development.");
+}

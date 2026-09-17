@@ -1,3 +1,6 @@
+\set ON_ERROR_STOP on
+\echo 'SmartSchool complete fresh install starting...'
+
 -- Clean installation, including system lookup data. Requires PostgreSQL 18, pgcrypto and pgvector.
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS vector;
@@ -13647,6 +13650,17 @@ DROP SCHEMA IF EXISTS ai_prediction;
 
 COMMIT;
 
+-- Fresh-install post-consolidation contract alignment.
+-- Earlier runtime-alignment statements target ai_core before the legacy AI schemas
+-- have been moved, so on a clean install those IF EXISTS statements are no-ops.
+ALTER TABLE ai_core.human_handoff ADD COLUMN IF NOT EXISTS metadata_json jsonb;
+ALTER TABLE ai_core.inquiry_conversation ADD COLUMN IF NOT EXISTS metadata_json jsonb;
+ALTER TABLE ai_core.inquiry_message ADD COLUMN IF NOT EXISTS metadata_json jsonb;
+ALTER TABLE ai_core.lead_capture ADD COLUMN IF NOT EXISTS metadata_json jsonb;
+ALTER TABLE ai_core.parent_conversation ADD COLUMN IF NOT EXISTS metadata_json jsonb;
+ALTER TABLE ai_core.parent_message ADD COLUMN IF NOT EXISTS metadata_json jsonb;
+ALTER TABLE ai_core.parent_tool_execution ADD COLUMN IF NOT EXISTS metadata_json jsonb;
+
 -- SOURCE: database/postgresql/20260908_domain_schema_sync_department_grading.sql
 BEGIN;
 
@@ -13908,8 +13922,10 @@ CREATE INDEX IF NOT EXISTS ix_student_award_document_id
     ON activity.student_award(document_id);
 
 -- These legacy document resources are replaced by document.document + document.document_type.
-DROP TABLE IF EXISTS document.generated_document CASCADE;
-DROP TABLE IF EXISTS document.document_template CASCADE;
+-- KEEP: document.generated_document is still used by certificate issuance/read paths.
+-- DROP TABLE IF EXISTS document.generated_document CASCADE;
+-- KEEP: document.document_template is still used by certificate/template workflows.
+-- DROP TABLE IF EXISTS document.document_template CASCADE;
 DROP TABLE IF EXISTS document.certificate CASCADE;
 DROP TABLE IF EXISTS document.school_logo CASCADE;
 
@@ -14769,3 +14785,309 @@ CREATE INDEX IF NOT EXISTS ix_notification_related_entity
     ON communication.notification(tenant_id, related_entity_type, related_entity_id);
 
 -- END V125__examiner_subject_tasks.sql
+
+
+-- =============================================================================
+-- FINAL FRESH-INSTALL VALIDATION
+-- Ensures all relations expected to survive the consolidated script exist.
+-- =============================================================================
+DO $$
+DECLARE
+    missing_relations text;
+    missing_columns text;
+BEGIN
+    SELECT string_agg(v.relation_name, ', ' ORDER BY v.relation_name)
+      INTO missing_relations
+      FROM (VALUES
+        ('"admission"."admissiondecision"'),
+        ('"admission"."application"'),
+        ('"admission"."inquiry"'),
+        ('"hr"."employmenthistory"'),
+        ('"hr"."resume"'),
+        ('"lms"."assignment_student"'),
+        ('"lms"."learningresource"'),
+        ('"org"."subscription"'),
+        ('"saas"."tenant_settings"'),
+        ('"student"."attendance"'),
+        ('"transport"."route_notice"'),
+        ('"transport"."stop"'),
+        ('"transport"."studenttransport"'),
+        ('"transport"."trip_record"'),
+        ('academic.academic_system'),
+        ('academic.academic_year'),
+        ('academic.campus_program'),
+        ('academic.class'),
+        ('academic.class_section'),
+        ('academic.course_offering'),
+        ('academic.course_selection_group'),
+        ('academic.course_selection_group_course'),
+        ('academic.education_board'),
+        ('academic.grade_level'),
+        ('academic.program'),
+        ('academic.program_grade'),
+        ('academic.program_subject'),
+        ('academic.subject'),
+        ('academic.teacher_course_assignment'),
+        ('academic.teaching_group'),
+        ('academic.teaching_group_student'),
+        ('academic.term'),
+        ('academic.timetable'),
+        ('academic.timetable_entry'),
+        ('academic.timetable_period'),
+        ('activity.activity'),
+        ('activity.student_activity'),
+        ('activity.student_award'),
+        ('activity.student_of_month'),
+        ('admission.admission_criteria'),
+        ('admission.applicant'),
+        ('admission.student_application'),
+        ('ai.class_performance_insight'),
+        ('ai.intervention_action'),
+        ('ai.intervention_outcome'),
+        ('ai.predicted_grade_probability'),
+        ('ai.prediction'),
+        ('ai.prediction_evaluation'),
+        ('ai.prediction_evidence'),
+        ('ai.prediction_model'),
+        ('ai.student_intervention'),
+        ('ai.student_performance_prediction'),
+        ('ai.student_progress_recommendation'),
+        ('ai.teaching_recommendation'),
+        ('ai.topic_performance_insight'),
+        ('ai_core."RagKnowledgeChunks"'),
+        ('ai_core."RagKnowledgeDocuments"'),
+        ('ai_core.ai_execution_log'),
+        ('ai_core.assistant_knowledge_collection'),
+        ('ai_core.assistant_tool'),
+        ('ai_core.knowledge_chunk'),
+        ('ai_core.knowledge_collection'),
+        ('ai_core.knowledge_document'),
+        ('ai_core.model_configuration'),
+        ('ai_core.prompt_template'),
+        ('ai_core.rag_knowledge_chunk'),
+        ('ai_core.tool_definition'),
+        ('ai_core.tool_execution'),
+        ('ai_core.human_handoff'),
+        ('ai_core.inquiry_conversation'),
+        ('ai_core.inquiry_message'),
+        ('ai_core.lead_capture'),
+        ('ai_core.parent_conversation'),
+        ('ai_core.parent_message'),
+        ('ai_core.parent_tool_execution'),
+        ('ai_tutor.generated_quiz'),
+        ('ai_tutor.generated_quiz_question'),
+        ('ai_tutor.learning_recommendation'),
+        ('ai_tutor.student_quiz_attempt'),
+        ('ai_tutor.student_topic_mastery'),
+        ('ai_tutor.tutor_conversation'),
+        ('ai_tutor.tutor_feedback'),
+        ('ai_tutor.tutor_message'),
+        ('ai_tutor.tutor_message_reference'),
+        ('ai_tutor.tutor_session'),
+        ('audit.audit_log'),
+        ('communication."ChatAttachments"'),
+        ('communication."ChatConversations"'),
+        ('communication."ChatMessages"'),
+        ('communication."ChatParticipants"'),
+        ('communication."NotificationPreferences"'),
+        ('communication."Notifications"'),
+        ('communication."NotificationTypeLookup"'),
+        ('communication.chat_conversation'),
+        ('communication.chat_message'),
+        ('communication.chat_participant'),
+        ('communication.conversation'),
+        ('communication.conversation_participant'),
+        ('communication.message'),
+        ('communication.message_receipt'),
+        ('communication.notification'),
+        ('document.admin_officer_document'),
+        ('document.campus_document'),
+        ('document.candidatedocument'),
+        ('document.document'),
+        ('document.document_template'),
+        ('document.document_type'),
+        ('document.documenttype'),
+        ('document.driver_document'),
+        ('document.driverdocument'),
+        ('document.employeedocument'),
+        ('document.generated_document'),
+        ('document.guardian_document'),
+        ('document.parentdocument'),
+        ('document.required_document'),
+        ('document.required_document_type'),
+        ('document.staff_document'),
+        ('document.student_document'),
+        ('document.studentdocument'),
+        ('document.teacher_document'),
+        ('document.teacherdocument'),
+        ('document.tenant_document'),
+        ('exam.exam'),
+        ('exam.exam_subject'),
+        ('exam.exam_task'),
+        ('exam.grade_scale'),
+        ('exam.student_exam_result'),
+        ('finance.discount'),
+        ('finance.fee_structure'),
+        ('finance.fee_type'),
+        ('finance.payment_allocation'),
+        ('finance.scholarship'),
+        ('finance.student_invoice'),
+        ('finance.student_invoice_line'),
+        ('finance.student_payment'),
+        ('finance.studentfee'),
+        ('hangfire.aggregatedcounter'),
+        ('hangfire.counter'),
+        ('hangfire.hash'),
+        ('hangfire.job'),
+        ('hangfire.jobparameter'),
+        ('hangfire.jobqueue'),
+        ('hangfire.list'),
+        ('hangfire.lock'),
+        ('hangfire.schema'),
+        ('hangfire.server'),
+        ('hangfire.set'),
+        ('hangfire.state'),
+        ('hr."position"'),
+        ('hr.candidate'),
+        ('hr.employee'),
+        ('hr.employee_compensation'),
+        ('hr.employee_contact'),
+        ('hr.employee_education'),
+        ('hr.employee_experience'),
+        ('hr.employee_position'),
+        ('hr.employee_salary_component'),
+        ('hr.increment_approval'),
+        ('hr.increment_policy'),
+        ('hr.interview'),
+        ('hr.interview_evaluation'),
+        ('hr.interview_panel'),
+        ('hr.job'),
+        ('hr.job_application'),
+        ('hr.job_family'),
+        ('hr.job_grade'),
+        ('hr.job_grade_mapping'),
+        ('hr.job_vacancy'),
+        ('hr.leave_request'),
+        ('hr.salary_component'),
+        ('hr.salary_increment_request'),
+        ('hr.teacher_teaching_assignment'),
+        ('infrastructure."DistributedCache"'),
+        ('inventory.item'),
+        ('inventory.purchase_order'),
+        ('library.book'),
+        ('library.book_copy'),
+        ('library.book_loan'),
+        ('lms.academic_assignment'),
+        ('lms.lesson'),
+        ('lms.student_assignment_submission'),
+        ('observability.application_log'),
+        ('org.campus'),
+        ('org.campus_education_level'),
+        ('org.department'),
+        ('org.room'),
+        ('org.school'),
+        ('payroll.employee_payroll'),
+        ('payroll.payroll_line_item'),
+        ('payroll.payroll_period'),
+        ('payroll.payroll_run'),
+        ('platform.business_number_sequence'),
+        ('reference."AttendanceStatusType"'),
+        ('reference."BloodGroupType"'),
+        ('reference."DocumentTypeLookup"'),
+        ('reference."EmploymentStatusType"'),
+        ('reference."EmploymentType"'),
+        ('reference."ExamType"'),
+        ('reference."FeeStatusType"'),
+        ('reference."GenderType"'),
+        ('reference."LicenseCategoryType"'),
+        ('reference."MaritalStatusType"'),
+        ('reference."OccupationType"'),
+        ('reference."PaymentMethodType"'),
+        ('reference."RelationshipType"'),
+        ('reference."VehicleType"'),
+        ('reference.branch_gender_type'),
+        ('reference.city'),
+        ('reference.country'),
+        ('reference.education_level'),
+        ('reference.province'),
+        ('saas.lookup_type'),
+        ('saas.lookup_value'),
+        ('saas.school_branding'),
+        ('saas.tenant'),
+        ('saas.tenant_contact'),
+        ('student.admission_placement'),
+        ('student.guardian'),
+        ('student.student'),
+        ('student.student_contact'),
+        ('student.student_course_enrollment'),
+        ('student.student_enrollment'),
+        ('student.student_guardian'),
+        ('teacher.teacher_actor'),
+        ('transport.driver'),
+        ('transport.route'),
+        ('transport.vehicle'),
+        ('transport.vehicle_driver_assignment'),
+        ('workflow.work_assignment')
+      ) AS v(relation_name)
+     WHERE to_regclass(v.relation_name) IS NULL;
+
+    IF missing_relations IS NOT NULL THEN
+        RAISE EXCEPTION 'SmartSchool fresh install incomplete. Missing relations: %', missing_relations;
+    END IF;
+
+    SELECT string_agg(format('%I.%I.%I', v.schema_name, v.table_name, v.column_name), ', ' ORDER BY v.schema_name, v.table_name, v.column_name)
+      INTO missing_columns
+      FROM (VALUES
+        ('ai_core', 'human_handoff', 'metadata_json'),
+        ('ai_core', 'inquiry_conversation', 'metadata_json'),
+        ('ai_core', 'inquiry_message', 'metadata_json'),
+        ('ai_core', 'lead_capture', 'metadata_json'),
+        ('ai_core', 'parent_conversation', 'metadata_json'),
+        ('ai_core', 'parent_message', 'metadata_json'),
+        ('ai_core', 'parent_tool_execution', 'metadata_json'),
+        ('hr', 'leave_request', 'branch_id'),
+        ('hr', 'leave_request', 'code'),
+        ('hr', 'leave_request', 'name'),
+        ('hr', 'leave_request', 'metadata_json'),
+        ('hr', 'leave_request', 'is_active')
+      ) AS v(schema_name, table_name, column_name)
+     WHERE NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns c
+        WHERE c.table_schema = v.schema_name
+          AND c.table_name = v.table_name
+          AND c.column_name = v.column_name
+     );
+
+    IF missing_columns IS NOT NULL THEN
+        RAISE EXCEPTION 'SmartSchool fresh install incomplete. Missing canonical columns: %', missing_columns;
+    END IF;
+
+    -- Canonical schema assertions after consolidation migrations.
+    IF EXISTS (SELECT 1 FROM pg_namespace WHERE nspname IN ('ai_parent', 'ai_inquiry', 'ai_prediction')) THEN
+        RAISE EXCEPTION 'SmartSchool fresh install incomplete: legacy AI schemas still exist after consolidation.';
+    END IF;
+
+    IF to_regclass('hr.leave_request') IS NULL THEN
+        RAISE EXCEPTION 'SmartSchool fresh install incomplete: canonical hr.leave_request is missing.';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pgcrypto') THEN
+        RAISE EXCEPTION 'SmartSchool fresh install incomplete: pgcrypto extension is missing.';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'vector') THEN
+        RAISE EXCEPTION 'SmartSchool fresh install incomplete: vector extension is missing.';
+    END IF;
+END
+$$;
+
+SELECT
+    'SmartSchool fresh install completed successfully' AS status,
+    current_database() AS database_name,
+    (SELECT count(*)
+       FROM pg_catalog.pg_tables
+      WHERE schemaname NOT IN ('pg_catalog', 'information_schema')) AS installed_table_count,
+    now() AS completed_at;
+
+\echo 'SmartSchool complete fresh install finished successfully.'

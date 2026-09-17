@@ -17,7 +17,7 @@ public sealed class WorkflowScheduler(IRecurringJobManager recurringJobs)
         recurringJobs.AddOrUpdate<ExamNotificationJob>(
             "exam-notifications",
             job => job.ExecuteAsync(Guid.Empty, CancellationToken.None),
-            "*/15 * * * *");
+            "*/5 * * * *");
 
         recurringJobs.AddOrUpdate<HolidayNotificationJob>(
             "holiday-notifications",

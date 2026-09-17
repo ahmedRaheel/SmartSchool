@@ -12,6 +12,7 @@ public interface IExaminationsDbContext
     DbSet<ExamSubjectEntity> ExamSubjects { get; }
     DbSet<GradeScaleEntity> GradeScales { get; }
     DbSet<StudentExamResultEntity> StudentExamResults { get; }
+    DbSet<ExamTaskEntity> ExamTasks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -27,6 +28,7 @@ public sealed class ExaminationsDbContext(DbContextOptions<ExaminationsDbContext
     public DbSet<ExamSubjectEntity> ExamSubjects => Set<ExamSubjectEntity>();
     public DbSet<GradeScaleEntity> GradeScales => Set<GradeScaleEntity>();
     public DbSet<StudentExamResultEntity> StudentExamResults => Set<StudentExamResultEntity>();
+    public DbSet<ExamTaskEntity> ExamTasks => Set<ExamTaskEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

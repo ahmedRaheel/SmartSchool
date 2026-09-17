@@ -91,7 +91,7 @@ public static class DeleteAcademicSystem
                 })
             .WithName("DeleteAcademicSystem")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 }

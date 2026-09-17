@@ -43,6 +43,8 @@ public static class AuthorizationRegistration
                 [.. TenantAdministrationRoles, SmartSchoolRoles.Principal, SmartSchoolRoles.Teacher]);
             AddPolicy(options, SmartSchoolPolicies.TeacherWorkspace,
                 [SmartSchoolRoles.Teacher, SmartSchoolRoles.Principal, .. PlatformRoles]);
+            AddPolicy(options, SmartSchoolPolicies.TeacherOnly,
+                [SmartSchoolRoles.Teacher]);
             AddPolicy(options, SmartSchoolPolicies.StudentSelfService,
                 [SmartSchoolRoles.Student, .. PlatformRoles]);
             AddPolicy(options, SmartSchoolPolicies.ParentSelfService,
@@ -51,8 +53,14 @@ public static class AuthorizationRegistration
                 [SmartSchoolRoles.Driver, SmartSchoolRoles.Admin, SmartSchoolRoles.AdminOfficer, .. PlatformRoles]);
             AddPolicy(options, SmartSchoolPolicies.ExaminationManagement,
                 [.. TenantAdministrationRoles, SmartSchoolRoles.Principal, SmartSchoolRoles.Examiner]);
+            AddPolicy(options, SmartSchoolPolicies.ExaminerOnly,
+                [SmartSchoolRoles.Examiner]);
+            AddPolicy(options, SmartSchoolPolicies.ExamTaskAccess,
+                [SmartSchoolRoles.Examiner, SmartSchoolRoles.Teacher]);
             AddPolicy(options, SmartSchoolPolicies.FinanceManagement,
                 [.. TenantAdministrationRoles, SmartSchoolRoles.Accountant, SmartSchoolRoles.FinanceOfficer]);
+            AddPolicy(options, SmartSchoolPolicies.FinanceTransactions,
+                [SmartSchoolRoles.Accountant, SmartSchoolRoles.FinanceOfficer]);
             AddPolicy(options, SmartSchoolPolicies.LibraryManagement,
                 [.. TenantAdministrationRoles, SmartSchoolRoles.Principal, SmartSchoolRoles.Librarian]);
             AddPolicy(options, SmartSchoolPolicies.PayrollManagement,

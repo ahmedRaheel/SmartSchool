@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using SmartSchool.SharedKernel.Constants;
 using SmartSchool.Application.Identity;
@@ -210,11 +212,17 @@ public static class UserManagementEndpoints
         return Results.Ok(new { tenantId, deletedUsers = users.Count });
     }
 
-    // This endpoint creates an audited support intent. Token exchange is intentionally handled by
-    // IdentityServer, not by revealing or resetting the target user's password.
+    // Creates an audited support impersonation and performs the confidential-client
+    // token exchange on the Identity host so no client secret is ever exposed to the browser.
     private static async Task<IResult> StartImpersonationAsync(
-        ImpersonateRequest request, [FromServices] ICurrentUser currentUser,
-        [FromServices] UserManager<SmartSchoolUser> userManager, [FromServices] ILoggerFactory loggerFactory)
+        ImpersonateRequest request,
+        HttpContext httpContext,
+        [FromServices] ICurrentUser currentUser,
+        [FromServices] UserManager<SmartSchoolUser> userManager,
+        [FromServices] IHttpClientFactory httpClientFactory,
+        [FromServices] IConfiguration configuration,
+        [FromServices] ILoggerFactory loggerFactory,
+        CancellationToken cancellationToken)
     {
         var target = await userManager.FindByIdAsync(request.TargetUserId.ToString());
         if (target is null || !target.IsActive) return Results.NotFound();
@@ -227,28 +235,63 @@ public static class UserManagementEndpoints
         var roles = await userManager.GetRolesAsync(target);
         if (!isSuperAdmin && roles.Contains(SmartSchoolRoles.SuperAdmin, StringComparer.OrdinalIgnoreCase))
             return Results.Forbid();
+
+        var authorization = httpContext.Request.Headers.Authorization.ToString();
+        if (!authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return Results.Unauthorized();
+
+        var actorToken = authorization["Bearer ".Length..].Trim();
+        if (string.IsNullOrWhiteSpace(actorToken)) return Results.Unauthorized();
+
+        var clientId = configuration["LoginApiClient:ClientId"]
+            ?? throw new InvalidOperationException("LoginApiClient:ClientId is required.");
+        var clientSecret = configuration["LoginApiClient:ClientSecret"];
+        if (string.IsNullOrWhiteSpace(clientSecret))
+            throw new InvalidOperationException("LoginApiClient:ClientSecret is required.");
+        var tokenEndpoint = configuration["LoginApiClient:TokenEndpoint"]
+            ?? throw new InvalidOperationException("LoginApiClient:TokenEndpoint is required.");
+
+        var reason = string.IsNullOrWhiteSpace(request.Reason) ? "Support session" : request.Reason.Trim();
         var impersonatorId = currentUser.UserId;
         loggerFactory.CreateLogger("SmartSchool.Impersonation").LogWarning(
-            "SuperAdmin {ImpersonatorId} started support impersonation for {TargetUserId} tenant {TenantId}. Reason: {Reason}",
-            impersonatorId, target.Id, target.TenantId, request.Reason);
+            "Administrator {ImpersonatorId} started support impersonation for {TargetUserId} tenant {TenantId}. Reason: {Reason}",
+            impersonatorId, target.Id, target.TenantId, reason);
 
+        using var tokenRequest = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
+        {
+            Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = ImpersonationGrantValidator.GrantTypeName,
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret,
+                ["actor_token"] = actorToken,
+                ["target_user_id"] = target.Id.ToString(),
+                ["reason"] = reason
+            })
+        };
+
+        using var tokenResponse = await httpClientFactory.CreateClient("IdentityTokenClient")
+            .SendAsync(tokenRequest, cancellationToken);
+        var tokenJson = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
+        if (!tokenResponse.IsSuccessStatusCode)
+        {
+            loggerFactory.CreateLogger("SmartSchool.Impersonation").LogWarning(
+                "Impersonation token exchange failed with status {StatusCode} for target {TargetUserId}.",
+                (int)tokenResponse.StatusCode, target.Id);
+            return Results.Json(
+                new { message = "Unable to start impersonation." },
+                statusCode: (int)tokenResponse.StatusCode);
+        }
+
+        using var document = JsonDocument.Parse(tokenJson);
+        var root = document.RootElement;
         return Results.Ok(new
         {
-            targetUser = await ToResponseAsync(target, userManager),
-            impersonation = new
-            {
-                targetUserId = target.Id,
-                target.TenantId,
-                target.SchoolId,
-                roles,
-                impersonatorId,
-                request.Reason,
-                startedAtUtc = DateTimeOffset.UtcNow
-            },
-            requiresTokenExchange = true,
-            grantType = ImpersonationGrantValidator.GrantTypeName,
-            tokenEndpoint = "/connect/token",
-            tokenParameters = new[] { "actor_token", "target_user_id", "reason" }
+            accessToken = root.GetProperty("access_token").GetString(),
+            tokenType = root.TryGetProperty("token_type", out var tokenType) ? tokenType.GetString() ?? "Bearer" : "Bearer",
+            expiresIn = root.TryGetProperty("expires_in", out var expiresIn) ? expiresIn.GetInt32() : 0,
+            refreshToken = root.TryGetProperty("refresh_token", out var refreshToken) ? refreshToken.GetString() : null,
+            targetUser = await ToResponseAsync(target, userManager)
         });
     }
 
@@ -334,7 +377,10 @@ public static class UserManagementEndpoints
 
     private static class TemporaryPasswordGenerator
     {
-        public static string Create() =>
-            $"Ss!{Guid.NewGuid():N}"[..14] + "9aA";
+        public static string Create()
+        {
+            var random = Convert.ToHexString(RandomNumberGenerator.GetBytes(12));
+            return $"Ss!{random}9aA";
+        }
     }
 }

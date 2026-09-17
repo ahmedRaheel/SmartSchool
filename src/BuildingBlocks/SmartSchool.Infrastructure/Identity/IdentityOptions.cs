@@ -7,7 +7,7 @@ public sealed class MockIdentityOptions
 {
     public const string SectionName = "Identity";
 
-    public IdentityProvider Provider { get; init; } = IdentityProvider.Mock;
+    public IdentityProvider Provider { get; init; } = IdentityProvider.IdentityServer;
 
     public string Authority { get; init; } = string.Empty;
 

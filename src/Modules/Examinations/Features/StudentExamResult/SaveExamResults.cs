@@ -116,7 +116,7 @@ public static class SaveExamResults
             var tenant = scope.Resolve(request.TenantId);
             if (!tenant.HasValue) return Results.BadRequest(new { message = "Select a tenant." });
             return (await mediator.SendAsync<Request, Result<Response>>(request with { ExamId = examId, TenantId = tenant.Value }, cancellationToken)).ToHttpResult();
-        }).WithName("SaveExamResults").WithTags("Examinations").RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
+        }).WithName("SaveExamResults").WithTags("Examinations").RequireAuthorization(SmartSchoolPolicies.ExaminerOnly);
         return endpoints;
     }
 }

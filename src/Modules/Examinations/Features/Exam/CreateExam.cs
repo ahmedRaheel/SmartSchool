@@ -111,7 +111,7 @@ public static class CreateExam
             var tenant = scope.Resolve(request.TenantId);
             if (!tenant.HasValue) return Results.BadRequest(new { message = "Select a tenant." });
             return (await mediator.SendAsync<Request, Result<Response>>(request with { TenantId = tenant.Value }, cancellationToken)).ToHttpResult();
-        }).WithName("CreateExam").WithTags("Examinations").RequireAuthorization(SmartSchoolPolicies.ExaminationManagement);
+        }).WithName("CreateExam").WithTags("Examinations").RequireAuthorization(SmartSchoolPolicies.ExaminerOnly);
         return endpoints;
     }
 }

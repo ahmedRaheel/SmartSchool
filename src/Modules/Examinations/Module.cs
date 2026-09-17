@@ -5,6 +5,7 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Features.Exam;
 using SmartSchool.Modules.Examinations.Features.ExamSubject;
+using SmartSchool.Modules.Examinations.Features.ExamTask;
 using SmartSchool.Modules.Examinations.Features.StudentExamResult;
 using SmartSchool.SharedKernel;
 
@@ -28,6 +29,7 @@ public static class Module
         this IEndpointRouteBuilder endpoints)
     {
         CreateExam.MapEndpoint(endpoints);
+        ExamTaskWorkflow.MapEndpoints(endpoints);
         GetExamSetup.MapEndpoint(endpoints);
         GetExamResults.MapEndpoint(endpoints);
         SaveExamResults.MapEndpoint(endpoints);
