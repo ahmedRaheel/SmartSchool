@@ -1,0 +1,10 @@
+CREATE SCHEMA IF NOT EXISTS saas;
+CREATE TABLE IF NOT EXISTS saas.tenant_settings (
+ tenant_settings_id uuid PRIMARY KEY, tenant_id uuid NOT NULL, academic_year_start_month smallint NOT NULL DEFAULT 4, default_language smallint NOT NULL DEFAULT 1, date_format smallint NOT NULL DEFAULT 1, time_zone varchar(100) NOT NULL DEFAULT 'Asia/Karachi', week_start smallint NOT NULL DEFAULT 1, fee_warning_days smallint NOT NULL DEFAULT 5,
+ ai_rag_assistant boolean NOT NULL DEFAULT true, ai_tutor boolean NOT NULL DEFAULT true, ai_quiz boolean NOT NULL DEFAULT true, ai_predictions boolean NOT NULL DEFAULT true, ai_agent boolean NOT NULL DEFAULT false, ai_parent_chatbot boolean NOT NULL DEFAULT true,
+ internal_chat boolean NOT NULL DEFAULT true, notifications boolean NOT NULL DEFAULT true, broadcast boolean NOT NULL DEFAULT true, parent_portal boolean NOT NULL DEFAULT true, assignments boolean NOT NULL DEFAULT true, student_leave_apply boolean NOT NULL DEFAULT true, library_enabled boolean NOT NULL DEFAULT true,
+ online_payment boolean NOT NULL DEFAULT false, fee_reminders boolean NOT NULL DEFAULT true, digital_receipts boolean NOT NULL DEFAULT true, staff_self_leave boolean NOT NULL DEFAULT true, biometric_attendance boolean NOT NULL DEFAULT false, qr_attendance boolean NOT NULL DEFAULT false, two_factor boolean NOT NULL DEFAULT false, session_timeout boolean NOT NULL DEFAULT true, ip_restriction boolean NOT NULL DEFAULT false,
+ is_active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NULL, row_version bytea NOT NULL DEFAULT '\x',
+ CONSTRAINT uq_tenant_settings_tenant UNIQUE (tenant_id), CONSTRAINT ck_tenant_settings_month CHECK (academic_year_start_month IN (1,4,7,9)), CONSTRAINT ck_tenant_settings_language CHECK (default_language IN (1,2,3)), CONSTRAINT ck_tenant_settings_date_format CHECK (date_format IN (1,2,3)), CONSTRAINT ck_tenant_settings_week_start CHECK (week_start IN (0,1)), CONSTRAINT ck_tenant_settings_warn_days CHECK (fee_warning_days IN (3,5,7,14))
+);
+CREATE INDEX IF NOT EXISTS ix_tenant_settings_tenant_active ON saas.tenant_settings (tenant_id, is_active);

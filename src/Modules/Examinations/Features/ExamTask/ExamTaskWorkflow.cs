@@ -255,7 +255,7 @@ public static class ExamTaskWorkflow
             RuleFor(request => request.TeacherCourseAssignmentId).NotEmpty();
             //RuleFor(request => request.TaskType)
             //    .Must(value => value == PaperTask || value == ResultTask)
-            //    .WithMessage("Task type must be EXAM_PAPER or RESULT_ENTRY.");
+            //    .WithMessage("Task type must be EXAM_PAPER or RESULT_ENTRY.")/*;*/
             RuleFor(request => request.Title).NotEmpty().MaximumLength(250);
             RuleFor(request => request.Instructions).MaximumLength(4000);
             RuleFor(request => request.DueAt)

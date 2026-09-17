@@ -233,9 +233,10 @@ builder.Services.AddInventoryModule(builder.Configuration);
 builder.Services.AddLearningModule(builder.Configuration);
 builder.Services.AddLibraryModule(builder.Configuration);
 builder.Services.AddOrganizationModule(builder.Configuration);
+builder.Services.AddPayrollModule(builder.Configuration);
 builder.Services.AddReferenceModule(builder.Configuration);
 builder.Services.AddStudentsModule(builder.Configuration);
-builder.Services.AddPayrollModule(builder.Configuration);
+
 builder.Services.AddTransportModule(builder.Configuration);
 builder.Services.AddWorkflowModule(builder.Configuration);
 
@@ -416,10 +417,7 @@ static void ValidateProductionConfiguration(IConfiguration configuration)
         throw new InvalidOperationException("PortalUrl must be a non-loopback HTTPS URL outside Development.");
     if (!IsSecureAbsoluteUrl(configuration["Identity:Authority"]) ||
         !IsSecureAbsoluteUrl(configuration["Identity:ValidIssuer"]))
-    {
         throw new InvalidOperationException("Identity authority and issuer must be non-loopback HTTPS URLs outside Development.");
-    }
-
     if (!configuration.GetValue<bool>("Identity:RequireHttpsMetadata"))
         throw new InvalidOperationException("Identity:RequireHttpsMetadata must be true outside Development.");
 
@@ -432,9 +430,7 @@ static void ValidateProductionConfiguration(IConfiguration configuration)
 
     if (string.IsNullOrWhiteSpace(configuration["IdentityService:ClientId"]) ||
         string.IsNullOrWhiteSpace(configuration["IdentityService:Scope"]))
-    {
         throw new InvalidOperationException("IdentityService client id and management scope are required outside Development.");
-    }
 
     if (string.Equals(configuration["Caching:Provider"], "Redis", StringComparison.OrdinalIgnoreCase) &&
         string.IsNullOrWhiteSpace(configuration.GetConnectionString(configuration["Caching:RedisConnectionStringName"] ?? "Redis")))

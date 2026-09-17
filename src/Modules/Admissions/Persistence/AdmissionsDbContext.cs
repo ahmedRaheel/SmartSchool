@@ -19,7 +19,6 @@ public interface IAdmissionsDbContext
     DbSet<Features.CompleteAdmissionStudentGuardian> CompleteAdmissionStudentGuardians { get; }
     DbSet<Features.CompleteAdmissionEnrollment> CompleteAdmissionEnrollments { get; }
     DbSet<Features.CompleteAdmissionDocument> CompleteAdmissionDocuments { get; }
-    DbSet<Features.CompleteAdmissionSection> CompleteAdmissionSections { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -43,7 +42,6 @@ public sealed class AdmissionsDbContext(DbContextOptions<AdmissionsDbContext> op
     public DbSet<Features.CompleteAdmissionEnrollment> CompleteAdmissionEnrollments => Set<Features.CompleteAdmissionEnrollment>();
 
     public DbSet<Features.CompleteAdmissionDocument> CompleteAdmissionDocuments => Set<Features.CompleteAdmissionDocument>();
-    public DbSet<Features.CompleteAdmissionSection> CompleteAdmissionSections => Set<Features.CompleteAdmissionSection>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

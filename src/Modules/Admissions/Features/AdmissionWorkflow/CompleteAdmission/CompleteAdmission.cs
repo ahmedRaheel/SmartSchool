@@ -1,5 +1,7 @@
+using Dapper;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using SmartSchool.Modules.Admissions.Persistence;
 
 namespace SmartSchool.Modules.Admissions.Features;
@@ -24,6 +26,11 @@ public sealed class CompleteAdmissionCommand(
     IAdmissionsDbContext db,
     TimeProvider timeProvider) : ICompleteAdmission
 {
+    private sealed record SectionAvailability(
+        int? Capacity,
+        bool IsActive,
+        long ActiveEnrollmentCount);
+
     public async Task ExecuteAsync(
         Guid tenantId,
         AdmissionApplicationDetails application,
@@ -38,11 +45,48 @@ public sealed class CompleteAdmissionCommand(
         CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        var placement = await db.CompleteAdmissionSections.FromSqlInterpolated($"SELECT * FROM academic.class_section WHERE tenant_id = {tenantId} AND class_section_id = {application.ClassSectionId} FOR UPDATE").SingleOrDefaultAsync(cancellationToken);
+
+        const string sectionAvailabilitySql =
+            """
+            SELECT
+                section.capacity AS "Capacity",
+                section.is_active AS "IsActive",
+                (
+                    SELECT COUNT(*)
+                    FROM student.student_enrollment enrollment
+                    WHERE enrollment.tenant_id = section.tenant_id
+                      AND enrollment.class_section_id = section.class_section_id
+                      AND enrollment.is_active = TRUE
+                      AND enrollment.status = 'ACTIVE'
+                ) AS "ActiveEnrollmentCount"
+            FROM academic.class_section section
+            WHERE section.tenant_id = @TenantId
+              AND section.class_section_id = @ClassSectionId
+            FOR UPDATE;
+            """;
+
+        var connection = db.Database.GetDbConnection();
+        var placement = await connection.QuerySingleOrDefaultAsync<SectionAvailability>(
+            new CommandDefinition(
+                sectionAvailabilitySql,
+                new
+                {
+                    TenantId = tenantId,
+                    application.ClassSectionId
+                },
+                transaction.GetDbTransaction(),
+                cancellationToken: cancellationToken));
+
         if (placement is null || !placement.IsActive)
+        {
             throw new ValidationException("The selected class is no longer available.");
-        if (placement.Capacity.HasValue && await db.CompleteAdmissionEnrollments.CountAsync(e => e.TenantId == tenantId && e.ClassSectionId == application.ClassSectionId && e.IsActive && e.Status == "ACTIVE", cancellationToken) >= placement.Capacity)
+        }
+
+        if (placement.Capacity.HasValue &&
+            placement.ActiveEnrollmentCount >= placement.Capacity.Value)
+        {
             throw new ValidationException("The selected class has reached its capacity.");
+        }
         var admissionDate = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
         var relationship = string.IsNullOrWhiteSpace(application.Relationship)
             ? "GUARDIAN"
@@ -377,24 +421,5 @@ public sealed class CompleteAdmissionDocument
     {
         OwnerId = studentId;
         OwnerType = "StudentDocument";
-    }
-}
-public sealed class CompleteAdmissionSection
-{
-    public Guid ClassSectionId
-    {
-        get; private set;
-    }
-    public Guid TenantId
-    {
-        get; private set;
-    }
-    public int? Capacity
-    {
-        get; private set;
-    }
-    public bool IsActive
-    {
-        get; private set;
     }
 }

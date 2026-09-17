@@ -1,0 +1,11 @@
+BEGIN;
+ALTER TABLE finance.fee_type ADD COLUMN IF NOT EXISTS frequency varchar(30) NOT NULL DEFAULT 'Monthly';
+ALTER TABLE finance.fee_type ADD COLUMN IF NOT EXISTS description varchar(500);
+ALTER TABLE finance.fee_type ADD COLUMN IF NOT EXISTS metadata_json jsonb;
+CREATE TABLE IF NOT EXISTS finance.fee_structure (fee_structure_id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL, grade_level_id uuid NOT NULL, fee_type_id uuid NOT NULL, academic_year_id uuid, amount numeric(18,2) NOT NULL DEFAULT 0, frequency varchar(30) NOT NULL DEFAULT 'Monthly', effective_from date, effective_to date, code varchar(100) NOT NULL, name varchar(250) NOT NULL, metadata_json jsonb, is_active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz, row_version bytea NOT NULL DEFAULT public.gen_random_bytes(8));
+CREATE INDEX IF NOT EXISTS ix_fee_structure_scope ON finance.fee_structure(tenant_id,grade_level_id,academic_year_id);
+ALTER TABLE finance.student_invoice ADD COLUMN IF NOT EXISTS fee_type_id uuid;
+ALTER TABLE finance.student_invoice ADD COLUMN IF NOT EXISTS paid_amount numeric(18,2) NOT NULL DEFAULT 0;
+ALTER TABLE finance.student_invoice ADD COLUMN IF NOT EXISTS issue_date date;
+UPDATE finance.student_invoice SET issue_date=invoice_date WHERE issue_date IS NULL;
+COMMIT;

@@ -1,0 +1,9 @@
+ docker exec postgres   psql -U postgres -d postgres   -c "CREATE DATABASE smartschool;"
+
+
+to delete 
+ docker exec postgres   psql -U postgres -d postgres   -c "DROP DATABASE IF EXISTS smartschool WITH (FORCE);"
+
+
+dump database
+ docker exec -i postgres   psql -U postgres -d smartschool   < database/SmartSchoolComplete.Consolidated.sql

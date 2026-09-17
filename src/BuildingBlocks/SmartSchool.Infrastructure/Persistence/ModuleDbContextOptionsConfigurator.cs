@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Pgvector.EntityFrameworkCore;
 using SmartSchool.Application.Persistence;
 
 namespace SmartSchool.Infrastructure.Persistence;
@@ -76,6 +77,7 @@ public sealed class ModuleDbContextOptionsConfigurator(
             providerOptions =>
             {
                 providerOptions.EnableRetryOnFailure(5);
+                providerOptions.UseVector();
                 providerOptions.MigrationsAssembly(typeof(TContext).Assembly.FullName);
                 providerOptions.MigrationsHistoryTable(
                     GetHistoryTableName<TContext>(),
@@ -129,7 +131,7 @@ public sealed class ModuleDbContextOptionsConfigurator(
         const int postgreSqlIdentifierLimit = 63;
 
         var contextName = typeof(TContext).Name;
-        var availableLength = postgreSqlIdentifierLimit - prefix.Length;
+        var availableLength = postgreSqlIdentifierLimit  - prefix.Length;
 
         if (contextName.Length > availableLength)
         {

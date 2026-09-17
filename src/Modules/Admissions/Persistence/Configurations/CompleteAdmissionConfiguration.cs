@@ -90,12 +90,3 @@ public sealed class CompleteAdmissionDocumentConfiguration : IEntityTypeConfigur
         builder.Property(x => x.OwnerId).HasColumnName("owner_id"); builder.Property(x => x.OwnerType).HasColumnName("owner_type");
     }
 }
-public sealed class CompleteAdmissionSectionConfiguration : IEntityTypeConfiguration<CompleteAdmissionSection>
-{
-    public void Configure(EntityTypeBuilder<CompleteAdmissionSection> builder)
-    {
-        builder.ToTable("class_section", "academic"); builder.HasKey(x => x.ClassSectionId);
-        builder.Property(x => x.ClassSectionId).HasColumnName("class_section_id"); builder.Property(x => x.TenantId).HasColumnName("tenant_id");
-        builder.Property(x => x.Capacity).HasColumnName("capacity"); builder.Property(x => x.IsActive).HasColumnName("is_active");
-    }
-}
