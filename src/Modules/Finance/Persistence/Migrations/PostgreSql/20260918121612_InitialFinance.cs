@@ -14,7 +14,13 @@ namespace SmartSchool.Modules.Finance.Persistence.Migrations.PostgreSql
             migrationBuilder.EnsureSchema(
                 name: "finance");
 
-migrationBuilder.CreateTable(
+            migrationBuilder.EnsureSchema(
+                name: "hr");
+
+            migrationBuilder.EnsureSchema(
+                name: "payroll");
+
+            migrationBuilder.CreateTable(
                 name: "discount",
                 schema: "finance",
                 columns: table => new
@@ -35,7 +41,35 @@ migrationBuilder.CreateTable(
                     table.PrimaryKey("PK_discount", x => x.discount_id);
                 });
 
-                        migrationBuilder.CreateTable(
+            migrationBuilder.CreateTable(
+                name: "employee_compensation",
+                schema: "hr",
+                columns: table => new
+                {
+                    employee_compensation_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    employee_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    job_grade_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    effective_from = table.Column<DateOnly>(type: "date", nullable: false),
+                    effective_to = table.Column<DateOnly>(type: "date", nullable: true),
+                    basic_salary = table.Column<decimal>(type: "numeric", nullable: false),
+                    gross_salary = table.Column<decimal>(type: "numeric", nullable: true),
+                    currency_code = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false),
+                    code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    metadata_json = table.Column<string>(type: "jsonb", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    row_version = table.Column<byte[]>(type: "bytea", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_employee_compensation", x => x.employee_compensation_id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "fee_type",
                 schema: "finance",
                 columns: table => new
@@ -58,7 +92,91 @@ migrationBuilder.CreateTable(
                     table.PrimaryKey("PK_fee_type", x => x.fee_type_id);
                 });
 
-                                                            migrationBuilder.CreateTable(
+            migrationBuilder.CreateTable(
+                name: "Increment",
+                schema: "payroll",
+                columns: table => new
+                {
+                    increment_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    MetadataJson = table.Column<string>(type: "text", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    row_version = table.Column<byte[]>(type: "bytea", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Increment", x => x.increment_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "payroll_run",
+                schema: "payroll",
+                columns: table => new
+                {
+                    payroll_run_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    payroll_period_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status_code = table.Column<string>(type: "text", nullable: false),
+                    approved_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    approved_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    metadata_json = table.Column<string>(type: "jsonb", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    row_version = table.Column<byte[]>(type: "bytea", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_payroll_run", x => x.payroll_run_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payslip",
+                schema: "payroll",
+                columns: table => new
+                {
+                    payslip_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    MetadataJson = table.Column<string>(type: "text", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    row_version = table.Column<byte[]>(type: "bytea", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payslip", x => x.payslip_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SalaryStructure",
+                schema: "payroll",
+                columns: table => new
+                {
+                    salary_structure_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    MetadataJson = table.Column<string>(type: "text", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    row_version = table.Column<byte[]>(type: "bytea", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SalaryStructure", x => x.salary_structure_id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "scholarship",
                 schema: "finance",
                 columns: table => new
@@ -202,7 +320,20 @@ migrationBuilder.CreateTable(
                 columns: new[] { "tenant_id", "code" },
                 unique: true);
 
-                                    migrationBuilder.CreateIndex(
+            migrationBuilder.CreateIndex(
+                name: "IX_employee_compensation_tenant_id",
+                schema: "hr",
+                table: "employee_compensation",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_employee_compensation_tenant_id_code",
+                schema: "hr",
+                table: "employee_compensation",
+                columns: new[] { "tenant_id", "code" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_fee_structure_fee_type_id",
                 schema: "finance",
                 table: "fee_structure",
@@ -227,7 +358,59 @@ migrationBuilder.CreateTable(
                 columns: new[] { "tenant_id", "code" },
                 unique: true);
 
-                                                                                                            migrationBuilder.CreateIndex(
+            migrationBuilder.CreateIndex(
+                name: "IX_Increment_tenant_id",
+                schema: "payroll",
+                table: "Increment",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Increment_tenant_id_code",
+                schema: "payroll",
+                table: "Increment",
+                columns: new[] { "tenant_id", "code" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_payroll_run_tenant_id",
+                schema: "payroll",
+                table: "payroll_run",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_payroll_run_tenant_id_code",
+                schema: "payroll",
+                table: "payroll_run",
+                columns: new[] { "tenant_id", "code" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payslip_tenant_id",
+                schema: "payroll",
+                table: "Payslip",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payslip_tenant_id_code",
+                schema: "payroll",
+                table: "Payslip",
+                columns: new[] { "tenant_id", "code" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SalaryStructure_tenant_id",
+                schema: "payroll",
+                table: "SalaryStructure",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SalaryStructure_tenant_id_code",
+                schema: "payroll",
+                table: "SalaryStructure",
+                columns: new[] { "tenant_id", "code" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_scholarship_tenant_id_branch_id",
                 schema: "finance",
                 table: "scholarship",
@@ -287,11 +470,31 @@ migrationBuilder.CreateTable(
                 name: "discount",
                 schema: "finance");
 
-                        migrationBuilder.DropTable(
+            migrationBuilder.DropTable(
+                name: "employee_compensation",
+                schema: "hr");
+
+            migrationBuilder.DropTable(
                 name: "fee_structure",
                 schema: "finance");
 
-                                                            migrationBuilder.DropTable(
+            migrationBuilder.DropTable(
+                name: "Increment",
+                schema: "payroll");
+
+            migrationBuilder.DropTable(
+                name: "payroll_run",
+                schema: "payroll");
+
+            migrationBuilder.DropTable(
+                name: "Payslip",
+                schema: "payroll");
+
+            migrationBuilder.DropTable(
+                name: "SalaryStructure",
+                schema: "payroll");
+
+            migrationBuilder.DropTable(
                 name: "scholarship",
                 schema: "finance");
 

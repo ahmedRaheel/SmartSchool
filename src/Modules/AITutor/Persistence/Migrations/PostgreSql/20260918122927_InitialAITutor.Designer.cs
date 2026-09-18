@@ -12,7 +12,7 @@ using SmartSchool.Modules.AITutor.Persistence;
 namespace SmartSchool.Modules.AITutor.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(AITutorDbContext))]
-    [Migration("20260918102001_InitialAITutor")]
+    [Migration("20260918122927_InitialAITutor")]
     partial class InitialAITutor
     {
         /// <inheritdoc />

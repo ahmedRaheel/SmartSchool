@@ -5,15 +5,16 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SmartSchool.Modules.Finance.Persistence;
+using Pgvector;
+using SmartSchool.Modules.AICore.Persistence;
 
 #nullable disable
 
-namespace SmartSchool.Modules.Finance.Persistence.Migrations.PostgreSql
+namespace SmartSchool.Modules.AICore.Persistence.Migrations.PostgreSql
 {
-    [DbContext(typeof(FinanceDbContext))]
-    [Migration("20260918101643_InitialFinance")]
-    partial class InitialFinance
+    [DbContext(typeof(AICoreDbContext))]
+    [Migration("20260918121804_InitialAICore")]
+    partial class InitialAICore
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,276 +24,118 @@ namespace SmartSchool.Modules.Finance.Persistence.Migrations.PostgreSql
                 .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SmartSchool.Modules.Finance.Models.DiscountEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Features.KnowledgeDocument.RagKnowledgeChunkWriteEntity", b =>
                 {
-                    b.Property<Guid>("DiscountId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("discount_id");
+                        .HasColumnName("id");
 
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
-
-                    b.Property<string>("Code")
+                    b.Property<string>("Collection")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("collection");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("MetadataJson")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("DiscountId");
-
-                    b.HasIndex("TenantId", "BranchId");
-
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
-
-                    b.ToTable("discount", "finance");
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.Finance.Models.FeeStructureEntity", b =>
-                {
-                    b.Property<Guid>("FeeStructureId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("fee_structure_id");
-
-                    b.Property<Guid?>("AcademicYearId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("academic_year_id");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("department_id");
-
-                    b.Property<DateOnly?>("EffectiveFrom")
-                        .HasColumnType("date")
-                        .HasColumnName("effective_from");
-
-                    b.Property<DateOnly?>("EffectiveTo")
-                        .HasColumnType("date")
-                        .HasColumnName("effective_to");
-
-                    b.Property<Guid>("FeeTypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("fee_type_id");
-
-                    b.Property<string>("Frequency")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("frequency");
-
-                    b.Property<Guid>("GradeLevelId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("grade_level_id");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("MetadataJson")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("metadata_json");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("FeeStructureId");
-
-                    b.HasIndex("FeeTypeId");
-
-                    b.HasIndex("TenantId", "GradeLevelId", "FeeTypeId", "AcademicYearId");
-
-                    b.ToTable("fee_structure", "finance");
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.Finance.Models.FeeTypeEntity", b =>
-                {
-                    b.Property<Guid>("FeeTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("fee_type_id");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("department_id");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Frequency")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("frequency");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("MetadataJson")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("metadata_json");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("FeeTypeId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
-
-                    b.ToTable("fee_type", "finance");
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.Finance.Models.InvoiceEntity", b =>
-                {
-                    b.Property<Guid>("StudentInvoiceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("student_invoice_id");
-
-                    b.Property<Guid?>("AcademicYearId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("academic_year_id");
-
-                    b.Property<decimal>("BalanceAmount")
-                        .HasColumnType("numeric")
-                        .HasColumnName("balance_amount");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateOnly?>("DueDate")
-                        .HasColumnType("date")
-                        .HasColumnName("due_date");
-
-                    b.Property<DateOnly>("InvoiceDate")
-                        .HasColumnType("date")
-                        .HasColumnName("invoice_date");
-
-                    b.Property<string>("InvoiceNumber")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("invoice_number");
+                        .HasColumnName("content");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DocumentName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("document_name");
+
+                    b.Property<Vector>("Embedding")
+                        .IsRequired()
+                        .HasColumnType("vector(384)")
+                        .HasColumnName("embedding_v384");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rag_knowledge_chunk", "ai_core");
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.AiExecutionLogEntity", b =>
+                {
+                    b.Property<Guid>("AiExecutionLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("ai_execution_log_id");
+
+                    b.Property<string>("AssistantType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("assistant_type");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<int?>("CompletionTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("completion_tokens");
+
+                    b.Property<Guid?>("ConversationReferenceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("conversation_reference_id");
+
+                    b.Property<string>("CorrelationId")
+                        .HasColumnType("text")
+                        .HasColumnName("correlation_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal?>("EstimatedCost")
+                        .HasColumnType("numeric")
+                        .HasColumnName("estimated_cost");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<int?>("LatencyMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("latency_ms");
+
                     b.Property<string>("MetadataJson")
                         .HasColumnType("jsonb")
                         .HasColumnName("metadata_json");
+
+                    b.Property<Guid?>("ModelConfigurationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("model_configuration_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)")
                         .HasColumnName("name");
+
+                    b.Property<int?>("PromptTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("prompt_tokens");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -305,42 +148,351 @@ namespace SmartSchool.Modules.Finance.Persistence.Migrations.PostgreSql
                         .HasColumnType("text")
                         .HasColumnName("status");
 
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("student_id");
-
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenant_id");
 
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric")
-                        .HasColumnName("total_amount");
+                    b.Property<int?>("TotalTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_tokens");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("StudentInvoiceId");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("AiExecutionLogId");
+
+                    b.HasIndex("ModelConfigurationId");
 
                     b.HasIndex("TenantId");
 
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("student_invoice", "finance");
+                    b.ToTable("ai_execution_log", "ai_core");
                 });
 
-            modelBuilder.Entity("SmartSchool.Modules.Finance.Models.PaymentEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.KnowledgeChunkEntity", b =>
                 {
-                    b.Property<Guid>("StudentPaymentId")
+                    b.Property<Guid>("KnowledgeChunkId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("student_payment_id");
+                        .HasColumnName("knowledge_chunk_id");
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric")
-                        .HasColumnName("amount");
+                    b.Property<int>("ChunkIndex")
+                        .HasColumnType("integer")
+                        .HasColumnName("chunk_index");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Vector>("Embedding")
+                        .HasColumnType("vector(384)")
+                        .HasColumnName("embedding");
+
+                    b.Property<string>("EmbeddingReference")
+                        .HasColumnType("text")
+                        .HasColumnName("embedding_reference");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<Guid>("KnowledgeDocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("knowledge_document_id");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text")
+                        .HasColumnName("metadata");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("name");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("row_version");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("KnowledgeChunkId");
+
+                    b.HasIndex("KnowledgeDocumentId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("knowledge_chunk", "ai_core");
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.KnowledgeCollectionEntity", b =>
+                {
+                    b.Property<Guid>("KnowledgeCollectionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("knowledge_collection_id");
+
+                    b.Property<string>("AccessScope")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("access_scope");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("name");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("row_version");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("KnowledgeCollectionId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("knowledge_collection", "ai_core");
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.KnowledgeDocumentEntity", b =>
+                {
+                    b.Property<Guid>("KnowledgeDocumentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("knowledge_document_id");
+
+                    b.Property<Guid?>("AcademicSystemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("academic_system_id");
+
+                    b.Property<Guid?>("CampusId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campus_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DocumentType")
+                        .HasColumnType("text")
+                        .HasColumnName("document_type");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<Guid>("KnowledgeCollectionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("knowledge_collection_id");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text")
+                        .HasColumnName("metadata");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("name");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("row_version");
+
+                    b.Property<string>("SourceUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("source_url");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("KnowledgeDocumentId");
+
+                    b.HasIndex("KnowledgeCollectionId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("knowledge_document", "ai_core");
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.ModelConfigurationEntity", b =>
+                {
+                    b.Property<Guid>("ModelConfigurationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("model_configuration_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Configuration")
+                        .HasColumnType("text")
+                        .HasColumnName("configuration");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("ModelName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("model_name");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("provider");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("row_version");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("ModelConfigurationId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("model_configuration", "ai_core");
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.PromptTemplateEntity", b =>
+                {
+                    b.Property<Guid>("PromptTemplateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("prompt_template_id");
+
+                    b.Property<string>("AssistantType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("assistant_type");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -366,33 +518,21 @@ namespace SmartSchool.Modules.Finance.Persistence.Migrations.PostgreSql
                         .HasColumnType("character varying(250)")
                         .HasColumnName("name");
 
-                    b.Property<DateTimeOffset>("PaymentDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("payment_date");
-
-                    b.Property<string>("PaymentMethod")
+                    b.Property<string>("PromptText")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("payment_method");
+                        .HasColumnName("prompt_text");
 
-                    b.Property<string>("PaymentNumber")
+                    b.Property<string>("PromptType")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("payment_number");
-
-                    b.Property<string>("ReferenceNo")
-                        .HasColumnType("text")
-                        .HasColumnName("reference_no");
+                        .HasColumnName("prompt_type");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("bytea")
                         .HasColumnName("row_version");
-
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("student_id");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -402,26 +542,26 @@ namespace SmartSchool.Modules.Finance.Persistence.Migrations.PostgreSql
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("StudentPaymentId");
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("PromptTemplateId");
 
                     b.HasIndex("TenantId");
 
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("student_payment", "finance");
+                    b.ToTable("prompt_template", "ai_core");
                 });
 
-            modelBuilder.Entity("SmartSchool.Modules.Finance.Models.ScholarshipEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.ToolDefinitionEntity", b =>
                 {
-                    b.Property<Guid>("ScholarshipId")
+                    b.Property<Guid>("ToolDefinitionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("scholarship_id");
-
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
+                        .HasColumnName("tool_definition_id");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -433,18 +573,36 @@ namespace SmartSchool.Modules.Finance.Persistence.Migrations.PostgreSql
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("HandlerKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("handler_key");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
                     b.Property<string>("MetadataJson")
-                        .HasColumnType("text");
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)")
                         .HasColumnName("name");
+
+                    b.Property<bool>("RequiresHumanApproval")
+                        .HasColumnType("boolean")
+                        .HasColumnName("requires_human_approval");
+
+                    b.Property<bool>("RequiresUserAuthorization")
+                        .HasColumnType("boolean")
+                        .HasColumnName("requires_user_authorization");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -460,79 +618,38 @@ namespace SmartSchool.Modules.Finance.Persistence.Migrations.PostgreSql
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("ScholarshipId");
+                    b.HasKey("ToolDefinitionId");
 
-                    b.HasIndex("TenantId", "BranchId");
-
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
-
-                    b.ToTable("scholarship", "finance");
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.Finance.Models.StudentFeeEntity", b =>
-                {
-                    b.Property<Guid>("StudentFeeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("student_fee_id");
-
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("MetadataJson")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("StudentFeeId");
-
-                    b.HasIndex("TenantId", "BranchId");
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("studentfee", "finance");
+                    b.ToTable("tool_definition", "ai_core");
                 });
 
-                                                                        modelBuilder.Entity("SmartSchool.Modules.Finance.Models.FeeStructureEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.AiExecutionLogEntity", b =>
                 {
-                    b.HasOne("SmartSchool.Modules.Finance.Models.FeeTypeEntity", null)
+                    b.HasOne("SmartSchool.Modules.AICore.Models.ModelConfigurationEntity", null)
                         .WithMany()
-                        .HasForeignKey("FeeTypeId")
+                        .HasForeignKey("ModelConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.KnowledgeChunkEntity", b =>
+                {
+                    b.HasOne("SmartSchool.Modules.AICore.Models.KnowledgeDocumentEntity", null)
+                        .WithMany()
+                        .HasForeignKey("KnowledgeDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.AICore.Models.KnowledgeDocumentEntity", b =>
+                {
+                    b.HasOne("SmartSchool.Modules.AICore.Models.KnowledgeCollectionEntity", null)
+                        .WithMany()
+                        .HasForeignKey("KnowledgeCollectionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

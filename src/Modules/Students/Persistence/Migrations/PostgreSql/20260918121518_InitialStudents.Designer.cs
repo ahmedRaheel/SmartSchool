@@ -12,7 +12,7 @@ using SmartSchool.Modules.Students.Persistence;
 namespace SmartSchool.Modules.Students.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(StudentsDbContext))]
-    [Migration("20260918101603_InitialStudents")]
+    [Migration("20260918121518_InitialStudents")]
     partial class InitialStudents
     {
         /// <inheritdoc />

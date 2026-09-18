@@ -12,7 +12,7 @@ using SmartSchool.Modules.Activities.Persistence;
 namespace SmartSchool.Modules.Activities.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(ActivitiesDbContext))]
-    [Migration("20260918101632_InitialActivities")]
+    [Migration("20260918121557_InitialActivities")]
     partial class InitialActivities
     {
         /// <inheritdoc />

@@ -12,7 +12,7 @@ using SmartSchool.Modules.AIInquiry.Persistence;
 namespace SmartSchool.Modules.AIInquiry.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(AIInquiryDbContext))]
-    [Migration("20260918101912_InitialAIInquiry")]
+    [Migration("20260918121817_InitialAIInquiry")]
     partial class InitialAIInquiry
     {
         /// <inheritdoc />

@@ -12,7 +12,7 @@ using SmartSchool.Modules.HR.Persistence;
 namespace SmartSchool.Modules.HR.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(HRDbContext))]
-    [Migration("20260918101658_InitialHR")]
+    [Migration("20260918121624_InitialHR")]
     partial class InitialHR
     {
         /// <inheritdoc />

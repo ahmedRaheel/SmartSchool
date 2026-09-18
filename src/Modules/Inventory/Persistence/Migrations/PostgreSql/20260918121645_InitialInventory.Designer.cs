@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SmartSchool.Modules.AIParent.Persistence;
+using SmartSchool.Modules.Inventory.Persistence;
 
 #nullable disable
 
-namespace SmartSchool.Modules.AIParent.Persistence.Migrations.PostgreSql
+namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
 {
-    [DbContext(typeof(AIParentDbContext))]
-    [Migration("20260918101925_InitialAIParent")]
-    partial class InitialAIParent
+    [DbContext(typeof(InventoryDbContext))]
+    [Migration("20260918121645_InitialInventory")]
+    partial class InitialInventory
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,12 +25,12 @@ namespace SmartSchool.Modules.AIParent.Persistence.Migrations.PostgreSql
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SmartSchool.Modules.AIParent.Models.ParentConversationEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.Inventory.Models.ItemEntity", b =>
                 {
-                    b.Property<Guid>("ParentConversationId")
+                    b.Property<Guid>("ItemId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("parent_conversation_id");
+                        .HasColumnName("item_id");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -42,13 +42,68 @@ namespace SmartSchool.Modules.AIParent.Persistence.Migrations.PostgreSql
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTimeOffset?>("EndedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ended_at");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
-                    b.Property<Guid>("GuardianId")
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal?>("ReorderLevel")
+                        .HasColumnType("numeric")
+                        .HasColumnName("reorder_level");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("row_version");
+
+                    b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
-                        .HasColumnName("guardian_id");
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("text")
+                        .HasColumnName("unit");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("ItemId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("item", "inventory");
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.Inventory.Models.PurchaseOrderEntity", b =>
+                {
+                    b.Property<Guid>("PurchaseOrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("purchase_order_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
@@ -70,57 +125,36 @@ namespace SmartSchool.Modules.AIParent.Persistence.Migrations.PostgreSql
                         .HasColumnType("bytea")
                         .HasColumnName("row_version");
 
-                    b.Property<Guid?>("SelectedStudentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("selected_student_id");
-
-                    b.Property<DateTimeOffset>("StartedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("started_at");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
-
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenant_id");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text")
-                        .HasColumnName("title");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("ParentConversationId");
+                    b.HasKey("PurchaseOrderId");
 
                     b.HasIndex("TenantId");
 
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("parent_conversation", "ai_core");
+                    b.ToTable("purchase_order", "inventory");
                 });
 
-            modelBuilder.Entity("SmartSchool.Modules.AIParent.Models.ParentMessageEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.Inventory.Models.StockTransactionEntity", b =>
                 {
-                    b.Property<Guid>("ParentMessageId")
+                    b.Property<Guid>("StockTransactionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("parent_message_id");
+                        .HasColumnName("stock_transaction_id");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("code");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("text")
-                        .HasColumnName("content");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -140,15 +174,6 @@ namespace SmartSchool.Modules.AIParent.Persistence.Migrations.PostgreSql
                         .HasColumnType("character varying(250)")
                         .HasColumnName("name");
 
-                    b.Property<Guid>("ParentConversationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("parent_conversation_id");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("role");
-
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -163,120 +188,14 @@ namespace SmartSchool.Modules.AIParent.Persistence.Migrations.PostgreSql
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("ParentMessageId");
-
-                    b.HasIndex("ParentConversationId");
+                    b.HasKey("StockTransactionId");
 
                     b.HasIndex("TenantId");
 
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("parent_message", "ai_core");
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.AIParent.Models.ParentToolExecutionEntity", b =>
-                {
-                    b.Property<Guid>("ParentToolExecutionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("parent_tool_execution_id");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset>("ExecutedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("executed_at");
-
-                    b.Property<string>("InputPayload")
-                        .HasColumnType("text")
-                        .HasColumnName("input_payload");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("MetadataJson")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("metadata_json");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("OutputPayload")
-                        .HasColumnType("text")
-                        .HasColumnName("output_payload");
-
-                    b.Property<Guid>("ParentConversationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("parent_conversation_id");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
-
-                    b.Property<Guid?>("StudentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("student_id");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<Guid>("ToolDefinitionId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tool_definition_id");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("ParentToolExecutionId");
-
-                    b.HasIndex("ParentConversationId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
-
-                    b.ToTable("parent_tool_execution", "ai_core");
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.AIParent.Models.ParentMessageEntity", b =>
-                {
-                    b.HasOne("SmartSchool.Modules.AIParent.Models.ParentConversationEntity", null)
-                        .WithMany()
-                        .HasForeignKey("ParentConversationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.AIParent.Models.ParentToolExecutionEntity", b =>
-                {
-                    b.HasOne("SmartSchool.Modules.AIParent.Models.ParentConversationEntity", null)
-                        .WithMany()
-                        .HasForeignKey("ParentConversationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.ToTable("stock_transaction", "inventory");
                 });
 #pragma warning restore 612, 618
         }

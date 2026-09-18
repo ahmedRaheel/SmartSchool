@@ -44,7 +44,7 @@ namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
                     purchase_order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    MetadataJson = table.Column<string>(type: "text", nullable: true),
+                    metadata_json = table.Column<string>(type: "jsonb", nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -57,14 +57,14 @@ namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
                 });
 
             migrationBuilder.CreateTable(
-                name: "StockTransaction",
+                name: "stock_transaction",
                 schema: "inventory",
                 columns: table => new
                 {
                     stock_transaction_id = table.Column<Guid>(type: "uuid", nullable: false),
                     code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    MetadataJson = table.Column<string>(type: "text", nullable: true),
+                    metadata_json = table.Column<string>(type: "jsonb", nullable: true),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -73,7 +73,7 @@ namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StockTransaction", x => x.stock_transaction_id);
+                    table.PrimaryKey("PK_stock_transaction", x => x.stock_transaction_id);
                 });
 
             migrationBuilder.CreateIndex(
@@ -103,15 +103,15 @@ namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_StockTransaction_tenant_id",
+                name: "IX_stock_transaction_tenant_id",
                 schema: "inventory",
-                table: "StockTransaction",
+                table: "stock_transaction",
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StockTransaction_tenant_id_code",
+                name: "IX_stock_transaction_tenant_id_code",
                 schema: "inventory",
-                table: "StockTransaction",
+                table: "stock_transaction",
                 columns: new[] { "tenant_id", "code" },
                 unique: true);
         }
@@ -128,7 +128,7 @@ namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
                 schema: "inventory");
 
             migrationBuilder.DropTable(
-                name: "StockTransaction",
+                name: "stock_transaction",
                 schema: "inventory");
         }
     }

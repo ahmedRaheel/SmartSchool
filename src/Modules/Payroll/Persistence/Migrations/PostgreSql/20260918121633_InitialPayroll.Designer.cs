@@ -12,7 +12,7 @@ using SmartSchool.Modules.Payroll.Persistence;
 namespace SmartSchool.Modules.Payroll.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(PayrollDbContext))]
-    [Migration("20260918101710_InitialPayroll")]
+    [Migration("20260918121633_InitialPayroll")]
     partial class InitialPayroll
     {
         /// <inheritdoc />

@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SmartSchool.Modules.Learning.Persistence;
+using SmartSchool.Modules.Admissions.Persistence;
 
 #nullable disable
 
-namespace SmartSchool.Modules.Learning.Persistence.Migrations.PostgreSql
+namespace SmartSchool.Modules.Admissions.Persistence.Migrations.PostgreSql
 {
-    [DbContext(typeof(LearningDbContext))]
-    [Migration("20260918101611_InitialLearning")]
-    partial class InitialLearning
+    [DbContext(typeof(AdmissionsDbContext))]
+    [Migration("20260918121502_InitialAdmissions")]
+    partial class InitialAdmissions
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,284 +25,214 @@ namespace SmartSchool.Modules.Learning.Persistence.Migrations.PostgreSql
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SmartSchool.Modules.Learning.Models.AssignmentEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.Admissions.Features.AdmissionApplicationWriteEntity", b =>
                 {
-                    b.Property<Guid>("AcademicAssignmentId")
+                    b.Property<Guid>("ApplicationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("academic_assignment_id");
+                        .HasColumnName("application_id");
 
-                    b.Property<bool>("AllowLateSubmission")
-                        .HasColumnType("boolean")
-                        .HasColumnName("allow_late_submission");
+                    b.Property<Guid?>("AcademicYearId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("academic_year_id");
 
-                    b.Property<DateTimeOffset>("AssignedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("assigned_at");
-
-                    b.Property<string>("AssignmentTypeCode")
-                        .IsRequired()
+                    b.Property<string>("Address")
                         .HasColumnType("text")
-                        .HasColumnName("assignment_type_code");
+                        .HasColumnName("address");
 
                     b.Property<Guid>("BranchId")
                         .HasColumnType("uuid")
                         .HasColumnName("branch_id");
 
+                    b.Property<Guid?>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
                     b.Property<Guid?>("ClassSectionId")
                         .HasColumnType("uuid")
                         .HasColumnName("class_section_id");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
-
-                    b.Property<Guid>("CourseOfferingId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("course_offering_id");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date")
+                        .HasColumnName("date_of_birth");
 
-                    b.Property<DateTimeOffset?>("DueAt")
+                    b.Property<DateTime?>("DecidedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("due_at");
+                        .HasColumnName("decided_at");
 
-                    b.Property<string>("Instructions")
+                    b.Property<string>("DecisionNotes")
                         .HasColumnType("text")
-                        .HasColumnName("instructions");
+                        .HasColumnName("decision_notes");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<decimal?>("EntranceTestMarks")
+                        .HasColumnType("numeric")
+                        .HasColumnName("entrance_test_marks");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("Gender")
+                        .HasColumnType("text")
+                        .HasColumnName("gender");
+
+                    b.Property<string>("GuardianCnic")
+                        .HasColumnType("text")
+                        .HasColumnName("guardian_cnic");
+
+                    b.Property<string>("GuardianEmail")
+                        .HasColumnType("text")
+                        .HasColumnName("guardian_email");
+
+                    b.Property<string>("GuardianName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("guardian_name");
+
+                    b.Property<string>("GuardianPhone")
+                        .HasColumnType("text")
+                        .HasColumnName("guardian_phone");
+
+                    b.Property<bool?>("InterviewPassed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("interview_passed");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<int>("MaxAttempts")
-                        .HasColumnType("integer")
-                        .HasColumnName("max_attempts");
+                    b.Property<string>("LastName")
+                        .HasColumnType("text")
+                        .HasColumnName("last_name");
 
-                    b.Property<string>("MetadataJson")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("metadata_json");
+                    b.Property<string>("Phone")
+                        .HasColumnType("text")
+                        .HasColumnName("phone");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
+                    b.Property<decimal?>("PreviousMarks")
+                        .HasColumnType("numeric")
+                        .HasColumnName("previous_marks");
+
+                    b.Property<string>("PreviousSchool")
+                        .HasColumnType("text")
+                        .HasColumnName("previous_school");
+
+                    b.Property<string>("Relationship")
+                        .HasColumnType("text")
+                        .HasColumnName("relationship");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("bytea")
                         .HasColumnName("row_version");
+
+                    b.Property<Guid>("SchoolId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("school_id");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("status");
 
-                    b.Property<Guid>("TeacherEmployeeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("teacher_employee_id");
-
-                    b.Property<Guid?>("TeachingGroupId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("teaching_group_id");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("title");
-
-                    b.Property<decimal?>("TotalMarks")
-                        .HasColumnType("numeric")
-                        .HasColumnName("total_marks");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("AcademicAssignmentId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
-
-                    b.ToTable("academic_assignment", "lms");
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.Learning.Models.AssignmentStudentEntity", b =>
-                {
-                    b.Property<Guid>("AssignmentStudentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("assignment_student_id");
-
-                    b.Property<Guid>("AcademicAssignmentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("academic_assignment_id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
-
-                    b.Property<Guid>("StudentId")
+                    b.Property<Guid?>("StudentId")
                         .HasColumnType("uuid")
                         .HasColumnName("student_id");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("AssignmentStudentId");
-
-                    b.HasIndex("AcademicAssignmentId");
-
-                    b.HasIndex("TenantId", "AcademicAssignmentId", "StudentId")
-                        .IsUnique();
-
-                    b.ToTable("assignment_student", "lms");
-                });
-
-            modelBuilder.Entity("SmartSchool.Modules.Learning.Models.AssignmentSubmissionEntity", b =>
-                {
-                    b.Property<Guid>("SubmissionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("submission_id");
-
-                    b.Property<Guid>("AcademicAssignmentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("academic_assignment_id");
-
-                    b.Property<int>("AttemptNo")
-                        .HasColumnType("integer")
-                        .HasColumnName("attempt_no");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("code");
-
-                    b.Property<string>("ContentType")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("content_type");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<byte[]>("FileContent")
-                        .HasColumnType("bytea")
-                        .HasColumnName("file_content");
-
-                    b.Property<string>("FileName")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("file_name");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<decimal?>("MarksObtained")
-                        .HasColumnType("numeric")
-                        .HasColumnName("marks_obtained");
-
-                    b.Property<string>("MetadataJson")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("metadata_json");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("StudentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("student_id");
-
-                    b.Property<string>("SubmissionText")
-                        .HasColumnType("text")
-                        .HasColumnName("submission_text");
-
-                    b.Property<DateTimeOffset?>("SubmittedAt")
+                    b.Property<DateTimeOffset>("SubmittedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("submitted_at");
 
-                    b.Property<string>("TeacherFeedback")
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("ApplicationId");
+
+                    b.ToTable("student_application", "admission");
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.Admissions.Features.AdmissionCriteriaWriteEntity", b =>
+                {
+                    b.Property<Guid>("AdmissionCriteriaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("admission_criteria_id");
+
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("academic_year_id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<decimal?>("EntranceTestMinimum")
+                        .HasColumnType("numeric")
+                        .HasColumnName("entrance_test_minimum");
+
+                    b.Property<bool>("InterviewRequired")
+                        .HasColumnType("boolean")
+                        .HasColumnName("interview_required");
+
+                    b.Property<int?>("MaximumAge")
+                        .HasColumnType("integer")
+                        .HasColumnName("maximum_age");
+
+                    b.Property<int?>("MinimumAge")
+                        .HasColumnType("integer")
+                        .HasColumnName("minimum_age");
+
+                    b.Property<decimal>("MinimumMarks")
+                        .HasColumnType("numeric")
+                        .HasColumnName("minimum_marks");
+
+                    b.Property<string>("RequiredDocuments")
                         .HasColumnType("text")
-                        .HasColumnName("teacher_feedback");
+                        .HasColumnName("required_documents");
+
+                    b.Property<Guid>("SchoolId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("school_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenant_id");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.HasKey("AdmissionCriteriaId");
 
-                    b.HasKey("SubmissionId");
-
-                    b.HasIndex("AcademicAssignmentId");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
-
-                    b.HasIndex("TenantId", "AcademicAssignmentId", "StudentId", "AttemptNo")
-                        .IsUnique();
-
-                    b.ToTable("student_assignment_submission", "lms");
+                    b.ToTable("admission_criteria", "admission");
                 });
 
-            modelBuilder.Entity("SmartSchool.Modules.Learning.Models.LearningResourceEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.Admissions.Models.AdmissionDecisionEntity", b =>
                 {
-                    b.Property<Guid>("LearningResourceId")
+                    b.Property<Guid>("AdmissionDecisionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("learning_resource_id");
+                        .HasColumnName("admission_decision_id");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -342,22 +272,22 @@ namespace SmartSchool.Modules.Learning.Persistence.Migrations.PostgreSql
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("LearningResourceId");
+                    b.HasKey("AdmissionDecisionId");
 
                     b.HasIndex("TenantId");
 
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("learningresource", "lms");
+                    b.ToTable("admissiondecision", "admission");
                 });
 
-            modelBuilder.Entity("SmartSchool.Modules.Learning.Models.LessonEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.Admissions.Models.ApplicantEntity", b =>
                 {
-                    b.Property<Guid>("LessonId")
+                    b.Property<Guid>("ApplicantId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("lesson_id");
+                        .HasColumnName("applicant_id");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -397,32 +327,124 @@ namespace SmartSchool.Modules.Learning.Persistence.Migrations.PostgreSql
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("LessonId");
+                    b.HasKey("ApplicantId");
 
                     b.HasIndex("TenantId");
 
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("lesson", "lms");
+                    b.ToTable("applicant", "admission");
                 });
 
-            modelBuilder.Entity("SmartSchool.Modules.Learning.Models.AssignmentStudentEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.Admissions.Models.ApplicationEntity", b =>
                 {
-                    b.HasOne("SmartSchool.Modules.Learning.Models.AssignmentEntity", null)
-                        .WithMany()
-                        .HasForeignKey("AcademicAssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("ApplicationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("application_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("name");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("row_version");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("ApplicationId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("application", "admission");
                 });
 
-            modelBuilder.Entity("SmartSchool.Modules.Learning.Models.AssignmentSubmissionEntity", b =>
+            modelBuilder.Entity("SmartSchool.Modules.Admissions.Models.InquiryEntity", b =>
                 {
-                    b.HasOne("SmartSchool.Modules.Learning.Models.AssignmentEntity", null)
-                        .WithMany()
-                        .HasForeignKey("AcademicAssignmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Property<Guid>("InquiryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("inquiry_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("name");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("row_version");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("InquiryId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("inquiry", "admission");
                 });
 #pragma warning restore 612, 618
         }

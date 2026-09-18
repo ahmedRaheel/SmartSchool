@@ -12,7 +12,7 @@ using SmartSchool.Modules.Workflow.Persistence;
 namespace SmartSchool.Modules.Workflow.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(WorkflowDbContext))]
-    [Migration("20260918101830_InitialWorkflow")]
+    [Migration("20260918121740_InitialWorkflow")]
     partial class InitialWorkflow
     {
         /// <inheritdoc />

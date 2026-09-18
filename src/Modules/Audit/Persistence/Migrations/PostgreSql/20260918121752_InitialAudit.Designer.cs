@@ -12,7 +12,7 @@ using SmartSchool.Modules.Audit.Persistence;
 namespace SmartSchool.Modules.Audit.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(AuditDbContext))]
-    [Migration("20260918101844_InitialAudit")]
+    [Migration("20260918121752_InitialAudit")]
     partial class InitialAudit
     {
         /// <inheritdoc />

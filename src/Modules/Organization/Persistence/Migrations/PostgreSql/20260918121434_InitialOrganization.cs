@@ -101,6 +101,25 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                 });
 
             migrationBuilder.CreateTable(
+                name: "section",
+                schema: "academic",
+                columns: table => new
+                {
+                    section_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    code = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    name = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    row_version = table.Column<byte[]>(type: "bytea", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_section", x => x.section_id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "subject",
                 schema: "academic",
                 columns: table => new
@@ -453,6 +472,36 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                 });
 
             migrationBuilder.CreateTable(
+                name: "room",
+                schema: "org",
+                columns: table => new
+                {
+                    room_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    campus_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    code = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    capacity = table.Column<int>(type: "integer", nullable: true),
+                    room_type = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: true),
+                    metadata_json = table.Column<string>(type: "jsonb", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    row_version = table.Column<byte[]>(type: "bytea", nullable: false),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_room", x => x.room_id);
+                    table.ForeignKey(
+                        name: "FK_room_campus_campus_id",
+                        column: x => x.campus_id,
+                        principalSchema: "org",
+                        principalTable: "campus",
+                        principalColumn: "campus_id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "term",
                 schema: "academic",
                 columns: table => new
@@ -529,6 +578,13 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                         principalSchema: "academic",
                         principalTable: "grade_level",
                         principalColumn: "grade_level_id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_class_section_room_room_id",
+                        column: x => x.room_id,
+                        principalSchema: "org",
+                        principalTable: "room",
+                        principalColumn: "room_id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -747,6 +803,13 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                         principalColumn: "course_offering_id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_timetable_entry_room_room_id",
+                        column: x => x.room_id,
+                        principalSchema: "org",
+                        principalTable: "room",
+                        principalColumn: "room_id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_timetable_entry_teacher_course_assignment_teacher_course_as~",
                         column: x => x.teacher_course_assignment_id,
                         principalSchema: "academic",
@@ -836,6 +899,12 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                 schema: "academic",
                 table: "class_section",
                 column: "grade_level_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_class_section_room_id",
+                schema: "academic",
+                table: "class_section",
+                column: "room_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_class_section_tenant_id",
@@ -945,6 +1014,19 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_room_campus_id_code",
+                schema: "org",
+                table: "room",
+                columns: new[] { "campus_id", "code" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_room_tenant_id",
+                schema: "org",
+                table: "room",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_school_tenant_id_code",
                 schema: "org",
                 table: "school",
@@ -961,6 +1043,13 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                 name: "IX_school_branding_tenant_id_code",
                 schema: "saas",
                 table: "school_branding",
+                columns: new[] { "tenant_id", "code" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_section_tenant_id_code",
+                schema: "academic",
+                table: "section",
                 columns: new[] { "tenant_id", "code" },
                 unique: true);
 
@@ -1123,6 +1212,12 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                 column: "course_offering_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_timetable_entry_room_id",
+                schema: "academic",
+                table: "timetable_entry",
+                column: "room_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_timetable_entry_teacher_course_assignment_id",
                 schema: "academic",
                 table: "timetable_entry",
@@ -1168,6 +1263,10 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                 schema: "saas");
 
             migrationBuilder.DropTable(
+                name: "section",
+                schema: "academic");
+
+            migrationBuilder.DropTable(
                 name: "student_course_enrollment",
                 schema: "student");
 
@@ -1210,6 +1309,10 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
             migrationBuilder.DropTable(
                 name: "grade_level",
                 schema: "academic");
+
+            migrationBuilder.DropTable(
+                name: "room",
+                schema: "org");
 
             migrationBuilder.DropTable(
                 name: "term",

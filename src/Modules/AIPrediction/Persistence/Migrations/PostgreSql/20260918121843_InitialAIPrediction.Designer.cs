@@ -12,7 +12,7 @@ using SmartSchool.Modules.AIPrediction.Persistence;
 namespace SmartSchool.Modules.AIPrediction.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(AIPredictionDbContext))]
-    [Migration("20260918101940_InitialAIPrediction")]
+    [Migration("20260918121843_InitialAIPrediction")]
     partial class InitialAIPrediction
     {
         /// <inheritdoc />

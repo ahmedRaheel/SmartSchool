@@ -12,7 +12,7 @@ using SmartSchool.Modules.Examinations.Persistence;
 namespace SmartSchool.Modules.Examinations.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(ExaminationsDbContext))]
-    [Migration("20260918101622_InitialExaminations")]
+    [Migration("20260918121541_InitialExaminations")]
     partial class InitialExaminations
     {
         /// <inheritdoc />
