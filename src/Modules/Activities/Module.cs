@@ -11,11 +11,13 @@ namespace SmartSchool.Modules.Activities;
 
 public static class Module
 {
-    public static IServiceCollection AddActivitiesModule(this IServiceCollection services)
+    public static IServiceCollection AddActivitiesModule(this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IActivitiesDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<ActivitiesDbContext>());
+        services.AddModuleDbContext<ActivitiesDbContext, IActivitiesDbContext>(
+            configuration,
+            ModuleConstants.Schema);
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;
     }

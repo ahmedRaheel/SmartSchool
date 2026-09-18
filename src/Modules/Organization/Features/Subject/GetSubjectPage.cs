@@ -65,15 +65,27 @@ public static class GetSubjectPage
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    subject_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
+                        entity.tenant_id AS "TenantId",
+                        entity.subject_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        entity.department_id AS "DepartmentId",
+                        department.code AS "DepartmentCode",
+                        department.name AS "DepartmentName",
+                        campus.campus_id AS "CampusId",
+                        campus.code AS "CampusCode",
+                        campus.name AS "CampusName",
+                        entity.metadata_json AS "MetadataJson"
                     FROM academic.subject entity
+                    LEFT JOIN org.department department
+                        ON department.department_id = entity.department_id
+                       AND department.tenant_id = entity.tenant_id
+                    LEFT JOIN org.campus campus
+                        ON campus.campus_id = department.campus_id
+                       AND campus.tenant_id = entity.tenant_id
                     WHERE entity.tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY subject_id
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.subject_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

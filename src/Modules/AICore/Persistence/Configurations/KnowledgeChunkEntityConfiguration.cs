@@ -61,7 +61,9 @@ public sealed class KnowledgeChunkEntityConfiguration
         builder.Property(entity => entity.Content).HasColumnName("content");
         builder.Property(entity => entity.Metadata).HasColumnName("metadata");
         builder.Property(entity => entity.EmbeddingReference).HasColumnName("embedding_reference");
-        builder.Property(entity => entity.Embedding).HasColumnName("embedding");
+        builder.Property(entity => entity.Embedding)
+            .HasColumnName("embedding")
+            .HasColumnType("vector(384)");
 
         // Explicit parent-child relationships. Prevents EF Core shadow foreign keys.
         builder.HasOne<KnowledgeDocumentEntity>()

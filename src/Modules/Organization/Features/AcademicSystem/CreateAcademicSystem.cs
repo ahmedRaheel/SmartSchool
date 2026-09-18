@@ -29,7 +29,8 @@ public static class CreateAcademicSystem
 
     public sealed record Request(
         Guid TenantId,
-        string Name) : IRequest<Result<Response>>;
+        string Name,
+        string? MetadataJson = null) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -73,7 +74,8 @@ public static class CreateAcademicSystem
             var entity = AcademicSystemEntity.Create(
                 request.TenantId,
                 code,
-                request.Name);
+                request.Name,
+                request.MetadataJson);
 
             await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));
@@ -92,7 +94,7 @@ public static class CreateAcademicSystem
                 })
             .WithName("CreateAcademicSystem")
             .WithTags(ModuleConstants.Name)
-            .RequireAuthorization(SmartSchoolPolicies.SuperAdminTenantTeacher);
+            .RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
         return endpoints;
     }
 

@@ -13,11 +13,13 @@ namespace SmartSchool.Modules.AIParent;
 public static class Module
 {
     public static IServiceCollection AddAIParentModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAIParentDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<AIParentDbContext>());
+        services.AddModuleDbContext<AIParentDbContext, IAIParentDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 

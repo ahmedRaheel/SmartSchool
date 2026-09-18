@@ -82,5 +82,10 @@ public sealed class ClassSectionEntityConfiguration
             .HasForeignKey(entity => entity.GradeLevelId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne<RoomEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.RoomId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

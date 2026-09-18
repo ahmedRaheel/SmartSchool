@@ -17,6 +17,11 @@
 
     <PackageReference Include="FluentValidation" />
 
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
     <Compile Include="$(MSBuildThisFileDirectory)build/SmartSchool.AspNetCoreGlobalUsings.cs"
              Link="SmartSchool.AspNetCoreGlobalUsings.g.cs" />
   </ItemGroup>

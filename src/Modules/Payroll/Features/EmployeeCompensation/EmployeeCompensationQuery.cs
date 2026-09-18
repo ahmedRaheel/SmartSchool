@@ -19,7 +19,7 @@ public sealed class EmployeeCompensationQuery(IDbConnectionFactory connectionFac
     {
         const string sql = """
             SELECT *
-            FROM hr.employee_compensation
+            FROM payroll.employee_compensation
             WHERE tenant_id = @TenantId
               AND employee_compensation_id = @Id
               AND is_active = TRUE;
@@ -47,7 +47,7 @@ public sealed class EmployeeCompensationQuery(IDbConnectionFactory connectionFac
     {
         const string countSql = """
             SELECT COUNT(*)
-            FROM hr.employee_compensation
+            FROM payroll.employee_compensation
             WHERE tenant_id = @TenantId
               AND is_active = TRUE;
             """;
@@ -56,7 +56,7 @@ public sealed class EmployeeCompensationQuery(IDbConnectionFactory connectionFac
             SELECT
                 tenant_id AS "TenantId",
                 employee_compensation_id AS "Id"
-            FROM hr.employee_compensation
+            FROM payroll.employee_compensation
             WHERE tenant_id = @TenantId
               AND is_active = TRUE
             ORDER BY employee_compensation_id
@@ -102,7 +102,7 @@ public sealed class EmployeeCompensationQuery(IDbConnectionFactory connectionFac
         const string sql = """
             SELECT EXISTS (
                 SELECT 1
-                FROM hr.employee_compensation
+                FROM payroll.employee_compensation
                 WHERE tenant_id = @TenantId
                   AND code = @Code
                   AND (@ExcludingId IS NULL OR employee_compensation_id <> @ExcludingId)

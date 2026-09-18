@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -9,9 +10,38 @@ using SmartSchool.SharedKernel.Constants;
 var builder = WebApplication.CreateBuilder(args);
 builder.AddSmartSchoolSerilog("SmartSchool.Identity.Api");
 
+if (!builder.Environment.IsDevelopment())
+{
+    ValidateProductionConfiguration(builder.Configuration);
+}
+
 builder.Services.AddRazorPages();
 builder.Services.AddSmartSchoolObservability(builder.Configuration, "SmartSchool.Identity.Api");
 builder.Services.AddIdentityModule(builder.Configuration);
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("authentication", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+    options.AddPolicy("password-reset", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+});
 
 builder.Services
     .AddOptions<InternalApiAuthenticationOptions>()
@@ -133,10 +163,12 @@ if (app.Environment.IsDevelopment())
 
 if (!app.Environment.IsDevelopment())
 {
+    app.UseHsts();
     app.UseHttpsRedirection();
 }
 app.UseStaticFiles();
 app.UseRouting();
+app.UseRateLimiter();
 app.UseCors("Portal");
 app.UseTelemetryResponseHeaders();
 app.UseIdentityServer();
@@ -154,3 +186,63 @@ app.MapGet("/", () => Results.Ok(new
 }));
 
 app.Run();
+
+
+static void ValidateProductionConfiguration(IConfiguration configuration)
+{
+    static bool IsSecureAbsoluteUrl(string? value) =>
+        Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+        uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) &&
+        !uri.IsLoopback;
+
+    var connectionString = configuration.GetConnectionString("SmartSchool");
+    if (string.IsNullOrWhiteSpace(connectionString) ||
+        connectionString.Contains("CHANGE_ME", StringComparison.OrdinalIgnoreCase) ||
+        connectionString.Contains("postgres123", StringComparison.OrdinalIgnoreCase))
+    {
+        throw new InvalidOperationException("A production SmartSchool connection string must be supplied through secure configuration.");
+    }
+
+    if (configuration.GetValue<bool>("DuendeIdentityServer:UseDeveloperSigningCredential"))
+        throw new InvalidOperationException("Developer IdentityServer signing credentials are not allowed outside Development.");
+
+    if (!IsSecureAbsoluteUrl(configuration["DuendeIdentityServer:IssuerUri"]))
+        throw new InvalidOperationException("DuendeIdentityServer:IssuerUri must be a non-loopback HTTPS URL in production.");
+    if (!IsSecureAbsoluteUrl(configuration["DuendeIdentityServer:PortalUrl"]))
+        throw new InvalidOperationException("DuendeIdentityServer:PortalUrl must be a non-loopback HTTPS URL in production.");
+
+    var serviceSecret = configuration["SmartSchoolApiClient:ClientSecret"];
+    var loginSecret = configuration["LoginApiClient:ClientSecret"];
+    if (string.IsNullOrWhiteSpace(serviceSecret) || serviceSecret.Contains("change-me", StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException("SmartSchoolApiClient:ClientSecret must be provided securely in production.");
+    if (string.IsNullOrWhiteSpace(loginSecret) || loginSecret.Contains("change-me", StringComparison.OrdinalIgnoreCase))
+        throw new InvalidOperationException("LoginApiClient:ClientSecret must be provided securely in production.");
+
+    var tokenEndpoint = configuration["LoginApiClient:TokenEndpoint"];
+    if (!Uri.TryCreate(tokenEndpoint, UriKind.Absolute, out var tokenUri) ||
+        (!tokenUri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) && !tokenUri.IsLoopback))
+    {
+        throw new InvalidOperationException(
+            "LoginApiClient:TokenEndpoint must be HTTPS or a loopback endpoint in production.");
+    }
+
+    if (!IsSecureAbsoluteUrl(configuration["InternalApiAuthentication:Authority"]))
+        throw new InvalidOperationException("InternalApiAuthentication:Authority must be a non-loopback HTTPS URL in production.");
+
+    var portalOrigins = configuration.GetSection("Cors:PortalOrigins").Get<string[]>() ?? [];
+    if (portalOrigins.Length == 0 || portalOrigins.Any(origin => !IsSecureAbsoluteUrl(origin)))
+        throw new InvalidOperationException("Cors:PortalOrigins must contain only non-loopback HTTPS origins in production.");
+
+    var smtpHost = configuration["PasswordResetEmail:SmtpHost"];
+    var fromEmail = configuration["PasswordResetEmail:FromEmail"];
+    if (string.IsNullOrWhiteSpace(smtpHost) || string.IsNullOrWhiteSpace(fromEmail))
+        throw new InvalidOperationException("PasswordResetEmail SMTP host and sender address are required in production.");
+
+    var smtpUsername = configuration["PasswordResetEmail:Username"];
+    var smtpPassword = configuration["PasswordResetEmail:Password"];
+    if (string.IsNullOrWhiteSpace(smtpUsername) != string.IsNullOrWhiteSpace(smtpPassword))
+        throw new InvalidOperationException("PasswordResetEmail username and password must either both be supplied or both be omitted.");
+
+    if (configuration.GetValue<bool>("BootstrapSuperAdmin:Enabled"))
+        throw new InvalidOperationException("BootstrapSuperAdmin must be disabled in production after initial provisioning.");
+}

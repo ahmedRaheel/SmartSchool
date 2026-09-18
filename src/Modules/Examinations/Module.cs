@@ -5,6 +5,7 @@ using SmartSchool.Application;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Modules.Examinations.Features.Exam;
 using SmartSchool.Modules.Examinations.Features.ExamSubject;
+using SmartSchool.Modules.Examinations.Features.ExamTask;
 using SmartSchool.Modules.Examinations.Features.StudentExamResult;
 using SmartSchool.SharedKernel;
 
@@ -14,11 +15,13 @@ namespace SmartSchool.Modules.Examinations;
 public static class Module
 {
     public static IServiceCollection AddExaminationsModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IExaminationsDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<ExaminationsDbContext>());
+        services.AddModuleDbContext<ExaminationsDbContext, IExaminationsDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;
@@ -28,6 +31,7 @@ public static class Module
         this IEndpointRouteBuilder endpoints)
     {
         CreateExam.MapEndpoint(endpoints);
+        ExamTaskWorkflow.MapEndpoints(endpoints);
         GetExamSetup.MapEndpoint(endpoints);
         GetExamResults.MapEndpoint(endpoints);
         SaveExamResults.MapEndpoint(endpoints);

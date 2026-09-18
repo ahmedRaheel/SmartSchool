@@ -73,7 +73,6 @@ public static class PlatformRegistration
         ConfigureOptions(builder.Services, builder.Configuration);
         ConfigureLogging(builder);
         ConfigureExceptionHandling(builder.Services);
-        ConfigureHangfire(builder.Services, builder.Configuration);
         builder.Services.AddSmartSchoolDataPlatform(builder.Configuration);
 
         builder.Services.AddSingleton<KafkaPublisher>();
@@ -259,37 +258,5 @@ public static class PlatformRegistration
     }
 
 
-    private static void ConfigureHangfire(
-        IServiceCollection services,
-        IConfiguration configuration)
-    {
-        var databaseOptions =
-            configuration
-                .GetSection(DatabaseOptions.SectionName)
-                .Get<DatabaseOptions>();
 
-        var hangfireOptions = configuration
-            .GetSection(HangfireOptions.SectionName)
-            .Get<HangfireOptions>();
-
-        if (hangfireOptions?.Enabled == false ||
-            string.IsNullOrWhiteSpace(databaseOptions?.ConnectionString) ||
-            databaseOptions.ConnectionString.StartsWith("InMemory:", StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        services.AddHangfire(
-            hangfire =>
-            {
-                hangfire.UsePostgreSqlStorage(
-                    storage =>
-                    {
-                        storage.UseNpgsqlConnection(
-                            databaseOptions.ConnectionString);
-                    });
-            });
-
-        services.AddHangfireServer();
-    }
 }

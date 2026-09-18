@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using SmartSchool.Modules.Identity.Features.ServiceAccounts;
 using SmartSchool.Modules.Identity.Features.Account;
 using SmartSchool.Modules.Identity.Features.Roles;
@@ -110,11 +111,21 @@ public static class Module
         {
             identityServer.AddDeveloperSigningCredential();
         }
+        else
+        {
+            var certificatePath = configuration["DuendeIdentityServer:SigningCertificatePath"];
+            var certificatePassword = configuration["DuendeIdentityServer:SigningCertificatePassword"];
+            if (string.IsNullOrWhiteSpace(certificatePath))
+            {
+                throw new InvalidOperationException(
+                    "DuendeIdentityServer:SigningCertificatePath is required when developer signing credentials are disabled.");
+            }
 
-        services.AddOptions<Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions>()
-            .Bind(configuration.GetSection(Features.ServiceAccounts.AccountProvisioningEndpoints.AccountProvisioningOptions.SectionName))
-            .Validate(options => !string.IsNullOrWhiteSpace(options.TemporaryPassword), "AccountProvisioning:TemporaryPassword is required.")
-            .ValidateOnStart();
+            var certificate = X509CertificateLoader.LoadPkcs12FromFile(
+                certificatePath,
+                certificatePassword);
+            identityServer.AddSigningCredential(certificate);
+        }
 
         services.AddHttpContextAccessor();
         services.AddScoped<SmartSchool.Application.Identity.ICurrentUser, SmartSchool.Application.Identity.CurrentUser>();

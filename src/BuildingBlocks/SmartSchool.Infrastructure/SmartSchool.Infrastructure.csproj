@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Pgvector.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.Extensions.Caching.Postgres" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -88,8 +88,8 @@ public static class PayrollOperations
                     coalesce(c.gross_salary, c.basic_salary) AS "GrossSalary",
                     trim(c.currency_code) AS "CurrencyCode",
                     c.status AS "Status"
-                FROM hr.employee_compensation c
-                JOIN hr.employee e
+                FROM payroll.employee_compensation c
+                JOIN payroll.employee_projection e
                   ON e.employee_id = c.employee_id
                  AND e.tenant_id = c.tenant_id
                 WHERE c.tenant_id = @TenantId
@@ -115,7 +115,7 @@ public static class PayrollOperations
                  AND p.tenant_id = r.tenant_id
                 LEFT JOIN payroll.employee_payroll ep
                   ON ep.payroll_run_id = r.payroll_run_id
-                LEFT JOIN hr.employee e
+                LEFT JOIN payroll.employee_projection e
                   ON e.employee_id = ep.employee_id
                  AND e.tenant_id = r.tenant_id
                 WHERE r.tenant_id = @TenantId
@@ -143,7 +143,7 @@ public static class PayrollOperations
                 JOIN payroll.payroll_period p
                   ON p.payroll_period_id = r.payroll_period_id
                  AND p.tenant_id = r.tenant_id
-                JOIN hr.employee e
+                JOIN payroll.employee_projection e
                   ON e.employee_id = ep.employee_id
                  AND e.tenant_id = r.tenant_id
                 WHERE r.tenant_id = @TenantId
@@ -228,7 +228,7 @@ public static class PayrollOperations
             const string sql = """
                 SELECT EXISTS (
                     SELECT 1
-                    FROM hr.employee
+                    FROM payroll.employee_projection
                     WHERE tenant_id = @TenantId
                       AND employee_id = @EmployeeId
                       AND is_active
@@ -268,7 +268,7 @@ public static class PayrollOperations
             await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
-                UPDATE hr.employee_compensation
+                UPDATE payroll.employee_compensation
                 SET effective_to = {request.EffectiveFrom.AddDays(-1)},
                     status = {"SUPERSEDED"},
                     updated_at = now(),
@@ -282,7 +282,7 @@ public static class PayrollOperations
                 """, cancellationToken);
 
             await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
-                INSERT INTO hr.employee_compensation
+                INSERT INTO payroll.employee_compensation
                 (
                     employee_compensation_id,
                     tenant_id,
@@ -494,11 +494,11 @@ public static class PayrollOperations
                     coalesce(compensation.gross_salary, compensation.basic_salary),
                     0,
                     coalesce(compensation.gross_salary, compensation.basic_salary)
-                FROM hr.employee employee
+                FROM payroll.employee_projection employee
                 JOIN LATERAL
                 (
                     SELECT c.*
-                    FROM hr.employee_compensation c
+                    FROM payroll.employee_compensation c
                     WHERE c.tenant_id = employee.tenant_id
                       AND c.employee_id = employee.employee_id
                       AND c.is_active
@@ -687,7 +687,7 @@ public static class PayrollOperations
                 JOIN payroll.payroll_period p
                   ON p.payroll_period_id = r.payroll_period_id
                  AND p.tenant_id = r.tenant_id
-                JOIN hr.employee e
+                JOIN payroll.employee_projection e
                   ON e.employee_id = ep.employee_id
                  AND e.tenant_id = r.tenant_id
                 WHERE r.tenant_id = @TenantId

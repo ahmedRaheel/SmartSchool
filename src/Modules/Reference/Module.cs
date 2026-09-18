@@ -8,12 +8,13 @@ namespace SmartSchool.Modules.Reference;
 public static class Module
 {
     public static IServiceCollection AddReferenceModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<
-            IReferenceDbContext,
-            ReferenceDbContext>();
+        services.AddModuleDbContext<ReferenceDbContext, IReferenceDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(
             typeof(Module).Assembly);

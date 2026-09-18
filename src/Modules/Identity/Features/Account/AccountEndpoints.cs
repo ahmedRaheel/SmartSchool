@@ -1,9 +1,13 @@
 using SmartSchool.Application.Identity;
+using System.Net;
+using System.Net.Mail;
+using System.Text.Encodings.Web;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http.Extensions;
 using SmartSchool.Modules.Identity.Persistence.Identity;
+using Microsoft.Extensions.Hosting;
 
 namespace SmartSchool.Modules.Identity.Features.Account;
 
@@ -35,9 +39,9 @@ public static class AccountEndpoints
     {
         var group = endpoints.MapGroup("/api/account").WithTags("Identity - Account");
 
-        group.MapPost("/login", LoginAsync).AllowAnonymous();
-        group.MapPost("/forgot-password", ForgotPasswordAsync).AllowAnonymous();
-        group.MapPost("/reset-password", ResetPasswordAsync).AllowAnonymous();
+        group.MapPost("/login", LoginAsync).AllowAnonymous().RequireRateLimiting("authentication");
+        group.MapPost("/forgot-password", ForgotPasswordAsync).AllowAnonymous().RequireRateLimiting("password-reset");
+        group.MapPost("/reset-password", ResetPasswordAsync).AllowAnonymous().RequireRateLimiting("password-reset");
         group.MapPost("/change-password", ChangePasswordAsync).RequireAuthorization();
         group.MapPost("/refresh", RefreshAsync).AllowAnonymous();
         group.MapGet("/me", MeAsync).RequireAuthorization();
@@ -50,6 +54,7 @@ public static class AccountEndpoints
         SignInManager<SmartSchoolUser> signInManager,
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
+        ILoggerFactory loggerFactory,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
@@ -95,6 +100,7 @@ public static class AccountEndpoints
         };
 
         var client = httpClientFactory.CreateClient("IdentityTokenClient");
+        var logger = loggerFactory.CreateLogger("SmartSchool.Identity.Login");
         HttpResponseMessage tokenResponse;
         try
         {
@@ -102,9 +108,9 @@ public static class AccountEndpoints
         }
         catch (HttpRequestException exception)
         {
+            logger.LogError(exception, "Identity token service is unavailable during login.");
             return Results.Problem(
-                title: "Identity token service is unavailable.",
-                detail: $"Could not reach {tokenUrl}. {exception.Message}",
+                title: "Authentication service is temporarily unavailable.",
                 statusCode: StatusCodes.Status503ServiceUnavailable);
         }
         using (tokenResponse)
@@ -112,9 +118,12 @@ public static class AccountEndpoints
         var tokenJson = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
         if (!tokenResponse.IsSuccessStatusCode)
         {
+            logger.LogWarning(
+                "Token exchange failed during login with status {StatusCode}.",
+                tokenResponse.StatusCode);
             return Results.Json(
-                new { message = "Authentication failed at the token service.", detail = tokenJson },
-                statusCode: (int)tokenResponse.StatusCode);
+                new { message = "Authentication could not be completed." },
+                statusCode: StatusCodes.Status401Unauthorized);
         }
 
         using var document = JsonDocument.Parse(tokenJson);
@@ -136,20 +145,99 @@ public static class AccountEndpoints
     private static async Task<IResult> ForgotPasswordAsync(
         ForgotPasswordRequest request,
         UserManager<SmartSchoolUser> userManager,
+        IConfiguration configuration,
+        IHostEnvironment environment,
         ILoggerFactory loggerFactory)
     {
-        var user = await userManager.FindByEmailAsync(request.Email);
+        var logger = loggerFactory.CreateLogger("PasswordReset");
+        var email = request.Email?.Trim();
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return Results.BadRequest(new { message = "Email is required." });
+        }
+
+        var user = await userManager.FindByEmailAsync(email);
         if (user is not null && user.IsActive)
         {
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
-            loggerFactory.CreateLogger("PasswordReset")
-                .LogInformation("Password reset requested for user {UserId}. Token generated: {Token}", user.Id, token);
+            try
+            {
+                await SendPasswordResetEmailAsync(user, token, configuration, environment);
+                logger.LogInformation("Password reset instructions queued for user {UserId}.", user.Id);
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Unable to send password reset instructions for user {UserId}.", user.Id);
+            }
         }
 
         return Results.Accepted(value: new
         {
             message = "If the account exists, password reset instructions will be sent."
         });
+    }
+
+    private static async Task SendPasswordResetEmailAsync(
+        SmartSchoolUser user,
+        string token,
+        IConfiguration configuration,
+        IHostEnvironment environment)
+    {
+        var smtpHost = configuration["PasswordResetEmail:SmtpHost"];
+        var fromEmail = configuration["PasswordResetEmail:FromEmail"];
+        var portalUrl = configuration["DuendeIdentityServer:PortalUrl"];
+
+        if (string.IsNullOrWhiteSpace(smtpHost) ||
+            string.IsNullOrWhiteSpace(fromEmail) ||
+            string.IsNullOrWhiteSpace(portalUrl))
+        {
+            if (environment.IsDevelopment())
+            {
+                return;
+            }
+
+            throw new InvalidOperationException(
+                "Password reset email and portal URL configuration are required outside Development.");
+        }
+
+        var email = user.Email ?? throw new InvalidOperationException("The user does not have an email address.");
+        var resetUrl = $"{portalUrl.TrimEnd('/')}/reset-password" +
+            $"?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
+
+        var fromName = configuration["PasswordResetEmail:FromName"] ?? "SmartSchool";
+        var htmlResetUrl = HtmlEncoder.Default.Encode(resetUrl);
+        var displayName = HtmlEncoder.Default.Encode(user.DisplayName ?? user.FirstName ?? "SmartSchool user");
+
+        using var message = new MailMessage
+        {
+            From = new MailAddress(fromEmail, fromName),
+            Subject = "Reset your SmartSchool password",
+            Body = $"<p>Hello {displayName},</p>" +
+                   "<p>A password reset was requested for your SmartSchool account.</p>" +
+                   $"<p><a href=\"{htmlResetUrl}\">Reset your password</a></p>" +
+                   "<p>If you did not request this, you can ignore this email.</p>",
+            IsBodyHtml = true
+        };
+        message.To.Add(new MailAddress(email));
+
+        var port = configuration.GetValue<int?>("PasswordResetEmail:SmtpPort") ?? 587;
+        var enableSsl = configuration.GetValue<bool?>("PasswordResetEmail:EnableSsl") ?? true;
+        var username = configuration["PasswordResetEmail:Username"];
+        var password = configuration["PasswordResetEmail:Password"];
+
+        using var smtp = new SmtpClient(smtpHost, port)
+        {
+            EnableSsl = enableSsl,
+            DeliveryMethod = SmtpDeliveryMethod.Network,
+            UseDefaultCredentials = string.IsNullOrWhiteSpace(username)
+        };
+
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            smtp.Credentials = new NetworkCredential(username, password);
+        }
+
+        await smtp.SendMailAsync(message);
     }
 
     private static async Task<IResult> ResetPasswordAsync(

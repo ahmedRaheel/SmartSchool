@@ -14,11 +14,13 @@ namespace SmartSchool.Modules.Admissions;
 public static class Module
 {
     public static IServiceCollection AddAdmissionsModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAdmissionsDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<AdmissionsDbContext>());
+        services.AddModuleDbContext<AdmissionsDbContext, IAdmissionsDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<IGetAdmissionApplicationsQuery, GetAdmissionApplicationsQuery>();

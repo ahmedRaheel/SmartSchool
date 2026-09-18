@@ -14,11 +14,13 @@ namespace SmartSchool.Modules.Learning;
 public static class Module
 {
     public static IServiceCollection AddLearningModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<ILearningDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<LearningDbContext>());
+        services.AddModuleDbContext<LearningDbContext, ILearningDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

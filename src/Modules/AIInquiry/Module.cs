@@ -16,11 +16,13 @@ namespace SmartSchool.Modules.AIInquiry;
 public static class Module
 {
     public static IServiceCollection AddAIInquiryModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAIInquiryDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<AIInquiryDbContext>());
+        services.AddModuleDbContext<AIInquiryDbContext, IAIInquiryDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
 

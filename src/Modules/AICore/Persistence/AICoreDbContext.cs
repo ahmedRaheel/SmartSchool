@@ -40,6 +40,8 @@ public sealed class AICoreDbContext(DbContextOptions<AICoreDbContext> options)
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.HasPostgresExtension("vector");
+
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AICoreDbContext).Assembly,
             type => type.Namespace is not null

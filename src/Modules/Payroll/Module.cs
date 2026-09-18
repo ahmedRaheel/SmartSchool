@@ -17,11 +17,13 @@ namespace SmartSchool.Modules.Payroll;
 public static class Module
 {
     public static IServiceCollection AddPayrollModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IPayrollDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<PayrollDbContext>());
+        services.AddModuleDbContext<PayrollDbContext, IPayrollDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

@@ -52,11 +52,13 @@ public static class GetStockTransactionById
                         stock_transaction_id AS "Id",
                         code AS "Code",
                         name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM inventory.stocktransaction
-                    WHERE tenant_id = @TenantId
-                      AND stock_transaction_id = @Id
-                      AND is_active = TRUE;
+                        COALESCE(
+                        to_jsonb(entity)->>'metadata_json',
+                        to_jsonb(entity)->>'MetadataJson') AS "MetadataJson"
+                    FROM inventory.stock_transaction entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.stock_transaction_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

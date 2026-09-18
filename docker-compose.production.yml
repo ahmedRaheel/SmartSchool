@@ -1,0 +1,82 @@
+# Production deployment template. Put secrets in your platform's secret store/environment,
+# never in this file or a committed .env file. Terminate public TLS at your ingress/reverse proxy.
+name: smartschool-production
+
+services:
+  identity-api:
+    build:
+      context: .
+      dockerfile: src/SmartSchool.Identity.Api/Dockerfile
+    image: smartschool/identity-api:${SMARTSCHOOL_VERSION:-latest}
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      ConnectionStrings__SmartSchool: ${SMARTSCHOOL_CONNECTION_STRING:?required}
+      DuendeIdentityServer__IssuerUri: ${IDENTITY_PUBLIC_ISSUER:?required}
+      DuendeIdentityServer__PortalUrl: ${PORTAL_URL:?required}
+      DuendeIdentityServer__SigningCertificatePath: /run/identity/identity-signing.pfx
+      DuendeIdentityServer__SigningCertificatePassword: ${IDENTITY_SIGNING_CERT_PASSWORD:-}
+      SmartSchoolApiClient__ClientSecret: ${IDENTITY_CLIENT_SECRET:?required}
+      LoginApiClient__ClientId: smartschool-login-api
+      LoginApiClient__ClientSecret: ${IDENTITY_LOGIN_SECRET:?required}
+      LoginApiClient__TokenEndpoint: http://127.0.0.1:8080/connect/token
+      BootstrapSuperAdmin__Enabled: "false"
+      Cors__PortalOrigins__0: ${PORTAL_URL:?required}
+      InternalApiAuthentication__Authority: ${IDENTITY_PUBLIC_ISSUER:?required}
+      InternalApiAuthentication__RequiredScope: smartschool.identity.manage
+      InternalApiAuthentication__RequireHttpsMetadata: "true"
+      PasswordResetEmail__SmtpHost: ${SMTP_HOST:?required}
+      PasswordResetEmail__SmtpPort: ${SMTP_PORT:-587}
+      PasswordResetEmail__EnableSsl: ${SMTP_ENABLE_SSL:-true}
+      PasswordResetEmail__Username: ${SMTP_USERNAME:-}
+      PasswordResetEmail__Password: ${SMTP_PASSWORD:-}
+      PasswordResetEmail__FromEmail: ${SMTP_FROM_EMAIL:?required}
+      PasswordResetEmail__FromName: ${SMTP_FROM_NAME:-SmartSchool}
+    ports:
+      - "127.0.0.1:${IDENTITY_HOST_PORT:-7101}:8080"
+    volumes:
+      - ${IDENTITY_SIGNING_CERT_PATH:?required}:/run/identity/identity-signing.pfx:ro
+      - identity-logs:/app/logs
+    restart: unless-stopped
+
+  smartschool-api:
+    build:
+      context: .
+      dockerfile: src/SmartSchool.Api/Dockerfile
+    image: smartschool/api:${SMARTSCHOOL_VERSION:-latest}
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      ConnectionStrings__SmartSchool: ${SMARTSCHOOL_CONNECTION_STRING:?required}
+      ConnectionStrings__Redis: ${REDIS_CONNECTION_STRING:?required}
+      PortalUrl: ${PORTAL_URL:?required}
+      Identity__Provider: IdentityServer
+      Identity__Authority: ${IDENTITY_PUBLIC_ISSUER:?required}
+      Identity__MetadataAddress: ${IDENTITY_PUBLIC_ISSUER:?required}/.well-known/openid-configuration
+      Identity__ValidIssuer: ${IDENTITY_PUBLIC_ISSUER:?required}
+      Identity__Audience: smartschool-api
+      Identity__RequireHttpsMetadata: "true"
+      IdentityService__BaseUrl: ${IDENTITY_PUBLIC_ISSUER:?required}
+      IdentityService__ClientId: smartschool-api-service
+      IdentityService__ClientSecret: ${IDENTITY_CLIENT_SECRET:?required}
+      IdentityService__Scope: smartschool.identity.manage
+      AI__Provider: Ollama
+      AI__Ollama__BaseUrl: ${OLLAMA_BASE_URL:?required}
+      AI__Ollama__ChatModel: ${OLLAMA_CHAT_MODEL:-llama3.2:1b}
+      AI__Ollama__EmbeddingModel: all-minilm
+      Caching__Provider: Redis
+      BackgroundJobs__Enabled: "true"
+      BackgroundJobs__DashboardEnabled: "false"
+      Kafka__Enabled: ${KAFKA_ENABLED:-false}
+      Kafka__BootstrapServers: ${KAFKA_BOOTSTRAP_SERVERS:-}
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-7001}:8080"
+    volumes:
+      - smartschool-documents:/app/App_Data/Documents
+      - api-logs:/app/logs
+    restart: unless-stopped
+
+volumes:
+  identity-logs:
+  api-logs:
+  smartschool-documents:

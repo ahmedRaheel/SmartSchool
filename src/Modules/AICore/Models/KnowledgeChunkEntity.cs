@@ -1,3 +1,4 @@
+using Pgvector;
 using SmartSchool.SharedKernel;
 
 namespace SmartSchool.Modules.AICore.Models;
@@ -30,7 +31,7 @@ public sealed class KnowledgeChunkEntity : Entity
     public string? EmbeddingReference { get; private set; }
 
     /// <summary>Gets the persisted embedding value.</summary>
-    public float[]? Embedding { get; private set; }
+    public Vector? Embedding { get; private set; }
 
     /// <summary>Gets the business code.</summary>
     public string Code { get; private set; } = string.Empty;

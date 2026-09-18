@@ -17,6 +17,7 @@ using SmartSchool.Modules.Organization.Features.School;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application;
 using SmartSchool.Modules.Organization.Features.Organization;
+using SmartSchool.Modules.Organization;
 
 
 
@@ -24,11 +25,13 @@ using SmartSchool.Modules.Organization.Features.Organization;
 public static class Module
 {
     public static IServiceCollection AddOrganizationModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IOrganizationDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<OrganizationDbContext>());
+        services.AddModuleDbContext<OrganizationDbContext, IOrganizationDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         services.AddScoped<CreateCampusBranchPolicyCommand>();

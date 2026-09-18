@@ -1,17 +1,12 @@
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using SmartSchool.Modules.Identity.Persistence.Identity;
-using Microsoft.Extensions.Options;
 
 namespace SmartSchool.Modules.Identity.Features.ServiceAccounts;
 
 /// <summary>Internal account lifecycle API called by SmartSchool.Api.</summary>
 public static class AccountProvisioningEndpoints
 {
-    public sealed class AccountProvisioningOptions
-    {
-        public const string SectionName = "AccountProvisioning";
-        public string TemporaryPassword { get; init; } = string.Empty;
-    }
     public sealed record ProvisionAccountRequest(
         Guid TenantId, Guid BusinessEntityId, string AccountType, Guid? SchoolId, Guid? BranchId,
         string Email, string FirstName, string LastName, string[] Roles);
@@ -30,7 +25,6 @@ public static class AccountProvisioningEndpoints
     private static async Task<IResult> ProvisionAsync(
         ProvisionAccountRequest request,
         UserManager<SmartSchoolUser> users,
-        IOptions<AccountProvisioningOptions> provisioningOptions,
         ILoggerFactory loggerFactory)
     {
         var logger = loggerFactory.CreateLogger("SmartSchool.Identity.AccountProvisioning");
@@ -46,9 +40,7 @@ public static class AccountProvisioningEndpoints
              MustChangePassword=true
         };
 
-        var temporaryPassword = provisioningOptions.Value.TemporaryPassword;
-        if (string.IsNullOrWhiteSpace(temporaryPassword))
-            throw new InvalidOperationException("AccountProvisioning:TemporaryPassword configuration is required.");
+        var temporaryPassword = TemporaryPasswordGenerator.Create();
         var created=await users.CreateAsync(user, temporaryPassword);
         if(!created.Succeeded)
         {
@@ -104,4 +96,13 @@ public static class AccountProvisioningEndpoints
 
     private static Dictionary<string,string[]> Errors(IdentityResult result) =>
         result.Errors.GroupBy(x=>x.Code).ToDictionary(x=>x.Key,x=>x.Select(e=>e.Description).ToArray());
+
+    private static class TemporaryPasswordGenerator
+    {
+        public static string Create()
+        {
+            var random = Convert.ToHexString(RandomNumberGenerator.GetBytes(12));
+            return $"Ss!{random}9aA";
+        }
+    }
 }

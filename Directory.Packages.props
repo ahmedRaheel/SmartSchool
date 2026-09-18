@@ -65,6 +65,7 @@
       <PackageVersion Include="LangChain.Core" Version="0.17.1" />
       <PackageVersion Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
       <PackageVersion Include="LangChain.Providers.Ollama" Version="0.17.0" />
+      <PackageVersion Include="Pgvector.EntityFrameworkCore" Version="0.3.0" />
   </ItemGroup>
 
 </Project>

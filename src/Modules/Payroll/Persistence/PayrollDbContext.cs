@@ -13,6 +13,8 @@ public interface IPayrollDbContext
     DbSet<PayrollRunEntity> PayrollRuns { get; }
     DbSet<PayslipEntity> Payslips { get; }
     DbSet<SalaryStructureEntity> SalaryStructures { get; }
+    DbSet<EmployeeProjectionEntity> EmployeeProjections { get; }
+    DbSet<JobGradeProjectionEntity> JobGradeProjections { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
@@ -29,6 +31,8 @@ public sealed class PayrollDbContext(DbContextOptions<PayrollDbContext> options)
     public DbSet<PayrollRunEntity> PayrollRuns => Set<PayrollRunEntity>();
     public DbSet<PayslipEntity> Payslips => Set<PayslipEntity>();
     public DbSet<SalaryStructureEntity> SalaryStructures => Set<SalaryStructureEntity>();
+    public DbSet<EmployeeProjectionEntity> EmployeeProjections => Set<EmployeeProjectionEntity>();
+    public DbSet<JobGradeProjectionEntity> JobGradeProjections => Set<JobGradeProjectionEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,10 +43,5 @@ public sealed class PayrollDbContext(DbContextOptions<PayrollDbContext> options)
             type => type.Namespace is not null
                 && type.Namespace.StartsWith("SmartSchool.Modules.Payroll.Persistence.Configurations", StringComparison.Ordinal));
 
-        // Legacy generated master-data shells are retained as source compatibility types only.
-        // Operational payroll persists to hr.employee_compensation and canonical payroll tables.
-        modelBuilder.Ignore<IncrementEntity>();
-        modelBuilder.Ignore<PayslipEntity>();
-        modelBuilder.Ignore<SalaryStructureEntity>();
     }
 }

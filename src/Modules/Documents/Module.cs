@@ -13,11 +13,13 @@ namespace SmartSchool.Modules.Documents;
 public static class Module
 {
     public static IServiceCollection AddDocumentsModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IDocumentsDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<DocumentsDbContext>());
+        services.AddModuleDbContext<DocumentsDbContext, IDocumentsDbContext>(
+            configuration,
+            ModuleConstants.Schema);
         services.AddFeaturePersistence(typeof(Module).Assembly);
 
         return services;

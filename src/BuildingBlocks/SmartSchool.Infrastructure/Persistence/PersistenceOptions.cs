@@ -7,7 +7,7 @@ public sealed class PersistenceOptions
 {
     public const string SectionName = "Persistence";
 
-    public PersistenceProvider Provider { get; init; } = PersistenceProvider.Mock;
+    public PersistenceProvider Provider { get; init; } = PersistenceProvider.PostgreSql;
 
     public string ConnectionStringName { get; init; } = "SmartSchool";
 

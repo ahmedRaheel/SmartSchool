@@ -14,11 +14,13 @@ namespace SmartSchool.Modules.Inventory;
 public static class Module
 {
     public static IServiceCollection AddInventoryModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IInventoryDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<InventoryDbContext>());
+        services.AddModuleDbContext<InventoryDbContext, IInventoryDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

@@ -11,4 +11,6 @@ WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 COPY --from=build /app/publish .
+RUN mkdir -p /app/logs && chown -R $APP_UID:$APP_UID /app
+USER $APP_UID
 ENTRYPOINT ["dotnet", "SmartSchool.Identity.Api.dll"]

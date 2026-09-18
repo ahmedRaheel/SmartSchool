@@ -1,4 +1,5 @@
 using Hangfire;
+using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSchool.BackgroundJobs.Configuration;
 using SmartSchool.BackgroundJobs.Jobs;
 using SmartSchool.BackgroundJobs.Workflows;
+using SmartSchool.SharedKernel.Constants;
 
 namespace SmartSchool.BackgroundJobs.Extensions;
 
@@ -73,7 +75,12 @@ public static class BackgroundJobExtensions
 
         if (options.DashboardEnabled)
         {
-            app.UseHangfireDashboard(options.DashboardPath);
+            app.UseHangfireDashboard(
+                options.DashboardPath,
+                new DashboardOptions
+                {
+                    Authorization = [new SuperAdminDashboardAuthorizationFilter()]
+                });
         }
 
         using var scope = app.Services.CreateScope();
@@ -81,4 +88,13 @@ public static class BackgroundJobExtensions
 
         return app;
     }
+    private sealed class SuperAdminDashboardAuthorizationFilter : IDashboardAuthorizationFilter
+    {
+        public bool Authorize(DashboardContext context)
+        {
+            var user = context.GetHttpContext().User;
+            return user.Identity?.IsAuthenticated == true && user.IsInRole(SmartSchoolRoles.SuperAdmin);
+        }
+    }
+
 }

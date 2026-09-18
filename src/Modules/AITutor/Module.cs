@@ -22,11 +22,13 @@ namespace SmartSchool.Modules.AITutor;
 public static class Module
 {
     public static IServiceCollection AddAITutorModule(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddSmartSchoolMediator(typeof(Module).Assembly);
-        services.AddScoped<IAITutorDbContext>(serviceProvider =>
-            serviceProvider.GetRequiredService<AITutorDbContext>());
+        services.AddModuleDbContext<AITutorDbContext, IAITutorDbContext>(
+            configuration,
+            ModuleConstants.Schema);
 
         services.AddFeaturePersistence(typeof(Module).Assembly);
         return services;

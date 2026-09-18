@@ -37,6 +37,7 @@ public static class DataPlatformServiceCollectionExtensions
             .ValidateOnStart();
 
         services.AddScoped<AuditSaveChangesInterceptor>();
+        services.AddScoped<IModuleDbContextOptionsConfigurator, ModuleDbContextOptionsConfigurator>();
         SmartSchool.Infrastructure.Persistence.DateTimeTypeHandlers.Register();
         AddPersistence(services, configuration);
         AddCaching(services, configuration);

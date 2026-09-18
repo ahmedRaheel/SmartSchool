@@ -66,7 +66,7 @@ public static class GetSubjectById
                         campus.name AS "CampusName",
                         entity.metadata_json AS "MetadataJson"
                     FROM academic.subject entity
-                    INNER JOIN org.department department ON department.department_id = entity.department_id AND department.tenant_id = entity.tenant_id
+                    LEFT JOIN org.department department ON department.department_id = entity.department_id AND department.tenant_id = entity.tenant_id
                     LEFT JOIN org.campus campus ON campus.campus_id = department.campus_id AND campus.tenant_id = entity.tenant_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.subject_id = @Id
