@@ -12,6 +12,8 @@ public interface IGetAdmissionCriteriaQuery
 {
     Task<IReadOnlyList<AdmissionCriteriaDto>> GetCriteriaAsync(
         Guid tenantId,
+        Guid? branchId,
+        Guid? classId,
         CancellationToken cancellationToken);
 }
 
@@ -20,6 +22,8 @@ public sealed class GetAdmissionCriteriaQuery(IDbConnectionFactory connectionFac
 {
     public async Task<IReadOnlyList<AdmissionCriteriaDto>> GetCriteriaAsync(
         Guid tenantId,
+        Guid? branchId,
+        Guid? classId,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -37,8 +41,11 @@ public sealed class GetAdmissionCriteriaQuery(IDbConnectionFactory connectionFac
                 required_documents AS RequiredDocuments,
                 status AS Status
             FROM admission.admission_criteria
-            WHERE tenant_id = @TenantId AND status = 'ACTIVE'
-            ORDER BY created_at DESC;
+            WHERE tenant_id = @TenantId
+              AND status = 'ACTIVE'
+              AND (@BranchId IS NULL OR branch_id = @BranchId)
+              AND (@ClassId IS NULL OR class_id = @ClassId)
+            ORDER BY school_id, branch_id, academic_year_id, class_id, admission_criteria_id;
             """;
 
         await using var connection =
@@ -47,7 +54,12 @@ public sealed class GetAdmissionCriteriaQuery(IDbConnectionFactory connectionFac
         var criteria = await connection.QueryAsync<AdmissionCriteriaDto>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId },
+                new
+                {
+                    TenantId = tenantId,
+                    BranchId = branchId,
+                    ClassId = classId
+                },
                 cancellationToken: cancellationToken));
 
         return criteria.AsList();
@@ -56,7 +68,10 @@ public sealed class GetAdmissionCriteriaQuery(IDbConnectionFactory connectionFac
 
 public static class GetAdmissionCriteria
 {
-    public sealed record Request(Guid? TenantId)
+    public sealed record Request(
+        Guid? TenantId,
+        Guid? BranchId,
+        Guid? ClassId)
         : IRequest<Result<IReadOnlyList<AdmissionCriteriaDto>>>;
 
     public sealed class Handler(
@@ -77,6 +92,8 @@ public static class GetAdmissionCriteria
 
             var criteria = await query.GetCriteriaAsync(
                 tenantId.Value,
+                request.BranchId,
+                request.ClassId,
                 cancellationToken);
 
             return Result<IReadOnlyList<AdmissionCriteriaDto>>.Success(criteria);
@@ -86,7 +103,9 @@ public static class GetAdmissionCriteria
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("/api/admissions/criteria", async (Guid? tenantId, Guid? branchId, Guid? classId, IMediator mediator, CancellationToken cancellationToken) =>
-            (await mediator.SendAsync<Request, Result<IReadOnlyList<AdmissionCriteriaDto>>>(new Request(tenantId), cancellationToken)).ToHttpResult())
+            (await mediator.SendAsync<Request, Result<IReadOnlyList<AdmissionCriteriaDto>>>(
+                new Request(tenantId, branchId, classId),
+                cancellationToken)).ToHttpResult())
             .WithName("GetAdmissionCriteria").WithTags("Admission Criteria").RequireAuthorization(SmartSchoolPolicies.SchoolAdministration);
     }
 }

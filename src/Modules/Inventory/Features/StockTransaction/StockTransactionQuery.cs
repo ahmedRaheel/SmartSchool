@@ -19,7 +19,7 @@ public sealed class StockTransactionQuery(IDbConnectionFactory connectionFactory
     {
         const string sql = """
             SELECT *
-            FROM inventory.stocktransaction
+            FROM inventory.stock_transaction
             WHERE tenant_id = @TenantId
               AND stock_transaction_id = @Id
               AND is_active = TRUE;
@@ -47,7 +47,7 @@ public sealed class StockTransactionQuery(IDbConnectionFactory connectionFactory
     {
         const string countSql = """
             SELECT COUNT(*)
-            FROM inventory.stocktransaction
+            FROM inventory.stock_transaction
             WHERE tenant_id = @TenantId
               AND is_active = TRUE;
             """;
@@ -56,7 +56,7 @@ public sealed class StockTransactionQuery(IDbConnectionFactory connectionFactory
             SELECT
                 tenant_id AS "TenantId",
                 stock_transaction_id AS "Id"
-            FROM inventory.stocktransaction
+            FROM inventory.stock_transaction
             WHERE tenant_id = @TenantId
               AND is_active = TRUE
             ORDER BY stock_transaction_id
@@ -102,7 +102,7 @@ public sealed class StockTransactionQuery(IDbConnectionFactory connectionFactory
         const string sql = """
             SELECT EXISTS (
                 SELECT 1
-                FROM inventory.stocktransaction
+                FROM inventory.stock_transaction
                 WHERE tenant_id = @TenantId
                   AND code = @Code
                   AND (@ExcludingId IS NULL OR stock_transaction_id <> @ExcludingId)

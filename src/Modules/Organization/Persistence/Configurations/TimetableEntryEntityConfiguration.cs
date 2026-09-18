@@ -87,5 +87,10 @@ public sealed class TimetableEntryEntityConfiguration
             .HasForeignKey(entity => entity.TimetableId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne<RoomEntity>()
+            .WithMany()
+            .HasForeignKey(entity => entity.RoomId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

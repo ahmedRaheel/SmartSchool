@@ -10,6 +10,9 @@ class_section_mappings = []
 retired_section_entities = []
 
 for path in modules.rglob("*.cs"):
+    if "Persistence/Migrations/" in path.as_posix():
+        continue
+
     text = path.read_text(encoding="utf-8", errors="ignore")
     if re.search(r"\b(class|record)\s+ClassSectionEntity\b", text):
         class_section_entities.append(path)

@@ -36,8 +36,8 @@ services:
       - identity-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      Database__ConnectionString: "Host=host.docker.internal;Port=5432;Database=smartschool;Username=postgres;Password=${POSTGRES_PASSWORD}"
-      ConnectionStrings__SmartSchool: "Host=host.docker.internal;Port=5432;Database=smartschool;Username=postgres;Password=${POSTGRES_PASSWORD}"
+      Database__ConnectionString: "Host=host.docker.internal;Port=5432;Database=smartschool_pro;Username=postgres;Password=${POSTGRES_PASSWORD}"
+      ConnectionStrings__SmartSchool: "Host=host.docker.internal;Port=5432;Database=smartschool_pro;Username=postgres;Password=${POSTGRES_PASSWORD}"
       ConnectionStrings__Redis: "host.docker.internal:6379"
       Kafka__BootstrapServers: "host.docker.internal:9092"
       AI__Provider: "Ollama"

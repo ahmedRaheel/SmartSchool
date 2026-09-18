@@ -52,7 +52,7 @@ public static class GetStockTransactionPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM inventory.stocktransaction
+                    FROM inventory.stock_transaction
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -63,11 +63,13 @@ public static class GetStockTransactionPage
                     stock_transaction_id AS "Id",
                     code AS "Code",
                     name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM inventory.stocktransaction
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                    ORDER BY stock_transaction_id
+                    COALESCE(
+                        to_jsonb(entity)->>'metadata_json',
+                        to_jsonb(entity)->>'MetadataJson') AS "MetadataJson"
+                    FROM inventory.stock_transaction entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.stock_transaction_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

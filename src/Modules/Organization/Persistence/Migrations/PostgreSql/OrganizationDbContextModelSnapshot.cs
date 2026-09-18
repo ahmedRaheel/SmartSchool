@@ -523,6 +523,8 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
 
                     b.HasIndex("GradeLevelId");
 
+                    b.HasIndex("RoomId");
+
                     b.HasIndex("TenantId");
 
                     b.HasIndex("TenantId", "Code")
@@ -925,6 +927,75 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                         .IsUnique();
 
                     b.ToTable("program", "academic");
+                });
+
+
+            modelBuilder.Entity("SmartSchool.Modules.Organization.Models.RoomEntity", b =>
+                {
+                    b.Property<Guid>("RoomId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("room_id");
+
+                    b.Property<int?>("Capacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("capacity");
+
+                    b.Property<Guid>("CampusId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campus_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("RoomType")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("room_type");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("row_version");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("RoomId");
+
+                    b.HasIndex("CampusId", "Code")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("room", "org");
                 });
 
             modelBuilder.Entity("SmartSchool.Modules.Organization.Models.SchoolEntity", b =>
@@ -1772,6 +1843,8 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
 
                     b.HasIndex("CourseOfferingId");
 
+                    b.HasIndex("RoomId");
+
                     b.HasIndex("TeacherCourseAssignmentId");
 
                     b.HasIndex("TenantId");
@@ -1826,6 +1899,11 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                         .HasForeignKey("GradeLevelId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("SmartSchool.Modules.Organization.Models.RoomEntity", null)
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("SmartSchool.Modules.Organization.Models.CourseOfferingEntity", b =>
@@ -1885,6 +1963,15 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                     b.HasOne("SmartSchool.Modules.Organization.Models.AcademicSystemEntity", null)
                         .WithMany()
                         .HasForeignKey("AcademicSystemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SmartSchool.Modules.Organization.Models.RoomEntity", b =>
+                {
+                    b.HasOne("SmartSchool.Modules.Organization.Models.CampusEntity", null)
+                        .WithMany()
+                        .HasForeignKey("CampusId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -1972,6 +2059,11 @@ namespace SmartSchool.Modules.Organization.Persistence.Migrations.PostgreSql
                         .HasForeignKey("TimetableId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("SmartSchool.Modules.Organization.Models.RoomEntity", null)
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("SmartSchool.Modules.Organization.Models.CampusEntity", b =>

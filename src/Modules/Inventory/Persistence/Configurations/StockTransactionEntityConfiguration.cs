@@ -12,7 +12,7 @@ public sealed class StockTransactionEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<StockTransactionEntity> builder)
     {
-        builder.ToTable("StockTransaction", schema: "inventory");
+        builder.ToTable("stock_transaction", schema: "inventory");
         builder.HasKey(entity => entity.StockTransactionId);
 
         builder
@@ -52,6 +52,7 @@ public sealed class StockTransactionEntityConfiguration
         builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
         builder.Property(entity => entity.Code).HasColumnName("code");
         builder.Property(entity => entity.Name).HasColumnName("name");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.Property(entity => entity.StockTransactionId).HasColumnName("stock_transaction_id");
     }
 }

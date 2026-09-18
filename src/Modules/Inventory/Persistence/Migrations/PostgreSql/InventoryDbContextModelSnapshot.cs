@@ -107,7 +107,8 @@ namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
                         .HasColumnName("is_active");
 
                     b.Property<string>("MetadataJson")
-                        .HasColumnType("text");
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -161,7 +162,8 @@ namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
                         .HasColumnName("is_active");
 
                     b.Property<string>("MetadataJson")
-                        .HasColumnType("text");
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -190,7 +192,7 @@ namespace SmartSchool.Modules.Inventory.Persistence.Migrations.PostgreSql
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("StockTransaction", "inventory");
+                    b.ToTable("stock_transaction", "inventory");
                 });
 #pragma warning restore 612, 618
         }
