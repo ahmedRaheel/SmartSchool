@@ -128,10 +128,10 @@ public sealed class ModuleDbContextOptionsConfigurator(
         where TContext : DbContext
     {
         const string prefix = "__EFMigrationsHistory_";
-        const int PostgreSqlIdentifierLimit = 63;
+        const int postgreSqlIdentifierLimit = 63;
 
         var contextName = typeof(TContext).Name;
-        var availableLength = PostgreSqlIdentifierLimit - prefix.Length;
+        var availableLength = postgreSqlIdentifierLimit - prefix.Length;
 
         if (contextName.Length > availableLength)
         {
