@@ -12,7 +12,7 @@ public sealed class EmployeeCompensationEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<EmployeeCompensationEntity> builder)
     {
-        builder.ToTable("employee_compensation", schema: "hr");
+        builder.ToTable("employee_compensation", schema: "payroll");
         builder.HasKey(entity => entity.EmployeeCompensationId);
 
         builder

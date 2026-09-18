@@ -26,78 +26,131 @@ public interface IChangeAdmissionStatusQuery
         CancellationToken cancellationToken);
 }
 
-public sealed class ChangeAdmissionStatusQuery(IDbConnectionFactory connectionFactory, ICurrentUser user)
+public sealed class ChangeAdmissionStatusQuery(
+    IDbConnectionFactory connectionFactory,
+    ICurrentUser user,
+    IAdmissionsExternalPort externalPort)
     : IChangeAdmissionStatusQuery
 {
     public sealed record Policy(decimal MinimumMarks, decimal? EntranceTestMinimum, int? MinimumAge,
         int? MaximumAge, bool InterviewRequired, string? RequiredDocuments);
-    public sealed record Placement(bool Allowed, DateOnly StartDate);
 
-    public async Task<string?> ValidateAcceptanceAsync(Guid tenantId, AdmissionApplicationDetails application,
-        decimal? entranceMarks, bool? interviewPassed, CancellationToken cancellationToken)
+    public async Task<string?> ValidateAcceptanceAsync(
+        Guid tenantId,
+        AdmissionApplicationDetails application,
+        decimal? entranceMarks,
+        bool? interviewPassed,
+        CancellationToken cancellationToken)
     {
-        if (!application.AcademicYearId.HasValue || !application.ClassId.HasValue || !application.ClassSectionId.HasValue)
+        if (!application.AcademicYearId.HasValue ||
+            !application.ClassId.HasValue ||
+            !application.ClassSectionId.HasValue)
+        {
             return "Class, section and academic year are required before acceptance.";
-        const string placementSql = """
-            SELECT EXISTS (SELECT 1 FROM academic.class_section cs
-                JOIN academic.grade_level gl ON gl.grade_level_id = cs.grade_level_id AND gl.tenant_id = cs.tenant_id AND gl.is_active
-                JOIN org.campus c ON c.campus_id = cs.campus_id AND c.tenant_id = cs.tenant_id AND c.is_active
-                JOIN reference.branch_gender_type gender ON gender.branch_gender_type_id = c.branch_gender_type_id
-                JOIN org.campus_education_level level ON level.campus_id = c.campus_id AND level.tenant_id = c.tenant_id AND level.education_level_id = gl.education_level_id
-                WHERE cs.tenant_id = @TenantId AND cs.class_section_id = @ClassSectionId AND cs.grade_level_id = @ClassId
-                    AND cs.academic_year_id = @AcademicYearId AND cs.campus_id = @BranchId AND c.school_id = @SchoolId AND cs.is_active
-                    AND (cs.capacity IS NULL OR cs.capacity > (SELECT count(*) FROM student.student_enrollment en WHERE en.tenant_id = cs.tenant_id AND en.class_section_id = cs.class_section_id AND en.is_active AND en.status = 'ACTIVE'))
-                    AND (gender.code = 'CO_EDUCATION' OR (gender.code = 'BOYS_ONLY' AND upper(@Gender) IN ('MALE','BOY')) OR (gender.code = 'GIRLS_ONLY' AND upper(@Gender) IN ('FEMALE','GIRL')))) AS "Allowed",
-                y.start_date AS "StartDate" FROM academic.academic_year y WHERE y.tenant_id = @TenantId AND y.academic_year_id = @AcademicYearId AND y.campus_id = @BranchId AND y.is_active;
-            """;
-        await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-        var parameters = new { TenantId = tenantId, application.ClassSectionId, application.ClassId, application.AcademicYearId,
-            application.BranchId, application.SchoolId, application.Gender, ApplicationId = application.Id };
-        var placement = await connection.QuerySingleOrDefaultAsync<Placement>(new CommandDefinition(placementSql, parameters, cancellationToken: cancellationToken));
-        if (placement is null || !placement.Allowed) return "Placement is invalid, full, or does not meet the branch's gender and education policy.";
+        }
+
+        var placement = await externalPort.ValidatePlacementAsync(
+            tenantId,
+            application,
+            cancellationToken);
+
+        if (placement is null || !placement.Allowed)
+        {
+            return "Placement is invalid, full, or does not meet the branch's gender and education policy.";
+        }
+
         const string criteriaSql = """
-            SELECT minimum_marks AS "MinimumMarks", entrance_test_minimum AS "EntranceTestMinimum", minimum_age AS "MinimumAge",
-                maximum_age AS "MaximumAge", interview_required AS "InterviewRequired", required_documents AS "RequiredDocuments"
-            FROM admission.admission_criteria WHERE tenant_id = @TenantId AND branch_id = @BranchId AND academic_year_id = @AcademicYearId
-                AND class_id = @ClassId AND status = 'ACTIVE' ORDER BY created_at DESC LIMIT 1;
+            SELECT
+                minimum_marks AS "MinimumMarks",
+                entrance_test_minimum AS "EntranceTestMinimum",
+                minimum_age AS "MinimumAge",
+                maximum_age AS "MaximumAge",
+                interview_required AS "InterviewRequired",
+                required_documents AS "RequiredDocuments"
+            FROM admission.admission_criteria
+            WHERE tenant_id = @TenantId
+              AND branch_id = @BranchId
+              AND academic_year_id = @AcademicYearId
+              AND class_id = @ClassId
+              AND status = 'ACTIVE'
+            ORDER BY admission_criteria_id DESC
+            LIMIT 1;
             """;
-        var policy = await connection.QuerySingleOrDefaultAsync<Policy>(new CommandDefinition(criteriaSql, parameters, cancellationToken: cancellationToken));
+
+        await using var connection =
+            await connectionFactory.OpenConnectionAsync(cancellationToken);
+
+        var parameters = new
+        {
+            TenantId = tenantId,
+            application.BranchId,
+            application.AcademicYearId,
+            application.ClassId
+        };
+
+        var policy = await connection.QuerySingleOrDefaultAsync<Policy>(
+            new CommandDefinition(
+                criteriaSql,
+                parameters,
+                cancellationToken: cancellationToken));
+
         if (policy is not null)
         {
-            if (policy.MinimumMarks > 0 && (!application.PreviousMarks.HasValue || application.PreviousMarks < policy.MinimumMarks)) return "Previous marks do not meet the configured minimum.";
-            if (policy.EntranceTestMinimum.HasValue && (!entranceMarks.HasValue || entranceMarks < policy.EntranceTestMinimum)) return "Record an entrance-test score that meets the configured minimum.";
-            if (entranceMarks is < 0 or > 100) return "Entrance-test marks must be between 0 and 100.";
-            if (policy.InterviewRequired && interviewPassed != true) return "A passed interview must be recorded before acceptance.";
+            if (policy.MinimumMarks > 0 &&
+                (!application.PreviousMarks.HasValue || application.PreviousMarks < policy.MinimumMarks))
+            {
+                return "Previous marks do not meet the configured minimum.";
+            }
+
+            if (policy.EntranceTestMinimum.HasValue &&
+                (!entranceMarks.HasValue || entranceMarks < policy.EntranceTestMinimum))
+            {
+                return "Record an entrance-test score that meets the configured minimum.";
+            }
+
+            if (entranceMarks is < 0 or > 100)
+            {
+                return "Entrance-test marks must be between 0 and 100.";
+            }
+
+            if (policy.InterviewRequired && interviewPassed != true)
+            {
+                return "A passed interview must be recorded before acceptance.";
+            }
+
             if (policy.MinimumAge.HasValue || policy.MaximumAge.HasValue)
             {
-                if (!application.DateOfBirth.HasValue) return "Date of birth is required by the age policy.";
-                var reference = placement.StartDate;
-                var age = reference.Year - application.DateOfBirth.Value.Year;
-                if (application.DateOfBirth.Value.AddYears(age) > reference) age--;
-                if (age < policy.MinimumAge || age > policy.MaximumAge) return "The applicant does not meet the age policy at the start of the academic year.";
+                if (!application.DateOfBirth.HasValue)
+                {
+                    return "Date of birth is required by the age policy.";
+                }
+
+                var age = placement.StartDate.Year - application.DateOfBirth.Value.Year;
+                if (application.DateOfBirth.Value.AddYears(age) > placement.StartDate)
+                {
+                    age--;
+                }
+
+                if (age < policy.MinimumAge || age > policy.MaximumAge)
+                {
+                    return "The applicant does not meet the age policy at the start of the academic year.";
+                }
             }
         }
-        const string missingSql = """
-            SELECT rt.name FROM document.required_document r
-            JOIN document.required_document_type rt ON rt.required_document_type_id = r.required_document_type_id AND rt.tenant_id = r.tenant_id AND rt.is_active
-            WHERE r.tenant_id = @TenantId AND upper(r.user_role) = 'STUDENT' AND r.is_mandatory AND r.is_active
-                AND (r.campus_id IS NULL OR r.campus_id = @BranchId)
-                AND NOT EXISTS (SELECT 1 FROM document.document d WHERE d.tenant_id = @TenantId AND d.owner_type = 'AdmissionDocument'
-                    AND d.owner_id = @ApplicationId AND d.required_document_type_id = rt.required_document_type_id AND d.is_active AND d.status = 'ACTIVE');
-            """;
-        var missing = (await connection.QueryAsync<string>(new CommandDefinition(missingSql, parameters, cancellationToken: cancellationToken))).ToList();
-        foreach (var code in (policy?.RequiredDocuments ?? string.Empty).Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
-        {
-            const string documentSql = """
-                SELECT EXISTS (SELECT 1 FROM document.document d
-                    LEFT JOIN document.required_document_type rt ON rt.required_document_type_id = d.required_document_type_id AND rt.tenant_id = d.tenant_id
-                    JOIN document.document_type dt ON dt.document_type_id = d.document_type_id AND dt.tenant_id = d.tenant_id
-                    WHERE d.tenant_id = @TenantId AND d.owner_type = 'AdmissionDocument' AND d.owner_id = @ApplicationId AND d.is_active AND d.status = 'ACTIVE'
-                        AND (upper(rt.code) = upper(@Code) OR upper(dt.code) = upper(@Code)));
-                """;
-            if (!await connection.ExecuteScalarAsync<bool>(new CommandDefinition(documentSql, new { TenantId = tenantId, ApplicationId = application.Id, Code = code }, cancellationToken: cancellationToken))) missing.Add(code);
-        }
-        return missing.Count > 0 ? $"Required application documents are missing: {string.Join(", ", missing.Distinct())}." : null;
+
+        var requiredCodes = (policy?.RequiredDocuments ?? string.Empty)
+            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+        var missingDocuments = await externalPort.GetMissingApplicationDocumentsAsync(
+            tenantId,
+            application.Id,
+            application.BranchId,
+            requiredCodes,
+            cancellationToken);
+
+        return missingDocuments.Count > 0
+            ? $"Required application documents are missing: {string.Join(", ", missingDocuments.Distinct())}."
+            : null;
     }
 
     public async Task<AdmissionApplicationDetails?> GetApplicationAsync(
@@ -145,32 +198,17 @@ public sealed class ChangeAdmissionStatusQuery(IDbConnectionFactory connectionFa
                 cancellationToken: cancellationToken));
     }
 
-    public async Task<string?> GetBranchCodeAsync(
+    public Task<string?> GetBranchCodeAsync(
         Guid tenantId,
         Guid branchId,
         CancellationToken cancellationToken)
     {
-        const string sql = """
-            SELECT code
-            FROM org.campus
-            WHERE tenant_id = @TenantId
-                AND campus_id = @BranchId
-                AND is_active = TRUE;
-            """;
-
-        await using var connection =
-            await connectionFactory.OpenConnectionAsync(cancellationToken);
-
-        return await connection.ExecuteScalarAsync<string?>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    TenantId = tenantId,
-                    BranchId = branchId
-                },
-                cancellationToken: cancellationToken));
+        return externalPort.GetBranchCodeAsync(
+            tenantId,
+            branchId,
+            cancellationToken);
     }
+
 }
 
 public interface IChangeAdmissionStatusCommand

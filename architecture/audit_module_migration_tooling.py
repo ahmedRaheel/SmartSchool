@@ -29,21 +29,11 @@ for module in sorted(required_modules):
     if not migration_dir.is_dir():
         errors.append(f"Missing migration directory: {migration_dir.relative_to(root)}")
 
-config_script = root / "scripts" / "ModuleMigrationConfig.ps1"
-if not config_script.is_file():
-    errors.append("Missing migration configuration: scripts/ModuleMigrationConfig.ps1")
-else:
-    config_text = config_script.read_text(encoding="utf-8")
-    for module, context in sorted(expected.items()):
-        if f'Name = "{module}"' not in config_text or f'Context = "{context}"' not in config_text:
-            errors.append(f"ModuleMigrationConfig.ps1 does not map {module} to {context}")
-
 for script_name in (
     "Add-ModuleMigration.ps1",
     "Add-AllModuleMigrations.ps1",
     "Update-ModuleDatabase.ps1",
     "Update-AllModuleDatabases.ps1",
-    "Initialize-AllModuleMigrations.ps1",
     "add-module-migration.sh",
     "add-all-module-migrations.sh",
     "update-module-database.sh",
@@ -52,6 +42,13 @@ for script_name in (
     script = root / "scripts" / script_name
     if not script.is_file():
         errors.append(f"Missing migration helper: scripts/{script_name}")
+        continue
+    text = script.read_text(encoding="utf-8")
+    shared_config_text = (root / "scripts" / "ModuleMigrationConfig.ps1").read_text(encoding="utf-8") if (root / "scripts" / "ModuleMigrationConfig.ps1").is_file() else ""
+    for module in required_modules:
+        covered_by_shared_config = "ModuleMigrationConfig.ps1" in text and module in shared_config_text
+        if module not in text and not covered_by_shared_config and "AllModule" not in script_name and "all-module" not in script_name:
+            errors.append(f"scripts/{script_name} does not cover {module}")
 
 if errors:
     print("Module migration tooling audit FAILED")

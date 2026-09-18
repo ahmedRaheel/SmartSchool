@@ -59,8 +59,8 @@ public static class GetEmployeeCompensationById
                         p1.job_grade_id AS "JobGradeId",
                         p1.code AS "JobGradeCode",
                         p1.name AS "JobGradeName"
-                    FROM hr.employee_compensation AS entity
-                    LEFT JOIN hr.job_grade AS p1
+                    FROM payroll.employee_compensation AS entity
+                    LEFT JOIN payroll.job_grade_projection AS p1
                         ON p1.job_grade_id = entity.job_grade_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.employee_compensation_id = @Id

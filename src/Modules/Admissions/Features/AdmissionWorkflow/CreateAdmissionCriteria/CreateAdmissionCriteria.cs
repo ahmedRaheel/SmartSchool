@@ -1,9 +1,7 @@
 using FluentValidation;
 using SmartSchool.Application.Http;
-using Dapper;
 using SmartSchool.Application.Identity;
 using SmartSchool.Application.Messaging;
-using SmartSchool.Application.Persistence;
 using SmartSchool.Modules.Admissions.Persistence;
 using SmartSchool.SharedKernel;
 using SmartSchool.SharedKernel.Constants;
@@ -21,10 +19,10 @@ public interface ICreateAdmissionCriteriaQuery
         CancellationToken cancellationToken);
 }
 
-public sealed class CreateAdmissionCriteriaQuery(IDbConnectionFactory connectionFactory)
+public sealed class CreateAdmissionCriteriaQuery(IAdmissionsExternalPort externalPort)
     : ICreateAdmissionCriteriaQuery
 {
-    public async Task<bool> CriteriaContextIsValidAsync(
+    public Task<bool> CriteriaContextIsValidAsync(
         Guid tenantId,
         Guid schoolId,
         Guid branchId,
@@ -32,45 +30,13 @@ public sealed class CreateAdmissionCriteriaQuery(IDbConnectionFactory connection
         Guid classId,
         CancellationToken cancellationToken)
     {
-        const string sql = """
-            SELECT EXISTS (
-                SELECT 1
-                FROM academic.grade_level AS class
-                INNER JOIN academic.academic_year AS academic_year
-                    ON academic_year.campus_id = class.campus_id
-                    AND academic_year.tenant_id = class.tenant_id
-                INNER JOIN org.campus AS branch
-                    ON branch.campus_id = class.campus_id
-                    AND branch.tenant_id = class.tenant_id
-                INNER JOIN org.campus_education_level AS branch_level
-                    ON branch_level.campus_id = class.campus_id
-                    AND branch_level.education_level_id = class.education_level_id
-                WHERE class.tenant_id = @TenantId
-                    AND branch.school_id = @SchoolId
-                    AND class.campus_id = @BranchId
-                    AND class.grade_level_id = @ClassId
-                    AND academic_year.academic_year_id = @AcademicYearId
-                    AND class.is_active = TRUE
-                    AND academic_year.is_active = TRUE
-                    AND branch.is_active = TRUE
-            );
-            """;
-
-        await using var connection =
-            await connectionFactory.OpenConnectionAsync(cancellationToken);
-
-        return await connection.ExecuteScalarAsync<bool>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    TenantId = tenantId,
-                    SchoolId = schoolId,
-                    BranchId = branchId,
-                    AcademicYearId = academicYearId,
-                    ClassId = classId
-                },
-                cancellationToken: cancellationToken));
+        return externalPort.CriteriaContextIsValidAsync(
+            tenantId,
+            schoolId,
+            branchId,
+            academicYearId,
+            classId,
+            cancellationToken);
     }
 }
 

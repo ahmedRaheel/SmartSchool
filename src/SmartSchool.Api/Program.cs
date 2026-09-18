@@ -13,6 +13,7 @@ using Scalar.AspNetCore;
 using Serilog;
 
 using SmartSchool.Api.Features;
+using SmartSchool.Api.Integration;
 using SmartSchool.Api.Observability;
 using SmartSchool.Api.Seed;
 using SmartSchool.Application;
@@ -32,6 +33,7 @@ using SmartSchool.Modules.AIPrediction;
 using SmartSchool.Modules.AITutor;
 using SmartSchool.Modules.Activities;
 using SmartSchool.Modules.Admissions;
+using SmartSchool.Modules.Admissions.Features;
 using SmartSchool.Modules.Audit;
 using SmartSchool.Modules.Communication;
 using SmartSchool.Modules.Communication.Realtime;
@@ -223,6 +225,7 @@ builder.Services.AddAIPredictionModule(builder.Configuration);
 builder.Services.AddAITutorModule(builder.Configuration);
 builder.Services.AddActivitiesModule(builder.Configuration);
 builder.Services.AddAdmissionsModule(builder.Configuration);
+builder.Services.AddScoped<IAdmissionsExternalPort, AdmissionsExternalPortAdapter>();
 builder.Services.AddAuditModule(builder.Configuration);
 builder.Services.AddCommunicationModule(builder.Configuration);
 builder.Services.AddDocumentsModule(builder.Configuration);
@@ -233,15 +236,15 @@ builder.Services.AddInventoryModule(builder.Configuration);
 builder.Services.AddLearningModule(builder.Configuration);
 builder.Services.AddLibraryModule(builder.Configuration);
 builder.Services.AddOrganizationModule(builder.Configuration);
-builder.Services.AddPayrollModule(builder.Configuration);
 builder.Services.AddReferenceModule(builder.Configuration);
 builder.Services.AddStudentsModule(builder.Configuration);
-
+builder.Services.AddPayrollModule(builder.Configuration);
 builder.Services.AddTransportModule(builder.Configuration);
 builder.Services.AddWorkflowModule(builder.Configuration);
 
 builder.Services.AddHostedService<KafkaCommunicationConsumer>();
 builder.Services.AddHostedService<KafkaCagInvalidationConsumer>();
+builder.Services.AddHostedService<PayrollHrProjectionSyncService>();
 
 var app = builder.Build();
 
@@ -417,7 +420,10 @@ static void ValidateProductionConfiguration(IConfiguration configuration)
         throw new InvalidOperationException("PortalUrl must be a non-loopback HTTPS URL outside Development.");
     if (!IsSecureAbsoluteUrl(configuration["Identity:Authority"]) ||
         !IsSecureAbsoluteUrl(configuration["Identity:ValidIssuer"]))
+    {
         throw new InvalidOperationException("Identity authority and issuer must be non-loopback HTTPS URLs outside Development.");
+    }
+
     if (!configuration.GetValue<bool>("Identity:RequireHttpsMetadata"))
         throw new InvalidOperationException("Identity:RequireHttpsMetadata must be true outside Development.");
 
@@ -430,7 +436,9 @@ static void ValidateProductionConfiguration(IConfiguration configuration)
 
     if (string.IsNullOrWhiteSpace(configuration["IdentityService:ClientId"]) ||
         string.IsNullOrWhiteSpace(configuration["IdentityService:Scope"]))
+    {
         throw new InvalidOperationException("IdentityService client id and management scope are required outside Development.");
+    }
 
     if (string.Equals(configuration["Caching:Provider"], "Redis", StringComparison.OrdinalIgnoreCase) &&
         string.IsNullOrWhiteSpace(configuration.GetConnectionString(configuration["Caching:RedisConnectionStringName"] ?? "Redis")))

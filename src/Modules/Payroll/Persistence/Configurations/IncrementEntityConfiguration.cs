@@ -12,7 +12,7 @@ public sealed class IncrementEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<IncrementEntity> builder)
     {
-        builder.ToTable("Increment", schema: "payroll");
+        builder.ToTable("increment", schema: "payroll");
         builder.HasKey(entity => entity.IncrementId);
 
         builder
