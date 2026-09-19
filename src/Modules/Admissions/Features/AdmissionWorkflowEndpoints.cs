@@ -109,10 +109,12 @@ public static class AdmissionWorkflowEndpoints
 
     private static async Task<IResult> GetCriteriaAsync(
         Guid? tenantId,
+        Guid? branchId,
+        Guid? classId,
         IMediator mediator,
         CancellationToken cancellationToken)
     {
-        var request = new GetAdmissionCriteria.Request(tenantId);
+        var request = new GetAdmissionCriteria.Request(tenantId, branchId, classId);
         var result = await mediator.SendAsync<
             GetAdmissionCriteria.Request,
             Result<IReadOnlyList<AdmissionCriteriaDto>>>(
