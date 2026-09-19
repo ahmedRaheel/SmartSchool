@@ -11,8 +11,15 @@ internal sealed class SmokeRequestFactory(
     SmokeTestOptions options,
     OpenApiDocumentModel openApi)
 {
-    public HttpRequestMessage Create(OpenApiOperation operation)
+    private IReadOnlyDictionary<string, string> _activeKnownValues =
+        options.KnownValues;
+
+    public HttpRequestMessage Create(
+        OpenApiOperation operation,
+        SmokeActor? actor,
+        IReadOnlyDictionary<string, string>? knownValues = null)
     {
+        _activeKnownValues = knownValues ?? options.KnownValues;
         var path = operation.Path;
         var queryValues = new List<KeyValuePair<string, string>>();
 
@@ -67,12 +74,20 @@ internal sealed class SmokeRequestFactory(
             "X-Correlation-ID",
             $"smoke-{Guid.NewGuid():N}");
 
-        if (!string.IsNullOrWhiteSpace(options.BearerToken))
+        var bearerToken = actor?.Token ?? options.BearerToken;
+        if (!string.IsNullOrWhiteSpace(bearerToken))
         {
             request.Headers.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue(
                     "Bearer",
-                    options.BearerToken);
+                    bearerToken);
+        }
+
+        if (actor is not null)
+        {
+            request.Headers.TryAddWithoutValidation(
+                "X-Smoke-Test-Actor",
+                actor.Kind.ToString());
         }
 
         AddRequestBody(request, operation);
@@ -466,14 +481,14 @@ internal sealed class SmokeRequestFactory(
 
     private bool TryGetKnownValue(string name, out string value)
     {
-        if (options.KnownValues.TryGetValue(name, out value!))
+        if (_activeKnownValues.TryGetValue(name, out value!))
         {
             return true;
         }
 
         var normalized = NormalizeName(name);
 
-        foreach (var item in options.KnownValues)
+        foreach (var item in _activeKnownValues)
         {
             if (NormalizeName(item.Key).Equals(
                     normalized,

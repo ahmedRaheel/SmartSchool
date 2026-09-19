@@ -1,27 +1,21 @@
 using SmartSchool.ApiSmokeTester;
 
+SmokeTestFixture? fixture = null;
+SmokeTestFixtureManager? fixtureManager = null;
+
 try
 {
     var options = SmokeTestOptions.Parse(args);
 
     Console.WriteLine("SmartSchool API endpoint smoke tester");
     Console.WriteLine($"Base URL: {options.BaseUrl}");
+    Console.WriteLine($"Identity URL: {options.IdentityBaseUrl}");
     Console.WriteLine($"OpenAPI: {options.OpenApiPath}");
     Console.WriteLine(
         $"Mode: {(options.IncludeMutatingEndpoints ? "all operations" : "read-only")}");
     Console.WriteLine(
-        $"Bearer token: {(string.IsNullOrWhiteSpace(options.BearerToken) ? "NOT SET" : "configured")}");
+        $"Fixture: {(options.SelfContainedFixture ? "self-contained" : "disabled")}");
     Console.WriteLine();
-
-    if (string.IsNullOrWhiteSpace(options.BearerToken))
-    {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(
-            "WARNING: SMARTSCHOOL_API_TOKEN is not set. Authorized endpoints will be "
-            + "reported as AuthenticationBlocked and their handlers/database code will not run.");
-        Console.ResetColor();
-        Console.WriteLine();
-    }
 
     var handler = new HttpClientHandler();
 
@@ -33,8 +27,25 @@ try
 
     using var httpClient = new HttpClient(handler)
     {
-        Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds + 5)
+        Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds + 10)
     };
+
+    if (options.SelfContainedFixture)
+    {
+        fixtureManager = new SmokeTestFixtureManager(
+            httpClient,
+            options);
+        fixture = await fixtureManager.SetupAsync(
+            CancellationToken.None);
+    }
+    else if (string.IsNullOrWhiteSpace(options.BearerToken))
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine(
+            "WARNING: fixture mode is disabled and no bearer token is configured.");
+        Console.ResetColor();
+        Console.WriteLine();
+    }
 
     var openApiUri = options.BaseUrl + options.OpenApiPath;
     Console.WriteLine($"Discovering endpoints from {openApiUri} ...");
@@ -45,11 +56,19 @@ try
     Console.WriteLine($"Discovered {openApi.Operations.Count} API operations.");
     Console.WriteLine();
 
-    var runner = new SmokeTestRunner(httpClient, options, openApi);
-    var results = await runner.RunAsync(CancellationToken.None);
+    var runner = new SmokeTestRunner(
+        httpClient,
+        options,
+        openApi,
+        fixture);
+
+    var results = await runner.RunAsync(
+        CancellationToken.None);
+
     var reportDirectory = await ReportWriter.WriteAsync(
         results,
         options,
+        fixture,
         CancellationToken.None);
 
     var serverFailures = results.Count(
@@ -81,16 +100,18 @@ try
     Console.WriteLine($"Skipped                 : {skipped}");
     Console.WriteLine($"Reports                 : {reportDirectory}");
 
-    var shouldFail = serverFailures > 0
-                     || timeouts > 0
-                     || networkErrors > 0;
+    var shouldFail =
+        serverFailures > 0
+        || timeouts > 0
+        || networkErrors > 0;
 
     if (options.Strict)
     {
-        shouldFail = shouldFail
-                     || handled > 0
-                     || authenticationBlocked > 0
-                     || skipped > 0;
+        shouldFail =
+            shouldFail
+            || handled > 0
+            || authenticationBlocked > 0
+            || skipped > 0;
     }
 
     Environment.ExitCode = shouldFail ? 1 : 0;
@@ -99,4 +120,22 @@ catch (Exception exception)
 {
     Console.Error.WriteLine(exception);
     Environment.ExitCode = 2;
+}
+finally
+{
+    if (fixtureManager is not null)
+    {
+        try
+        {
+            await fixtureManager.CleanupAsync(
+                fixture,
+                CancellationToken.None);
+        }
+        catch (Exception cleanupException)
+        {
+            Console.Error.WriteLine(
+                $"Smoke fixture cleanup failed: {cleanupException}");
+            Environment.ExitCode = 2;
+        }
+    }
 }
