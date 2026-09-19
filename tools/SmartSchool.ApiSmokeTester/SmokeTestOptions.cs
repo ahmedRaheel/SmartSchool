@@ -19,9 +19,10 @@ internal sealed class SmokeTestOptions
     public bool CleanupFixture { get; set; } = true;
     public string RepositoryRoot { get; set; } = Directory.GetCurrentDirectory();
     public string? BootstrapSuperAdminEmail { get; set; }
-    public string? BootstrapSuperAdminPassword { get; set; } = "YourStrongPassword@123";
+    public string? BootstrapSuperAdminPassword { get; set; }
     public string LoginClientId { get; set; } = "smartschool-login-api";
-    public string? LoginClientSecret { get; set; } = "development-login-api-secret-change-me";
+    public string? LoginClientSecret { get; set; }
+    public string? IdentityFixtureKey { get; set; }
 
     public Dictionary<string, string> KnownValues { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
@@ -191,6 +192,16 @@ internal sealed class SmokeTestOptions
             {
                 LoginClientSecret = loginClientSecret;
             }
+
+            if (string.IsNullOrWhiteSpace(IdentityFixtureKey)
+                && TryRead(
+                    root,
+                    out var identityFixtureKey,
+                    "SmokeTesting",
+                    "BootstrapKey"))
+            {
+                IdentityFixtureKey = identityFixtureKey;
+            }
         }
 
         IdentityBaseUrl =
@@ -212,6 +223,11 @@ internal sealed class SmokeTestOptions
             Environment.GetEnvironmentVariable(
                 "SMARTSCHOOL_SMOKE_LOGIN_CLIENT_SECRET")
             ?? LoginClientSecret;
+
+        IdentityFixtureKey =
+            Environment.GetEnvironmentVariable(
+                "SMARTSCHOOL_SMOKE_IDENTITY_FIXTURE_KEY")
+            ?? IdentityFixtureKey;
     }
 
     private static bool TryRead(
@@ -275,6 +291,7 @@ internal sealed class SmokeTestOptions
         BootstrapSuperAdminPassword = fromFile.BootstrapSuperAdminPassword;
         LoginClientId = fromFile.LoginClientId;
         LoginClientSecret = fromFile.LoginClientSecret;
+        IdentityFixtureKey = fromFile.IdentityFixtureKey;
         KnownValues = new Dictionary<string, string>(
             fromFile.KnownValues,
             StringComparer.OrdinalIgnoreCase);

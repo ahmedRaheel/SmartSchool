@@ -13,35 +13,30 @@ internal sealed class SmokeTestFixtureManager(
     private readonly string _runId =
         $"smoke-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}";
 
-    private string? _bootstrapToken;
+    private string _disposableSuperAdminToken = string.Empty;
     private Guid? _disposableSuperAdminId;
     private SmokeTestFixture? _activeFixture;
 
     public async Task<SmokeTestFixture> SetupAsync(
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(options.BootstrapSuperAdminEmail)
-            || string.IsNullOrWhiteSpace(options.BootstrapSuperAdminPassword))
+        if (string.IsNullOrWhiteSpace(options.IdentityFixtureKey))
         {
             throw new InvalidOperationException(
-                "Self-contained smoke testing requires the Development bootstrap "
-                + "SuperAdmin configuration. The runner reads it automatically from "
-                + "SmartSchool.Identity.Api/appsettings.Development.json.");
+                "Self-contained smoke testing requires SmokeTesting:BootstrapKey in "
+                + "SmartSchool.Identity.Api/appsettings.Development.json or "
+                + "SMARTSCHOOL_SMOKE_IDENTITY_FIXTURE_KEY.");
         }
 
         Console.WriteLine("Creating disposable smoke-test fixture ...");
 
-        _bootstrapToken = await LoginAsync(
-            options.BootstrapSuperAdminEmail,
-            options.BootstrapSuperAdminPassword,
-            cancellationToken);
+        await ValidateIdentityFixtureBootstrapAsync(cancellationToken);
 
         var superAdminEmail =
             $"{_runId}.superadmin@smartschool.test";
         var superAdminPassword = CreatePassword("Super");
 
-        var (userId, _) = await CreateIdentityUserAsync(
-            _bootstrapToken,
+        var (superAdminId, _) = await CreateIdentityUserAsync(
             tenantId: null,
             schoolId: null,
             branchId: null,
@@ -54,12 +49,13 @@ internal sealed class SmokeTestFixtureManager(
             ["SuperAdmin"],
             cancellationToken);
 
-        _disposableSuperAdminId = userId;
+        _disposableSuperAdminId = superAdminId;
 
         var superAdminToken = await LoginAsync(
             superAdminEmail,
             superAdminPassword,
             cancellationToken);
+        _disposableSuperAdminToken = superAdminToken;
 
         await ValidateTokenAgainstApiAsync(
             "SuperAdmin",
@@ -78,7 +74,7 @@ internal sealed class SmokeTestFixtureManager(
 
         fixture.Actors[SmokeActorKind.SuperAdmin] = new SmokeActor(
             SmokeActorKind.SuperAdmin,
-            userId,
+            superAdminId,
             null,
             superAdminEmail,
             superAdminPassword,
@@ -136,7 +132,7 @@ internal sealed class SmokeTestFixtureManager(
         Console.WriteLine(
             $"Cleaning smoke-test fixture {fixture.RunId} ...");
 
-        if (!string.IsNullOrWhiteSpace(_bootstrapToken))
+        if (!string.IsNullOrWhiteSpace(_disposableSuperAdminToken))
         {
             try
             {
@@ -144,7 +140,7 @@ internal sealed class SmokeTestFixtureManager(
                     HttpMethod.Delete,
                     $"{options.BaseUrl}/api/testing/fixtures/{fixture.TenantId}"
                     + $"?runId={Uri.EscapeDataString(fixture.RunId)}",
-                    _bootstrapToken);
+                    _disposableSuperAdminToken);
                 businessCleanup.Headers.TryAddWithoutValidation(
                     "X-Smoke-Test-Run",
                     fixture.RunId);
@@ -175,10 +171,10 @@ internal sealed class SmokeTestFixtureManager(
 
             try
             {
-                using var deleteTenantUsers = CreateRequest(
+                using var deleteTenantUsers = CreateIdentityFixtureRequest(
                     HttpMethod.Delete,
-                    $"{options.IdentityBaseUrl}/api/identity/users/tenant/{fixture.TenantId}",
-                    _bootstrapToken);
+                    $"{options.IdentityBaseUrl}/api/testing/smoke/identity/tenants/{fixture.TenantId}/users"
+                    + $"?runId={Uri.EscapeDataString(fixture.RunId)}");
 
                 using var response = await httpClient.SendAsync(
                     deleteTenantUsers,
@@ -211,18 +207,17 @@ internal sealed class SmokeTestFixtureManager(
         CancellationToken cancellationToken)
     {
         if (!_disposableSuperAdminId.HasValue
-            || string.IsNullOrWhiteSpace(_bootstrapToken))
+            || string.IsNullOrWhiteSpace(options.IdentityFixtureKey))
         {
             return;
         }
 
         try
         {
-            using var request = CreateRequest(
+            using var request = CreateIdentityFixtureRequest(
                 HttpMethod.Delete,
-                $"{options.IdentityBaseUrl}/api/identity/users/"
-                + $"{_disposableSuperAdminId.Value}/purge",
-                _bootstrapToken);
+                $"{options.IdentityBaseUrl}/api/testing/smoke/identity/users/"
+                + $"{_disposableSuperAdminId.Value}?runId={Uri.EscapeDataString(_runId)}");
 
             using var response = await httpClient.SendAsync(
                 request,
@@ -285,9 +280,9 @@ internal sealed class SmokeTestFixtureManager(
             new
             {
                 tenantId = fixture.TenantId,
-                name = $"Smoke School {fixture.RunId[^8..]}",
-                registrationNumber = $"SMOKE-{fixture.RunId[^8..]}",
-                email = $"{fixture.RunId}.school@smartschool.test",
+                name = $"Smoke School {_runId[^8..]}",
+                registrationNumber = $"SMOKE-{_runId[^8..]}",
+                email = $"{_runId}.school@smartschool.test",
                 phone = "+923001111111",
                 fax = (string?)null,
                 website = "https://example.test",
@@ -447,7 +442,7 @@ internal sealed class SmokeTestFixtureManager(
         // Owner/Tenant is an identity-level actor rather than an HR employee.
         await CreateManualActorAsync(
             fixture,
-            superAdminToken,
+            //superAdminToken,
             SmokeActorKind.Owner,
             role: "Tenant",
             accountType: "Owner",
@@ -518,7 +513,7 @@ internal sealed class SmokeTestFixtureManager(
 
                 await CreateManualActorAsync(
                     fixture,
-                    superAdminToken,
+                  //  superAdminToken,
                     definition.Kind,
                     RoleFor(definition.Kind),
                     definition.Kind.ToString(),
@@ -602,7 +597,7 @@ internal sealed class SmokeTestFixtureManager(
 
         await CreateManualActorAsync(
             fixture,
-            superAdminToken,
+            //superAdminToken,
             SmokeActorKind.Student,
             role: "Student",
             accountType: "Student",
@@ -611,7 +606,7 @@ internal sealed class SmokeTestFixtureManager(
 
         await CreateManualActorAsync(
             fixture,
-            superAdminToken,
+           // superAdminToken,
             SmokeActorKind.Parent,
             role: "Parent",
             accountType: "Parent",
@@ -684,9 +679,13 @@ internal sealed class SmokeTestFixtureManager(
                 "TemporaryPassword")
             ?? string.Empty;
 
-        var actorToken = await StartImpersonationAsync(
-            superAdminToken,
-            userId,
+        var actorToken = await LoginAsync(
+            accountEmail,
+            temporaryPassword,
+            cancellationToken);
+        await ValidateTokenAgainstApiAsync(
+            definition.Kind.ToString(),
+            actorToken,
             cancellationToken);
 
         var actor = new SmokeActor(
@@ -724,20 +723,21 @@ internal sealed class SmokeTestFixtureManager(
 
     private async Task CreateManualActorAsync(
         SmokeTestFixture fixture,
-        string superAdminToken,
+       // string superAdminToken,
         SmokeActorKind kind,
         string role,
         string accountType,
         Guid? businessEntityId,
         CancellationToken cancellationToken)
     {
+
+        
         var email =
             $"{_runId}.{kind.ToString().ToLowerInvariant()}"
             + "@smartschool.test";
         var password = CreatePassword(kind.ToString());
 
         var (actorUserId , _) = await CreateIdentityUserAsync(
-            superAdminToken,
             fixture.TenantId,
             fixture.SchoolId,
             fixture.CampusId,
@@ -750,9 +750,13 @@ internal sealed class SmokeTestFixtureManager(
             [role],
             cancellationToken);
 
-        var actorToken = await StartImpersonationAsync(
-            superAdminToken,
-             actorUserId ,
+        var actorToken = await LoginAsync(
+            email,
+            password,
+            cancellationToken);
+        await ValidateTokenAgainstApiAsync(
+            kind.ToString(),
+            actorToken,
             cancellationToken);
 
         var actor = new SmokeActor(
@@ -848,8 +852,43 @@ internal sealed class SmokeTestFixtureManager(
     private static string CreateCnic(int index) =>
         $"42101{index:00000000}";
 
+    private async Task ValidateIdentityFixtureBootstrapAsync(
+        CancellationToken cancellationToken)
+    {
+        using var request = CreateIdentityFixtureRequest(
+            HttpMethod.Get,
+            $"{options.IdentityBaseUrl}/api/testing/smoke/identity/probe");
+
+        using var response = await httpClient.SendAsync(request, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                "Identity smoke fixture bootstrap is unavailable. "
+                + $"HTTP {(int)response.StatusCode}. Response={Truncate(body, 800)}. "
+                + "Rebuild/restart SmartSchool.Identity.Api from the latest source and ensure "
+                + "SmokeTesting:BootstrapKey matches SMARTSCHOOL_SMOKE_IDENTITY_FIXTURE_KEY.");
+        }
+
+        using var document = JsonDocument.Parse(body);
+        var root = document.RootElement;
+        var protocolVersion = ReadString(root, "protocolVersion");
+        const string expectedProtocolVersion = "2026.09.19-smoke-bootstrap.2";
+
+        if (!string.Equals(
+                protocolVersion,
+                expectedProtocolVersion,
+                StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                "Identity smoke fixture protocol mismatch. "
+                + $"Expected {expectedProtocolVersion}, got {protocolVersion ?? "<missing>"}. "
+                + "Rebuild SmartSchool.Identity.Api with --no-cache and restart the container.");
+        }
+    }
+
     private async Task<(Guid UserId, string Password)> CreateIdentityUserAsync(
-        string bearerToken,
         Guid? tenantId,
         Guid? schoolId,
         Guid? branchId,
@@ -862,14 +901,14 @@ internal sealed class SmokeTestFixtureManager(
         string[] roles,
         CancellationToken cancellationToken)
     {
-        using var request = CreateRequest(
+        using var request = CreateIdentityFixtureRequest(
             HttpMethod.Post,
-            $"{options.IdentityBaseUrl}/api/identity/users",
-            bearerToken);
+            $"{options.IdentityBaseUrl}/api/testing/smoke/identity/users");
 
         request.Content = JsonContent.Create(
             new
             {
+                _runId,
                 tenantId,
                 schoolId,
                 branchId,
@@ -902,6 +941,26 @@ internal sealed class SmokeTestFixtureManager(
             password);
     }
 
+    private HttpRequestMessage CreateIdentityFixtureRequest(
+        HttpMethod method,
+        string uri)
+    {
+        if (string.IsNullOrWhiteSpace(options.IdentityFixtureKey))
+        {
+            throw new InvalidOperationException(
+                "Identity smoke fixture key is not configured.");
+        }
+
+        var request = new HttpRequestMessage(method, uri);
+        request.Headers.TryAddWithoutValidation(
+            "X-Smoke-Test-Key",
+            options.IdentityFixtureKey);
+        request.Headers.TryAddWithoutValidation(
+            "X-Smoke-Test-Run",
+            _runId);
+        return request;
+    }
+
     private async Task<string> LoginAsync(
         string email,
         string password,
@@ -927,7 +986,7 @@ internal sealed class SmokeTestFixtureManager(
                     ["password"] = password,
                     // Deliberately omit offline_access so the disposable fixture
                     // creates no refresh-token grants that need later cleanup.
-                    ["scope"] = "openid profile email smartschool.api offline_access"
+                    ["scope"] = "smartschool.api"
                 })
         };
 
@@ -956,53 +1015,7 @@ internal sealed class SmokeTestFixtureManager(
         return token;
     }
 
-    private async Task<string> StartImpersonationAsync(
-        string superAdminToken,
-        Guid targetUserId,
-        CancellationToken cancellationToken)
-    {
-        using var request = CreateRequest(
-            HttpMethod.Post,
-            $"{options.IdentityBaseUrl}/api/identity/users/impersonation/start",
-            superAdminToken);
-
-        request.Content = JsonContent.Create(
-            new
-            {
-                targetUserId,
-                reason = $"Automated API smoke test {_runId}"
-            });
-
-        using var response = await httpClient.SendAsync(
-            request,
-            cancellationToken);
-        var body = await response.Content.ReadAsStringAsync(
-            cancellationToken);
-
-        EnsureSuccess(
-            response,
-            body,
-            $"impersonate smoke actor {targetUserId}");
-
-        using var document = JsonDocument.Parse(body);
-        var token = ReadString(
-            document.RootElement,
-            "accessToken",
-            "AccessToken");
-
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            throw new InvalidOperationException(
-                $"Impersonation response for {targetUserId} did not contain an access token.");
-        }
-
-        await ValidateTokenAgainstApiAsync(
-            $"impersonated user {targetUserId}",
-            token,
-            cancellationToken);
-
-        return token;
-    }
+    
 
     private async Task ValidateTokenAgainstApiAsync(
         string actorName,

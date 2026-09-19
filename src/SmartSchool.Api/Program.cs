@@ -16,6 +16,7 @@ using SmartSchool.Api.Features;
 using SmartSchool.Api.Integration;
 using SmartSchool.Api.Observability;
 using SmartSchool.Api.Seed;
+using SmartSchool.Api.Testing;
 using SmartSchool.Application;
 using SmartSchool.BackgroundJobs.Extensions;
 using SmartSchool.Infrastructure;
@@ -254,6 +255,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapSmokeTestFixtureEndpoints();
 
     app.MapScalarApiReference(
         options =>
