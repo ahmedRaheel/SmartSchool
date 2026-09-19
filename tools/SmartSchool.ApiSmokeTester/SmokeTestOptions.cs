@@ -96,7 +96,7 @@ internal sealed class SmokeTestOptions
 
         options.BaseUrl = options.BaseUrl.TrimEnd('/');
 
-        if (!options.OpenApiPath.StartsWith('/', StringComparison.Ordinal))
+        if (!options.OpenApiPath.StartsWith("/", StringComparison.Ordinal))
         {
             options.OpenApiPath = "/" + options.OpenApiPath;
         }
@@ -185,6 +185,8 @@ internal sealed class SmokeTestOptions
                     break;
                 case "--token":
                     BearerToken = RequireValue(args, ref index, argument);
+                    break;
+                default:
                     break;
             }
         }
