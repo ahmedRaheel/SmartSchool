@@ -21,6 +21,18 @@ $testerProject = Join-Path `
     $repositoryRoot `
     "tools\SmartSchool.ApiSmokeTester\SmartSchool.ApiSmokeTester.csproj"
 
+$expectedTesterVersion = "2026.09.19-auth401.3"
+$testerVersionFile = Join-Path $repositoryRoot "tools\SmartSchool.ApiSmokeTester\SMOKE_TESTER_VERSION.txt"
+
+if (-not (Test-Path $testerVersionFile)) {
+    throw "Smoke tester files are from mixed versions. Replace the entire tools\SmartSchool.ApiSmokeTester folder from the latest package."
+}
+
+$actualTesterVersion = (Get-Content $testerVersionFile -Raw).Trim()
+if ($actualTesterVersion -ne $expectedTesterVersion) {
+    throw "Smoke tester version mismatch. Script expects $expectedTesterVersion but tool is $actualTesterVersion. Replace scripts\Test-AllApiEndpoints.ps1 and the entire tools\SmartSchool.ApiSmokeTester folder together."
+}
+
 if (-not (Test-Path $testerProject)) {
     throw "API smoke tester project was not found: $testerProject"
 }

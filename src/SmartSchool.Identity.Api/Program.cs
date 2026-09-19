@@ -48,6 +48,8 @@ builder.Services
     .Bind(builder.Configuration.GetSection(InternalApiAuthenticationOptions.SectionName))
     .Validate(options => !string.IsNullOrWhiteSpace(options.Authority),
         "InternalApiAuthentication:Authority is required.")
+    .Validate(options => !string.IsNullOrWhiteSpace(options.ValidIssuer),
+        "InternalApiAuthentication:ValidIssuer is required.")
     .Validate(options => !string.IsNullOrWhiteSpace(options.RequiredScope),
         "InternalApiAuthentication:RequiredScope is required.")
     .ValidateOnStart();
@@ -70,7 +72,7 @@ builder.Services
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = internalApiAuthentication.Authority.TrimEnd('/'),
+                ValidIssuer = internalApiAuthentication.ValidIssuer.TrimEnd('/'),
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
@@ -108,14 +110,49 @@ builder.Services
 
 builder.Services.AddAuthorization(options =>
 {
+    // Identity hosts Razor/cookie login pages and bearer-protected JSON APIs in
+    // the same process. API endpoints use the default authorization policy, so
+    // make that policy explicitly authenticate bearer tokens rather than the
+    // ASP.NET Identity application cookie. This does not change SignInManager's
+    // cookie scheme used by the Razor login flow.
+    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder(
+            InternalApiAuthenticationOptions.SchemeName)
+        .RequireAuthenticatedUser()
+        .Build();
+
     options.AddPolicy("AdminOnly", policy =>
     {
-        policy.RequireRole(SmartSchoolRoles.SuperAdmin, "SchoolAdmin", "Principal", "Admin");
+        policy.AddAuthenticationSchemes(
+            InternalApiAuthenticationOptions.SchemeName);
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole(
+            SmartSchoolRoles.SuperAdmin,
+            "SchoolAdmin",
+            "Principal",
+            "Admin");
     });
 
     options.AddPolicy("SuperAdminOnly", policy =>
     {
+        policy.AddAuthenticationSchemes(
+            InternalApiAuthenticationOptions.SchemeName);
+        policy.RequireAuthenticatedUser();
         policy.RequireRole(SmartSchoolRoles.SuperAdmin);
+    });
+
+    options.AddPolicy(SmartSchoolPolicies.Impersonation, policy =>
+    {
+        policy.AddAuthenticationSchemes(
+            InternalApiAuthenticationOptions.SchemeName);
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole(
+            SmartSchoolRoles.SuperAdmin,
+            SmartSchoolRoles.SuperOwner,
+            SmartSchoolRoles.Tenant,
+            SmartSchoolRoles.TenantAdmin,
+            SmartSchoolRoles.Owner,
+            SmartSchoolRoles.Admin,
+            SmartSchoolRoles.AdminOfficer);
     });
 
     options.AddPolicy("SmartSchoolApi", policy =>
@@ -177,6 +214,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapIdentityServerEndpoints();
+app.MapSmokeTestIdentityFixtureEndpoints(builder.Configuration, app.Environment);
 app.MapUiErrorEndpoints();
 
 app.MapGet("/", () => Results.Ok(new

@@ -1,3 +1,4 @@
+using Duende.IdentityServer.EntityFramework.DbContexts;
 using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
@@ -7,14 +8,23 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Modules.Identity.Persistence.Identity;
 using SmartSchool.Modules.Identity.Server;
+using Microsoft.Extensions.Hosting;
 
 namespace SmartSchool.Modules.Identity.Features.Users;
 
 public static class UserManagementEndpoints
 {
     public sealed record CreateUserRequest(
-        Guid TenantId, Guid? SchoolId, string Email, string? Password,
-        string FirstName, string LastName, string AccountType, string[] Roles);
+        Guid? TenantId,
+        Guid? SchoolId,
+        Guid? BranchId,
+        Guid? BusinessEntityId,
+        string Email,
+        string? Password,
+        string FirstName,
+        string LastName,
+        string AccountType,
+        string[] Roles);
 
     public sealed record UpdateUserRequest(
         string FirstName, string LastName, string? DisplayName,
@@ -52,6 +62,12 @@ public static class UserManagementEndpoints
         group.MapPost("/{id:guid}/lock", LockAsync);
         group.MapPost("/{id:guid}/unlock", UnlockAsync);
         group.MapDelete("/{id:guid}", DeactivateAsync);
+
+        // Platform-only hard delete used by controlled lifecycle tooling such as
+        // the disposable API smoke-test fixture. Normal UI deletion remains a
+        // soft-deactivation operation.
+        group.MapDelete("/{id:guid}/purge", PurgeAsync)
+            .RequireAuthorization(SmartSchoolPolicies.SuperAdminOnly);
 
         // Platform-only operations.
         group.MapPost("/tenant/{tenantId:guid}/status", SetTenantStatusAsync)
@@ -102,11 +118,50 @@ public static class UserManagementEndpoints
         var superAdmin = currentUser.IsSuperAdmin;
         var callerTenant = currentUser.TenantId;
 
-        if (!superAdmin && callerTenant != request.TenantId) return Results.Forbid();
+        var requestedRoles = request.Roles
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        var createsSuperAdmin = requestedRoles.Contains(
+            nameof(Role.SuperAdmin),
+            StringComparer.OrdinalIgnoreCase);
 
-        var requestedRoles = request.Roles.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
-        if (!superAdmin && requestedRoles.Any(r => !SchoolRoles.Contains(r) || r.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase)))
-            return Results.Forbid();
+        if (!superAdmin)
+        {
+            if (!request.TenantId.HasValue || callerTenant != request.TenantId)
+            {
+                return Results.Forbid();
+            }
+
+            if (createsSuperAdmin
+                || requestedRoles.Any(role => !SchoolRoles.Contains(role)))
+            {
+                return Results.Forbid();
+            }
+        }
+
+        if (createsSuperAdmin && request.TenantId.HasValue)
+        {
+            return Results.ValidationProblem(
+                new Dictionary<string, string[]>
+                {
+                    ["TenantId"] =
+                    [
+                        "A SuperAdmin account must not be tenant-scoped."
+                    ]
+                });
+        }
+
+        if (!createsSuperAdmin && !request.TenantId.HasValue)
+        {
+            return Results.ValidationProblem(
+                new Dictionary<string, string[]>
+                {
+                    ["TenantId"] =
+                    [
+                        "TenantId is required for non-platform accounts."
+                    ]
+                });
+        }
 
         var password = string.IsNullOrWhiteSpace(request.Password)
             ? TemporaryPasswordGenerator.Create()
@@ -117,6 +172,8 @@ public static class UserManagementEndpoints
             Id = Guid.NewGuid(),
             TenantId = request.TenantId,
             SchoolId = request.SchoolId,
+            BranchId = request.BranchId,
+            BusinessEntityId = request.BusinessEntityId,
             AccountType = request.AccountType,
             UserName = request.Email,
             Email = request.Email,
@@ -190,7 +247,10 @@ public static class UserManagementEndpoints
             user.IsActive = request.IsActive;
             user.UpdatedAt = DateTimeOffset.UtcNow;
             await userManager.UpdateAsync(user);
-            if (!request.IsActive) await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
+            if (!request.IsActive)
+            {
+                await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
+            }
             else
             {
                 await userManager.SetLockoutEndDateAsync(user, null);
@@ -201,14 +261,29 @@ public static class UserManagementEndpoints
     }
 
     private static async Task<IResult> DeleteTenantUsersAsync(
-        Guid tenantId, [FromServices] UserManager<SmartSchoolUser> userManager, CancellationToken cancellationToken)
+        Guid tenantId,
+        [FromServices] UserManager<SmartSchoolUser> userManager,
+        [FromServices] PersistedGrantDbContext operationalDbContext,
+        CancellationToken cancellationToken)
     {
-        var users = await userManager.Users.Where(x => x.TenantId == tenantId).ToListAsync(cancellationToken);
+        var users = await userManager.Users
+            .Where(x => x.TenantId == tenantId)
+            .ToListAsync(cancellationToken);
+
         foreach (var user in users)
         {
+            await DeleteOperationalArtifactsAsync(
+                user.Id,
+                operationalDbContext,
+                cancellationToken);
+
             var result = await userManager.DeleteAsync(user);
-            if (!result.Succeeded) return Results.ValidationProblem(ToErrors(result));
+            if (!result.Succeeded)
+            {
+                return Results.ValidationProblem(ToErrors(result));
+            }
         }
+
         return Results.Ok(new { tenantId, deletedUsers = users.Count });
     }
 
@@ -266,7 +341,12 @@ public static class UserManagementEndpoints
                 ["client_secret"] = clientSecret,
                 ["actor_token"] = actorToken,
                 ["target_user_id"] = target.Id.ToString(),
-                ["reason"] = reason
+                ["reason"] = reason,
+                // The impersonated token is used against SmartSchool.Api.
+                // Without an explicit API scope Duende can issue a token that
+                // has no smartschool-api audience, which the API correctly
+                // rejects with HTTP 401.
+                ["scope"] = "smartschool.api"
             })
         };
 
@@ -362,6 +442,73 @@ public static class UserManagementEndpoints
         user.IsActive=false; user.UpdatedAt=DateTimeOffset.UtcNow;
         await userManager.UpdateAsync(user);
         return Results.NoContent();
+    }
+
+
+
+    private static async Task<IResult> PurgeAsync(
+        Guid id,
+        [FromServices] ICurrentUser currentUser,
+        [FromServices] UserManager<SmartSchoolUser> userManager,
+        [FromServices] PersistedGrantDbContext operationalDbContext,
+        [FromServices] IHostEnvironment environment,
+        CancellationToken cancellationToken)
+    {
+        if (!environment.IsDevelopment())
+        {
+            return Results.NotFound();
+        }
+
+        if (!currentUser.IsSuperAdmin)
+        {
+            return Results.Forbid();
+        }
+
+        var user = await userManager.FindByIdAsync(id.ToString());
+        if (user is null)
+        {
+            return Results.NotFound();
+        }
+
+        if (user.Id == currentUser.UserId)
+        {
+            return Results.BadRequest(
+                new
+                {
+                    message =
+                        "A SuperAdmin cannot purge the account represented by the current token."
+                });
+        }
+
+        await DeleteOperationalArtifactsAsync(
+            user.Id,
+            operationalDbContext,
+            cancellationToken);
+
+        var result = await userManager.DeleteAsync(user);
+        return result.Succeeded
+            ? Results.NoContent()
+            : Results.ValidationProblem(ToErrors(result));
+    }
+
+    private static async Task DeleteOperationalArtifactsAsync(
+        Guid userId,
+        PersistedGrantDbContext operationalDbContext,
+        CancellationToken cancellationToken)
+    {
+        var subjectId = userId.ToString();
+
+        await operationalDbContext.Database.ExecuteSqlInterpolatedAsync(
+            $@"DELETE FROM identity.""PersistedGrants"" WHERE ""SubjectId"" = {subjectId};",
+            cancellationToken);
+
+        await operationalDbContext.Database.ExecuteSqlInterpolatedAsync(
+            $@"DELETE FROM identity.""DeviceCodes"" WHERE ""SubjectId"" = {subjectId};",
+            cancellationToken);
+
+        await operationalDbContext.Database.ExecuteSqlInterpolatedAsync(
+            $@"DELETE FROM identity.""ServerSideSessions"" WHERE ""SubjectId"" = {subjectId};",
+            cancellationToken);
     }
 
     private static async Task<UserResponse> ToResponseAsync(SmartSchoolUser user, UserManager<SmartSchoolUser> manager)
