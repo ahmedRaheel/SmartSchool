@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>SmartSchool.ApiSmokeTester</RootNamespace>
-    <AssemblyName>SmartSchool.ApiSmokeTester</AssemblyName>
-  </PropertyGroup>
-</Project>
