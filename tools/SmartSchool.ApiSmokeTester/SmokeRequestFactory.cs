@@ -40,7 +40,7 @@ internal sealed class SmokeRequestFactory(
 
         var uriBuilder = new StringBuilder(options.BaseUrl);
 
-        if (!path.StartsWith('/', StringComparison.Ordinal))
+        if (!path.StartsWith("/", StringComparison.Ordinal))
         {
             uriBuilder.Append('/');
         }

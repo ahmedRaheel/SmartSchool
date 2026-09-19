@@ -98,7 +98,7 @@ internal sealed class SmokeTestOptions
 
         options.BaseUrl = options.BaseUrl.TrimEnd('/');
 
-        if (!options.OpenApiPath.StartsWith('/', StringComparison.Ordinal))
+        if (!options.OpenApiPath.StartsWith("/", StringComparison.Ordinal))
         {
             options.OpenApiPath = "/" + options.OpenApiPath;
         }
@@ -121,8 +121,14 @@ internal sealed class SmokeTestOptions
             var payload = parts[1].Replace('-', '+').Replace('_', '/');
             switch (payload.Length % 4)
             {
-                case 2: payload += "=="; break;
-                case 3: payload += "="; break;
+                case 2:
+                    payload += "==";
+                    break;
+                case 3:
+                    payload += "=";
+                    break;
+                default:
+                    break;
             }
 
             using var document = JsonDocument.Parse(
@@ -242,6 +248,8 @@ internal sealed class SmokeTestOptions
                     break;
                 case "--token":
                     BearerToken = RequireValue(args, ref index, argument);
+                    break;
+                default:
                     break;
             }
         }
