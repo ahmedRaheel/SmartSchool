@@ -21,7 +21,7 @@ public static class GetTeacher
         public async Task<Response> ExecuteAsync(Guid tenantId, Guid employeeId, CancellationToken cancellationToken)
         {
             const string sql = """
-            SELECT e.employee_id AS "EmployeeId", e.tenant_id AS "TenantId", e.user_id AS "UserId", e.employee_number AS "EmployeeNumber", e.first_name AS "FirstName", e.last_name AS "LastName", e.email AS "Email", e.phone AS "Phone", e.hire_date AS "HireDate", e.employment_type_code AS "EmploymentType", e.status AS "Status", (SELECT string_agg(ed.qualification, ', ' ORDER BY ed.qualification) FROM hr.employee_education ed WHERE ed.tenant_id = e.tenant_id AND ed.employee_id = e.employee_id AND ed.is_active) AS "Qualification" FROM hr.employee e WHERE e.tenant_id = @TenantId AND e.employee_id = @EmployeeId;
+            SELECT e.employee_id AS "EmployeeId", e.tenant_id AS "TenantId", e.user_id AS "UserId", e.employee_number AS "EmployeeNumber", e.first_name AS "FirstName", e.last_name AS "LastName", e.email AS "Email", e.phone AS "Phone", e.hire_date AS "HireDate", e.employment_type_code AS "EmploymentType", e.status AS "Status", (SELECT string_agg(ed.qualification, ', ' ORDER BY ed.qualification) FROM hr.employee_education ed WHERE ed.tenant_id = e.tenant_id AND ed.employee_id = e.employee_id) AS "Qualification" FROM hr.employee e WHERE e.tenant_id = @TenantId AND e.employee_id = @EmployeeId;
             """;
             await using var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
             var rows = await connection.QueryAsync(new CommandDefinition(sql, new { TenantId = tenantId, EmployeeId = employeeId }, cancellationToken: cancellationToken));

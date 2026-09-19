@@ -69,6 +69,75 @@ public sealed class GlobalExceptionHandler(
                 });
         }
 
+
+        if (exception is BadHttpRequestException badRequestException)
+        {
+            logger.LogWarning(
+                badRequestException,
+                "Bad request processing {RequestMethod} {RequestPath}. TraceId={TraceId}, CorrelationId={CorrelationId}",
+                httpContext.Request.Method,
+                httpContext.Request.Path,
+                traceId,
+                correlationId);
+
+            httpContext.Response.Headers[ApiRoutes.CorrelationHeader] = correlationId;
+            httpContext.Response.Headers[ApiRoutes.TraceHeader] = traceId;
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+            var badRequestProblem = new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Bad request.",
+                Detail = "One or more request values could not be parsed.",
+                Type = "https://httpstatuses.com/400"
+            };
+
+            badRequestProblem.Extensions["code"] = "BAD_REQUEST";
+            badRequestProblem.Extensions["traceId"] = traceId;
+            badRequestProblem.Extensions["correlationId"] = correlationId;
+
+            return await problemDetailsService.TryWriteAsync(
+                new ProblemDetailsContext
+                {
+                    HttpContext = httpContext,
+                    ProblemDetails = badRequestProblem
+                });
+        }
+
+        if (exception is UnauthorizedAccessException unauthorizedAccessException)
+        {
+            logger.LogWarning(
+                unauthorizedAccessException,
+                "Forbidden request processing {RequestMethod} {RequestPath}. TraceId={TraceId}, CorrelationId={CorrelationId}",
+                httpContext.Request.Method,
+                httpContext.Request.Path,
+                traceId,
+                correlationId);
+
+            httpContext.Response.Headers[ApiRoutes.CorrelationHeader] = correlationId;
+            httpContext.Response.Headers[ApiRoutes.TraceHeader] = traceId;
+            httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+
+            var forbiddenProblem = new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = "Forbidden.",
+                Detail = "The authenticated account is not allowed to access the requested scope.",
+                Type = "https://httpstatuses.com/403"
+            };
+
+            forbiddenProblem.Extensions["code"] = "FORBIDDEN";
+            forbiddenProblem.Extensions["traceId"] = traceId;
+            forbiddenProblem.Extensions["correlationId"] = correlationId;
+
+            return await problemDetailsService.TryWriteAsync(
+                new ProblemDetailsContext
+                {
+                    HttpContext = httpContext,
+                    ProblemDetails = forbiddenProblem
+                });
+        }
+
         logger.LogError(
             exception,
             "Unhandled exception processing {RequestMethod} {RequestPath}. TraceId={TraceId}, CorrelationId={CorrelationId}",

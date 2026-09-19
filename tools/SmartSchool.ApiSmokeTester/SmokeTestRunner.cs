@@ -7,7 +7,7 @@ internal sealed class SmokeTestRunner(
     SmokeTestOptions options,
     OpenApiDocumentModel openApi)
 {
-    private readonly SmokeRequestFactory _requestFactory = new(options, openApi);
+    private readonly SmokeRequestFactory requestFactory = new(options, openApi);
 
     public async Task<IReadOnlyList<SmokeResult>> RunAsync(
         CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ internal sealed class SmokeTestRunner(
                 continue;
             }
 
-            using var request = _requestFactory.Create(operation);
+            using var request = requestFactory.Create(operation);
             var stopwatch = Stopwatch.StartNew();
 
             try

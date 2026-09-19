@@ -40,7 +40,7 @@ internal sealed class SmokeRequestFactory(
 
         var uriBuilder = new StringBuilder(options.BaseUrl);
 
-        if (!path.StartsWith("/", StringComparison.Ordinal))
+        if (!path.StartsWith('/', StringComparison.Ordinal))
         {
             uriBuilder.Append('/');
         }
@@ -246,6 +246,16 @@ internal sealed class SmokeRequestFactory(
             return array;
         }
 
+        if (schema.TryGetProperty("additionalProperties", out var additionalProperties))
+        {
+            var dictionary = new JsonObject();
+            dictionary["smokeKey"] = GenerateNode(
+                additionalProperties,
+                "smokeValue",
+                depth + 1) ?? JsonValue.Create("smoke-test");
+            return dictionary;
+        }
+
         if (string.Equals(type, "object", StringComparison.OrdinalIgnoreCase)
             || schema.TryGetProperty("properties", out _))
         {
@@ -273,8 +283,15 @@ internal sealed class SmokeRequestFactory(
 
             foreach (var property in properties.EnumerateObject())
             {
-                // Populate all properties, not only required ones. This produces more useful
-                // requests for feature endpoints while remaining generic.
+                var isRequired = required.Contains(property.Name);
+
+                if (IsScopeOwnedName(property.Name)
+                    && !TryGetKnownValue(property.Name, out _)
+                    && !isRequired)
+                {
+                    continue;
+                }
+
                 result[property.Name] = GenerateNode(
                     property.Value,
                     property.Name,
@@ -285,6 +302,32 @@ internal sealed class SmokeRequestFactory(
         }
 
         var scalar = GenerateScalar(propertyName ?? "value", schema);
+        var format = GetString(schema, "format");
+
+        if (string.Equals(format, "int32", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "int64", StringComparison.OrdinalIgnoreCase))
+        {
+            return long.TryParse(
+                scalar,
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out var formattedInteger)
+                    ? JsonValue.Create(formattedInteger)
+                    : JsonValue.Create(1);
+        }
+
+        if (string.Equals(format, "float", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "double", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "decimal", StringComparison.OrdinalIgnoreCase))
+        {
+            return decimal.TryParse(
+                scalar,
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var formattedNumber)
+                    ? JsonValue.Create(formattedNumber)
+                    : JsonValue.Create(1m);
+        }
 
         return type?.ToLowerInvariant() switch
         {
@@ -315,6 +358,11 @@ internal sealed class SmokeRequestFactory(
             return knownValue;
         }
 
+        if (TryGetConventionalScalar(name, out var conventionalValue))
+        {
+            return conventionalValue;
+        }
+
         schema = ResolveSchema(schema);
 
         if (schema.TryGetProperty("enum", out var enumValues)
@@ -338,6 +386,15 @@ internal sealed class SmokeRequestFactory(
             || string.Equals(format, "guid", StringComparison.OrdinalIgnoreCase))
         {
             return DeterministicGuid(name).ToString();
+        }
+
+        if (string.Equals(format, "int32", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "int64", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "float", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "double", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(format, "decimal", StringComparison.OrdinalIgnoreCase))
+        {
+            return "1";
         }
 
         if (string.Equals(format, "date", StringComparison.OrdinalIgnoreCase))
@@ -384,6 +441,27 @@ internal sealed class SmokeRequestFactory(
             "boolean" => "true",
             _ => "smoke-test"
         };
+    }
+
+    private static bool TryGetConventionalScalar(string name, out string value)
+    {
+        var normalized = NormalizeName(name);
+        value = normalized switch
+        {
+            "page" or "pagenumber" => "1",
+            "pagesize" or "limit" or "take" => "25",
+            "skip" or "offset" => "0",
+            "sortorder" => "asc",
+            "includeinactive" => "false",
+            _ => string.Empty
+        };
+        return value.Length > 0;
+    }
+
+    private static bool IsScopeOwnedName(string name)
+    {
+        var normalized = NormalizeName(name);
+        return normalized is "tenantid" or "userid" or "schoolid" or "branchid" or "campusid" or "role";
     }
 
     private bool TryGetKnownValue(string name, out string value)

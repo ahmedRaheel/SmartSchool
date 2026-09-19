@@ -37,8 +37,7 @@ public sealed class AuditLogEntityConfiguration
             .IsRequired();
 
         builder
-            .HasIndex(entity => new { entity.TenantId, entity.Code })
-            .IsUnique();
+            .HasIndex(entity => new { entity.TenantId, entity.Code });
 
         builder
             .Property(entity => entity.Name)

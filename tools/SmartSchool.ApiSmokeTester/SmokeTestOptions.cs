@@ -94,14 +94,71 @@ internal sealed class SmokeTestOptions
                 options.BearerTokenEnvironmentVariable);
         }
 
+        options.ApplyBearerTokenScopeValues();
+
         options.BaseUrl = options.BaseUrl.TrimEnd('/');
 
-        if (!options.OpenApiPath.StartsWith("/", StringComparison.Ordinal))
+        if (!options.OpenApiPath.StartsWith('/', StringComparison.Ordinal))
         {
             options.OpenApiPath = "/" + options.OpenApiPath;
         }
 
         return options;
+    }
+
+    private void ApplyBearerTokenScopeValues()
+    {
+        if (string.IsNullOrWhiteSpace(BearerToken)) return;
+        var token = BearerToken.Trim();
+        if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            token = token["Bearer ".Length..].Trim();
+
+        var parts = token.Split('.');
+        if (parts.Length < 2) return;
+
+        try
+        {
+            var payload = parts[1].Replace('-', '+').Replace('_', '/');
+            switch (payload.Length % 4)
+            {
+                case 2: payload += "=="; break;
+                case 3: payload += "="; break;
+            }
+
+            using var document = JsonDocument.Parse(
+                System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+
+            var claims = document.RootElement;
+            ApplyClaim(claims, "tenantId", "tenantId", "tenant_id", "tenant");
+            ApplyClaim(claims, "schoolId", "schoolId", "school_id", "school");
+            ApplyClaim(claims, "branchId", "branchId", "branch_id", "branch");
+            ApplyClaim(claims, "campusId", "campusId", "campus_id");
+            ApplyClaim(claims, "userId", "userId", "user_id", "sub");
+        }
+        catch
+        {
+            // Opaque or malformed tokens are allowed; the API will classify auth failures.
+        }
+    }
+
+    private void ApplyClaim(JsonElement claims, string knownValueName, params string[] claimNames)
+    {
+        foreach (var claimName in claimNames)
+        {
+            if (!claims.TryGetProperty(claimName, out var claim)) continue;
+            var value = claim.ValueKind switch
+            {
+                JsonValueKind.String => claim.GetString(),
+                JsonValueKind.Number => claim.GetRawText(),
+                _ => null
+            };
+
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                KnownValues[knownValueName] = value;
+                return;
+            }
+        }
     }
 
     private void ApplySettingsFile(string settingsPath)
@@ -185,8 +242,6 @@ internal sealed class SmokeTestOptions
                     break;
                 case "--token":
                     BearerToken = RequireValue(args, ref index, argument);
-                    break;
-                default:
                     break;
             }
         }

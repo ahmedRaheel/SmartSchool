@@ -427,3 +427,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+# SmartSchool local API smoke-test settings and generated reports
+tools/SmartSchool.ApiSmokeTester/smoke-test.settings.local.json
+artifacts/api-smoke/

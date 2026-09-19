@@ -4,14 +4,14 @@ namespace SmartSchool.ApiSmokeTester;
 
 internal sealed class OpenApiDocumentModel
 {
-    private readonly Dictionary<string, JsonElement> _schemas;
+    private readonly Dictionary<string, JsonElement> schemas;
 
     private OpenApiDocumentModel(
         IReadOnlyList<OpenApiOperation> operations,
         Dictionary<string, JsonElement> schemas)
     {
         Operations = operations;
-        _schemas = schemas;
+        this.schemas = schemas;
     }
 
     public IReadOnlyList<OpenApiOperation> Operations { get; }
@@ -95,7 +95,7 @@ internal sealed class OpenApiDocumentModel
         }
 
         var name = Uri.UnescapeDataString(reference[prefix.Length..]);
-        return _schemas.TryGetValue(name, out schema);
+        return schemas.TryGetValue(name, out schema);
     }
 
     private static Dictionary<string, JsonElement> ReadSchemas(JsonElement root)

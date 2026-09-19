@@ -111,8 +111,7 @@ namespace SmartSchool.Modules.Audit.Persistence.Migrations.PostgreSql
 
                     b.HasIndex("TenantId");
 
-                    b.HasIndex("TenantId", "Code")
-                        .IsUnique();
+                    b.HasIndex("TenantId", "Code");
 
                     b.ToTable("audit_log", "audit");
                 });
