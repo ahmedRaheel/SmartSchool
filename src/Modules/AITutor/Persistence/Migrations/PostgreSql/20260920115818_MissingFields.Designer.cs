@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartSchool.Modules.AITutor.Persistence;
@@ -11,9 +12,11 @@ using SmartSchool.Modules.AITutor.Persistence;
 namespace SmartSchool.Modules.AITutor.Persistence.Migrations.PostgreSql
 {
     [DbContext(typeof(AITutorDbContext))]
-    partial class AITutorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260920115818_MissingFields")]
+    partial class MissingFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
