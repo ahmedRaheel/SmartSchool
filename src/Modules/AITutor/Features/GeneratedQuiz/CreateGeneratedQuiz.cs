@@ -29,7 +29,12 @@ public static class CreateGeneratedQuiz
 
     public sealed record Request(
         Guid TenantId,
+        Guid StudentId,
         string Name,
+        Guid? SubjectId = null,
+        Guid? TutorConversationId = null,
+        string? Topic = null,
+        string? Difficulty = null,
         string? MetadataJson = null) : IRequest<Result<Response>>;
 
     public sealed class Validator : AbstractValidator<Request>
@@ -37,6 +42,7 @@ public static class CreateGeneratedQuiz
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.StudentId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
@@ -74,7 +80,12 @@ public static class CreateGeneratedQuiz
                 request.TenantId,
                 code,
                 request.Name,
-                request.MetadataJson);
+                request.MetadataJson,
+                studentId: request.StudentId,
+                subjectId: request.SubjectId,
+                tutorConversationId: request.TutorConversationId,
+                topic: request.Topic,
+                difficulty: request.Difficulty);
 
             await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));

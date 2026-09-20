@@ -52,7 +52,7 @@ public static class GetEmploymentHistoryPage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM public.EmploymentHistory
+                    FROM hr.employmenthistory
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -64,7 +64,7 @@ public static class GetEmploymentHistoryPage
                     code AS "Code",
                     name AS "Name",
                     metadata_json AS "MetadataJson"
-                    FROM public.EmploymentHistory
+                    FROM hr.employmenthistory
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
                     ORDER BY employmenthistory_id

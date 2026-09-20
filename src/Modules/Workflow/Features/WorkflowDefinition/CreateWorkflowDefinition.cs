@@ -29,7 +29,7 @@ public static class CreateWorkflowDefinition
             RuleForEach(x => x.Steps).ChildRules(step =>
             {
                 step.RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
-                step.RuleFor(x => x.StepType).Must(x => x.ToUpperInvariant() is "APPROVAL" or "ACTION");
+                step.RuleFor(x => x.StepType).NotEmpty().Must(x => !string.IsNullOrWhiteSpace(x) && (x.ToUpperInvariant() is "APPROVAL" or "ACTION"));
                 step.RuleFor(x => x.ApproverRole).NotEmpty().When(x => x.StepType.Equals("APPROVAL", StringComparison.OrdinalIgnoreCase));
             });
         }

@@ -29,6 +29,7 @@ public static class CreateTutorConversation
 
     public sealed record Request(
         Guid TenantId,
+        Guid StudentId,
         string Name,
         string? MetadataJson = null) : IRequest<Result<Response>>;
 
@@ -37,6 +38,7 @@ public static class CreateTutorConversation
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.StudentId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
@@ -74,7 +76,8 @@ public static class CreateTutorConversation
                 request.TenantId,
                 code,
                 request.Name,
-                request.MetadataJson);
+                request.MetadataJson,
+                studentId: request.StudentId);
 
             await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));

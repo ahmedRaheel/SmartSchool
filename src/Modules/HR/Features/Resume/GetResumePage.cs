@@ -52,7 +52,7 @@ public static class GetResumePage
             {
                 const string countSql = """
                     SELECT COUNT(*)
-                    FROM public.Resume
+                    FROM hr.resume
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE;
                     """;
@@ -64,7 +64,7 @@ public static class GetResumePage
                     code AS "Code",
                     name AS "Name",
                     metadata_json AS "MetadataJson"
-                    FROM public.Resume
+                    FROM hr.resume
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
                     ORDER BY resume_id

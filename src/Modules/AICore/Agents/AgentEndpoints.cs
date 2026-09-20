@@ -21,7 +21,14 @@ internal static class AgentEndpoints
         [FromServices] IAgentWorkflowService workflowService,
         CancellationToken cancellationToken)
     {
-        var response = await workflowService.RunAsync(request, cancellationToken);
-        return Results.Ok(response);
+        try
+        {
+            var response = await workflowService.RunAsync(request, cancellationToken);
+            return Results.Ok(response);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.BadRequest(new { message = exception.Message });
+        }
     }
 }

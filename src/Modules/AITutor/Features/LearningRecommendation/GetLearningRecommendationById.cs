@@ -51,7 +51,7 @@ public static class GetLearningRecommendationById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.learning_recommendation_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -62,9 +62,9 @@ public static class GetLearningRecommendationById
                     FROM ai_tutor.learning_recommendation AS entity
                     LEFT JOIN academic.subject AS p1
                         ON p1.subject_id = entity.subject_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.learning_recommendation_id = @Id
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

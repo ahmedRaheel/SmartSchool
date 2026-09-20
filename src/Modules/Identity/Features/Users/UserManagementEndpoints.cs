@@ -247,15 +247,13 @@ public static class UserManagementEndpoints
             user.IsActive = request.IsActive;
             user.UpdatedAt = DateTimeOffset.UtcNow;
             await userManager.UpdateAsync(user);
-            if (!request.IsActive)
-            {
-                await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
-            }
-            else
+            if (request.IsActive)
             {
                 await userManager.SetLockoutEndDateAsync(user, null);
                 await userManager.ResetAccessFailedCountAsync(user);
             }
+            else
+                await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
         }
         return Results.Ok(new { tenantId, isActive = request.IsActive, affectedUsers = users.Count });
     }

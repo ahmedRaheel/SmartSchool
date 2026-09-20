@@ -56,13 +56,13 @@ public static class GetKnowledgeChunkPage
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM ai_core.knowledge_chunk AS entity
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
+                    entity.tenant_id AS "TenantId",
                     entity.knowledge_chunk_id AS "Id",
                     entity.code AS "Code",
                     entity.name AS "Name",
@@ -73,8 +73,8 @@ public static class GetKnowledgeChunkPage
                     FROM ai_core.knowledge_chunk AS entity
                     LEFT JOIN ai_core.knowledge_document AS p1
                         ON p1.knowledge_document_id = entity.knowledge_document_id
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
                     ORDER BY entity.knowledge_chunk_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

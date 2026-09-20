@@ -38,6 +38,15 @@ public static class PredictStudent
 
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/aiprediction/student/{predictionKind}", async (PredictionKind predictionKind, StudentPredictionRequest request, IMediator mediator, CancellationToken cancellationToken) => Results.Ok(await mediator.SendAsync<Request, Response>(new Request(predictionKind, request), cancellationToken))).WithTags("AI Prediction").RequireAuthorization();
+        endpoints.MapPost("/api/aiprediction/student/{predictionKind}", async (PredictionKind predictionKind, StudentPredictionRequest request, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            if (predictionKind is not (PredictionKind.FailureRisk or PredictionKind.GradeTrend or PredictionKind.AttendanceRisk or PredictionKind.DropoutRisk or PredictionKind.FeeDefaultRisk or PredictionKind.AssignmentCompletionRisk or PredictionKind.SubjectDifficulty or PredictionKind.PromotionRisk or PredictionKind.StudentBehaviorRisk))
+            {
+                return Results.BadRequest(new { message = "The requested student prediction kind is not supported." });
+            }
+
+            var response = await mediator.SendAsync<Request, Response>(new Request(predictionKind, request), cancellationToken);
+            return Results.Ok(response);
+        }).WithTags("AI Prediction").RequireAuthorization();
     }
 }

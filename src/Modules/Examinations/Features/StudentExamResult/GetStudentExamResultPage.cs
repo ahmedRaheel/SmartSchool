@@ -62,14 +62,14 @@ public static class GetStudentExamResultPage
                     FROM exam.student_exam_result AS entity
                           join exam.exam_subject sb on sb.exam_subject_id = entity.exam_subject_id
                     	 join exam.exam  ex on ex.exam_id = sb.exam_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                      AND (ex.branch_id = @BranchId OR @BranchId IS NULL)
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
+                    entity.tenant_id AS "TenantId",
                     entity.student_exam_result_id AS "Id",
                     entity.code AS "Code",
                     entity.name AS "Name",
@@ -81,8 +81,8 @@ public static class GetStudentExamResultPage
                       join exam.exam_subject sb on sb.exam_subject_id = entity.exam_subject_id
                     	 join exam.exam  ex on ex.exam_id = sb.exam_id
 
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
                       AND (ex.branch_id = @BranchId OR @BranchId IS NULL)
                     ORDER BY entity.student_exam_result_id
                     LIMIT @PageSize OFFSET @Offset;

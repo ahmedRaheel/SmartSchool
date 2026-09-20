@@ -59,13 +59,16 @@ public static class GetEnrollmentPage
                 int pageSize,
                 CancellationToken cancellationToken)
             {
-               var branchId = currentUser.BranchId ?? Guid.Empty;
+               Guid? branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM student.student_enrollment AS entity
+                    JOIN student.student AS student
+                      ON student.student_id = entity.student_id
+                     AND student.tenant_id = entity.tenant_id
                     WHERE entity.tenant_id = @TenantId
-                      AND entity.is_active = TRUE;
-                    AND entity.branch_id = @branchId
+                      AND entity.is_active = TRUE
+                      AND (@BranchId IS NULL OR student.branch_id = @BranchId);
                     """;
 
                 const string pageSql = """
@@ -82,13 +85,16 @@ public static class GetEnrollmentPage
                         p2.code AS "ClassSectionCode",
                         p2.name AS "ClassSectionName"
                     FROM student.student_enrollment AS entity
+                    JOIN student.student AS student
+                      ON student.student_id = entity.student_id
+                     AND student.tenant_id = entity.tenant_id
                     LEFT JOIN academic.academic_year AS p1
                         ON p1.academic_year_id = entity.academic_year_id
                     LEFT JOIN academic.class_section AS p2
                         ON p2.class_section_id = entity.class_section_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
-                    AND entity.branch_id = @branchId
+                    AND (@BranchId IS NULL OR student.branch_id = @BranchId)
                     ORDER BY entity.student_enrollment_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

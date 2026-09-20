@@ -57,6 +57,7 @@ public sealed class DiscountEntityConfiguration
         builder.Property(entity => entity.RowVersion).HasColumnName("row_version");
         builder.Property(entity => entity.Code).HasColumnName("code");
         builder.Property(entity => entity.Name).HasColumnName("name");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.Property(entity => entity.DiscountId).HasColumnName("discount_id");
     }
 }

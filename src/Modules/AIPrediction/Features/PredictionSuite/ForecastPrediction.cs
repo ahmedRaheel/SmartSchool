@@ -22,6 +22,15 @@ public static class ForecastPrediction
 
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/aiprediction/forecast/{predictionKind}", async (PredictionKind predictionKind, ForecastPredictionRequest request, IMediator mediator, CancellationToken cancellationToken) => Results.Ok(await mediator.SendAsync<Request, Response>(new Request(predictionKind, request), cancellationToken))).WithTags("AI Prediction").RequireAuthorization();
+        endpoints.MapPost("/api/aiprediction/forecast/{predictionKind}", async (PredictionKind predictionKind, ForecastPredictionRequest request, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            if (predictionKind is not (PredictionKind.SchoolCapacityForecast or PredictionKind.FeeCollectionForecast or PredictionKind.EnrollmentForecast))
+            {
+                return Results.BadRequest(new { message = "Supported forecast kinds are SchoolCapacityForecast, FeeCollectionForecast and EnrollmentForecast." });
+            }
+
+            var response = await mediator.SendAsync<Request, Response>(new Request(predictionKind, request), cancellationToken);
+            return Results.Ok(response);
+        }).WithTags("AI Prediction").RequireAuthorization();
     }
 }

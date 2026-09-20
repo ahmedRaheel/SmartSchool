@@ -103,20 +103,16 @@ public sealed class MlNetPredictionSuiteService
         PayrollPredictionRequest request,
         CancellationToken cancellationToken)
     {
-        const string sql = """
-            SELECT COALESCE(AVG(net_amount),0)::float AS "Average",
-                   COALESCE(STDDEV_POP(net_amount),0)::float AS "Deviation",
-                   COALESCE(MAX(net_amount),0)::float AS "Latest"
-            FROM payroll.payslip
-            WHERE tenant_id=@TenantId
-              AND (@EmployeeId IS NULL OR employee_id=@EmployeeId);
-            """;
-        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
-        var f = await connection.QuerySingleOrDefaultAsync<PayrollFeatureRow>(
-            new CommandDefinition(sql, request, cancellationToken: cancellationToken)) ?? new();
-        var z = f.Deviation <= 0 ? 0 : Math.Abs(f.Latest - f.Average) / f.Deviation;
-        return ToResult(PredictionKind.PayrollAnomaly, Math.Clamp(z * 25, 0, 100), false,
-            ["Deviation from historical net payroll"]);
+        // The current payroll.payslip schema is document-oriented and does not expose
+        // normalized employee/net-amount history. Do not query columns that are not
+        // part of the owning Payroll contract. Return an explicit cold-start result
+        // until payroll exposes a supported analytics projection.
+        await Task.CompletedTask;
+        return ToResult(
+            PredictionKind.PayrollAnomaly,
+            50,
+            false,
+            ["Normalized historical employee payroll amounts are not available for anomaly scoring."]);
     }
 
     public async Task<PredictionResult> PredictTransportAsync(

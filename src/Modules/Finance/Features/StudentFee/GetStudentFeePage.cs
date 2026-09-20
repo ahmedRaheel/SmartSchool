@@ -55,25 +55,25 @@ public static class GetStudentFeePage
                 var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
             const string countSql = """
                     SELECT COUNT(*)
-                    FROM finance.studentfee
-                    WHERE tenant_id = @TenantId
-                     AND (@BranchId IS NULL OR branch_id = @BranchId)
-                      AND is_active = TRUE;
+                    FROM finance.studentfee AS entity
+                    WHERE entity.tenant_id = @TenantId
+                     AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                        branch_id AS "BranchId",
-                    student_fee_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM finance.studentfee
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                      AND (@BranchId IS NULL OR branch_id = @BranchId)
-                    ORDER BY student_fee_id
+                    entity.tenant_id AS "TenantId",
+                        entity.branch_id AS "BranchId",
+                    entity.student_fee_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    COALESCE(to_jsonb(entity)->>'metadata_json', to_jsonb(entity)->>'MetadataJson') AS "MetadataJson"
+                    FROM finance.studentfee AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                      AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
+                    ORDER BY entity.student_fee_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

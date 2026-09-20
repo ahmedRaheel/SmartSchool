@@ -52,7 +52,7 @@ public static class CreateActivity
         {
             RuleFor(x => x.Name).NotEmpty().MaximumLength(180);
             RuleFor(x => x.Category).NotEmpty().MaximumLength(100);
-            RuleFor(x => x.Status).Must(value => AllowedStatuses.Contains(value.ToUpperInvariant()))
+            RuleFor(x => x.Status).NotEmpty().Must(value => !string.IsNullOrWhiteSpace(value) && AllowedStatuses.Contains(value.ToUpperInvariant()))
                 .WithMessage("Status must be UPCOMING, ONGOING, COMPLETED, or CANCELLED.");
             RuleFor(x => x.MaxParticipants).GreaterThan(0).When(x => x.MaxParticipants.HasValue);
             RuleFor(x => x).Must(x => !x.StartTime.HasValue || !x.EndTime.HasValue || x.EndTime > x.StartTime)

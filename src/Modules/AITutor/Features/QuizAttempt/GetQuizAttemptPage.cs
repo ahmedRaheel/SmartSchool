@@ -56,13 +56,13 @@ public static class GetQuizAttemptPage
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM ai_tutor.student_quiz_attempt AS entity
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
+                    entity.tenant_id AS "TenantId",
                     entity.student_quiz_attempt_id AS "Id",
                     entity.code AS "Code",
                     entity.name AS "Name",
@@ -73,8 +73,8 @@ public static class GetQuizAttemptPage
                     FROM ai_tutor.student_quiz_attempt AS entity
                     LEFT JOIN ai_tutor.generated_quiz AS p1
                         ON p1.generated_quiz_id = entity.generated_quiz_id
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
                     ORDER BY entity.student_quiz_attempt_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

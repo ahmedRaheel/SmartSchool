@@ -368,7 +368,7 @@ public static class AttendanceOperations
                         TRUE,
                         now(),
                         now(),
-                        gen_random_bytes(8)
+                        decode(md5(random()::text || clock_timestamp()::text), 'hex')
                     )
                     ON CONFLICT (tenant_id, student_id, class_section_id, attendance_date)
                     DO UPDATE SET
@@ -377,7 +377,7 @@ public static class AttendanceOperations
                         marked_by = EXCLUDED.marked_by,
                         is_active = TRUE,
                         updated_at = now(),
-                        row_version = gen_random_bytes(8);
+                        row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex');
                     """, cancellationToken);
             }
 

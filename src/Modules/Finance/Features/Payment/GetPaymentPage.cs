@@ -56,26 +56,26 @@ public static class GetPaymentPage
                 var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant) ? null : currentUser.BranchId;
             const string countSql = """
                     SELECT COUNT(*)
-                    FROM finance.student_payment
-                     join student.student on student_payment.student_id = student.student_id
-                    WHERE tenant_id = @TenantId
+                    FROM finance.student_payment AS entity
+                    JOIN student.student AS student ON entity.student_id = student.student_id
+                    WHERE entity.tenant_id = @TenantId
                       AND (@BranchId IS NULL OR student.branch_id = @BranchId)
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    student_payment_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM finance.student_payment
-                     join student.student on student_payment.student_id = student.student_id
-                    WHERE tenant_id = @TenantId
+                    entity.tenant_id AS "TenantId",
+                    entity.student_payment_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson"
+                    FROM finance.student_payment AS entity
+                    JOIN student.student AS student ON entity.student_id = student.student_id
+                    WHERE entity.tenant_id = @TenantId
                       AND (@BranchId IS NULL OR student.branch_id = @BranchId)
-                      AND is_active = TRUE
-                    ORDER BY student_payment_id
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.student_payment_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

@@ -19,7 +19,7 @@ public sealed class EmploymentHistoryQuery(IDbConnectionFactory connectionFactor
     {
         const string sql = """
             SELECT *
-            FROM public.EmploymentHistory
+            FROM hr.employmenthistory
             WHERE tenant_id = @TenantId
               AND employmenthistory_id = @Id
               AND is_active = TRUE;
@@ -47,7 +47,7 @@ public sealed class EmploymentHistoryQuery(IDbConnectionFactory connectionFactor
     {
         const string countSql = """
             SELECT COUNT(*)
-            FROM public.EmploymentHistory
+            FROM hr.employmenthistory
             WHERE tenant_id = @TenantId
               AND is_active = TRUE;
             """;
@@ -56,7 +56,7 @@ public sealed class EmploymentHistoryQuery(IDbConnectionFactory connectionFactor
             SELECT
                 tenant_id AS "TenantId",
                 employmenthistory_id AS "Id"
-            FROM public.EmploymentHistory
+            FROM hr.employmenthistory
             WHERE tenant_id = @TenantId
               AND is_active = TRUE
             ORDER BY employmenthistory_id
@@ -102,7 +102,7 @@ public sealed class EmploymentHistoryQuery(IDbConnectionFactory connectionFactor
         const string sql = """
             SELECT EXISTS (
                 SELECT 1
-                FROM public.EmploymentHistory
+                FROM hr.employmenthistory
                 WHERE tenant_id = @TenantId
                   AND code = @Code
                   AND (@ExcludingId IS NULL OR employmenthistory_id <> @ExcludingId)

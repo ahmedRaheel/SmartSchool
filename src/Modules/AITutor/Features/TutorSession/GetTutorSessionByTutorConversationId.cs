@@ -39,7 +39,7 @@ public static class GetTutorSessionByTutorConversationId
         {
             const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.tutor_session_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -50,9 +50,9 @@ public static class GetTutorSessionByTutorConversationId
                     FROM ai_tutor.tutor_session AS entity
                     LEFT JOIN ai_tutor.tutor_conversation AS p1
                         ON p1.tutor_conversation_id = entity.tutor_conversation_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.tutor_conversation_id = @ParentId
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
             await using var connection =

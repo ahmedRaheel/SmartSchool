@@ -293,7 +293,7 @@ public static class CertificateOperations
                     {request.RequiresApproval},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -468,6 +468,8 @@ public static class CertificateOperations
                     issued_by,
                     issued_at,
                     status,
+                    code,
+                    name,
                     is_active,
                     created_at,
                     row_version
@@ -486,9 +488,11 @@ public static class CertificateOperations
                     {issuedBy},
                     {issuedAt},
                     {status},
+                    {documentNumber},
+                    {context.OwnerName + " certificate"},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -585,7 +589,7 @@ public static class CertificateOperations
                     issued_at = {issuedAt},
                     status = {"ISSUED"},
                     updated_at = now(),
-                    row_version = gen_random_bytes(8)
+                    row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 FROM document.document_template template
                 WHERE generated.document_template_id = template.document_template_id
                   AND generated.tenant_id = template.tenant_id

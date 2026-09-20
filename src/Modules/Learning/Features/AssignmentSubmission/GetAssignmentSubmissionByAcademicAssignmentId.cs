@@ -40,7 +40,7 @@ public static class GetAssignmentSubmissionByAcademicAssignmentId
         {
             const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.submission_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -51,9 +51,9 @@ public static class GetAssignmentSubmissionByAcademicAssignmentId
                     FROM lms.student_assignment_submission AS entity
                     LEFT JOIN lms.academic_assignment AS p1
                         ON p1.academic_assignment_id = entity.academic_assignment_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.academic_assignment_id = @ParentId
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
             await using var connection =

@@ -56,13 +56,13 @@ public static class GetPredictionEvidencePage
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM ai.prediction_evidence AS entity
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
+                    entity.tenant_id AS "TenantId",
                     entity.prediction_evidence_id AS "Id",
                     entity.code AS "Code",
                     entity.name AS "Name",
@@ -73,8 +73,8 @@ public static class GetPredictionEvidencePage
                     FROM ai.prediction_evidence AS entity
                     LEFT JOIN ai.student_performance_prediction AS p1
                         ON p1.student_performance_prediction_id = entity.student_performance_prediction_id
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
                     ORDER BY entity.prediction_evidence_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

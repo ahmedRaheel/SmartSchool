@@ -313,7 +313,7 @@ public static class TimetableOperations
                     {request.PeriodType.Trim().ToUpperInvariant()},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
             return new CreatePeriodResponse(periodId);
@@ -481,7 +481,7 @@ public static class TimetableOperations
                     {code},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
             return new CreateTimetableResponse(timetableId, "DRAFT");
@@ -731,7 +731,7 @@ public static class TimetableOperations
                     {name},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -792,7 +792,7 @@ public static class TimetableOperations
                 UPDATE academic.timetable_entry entry
                 SET is_active = FALSE,
                     updated_at = now(),
-                    row_version = gen_random_bytes(8)
+                    row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 FROM academic.timetable timetable
                 WHERE entry.timetable_id = timetable.timetable_id
                   AND entry.tenant_id = timetable.tenant_id

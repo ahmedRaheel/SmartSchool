@@ -304,7 +304,7 @@ namespace SmartSchool.Modules.Library.Persistence.Migrations.PostgreSql
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("Reservation", "library");
+                    b.ToTable("reservation", "library");
                 });
 
             modelBuilder.Entity("SmartSchool.Modules.Library.Models.BookCopyEntity", b =>

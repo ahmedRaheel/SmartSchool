@@ -57,7 +57,7 @@ public static class GetExamSubjectById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.exam_subject_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -78,9 +78,9 @@ public static class GetExamSubjectById
                         ON p2.exam_id = entity.exam_id
                     LEFT JOIN org.room AS p3
                         ON p3.room_id = entity.room_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.exam_subject_id = @Id
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

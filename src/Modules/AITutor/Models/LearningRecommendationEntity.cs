@@ -54,7 +54,14 @@ public sealed class LearningRecommendationEntity : Entity
         Guid tenantId,
         string code,
         string name,
-        string? metadataJson = null)
+        string? metadataJson = null,
+        Guid studentId = default,
+        Guid? subjectId = null,
+        string? topic = null,
+        string recommendationType = "MANUAL",
+        string? recommendationText = null,
+        int priority = 1,
+        string status = "ACTIVE")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -64,7 +71,14 @@ public sealed class LearningRecommendationEntity : Entity
             TenantId = tenantId,
             Code = code.Trim(),
             Name = name.Trim(),
-            MetadataJson = metadataJson
+            MetadataJson = metadataJson,
+            StudentId = studentId,
+            SubjectId = subjectId,
+            Topic = topic?.Trim(),
+            RecommendationType = string.IsNullOrWhiteSpace(recommendationType) ? "MANUAL" : recommendationType.Trim(),
+            RecommendationText = string.IsNullOrWhiteSpace(recommendationText) ? name.Trim() : recommendationText.Trim(),
+            Priority = Math.Max(1, priority),
+            Status = string.IsNullOrWhiteSpace(status) ? "ACTIVE" : status.Trim().ToUpperInvariant()
         };
     }
 

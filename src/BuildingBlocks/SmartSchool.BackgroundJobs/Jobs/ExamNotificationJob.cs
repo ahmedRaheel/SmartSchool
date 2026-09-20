@@ -88,7 +88,7 @@ public sealed class ExamNotificationJob(
                     now(),
                     true,
                     now(),
-                    public.gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 FROM candidates candidate
                 WHERE candidate.reminder_kind IS NOT NULL
                 RETURNING related_entity_id

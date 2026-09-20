@@ -53,7 +53,7 @@ public static class GetEmploymentHistoryById
                         code AS "Code",
                         name AS "Name",
                         metadata_json AS "MetadataJson"
-                    FROM public.EmploymentHistory
+                    FROM hr.employmenthistory
                     WHERE tenant_id = @TenantId
                       AND employmenthistory_id = @Id
                       AND is_active = TRUE;

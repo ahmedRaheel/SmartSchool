@@ -39,16 +39,16 @@ public static class GetStudentExamResultByExamSubjectId
             CancellationToken cancellationToken)
         {
             const string sql = """
-                SELECT tenant_id AS "TenantId", entity.student_exam_result_id AS "Id", entity.code AS "Code", entity.name AS "Name", entity.metadata_json::text AS "MetadataJson",
+                SELECT entity.tenant_id AS "TenantId", entity.student_exam_result_id AS "Id", entity.code AS "Code", entity.name AS "Name", entity.metadata_json::text AS "MetadataJson",
                         p1.exam_subject_id AS "ExamSubjectId",
                         p1.code AS "ExamSubjectCode",
                         p1.name AS "ExamSubjectName"
                 FROM exam.student_exam_result AS entity
                     LEFT JOIN exam.exam_subject AS p1
                         ON p1.exam_subject_id = entity.exam_subject_id
-                WHERE tenant_id = @TenantId
+                WHERE entity.tenant_id = @TenantId
                   AND entity.exam_subject_id = @ParentId
-                  AND is_active = TRUE;
+                  AND entity.is_active = TRUE;
                 """;
 
             await using var connection =

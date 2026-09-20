@@ -59,13 +59,13 @@ public static class GetTopicPerformanceInsightPage
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM ai.topic_performance_insight AS entity
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
+                    entity.tenant_id AS "TenantId",
                     entity.topic_performance_insight_id AS "Id",
                     entity.code AS "Code",
                     entity.name AS "Name",
@@ -81,8 +81,8 @@ public static class GetTopicPerformanceInsightPage
                         ON p1.class_performance_insight_id = entity.class_performance_insight_id
                     LEFT JOIN academic.subject AS p2
                         ON p2.subject_id = entity.subject_id
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
                     ORDER BY entity.topic_performance_insight_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

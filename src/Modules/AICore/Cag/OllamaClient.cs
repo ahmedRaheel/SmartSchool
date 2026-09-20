@@ -11,6 +11,8 @@ internal sealed class OllamaClient(
 {
     private sealed record EmbeddingResponse(float[][] Embeddings);
     private sealed record GenerateResponse(string Response);
+    private sealed record TagsResponse(OllamaModel[] Models);
+    private sealed record OllamaModel(string Name);
 
     public async Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken)
     {
@@ -58,24 +60,118 @@ internal sealed class OllamaClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(prompt);
         var current = options.CurrentValue;
         var client = httpClientFactory.CreateClient("Ollama");
-        using var response = await client.PostAsJsonAsync(
+
+        var model = current.ChatModel;
+        using var firstResponse = await PostGenerateAsync(client, model, prompt, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (firstResponse.IsSuccessStatusCode)
+        {
+            var firstResult = await firstResponse.Content.ReadFromJsonAsync<GenerateResponse>(
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+            return (firstResult?.Response ?? string.Empty, model);
+        }
+
+        if (firstResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            var fallbackModel = await ResolveFallbackChatModelAsync(
+                client,
+                current.ChatModel,
+                cancellationToken).ConfigureAwait(false);
+
+            if (!string.IsNullOrWhiteSpace(fallbackModel) &&
+                !string.Equals(fallbackModel, current.ChatModel, StringComparison.OrdinalIgnoreCase))
+            {
+                using var retryResponse = await PostGenerateAsync(
+                    client,
+                    fallbackModel,
+                    prompt,
+                    cancellationToken).ConfigureAwait(false);
+
+                await EnsureSuccessAsync(retryResponse, fallbackModel, "generation", cancellationToken)
+                    .ConfigureAwait(false);
+
+                var retryResult = await retryResponse.Content.ReadFromJsonAsync<GenerateResponse>(
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
+                return (retryResult?.Response ?? string.Empty, fallbackModel);
+            }
+        }
+
+        await EnsureSuccessAsync(firstResponse, current.ChatModel, "generation", cancellationToken)
+            .ConfigureAwait(false);
+
+        return (string.Empty, current.ChatModel);
+    }
+
+    private static Task<HttpResponseMessage> PostGenerateAsync(
+        HttpClient client,
+        string model,
+        string prompt,
+        CancellationToken cancellationToken) =>
+        client.PostAsJsonAsync(
             "api/generate",
             new
             {
-                model = current.ChatModel,
+                model,
                 prompt = "/no_think\n" + prompt,
                 stream = false,
                 keep_alive = "30m",
                 options = new { temperature = 0.1, num_predict = 256 }
             },
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
-        await EnsureSuccessAsync(response, current.ChatModel, "generation", cancellationToken)
-            .ConfigureAwait(false);
+    private static async Task<string?> ResolveFallbackChatModelAsync(
+        HttpClient client,
+        string configuredModel,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var tags = await client.GetFromJsonAsync<TagsResponse>(
+                "api/tags",
+                cancellationToken).ConfigureAwait(false);
 
-        var result = await response.Content.ReadFromJsonAsync<GenerateResponse>(
-            cancellationToken: cancellationToken).ConfigureAwait(false);
-        return (result?.Response ?? string.Empty, current.ChatModel);
+            var installed = (tags?.Models ?? [])
+                .Select(model => model.Name)
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            if (installed.Length == 0)
+            {
+                return null;
+            }
+
+            string[] preferred =
+            [
+                "qwen3:8b",
+                "qwen3:4b",
+                "gemma3:1b",
+                "llama3.2:3b",
+                "llama3.2:1b"
+            ];
+
+            foreach (var candidate in preferred)
+            {
+                var match = installed.FirstOrDefault(name =>
+                    string.Equals(name, candidate, StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrWhiteSpace(match) &&
+                    !string.Equals(match, configuredModel, StringComparison.OrdinalIgnoreCase))
+                {
+                    return match;
+                }
+            }
+
+            return installed.FirstOrDefault(name =>
+                !string.Equals(name, configuredModel, StringComparison.OrdinalIgnoreCase) &&
+                !name.Contains("embed", StringComparison.OrdinalIgnoreCase) &&
+                !name.Contains("minilm", StringComparison.OrdinalIgnoreCase) &&
+                !name.Contains("nomic", StringComparison.OrdinalIgnoreCase));
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
     }
 
     private static async Task EnsureSuccessAsync(
@@ -90,7 +186,9 @@ internal sealed class OllamaClient(
         }
 
         var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-        throw new InvalidOperationException(
-            $"Ollama {operation} failed for model '{model}'. HTTP {(int)response.StatusCode} ({response.StatusCode}). Response: {body}");
+        throw new HttpRequestException(
+            $"Ollama {operation} failed for model '{model}'. HTTP {(int)response.StatusCode} ({response.StatusCode}). Response: {body}",
+            inner: null,
+            statusCode: response.StatusCode);
     }
 }

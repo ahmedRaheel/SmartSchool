@@ -56,28 +56,28 @@ public static class GetFeeStructurePage
             var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant)? null : currentUser.BranchId;
             const string countSql = """
                     SELECT COUNT(*)
-                    FROM finance.fee_structure
-                       join org.department on finance.fee_structure.department_id = org.department.department_id
+                    FROM finance.fee_structure AS entity
+                    JOIN org.department AS department ON department.department_id = entity.department_id
                        
-                    WHERE tenant_id = @TenantId
-                      AND (org.department.branch_id = @BranchId OR @BranchId IS NULL)
-                      AND is_active = TRUE;
+                    WHERE entity.tenant_id = @TenantId
+                      AND (department.campus_id = @BranchId OR @BranchId IS NULL)
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    branch_id AS "BranchId",
-                    fee_structure_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM finance.fee_structure
-                     join org.department on finance.fee_structure.department_id = org.department.department_id
-                    WHERE tenant_id = @TenantId
-                      and (org.department.branch_id = @BranchId OR @BranchId IS NULL)
-                      AND is_active = TRUE
-                    ORDER BY fee_structure_id
+                    entity.tenant_id AS "TenantId",
+                    entity.branch_id AS "BranchId",
+                    entity.fee_structure_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.metadata_json AS "MetadataJson"
+                    FROM finance.fee_structure AS entity
+                    JOIN org.department AS department ON department.department_id = entity.department_id
+                    WHERE entity.tenant_id = @TenantId
+                      and (department.campus_id = @BranchId OR @BranchId IS NULL)
+                      AND entity.is_active = TRUE
+                    ORDER BY entity.fee_structure_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

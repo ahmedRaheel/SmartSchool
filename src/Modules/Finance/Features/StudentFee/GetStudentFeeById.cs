@@ -49,16 +49,16 @@ public static class GetStudentFeeById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        branch_id AS "BranchId",
-                        student_fee_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM finance.studentfee
-                    WHERE tenant_id = @TenantId
-                      AND student_fee_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.branch_id AS "BranchId",
+                        entity.student_fee_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        COALESCE(to_jsonb(entity)->>'metadata_json', to_jsonb(entity)->>'MetadataJson') AS "MetadataJson"
+                    FROM finance.studentfee AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.student_fee_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

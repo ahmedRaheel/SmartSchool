@@ -20,11 +20,15 @@ public static class GetStudentGuardianPage
     /// <param name="Code">The business code.</param>
     /// <param name="Name">The display name.</param>
     public sealed record Response(
-    Guid TenantId,
-    Guid Id,
-    string Code,
-    string Name,
-    string? MetadataJson);
+        Guid TenantId,
+        Guid Id,
+        Guid StudentId,
+        Guid GuardianId,
+        string Relationship,
+        bool IsPrimary,
+        bool CanViewAcademics,
+        bool CanViewFinance,
+        bool CanPickup);
 
     public sealed record Query(
         Guid TenantId,
@@ -60,14 +64,18 @@ public static class GetStudentGuardianPage
                 const string pageSql = """
                     SELECT
                     tenant_id AS "TenantId",
-                    id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
+                    student_guardian_id AS "Id",
+                    student_id AS "StudentId",
+                    guardian_id AS "GuardianId",
+                    relationship AS "Relationship",
+                    is_primary AS "IsPrimary",
+                    can_view_academics AS "CanViewAcademics",
+                    can_view_finance AS "CanViewFinance",
+                    can_pickup AS "CanPickup"
                     FROM student.student_guardian
                     WHERE tenant_id = @TenantId
                       AND is_active = TRUE
-                    ORDER BY id
+                    ORDER BY student_guardian_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

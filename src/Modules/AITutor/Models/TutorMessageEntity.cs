@@ -42,7 +42,10 @@ public sealed class TutorMessageEntity : Entity
         Guid tenantId,
         string code,
         string name,
-        string? metadataJson = null)
+        string? metadataJson = null,
+        Guid tutorConversationId = default,
+        string? role = null,
+        string? content = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -50,6 +53,9 @@ public sealed class TutorMessageEntity : Entity
         return new TutorMessageEntity
         {
             TenantId = tenantId,
+            TutorConversationId = tutorConversationId,
+            Role = string.IsNullOrWhiteSpace(role) ? name.Trim() : role.Trim(),
+            Content = content,
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

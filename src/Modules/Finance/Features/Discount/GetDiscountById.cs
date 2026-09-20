@@ -49,16 +49,16 @@ public static class GetDiscountById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
-                        branch_id AS "BranchId",
-                        discount_id AS "Id",
-                        code AS "Code",
-                        name AS "Name",
-                        metadata_json AS "MetadataJson"
-                    FROM finance.discount
-                    WHERE tenant_id = @TenantId
-                      AND discount_id = @Id
-                      AND is_active = TRUE;
+                        entity.tenant_id AS "TenantId",
+                        entity.branch_id AS "BranchId",
+                        entity.discount_id AS "Id",
+                        entity.code AS "Code",
+                        entity.name AS "Name",
+                        COALESCE(to_jsonb(entity)->>'metadata_json', to_jsonb(entity)->>'MetadataJson') AS "MetadataJson"
+                    FROM finance.discount AS entity
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.discount_id = @Id
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

@@ -51,7 +51,7 @@ public static class GetLoanById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.book_loan_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -62,9 +62,9 @@ public static class GetLoanById
                     FROM library.book_loan AS entity
                     LEFT JOIN library.book_copy AS p1
                         ON p1.book_copy_id = entity.book_copy_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.book_loan_id = @Id
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

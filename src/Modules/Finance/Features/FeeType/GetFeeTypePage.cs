@@ -58,28 +58,28 @@ public static class GetFeeTypePage
             var branchId = currentUser.IsInRole(SmartSchoolRoles.Tenant)? null : currentUser.BranchId;
             const string countSql = """
                     SELECT COUNT(*)
-                    FROM finance.fee_type
-                         join org.department dept on dept.department_id = finance.fee_type.department_id
-                    WHERE tenant_id = @TenantId
-                      AND (dept.branch_id = @BranchId OR @BranchId IS NULL)
+                    FROM finance.fee_type AS entity
+                    JOIN org.department AS dept ON dept.department_id = entity.department_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND (dept.campus_id = @BranchId OR @BranchId IS NULL)
                       ;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    fee_type_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    frequency AS "Frequency",
-                    is_active AS "IsActive",
-                    description AS "Description"
-                    FROM finance.fee_type
-                         join org.department dept on dept.department_id = finance.fee_type.department_id
-                    WHERE tenant_id = @TenantId
-                    ANd (dept.branch_id = @BranchId OR @BranchId IS NULL)
+                    entity.tenant_id AS "TenantId",
+                    entity.fee_type_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    entity.frequency AS "Frequency",
+                    entity.is_active AS "IsActive",
+                    entity.description AS "Description"
+                    FROM finance.fee_type AS entity
+                    JOIN org.department AS dept ON dept.department_id = entity.department_id
+                    WHERE entity.tenant_id = @TenantId
+                    ANd (dept.campus_id = @BranchId OR @BranchId IS NULL)
 
-                    ORDER BY fee_type_id
+                    ORDER BY entity.fee_type_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

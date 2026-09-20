@@ -12,7 +12,7 @@ public sealed class ReservationEntityConfiguration
 {
     public void Configure(EntityTypeBuilder<ReservationEntity> builder)
     {
-        builder.ToTable("Reservation", schema: "library");
+        builder.ToTable("reservation", schema: "library");
         builder.HasKey(entity => entity.ReservationId);
 
         builder

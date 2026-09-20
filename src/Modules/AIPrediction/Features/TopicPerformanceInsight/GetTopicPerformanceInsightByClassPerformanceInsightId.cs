@@ -42,7 +42,7 @@ public static class GetTopicPerformanceInsightByClassPerformanceInsightId
         {
             const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.topic_performance_insight_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -58,9 +58,9 @@ public static class GetTopicPerformanceInsightByClassPerformanceInsightId
                         ON p1.class_performance_insight_id = entity.class_performance_insight_id
                     LEFT JOIN academic.subject AS p2
                         ON p2.subject_id = entity.subject_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.class_performance_insight_id = @ParentId
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
             await using var connection =

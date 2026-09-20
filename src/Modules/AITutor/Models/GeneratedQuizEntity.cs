@@ -18,7 +18,7 @@ public sealed class GeneratedQuizEntity : Entity
     public Guid StudentId { get; private set; }
 
     /// <summary>Gets the persisted subject id value.</summary>
-    public Guid SubjectId { get; private set; }
+    public Guid? SubjectId { get; private set; }
 
     /// <summary>Gets the persisted tutor conversation id value.</summary>
     public Guid? TutorConversationId { get; private set; }
@@ -48,7 +48,12 @@ public sealed class GeneratedQuizEntity : Entity
         Guid tenantId,
         string code,
         string name,
-        string? metadataJson = null)
+        string? metadataJson = null,
+        Guid studentId = default,
+        Guid? subjectId = null,
+        Guid? tutorConversationId = null,
+        string? topic = null,
+        string? difficulty = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -58,7 +63,12 @@ public sealed class GeneratedQuizEntity : Entity
             TenantId = tenantId,
             Code = code.Trim(),
             Name = name.Trim(),
-            MetadataJson = metadataJson
+            MetadataJson = metadataJson,
+            StudentId = studentId,
+            SubjectId = subjectId,
+            TutorConversationId = tutorConversationId,
+            Topic = topic?.Trim(),
+            Difficulty = difficulty?.Trim()
         };
     }
 

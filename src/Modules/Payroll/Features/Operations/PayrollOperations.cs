@@ -272,7 +272,7 @@ public static class PayrollOperations
                 SET effective_to = {request.EffectiveFrom.AddDays(-1)},
                     status = {"SUPERSEDED"},
                     updated_at = now(),
-                    row_version = gen_random_bytes(8)
+                    row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 WHERE tenant_id = {request.TenantId}
                   AND employee_id = {request.EmployeeId}
                   AND is_active
@@ -314,7 +314,7 @@ public static class PayrollOperations
                     {"Employee compensation"},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -446,7 +446,7 @@ public static class PayrollOperations
                     {endDate},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -473,7 +473,7 @@ public static class PayrollOperations
                     {$"Payroll {request.Year:D4}-{request.Month:D2}"},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -626,7 +626,7 @@ public static class PayrollOperations
                     approved_by = {approvedBy},
                     approved_at = {approvedAt},
                     updated_at = now(),
-                    row_version = gen_random_bytes(8)
+                    row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 WHERE tenant_id = {request.TenantId}
                   AND payroll_run_id = {request.RunId}
                   AND is_active

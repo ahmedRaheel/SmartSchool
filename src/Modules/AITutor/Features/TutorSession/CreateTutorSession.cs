@@ -29,6 +29,7 @@ public static class CreateTutorSession
 
     public sealed record Request(
         Guid TenantId,
+        Guid TutorConversationId,
         string Name,
         string? MetadataJson = null) : IRequest<Result<Response>>;
 
@@ -37,12 +38,15 @@ public static class CreateTutorSession
         public Validator()
         {
             RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.TutorConversationId).NotEmpty();
             RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         }
     }
 
     public interface ICreateTutorSessionCommand
     {
+        Task<bool> ConversationExistsAsync(Guid tenantId, Guid tutorConversationId, CancellationToken cancellationToken);
+
         Task AddAsync(
                 TutorSessionEntity entity,
                 CancellationToken cancellationToken);
@@ -50,6 +54,13 @@ public static class CreateTutorSession
 
     internal sealed class CreateTutorSessionCommand(IAITutorDbContext dbContext) : ICreateTutorSessionCommand
     {
+        public Task<bool> ConversationExistsAsync(Guid tenantId, Guid tutorConversationId, CancellationToken cancellationToken)
+            => dbContext.TutorConversations
+                .AsNoTracking()
+                .AnyAsync(x => x.TenantId == tenantId
+                    && x.TutorConversationId == tutorConversationId
+                    && x.IsActive, cancellationToken);
+
         public async Task AddAsync(
                 TutorSessionEntity entity,
                 CancellationToken cancellationToken)
@@ -68,13 +79,19 @@ public static class CreateTutorSession
             Request request,
             CancellationToken cancellationToken)
         {
+            if (!await command.ConversationExistsAsync(request.TenantId, request.TutorConversationId, cancellationToken))
+            {
+                return Result<Response>.Failure(Error.Validation("Tutor conversation does not exist for the current tenant."));
+            }
+
             var code = await numberGenerator.NextAsync("TutorSession", "SESSION", request.TenantId, 3, cancellationToken);
 
             var entity = TutorSessionEntity.Create(
                 request.TenantId,
                 code,
                 request.Name,
-                request.MetadataJson);
+                request.MetadataJson,
+                tutorConversationId: request.TutorConversationId);
 
             await command.AddAsync(entity, cancellationToken);
             return Result<Response>.Success(MapResponse(entity));

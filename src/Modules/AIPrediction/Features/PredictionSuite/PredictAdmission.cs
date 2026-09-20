@@ -38,6 +38,15 @@ public static class PredictAdmission
 
     public static void MapEndpoint(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/aiprediction/admission/{predictionKind}", async (PredictionKind predictionKind, AdmissionPredictionRequest request, IMediator mediator, CancellationToken cancellationToken) => Results.Ok(await mediator.SendAsync<Request, Response>(new Request(predictionKind, request), cancellationToken))).WithTags("AI Prediction").RequireAuthorization();
+        endpoints.MapPost("/api/aiprediction/admission/{predictionKind}", async (PredictionKind predictionKind, AdmissionPredictionRequest request, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            if (predictionKind is not (PredictionKind.AdmissionConversion or PredictionKind.AdmissionSuccess))
+            {
+                return Results.BadRequest(new { message = "Supported admission prediction kinds are AdmissionConversion and AdmissionSuccess." });
+            }
+
+            var response = await mediator.SendAsync<Request, Response>(new Request(predictionKind, request), cancellationToken);
+            return Results.Ok(response);
+        }).WithTags("AI Prediction").RequireAuthorization();
     }
 }

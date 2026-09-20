@@ -53,7 +53,7 @@ public static class GetResumeById
                         code AS "Code",
                         name AS "Name",
                         metadata_json AS "MetadataJson"
-                    FROM public.Resume
+                    FROM hr.resume
                     WHERE tenant_id = @TenantId
                       AND resume_id = @Id
                       AND is_active = TRUE;

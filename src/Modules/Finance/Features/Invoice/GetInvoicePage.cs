@@ -59,8 +59,11 @@ public static class GetInvoicePage
             const string countSql = """
                     SELECT COUNT(*)
                     FROM finance.student_invoice AS entity
+                    JOIN student.student AS student
+                      ON student.student_id = entity.student_id
+                     AND student.tenant_id = entity.tenant_id
                     WHERE entity.tenant_id = @TenantId
-                       AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
+                      AND (@BranchId IS NULL OR student.branch_id = @BranchId)
                       AND entity.is_active = TRUE;
                     """;
 
@@ -77,9 +80,12 @@ public static class GetInvoicePage
                     FROM finance.student_invoice AS entity
                     LEFT JOIN academic.academic_year AS p1
                         ON p1.academic_year_id = entity.academic_year_id
+                    JOIN student.student AS student
+                      ON student.student_id = entity.student_id
+                     AND student.tenant_id = entity.tenant_id
                     WHERE entity.tenant_id = @TenantId
                       AND entity.is_active = TRUE
-                      AND (@BranchId IS NULL OR entity.branch_id = @BranchId)
+                      AND (@BranchId IS NULL OR student.branch_id = @BranchId)
                     ORDER BY entity.student_invoice_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

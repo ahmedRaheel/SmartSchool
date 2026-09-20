@@ -51,7 +51,10 @@ public sealed class TutorSessionEntity : Entity
         Guid tenantId,
         string code,
         string name,
-        string? metadataJson = null)
+        string? metadataJson = null,
+        Guid tutorConversationId = default,
+        string? topic = null,
+        string? learningObjective = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -59,6 +62,10 @@ public sealed class TutorSessionEntity : Entity
         return new TutorSessionEntity
         {
             TenantId = tenantId,
+            TutorConversationId = tutorConversationId,
+            Topic = topic,
+            LearningObjective = learningObjective,
+            StartedAt = DateTimeOffset.UtcNow,
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

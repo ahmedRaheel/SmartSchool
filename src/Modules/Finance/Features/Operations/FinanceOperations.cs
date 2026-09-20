@@ -306,7 +306,7 @@ public static class FinanceOperations
                     {description},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -474,7 +474,7 @@ public static class FinanceOperations
                 SET balance_amount = balance_amount - {request.Amount},
                     status = {status},
                     updated_at = now(),
-                    row_version = gen_random_bytes(8)
+                    row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 WHERE tenant_id = {request.TenantId}
                   AND student_invoice_id = {request.InvoiceId}
                   AND is_active
@@ -519,7 +519,7 @@ public static class FinanceOperations
                     {"Student payment"},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 

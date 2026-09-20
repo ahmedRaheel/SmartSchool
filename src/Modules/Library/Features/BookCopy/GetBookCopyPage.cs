@@ -59,13 +59,13 @@ public static class GetBookCopyPage
                 const string countSql = """
                     SELECT COUNT(*)
                     FROM library.book_copy AS entity
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE;
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
+                    entity.tenant_id AS "TenantId",
                     entity.book_copy_id AS "Id",
                     entity.code AS "Code",
                     entity.name AS "Name",
@@ -81,8 +81,8 @@ public static class GetBookCopyPage
                         ON p1.book_id = entity.book_id
                     LEFT JOIN org.campus AS p2
                         ON p2.campus_id = entity.campus_id
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
                     ORDER BY entity.book_copy_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;

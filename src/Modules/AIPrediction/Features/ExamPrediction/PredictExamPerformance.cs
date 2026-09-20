@@ -1,4 +1,5 @@
 using SmartSchool.Modules.AIPrediction.Persistence;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SmartSchool.Application.Messaging;
 using SmartSchool.Application.Persistence;
@@ -17,6 +18,17 @@ public static class PredictExamPerformance
         string TargetExamTypeCode,
         Guid? TargetExamId = null,
         Guid? TargetExamSubjectId = null) : IRequest<Result<Response>>;
+
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.TenantId).NotEmpty();
+            RuleFor(x => x.StudentId).NotEmpty();
+            RuleFor(x => x.SubjectId).NotEmpty();
+            RuleFor(x => x.TargetExamTypeCode).NotEmpty().MaximumLength(100);
+        }
+    }
 
     public sealed record Response(
         Guid PredictionId,

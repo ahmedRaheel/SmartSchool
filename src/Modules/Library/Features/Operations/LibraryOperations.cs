@@ -295,7 +295,7 @@ public static class LibraryOperations
                     {normalizedTitle},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -330,7 +330,7 @@ public static class LibraryOperations
                         {normalizedTitle},
                         TRUE,
                         now(),
-                        gen_random_bytes(8)
+                        decode(md5(random()::text || clock_timestamp()::text), 'hex')
                     );
                     """, cancellationToken);
             }
@@ -503,7 +503,7 @@ public static class LibraryOperations
                 UPDATE library.book_copy
                 SET status = {"LOANED"},
                     updated_at = now(),
-                    row_version = gen_random_bytes(8)
+                    row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 WHERE tenant_id = {request.TenantId}
                   AND book_copy_id = {copy.BookCopyId}
                   AND is_active
@@ -548,7 +548,7 @@ public static class LibraryOperations
                     {"Library Loan"},
                     TRUE,
                     now(),
-                    gen_random_bytes(8)
+                    decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 );
                 """, cancellationToken);
 
@@ -664,7 +664,7 @@ public static class LibraryOperations
                 UPDATE library.book_loan
                 SET returned_at = {returnedAt},
                     updated_at = now(),
-                    row_version = gen_random_bytes(8)
+                    row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 WHERE tenant_id = {request.TenantId}
                   AND book_loan_id = {request.LoanId}
                   AND returned_at IS NULL
@@ -681,7 +681,7 @@ public static class LibraryOperations
                 UPDATE library.book_copy
                 SET status = {"AVAILABLE"},
                     updated_at = now(),
-                    row_version = gen_random_bytes(8)
+                    row_version = decode(md5(random()::text || clock_timestamp()::text), 'hex')
                 WHERE tenant_id = {request.TenantId}
                   AND book_copy_id = {loan.BookCopyId}
                   AND is_active;

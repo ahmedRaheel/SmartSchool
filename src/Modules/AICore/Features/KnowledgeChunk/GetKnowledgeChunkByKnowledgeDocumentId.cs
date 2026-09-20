@@ -39,7 +39,7 @@ public static class GetKnowledgeChunkByKnowledgeDocumentId
         {
             const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.knowledge_chunk_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -50,9 +50,9 @@ public static class GetKnowledgeChunkByKnowledgeDocumentId
                     FROM ai_core.knowledge_chunk AS entity
                     LEFT JOIN ai_core.knowledge_document AS p1
                         ON p1.knowledge_document_id = entity.knowledge_document_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.knowledge_document_id = @ParentId
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
             await using var connection =

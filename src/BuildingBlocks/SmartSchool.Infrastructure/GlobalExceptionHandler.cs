@@ -104,6 +104,40 @@ public sealed class GlobalExceptionHandler(
                 });
         }
 
+        if (exception is HttpRequestException externalServiceException)
+        {
+            logger.LogWarning(
+                externalServiceException,
+                "External service unavailable processing {RequestMethod} {RequestPath}. TraceId={TraceId}, CorrelationId={CorrelationId}",
+                httpContext.Request.Method,
+                httpContext.Request.Path,
+                traceId,
+                correlationId);
+
+            httpContext.Response.Headers[ApiRoutes.CorrelationHeader] = correlationId;
+            httpContext.Response.Headers[ApiRoutes.TraceHeader] = traceId;
+            httpContext.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+
+            var unavailableProblem = new ProblemDetails
+            {
+                Status = StatusCodes.Status503ServiceUnavailable,
+                Title = "Dependent service unavailable.",
+                Detail = "A required external service is unavailable or incorrectly configured.",
+                Type = "https://httpstatuses.com/503"
+            };
+
+            unavailableProblem.Extensions["code"] = "EXTERNAL_SERVICE_UNAVAILABLE";
+            unavailableProblem.Extensions["traceId"] = traceId;
+            unavailableProblem.Extensions["correlationId"] = correlationId;
+
+            return await problemDetailsService.TryWriteAsync(
+                new ProblemDetailsContext
+                {
+                    HttpContext = httpContext,
+                    ProblemDetails = unavailableProblem
+                });
+        }
+
         if (exception is UnauthorizedAccessException unauthorizedAccessException)
         {
             logger.LogWarning(

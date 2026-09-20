@@ -57,7 +57,12 @@ public sealed class TutorConversationEntity : Entity
         Guid tenantId,
         string code,
         string name,
-        string? metadataJson = null)
+        string? metadataJson = null,
+        Guid studentId = default,
+        Guid? academicYearId = null,
+        Guid? courseOfferingId = null,
+        Guid? subjectId = null,
+        string? title = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -65,6 +70,13 @@ public sealed class TutorConversationEntity : Entity
         return new TutorConversationEntity
         {
             TenantId = tenantId,
+            StudentId = studentId,
+            AcademicYearId = academicYearId,
+            CourseOfferingId = courseOfferingId,
+            SubjectId = subjectId,
+            Title = string.IsNullOrWhiteSpace(title) ? name.Trim() : title.Trim(),
+            StartedAt = DateTimeOffset.UtcNow,
+            Status = "ACTIVE",
             Code = code.Trim(),
             Name = name.Trim(),
             MetadataJson = metadataJson

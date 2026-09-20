@@ -58,26 +58,26 @@ public static class GetStudentOfMonthPage
 
             const string countSql = """
                     SELECT COUNT(*)
-                    FROM activity.student_of_month
-                         join  org.department on department.department_id = student_of_month.department_id
-                    WHERE tenant_id = @TenantId
-                    AND (@BranchId IS NULL OR department.branch_id = @BranchId)
-                      AND is_active = TRUE;
+                    FROM activity.student_of_month AS entity
+                    JOIN org.department AS department ON department.department_id = entity.department_id
+                    WHERE entity.tenant_id = @TenantId
+                    AND (@BranchId IS NULL OR department.campus_id = @BranchId)
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
-                    student_of_month_id AS "Id",
-                    code AS "Code",
-                    name AS "Name",
-                    metadata_json AS "MetadataJson"
-                    FROM activity.student_of_month
-                         join  org.department on department.department_id = student_of_month.department_id
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
-                      AND (@BranchId IS NULL OR department.branch_id = @BranchId)
-                    ORDER BY student_of_month_id
+                    entity.tenant_id AS "TenantId",
+                    entity.student_of_month_id AS "Id",
+                    entity.code AS "Code",
+                    entity.name AS "Name",
+                    COALESCE(to_jsonb(entity)->>'metadata_json', to_jsonb(entity)->>'MetadataJson') AS "MetadataJson"
+                    FROM activity.student_of_month AS entity
+                    JOIN org.department AS department ON department.department_id = entity.department_id
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
+                      AND (@BranchId IS NULL OR department.campus_id = @BranchId)
+                    ORDER BY entity.student_of_month_id
                     LIMIT @PageSize OFFSET @Offset;
                     """;
 

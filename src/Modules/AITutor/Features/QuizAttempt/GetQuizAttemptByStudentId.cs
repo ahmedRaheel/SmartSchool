@@ -39,7 +39,7 @@ public static class GetQuizAttemptByStudentId
         {
             const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.student_quiz_attempt_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -50,9 +50,9 @@ public static class GetQuizAttemptByStudentId
                     FROM ai_tutor.student_quiz_attempt AS entity
                     LEFT JOIN ai_tutor.generated_quiz AS p1
                         ON p1.generated_quiz_id = entity.generated_quiz_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.student_id = @ParentId
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
             await using var connection =

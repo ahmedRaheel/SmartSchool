@@ -39,7 +39,7 @@ namespace SmartSchool.Modules.Library.Persistence.Migrations.PostgreSql
                 });
 
             migrationBuilder.CreateTable(
-                name: "Reservation",
+                name: "reservation",
                 schema: "library",
                 columns: table => new
                 {
@@ -55,7 +55,7 @@ namespace SmartSchool.Modules.Library.Persistence.Migrations.PostgreSql
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Reservation", x => x.reservation_id);
+                    table.PrimaryKey("PK_reservation", x => x.reservation_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -174,15 +174,15 @@ namespace SmartSchool.Modules.Library.Persistence.Migrations.PostgreSql
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reservation_tenant_id",
+                name: "IX_reservation_tenant_id",
                 schema: "library",
-                table: "Reservation",
+                table: "reservation",
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reservation_tenant_id_code",
+                name: "IX_reservation_tenant_id_code",
                 schema: "library",
-                table: "Reservation",
+                table: "reservation",
                 columns: new[] { "tenant_id", "code" },
                 unique: true);
         }
@@ -195,7 +195,7 @@ namespace SmartSchool.Modules.Library.Persistence.Migrations.PostgreSql
                 schema: "library");
 
             migrationBuilder.DropTable(
-                name: "Reservation",
+                name: "reservation",
                 schema: "library");
 
             migrationBuilder.DropTable(

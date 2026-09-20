@@ -56,6 +56,7 @@ public sealed class StudentOfMonthEntityConfiguration
         builder.Property(entity => entity.AwardYear).HasColumnName("award_year");
         builder.Property(entity => entity.Code).HasColumnName("code");
         builder.Property(entity => entity.Name).HasColumnName("name");
+        builder.Property(entity => entity.MetadataJson).HasColumnName("metadata_json").HasColumnType("jsonb");
         builder.Property(entity => entity.StudentOfMonthId).HasColumnName("student_of_month_id");
     }
 }

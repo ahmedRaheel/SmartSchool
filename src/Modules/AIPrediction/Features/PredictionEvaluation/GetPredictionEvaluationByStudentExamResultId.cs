@@ -42,7 +42,7 @@ public static class GetPredictionEvaluationByStudentExamResultId
         {
             const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.prediction_evaluation_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -58,9 +58,9 @@ public static class GetPredictionEvaluationByStudentExamResultId
                         ON p1.student_exam_result_id = entity.student_exam_result_id
                     LEFT JOIN ai.student_performance_prediction AS p2
                         ON p2.student_performance_prediction_id = entity.student_performance_prediction_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.student_exam_result_id = @ParentId
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
             await using var connection =

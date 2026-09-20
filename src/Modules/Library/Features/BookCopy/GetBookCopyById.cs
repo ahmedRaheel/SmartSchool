@@ -54,7 +54,7 @@ public static class GetBookCopyById
             {
                 const string sql = """
                     SELECT
-                        tenant_id AS "TenantId",
+                        entity.tenant_id AS "TenantId",
                         entity.book_copy_id AS "Id",
                         entity.code AS "Code",
                         entity.name AS "Name",
@@ -70,9 +70,9 @@ public static class GetBookCopyById
                         ON p1.book_id = entity.book_id
                     LEFT JOIN org.campus AS p2
                         ON p2.campus_id = entity.campus_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                       AND entity.book_copy_id = @Id
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
                 await using var connection =

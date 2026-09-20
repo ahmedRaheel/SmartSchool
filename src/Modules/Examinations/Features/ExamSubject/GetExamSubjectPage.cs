@@ -67,14 +67,14 @@ public static class GetExamSubjectPage
                     SELECT COUNT(*)
                     FROM exam.exam_subject AS entity                                        
                     	 join exam.exam  ex on ex.exam_id = entity.exam_id
-                    WHERE tenant_id = @TenantId
+                    WHERE entity.tenant_id = @TenantId
                     AND (@BranchId IS NULL OR ex.branch_id = @BranchId)
-                      AND is_active = TRUE;
+                      AND entity.is_active = TRUE;
                     """;
 
                 const string pageSql = """
                     SELECT
-                    tenant_id AS "TenantId",
+                    entity.tenant_id AS "TenantId",
                     entity.exam_subject_id AS "Id",
                     entity.code AS "Code",
                     entity.name AS "Name",
@@ -95,8 +95,8 @@ public static class GetExamSubjectPage
                         ON p2.exam_id = entity.exam_id
                     LEFT JOIN org.room AS p3
                         ON p3.room_id = entity.room_id
-                    WHERE tenant_id = @TenantId
-                      AND is_active = TRUE
+                    WHERE entity.tenant_id = @TenantId
+                      AND entity.is_active = TRUE
                       AND (@BranchId IS NULL OR p2.branch_id = @BranchId)
                     ORDER BY entity.exam_subject_id
                     LIMIT @PageSize OFFSET @Offset;
