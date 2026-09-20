@@ -8,7 +8,6 @@ internal static class ReportWriter
     public static async Task<string> WriteAsync(
         IReadOnlyList<SmokeResult> results,
         SmokeTestOptions options,
-        SmokeTestFixture? fixture,
         CancellationToken cancellationToken)
     {
         var timestamp = DateTimeOffset.UtcNow.ToString("yyyyMMdd-HHmmss");
@@ -18,20 +17,7 @@ internal static class ReportWriter
 
         await WriteJsonAsync(results, reportDirectory, cancellationToken);
         await WriteCsvAsync(results, reportDirectory, cancellationToken);
-        await WriteMarkdownAsync(
-            results,
-            options,
-            fixture,
-            reportDirectory,
-            cancellationToken);
-
-        if (fixture is not null)
-        {
-            await WriteFixtureSummaryAsync(
-                fixture,
-                reportDirectory,
-                cancellationToken);
-        }
+        await WriteMarkdownAsync(results, options, reportDirectory, cancellationToken);
 
         return reportDirectory;
     }
@@ -61,7 +47,7 @@ internal static class ReportWriter
     {
         var builder = new StringBuilder();
         builder.AppendLine(
-            "Result,Actor,Method,Path,StatusCode,DurationMilliseconds,OperationId,Message,RequestUri,ResponseBody");
+            "Result,Method,Path,StatusCode,DurationMilliseconds,OperationId,Message,RequestUri,ResponseBody");
 
         foreach (var result in results)
         {
@@ -69,7 +55,6 @@ internal static class ReportWriter
                 string.Join(
                     ',',
                     Csv(result.Result.ToString()),
-                    Csv(result.Actor),
                     Csv(result.Method),
                     Csv(result.Path),
                     Csv(result.StatusCode?.ToString() ?? string.Empty),
@@ -89,7 +74,6 @@ internal static class ReportWriter
     private static async Task WriteMarkdownAsync(
         IReadOnlyList<SmokeResult> results,
         SmokeTestOptions options,
-        SmokeTestFixture? fixture,
         string directory,
         CancellationToken cancellationToken)
     {
@@ -97,7 +81,6 @@ internal static class ReportWriter
         builder.AppendLine("# SmartSchool API Smoke-Test Report");
         builder.AppendLine();
         builder.AppendLine($"- Base URL: `{options.BaseUrl}`");
-        builder.AppendLine($"- Identity URL: `{options.IdentityBaseUrl}`");
         builder.AppendLine($"- Endpoints discovered: **{results.Count}**");
         builder.AppendLine($"- Passed: **{Count(results, SmokeResultKind.Passed)}**");
         builder.AppendLine(
@@ -109,27 +92,7 @@ internal static class ReportWriter
         builder.AppendLine($"- Timeouts: **{Count(results, SmokeResultKind.Timeout)}**");
         builder.AppendLine($"- Network errors: **{Count(results, SmokeResultKind.NetworkError)}**");
         builder.AppendLine($"- Skipped: **{Count(results, SmokeResultKind.Skipped)}**");
-
-        if (fixture is not null)
-        {
-            builder.AppendLine($"- Fixture run: `{fixture.RunId}`");
-            builder.AppendLine($"- Fixture tenant: `{fixture.TenantId}`");
-            builder.AppendLine($"- Disposable actors: **{fixture.Actors.Count}**");
-            builder.AppendLine($"- Fixture provisioning warnings: **{fixture.ProvisioningWarnings.Count}**");
-        }
-
         builder.AppendLine();
-
-        if (fixture is not null && fixture.ProvisioningWarnings.Count > 0)
-        {
-            builder.AppendLine("## Fixture provisioning warnings");
-            builder.AppendLine();
-            foreach (var warning in fixture.ProvisioningWarnings)
-            {
-                builder.AppendLine($"- {warning}");
-            }
-            builder.AppendLine();
-        }
 
         var failures = results
             .Where(result => result.Result is
@@ -147,7 +110,6 @@ internal static class ReportWriter
             {
                 builder.AppendLine(
                     $"- **{result.Method} {result.Path}** — {result.Result}, "
-                    + $"actor `{result.Actor}`, "
                     + $"HTTP {result.StatusCode?.ToString() ?? "n/a"}, "
                     + $"{result.DurationMilliseconds} ms");
 
@@ -167,14 +129,13 @@ internal static class ReportWriter
 
         builder.AppendLine("## All endpoints");
         builder.AppendLine();
-        builder.AppendLine("| Result | Actor | Method | Endpoint | HTTP | ms |");
-        builder.AppendLine("|---|---|---|---|---:|---:|");
+        builder.AppendLine("| Result | Method | Endpoint | HTTP | ms |");
+        builder.AppendLine("|---|---|---|---:|---:|");
 
         foreach (var result in results)
         {
             builder.AppendLine(
-                $"| {result.Result} | {result.Actor} | {result.Method} | "
-                + $"`{EscapeMarkdown(result.Path)}` | "
+                $"| {result.Result} | {result.Method} | `{EscapeMarkdown(result.Path)}` | "
                 + $"{result.StatusCode?.ToString() ?? string.Empty} | "
                 + $"{result.DurationMilliseconds} |");
         }
@@ -185,63 +146,27 @@ internal static class ReportWriter
             cancellationToken);
     }
 
-    private static async Task WriteFixtureSummaryAsync(
-        SmokeTestFixture fixture,
-        string directory,
-        CancellationToken cancellationToken)
-    {
-        var safe = new
-        {
-            fixture.RunId,
-            fixture.TenantId,
-            fixture.SchoolId,
-            fixture.CampusId,
-            fixture.AcademicSystemId,
-            fixture.AcademicYearId,
-            fixture.GradeLevelId,
-            fixture.ClassSectionId,
-            ProvisioningWarnings = fixture.ProvisioningWarnings.ToArray(),
-            Actors = fixture.Actors.Values
-                .Select(
-                    actor => new
-                    {
-                        actor.Kind,
-                        actor.UserId,
-                        actor.BusinessEntityId,
-                        actor.TenantId,
-                        actor.SchoolId,
-                        actor.BranchId
-                    })
-                .OrderBy(actor => actor.Kind)
-                .ToArray()
-        };
-
-        await File.WriteAllTextAsync(
-            Path.Combine(directory, "fixture-summary.json"),
-            JsonSerializer.Serialize(
-                safe,
-                new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                }),
-            cancellationToken);
-    }
-
     private static int Count(
         IReadOnlyList<SmokeResult> results,
-        SmokeResultKind resultKind) =>
-        results.Count(result => result.Result == resultKind);
+        SmokeResultKind resultKind)
+    {
+        return results.Count(result => result.Result == resultKind);
+    }
 
-    private static string Csv(string value) =>
-        '"' + value.Replace("\"", "\"\"", StringComparison.Ordinal) + '"';
+    private static string Csv(string value)
+    {
+        return '"' + value.Replace("\"", "\"\"", StringComparison.Ordinal) + '"';
+    }
 
-    private static string EscapeMarkdown(string value) =>
-        value.Replace("|", "\\|", StringComparison.Ordinal);
+    private static string EscapeMarkdown(string value)
+    {
+        return value.Replace("|", "\\|", StringComparison.Ordinal);
+    }
 
-    private static string Truncate(
-        string value,
-        int maximumLength) =>
-        value.Length <= maximumLength
+    private static string Truncate(string value, int maximumLength)
+    {
+        return value.Length <= maximumLength
             ? value
             : value[..maximumLength] + "... [truncated]";
+    }
 }

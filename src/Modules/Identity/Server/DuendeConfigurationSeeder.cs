@@ -105,17 +105,56 @@ public sealed class DuendeConfigurationSeeder(
         });
 
         foreach (var resource in identityResources)
-            if (!await dbContext.IdentityResources.AnyAsync(x => x.Name == resource.Name, cancellationToken))
+        {
+            if (!await dbContext.IdentityResources.AnyAsync(
+                    x => x.Name == resource.Name,
+                    cancellationToken))
+            {
                 dbContext.IdentityResources.Add(resource.ToEntity());
+            }
+        }
+
         foreach (var scope in apiScopes)
-            if (!await dbContext.ApiScopes.AnyAsync(x => x.Name == scope.Name, cancellationToken))
+        {
+            if (!await dbContext.ApiScopes.AnyAsync(
+                    x => x.Name == scope.Name,
+                    cancellationToken))
+            {
                 dbContext.ApiScopes.Add(scope.ToEntity());
-        foreach (var resource in apiResources)
-            if (!await dbContext.ApiResources.AnyAsync(x => x.Name == resource.Name, cancellationToken))
-                dbContext.ApiResources.Add(resource.ToEntity());
-        foreach (var client in allClients)
-            if (!await dbContext.Clients.AnyAsync(x => x.ClientId == client.ClientId, cancellationToken))
-                dbContext.Clients.Add(client.ToEntity());
+            }
+        }
+
+        // Development databases often survive many code revisions. Merely adding
+        // missing Duende rows leaves old client grants/scopes and API-resource
+        // associations untouched. That can produce a perfectly successful token
+        // response whose JWT has no smartschool-api audience and is rejected by
+        // SmartSchool.Api with HTTP 401.
+        //
+        // This seeder is invoked by the Identity host only in Development, so the
+        // application-owned clients/resources are deliberately reconciled to the
+        // code definition on every development startup. Unknown/custom clients are
+        // not touched.
+        var managedResourceNames = apiResources
+            .Select(resource => resource.Name)
+            .ToArray();
+
+        await dbContext.ApiResources
+            .Where(entity => managedResourceNames.Contains(entity.Name))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        dbContext.ApiResources.AddRange(
+            apiResources.Select(resource => resource.ToEntity()));
+
+        var managedClientIds = allClients
+            .Select(client => client.ClientId)
+            .ToArray();
+
+        await dbContext.Clients
+            .Where(entity => managedClientIds.Contains(entity.ClientId))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        dbContext.Clients.AddRange(
+            allClients.Select(client => client.ToEntity()));
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }
